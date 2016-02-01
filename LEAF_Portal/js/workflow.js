@@ -1,0 +1,261 @@
+/************************
+    Workflow widget
+    Author: Michael Gao (Michael.Gao@va.gov)
+    Date: Noverber 6, 2014
+*/
+var workflow;
+var workflowModule = new Object();
+var LeafWorkflow = function(containerID, CSRFToken) {
+	var containerID = containerID;
+	var CSRFToken = CSRFToken;
+	var prefixID = 'LeafFlow' + Math.floor(Math.random()*1000) + '_';
+	var htmlFormID = prefixID + 'record';
+	var dialog;
+	var currRecordID = 0;
+	var postModifyCallback;
+	var antiDblClick = 0;
+	var actionSuccessCallback;
+
+	function darkenColor(color) {
+	    bgColor = parseInt(color.substring(1), 16);
+	    r = (bgColor & 0xFF0000) >> 16;
+	    g = (bgColor & 0x00FF00) >> 8;
+	    b = bgColor & 0x0000FF;
+
+	    factor = -0.10;
+	    r = r + Math.round(r * factor);
+	    g = g + Math.round(g * factor);
+	    b = b + Math.round(b * factor);
+	    
+	    return '#' + ((r << 16) + (g << 8) + b).toString(16);
+	}
+
+	function applyAction(data) {
+	    if(antiDblClick == 1) {
+	        return 1;
+	    }
+	    else {
+	        antiDblClick = 1;
+	    }
+
+	    $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Applying action... <img src="images/largespinner.gif" alt="loading..." /></div>');
+	    $.ajax({
+	        type: 'POST',
+	        url: 'api/?a=formWorkflow/' + currRecordID + '/apply',
+	        data: data,
+	        dataType: 'text',
+	        success: function(response) {
+	            if(response.indexOf(currRecordID + 'actionOK') >= 0) {
+	                $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Action applied!</div>');
+	                $("#workflowbox_dep" + data['dependencyID']).hide('blind', 500);
+
+	                getWorkflow(currRecordID);
+	                if(actionSuccessCallback != undefined) {
+	                	actionSuccessCallback();
+	                }
+	            }
+	            else {
+	               $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error applying action, please contact the system administrator.</div>');
+	            }
+	            antiDblClick = 0;
+	        },
+	        error: function(response) {
+	            $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Email notification may not have been sent.</div>');
+	        }
+	    });
+	}
+
+	function drawWorkflow(step) {
+		// draw frame and header
+		var stepDescription = step.description == null ? 'Your workflow is missing a requirement. Please check your workflow.' : step.description;
+
+	    $('#' + containerID).append('<div id="workflowbox_dep'+ step.dependencyID +'" class="workflowbox">\
+                <span>\
+                <div id="stepDescription_dep'+ step.dependencyID +'" style="background-color: ' + darkenColor(step.stepBgColor) + '; padding: 8px">'+ stepDescription +'</div>\
+                </span>\
+                <form id="form_dep'+ step.dependencyID +'" enctype="multipart/form-data" action="#">\
+                    <div id="form_dep_extension'+ step.dependencyID +'"></div>\
+                </form>\
+                </div>');
+    	$('#workflowbox_dep'+ step.dependencyID).css({'padding': '0px', 'background-color': step.stepBgColor, 'border': step.stepBorder});
+    	$('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '120%', 'font-weight': 'bold', 'color': step.stepFontColor});
+
+    	// draw comment area and button anchors
+        $('#form_dep'+ step.dependencyID).append('<div id="form_dep_container'+ step.dependencyID +'">\
+                <span class="noprint">Comments:</span><br />\
+                <textarea id="comment_dep'+ step.dependencyID +'"></textarea>\
+                </div>');   
+		$('#form_dep_container'+ step.dependencyID).css({'margin': 'auto', 'width': '95%', 'padding': '8px'});
+		$('#workflowbox_dep'+ step.dependencyID).append('<br style="clear: both"/>');
+		
+		$('#comment_dep'+ step.dependencyID).css({'height': '40px',
+		                'width': '100%',
+		                'padding': '4px',
+		                'resize': 'vertical'});
+
+		// draw buttons
+		for(var i in step.dependencyActions) {
+			var icon = '';
+			if(step.dependencyActions[i].actionIcon != '') {
+				icon = '<img src="../libs/dynicons/?img='+ step.dependencyActions[i].actionIcon +'&amp;w=22" alt="'+ step.dependencyActions[i].actionText +'" style="vertical-align: middle" />';
+			}
+
+		    $('#form_dep_container'+ step.dependencyID).append('<div id="button_container'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType +'" style="float: '+ step.dependencyActions[i].actionAlignment +'">\
+		            <div id="button_step'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType +'" class="button">\
+		            '+ icon + ' ' + step.dependencyActions[i].actionText +'\
+		            </div>\
+		            </div>');
+		    $('#button_step'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType).css({'border': '1px solid black', 'padding': '6px', 'margin': '4px'});
+
+		    $('#button_step'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType).on('click', { step: step, idx: i },
+		    	function(e) {
+		        var data = new Object();
+		        data['comment'] = $('#comment_dep'+ e.data.step.dependencyID).val();
+		        data['actionType'] = e.data.step.dependencyActions[e.data.idx].actionType;
+		        data['dependencyID'] = e.data.step.dependencyID;
+		        data['CSRFToken'] = CSRFToken;
+
+		        if (e.data.step.dependencyActions[e.data.idx].fillDependency > 0)
+			        if(typeof workflowModule[e.data.step.dependencyID] !== 'undefined') {
+			            workflowModule[e.data.step.dependencyID].trigger(function() {
+			                applyAction(data);
+			            });
+			        }
+			        else {
+			            applyAction(data);
+			        }
+		        else {
+		        	applyAction(data);
+		        }
+		    });
+		}
+		
+		// load jsAssets
+		for(var u in step.jsSrcList) {
+		    $.ajax({
+		        type: 'GET',
+		        url: step.jsSrcList[u],
+		        dataType: 'script',
+		        success: function() {
+		            workflowModule[step.dependencyID].init(currRecordID);
+		        }
+		    });
+		}
+	}
+
+	function drawWorkflowNoAccess(step) {
+	    $('#' + containerID).append('<div id="workflowbox_dep'+ step.dependencyID +'" class="workflowbox"></div>');
+	    $('#workflowbox_dep'+ step.dependencyID).css({'background-color': step.stepBgColor,
+	                                'border': step.stepBorder,
+	                                'text-align': 'center', 'padding': '8px'
+	                               });
+	    // special case for person designated by the requestor
+	    if(step.dependencyID == -1) {
+	    	$.ajax({
+	    		type: 'GET',
+	    		url: 'api/?a=form/customData/_' + recordID + '/_' + step.indicatorID_for_assigned_empUID,
+	    		success: function(res) {
+	    			$('#workflowbox_dep'+ step.dependencyID).append('<span>Waiting for action from '+ res[recordID]['s1']['id' + step.indicatorID_for_assigned_empUID] +'</span>');
+	    			$('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
+	    		}
+	    	});
+	    }
+	    else {
+	    	$('#workflowbox_dep'+ step.dependencyID).append('<span>Pending '+ step.description +'</span>');
+	    	$('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
+	    }
+	}
+
+	function getLastAction(recordID, res) {
+	    $.ajax({
+	        type: 'GET',
+	        url: 'api/?a=formWorkflow/' + recordID + '/lastAction',
+	        dataType: 'json',
+	        success: function(response) {
+	            if(response == null) {
+	                return null;
+	            }
+	    		if(res != null) {
+		            $('#' + containerID).append('<div id="workflowbox_lastAction" class="workflowbox" style="padding: 0px; margin-top: 8px"></div>');
+		            $('#workflowbox_lastAction').css({'background-color': response.stepBgColor, 'border': response.stepBorder});
+		            
+		            var date = new Date(response.time * 1000);
+
+		            var text = '';
+		            if(response.description != null && response.actionText != null) {            
+		                text = '<div style="background-color: ' + darkenColor(response.stepBgColor) + '; padding: 4px"><span style="float: left; font-size: 90%">' + response.description + ': ' + response.actionTextPasttense + '</span>';
+		                text += '<span style="float: right; font-size: 90%">' + date.toLocaleString('en-US', {weekday: "long", year: "numeric", month: "long", day: "numeric"}) + '</span><br /></div>';
+		                if(response.comment != '' && response.comment != null) {
+		                    text += '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px">' + response.comment + '</div></div>';
+		                }                
+		            }
+		            else {
+		                text = "[ Please refer to this request's history for current status ]";
+		            }            
+
+		            $('#workflowbox_lastAction').append('<span style="font-weight: bold; color: '+response.stepFontColor+'">'+text+'</span>');
+	    		}
+	    		else {
+	                $('#workflowcontent').append('<div id="workflowbox_lastAction"></div>');
+	                $('#workflowbox_lastAction').css({'background-color': response.stepBgColor,
+	                                            'border': response.stepBorder,
+	                                            'text-align': 'center', padding: '0px'
+	                                           });
+	                $('#workflowbox_lastAction').addClass('workflowbox');
+	                
+	                var date = new Date(response.time * 1000);
+
+	                var text = '';
+	                if(response.description != null && response.actionText != null) {            
+	                    text = '<div style="padding: 4px; background-color: ' + darkenColor(response.stepBgColor) + '">' + response.description + ': ' + response.actionTextPasttense;
+	                    text += '<br /><span style="font-size: 60%">' + date.toLocaleString('en-US', {weekday: "long", year: "numeric", month: "long", day: "numeric"}) + '</span></div>';
+	                    if(response.comment != '' && response.comment != null) {
+	                        text += '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black"><legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' + response.comment + '</span></fieldset></div>';
+	                    }                
+	                }
+	                else {
+	                    text = "[ Please refer to this request's history for current status ]";
+	                }            
+
+	                $('#workflowbox_lastAction').append('<span style="font-size: 150%; font-weight: bold", color: '+response.stepFontColor+'>'+ text +'</span>');
+	    		}
+	        },
+	        cache: false
+	    });
+	}
+
+	function getWorkflow(recordID) {
+		$('#' + containerID).empty();
+		$('#' + containerID).css('display', 'none');
+		antiDblClick = 0
+		currRecordID = recordID;
+
+        $.ajax({
+        	type: 'GET',
+        	url: 'api/?a=formWorkflow/'+ recordID +'/currentStep',
+        	dataType: 'json',
+        	success: function(res) {
+        		for(var i in res) {
+        			if(res[i].hasAccess == 1) {
+        				drawWorkflow(res[i]);
+        			}
+        			else {
+        				drawWorkflowNoAccess(res[i]);
+        			}
+        		}
+        		getLastAction(recordID, res);
+        		$('#' + containerID).show('blind', 250);
+        	},
+        	cache: false
+        });
+	}
+
+	function setActionSuccessCallback(func) {
+		actionSuccessCallback = func;
+	}
+
+	return {
+		getWorkflow: getWorkflow,
+		setActionSuccessCallback: setActionSuccessCallback
+	}
+};
