@@ -1,10 +1,4 @@
 <?php
-/************************
-    Controller Map
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: April 25, 2012
-
-*/
 
 class ControllerMap
 {

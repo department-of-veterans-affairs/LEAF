@@ -1,10 +1,4 @@
 <?php
-/************************
-    RESTful Controller
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: November 30, 2011
-
-*/
 
 require '../sources/Tag.php';
 

@@ -1,10 +1,4 @@
 <?php
-/************************
-    RESTful Controller
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: November 30, 2011
-
-*/
 
 require '../sources/Employee.php';
 
@@ -29,10 +23,6 @@ class EmployeeController extends RESTfulResponse
             return $this->API_VERSION;
         });
 
-        $this->index['GET']->register('employee', function($args) {
-            return print_r($args, true) . print_r($_GET, true);
-        });
-
         $this->index['GET']->register('employee/[digit]', function($args) use ($employee) {
             return $employee->getSummary($args[0]);
         });
@@ -45,7 +35,7 @@ class EmployeeController extends RESTfulResponse
         	if(isset($_GET['noLimit']) && $_GET['noLimit'] == 1) {
         		$employee->setNoLimit();
         	}
-            return $employee->search($_GET['q']);
+            return $employee->search($_GET['q'], $_GET['indicatorID']);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -81,7 +71,13 @@ class EmployeeController extends RESTfulResponse
         		return $e->getMessage();
         	}
         });
-
+        $this->index['POST']->register('employee/[digit]/activate', function($args) use ($employee) {
+        	try {
+        		return $employee->enableAccount($args[0]);
+        	} catch (Exception $e) {
+        		return $e->getMessage();
+        	}
+        });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
@@ -94,7 +90,15 @@ class EmployeeController extends RESTfulResponse
     	$this->index['DELETE']->register('employee', function($args) {
     		return print_r($args, true) . print_r($_GET, true);
     	});
-    
+
+    	$this->index['DELETE']->register('employee/[digit]', function($args) use ($employee) {
+    		try {
+    			return $employee->disableAccount($args[0]);
+    		} catch (Exception $e) {
+    			return $e->getMessage();
+    		}
+    	});
+
     	$this->index['DELETE']->register('employee/[digit]/backup/[digit]', function($args) use ($employee) {
     		try {
     			return $employee->removeBackup($args[0], $args[1]);

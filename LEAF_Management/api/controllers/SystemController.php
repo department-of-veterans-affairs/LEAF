@@ -1,10 +1,4 @@
 <?php
-/************************
-    RESTful Controller
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: November 30, 2011
-
-*/
 
 require '../sources/System.php';
 
@@ -36,6 +30,22 @@ class SystemController extends RESTfulResponse
             return $this->API_VERSION;
         });
 
+       	$this->index['GET']->register('system/templates', function($args) use ($system) {
+       		return $system->getTemplateList();
+       	});
+        	
+       	$this->index['GET']->register('system/templates/[text]', function($args) use ($system) {
+       		return $system->getTemplate($args[0]);
+       	});
+        	
+       	$this->index['GET']->register('system/reportTemplates', function($args) use ($system) {
+       		return $system->getReportTemplateList();
+        });
+        				 
+        $this->index['GET']->register('system/reportTemplates/[text]', function($args) use ($system) {
+        	return $system->getReportTemplate($args[0]);
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
@@ -49,6 +59,18 @@ class SystemController extends RESTfulResponse
         $this->index['POST']->register('system', function($args) {
         });
 
+        $this->index['POST']->register('system/templates/[text]', function($args) use ($system) {
+        	return $system->setTemplate($args[0]);
+       	});
+        	
+       	$this->index['POST']->register('system/reportTemplates', function($args) use ($system) {
+       		return $system->newReportTemplate($_POST['filename']);
+       	});
+        	
+       	$this->index['POST']->register('system/reportTemplates/[text]', function($args) use ($system) {
+       		return $system->setReportTemplate($args[0]);
+      	});
+
        	$this->index['POST']->register('system/settings/heading', function($args) use ($system) {
        		return $system->setHeading($_POST['heading']);
        	});
@@ -58,5 +80,26 @@ class SystemController extends RESTfulResponse
        	});
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
+    }
+
+    public function delete($act)
+    {
+    	$db = $this->db;
+    	$login = $this->login;
+    	$system = $this->system;
+    	 
+    	$this->index['DELETE'] = new ControllerMap();
+    	$this->index['DELETE']->register('system', function($args) {
+    	});
+    		 
+    	$this->index['DELETE']->register('system/templates/[text]', function($args) use ($db, $login, $system) {
+    		return $system->removeCustomTemplate($args[0]);
+    	});
+    
+    	$this->index['DELETE']->register('system/reportTemplates/[text]', function($args) use ($db, $login, $system) {
+    		return $system->removeReportTemplate($args[0]);
+    	});
+    
+    	return $this->index['DELETE']->runControl($act['key'], $act['args']);
     }
 }
