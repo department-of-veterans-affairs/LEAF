@@ -1,10 +1,5 @@
 <?php
-/************************
-    Generic database access for MySQL databases
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: September 4, 2007
 
-*/
 class DB {
     private $db;                        // The database object
     private $dbHost;
@@ -26,7 +21,7 @@ class DB {
             $this->db = new PDO("mysql:host={$this->dbHost};dbname={$this->dbName}",
                             $this->dbUser, $pass, array());
         } catch (PDOException $e) {
-            echo '<div style="background-color: white; line-height: 200%; position: absolute; top: 50%; height: 200px; width: 750px; margin-top: -100px; left: 20%; font-size: 200%"><img src="../libs/dynicons/?img=edit-clear.svg&w=96" alt="Server Maintenance" style="float: left" /> The server is currently undergoing maintenance.<br />Please try again in 15 minutes.</div>';
+            echo '<div style="background-color: white; line-height: 200%; position: absolute; top: 50%; height: 200px; width: 750px; margin-top: -100px; left: 20%; font-size: 200%"><img src="../libs/dynicons/?img=edit-clear.svg&w=96" alt="Server Maintenance" style="float: left" /> Database connection error.<br />Please try again in 15 minutes.</div>';
             echo '<!-- Database Error: ' . $e->getMessage() . ' -->';
             exit();
         }
@@ -166,15 +161,26 @@ class DB {
      * Returns an associative array
      * @param string $sql
      * @param string $key - Name of the column in the table
-     * @param string $value - Name of the column in the table
+     * @param mixed $value - Name of the column in the table as a string, or list of columns in an array
+     * @param array $vars - parameratized variables
      */
-    public function query_kv($sql, $key, $value) {
+    public function query_kv($sql, $key, $value, $vars = []) {
     	$out = [];
-    	$res = $this->query($sql);
+    	$res = $this->prepared_query($sql, $vars);
 
-    	foreach($res as $result) {
-    		$out[$result[$key]] = $result[$value];
+    	if(!is_array($value)) {
+    		foreach($res as $result) {
+    			$out[$result[$key]] = $result[$value];
+    		}
     	}
+    	else {
+    		foreach($res as $result) {
+    			foreach($value as $column) {
+    				$out[$result[$key]][$column] = $result[$column];
+    			}
+    		}
+    	}
+
     	return $out;
     }
 

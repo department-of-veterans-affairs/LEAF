@@ -1,7 +1,5 @@
 /************************
     Form Search Widget
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: January 15, 2015
 */
 
 var LeafFormSearch = function(containerID) {
@@ -18,15 +16,21 @@ var LeafFormSearch = function(containerID) {
 	var leafFormQuery = new LeafFormQuery();
 	var widgetCounter = 0;
 	var interval_advSearch = null;
+	var rootURL = '';
+
+	// constants
+	var ALL_DATA_FIELDS = '0';
+	var ALL_OC_EMPLOYEE_DATA_FIELDS = '0.0';
 	
-	$('#' + containerID).html('<div>\
-			    <img id="'+prefixID+'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="../libs/dynicons/?img=search.svg&w=16">\
-			    <img id="'+prefixID+'searchIconBusy" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display:none" src="images/indicator.gif">\
+	function renderUI() {
+		$('#' + containerID).html('<div>\
+			    <img id="'+prefixID+'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="'+ rootURL +'../libs/dynicons/?img=search.svg&w=16">\
+			    <img id="'+prefixID+'searchIconBusy" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display:none" src="'+ rootURL +'images/indicator.gif">\
 			    <input style="border: 1px solid black; padding: 4px" type="text" id="'+prefixID+'searchtxt" name="searchtxt" size="50" title="Enter your search text" value="" />\
 			    <span class="buttonNorm" id="'+prefixID+'advancedSearchButton">Advanced Options</span>\
 			    <fieldset id="'+prefixID+'advancedOptions" style="display: none; margin: 0px; border: 1px solid black; background-color: white">\
 		        <legend>Advanced Search Options</legend>\
-		        <img id="'+prefixID+'advancedOptionsClose" src="../libs/dynicons/?img=process-stop.svg&w=16" style="position: absolute; display: none; cursor: pointer" alt="Close advanced search" />\
+		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" style="position: absolute; display: none; cursor: pointer" alt="Close advanced search" />\
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="'+prefixID+'searchTerms"></table>\
 		        <span class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</span>\
@@ -37,59 +41,63 @@ var LeafFormSearch = function(containerID) {
 		    <div id="'+prefixID+'_result" style="margin-top: 8px">\
 		    </div>');
 
-    var searchOrigWidth = 0;
-    $('#' + prefixID + 'advancedOptionsClose').on('click', function() {
-    	clearInterval(interval_advSearch);
-    	localStorage.setItem(localStorageNamespace + '.search', '');
-    	$('#' + prefixID + 'searchtxt').val('');
-    	$('#' + prefixID + 'advancedOptionsClose').css('display', 'none');
-        $('#' + prefixID + 'advancedOptions').slideUp(function() {
-        	$('#' + prefixID + 'advancedSearchButton').fadeIn();
-        	$('#' + prefixID + 'searchtxt').css('display', 'inline');
-            $('#' + prefixID + 'searchtxt').animate({'width': searchOrigWidth}, 400, 'swing');
-            $('#' + prefixID + 'searchtxt').focus();
-        });
-    });
-
-    $('#' + prefixID + 'advancedSearchButton').on('click', function() {
-    	searchOrigWidth = $('#' + prefixID + 'searchtxt').width();
-    	$('#' + prefixID + 'advancedSearchButton').fadeOut();
-    	$('#' + prefixID + 'searchtxt').animate({'width': '0px'}, 400, 'swing', function() {
-    		$('#' + prefixID + 'searchtxt').css('display', 'none');
-        	$('#' + prefixID + 'advancedOptions').slideDown(function() {
-                updateCloseIconPosition();
-                $('#' + prefixID + 'advancedOptionsClose').fadeIn();
-                interval_advSearch = setInterval(function() { updateCloseIconPosition(); }, 500);
-        	});
-            $('#' + prefixID + 'advancedOptions').css('display', 'inline');
-            $('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
-            renderPreviousAdvancedSearch();
-    	});
-    });
-
-    $('#' + prefixID + 'advancedSearchApply').on('click', function() {
-    	showBusy();
-    	generateSearchQuery();
-    });
-    $('#' + prefixID + 'addTerm').on('click', function() {
-    	newSearchWidget();
-    	$('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
-    });
-
-	$('#' + prefixID+ 'searchtxt').on('keydown', function(e) {
-		showBusy();
-		timer = 0;
-		if(e.keyCode == 13) { // enter key
-			search($('#' + prefixID+ 'searchtxt').val());
-		}
-	});
-
-	newSearchWidget();
+	    var searchOrigWidth = 0;
+	    $('#' + prefixID + 'advancedOptionsClose').on('click', function() {
+	    	clearInterval(interval_advSearch);
+	    	localStorage.setItem(localStorageNamespace + '.search', '');
+	    	$('#' + prefixID + 'searchtxt').val('');
+	    	search('');
+	    	$('#' + prefixID + 'advancedOptionsClose').css('display', 'none');
+	        $('#' + prefixID + 'advancedOptions').slideUp(function() {
+	        	$('#' + prefixID + 'advancedSearchButton').fadeIn();
+	        	$('#' + prefixID + 'searchtxt').css('display', 'inline');
+	            $('#' + prefixID + 'searchtxt').animate({'width': searchOrigWidth}, 400, 'swing');
+	            $('#' + prefixID + 'searchtxt').focus();
+	        });
+	    });
+	
+	    $('#' + prefixID + 'advancedSearchButton').on('click', function() {
+	    	searchOrigWidth = $('#' + prefixID + 'searchtxt').width();
+	    	$('#' + prefixID + 'advancedSearchButton').fadeOut();
+	    	$('#' + prefixID + 'searchtxt').animate({'width': '0px'}, 400, 'swing', function() {
+	    		$('#' + prefixID + 'searchtxt').css('display', 'none');
+	        	$('#' + prefixID + 'advancedOptions').slideDown(function() {
+	                updateCloseIconPosition();
+	                $('#' + prefixID + 'advancedOptionsClose').fadeIn();
+	                interval_advSearch = setInterval(function() { updateCloseIconPosition(); }, 500);
+	        	});
+	            $('#' + prefixID + 'advancedOptions').css('display', 'inline');
+	            $('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
+	            renderPreviousAdvancedSearch();
+	    	});
+	    });
+	
+	    $('#' + prefixID + 'advancedSearchApply').on('click', function() {
+	    	showBusy();
+	    	generateSearchQuery();
+	    });
+	    $('#' + prefixID + 'addTerm').on('click', function() {
+	    	newSearchWidget();
+	    	$('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
+	    });
+	
+		$('#' + prefixID+ 'searchtxt').on('keydown', function(e) {
+			showBusy();
+			timer = 0;
+			if(e.keyCode == 13) { // enter key
+				search($('#' + prefixID+ 'searchtxt').val());
+			}
+		});
+	
+		newSearchWidget();
+	}
 
 	/**
 	 * @memberOf LeafFormSearch
 	 */
 	function init() {
+		renderUI();
+
 		intervalID = setInterval(function(){inputLoop();}, 200);
 		if(!(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
 			focus();
@@ -170,7 +178,9 @@ var LeafFormSearch = function(containerID) {
             		renderWidget(i);
         		}
         		$('#' + prefixID + 'widgetCod_' + i).val(advSearch[i].operator);
-        		$('#' + prefixID + 'widgetMat_' + i).val(advSearch[i].match.replace(/\*/g, ''));
+        		if(typeof advSearch[i].match == 'string') {
+        			$('#' + prefixID + 'widgetMat_' + i).val(advSearch[i].match.replace(/\*/g, ''));
+        		}
         	}
         }
 	}
@@ -310,13 +320,13 @@ var LeafFormSearch = function(containerID) {
                     empSel.setSelectHandler(function() {
                     	if(empSel.selectionData[empSel.selection] != undefined) {
                     		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-                    		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);                            		
+                    		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
                     	}
                     });
                     empSel.setResultHandler(function() {
                     	if(empSel.selectionData[empSel.selection] != undefined) {
                     		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-                    		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);                            		
+                    		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
                     	}
                     });
                     empSel.initialize();
@@ -332,13 +342,13 @@ var LeafFormSearch = function(containerID) {
             empSel.setSelectHandler(function() {
             	if(empSel.selectionData[empSel.selection] != undefined) {
             		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-            		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);                            		
+            		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
             	}
             });
             empSel.setResultHandler(function() {
             	if(empSel.selectionData[empSel.selection] != undefined) {
             		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-            		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);                            		
+            		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
             	}
             });
             empSel.initialize();
@@ -431,7 +441,12 @@ var LeafFormSearch = function(containerID) {
 	function renderWidget(widgetID, callback) {
 		switch($('#' + prefixID + 'widgetTerm_' + widgetID).val()) {
 			case 'title':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="LIKE" /> CONTAINS');
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 120px">\
+						<option value="LIKE">CONTAINS</option>\
+						<option value="NOT LIKE">DOES NOT CONTAIN</option>\
+	            		<option value="=">=</option>\
+						<option value="!=">!=</option>\
+	            	</select>');
 				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 250px" />');
 				break;
 			case 'serviceID':
@@ -471,10 +486,13 @@ var LeafFormSearch = function(containerID) {
 				}
 				break;
 			case 'categoryID':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="RIGHT JOIN" /> IS');
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen">\
+	            		<option value="=">IS</option>\
+	            		<option value="!=">IS NOT</option>\
+	            	</select>');
 				$.ajax({
 					type: 'GET',
-					url: './api/?a=workflow/categories',
+					url: './api/?a=workflow/categoriesUnabridged',
 					dataType: 'json',
 					success: function(res) {
 						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
@@ -512,8 +530,7 @@ var LeafFormSearch = function(containerID) {
 						var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
 						options += '<option value="1">Signed</option>';
 						options += '<option value="0">Pending Signature</option>';
-						options += '<option value="-1">Disapproved</option>';
-						options += '<option value="-2">Deferred</option>';
+						options += '<option value="-1">Returned to a previous step</option>';
 						options += '</select>';
 						$('#' + prefixID + 'widgetMatch_' + widgetID).html(options);
 
@@ -535,7 +552,7 @@ var LeafFormSearch = function(containerID) {
 						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
 						categories += '<option value="submitted">Submitted</option>';
 						categories += '<option value="notSubmitted">Not Submitted</option>';
-//						categories += '<option value="deleted">Cancelled</option>';
+						//categories += '<option value="deleted">Cancelled</option>';
 						categories += '<option value="notDeleted">Not Cancelled</option>';
 						for(var i in res) {
 							categories += '<option value="'+ res[i].stepID +'">'+ res[i].description + ': ' + res[i].stepTitle +'</option>';
@@ -556,6 +573,8 @@ var LeafFormSearch = function(containerID) {
 					dataType: 'json',
 					success: function(res) {
 						var indicators = '<select id="'+prefixID+'widgetIndicator_'+widgetID+'" class="chosen" style="width: 250px">';
+						indicators += '<option value="'+ ALL_DATA_FIELDS +'">Any standard data field</option>';
+						indicators += '<option value="'+ ALL_OC_EMPLOYEE_DATA_FIELDS +'">Any Org. Chart employee field</option>';
 						for(var i in res) {
 							indicators += '<option value="'+ res[i].indicatorID +'">' + res[i].categoryName + ': '+ res[i].name +'</option>';
 						}
@@ -565,6 +584,24 @@ var LeafFormSearch = function(containerID) {
 						$('#' + prefixID + 'widgetIndicator_' + widgetID).css('float', 'right');
 						$('#' + prefixID + 'widgetIndicator_' + widgetID).on('change chosen:updated', function() {
 							iID = $('#' + prefixID + 'widgetIndicator_' + widgetID).val();
+
+							// set default conditions for "any data field"
+							if(iID == ALL_DATA_FIELDS) {
+								$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 120px">\
+										<option value="LIKE">CONTAINS</option>\
+										<option value="NOT LIKE">DOES NOT CONTAIN</option>\
+					            		<option value="=">=</option>\
+										<option value="!=">!=</option>\
+					            	</select>');
+								$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+								$('.chosen').chosen({disable_search_threshold: 6});
+							}
+							else if(iID == ALL_OC_EMPLOYEE_DATA_FIELDS) { // set conditions for orgchart employee fields
+								$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+								$('#' + prefixID + 'widgetMatch_' + widgetID).html('<div id="'+prefixID+'widgetEmp_'+widgetID+'" style="width: 280px"></div><input type="hidden" id="'+prefixID+'widgetMat_'+widgetID+'" />');
+								createEmployeeSelectorWidget(widgetID, 'empUID');
+							}
+							
 							for(var i in res) {
 								if(res[i].indicatorID == iID) {
 									var format = '';
@@ -636,7 +673,9 @@ var LeafFormSearch = function(containerID) {
 										default:
 											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 120px">\
 													<option value="LIKE">CONTAINS</option>\
+													<option value="NOT LIKE">DOES NOT CONTAIN</option>\
 								            		<option value="=">=</option>\
+													<option value="!=">!=</option>\
 								            	</select>');
 											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
 											$('.chosen').chosen({disable_search_threshold: 6});
@@ -671,14 +710,14 @@ var LeafFormSearch = function(containerID) {
 	 */
 	function newSearchWidget() {
 		var widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'">\
-						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><img src="../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" /></td>\
+						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" /></td>\
 						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
             				<option value="date">Date Initiated</option>\
             				<option value="categoryID">Type</option>\
             				<option value="userID">Initiator</option>\
-            				<option value="dependencyID">Signature</option>\
+            				<option value="dependencyID">Requirement</option>\
             				<option value="stepID">Current Status</option>\
             				<option value="data">Data Field</option>\
             				</select></td>\
@@ -739,6 +778,7 @@ var LeafFormSearch = function(containerID) {
 
 	return {
 		init: init,
+		renderUI: renderUI,
 		setOrgchartPath: setOrgchartPath, 
 		focus: focus,
 		getPrefixID: function() { return prefixID; },
@@ -753,6 +793,7 @@ var LeafFormSearch = function(containerID) {
 		setSearchFunc: setSearchFunc,
 		search: search,
 		showBusy: showBusy,
-		showNotBusy: showNotBusy
+		showNotBusy: showNotBusy,
+		setRootURL: function(url) { rootURL = url; }
 	}
 };

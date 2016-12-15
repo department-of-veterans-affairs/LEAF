@@ -1,7 +1,5 @@
 /************************
     Form editor
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: Noverber 4, 2014
 */
 var form;
 var formValidator = {};

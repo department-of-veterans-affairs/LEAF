@@ -1,7 +1,5 @@
 /************************
     Dialog Controller
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: January 25, 2012
 
 */
 
@@ -141,6 +139,20 @@ dialogController.prototype.setSaveHandler = function(funct) {
     });
 };
 
+dialogController.prototype.setCancelHandler = function(funct) {
+	$('#' + this.containerID).off('dialogbeforeclose');
+	var t = this;
+    $('#' + this.containerID).on('dialogbeforeclose', function() {
+        if(t.isValid() == 1 && t.isComplete() == 1) {        	
+        	funct();
+        	$('#' + this.containerID).off('dialogbeforeclose');
+        }
+        else {
+        	t.indicateIdle();
+        }
+    });
+};
+
 dialogController.prototype.setJqueryButtons = function(buttons) {
 	$('#' + this.containerID).dialog('option', 'buttons', buttons);
 };
@@ -169,7 +181,6 @@ dialogController.prototype.setValidatorOk = function(id, func) {
 	this.validatorOks[id] = func;
 };
 
-//
 dialogController.prototype.setRequired = function(id, func) {
 	this.requirements[id] = func;
 };

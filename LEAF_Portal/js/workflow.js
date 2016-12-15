@@ -1,7 +1,5 @@
 /************************
     Workflow widget
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: Noverber 6, 2014
 */
 var workflow;
 var workflowModule = new Object();
@@ -16,6 +14,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	var antiDblClick = 0;
 	var actionSuccessCallback;
 
+    /**
+     * @memberOf LeafWorkflow
+     */
 	function darkenColor(color) {
 	    bgColor = parseInt(color.substring(1), 16);
 	    r = (bgColor & 0xFF0000) >> 16;
@@ -30,6 +31,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	    return '#' + ((r << 16) + (g << 8) + b).toString(16);
 	}
 
+    /**
+     * @memberOf LeafWorkflow
+     */
 	function applyAction(data) {
 	    if(antiDblClick == 1) {
 	        return 1;
@@ -65,6 +69,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	    });
 	}
 
+    /**
+     * @memberOf LeafWorkflow
+     */
 	function drawWorkflow(step) {
 		// draw frame and header
 		var stepDescription = step.description == null ? 'Your workflow is missing a requirement. Please check your workflow.' : step.description;
@@ -143,13 +150,16 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		}
 	}
 
+    /**
+     * @memberOf LeafWorkflow
+     */
 	function drawWorkflowNoAccess(step) {
 	    $('#' + containerID).append('<div id="workflowbox_dep'+ step.dependencyID +'" class="workflowbox"></div>');
 	    $('#workflowbox_dep'+ step.dependencyID).css({'background-color': step.stepBgColor,
 	                                'border': step.stepBorder,
 	                                'text-align': 'center', 'padding': '8px'
 	                               });
-	    // special case for person designated by the requestor
+	    // dependencyID -1 : special case for person designated by the requestor
 	    if(step.dependencyID == -1) {
 	    	$.ajax({
 	    		type: 'GET',
@@ -166,6 +176,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	    }
 	}
 
+    /**
+     * @memberOf LeafWorkflow
+     */
 	function getLastAction(recordID, res) {
 	    $.ajax({
 	        type: 'GET',
@@ -224,6 +237,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	    });
 	}
 
+    /**
+     * @memberOf LeafWorkflow
+     */
 	function getWorkflow(recordID) {
 		$('#' + containerID).empty();
 		$('#' + containerID).css('display', 'none');
@@ -250,6 +266,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         });
 	}
 
+    /**
+     * @memberOf LeafWorkflow
+     */
 	function setActionSuccessCallback(func) {
 		actionSuccessCallback = func;
 	}
