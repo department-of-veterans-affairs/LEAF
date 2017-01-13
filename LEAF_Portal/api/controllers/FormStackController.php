@@ -1,0 +1,72 @@
+<?php
+
+require '../sources/FormStack.php';
+
+class FormStackController extends RESTfulResponse
+{
+    private $API_VERSION = 1;    // Integer
+    public $index = array();
+
+    private $formStack;
+    private $login;
+
+    function __construct($db, $login)
+    {
+        $this->formStack = new FormStack($db, $login);
+        $this->login = $login;
+    }
+
+    public function get($act)
+    {
+        $formStack = $this->formStack;
+
+        $this->index['GET'] = new ControllerMap();
+        $cm = $this->index['GET'];
+        $this->index['GET']->register('formStack/version', function() {
+            return $this->API_VERSION;
+        });
+
+        $this->index['GET']->register('formStack', function($args) use ($formStack) {
+
+        });
+
+        $this->index['GET']->register('formStack/categoryList/all', function($args) use ($formStack) {
+        	return $formStack->getAllCategories();
+        });
+
+        return $this->index['GET']->runControl($act['key'], $act['args']);
+    }
+
+    public function post($act)
+    {
+        $formStack = $this->formStack;
+        $login = $this->login;
+
+        $this->index['POST'] = new ControllerMap();
+        $this->index['POST']->register('formStack', function($args) {
+
+        });
+        
+        $this->index['POST']->register('formStack/import', function($args) use ($formStack) {
+        	$formStack->import();
+        });
+
+        return $this->index['POST']->runControl($act['key'], $act['args']);
+    }
+
+    public function delete($act)
+    {
+    	$formStack = $this->formStack;
+    
+    	$this->index['DELETE'] = new ControllerMap();
+    	$this->index['DELETE']->register('workflow', function($args) {
+    	});
+    		 
+    	$this->index['DELETE']->register('formStack/[text]', function($args) use ($formStack) {
+    		return $formStack->deleteForm($args[0]);
+    	});
+    
+    	return $this->index['DELETE']->runControl($act['key'], $act['args']);
+    }
+}
+

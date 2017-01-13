@@ -1,4 +1,8 @@
 <?php
+/************************
+	db_mysql is a convienience layer
+	Date Created: September 4, 2007
+ */
 
 class DB {
     private $db;                        // The database object
