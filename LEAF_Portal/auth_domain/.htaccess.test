@@ -1,0 +1,3 @@
+AuthType Basic
+AuthUserFile ./test_logins.txt
+Require valid-user

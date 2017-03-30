@@ -170,6 +170,16 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	    		}
 	    	});
 	    }
+	    else if(step.dependencyID == -3) { // dependencyID -3 : special case for group designated by the requestor
+	    	$.ajax({
+	    		type: 'GET',
+	    		url: 'api/?a=form/customData/_' + recordID + '/_' + step.indicatorID_for_assigned_groupID,
+	    		success: function(res) {
+	    			$('#workflowbox_dep'+ step.dependencyID).append('<span>Waiting for action from '+ res[recordID]['s1']['id' + step.indicatorID_for_assigned_groupID] +'</span>');
+	    			$('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
+	    		}
+	    	});
+	    }
 	    else {
 	    	$('#workflowbox_dep'+ step.dependencyID).append('<span>Pending '+ step.description +'</span>');
 	    	$('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});

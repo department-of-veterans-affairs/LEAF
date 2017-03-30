@@ -89,9 +89,21 @@ class FormController extends RESTfulResponse
 		$this->index['GET']->register('form/indicator/list', function($args) use ($form) {
 			return $form->getIndicatorList();
 		});
+		
+		$this->index['GET']->register('form/indicator/list/disabled', function($args) use ($form) {
+			return $form->getDisabledIndicatorList(1);
+		});
 
 		$this->index['GET']->register('form/[text]', function($args) use ($form) {
 			return $form->getFormByCategory($args[0]);
+		});
+
+		$this->index['GET']->register('form/[text]/flat', function($args) use ($form) {
+			$out = [];
+			$data = $form->getFormByCategory($args[0]);
+			$form->flattenFullFormData($data, $out);
+			ksort($out);
+			return $out;
 		});
 
 		$this->index['GET']->register('form/[text]/export', function($args) use ($form) {

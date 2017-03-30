@@ -2,7 +2,7 @@ var LeafPreview = function(domID) {
     var numSection = 1;
     var rawForm = {};
 
-    $(domID).html('');
+    $('#' + domID).html('');
 
     function renderField(field, isChild) {
         var required = field.required == 1 ? '<span style="color: red">* Required</span>': '';
@@ -70,15 +70,15 @@ var LeafPreview = function(domID) {
 
     function renderSection(field) {
         var temp = renderField(field);
-        var out = 'Section '+ numSection +'<div class="card" style="padding: 16px">'+ temp +'</div><br />';
+        var out = '<div style="font-size: 120%; padding: 4px; background-color: black; color: white">Section '+ numSection +'</div><div class="card" style="padding: 16px">'+ temp +'</div><br />';
         numSection++;
         return out;
     }
 
-    function load(recordID, indicatorID, fileID) {
+    function load(recordID, indicatorID, fileID, callback) {
     	$.ajax({
         	type: 'GET',
-            url: 'https://vhav05webrm.v05.med.va.gov/LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
+            url: 'https://LEAF_NEXUS_URL/LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
             dataType: 'json',
             xhrFields: {withCredentials: true},
             success: function(res) {
@@ -87,7 +87,10 @@ var LeafPreview = function(domID) {
                 numSection = 1
             	for(var i in form) {
     				var field = renderSection(form[i]);
-                    $(domID).append(field);
+                    $('#' + domID).append(field);
+                }
+                if(callback != undefined) {
+                	callback();
                 }
             }
         });

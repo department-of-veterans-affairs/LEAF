@@ -1,0 +1,14 @@
+<div class="positionSmall" onclick="selectPosition(<!--{$positionData['positionID']}-->)">
+    <img class="positionPhoto" id="pPhoto_<!--{$positionData['positionID']}-->" src="../libs/dynicons/?img=gnome-stock-person.svg&amp;w=64" alt="photo" title="photo" />
+    <div class="positionSmall_title" title="<!--{$positionData['positionID']}-->">
+        <b><!--{$positionData['positionTitle']}--></b>
+        <!--{if $positionData['empUID'] > 0}-->
+            <br /><i><!--{$positionData['firstName']}--> <!--{$positionData['lastName']}--></i>
+        <!--{else}-->
+            <br /><i>VACANT POSITION</i>
+        <!--{/if}-->
+    </div>
+    <div class="positionSmall_data" id="pData_<!--{$positionData['positionID']}-->">
+        <!--{$positionData['numberFTE']}--> FTE
+    </div>
+</div>

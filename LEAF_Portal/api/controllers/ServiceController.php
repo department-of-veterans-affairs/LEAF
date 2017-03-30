@@ -51,6 +51,8 @@ class ServiceController extends RESTfulResponse
         $login = $this->login;
         $service = $this->service;
 
+        $this->verifyAdminReferrer();
+
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('service', function($args) use ($db, $login, $service) {
         	return $service->addService($_POST['service'], $_POST['groupID']);
@@ -70,7 +72,9 @@ class ServiceController extends RESTfulResponse
     	$db = $this->db;
     	$login = $this->login;
     	$service = $this->service;
-    	
+
+    	$this->verifyAdminReferrer();
+
     	$this->index['DELETE'] = new ControllerMap();
     	$this->index['DELETE']->register('service', function($args) {
     	});

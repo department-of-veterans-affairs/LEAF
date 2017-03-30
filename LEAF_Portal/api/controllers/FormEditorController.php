@@ -54,6 +54,8 @@ class FormEditorController extends RESTfulResponse
         $formEditor = $this->formEditor;
         $login = $this->login;
 
+        $this->verifyAdminReferrer();
+
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('formEditor', function($args) {
 
@@ -157,7 +159,9 @@ class FormEditorController extends RESTfulResponse
     {
     	$formEditor = $this->formEditor;
     	$login = $this->login;
-    
+
+    	$this->verifyAdminReferrer();
+
     	$this->index['DELETE'] = new ControllerMap();
     	$this->index['DELETE']->register('formEditor', function($args) {
     

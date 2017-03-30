@@ -40,7 +40,7 @@ var LeafFormQuery = function() {
     /**
      * Add a new search term for data table
      * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
-     * @param indicatorID - indicatorID / dependencyID
+     * @param indicatorID - indicatorID / dependencyID / "0" to search all indicators
      * @param operator - SQL comparison operator
      * @param match - search term to match on
      * @memberOf LeafFormQuery
@@ -143,10 +143,34 @@ var LeafFormQuery = function() {
      */
     function updateTerm(id, operator, match) {
     	for(var i in query.terms) {
-    		if(query.terms[i].id == id && query.terms[i].id == operator) {
+    		if(query.terms[i].id == id
+    				&& query.terms[i].operator == operator) {
     			query.terms[i].match = match
+    			return;
     		}
     	}
+    	addTerm(id, operator, match);
+    }
+
+    /**
+     * Update an existing data search term
+     * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
+     * @param indicatorID - indicatorID / dependencyID
+     * @param operator - SQL comparison operator
+     * @param match - search term to match on
+     * @memberOf LeafFormQuery
+     */
+    function updateDataTerm(id, indicatorID, operator, match) {
+    	var found = 0;
+    	for(var i in query.terms) {
+    		if(query.terms[i].id == id
+    				&& query.terms[i].indicatorID == indicatorID
+    				&& query.terms[i].operator == operator) {
+    			query.terms[i].match = match
+    			return;
+    		}
+    	}
+    	addDataTerm(id, indicatorID, operator, match);
     }
 
     /**
@@ -195,6 +219,8 @@ var LeafFormQuery = function() {
 		importQuery: importQuery,
 		getQuery: function() { return query; },
 		getData: getData,
+		updateTerm: updateTerm,
+		updateDataTerm: updateDataTerm,
 		setQuery: function(inc) { query = inc; },
 		setLimit: setLimit,
 		setLimitOffset: setLimitOffset,

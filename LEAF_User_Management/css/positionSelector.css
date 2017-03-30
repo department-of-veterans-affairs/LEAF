@@ -1,0 +1,90 @@
+.positionSelectorBorder {
+    border: 1px solid black;
+    background-color: white;
+    padding: 4px;
+    margin-bottom: 8px;
+    width: 99%;
+}
+
+.positionSelectorInput {
+    position: relative;
+    border: 0px;
+    font-size: 140%;
+    padding: 0px 0px 0px 4px;
+    width: 90%;
+}
+
+.positionSelectorIcon {
+    position: relative;
+    padding: 3px;
+}
+
+.positionSelector {
+    width: 99%;
+    font-size: 14px;
+    background-color: #e8f2ff;
+    border: 1px solid black;
+    padding: 2px;
+    cursor: pointer;
+}
+
+.positionSelector:hover {
+    background-color: #fffdcc;
+    color: black;
+}
+
+.positionSelected {
+    width: 99%;
+    font-size: 14px;
+    background-color: #2372b0;
+    color: white;
+    border: 1px solid black;
+    padding: 2px;
+    cursor: pointer;
+}
+
+table.positionSelectorTable {
+    width: 100%;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.positionSelectorTable th {
+    background-color: #ececec;
+    text-align: center;
+    color: #888888;
+    font-size: 80%
+}
+
+.positionSelectorTable td {
+    border: 1px solid black;
+    padding: 8px;
+}
+
+.positionSelectorName {
+    font-weight: bold;
+}
+
+.positionSelectorPhoto {
+    float: right;
+    max-width: 48px;
+    max-height: 48px;
+}
+
+.positionSelectorTitle {
+    font-weight: bold;
+}
+
+.positionSelectorIncumbents {
+    text-align: center;
+    font-size: 70%;
+}
+
+.positionSelectorService {
+    font-size: 75%;
+    font-weight: normal;
+}
+
+.positionSelectorContact {
+    font-size: 75%;
+}

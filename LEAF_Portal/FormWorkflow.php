@@ -1,0 +1,948 @@
+<?php
+/************************
+    Form Workflow
+    Date Created: May 25, 2011
+
+*/
+
+class FormWorkflow
+{
+    private $db;
+    private $login;
+    private $recordID;
+    // workflow actions are triggered from ./api/ except on submit
+    private $eventFolder = '../scripts/events/';
+    public $siteRoot = '';
+
+    function __construct($db, $login, $recordID)
+    {
+        $this->db = $db;
+        $this->login = $login;
+        $this->recordID = is_numeric($recordID) ? $recordID : 0;
+        
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+        $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
+        $apiEntry = strpos($this->siteRoot, '/api/');
+        if($apiEntry !== false) {
+        	$this->siteRoot = substr($this->siteRoot, 0, $apiEntry + 1);
+        }
+    }
+
+    public function initRecordID($recordID)
+    {
+    	$this->recordID = is_numeric($recordID) ? $recordID : 0;
+    }
+
+    /**
+     * Checks if the current record has an active workflow
+     * @return bool
+     */
+    public function isActive()
+    {
+        $vars = array(':recordID' => $this->recordID);
+        $res = $this->db->prepared_query("SELECT * FROM records_workflow_state
+        									WHERE recordID=:recordID", $vars);
+        
+        return isset($res[0]);
+    }
+    
+    /**
+     * Retrieves current steps of a form's workflow, controls access to steps
+     * @return array database result
+     * @return null if no database result
+     */
+    public function getCurrentSteps()
+    {
+    	// check privileges
+    	require_once 'form.php';
+    	$form = new Form($this->db, $this->login);
+    	if(!$form->hasReadAccess($this->recordID)) {
+    		return 0;
+    	}
+    	
+        $steps = array();
+        $vars = array(':recordID' => $this->recordID);
+        $res = $this->db->prepared_query("SELECT dependencyID, recordID, stepID, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID FROM records_workflow_state
+        									LEFT JOIN records USING (recordID)
+        									LEFT JOIN workflow_steps USING (stepID)
+        									LEFT JOIN step_dependencies USING (stepID)
+        									LEFT JOIN dependencies USING (dependencyID)
+        									LEFT JOIN records_dependencies USING (recordID, dependencyID)
+        									WHERE recordID=:recordID
+        										AND (filled=0 OR filled IS NULL)", $vars);
+
+        $numRes = count($res);
+        if ($numRes > 0) {
+            for($i = 0; $i < $numRes; $i++) {
+                $res[$i]['dependencyActions'] = $this->getDependencyActions($res[$i]['workflowID'], $res[$i]['stepID']);
+                // override access if user is in the admin group
+                $res[$i]['hasAccess'] = $this->login->checkGroup(1); // initialize hasAccess 
+
+                // check permissions
+                $vars = array(':dependencyID' => $res[$i]['dependencyID']);
+                $res2 = $this->db->prepared_query("SELECT * FROM dependency_privs
+                									WHERE dependencyID=:dependencyID", $vars);
+
+                // dependencyID 1 is for a special service chief group
+                if($res[$i]['dependencyID'] == 1 && !$res[$i]['hasAccess']) {
+                    if($this->login->checkService($res[$i]['serviceID'])) {
+                        $res[$i]['hasAccess'] = true;
+                    }
+                }
+
+                // dependencyID 8 is for a special quadrad group
+                if($res[$i]['dependencyID'] == 8 && !$res[$i]['hasAccess']) {
+                    $quadGroupIDs = $this->login->getQuadradGroupID();
+                    $vars3 = array(':serviceID' => $res[$i]['serviceID']);
+                    $res3 = $this->db->prepared_query("SELECT * FROM services
+                    									WHERE groupID IN ($quadGroupIDs)
+                    										AND serviceID=:serviceID", $vars3);
+
+                    if(isset($res3[0])) {
+                        $res[$i]['hasAccess'] = true;
+                    }
+                }
+
+                // dependencyID -1 is for a person designated by the requestor
+                if($res[$i]['dependencyID'] == -1) {
+                	
+                	$resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
+                	
+                	// make sure the right person has access
+                	if(!$res[$i]['hasAccess']) {
+                		$empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
+                		
+                		if($empUID == $this->login->getEmpUID()) {
+                			$res[$i]['hasAccess'] = true;
+                		}
+                	}
+
+                	require_once 'VAMC_Directory.php';
+                	$dir = new VAMC_Directory;
+                	
+                	$approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
+
+                	$res[$i]['description'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
+                	if(trim($res[$i]['description']) == '') {
+                		$res[$i]['description'] = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'];
+                	}
+                }
+                
+                // dependencyID -2 is for requestor followup
+                if($res[$i]['dependencyID'] == -2) {
+                	 if($res[$i]['userID'] == $this->login->getUserID()) {
+                	 	$res[$i]['hasAccess'] = true;
+                	 }
+                }
+
+                // dependencyID -3 is for a group designated by the requestor
+                if($res[$i]['dependencyID'] == -3) {
+                	 
+                	$resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                	 
+                	// make sure the right person has access
+                	if(!$res[$i]['hasAccess']) {
+                		$groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
+                
+                		if($this->login->checkGroup($groupID)) {
+                			$res[$i]['hasAccess'] = true;
+                		}
+                	}
+                
+                	$res[$i]['description'] = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
+                }
+
+                foreach($res2 as $group) {
+                    if($this->login->checkGroup($group['groupID'])) {
+                        $res[$i]['hasAccess'] = true;
+                        break;
+                    }
+                }
+
+                // load related js assets from shared steps
+                if(!isset($steps[$res[$i]['dependencyID']])) {
+                    $steps[$res[$i]['dependencyID']] = $res[$i];
+                }
+                if($res[$i]['jsSrc'] != '' && file_exists(dirname(__FILE__).'/scripts/custom_js/' . $res[$i]['jsSrc'])) {
+                    $steps[$res[$i]['dependencyID']]['jsSrcList'][] = 'scripts/custom_js/' . $res[$i]['jsSrc'];
+                }
+
+            }
+
+            for($i = 0; $i < $numRes; $i++) {
+                // block step if there is a blocker
+                if($res[$i]['blockingStepID'] > 0) {
+                    foreach($steps as $step) {
+                        if($res[$i]['blockingStepID'] == $step['stepID']) {
+                            unset($steps[$res[$i]['dependencyID']]);                            
+                        }
+                    }
+                }
+            }
+        }
+
+        return count($steps) > 0 ? $steps : null;
+    }
+
+    /**
+     * Get the last action made to the request
+     */
+    public function getLastAction()
+    {
+    	// check privileges
+    	require_once 'form.php';
+    	$form = new Form($this->db, $this->login);
+    	if(!$form->hasReadAccess($this->recordID)) {
+    		return 0;
+    	}
+    	
+    	$vars = array(':recordID' => $this->recordID);
+    	$res = $this->db->prepared_query('SELECT * FROM records_dependencies
+	    									LEFT JOIN category_count USING (recordID)
+	    									LEFT JOIN categories USING (categoryID)
+	    									LEFT JOIN step_dependencies USING (dependencyID)
+	    									LEFT JOIN workflow_routes USING (workflowID, stepID)
+	    									LEFT JOIN workflow_steps USING (workflowID, stepID)
+	    									LEFT JOIN actions USING (actionType)
+	    									LEFT JOIN dependencies USING (dependencyID)
+	    									RIGHT JOIN action_history USING (recordID, dependencyID, actionType)
+	    									WHERE records_dependencies.recordID=:recordID
+	    										AND actionType IS NOT NULL
+	    									ORDER BY actionID DESC
+	    									LIMIT 1', $vars);
+    	// dependencyID -1 is for a person designated by the requestor
+    	if(isset($res[0])
+    		&& $res[0]['dependencyID'] == -1) {
+   			$resEmpUID = $form->getIndicator($res[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
+   			$res[0]['description'] = $resEmpUID[$res[0]['indicatorID_for_assigned_empUID']]['name'];
+    	}
+    	// dependencyID -3 is for a person designated by the requestor
+    	if(isset($res[0])
+    			&& $res[0]['dependencyID'] == -3) {
+    				$resGroupID = $form->getIndicator($res[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+    				$res[0]['description'] = $resGroupID[$res[0]['indicatorID_for_assigned_groupID']]['name'];
+    	}
+    	return $res[0];
+    }
+    
+    /**
+     * For parallel workflows, check if the current dependency conflicts between workflows
+     * @param array $dep
+     * @param array $steps
+     * @return int conflicting step ID
+     */
+    private function checkDependencyConflicts($dep, $steps)
+    {
+        // iterate through steps
+        foreach($steps as $step) {
+            // unblock step if prerequisites are met
+            if($dep['blockingStepID'] == $step['stepID']) {
+                $vars2 = array(':recordID' => $this->recordID,
+                               ':stepID' => $dep['stepID'],
+                               ':blockingStepID' => 0);
+                $this->db->prepared_query("UPDATE records_workflow_state SET
+                                                blockingStepID=:blockingStepID
+                                                WHERE recordID=:recordID
+                                                    AND stepID=:stepID", $vars2);
+
+            }
+
+            // if it's not the same dependency, find out if there are any conflicts 
+            if($dep['dependencyID'] != $step['dependencyID']
+                && $dep['stepID'] != $step['stepID']) {
+
+                // check conflict exclusion for steps with multiple dependencies
+                $foundShared = 0;
+                foreach($steps as $step2) {
+                    if($dep['dependencyID'] != $step2['dependencyID']
+                        && $dep['stepID'] == $step2['stepID']) {
+                        $foundShared = 1;
+                    }
+                }
+
+                if($foundShared == 0) {
+                    $vars = array(':dependencyID' => $dep['dependencyID'],
+                                  ':workflowID' => $step['workflowID']);
+                    $res = $this->db->prepared_query("SELECT * FROM workflow_routes
+                    									LEFT JOIN step_dependencies USING (stepID)
+                    									WHERE dependencyID=:dependencyID
+                    										AND workflowID=:workflowID", $vars);
+                    
+                    if(isset($res[0])) {
+                        return $step['stepID'];
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+    
+    /**
+     * Retrieves actions associated with a dependency
+     * @param int $workflowID
+     * @param int $stepID
+     * @return array database result
+     */
+    public function getDependencyActions($workflowID, $stepID)
+    {
+        $vars = array(':workflowID' => $workflowID,
+                      ':stepID' => $stepID);
+        $res = $this->db->prepared_query("SELECT * FROM workflow_routes
+        									LEFT JOIN actions USING (actionType)
+        									WHERE workflowID=:workflowID
+        										AND stepID=:stepID
+        									ORDER BY sort ASC", $vars);
+
+        return $res;
+    }
+
+    private function resetRecordsDependency($stepID)
+    {
+    	$vars2 = array(':stepID' => $stepID);
+    	$res3 = $this->db->prepared_query("SELECT * FROM step_dependencies
+                    										WHERE stepID=:stepID", $vars2);
+    	if(count($res3) > 0) {
+    		foreach($res3 as $stepDependency) {
+    			$vars2 = array(':recordID' => $this->recordID,
+    					':dependencyID' => $stepDependency['dependencyID']);
+    			$this->db->prepared_query("UPDATE records_dependencies SET
+	                    										filled=0
+	                    										WHERE recordID=:recordID
+	                    											AND dependencyID=:dependencyID", $vars2);
+    		}
+    	}
+    }
+
+    /**
+     * Handle an action
+     * @param int $dependencyID
+     * @param string $actionType
+     * @param string $comment
+     * @return int 1 for success 0 for fail
+     */
+    public function handleAction($dependencyID, $actionType, $comment)
+    {
+        if($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
+            return 0;
+        }
+        $comment = $this->sanitizeInput($comment);
+        $time = time();
+
+        // first check if the user has access
+        $vars = array(':dependencyID' => $dependencyID,
+                      ':userID' => $this->login->getUserID());
+        $res = $this->db->prepared_query("SELECT * FROM dependency_privs
+        									LEFT JOIN users USING (groupID)
+        									WHERE dependencyID=:dependencyID
+        										AND userID=:userID", $vars);
+
+        if(!$this->login->checkGroup(1) && !isset($res[0]['userID'])) {
+            // check special cases
+            $vars = array(':recordID' => $this->recordID);
+            $res = $this->db->prepared_query("SELECT * FROM records
+            									WHERE recordID=:recordID", $vars);            
+            switch($dependencyID) {
+                case 1: // service chief
+                    if(!$this->login->checkService($res[0]['serviceID'])) {
+                        return 0;
+                    }
+                    break;
+                case 8: // quadrad
+                	$quadGroupIDs = $this->login->getQuadradGroupID();
+                	$varsQuad = array(':serviceID' => $res[0]['serviceID']);
+
+               		$resQuad = $this->db->prepared_query("SELECT * FROM services
+							                				WHERE groupID IN ({$quadGroupIDs})
+							                				AND serviceID=:serviceID", $varsQuad);
+                    if(count($resQuad) == 0) {
+                        return 0;
+                    }
+                    break;
+                case -1: // dependencyID -1 : person designated by requestor
+                	require_once 'form.php';
+                	$form = new Form($this->db, $this->login);
+
+                	$varsPerson = array(':recordID' => $this->recordID);
+
+                	$resPerson = $this->db->prepared_query("SELECT * FROM records_workflow_state
+									                			LEFT JOIN workflow_steps USING (stepID)
+                												WHERE recordID=:recordID", $varsPerson);
+
+                	$resEmpUID = $form->getIndicator($resPerson[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
+                	$empUID = $resEmpUID[$resPerson[0]['indicatorID_for_assigned_empUID']]['value'];
+
+                	if($empUID != $this->login->getEmpUID()) {
+                		return 0;
+                	}
+                    break;
+                case -2: // dependencyID -2 : requestor followup
+                	require_once 'form.php';
+                	$form = new Form($this->db, $this->login);
+                	
+                	$varsPerson = array(':recordID' => $this->recordID);
+                	$resPerson = $this->db->prepared_query("SELECT userID FROM records
+                												WHERE recordID=:recordID", $varsPerson);
+                	
+                	if($resPerson[0]['userID'] != $this->login->getUserID()) {
+                		return 0;
+                	}
+                	break;
+                case -3: // dependencyID -3 : group designated by requestor
+                	require_once 'form.php';
+                	$form = new Form($this->db, $this->login);
+                	
+                	$varsGroup = array(':recordID' => $this->recordID);
+                	
+                	$resGroup = $this->db->prepared_query("SELECT * FROM records_workflow_state
+								                			LEFT JOIN workflow_steps USING (stepID)
+                											WHERE recordID=:recordID", $varsGroup);
+                	
+                	$resGroupID = $form->getIndicator($resGroup[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                	$groupID = $resGroupID[$resGroup[0]['indicatorID_for_assigned_groupID']]['value'];
+                	
+                	if(!$this->login->checkGroup($groupID)) {
+                		return 0;
+                	}
+                	break;
+                default:
+                	return 0;
+                    break;
+            }
+        }
+
+        // get every step associated with dependencyID
+        $vars = array(':recordID' => $this->recordID,
+                      ':dependencyID' => $dependencyID);
+        $res = $this->db->prepared_query("SELECT * FROM step_dependencies
+        									RIGHT JOIN records_workflow_state USING (stepID)
+        									LEFT JOIN workflow_steps USING (stepID)
+        									LEFT JOIN dependencies USING (dependencyID)
+        									WHERE recordID=:recordID
+        										AND dependencyID=:dependencyID", $vars);
+
+        $logCache = array();
+        // iterate through steps
+        foreach($res as $actionable) {
+            // find out what the action is doing, and what the next step is
+            $vars2 = array(':workflowID' => $actionable['workflowID'],
+                           ':stepID' => $actionable['stepID'],
+                           ':actionType' => $actionType);
+            $res2 = $this->db->prepared_query("SELECT * FROM workflow_routes
+            									LEFT JOIN actions USING (actionType)
+            									WHERE workflowID=:workflowID
+            										AND stepID=:stepID
+            										AND actionType=:actionType", $vars2);
+            // continue if the step and action is valid
+            if(isset($res2[0])) {
+                $this->db->beginTransaction();
+                // write dependency information
+                $vars2 = array(':recordID' => $this->recordID,
+                              ':dependencyID' => $dependencyID,
+                              ':filled' => $res2[0]['fillDependency'], 
+                              ':time' => $time);
+                $this->db->prepared_query("INSERT INTO records_dependencies (recordID, dependencyID, filled, time)
+                                               VALUES (:recordID, :dependencyID, :filled, :time)
+                                               ON DUPLICATE KEY
+                                                   UPDATE filled=:filled, time=:time", $vars2);
+
+                // don't write duplicate log entries
+                $vars2 = array(':recordID' => $this->recordID,
+                               ':userID' => $this->login->getUserID(),
+                               ':dependencyID' => $dependencyID,
+                               ':actionType' => $actionType,
+                               ':actionTypeID' => 8,
+                               ':time' => $time,
+                               ':comment' => $comment);
+                $logKey = sha1(serialize($vars2));
+                if(!isset($logCache[$logKey])) {
+                    // write log
+                    $logCache[$logKey] = 1;
+                    $this->db->prepared_query("INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
+                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)", $vars2);
+                }
+
+                // get other action data
+                $varsAction = array(':actionType' => $actionType);
+                $resActionData = $this->db->prepared_query('SELECT * FROM actions WHERE actionType=:actionType', $varsAction);
+                
+                // write current status in main index
+                $vars2 = array(':recordID' => $this->recordID,
+                              ':lastStatus' => $resActionData[0]['actionTextPasttense']);
+                $this->db->prepared_query("UPDATE records SET lastStatus=:lastStatus
+                								WHERE recordID=:recordID", $vars2);                
+
+                $this->db->commitTransaction();
+
+                // see if all dependencies in the step are met
+                $vars2 = array(':recordID' => $this->recordID,
+                               ':stepID' => $actionable['stepID']);
+                $res3 = $this->db->prepared_query("SELECT * FROM step_dependencies
+                										LEFT JOIN records_dependencies USING (dependencyID)
+                										WHERE stepID=:stepID
+                											AND recordID=:recordID
+                											AND filled=0", $vars2);
+                $numUnfilledDeps = count($res3);
+                
+                // Trigger events if the next step is the same as the original step (eg: same-step loop)
+                if($actionable['stepID'] == $res2[0]['nextStepID']) {
+           			$this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment);
+
+                	// clear current dependency since it's a loop
+                	$vars_clearDep = array(':recordID' => $this->recordID,
+                	        			   ':dependencyID' => $dependencyID);
+                	$this->db->prepared_query("UPDATE records_dependencies SET
+                    								filled=0
+                    								WHERE recordID=:recordID
+                    									AND dependencyID=:dependencyID", $vars_clearDep);
+                	$numUnfilledDeps = 1;
+                }
+                
+                // if all dependencies are met, update the record's workflow state
+                if($numUnfilledDeps == 0
+                	|| $actionType == 'sendback') {	// handle sendback as a special case, since it doesn't fill any dependencies
+                	// if the next step is to end it, then update the record's workflow's state
+                	if($res2[0]['nextStepID'] == 0) {
+                		$vars2 = array(':recordID' => $this->recordID);
+                		$this->db->prepared_query("DELETE FROM records_workflow_state
+                                                    WHERE recordID=:recordID", $vars2);
+                	}
+                	else {
+	                    $vars2 = array(':recordID' => $this->recordID,
+	                                   ':stepID' => $actionable['stepID'],
+	                                   ':nextStepID' => $res2[0]['nextStepID'],
+	                                   ':blockingStepID' => 0);
+	                    $this->db->prepared_query("UPDATE records_workflow_state SET
+	                                                    stepID=:nextStepID,
+	                                                    blockingStepID=:blockingStepID
+	                                                    WHERE recordID=:recordID
+	                                                        AND stepID=:stepID", $vars2);
+
+	                    // reset records_dependencies for the next step
+						$this->resetRecordsDependency($res2[0]['nextStepID']);
+                	}
+
+                    // make sure the step is available
+                    $vars2 = array(':recordID' => $this->recordID);
+                    $res3 = $this->db->prepared_query("SELECT * FROM category_count
+                    										LEFT JOIN categories USING (categoryID)
+                                                            LEFT JOIN workflows USING (workflowID)
+                                                            LEFT JOIN workflow_steps USING (workflowID)
+                                                            LEFT JOIN step_dependencies USING (stepID)
+                                                            LEFT JOIN records_dependencies USING (recordID, dependencyID)
+                    										WHERE category_count.recordID=:recordID
+                    											AND count > 0
+                    											AND workflowID > 0
+                                                                AND filled IS NULL", $vars2);
+                    if(count($res3) > 0) {
+                        $this->db->beginTransaction();
+                        foreach($res3 as $nextStep) {
+                            $vars2 = array(':recordID' => $this->recordID,
+                                          ':dependencyID' => $nextStep['dependencyID'],
+                                          ':filled' => 0);
+                            $this->db->prepared_query("INSERT IGNORE INTO records_dependencies (recordID, dependencyID, filled)
+                                                           VALUES (:recordID, :dependencyID, :filled)", $vars2);                            
+                        }
+                        $this->db->commitTransaction();
+                    }
+
+                    // Done with database updates for dependency/state
+
+                    // determine if parallel workflows have shared steps
+                    $vars2 = array(':recordID' => $this->recordID);
+                    $res3 = $this->db->prepared_query("SELECT * FROM records_workflow_state
+                    										LEFT JOIN workflow_steps USING (stepID)
+                    										LEFT JOIN step_dependencies USING (stepID)
+                    										WHERE recordID=:recordID", $vars2);
+                    // iterate through steps
+                    if(count($res3) > 1) {
+                        foreach($res3 as $step) {
+                            $conflictID = $this->checkDependencyConflicts($step, $res3);
+                            if($conflictID != 0 && $conflictID != $step['stepID']) {
+                                $vars2 = array(':recordID' => $this->recordID,
+                                               ':stepID' => $step['stepID'],
+                                               ':blockingStepID' => $conflictID);
+                                $this->db->prepared_query("UPDATE records_workflow_state SET
+                                                                blockingStepID=:blockingStepID
+                                                                WHERE recordID=:recordID
+                                                                    AND stepID=:stepID", $vars2);
+                            }
+                        }
+                    }
+
+                    // Handle events if all dependencies in the step have been met
+                    $this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment);
+                } // End update the record's workflow state
+            }
+        }
+        
+        return 1;
+    }
+    
+    /**
+     * Handle events tied to actions, if there are any
+     * @param int $workflowID
+     * @param int $stepID
+     * @param string $actionType
+     * @param string $comment
+     */
+    public function handleEvents($workflowID, $stepID, $actionType, $comment)
+    {
+        // Take care of special events (sendback)
+        if($actionType == 'sendback') {
+        	$vars2 = array(':recordID' => $this->recordID);
+        	$res = $this->db->prepared_query("SELECT * FROM records_workflow_state
+                                                  WHERE recordID=:recordID", $vars2);
+        	if(count($res) == 0) {	// if the workflow state is empty, it means the request has been sent back to the requestor
+        		require_once 'form.php';
+        		$form = new Form($this->db, $this->login);
+        		$form->openForEditing($this->recordID);
+        		// Send emails
+        		require_once 'Email.php';
+        		$email = new Email();
+        		
+        		$vars = array(':recordID' => $this->recordID);
+        		$record = $this->db->prepared_query('SELECT * FROM records
+                                                    LEFT JOIN services USING (serviceID)
+                                                    WHERE recordID=:recordID', $vars);
+        		//            $summary = $this->db->prepared_query('SELECT * FROM data WHERE recordID=:recordID AND indicatorID=16 AND series=1', $vars);    // indicator 16 for summary
+        		//            $summary[0]['data'] = strip_tags((isset($summary[0]['data']) ? $summary[0]['data'] : ''));
+        		$summary[0]['data'] = '';
+        		
+        		$vars = array(':stepID' => $stepID);
+        		$groupName = $this->db->prepared_query('SELECT * FROM workflow_steps WHERE stepID=:stepID', $vars);
+        		
+        		$title = strlen($record[0]['title']) > 45 ? substr($record[0]['title'], 0, 42) . '...' : $record[0]['title'];
+        		$email->setSubject('RETURNED '. $title .' (#' . $this->recordID . ') to ' . $record[0]['service']);
+        		$email->setBody("Request ID#: {$this->recordID}\r\n\r\nRequest status: Sent Back by {$groupName[0]['stepTitle']}\r\n\r\nComments: $comment\r\n\r\n------------------------\r\n{$this->siteRoot}?a=printview&recordID={$this->recordID}\r\n\r\n{$record[0]['title']}\r\n\r\n{$summary[0]['data']}");
+        		
+        		require_once 'VAMC_Directory.php';
+        		$dir = new VAMC_Directory;
+        		
+        		$requester = $dir->lookupLogin($record[0]['userID']);
+        		$author = $dir->lookupLogin($this->login->getUserID());
+        		
+        		$email->addRecipient($requester[0]['Email']);
+        		$email->addRecipient($author[0]['Email']);
+        		$email->setSender($author[0]['Email']);
+        		
+        		$email->sendMail();
+        	}
+        }
+        
+        
+        // Handle Events
+        $vars = array(':workflowID' => $workflowID,
+                       ':stepID' => $stepID,
+                       ':actionType' => $actionType);
+        $res = $this->db->prepared_query("SELECT * FROM route_events
+        									LEFT JOIN events USING (eventID)
+        									WHERE workflowID=:workflowID
+        										AND stepID=:stepID
+        										AND actionType=:actionType
+        									ORDER BY eventID ASC", $vars);
+        
+        foreach($res as $event) {
+            switch($event['eventID']) {
+                case 'std_email_notify_next_approver': // notify next approver
+                    require_once 'Email.php';
+                    $email = new Email();
+
+                    $vars = array(':recordID' => $this->recordID);
+                    $approvers = $this->db->prepared_query('SELECT *, users.userID AS approverID FROM records_workflow_state
+                    											LEFT JOIN records USING (recordID)
+                    											LEFT JOIN step_dependencies USING (stepID)
+                    											LEFT JOIN dependency_privs USING (dependencyID)
+                    											LEFT JOIN users USING (groupID)
+                    											LEFT JOIN services USING (serviceID)
+                    											WHERE recordID=:recordID', $vars);
+
+                    if(count($approvers) > 0) {
+                    	$title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+                        $email->setSubject('Action for '. $title .'(#' . $this->recordID . ') in ' . $approvers[0]['service']);
+
+                        $emailBody = "The following request requires your review.\r\n\r\nPlease review your inbox at: {$this->siteRoot}?a=inbox\r\n\r\n";
+                        $emailBody .= "Request ID#: {$this->recordID}\r\nRequest title: {$approvers[0]['title']}\r\nRequest status: {$approvers[0]['lastStatus']}\r\n\r\n";
+                        $emailBody .= "Comments: $comment\r\n\r\n------------------------\r\n";
+                        $emailBody .= "View Request: {$this->siteRoot}?a=printview&recordID={$this->recordID}\r\n\r\n";                        
+
+                        $email->setBody($emailBody);
+    
+                        require_once 'VAMC_Directory.php';
+                        $dir = new VAMC_Directory;
+
+                        $author = $dir->lookupLogin($this->login->getUserID());
+                        $email->setSender($author[0]['Email']);
+
+                        foreach($approvers as $approver) {
+                            if(strlen($approver['approverID']) > 0) {
+                                $tmp = $dir->lookupLogin($approver['approverID']);
+                                $email->addRecipient($tmp[0]['Email']);
+                            }
+                        }
+
+                        // special case for service chiefs
+                        if($approvers[0]['dependencyID'] == 1) {
+                            $vars = array(':serviceID' => $approvers[0]['serviceID']);
+                            $chief = $this->db->prepared_query('SELECT * FROM service_chiefs
+                            										WHERE serviceID=:serviceID
+                            											AND active=1', $vars);
+
+                            foreach($chief as $member) {
+                                if(strlen($member['userID']) > 0) {
+                                    $tmp = $dir->lookupLogin($member['userID']);
+                                    $email->addRecipient($tmp[0]['Email']);
+                                }
+                            }
+                        }
+
+                        // special case for quadrads
+                        if($approvers[0]['dependencyID'] == 8) {
+                            $vars = array(':groupID' => $approvers[0]['groupID']);
+                            $quadrad = $this->db->prepared_query('SELECT * FROM users
+                            											WHERE groupID=:groupID', $vars);
+
+                            foreach($quadrad as $member) {
+                                if(strlen($member['userID']) > 0) {
+                                    $tmp = $dir->lookupLogin($member['userID']);
+                                    $email->addRecipient($tmp[0]['Email']);
+                                }
+                            }
+                        }
+    
+                        // dependencyID -1 : special case for a person designated by the requestor
+                        if($approvers[0]['dependencyID'] == -1) {
+                        	require_once 'form.php';
+                        	$form = new Form($this->db, $this->login);
+                        	
+                        	// find the next step
+                        	$varsStep = array(':stepID' => $approvers[0]['stepID']);
+                        	$resStep = $this->db->prepared_query("SELECT * FROM workflow_steps
+                													WHERE stepID=:stepID", $varsStep);
+                        	
+                        	$resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
+                        	$empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
+                        
+                       		if($empUID > 0) {
+                       			$tmp = $dir->lookupEmpUID($empUID);
+                       			$email->addRecipient($tmp[0]['Email']);
+                       		}
+                        }
+                        
+                        // dependencyID -2 : requestor followup
+                        if($approvers[0]['dependencyID'] == -2) {
+                        	$vars = array(':recordID' => $this->recordID);
+                        	$resRequestor = $this->db->prepared_query('SELECT userID FROM records
+                    													WHERE recordID=:recordID', $vars);
+                        	$tmp = $dir->lookupLogin($resRequestor[0]['userID']);
+                        	$email->addRecipient($tmp[0]['Email']);
+                        }
+
+                        // dependencyID -3 : special case for a group designated by the requestor
+                        if($approvers[0]['dependencyID'] == -3) {
+                        	require_once 'form.php';
+                        	$form = new Form($this->db, $this->login);
+                        	 
+                        	// find the next step
+                        	$varsStep = array(':stepID' => $approvers[0]['stepID']);
+                        	$resStep = $this->db->prepared_query("SELECT * FROM workflow_steps
+                													WHERE stepID=:stepID", $varsStep);
+                        	 
+                        	$resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                        	$groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
+                        
+                        	if($groupID > 0) {
+                        		$email->addGroupRecipient($groupID);
+                        	}
+                        }
+
+                        $email->sendMail();
+                    }
+                    break;
+                case 'std_email_notify_completed': // notify requestor of completed request
+                    require_once 'Email.php';
+                    $email = new Email();
+
+                    $vars = array(':recordID' => $this->recordID);
+                    $approvers = $this->db->prepared_query('SELECT * FROM records
+                    											LEFT JOIN services USING (serviceID)
+                    											WHERE recordID=:recordID', $vars);
+
+                    $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+                    $email->setSubject('Action for '. $title .' (#' . $this->recordID . ') in ' . $approvers[0]['service']);
+
+                    $emailBody = "Request ID#: {$this->recordID}\r\nRequest title: {$approvers[0]['title']}\r\nRequest status: {$approvers[0]['lastStatus']}\r\n\r\n";
+                    $emailBody .= "Comments: $comment\r\n\r\n------------------------\r\n";
+                    $emailBody .= "View Request: {$this->siteRoot}?a=printview&recordID={$this->recordID}\r\n\r\n";                        
+
+                    $email->setBody($emailBody);
+
+                    require_once 'VAMC_Directory.php';
+                    $dir = new VAMC_Directory;
+
+                    $author = $dir->lookupLogin($this->login->getUserID());
+                    $email->setSender($author[0]['Email']);
+
+                    $tmp = $dir->lookupLogin($approvers[0]['userID']);
+                    $email->addRecipient($tmp[0]['Email']);                            
+
+                    $email->sendMail();
+                    break;
+                default:
+                    $eventFile = $this->eventFolder . 'CustomEvent_' . $event['eventID'] . '.php';
+                    if(is_file($eventFile)) {
+                        require_once $eventFile;
+                        require_once 'VAMC_Directory.php';
+                        require_once 'Email.php';
+                        $dir = new VAMC_Directory;
+                        $email = new Email();
+                        
+                        $eventInfo = array('recordID' => $this->recordID,
+                                           'workflowID' => $workflowID,
+                                           'stepID' => $stepID,
+                                           'actionType' => $actionType,
+                                           'comment' => $comment);
+
+                        $customClassName = "CustomEvent_{$event['eventID']}";
+                        $event = new $customClassName($this->db, $this->login, $dir, $email, $this->siteRoot, $eventInfo);
+
+                        $event->execute();
+                    }
+                    else {
+                    	trigger_error('Custom event not found: ' . $eventFile);
+                    }
+                    break;
+            }
+        }
+    }
+
+	/**
+	 * Set the the current record to a specific step
+	 * Require admin access unless bypass is requested
+	 */
+	public function setStep($stepID, $bypassAdmin = false)
+	{
+		if($this->recordID == 0
+			|| (!$this->login->checkGroup(1) && $bypassAdmin == false)) {
+			return false;
+		}
+
+		// make sure the request has been submitted
+		$vars = array(':recordID' => $this->recordID);
+		$res = $this->db->prepared_query("SELECT * FROM records
+            									WHERE recordID=:recordID", $vars);
+		if($res[0]['submitted'] == 0) {
+			$vars = array(':recordID' => $this->recordID,
+						  ':submitted' => time()
+			);
+			$res = $this->db->prepared_query("UPDATE records
+												SET submitted=:submitted
+            									WHERE recordID=:recordID", $vars);
+		}
+		
+		$vars = array(':stepID' => $stepID);
+		$res = $this->db->prepared_query("SELECT * FROM workflow_steps
+            									WHERE stepID=:stepID", $vars);
+		$stepName = $res[0]['stepTitle'];
+
+		// write log entry
+		$vars2 = array(':recordID' => $this->recordID,
+				':userID' => $this->login->getUserID(),
+				':dependencyID' => 0,
+				':actionType' => 'move',
+				':actionTypeID' => 8,
+				':time' => time(),
+				':comment' => "Moved to {$stepName} step");
+		$this->db->prepared_query("INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
+                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)", $vars2);
+		
+		$vars2 = array(':recordID' => $this->recordID);
+		$this->db->prepared_query("DELETE FROM records_workflow_state
+										WHERE recordID=:recordID", $vars2);
+		$this->resetRecordsDependency($stepID);
+		$vars = array(':recordID' => $this->recordID,
+					  ':stepID' => $stepID);
+		$this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
+                                             VALUES (:recordID, :stepID)', $vars);
+		return true;
+	}
+
+    /**
+    * Clean up html input, allow some tags
+    * @param string $in
+    * @return string
+    */
+    public function sanitizeInput($in)
+    {
+        // strip out uncommon characters
+        $in = preg_replace('/[^\040-\176]/', '', $in);
+
+        // hard character limit of 65535
+        $in = strlen($in) > 65535 ? substr($in, 0, 65535) : $in;
+    
+        $pattern = array('/&lt;table(\s.+)?&gt;/Ui',
+                             '/&lt;\/table&gt;/Ui',
+                             '/&lt;(\/)?br(\s.+)?\s\/&gt;/Ui',
+                             '/&lt;(\/)?(\S+)(\s.+)?&gt;/U',
+                             '/\b\d{3}-\d{2}-\d{4}\b/', // mask SSN
+                             '/(\<\/p\>\<\/p\>){2,}/',
+                             '/(\<p\>\<\/p\>){2,}/');
+    
+        $replace = array('<table class="table">',
+                             '</table>',
+                             '<\1br />',
+                             '<\1\2>',
+                             '###-##-####',
+                             '',
+                             '');
+    
+        $in = strip_tags(html_entity_decode($in), '<b><i><u><ol><li><br><p><table><td><tr>');
+        $in = preg_replace($pattern, $replace, htmlspecialchars($in, ENT_QUOTES));
+    
+        // verify tag grammar
+        $matches = array();
+        preg_match_all('/\<(\/)?([A-Za-z]+)(\s.+)?\>/U', $in, $matches, PREG_PATTERN_ORDER);
+        $openTags = array();
+        $numTags = count($matches[2]);
+        for($i = 0; $i < $numTags; $i++) {
+            if($matches[2][$i] != 'br') {
+                //echo "examining: {$matches[1][$i]}{$matches[2][$i]}\n";
+                // proper closure
+                if($matches[1][$i] == '/' && isset($openTags[$matches[2][$i]]) && $openTags[$matches[2][$i]] > 0) {
+                    $openTags[$matches[2][$i]]--;
+                    // echo "proper\n";
+                }
+                // new open tag
+                else if($matches[1][$i] == '') {
+                    if(!isset($openTags[$matches[2][$i]])) {
+                        $openTags[$matches[2][$i]] = 0;
+                    }
+                    $openTags[$matches[2][$i]]++;
+                    // echo "open\n";
+                }
+                // improper closure
+                else if($matches[1][$i] == '/' && isset($openTags[$matches[2][$i]]) && $openTags[$matches[2][$i]] <= 0) {
+                    $in = '<' . $matches[2][$i] . '>' . $in;
+                    $openTags[$matches[2][$i]]--;
+                    // echo "improper\n";
+                }
+                // print_r($openTags);
+            }
+        }
+    
+        // close tags
+        $tags = array_keys($openTags);
+        foreach($tags as $tag) {
+            while($openTags[$tag] > 0) {
+                $in = $in . '</' . $tag . '>';
+                $openTags[$tag]--;
+            }
+        }
+    
+        return $in;
+    }
+    
+    public function setEventFolder($folder)
+    {
+        $this->eventFolder = $folder;
+    }
+}

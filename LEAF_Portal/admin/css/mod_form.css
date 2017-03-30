@@ -1,0 +1,15 @@
+.formPreview {
+    cursor: pointer;
+    width: 150px;
+    height: 120px;
+    float: left;
+    background-color: white;
+    padding: 8px;
+    margin: 8px;
+    box-shadow: 0 2px 6px #8e8e8e;
+    transition: box-shadow 0.3s ease;
+}
+
+.formPreview:hover {
+    box-shadow: 0 4px 6px 2px #8e8e8e;
+}

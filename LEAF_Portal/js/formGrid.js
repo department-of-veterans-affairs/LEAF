@@ -457,7 +457,7 @@ var LeafFormGrid = function(containerID, options) {
     		$('#' + prefixID + 'tfoot').html('');
     	}
     	else {
-    		$('#' + prefixID + 'tfoot').html('<tr><td colspan='+colspan+' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>');
+    		$('#' + prefixID + 'tfoot').html('<tr><td colspan='+colspan+' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="'+ rootURL +'images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>');
     	}
 
         $('#' + prefixID + 'tbody').append(buffer);
@@ -491,7 +491,7 @@ var LeafFormGrid = function(containerID, options) {
     function loadData(recordIDs, callback) {
     	currentData = [];
     	var colspan = showIndex ? headers.length + 1 : headers.length;
-    	$('#' + prefixID + 'tbody').html('<tr><td colspan="'+colspan+'" style="text-align: left; padding: 8px">Building report... <img src="images/largespinner.gif" alt="loading..." /></td></tr>');
+    	$('#' + prefixID + 'tbody').html('<tr><td colspan="'+colspan+'" style="text-align: left; padding: 8px">Building report... <img src="'+ rootURL +'images/largespinner.gif" alt="loading..." /></td></tr>');
 
     	var headerIDList = '';
     	for(var i in headers) {
@@ -548,6 +548,19 @@ var LeafFormGrid = function(containerID, options) {
      */
     function setDataBlob(data) {
     	dataBlob = data;
+    }
+
+    /**
+     * Imports LEAF Query result
+     * @memberOf LeafFormGrid
+     */
+    function importQueryResult(res) {
+        var tGridData = [];
+        for(var i in res) {
+            tGridData.push(res[i]);
+        }
+        setData(tGridData);
+        setDataBlob(tGridData);
     }
 
     /**
@@ -664,6 +677,7 @@ var LeafFormGrid = function(containerID, options) {
 		loadData: loadData,
 		setData: setData,
 		setDataBlob: setDataBlob,
+		importQueryResult: importQueryResult,
 		enableToolbar: enableToolbar,
 		setPostProcessDataFunc: setPostProcessDataFunc,
 		setPreRenderFunc: setPreRenderFunc,

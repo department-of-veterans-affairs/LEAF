@@ -80,6 +80,8 @@ class WorkflowController extends RESTfulResponse
     {
         $workflow = $this->workflow;
 
+        $this->verifyAdminReferrer();
+
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('workflow', function($args) {
         });
@@ -129,6 +131,10 @@ class WorkflowController extends RESTfulResponse
 			return $workflow->setDynamicApprover($args[0], $_POST['indicatorID']);
 		});
 
+		$this->index['POST']->register('workflow/step/[digit]/indicatorID_for_assigned_groupID', function($args) use ($workflow) {
+			return $workflow->setDynamicGroupApprover($args[0], $_POST['indicatorID']);
+		});
+
 		$this->index['POST']->register('workflow/dependencies', function($args) use ($workflow) {
 			return $workflow->addDependency($_POST['description']);
 		});
@@ -152,11 +158,17 @@ class WorkflowController extends RESTfulResponse
     public function delete($act)
     {
     	$workflow = $this->workflow;
-    	
+
+    	$this->verifyAdminReferrer();
+
     	$this->index['DELETE'] = new ControllerMap();
     	$this->index['DELETE']->register('workflow', function($args) {
     	});
-    	
+
+    	$this->index['DELETE']->register('workflow/[digit]', function($args) use ($workflow) {
+    		return $workflow->deleteWorkflow($args[0]);
+    	});
+
 		$this->index['DELETE']->register('workflow/[digit]/step/[digit]/[text]/[digit]', function($args) use ($workflow) {
 			$workflow->setWorkflowID($args[0]);
 			return $workflow->deleteAction($args[1], $args[3], $args[2]);

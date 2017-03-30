@@ -82,6 +82,12 @@ if($login->checkGroup(1))
    		$serviceController = new ServiceController($db, $login);
    		$serviceController->handler($action);
    	});
+
+   	$controllerMap->register('group', function() use ($db, $login, $action) {
+   		require 'controllers/GroupController.php';
+   		$serviceController = new GroupController($db, $login);
+   		$serviceController->handler($action);
+   	});
 }
 
 $controllerMap->register('form', function() use ($db, $login, $action) {

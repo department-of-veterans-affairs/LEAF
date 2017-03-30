@@ -33,10 +33,15 @@ function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCan
     });
 }
 
+dialogController.prototype.clear = function() {
+	this.clearDialog();
+};
+
 dialogController.prototype.clearDialog = function() {
 	$('#' + this.contentID).empty();
 	$('#' + this.containerID).dialog('option', 'title', 'Editor');
 	$('#' + this.btnSaveID).off();
+	this.clearValidators();
 };
 
 dialogController.prototype.setTitle = function(title) {

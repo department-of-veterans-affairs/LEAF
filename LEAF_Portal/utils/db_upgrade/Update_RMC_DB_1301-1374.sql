@@ -1,0 +1,1 @@
+CREATE TABLE `data_cache` (`cacheKey` VARCHAR(32) NOT NULL, `data` TEXT NOT NULL, `timestamp` INT NOT NULL, UNIQUE (`cacheKey`)) ENGINE = InnoDB;

@@ -552,7 +552,7 @@ var LeafFormSearch = function(containerID) {
 						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
 						categories += '<option value="submitted">Submitted</option>';
 						categories += '<option value="notSubmitted">Not Submitted</option>';
-						//categories += '<option value="deleted">Cancelled</option>';
+						categories += '<option value="deleted">Cancelled</option>';
 						categories += '<option value="notDeleted">Not Cancelled</option>';
 						categories += '<option value="resolved">Resolved</option>';
 						categories += '<option value="notResolved">Not Resolved</option>';
