@@ -15,7 +15,6 @@ var LeafFormSearch = function(containerID) {
 	var searchFunc = null;
 	var leafFormQuery = new LeafFormQuery();
 	var widgetCounter = 0;
-	var interval_advSearch = null;
 	var rootURL = '';
 
 	// constants
@@ -28,9 +27,9 @@ var LeafFormSearch = function(containerID) {
 			    <img id="'+prefixID+'searchIconBusy" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display:none" src="'+ rootURL +'images/indicator.gif">\
 			    <input style="border: 1px solid black; padding: 4px" type="text" id="'+prefixID+'searchtxt" name="searchtxt" size="50" title="Enter your search text" value="" />\
 			    <span class="buttonNorm" id="'+prefixID+'advancedSearchButton">Advanced Options</span>\
-			    <fieldset id="'+prefixID+'advancedOptions" style="display: none; margin: 0px; border: 1px solid black; background-color: white">\
+			    <fieldset id="'+prefixID+'advancedOptions" style="position: relative; display: none; margin: 0px; border: 1px solid black; background-color: white">\
 		        <legend>Advanced Search Options</legend>\
-		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" style="position: absolute; display: none; cursor: pointer" alt="Close advanced search" />\
+		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer" alt="Close advanced search" />\
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="'+prefixID+'searchTerms"></table>\
 		        <span class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</span>\
@@ -43,7 +42,6 @@ var LeafFormSearch = function(containerID) {
 
 	    var searchOrigWidth = 0;
 	    $('#' + prefixID + 'advancedOptionsClose').on('click', function() {
-	    	clearInterval(interval_advSearch);
 	    	localStorage.setItem(localStorageNamespace + '.search', '');
 	    	$('#' + prefixID + 'searchtxt').val('');
 	    	search('');
@@ -62,9 +60,7 @@ var LeafFormSearch = function(containerID) {
 	    	$('#' + prefixID + 'searchtxt').animate({'width': '0px'}, 400, 'swing', function() {
 	    		$('#' + prefixID + 'searchtxt').css('display', 'none');
 	        	$('#' + prefixID + 'advancedOptions').slideDown(function() {
-	                updateCloseIconPosition();
 	                $('#' + prefixID + 'advancedOptionsClose').fadeIn();
-	                interval_advSearch = setInterval(function() { updateCloseIconPosition(); }, 500);
 	        	});
 	            $('#' + prefixID + 'advancedOptions').css('display', 'inline');
 	            $('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
@@ -198,14 +194,6 @@ var LeafFormSearch = function(containerID) {
 	    hash |= 0; // Convert to 32bit integer
 	  }
 	  return hash;
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function updateCloseIconPosition() {
-		$('#' + prefixID + 'advancedOptionsClose').css({'top': $('#' + prefixID + 'advancedOptions').position().top,
-            'left': $('#' + prefixID + 'advancedOptions').position().left + $('#' + prefixID + 'advancedOptions').width() + 4});
 	}
 
 	/**

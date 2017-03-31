@@ -22,15 +22,27 @@ class Group
         $vars = array(':groupName' => $groupName,
                       ':groupDesc' => $groupDesc,
                       ':parentGroupID' => $parentGroupID);
-        $res = $this->db->prepared_query("INSERT INTO groups (parentGroupID, name, groupDescription)
+        $res = $this->db->prepared_query("INSERT INTO groups (name, groupDescription, parentGroupID)
                                             VALUES (:groupName, :groupDesc, :parentGroupID)", $vars);
+        return $this->db->getLastInsertID();
     }
 
     function removeGroup($groupID)
     {
-        $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query("DELETE FROM users WHERE groupID=:groupID", $vars);        
-        $res = $this->db->prepared_query("DELETE FROM groups WHERE groupID=:groupID", $vars);                
+        if($groupID != 1) {
+            $vars = array(':groupID' => $groupID);
+            $res = $this->db->prepared_query("SELECT * FROM groups WHERE groupID=:groupID", $vars);
+            
+            if(isset($res[0])
+                && $res[0]['parentGroupID'] != null) {
+                $this->db->prepared_query("DELETE FROM users WHERE groupID=:groupID", $vars);
+                $this->db->prepared_query("DELETE FROM groups WHERE groupID=:groupID", $vars);
+    
+                return 1;
+            }
+        }
+
+        return 'Cannot remove group.';
     }
     
     // return array of userIDs 
@@ -79,7 +91,7 @@ class Group
             $vars = array(':userID' => $member,
                           ':groupID' => $groupID);
             $res = $this->db->prepared_query("DELETE FROM users WHERE userID=:userID AND groupID=:groupID", $vars);
-            echo $res;
+            return 1;
         }
     }
 
