@@ -587,23 +587,37 @@
             
             <script>
             $(function() {
+                function importFromNational(empSel) {
+                    if(empSel.selection != '') {
+                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                        $.ajax({
+                            type: 'POST',
+                            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                            data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                            success: function(res) {
+                            	$('#<!--{$indicator.indicatorID}-->').val(res);
+                            }
+                        });
+                    }
+                }
+
             	var empSel;
-                if(typeof employeeSelector == 'undefined') {
+                if(typeof nationalEmployeeSelector == 'undefined') {
                     $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />');
                     $.ajax({
                         type: 'GET',
-                        url: "<!--{$orgchartPath}-->/js/employeeSelector.js",
+                        url: "<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js",
                         dataType: 'script',
                         success: function() {
-                            empSel = new employeeSelector('empSel_<!--{$indicator.indicatorID}-->');
+                            empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
                             empSel.apiPath = '<!--{$orgchartPath}-->/api/';
                             empSel.rootPath = '<!--{$orgchartPath}-->/';
 
                             empSel.setSelectHandler(function() {
-                                $('#<!--{$indicator.indicatorID}-->').val(empSel.selection);
+                            	importFromNational(empSel);
                             });
                             empSel.setResultHandler(function() {
-                                $('#<!--{$indicator.indicatorID}-->').val(empSel.selection);
+                            	importFromNational(empSel);
                             });
                             empSel.initialize();
                             <!--{if $indicator.value != ''}-->
@@ -613,15 +627,15 @@
                     });
                 }
                 else {
-                    empSel = new employeeSelector('empSel_<!--{$indicator.indicatorID}-->');
+                    empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
                     empSel.apiPath = '<!--{$orgchartPath}-->/api/';
                     empSel.rootPath = '<!--{$orgchartPath}-->/';
 
                     empSel.setSelectHandler(function() {
-                        $('#<!--{$indicator.indicatorID}-->').val(empSel.selection);
+                    	importFromNational(empSel);
                     });
                     empSel.setResultHandler(function() {
-                        $('#<!--{$indicator.indicatorID}-->').val(empSel.selection);
+                    	importFromNational(empSel);
                     });
 
                     empSel.initialize();

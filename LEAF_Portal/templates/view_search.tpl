@@ -107,7 +107,6 @@ $(function() {
         grid.setData(tGridData);
         grid.sort('recordID', 'desc');
         grid.renderBody();
-        grid.renderVirtualHeader();
 
         $('#header_date').css('width', '60px');
         $('#header_service').css('width', '150px');

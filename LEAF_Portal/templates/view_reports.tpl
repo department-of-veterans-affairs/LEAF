@@ -460,7 +460,6 @@ $(function() {
                 grid.setData(tGridData);
                 grid.sort('recordID', 'desc');
                 grid.renderBody();
-                grid.renderVirtualHeader();
             }
             else {
                 var recordIDs = '';

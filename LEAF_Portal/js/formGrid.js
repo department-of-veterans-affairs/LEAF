@@ -21,6 +21,7 @@ var LeafFormGrid = function(containerID, options) {
 	var postRenderFunc = null;
 	var rootURL = '';
 	var isRenderingVirtualHeader = true;
+	var isRenderingBody = false;
 
 	$('#' + containerID).html('<div id="'+prefixID+'grid"></div><div id="'+prefixID+'form" style="display: none"></div>');
 
@@ -39,7 +40,7 @@ var LeafFormGrid = function(containerID, options) {
     function hideIndex() {
     	showIndex = false;
     }
-    
+
     /**
      * @memberOf LeafFormGrid
      */
@@ -84,7 +85,7 @@ var LeafFormGrid = function(containerID, options) {
     		virtualHeader += '<td style="text-align: center">UID</td>';
     	}
     	$('#' + prefixID + 'thead').html(temp);
-    	
+
     	if(showIndex) {
 			$('#'+ prefixID +'header_UID').css('cursor', 'pointer');
 			$('#'+ prefixID +'header_UID').on('click', null, null, function(data) {
@@ -176,12 +177,13 @@ var LeafFormGrid = function(containerID, options) {
     				$('#' + prefixID + 'table_stickyHeader').css('display', 'none');
     			}
     		}
+
 			if(scrollPos > (tableHeight - pageHeight * .8)
-				&& isDataLoaded) {
+				&& isDataLoaded
+                && isRenderingBody) {
 				if(renderRequest[currentRenderIndex] == undefined) {
 					renderRequest[currentRenderIndex] = 1;
 					renderBody(currentRenderIndex, defaultLimit);
-					renderVirtualHeader();
 				}
 			}
     	}, 100);
@@ -346,12 +348,13 @@ var LeafFormGrid = function(containerID, options) {
 			'height': '30px'
 		});
 		$('#' + prefixID + 'table_stickyHeader > table > thead > tr > td').each(function(idx) {
-			$(this).css('width', virtHeaderSizes[idx]);
+			$(this).css({'width': virtHeaderSizes[idx],
+                         'padding': '2px'});
 		});
 
 		$('#' + prefixID+'table_stickyHeader > table').css({'border': '1px solid black',
 			  'border-collapse': 'collapse',
-			  'margin': '0px'});
+			  'margin': '0 2px 0'});
 		$('#' + prefixID+'table_stickyHeader > table > thead > tr').css({
 			'background-color': 'black',
 			'color': 'white'
@@ -365,6 +368,7 @@ var LeafFormGrid = function(containerID, options) {
      * @memberOf LeafFormGrid
      */
     function renderBody(startIdx, limit) {
+        isRenderingBody = true;
     	if(preRenderFunc != null) {
     		preRenderFunc();
     	}
@@ -373,7 +377,7 @@ var LeafFormGrid = function(containerID, options) {
     		limit = defaultLimit;
     	}
     	currLimit = limit;
-    	
+
     	var fullRender = false;
     	if(startIdx == undefined
     		|| startIdx == 0) {
@@ -446,7 +450,7 @@ var LeafFormGrid = function(containerID, options) {
         	}
         	buffer += '</tr>';
         	counter++;
-        	
+
         	if(fullRender) {
         		currentRenderIndex = i + 1;
         	}
@@ -483,6 +487,7 @@ var LeafFormGrid = function(containerID, options) {
     	if(postRenderFunc != null) {
     		postRenderFunc();
     	}
+    	renderVirtualHeader();
     }
 
     /**
@@ -522,8 +527,7 @@ var LeafFormGrid = function(containerID, options) {
             	}
             	sort('recordID', 'desc');
             	renderBody(0, defaultLimit);
-            	renderVirtualHeader();
-            	
+
             	if(callback != undefined
             		&& typeof callback === 'function') {
             		callback();

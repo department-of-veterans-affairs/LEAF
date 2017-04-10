@@ -617,9 +617,8 @@ class Form
             return 0;
         }
         if($this->getOwnerID($recordID) != $this->login->getUserID()) {
-        	if(!$this->hasWriteAccess($recordID) ||
-        			($this->isSubmitted($recordID) && !$this->login->checkGroup(1))) {
-        				return 'Cancel Request: Access denied.';
+        	if(!$this->hasWriteAccess($recordID)) {
+        		return 'Cancel Request: Access denied.';
         	}
         }
 

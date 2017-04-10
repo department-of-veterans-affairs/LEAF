@@ -109,7 +109,6 @@ $(function() {
             });
         });
         grid.renderBody();
-        grid.renderVirtualHeader();
 
 /*        $('#forms').html('<table class="leaf_grid"><tbody id="table_forms">');
         for(var i in res) {
