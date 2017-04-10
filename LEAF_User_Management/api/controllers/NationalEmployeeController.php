@@ -32,6 +32,9 @@ class NationalEmployeeController extends RESTfulResponse
         	if(isset($_GET['noLimit']) && $_GET['noLimit'] == 1) {
         		$employee->setNoLimit();
         	}
+        	if(isset($_GET['domain'])) {
+        		$employee->setDomain($_GET['domain']);
+        	}
             return $employee->search($_GET['q'], $_GET['indicatorID']);
         });
 

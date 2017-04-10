@@ -38,6 +38,10 @@ class EmployeeController extends RESTfulResponse
             return $employee->search($_GET['q'], $_GET['indicatorID']);
         });
 
+       	$this->index['GET']->register('employee/search/userName/[text]', function($args) use ($employee) {
+       		return $employee->lookupLogin($args[0]);
+       	});
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
@@ -78,6 +82,13 @@ class EmployeeController extends RESTfulResponse
         		return $e->getMessage();
         	}
         });
+       	$this->index['POST']->register('employee/import/[text]', function($args) use ($employee) {
+       		try {
+       			return $employee->importFromNational($args[0]);
+       		} catch (Exception $e) {
+       			return $e->getMessage();
+       		}
+       	});
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }

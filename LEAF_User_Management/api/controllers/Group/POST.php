@@ -24,7 +24,7 @@ $this->index['POST']->register('group/[digit]/employee', function($args) use ($g
 });
 $this->index['POST']->register('group/[digit]/tag', function($args) use ($group) {
     try {
-        $group->addTag($args[0], $_POST['tag']);
+        return $group->addTag($args[0], $_POST['tag']);
     } catch (Exception $e) {
         return $e->getMessage();
     }

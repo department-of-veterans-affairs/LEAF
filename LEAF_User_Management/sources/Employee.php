@@ -114,6 +114,10 @@ class Employee extends Data
      */
 	public function importFromNational($userName)
 	{
+		if($userName == '') {
+			return 'Invalid user';
+		}
+		
 		// first see if the username already exists
 		$local = $this->lookupLogin($userName);
 		if(isset($local[0])) { 
