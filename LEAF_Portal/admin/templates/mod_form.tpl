@@ -18,7 +18,7 @@ function openContent(url) {
 		workflow = '<span style="color: red">No workflow. Users will not be able to select this form.</span>';
 	}
     $("#formEditor_content").html('<div style="padding: 8px; border: 1px solid black; background-color: white">' +
-    		                      '<div style="float: right"><div id="editFormData" class="buttonNorm">Edit Properties</div><br /><div id="editFormPermissions" onclick="editPermissions();" class="buttonNorm">Edit Permissions</div></div>' +
+    		                      '<div style="float: right"><div id="editFormData" class="buttonNorm">Edit Properties</div><br /><div id="editFormPermissions" onclick="editPermissions();" class="buttonNorm">Edit Collaborators</div></div>' +
     		                      '<div style="padding: 8px">' +
     		                          '<b title="categoryID: '+ currCategoryID +'">' + formTitle + '</b><br />' +
     		                          categories[currCategoryID].categoryDescription +
@@ -174,8 +174,8 @@ function openContent(url) {
 }
 
 function addPermission(categoryID, group) {
-    dialog.setTitle('Edit Permissions');
-    dialog.setContent('Adding permission on <b>'+ formTitle +'</b><div id="groups"></div>');
+    dialog.setTitle('Edit Collaborators');
+    dialog.setContent('Add collaborators to the <b>'+ formTitle +'</b> form:<div id="groups"></div>');
     dialog.indicateBusy();
 
     $.ajax({
@@ -229,8 +229,8 @@ function removePermission(groupID) {
 function editPermissions() {
 	formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 
-	dialog_simple.setTitle('Edit Permissions');
-	dialog_simple.setContent('Groups listed below have access to write on <b>'+ formTitle +'</b><div id="formPrivs"></div>');
+	dialog_simple.setTitle('Edit Collaborators');
+	dialog_simple.setContent('Groups listed below have access to write on the <b>'+ formTitle +'</b> form.<div id="formPrivs"></div>');
 	dialog_simple.indicateBusy();
 
 	$.ajax({

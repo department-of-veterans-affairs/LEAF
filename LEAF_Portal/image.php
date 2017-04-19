@@ -52,6 +52,7 @@ if(file_exists($filename) && in_array($fileExtension, $imageExtensionWhitelist))
     header('Content-Type: image/' . $fileExtension);
 
     readfile($filename);
+    exit();
 }
 else {
     echo 'Error: File does not exist or access may be restricted.';

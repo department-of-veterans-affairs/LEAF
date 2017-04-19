@@ -40,12 +40,14 @@ $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
 $filename = $uploadDir . Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
 
 if(file_exists($filename)) {
+    header('Content-Type: application/octet-stream');
     header('Content-Disposition: attachment; filename="'.addslashes($value[$_GET['file']]).'"');
     header("Content-Length: " . filesize($filename));
     header("Cache-Control: maxage=1"); //In seconds
     header("Pragma: public");
 
     readfile($filename);
+    exit();
 }
 else {
     echo 'Error: File does not exist or access may be restricted.';

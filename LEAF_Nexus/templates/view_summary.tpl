@@ -164,7 +164,7 @@ $.ajax({
             .dimension(serviceDim)
             .group(serviceGroup)
             .fixedBarHeight(20)
-            .height(serviceGroup.all().length * 28)
+            .height((serviceGroup.all().length * 28) + 30)
             .ordering(function(d) { return d.key; })
             .title(function(d) { return d.key + ': ' + Math.round(d.value * 100) / 100 + ' FTE'; })
             .elasticX(true);

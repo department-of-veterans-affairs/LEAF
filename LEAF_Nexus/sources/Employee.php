@@ -145,19 +145,50 @@ class Employee extends Data
 				$_POST['CSRFToken'] = $_SESSION['CSRFToken'];
 
 				if($res[0]['data'][5]['data'] != '') {
-					$_POST[5] = $res[0]['data'][5]['data']; // Phone
+					// Phone
+					$vars = array(':UID' => $empUID,
+								  ':indicatorID' => 5,
+							      ':data' => trim($res[0]['data'][5]['data']),
+								  ':timestamp' => time(),
+								  ':author' => 'imported');
+					$this->db->prepared_query("INSERT INTO {$this->dataTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
+														VALUES (:UID, :indicatorID, :data, :timestamp, :author)
+														ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
 				}
 
-				$_POST[6] = $res[0]['data'][6]['data']; // Email
+				// Email
+				$vars = array(':UID' => $empUID,
+							  ':indicatorID' => 6,
+							  ':data' => trim($res[0]['data'][6]['data']),
+							  ':timestamp' => time(),
+							  ':author' => 'imported');
+				$this->db->prepared_query("INSERT INTO {$this->dataTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
+													VALUES (:UID, :indicatorID, :data, :timestamp, :author)
+													ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
 
 				if($res[0]['data'][8]['data'] != '') {
-					$_POST[8] = $res[0]['data'][8]['data']; // Room
+					// Room
+					$vars = array(':UID' => $empUID,
+							':indicatorID' => 8,
+							':data' => trim($res[0]['data'][8]['data']),
+							':timestamp' => time(),
+							':author' => 'imported');
+					$this->db->prepared_query("INSERT INTO {$this->dataTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
+													VALUES (:UID, :indicatorID, :data, :timestamp, :author)
+													ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
 				}
 				
 				if($res[0]['data'][23]['data'] != '') {
-					$_POST[23] = $res[0]['data'][23]['data']; // AD Title
+					// AD Title
+					$vars = array(':UID' => $empUID,
+								  ':indicatorID' => 23,
+								  ':data' => trim($res[0]['data'][23]['data']),
+								  ':timestamp' => time(),
+								  ':author' => 'imported');
+					$this->db->prepared_query("INSERT INTO {$this->dataTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
+													VALUES (:UID, :indicatorID, :data, :timestamp, :author)
+													ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
 				}
-				$this->modify($empUID);
 				return $empUID;
 			}
 		} catch (Exception $e) {

@@ -1,42 +1,6 @@
 <style>
-/*  SECTIONS  */
-.section {
-    clear: both;
-    padding: 0px;
-    margin: 0px;
-}
-
-/*  COLUMN SETUP  */
-.col {
-    display: block;
-    float:left;
-    margin: 1% 0 1% 1.6%;
-}
-.col:first-child { margin-left: 0; }
-
-/*  GROUPING  */
-.group:before,
-.group:after { content:""; display:table; }
-.group:after { clear:both;}
-.group { zoom:1; /* For IE 6/7 */ }
-
-/*  GRID OF TWO  */
-.span_2_of_2 {
-    width: 100%;
-}
-.span_1_of_2 {
-    width: 49.2%;
-}
-
-@media only screen and (max-width: 840px) {
-    .col { 
-        margin: 1% 0 1% 0%;
-    }
-}
-
-@media only screen and (max-width: 840px) {
-    .span_2_of_2, .span_1_of_2 { width: 100%; }
-}
+/* 2 column grid */
+.group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_2_of_2{width:100%}.span_1_of_2{width:49.2%}@media only screen and (max-width:840px){.col{margin:1% 0}.span_1_of_2,.span_2_of_2{width:100%}}
 </style>
 
 <script type="text/javascript">

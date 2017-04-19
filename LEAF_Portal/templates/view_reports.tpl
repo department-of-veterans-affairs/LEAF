@@ -1,3 +1,8 @@
+<style>
+/* 3 column grid */
+.group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
+</style>
+
 <div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: 70%; background-color: white; border: 1px solid black; margin: auto; padding: 0px">
     <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 1: Develop search filter
@@ -7,14 +12,14 @@
     </div>
 </div>
 
-<div id="step_2" style="display: none; width: 85%; background-color: white; border: 1px solid black; margin: auto; padding: 0px">
+<div id="step_2" style="display: none; width: 95%; background-color: white; border: 1px solid black; margin: auto; padding: 0px">
     <div style="background-color: #0059a4; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 2: Select Data Columns
     </div>
     <div style="padding: 8px">
-        <div id="indicatorList" style="padding: 8px; height: 320px; overflow: scroll; overflow-x: hidden">Loading...</div>
-        <br />
-        <div id="generateReport" class="buttonNorm" style="font-size: 120%; width: 70%; margin: auto; text-align: center">Generate Report <img src="../libs/dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></div>
+        <div id="indicatorList" class="section group" style="padding: 8px">Loading...</div>
+        <br style="clear: both" />
+        <div id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 38px; padding-top: 8px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="../libs/dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></div>
     </div>
 </div>
 
@@ -170,7 +175,7 @@ function loadSearchPrereqs() {
             var buffer = '';
 
             // special columns
-            buffer += '<div>';
+            buffer += '<div class="col span_1_of_3">';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_title" name="indicators[title]" value="title" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_title"> Title of Request</label></div>';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_service" name="indicators[service]" value="service" />';
@@ -187,6 +192,7 @@ function loadSearchPrereqs() {
             buffer += '<label class="checkable" style="width: 100px" for="indicators_approval_history"> Approval History</label></div>';
             buffer += '</div>';
             var groupList = {};
+            var groupIDmap = {};
             var tmp = document.createElement('div');
             var temp;
             for(var i in res) {
@@ -201,11 +207,27 @@ function loadSearchPrereqs() {
                     groupList[res[i].categoryName] = [];
                 }
                 groupList[res[i].categoryName].push(res[i].indicatorID);
+                if(groupIDmap[res[i].categoryName] == undefined) {
+                	groupIDmap[res[i].categoryName] = {};
+                	groupIDmap[res[i].categoryName].categoryID = res[i].categoryID;
+                	groupIDmap[res[i].categoryName].parentCategoryID = res[i].parentCategoryID;
+                	groupIDmap[res[i].categoryName].parentStaples = res[i].parentStaples;
+                }
             }
 
+            buffer += '<div class="col span_1_of_3">';
             for(var i in groupList) {
-
-                buffer += '<div class="form buttonNorm" style="width: 200px; float: left; min-height: 30px; margin: 4px"><div class="formLabel">' + i + '</div>';
+            	var associatedCategories = groupIDmap[i].categoryID;
+            	if(groupIDmap[i].parentCategoryID != '') {
+            		associatedCategories += ' ' + groupIDmap[i].parentCategoryID; 
+            	}
+            	if(groupIDmap[i].parentStaples != null) {
+            		for(var j in groupIDmap[i].parentStaples) {
+            			associatedCategories += ' ' + groupIDmap[i].parentStaples[j];
+            		}
+            	}
+            	
+                buffer += '<div class="form category '+ associatedCategories +'" style="width: 200px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + i + '</div>';
                 for(var j in groupList[i]) {
                     buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
                     buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
@@ -213,13 +235,14 @@ function loadSearchPrereqs() {
                 buffer += '</div>';
             }
 
-            buffer += '<br />';
+            buffer += '</div>';
             
             $('#indicatorList').html(buffer);
 
             $('#indicatorList').css('height', $(window).height() - 240);
             $('.form').on('click', function() {
-            	$(this).removeClass('buttonNorm');
+            	$(this).children('.formLabel').removeClass('buttonNorm');
+            	$(this).find('.formLabel>img').css('display', 'none');
             	$(this).css({width: '100%'});
             	$(this).children('div').css('display', 'block');
             	$(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
@@ -231,7 +254,7 @@ function loadSearchPrereqs() {
                 dataType: 'json',
                 success: function(res) {
                     buffer = '';
-                    buffer += '<div class="form" style="width: 100%; float: left; min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Approval Dates</div>';
+                    buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Approval Dates</div>';
                     for(var i in res) {
                         buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
                         buffer += '<label class="checkable" style="width: 100px" for="indicators_depID_'+ res[i].dependencyID +'"> ' + res[i].description +'</label></div>';
@@ -374,6 +397,26 @@ $(function() {
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').on('click', function() {
     	$('#step_2').fadeIn(400);
     	$('#step_1').slideUp(400);
+    	
+    	// hide data fields that don't match forms selected by the user
+    	leafSearch.generateQuery();
+    	var tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
+    	var filteredCategories = [];
+    	for(var i in tTerms) {
+    		if(tTerms[i].id == 'categoryID'
+    			&& tTerms[i].operator == '=') {
+    			filteredCategories.push(tTerms[i].match);
+    		}
+    	}
+    	if(filteredCategories.length > 0) {
+    		$('.category').css('display', 'none');
+    		for(var i in filteredCategories) {
+    			$('.' + filteredCategories[i]).css('display', 'inline');
+    		}
+    	}
+    	else {
+    		$('.category').css('display', 'inline');
+    	}
     });
 
     <!--{if $query == '' || $indicators == ''}-->
@@ -483,6 +526,7 @@ $(function() {
             extendedToolbar = true;
             
             $('#editReport').on('click', function() {
+            	grid.stop();
             	isNewQuery = true;
                 $('#reportTitleDisplay').css('display', 'none');
                 $('#reportTitle').css('display', 'block');

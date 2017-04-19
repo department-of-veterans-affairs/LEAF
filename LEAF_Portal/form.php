@@ -2304,8 +2304,8 @@ class Form
     		return 1;
     	}
 
-    	if($indicator['indicatorParentID'] != '') {
-    		return $this->isIndicatorOrphan($indicatorList[$indicator['indicatorParentID']], $indicatorList);
+    	if($indicator['parentIndicatorID'] != '') {
+    		return $this->isIndicatorOrphan($indicatorList[$indicator['parentIndicatorID']], $indicatorList);
     	}
 
     	return 0;
@@ -2317,7 +2317,7 @@ class Form
     public function getIndicatorList()
     {
     	$vars = array();
-    	$res = $this->db->prepared_query('SELECT *, indicators.parentID as indicatorParentID FROM indicators
+    	$res = $this->db->prepared_query('SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
 											LEFT JOIN categories USING (categoryID)
 						                    WHERE indicators.disabled = 0
 						    					AND format != ""
@@ -2325,35 +2325,53 @@ class Form
 						    					AND categories.disabled = 0
 						    				ORDER BY name', $vars);
 
-    	$resAll = $this->db->prepared_query('SELECT *, indicators.parentID as indicatorParentID FROM indicators
+    	$resAll = $this->db->prepared_query('SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
 													LEFT JOIN categories USING (categoryID)
 								                    WHERE indicators.disabled = 0
 								    					AND categories.disabled = 0
 								    				ORDER BY name', $vars);
+
+    	$dataStaples = array();
+    	$resStaples = $this->db->prepared_query('SELECT * FROM category_staples', $vars);
+    	foreach($resStaples as $stapled) {
+    		$dataStaples[$stapled['stapledCategoryID']][] = $stapled['categoryID'];
+    	}
+    	
     	$data = array();
     	$isActiveIndicator = array();
+    	$isActiveCategory = array();
     	foreach($resAll as $item) {
 			// TODO: instead of checking for orphaned indicators, make sure the indicator list never contains orphans
     		$temp = array();
-    		$temp['indicatorParentID'] = $item['indicatorParentID'];
+    		$temp['parentIndicatorID'] = $item['parentIndicatorID'];
+    		$temp['parentCategoryID'] = $item['parentCategoryID'];
     		$temp['indicatorID'] = $item['indicatorID'];
     		$temp['name'] = $item['name'];
     		$temp['format'] = $item['format'];
     		$temp['description'] = $item['description'];
     		$temp['categoryName'] = $item['categoryName'];
+    		$temp['categoryID'] = $item['categoryID'];
     		$isActiveIndicator[$item['indicatorID']] = $temp;
+    		$isActiveCategory[$item['categoryID']] = 1;
     	}
 
     	// check for orphaned indicators
     	foreach($res as $item) {
     		if(!$this->isIndicatorOrphan($item, $isActiveIndicator)) {
-    			$temp = array();
-    			$temp['indicatorID'] = $item['indicatorID'];
-    			$temp['name'] = $item['name'];
-    			$temp['format'] = $item['format'];
-    			$temp['description'] = $item['description'];
-    			$temp['categoryName'] = $item['categoryName'];
-    			$data[] = $temp;
+    			// make sure the field's category isn't a member of a deleted category
+    			if($item['parentCategoryID'] == ''
+    				|| $isActiveCategory[$item['parentCategoryID']] == 1) {
+    				$temp = array();
+    				$temp['indicatorID'] = $item['indicatorID'];
+    				$temp['name'] = $item['name'];
+    				$temp['format'] = $item['format'];
+    				$temp['description'] = $item['description'];
+    				$temp['categoryName'] = $item['categoryName'];
+    				$temp['categoryID'] = $item['categoryID'];
+    				$temp['parentCategoryID'] = $item['parentCategoryID'];
+    				$temp['parentStaples'] = $dataStaples[$item['categoryID']];
+    				$data[] = $temp;
+    			}
     		}
     	}
     	

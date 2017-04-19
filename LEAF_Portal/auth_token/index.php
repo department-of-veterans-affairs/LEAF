@@ -73,6 +73,12 @@ if($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
         							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
 									ON DUPLICATE KEY UPDATE deleted=0', $vars);
 			$empUID = $db_phonebook->getLastInsertID();
+			
+			if($empUID == 0) {
+                $vars = array(':userName' => $res[0]['userName']);
+                $empUID = $db_phonebook->prepared_query('SELECT empUID FROM employee
+                                                            WHERE userName=:userName', $vars)[0]['empUID'];
+            }
 
 			$vars = array(':empUID' => $empUID,
 					      ':indicatorID' => 6,
@@ -81,7 +87,8 @@ if($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
 					      ':timestamp' => time()
 			);
 			$db_phonebook->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
-											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)', $vars);
+											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
+											ON DUPLICATE KEY UPDATE data=:data', $vars);
 			
 			// redirect as usual
 			$_SESSION['userID'] = $res[0]['userName'];

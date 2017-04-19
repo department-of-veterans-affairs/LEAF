@@ -72,7 +72,13 @@ if(isset($_SERVER['REMOTE_USER'])) {
         							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
     								ON DUPLICATE KEY UPDATE deleted=0', $vars);
     		$empUID = $db->getLastInsertID();
-    	
+
+    		if($empUID == 0) {
+    			$vars = array(':userName' => $res[0]['userName']);
+    			$empUID = $db->prepared_query('SELECT empUID FROM employee
+                                                   WHERE userName=:userName', $vars)[0]['empUID'];
+    		}
+
     		$vars = array(':empUID' => $empUID,
     				':indicatorID' => 6,
     				':data' => $res[0]['data'],
@@ -80,7 +86,8 @@ if(isset($_SERVER['REMOTE_USER'])) {
     				':timestamp' => time()
     		);
     		$db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
-											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)', $vars);
+											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
+    										ON DUPLICATE KEY UPDATE data=:data', $vars);
     			
     		// redirect as usual
     		$_SESSION['userID'] = $res[0]['userName'];

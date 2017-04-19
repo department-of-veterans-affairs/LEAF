@@ -1,5 +1,12 @@
 .indicatorOption {
-    width: 200px;
     padding: 4px;
-    float: left;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.indicatorOption:hover {
+    text-overflow: clip;
+    overflow: visible;
+    white-space: normal;
 }

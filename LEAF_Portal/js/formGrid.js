@@ -691,6 +691,7 @@ var LeafFormGrid = function(containerID, options) {
 		getDataByIndex: getDataByIndex,
 		getDataByRecordID: getDataByRecordID,
 		disableVirtualHeader: function() { isRenderingVirtualHeader = false },
+		stop: function() { isRenderingBody = false },
 		setRootURL: function(url) { rootURL = url; }
 	}
 };

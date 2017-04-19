@@ -63,9 +63,8 @@ if(file_exists($filename)) {
     header("Pragma: public");
     
     readfile($filename);
+    exit();
 }
 else {
     echo 'Error: File does not exist or access may be restricted.';
 }
-
-?>

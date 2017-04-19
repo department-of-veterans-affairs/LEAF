@@ -120,3 +120,5 @@ else {
         readfile('./images/aboutlogo_small.png');
     }
 }
+
+exit();

@@ -34,7 +34,7 @@ class Group
             $res = $this->db->prepared_query("SELECT * FROM groups WHERE groupID=:groupID", $vars);
             
             if(isset($res[0])
-                && $res[0]['parentGroupID'] != null) {
+                && $res[0]['parentGroupID'] == null) {
                 $this->db->prepared_query("DELETE FROM users WHERE groupID=:groupID", $vars);
                 $this->db->prepared_query("DELETE FROM groups WHERE groupID=:groupID", $vars);
     
