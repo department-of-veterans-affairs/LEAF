@@ -92,16 +92,20 @@ function doSubmit(recordID) {
 	$('#submitControl').empty().html('<img src="./images/indicator.gif" />Submitting...');
 	$.ajax({
 		type: 'POST',
-		url: "ajaxIndex.php?a=dosubmit&recordID=" + recordID,
+		url: "./api/form/" + recordID + "/submit",
 		data: {CSRFToken: '<!--{$CSRFToken}-->'},
 		success: function(response) {
-            if(response.indexOf(recordID + 'submitOK') >= 0) {
+            if(response.errors.length == 0) {
                 $('#submitControl').empty().html('Submitted');
                 $('#submitContent').hide('blind', 500);
                 workflow.getWorkflow(recordID);
             }
             else {
-                $('#submitControl').empty().html('Submit Error. Please refresh and try again.');
+            	var errors = '';
+            	for(var i in response.errors) {
+            		errors += response.errors[i] + '<br />';
+            	}
+                $('#submitControl').empty().html('Error: ' + errors);
             }
 		}
 	});

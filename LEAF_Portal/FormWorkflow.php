@@ -318,12 +318,14 @@ class FormWorkflow
      * @param int $dependencyID
      * @param string $actionType
      * @param string $comment
-     * @return int 1 for success 0 for fail
+     * @return array {status(int), errors[string]}
      */
     public function handleAction($dependencyID, $actionType, $comment)
     {
+    	$errors = [];
+
         if($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
-            return 0;
+            return array('status' => 0, 'errors' => ['Invalid Token']);
         }
         $comment = $this->sanitizeInput($comment);
         $time = time();
@@ -344,7 +346,7 @@ class FormWorkflow
             switch($dependencyID) {
                 case 1: // service chief
                     if(!$this->login->checkService($res[0]['serviceID'])) {
-                        return 0;
+                        return array('status' => 0, 'errors' => ['Your account is not registered as a Service Chief']);
                     }
                     break;
                 case 8: // quadrad
@@ -355,7 +357,7 @@ class FormWorkflow
 							                				WHERE groupID IN ({$quadGroupIDs})
 							                				AND serviceID=:serviceID", $varsQuad);
                     if(count($resQuad) == 0) {
-                        return 0;
+                        return array('status' => 0, 'errors' => ['Your account is not registered as an Executive Leadership Team member']);
                     }
                     break;
                 case -1: // dependencyID -1 : person designated by requestor
@@ -372,7 +374,7 @@ class FormWorkflow
                 	$empUID = $resEmpUID[$resPerson[0]['indicatorID_for_assigned_empUID']]['value'];
 
                 	if($empUID != $this->login->getEmpUID()) {
-                		return 0;
+                		return array('status' => 0, 'errors' => ['User account does not match']);
                 	}
                     break;
                 case -2: // dependencyID -2 : requestor followup
@@ -384,7 +386,7 @@ class FormWorkflow
                 												WHERE recordID=:recordID", $varsPerson);
                 	
                 	if($resPerson[0]['userID'] != $this->login->getUserID()) {
-                		return 0;
+                		return array('status' => 0, 'errors' => ['User account does not match']);
                 	}
                 	break;
                 case -3: // dependencyID -3 : group designated by requestor
@@ -401,11 +403,11 @@ class FormWorkflow
                 	$groupID = $resGroupID[$resGroup[0]['indicatorID_for_assigned_groupID']]['value'];
                 	
                 	if(!$this->login->checkGroup($groupID)) {
-                		return 0;
+                		return array('status' => 0, 'errors' => ['User account is not part of the designated group']);
                 	}
                 	break;
                 default:
-                	return 0;
+                	return array('status' => 0, 'errors' => ['Invalid Operation']);
                     break;
             }
         }
@@ -485,7 +487,10 @@ class FormWorkflow
                 
                 // Trigger events if the next step is the same as the original step (eg: same-step loop)
                 if($actionable['stepID'] == $res2[0]['nextStepID']) {
-           			$this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment);
+           			$status = $this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment);
+           			if(count($status['errors']) > 0) {
+           				$errors = array_merge($errors, $status['errors']);
+           			}
 
                 	// clear current dependency since it's a loop
                 	$vars_clearDep = array(':recordID' => $this->recordID,
@@ -570,12 +575,15 @@ class FormWorkflow
                     }
 
                     // Handle events if all dependencies in the step have been met
-                    $this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment);
+                    $status = $this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment);
+                    if(count($status['errors']) > 0) {
+                    	$errors = array_merge($errors, $status['errors']);
+                    }
                 } // End update the record's workflow state
             }
         }
-        
-        return 1;
+
+        return array('status' => 1, 'errors' => $errors);
     }
     
     /**
@@ -584,9 +592,12 @@ class FormWorkflow
      * @param int $stepID
      * @param string $actionType
      * @param string $comment
+     * @return array {status(int), errors[]}
      */
     public function handleEvents($workflowID, $stepID, $actionType, $comment)
     {
+    	$errors = [];
+    	
         // Take care of special events (sendback)
         if($actionType == 'sendback') {
         	$vars2 = array(':recordID' => $this->recordID);
@@ -803,9 +814,13 @@ class FormWorkflow
                                            'comment' => $comment);
 
                         $customClassName = "CustomEvent_{$event['eventID']}";
-                        $event = new $customClassName($this->db, $this->login, $dir, $email, $this->siteRoot, $eventInfo);
 
-                        $event->execute();
+                        try {
+                        	$event = new $customClassName($this->db, $this->login, $dir, $email, $this->siteRoot, $eventInfo);
+                        	$event->execute();
+                        } catch (Exception $e) {
+                        	$errors[] = $e->getMessage();
+                        }
                     }
                     else {
                     	trigger_error('Custom event not found: ' . $eventFile);
@@ -813,6 +828,8 @@ class FormWorkflow
                     break;
             }
         }
+        
+        return array('status' => 1, 'errors' => $errors);
     }
 
 	/**

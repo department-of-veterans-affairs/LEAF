@@ -599,12 +599,13 @@ function setDynamicApprover(stepID) {
     	success: function(res) {
     		var indicatorList = '';
     		for(var i in res) {
-    			if(res[i]['format'] == 'orgchart_employee') {
+    			if(res[i]['format'] == 'orgchart_employee'
+    				|| res[i]['format'] == 'raw_data') {
     				indicatorList += '<option value="'+ res[i].indicatorID +'">'+ res[i].categoryName +': '+ res[i].name +' (id: '+ res[i].indicatorID +')</option>';
     			}
     		}
-    		dialog.setContent('<br />Select a field that the requestor fills out. The workflow will route to the person they select.<br /><select id="indicatorID">' + indicatorList + '</select><br /><br />\
-    			    * Your form must have a field with the "Orgchart Employee" input format');
+    		dialog.setContent('<br />Select the data field that will be used to route to selected individual.<br /><select id="indicatorID">' + indicatorList + '</select><br /><br />\
+    			    * Your form must have a field with the "Orgchart Employee" or "Raw Data" input format');
     	},
     	cache: false
     });

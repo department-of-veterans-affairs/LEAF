@@ -28,6 +28,10 @@ class CustomEvent_[YOUR EVENT ID]
         $this->eventInfo = $eventInfo;
     }
 
+    /**
+     * Execute custom action
+     * @throws Exception
+     */
     public function execute()
     {
         // Your custom event goes here. Below is an example of an email notification
@@ -40,7 +44,7 @@ class CustomEvent_[YOUR EVENT ID]
 
         $this->email->setSubject('Action for #' . $this->eventInfo['recordID'] . ' in ' . $record[0]['service']);
 
-        include_once '../form.php'; // events are invoked from ./api/, so the context is ./api  Except for the submit event
+        include_once '../form.php'; // events are invoked from ./api/, so the context is ./api
         $form = new Form($this->db, $this->login);
         
         // Get data from a field
@@ -69,5 +73,3 @@ class CustomEvent_[YOUR EVENT ID]
         $this->email->sendMail();
     }
 }
-
-?>

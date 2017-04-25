@@ -47,9 +47,8 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	        type: 'POST',
 	        url: 'api/?a=formWorkflow/' + currRecordID + '/apply',
 	        data: data,
-	        dataType: 'text',
 	        success: function(response) {
-	            if(response.indexOf(currRecordID + 'actionOK') >= 0) {
+	            if(response.errors.length == 0) {
 	                $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Action applied!</div>');
 	                $("#workflowbox_dep" + data['dependencyID']).hide('blind', 500);
 
@@ -59,12 +58,16 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	                }
 	            }
 	            else {
-	               $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error applying action, please contact the system administrator.</div>');
+	            	var errors = '';
+	            	for(var i in response.errors) {
+	            		errors += response.errors[i] + '<br />';
+	            	}
+	                $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error triggering events: '+ errors +'</div>');
 	            }
 	            antiDblClick = 0;
 	        },
 	        error: function(response) {
-	            $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Email notification may not have been sent.</div>');
+	            $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Workflow Events may not have triggered</div>');
 	        }
 	    });
 	}
@@ -108,9 +111,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 			}
 
 		    $('#form_dep_container'+ step.dependencyID).append('<div id="button_container'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType +'" style="float: '+ step.dependencyActions[i].actionAlignment +'">\
-		            <div id="button_step'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType +'" class="button">\
+		            <button id="button_step'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType +'" class="button">\
 		            '+ icon + ' ' + step.dependencyActions[i].actionText +'\
-		            </div>\
+		            </button>\
 		            </div>');
 		    $('#button_step'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType).css({'border': '1px solid black', 'padding': '6px', 'margin': '4px'});
 

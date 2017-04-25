@@ -65,7 +65,11 @@ function getNext() {
         getForm(formStructure[currFormPosition].indicatorID, formStructure[currFormPosition].series);
     }
     else {
-        window.location.href="index.php?a=printview&recordID=<!--{$recordID}-->";
+    	var iframeURL = '';
+    	if(<!--{$isIframe}-->) {
+    		iframeURL = '&iframe=1';
+    	}
+        window.location.href="index.php?a=printview&recordID=<!--{$recordID}-->" + iframeURL;
     }
 
     return true;

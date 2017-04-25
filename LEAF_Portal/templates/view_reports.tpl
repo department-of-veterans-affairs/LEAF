@@ -216,7 +216,12 @@ function loadSearchPrereqs() {
             }
 
             buffer += '<div class="col span_1_of_3">';
-            for(var i in groupList) {
+
+            var groupNames = Object.keys(groupList);
+            groupNames.sort();
+
+            for(var k in groupNames) {
+            	var i = groupNames[k];
             	var associatedCategories = groupIDmap[i].categoryID;
             	if(groupIDmap[i].parentCategoryID != '') {
             		associatedCategories += ' ' + groupIDmap[i].parentCategoryID; 

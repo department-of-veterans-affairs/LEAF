@@ -148,15 +148,20 @@ switch($action) {
         $t_form->assign('requestLabel', $requestLabel);
         $t_form->display(customTemplate('submitForm.tpl'));
         break;
-    case 'dosubmit':
+    case 'dosubmit': // legacy action
         require 'form.php';
         $form = new Form($db, $login);
         if(is_numeric($_GET['recordID']) && $form->getProgress($_GET['recordID']) >= 100) {
-            $form->doSubmit($_GET['recordID']);
-            echo (int)$_GET['recordID']."submitOK";
+            $status = $form->doSubmit($_GET['recordID']);
+            if($status['status'] == 1) {
+            	echo (int)$_GET['recordID']."submitOK";
+            }
+            else {
+            	echo $status['errors'];
+            }
         }
         else {
-            echo '0';
+            echo 'Form is incomplete';
         }
         break;
     case 'cancel':

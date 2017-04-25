@@ -132,6 +132,10 @@ class FormController extends RESTfulResponse
             return $form->doModify($args[0]);
         });
 
+        $this->index['POST']->register('form/[digit]/submit', function($args) use ($form) {
+        	return $form->doSubmit($args[0]);
+        });
+
        	$this->index['POST']->register('form/[digit]/title', function($args) use ($form) {
        		return $form->setTitle($args[0], $_POST['title']);
        	});

@@ -129,6 +129,7 @@ switch($action) {
             $t_form->assign('recordID', (int)$_GET['recordID']);
             $t_form->assign('lastStatus', $form->getLastStatus($_GET['recordID']));
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+            $t_form->assign('isIframe', $_GET['iframe'] == 1 ? 1 : 0);
             if(isset($thisRecord['approval'])) {
                 $t_form->assign('approval', $thisRecord['approval']);
             }

@@ -997,10 +997,11 @@ class Form
     /**
      * Submit a request and start the workflow if it has not already been submitted
      * @param int $recordID
-     * @return number|void
+     * @return array {status(int), errors[string]}
      */
     function doSubmit($recordID)
     {
+    	$recordID = (int)$recordID;
         if($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return 0;
         }
@@ -1096,14 +1097,20 @@ class Form
 
         $this->db->commitTransaction();
 
+        $errors = [];
         // trigger initial submit event
         include_once 'FormWorkflow.php';
         $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID);
-        $FormWorkflow->setEventFolder('scripts/events/');
+        $FormWorkflow->setEventFolder('../scripts/events/');
         foreach($workflowIDs as $id) {
         	// special step id 0
-        	$FormWorkflow->handleEvents($id, 0, 'submit', '');
+        	$status = $FormWorkflow->handleEvents($id, 0, 'submit', '');
+        	if(count($status['errors']) > 0) {
+        		$errors = array_merge($errors, $status['errors']);
+        	}
         }
+        
+        return array('status' => 1, 'errors' => $errors);
     }
 
     /**
