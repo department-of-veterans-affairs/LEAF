@@ -136,7 +136,7 @@ var LeafFormQuery = function() {
 
     /**
      * Update an existing search term
-     * @param id - columnID
+     * @param id - columnID or "stepID"
      * @param operator - SQL comparison operator
      * @param match - search term to match on
      * @memberOf LeafFormQuery

@@ -505,6 +505,14 @@ class FormWorkflow
                 // if all dependencies are met, update the record's workflow state
                 if($numUnfilledDeps == 0
                 	|| $actionType == 'sendback') {	// handle sendback as a special case, since it doesn't fill any dependencies
+
+					// log step fulfillment data
+                	$vars2 = array(':recordID' => $this->recordID,
+                	  			':stepID' => $actionable['stepID'],
+                				':time' => $time);
+                	$this->db->prepared_query("INSERT IGNORE INTO records_step_fulfillment (recordID, stepID, fulfillmentTime)
+                                                   VALUES (:recordID, :stepID, :time)", $vars2);
+
                 	// if the next step is to end it, then update the record's workflow's state
                 	if($res2[0]['nextStepID'] == 0) {
                 		$vars2 = array(':recordID' => $this->recordID);
@@ -835,6 +843,7 @@ class FormWorkflow
 	/**
 	 * Set the the current record to a specific step
 	 * Require admin access unless bypass is requested
+	 * Do not use in combination with multiple simultaneous workflows
 	 */
 	public function setStep($stepID, $bypassAdmin = false)
 	{

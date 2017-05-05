@@ -142,6 +142,19 @@ class Form
     	return $fullForm;
     }
 
+    /**
+     * Retrieves a form's workflow based on categoryID
+     * @param int $recordID
+     * @return array
+     */
+    function getWorkflow($categoryID)
+    {
+    	$vars = array(':categoryID' => $categoryID);
+    	return $this->db->prepared_query('SELECT * FROM categories
+    										LEFT JOIN workflows USING (workflowID)
+    										WHERE categoryID=:categoryID', $vars);
+    }
+
     function getForm($recordID, $limitCategory = null)
     {
     	if($this->isNeedToKnow($recordID)) {
@@ -2242,7 +2255,7 @@ class Form
     		$res2 = $this->db->prepared_query('SELECT * FROM records_dependencies
     											LEFT JOIN dependencies USING (dependencyID)
     											WHERE recordID IN ('. $recordIDs .')
-    												AND filled = 1', array());
+    												AND filled != 0', array());
     		foreach($res2 as $item) {
     			$data[$item['recordID']]['recordsDependencies'][$item['dependencyID']]['time'] = $item['time'];
     			$data[$item['recordID']]['recordsDependencies'][$item['dependencyID']]['description'] = $item['description'];

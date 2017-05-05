@@ -111,7 +111,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 			}
 
 		    $('#form_dep_container'+ step.dependencyID).append('<div id="button_container'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType +'" style="float: '+ step.dependencyActions[i].actionAlignment +'">\
-		            <button id="button_step'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType +'" class="button">\
+		            <button type="button" id="button_step'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType +'" class="button">\
 		            '+ icon + ' ' + step.dependencyActions[i].actionText +'\
 		            </button>\
 		            </div>');

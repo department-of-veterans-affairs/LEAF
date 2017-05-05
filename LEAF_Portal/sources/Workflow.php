@@ -473,4 +473,112 @@ class Workflow
     										WHERE indicatorID=:indicatorID', $vars);
     	return true;
     }
+
+    private function checkRoute($stepID, $originStepID, &$routeData, $routePath = [])
+    {
+    	if(!isset($routeData[$stepID])) {
+    		return 0;
+    	}
+    	foreach($routeData[$stepID]['routes'] as $key=>$route) {
+    		if($route['nextStepID'] == $stepID
+    			|| $routePath[$route['nextStepID']] == 1) {
+    			unset($routeData[$stepID]['routes'][$key]);
+    			continue;
+    		}
+
+    		$routeData[$stepID]['triggerCount']++;
+    		if($route['nextStepID'] != 0) {
+    			if($originStepID == $route['nextStepID']) {
+    				unset($routeData[$stepID]);
+    			}
+    			if(!isset($routeData[$route['nextStepID']]['triggerCount'])) {
+    				if($originStepID != 0) {
+    					$routePath[$originStepID] = 1;
+    				}
+					$this->checkRoute($route['nextStepID'], $stepID, $routeData, $routePath);
+    			}
+    		}
+    	}
+    }
+
+    private function pruneRoutes($initialStepID, &$routeData)
+    {
+    	$this->checkRoute($initialStepID, 0, $routeData);
+    	$hasEnd = false;
+    	foreach($routeData as $key=>$route) {
+    		if(!isset($route['triggerCount'])) {
+    			unset($routeData[$key]);
+    		}
+    		else {
+    			if(!isset($route['routes'])) {
+    				unset($routeData[$key]);
+    			}
+    		}
+    	}
+    	
+    	foreach($routeData as $key=>$route) {
+    		foreach($route['routes'] as $stepKey=>$step) {
+    			if($step['nextStepID'] == 0) {
+    				$hasEnd = true;
+    			}
+    			if(!isset($routeData[$step['nextStepID']])
+    					&& $step['nextStepID'] != 0) {
+    						unset($routeData[$key]['routes'][$stepKey]);
+    					}
+    		}
+    	}
+    	if($hasEnd == false) {
+    		return array();
+    	}
+    	return $routeData;
+    }
+
+    /**
+     * Retrieve a high level map of the workflow (if valid) to show how steps are routed forwards
+     * (a valid workflow is one that has an end)
+     * @return array In-order steps of a workflow
+     */
+    public function getSummaryMap()
+    {
+    	$summary = [];
+    	$steps = $this->getSteps();
+    	if(!isset($steps[0])) {
+    		return 0;
+    	}
+    	$initialStepID = $steps[0]['initialStepID'];
+    	
+    	$stepData = [];
+    	foreach($steps as $step) {
+    		$stepData[$step['stepID']] = $step['stepTitle'];
+    	}
+
+    	$routes = $this->getRoutes();
+    	$routeData = [];
+    	foreach($routes as $route) {
+    		if($route['fillDependency'] != 0) {
+    			$routeData[$route['stepID']]['routes'][]['nextStepID'] = $route['nextStepID'];
+    			$routeData[$route['stepID']]['stepTitle'] = $stepData[$route['stepID']];
+    			if($initialStepID == $route['stepID']) {
+    				$routeData[$route['stepID']]['isInitialStep'] = 1;
+    			}
+    		}
+    	}
+
+    	$routeData = $this->pruneRoutes($initialStepID, $routeData);
+    	$stepIDs = implode(',', array_keys($routeData));
+
+    	$resStepDependencies = $this->db->query("SELECT * FROM step_dependencies
+    												LEFT JOIN dependencies USING (dependencyID)
+    												WHERE stepID IN ({$stepIDs})");
+
+    	foreach($resStepDependencies as $stepDependency) {
+    		$routeData[$stepDependency['stepID']]['dependencies'][$stepDependency['dependencyID']] = $stepDependency['description'];
+    	}
+
+    	$routeData[0]['routes'][0]['nextStepID'] = $initialStepID;
+    	$routeData[0]['stepTitle'] = 'Request Submitted';
+    	$routeData[0]['dependencies'][5] = 'Request Submitted';
+
+    	return $routeData;
+    }
 }

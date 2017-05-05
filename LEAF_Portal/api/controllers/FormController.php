@@ -110,6 +110,10 @@ class FormController extends RESTfulResponse
 			return $form->getFormByCategory($args[0], false);
 		});
 
+		$this->index['GET']->register('form/[text]/workflow', function($args) use ($form) {
+			return $form->getWorkflow($args[0]);
+		});
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 

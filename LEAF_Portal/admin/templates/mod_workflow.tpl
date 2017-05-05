@@ -282,7 +282,7 @@ function dependencyGrantAccess(dependencyID, stepID) {
 
 function newDependency(stepID) {
 	dialog.setTitle('Create a new requirement');
-    dialog.setContent('<br />Requirement Label: <input type="text" id="description"></input><div id="groupSearch"></div>');
+    dialog.setContent('<br />Requirement Label: <input type="text" id="description"></input><br /><br />Example: "First line approval"');
     
     dialog.setSaveHandler(function() {
     	$.ajax({
@@ -314,10 +314,12 @@ function linkDependencyDialog(stepID) {
             buffer += '<br /><div><select id="dependencyID" name="dependencyID">';
             
             var reservedDependencies = ['-3', '-2', '-1', '1', '8'];
+            var maskedDependencies = ['5'];
             
             buffer += '<optgroup label="Custom Requirements">';
             for(var i in res) {
-            	if(reservedDependencies.indexOf(res[i].dependencyID) == -1) {
+            	if(reservedDependencies.indexOf(res[i].dependencyID) == -1
+            		&& maskedDependencies.indexOf(res[i].dependencyID) == -1) {
             		buffer += '<option value="'+ res[i].dependencyID +'">'+ res[i].description +'</option>';
             	}
             }

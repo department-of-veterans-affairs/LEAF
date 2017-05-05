@@ -49,9 +49,6 @@ if(!$login->checkGroup(1)) {
     exit();
 }
 
-$post_name = isset($_POST['name']) ? $_POST['name'] : '';
-$post_password = isset($_POST['password']) ? $_POST['password'] : '';
-
 $main = new Smarty;
 $t_login = new Smarty;
 $t_menu = new Smarty;

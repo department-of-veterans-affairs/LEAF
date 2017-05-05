@@ -40,6 +40,11 @@ class WorkflowController extends RESTfulResponse
             return $workflow->getRoutes();
         });
 
+        $this->index['GET']->register('workflow/[digit]/map/summary', function($args) use ($workflow) {
+        	$workflow->setWorkflowID($args[0]);
+        	return $workflow->getSummaryMap();
+        });
+
         $this->index['GET']->register('workflow/[digit]/step/[digit]/[text]/events', function($args) use ($workflow) {
             $workflow->setWorkflowID($args[0]);
             return $workflow->getEvents($args[1], $args[2]);

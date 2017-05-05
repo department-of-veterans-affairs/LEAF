@@ -76,6 +76,22 @@ class FormEditor
     								WHERE indicatorID=:indicatorID', $vars);
     }
 
+    private function hasParentIDLoop($indicatorID, $cache = []) {
+    	if(isset($cache[$indicatorID])) {
+    		return true;
+    	}
+    	
+    	$vars = array(':indicatorID' => $indicatorID);
+    	$res = $this->db->prepared_query('SELECT * FROM indicators
+    										WHERE indicatorID=:indicatorID', $vars);
+    	if($res[0]['parentID'] != null) {
+    		$cache[$indicatorID] = 1;
+    		return $this->hasParentIDLoop($res[0]['parentID'], $cache);
+    	}
+
+    	return false;
+    }
+
     function setParentID($indicatorID, $input) {
         if($input == 0 || $input == '') {
             $input = null;
@@ -84,12 +100,18 @@ class FormEditor
         if($input == $indicatorID) {
         	return 'Invalid parentID to be set';
         }
-        
+
+		if($input != null
+			&& $this->hasParentIDLoop($input, array((int)$indicatorID => 1))) {
+			return 'Cannot set parentID. You must first remove the parentID for the sub-question.';
+		}
+
     	$vars = array(':indicatorID' => $indicatorID,
     				  ':input' => $input);
-    	return $this->db->prepared_query('UPDATE indicators
-    								SET parentID=:input
-    								WHERE indicatorID=:indicatorID', $vars);
+    	$this->db->prepared_query('UPDATE indicators
+    									SET parentID=:input
+    									WHERE indicatorID=:indicatorID', $vars);
+    	return null;
     }
 
     function setCategoryID($indicatorID, $input) {

@@ -44,9 +44,6 @@ if(!$login->isLogin() || !$login->isInDB()) {
     exit;
 }
 
-$post_name = isset($_POST['name']) ? $_POST['name'] : '';
-$post_password = isset($_POST['password']) ? $_POST['password'] : '';
-
 $main = new Smarty;
 $t_login = new Smarty;
 $t_menu = new Smarty;
@@ -68,59 +65,60 @@ $t_menu->assign('is_admin', $login->checkGroup(1));
 
 $main->assign('useUI', false);
 
+$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+
 switch($action) {
     case 'showServiceFTEstatus':
     	$main->assign('useUI', true);
     	$main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js'));
-        if($login->isLogin()) {
-            $form = new Form($db, $login);
-            $o_login = $t_login->fetch('login.tpl');
 
-            $currentEmployee = $form->employee->lookupLogin($login->getUserID());
-            $employeePositions = $form->employee->getPositions($currentEmployee[0]['empUID']);
-            $resolvedService = $form->position->getService($employeePositions[0]['positionID']);
+        $form = new Form($db, $login);
+        $o_login = $t_login->fetch('login.tpl');
 
-            $t_form = new Smarty;
-            $t_form->left_delimiter = '<!--{';
-            $t_form->right_delimiter= '}-->';
-            $t_form->assign('services', $form->getServices2());
-            $t_form->assign('resolvedServiceID', $resolvedService[0]['groupID']);
-            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $currentEmployee = $form->employee->lookupLogin($login->getUserID());
+        $employeePositions = $form->employee->getPositions($currentEmployee[0]['empUID']);
+        $resolvedService = $form->position->getService($employeePositions[0]['positionID']);
 
-            //url
-            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-            $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
-            $main->assign('qrcodeURL', urlencode($qrcodeURL));
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter= '}-->';
+        $t_form->assign('services', $form->getServices2());
+        $t_form->assign('resolvedServiceID', $resolvedService[0]['groupID']);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-            $main->assign('body', $t_form->fetch('reports/showServiceFTEstatus.tpl'));
-            $tabText = 'Service FTE Status';
-        }
+        //url
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+        $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
+        $main->assign('qrcodeURL', urlencode($qrcodeURL));
+
+        $main->assign('body', $t_form->fetch('reports/showServiceFTEstatus.tpl'));
+        $tabText = 'Service FTE Status';
         break;
     default:
     	if($action != ''
     		&& file_exists("templates/reports/{$action}.tpl")) {
     			$main->assign('useUI', true);
     			$main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
-    			if($login->isLogin()) {
-    				$form = new Form($db, $login);
-    				$o_login = $t_login->fetch('login.tpl');
-    			
-    				$t_form = new Smarty;
-    				$t_form->left_delimiter = '<!--{';
-    				$t_form->right_delimiter= '}-->';
-    				$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-    				$t_form->assign('empUID', $login->getEmpUID());
-    				$t_form->assign('empMembership', $login->getMembership());
-    				$t_form->assign('orgchartPath', Config::$orgchartPath);
-    			
-    				//url
-    				$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-    				$qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
-    				$main->assign('qrcodeURL', urlencode($qrcodeURL));
-    			
-    				$main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
-    				$tabText = '';
-    			}
+
+				$form = new Form($db, $login);
+				$o_login = $t_login->fetch('login.tpl');
+			
+				$t_form = new Smarty;
+				$t_form->left_delimiter = '<!--{';
+				$t_form->right_delimiter= '}-->';
+				$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+				$t_form->assign('empUID', $login->getEmpUID());
+				$t_form->assign('empMembership', $login->getMembership());
+				$t_form->assign('orgchartPath', Config::$orgchartPath);
+				$t_form->assign('systemSettings', $settings);
+			
+				//url
+				$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+				$qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
+				$main->assign('qrcodeURL', urlencode($qrcodeURL));
+			
+				$main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
+				$tabText = '';
     	}
     	else {
     		$main->assign('body', 'Report does not exist');
@@ -137,7 +135,6 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $main->assign('title', $settings['heading'] == '' ? $config->title : $settings['heading']);
 $main->assign('city', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
 $main->assign('revision', $settings['version']);

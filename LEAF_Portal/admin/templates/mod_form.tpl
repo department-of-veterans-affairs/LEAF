@@ -512,7 +512,7 @@ function getForm(indicatorID, series) {
     	        url: '../api/form/_' + currCategoryID + '/flat',
     	        success: function(res) {
     	            var buffer = '<select id="parentID" style="width: 300px">';
-    	            buffer += '<option value=""></option>';
+    	            buffer += '<option value="">None</option>';
     	            for(var i in res) {
     	                if(indicatorID != i) {
     	                    buffer += '<option value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
@@ -675,6 +675,7 @@ function getForm(indicatorID, series) {
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                     if(res != null) {
+                    	alert(res);
                     }
                 }
             }),

@@ -412,7 +412,7 @@ class System
     	$list = scandir('../files/');
     	$out = [];
     	foreach($list as $item) {
-    		$ext = substr($item, strpos($item, '.') + 1);
+    		$ext = substr($item, strrpos($item, '.') + 1);
     		if(in_array($ext, $fileExtensionWhitelist)) {
     			$out[] = $item;
     		}
@@ -445,7 +445,7 @@ class System
     									    'msg', 'ics'
     	);
 
-    	$ext = substr($fileName, strpos($fileName, '.') + 1);
+    	$ext = substr($fileName, strrpos($fileName, '.') + 1);
     	if(!in_array($ext, $fileExtensionWhitelist)) {
     		return 'Unsupported file type.';
     	}
