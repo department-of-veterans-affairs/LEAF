@@ -894,13 +894,18 @@
     // Add all emoji in a dropdown
     $.extend(true, $.trumbowyg, {
         langs: {
+            // jshint camelcase:false
             en: {
                 emoji: 'Add an emoji'
             },
             fr: {
                 emoji: 'Ajouter un emoji'
+            },
+            zh_cn: {
+                emoji: '添加表情'
             }
         },
+        // jshint camelcase:true
         plugins: {
             emoji: {
                 init: function (trumbowyg) {
@@ -922,7 +927,7 @@
                 btnDef = {
                     param: emoji,
                     fn: function () {
-                        trumbowyg.execCmd('insertText ' + emoji + ' ');
+                        trumbowyg.execCmd('insertText', emoji);
                         return true;
                     }
                 };
