@@ -378,7 +378,6 @@ function newQuestion(parentIndicatorID) {
     });
 }
 
-
 // edit question
 function getForm(indicatorID, series) {
 	dialog.setTitle('Editing indicatorID: ' + indicatorID);
@@ -427,8 +426,8 @@ function getForm(indicatorID, series) {
         </fieldset>\
         <span class="buttonNorm" id="button_advanced">Advanced Options</span>\
         <div><fieldset id="advanced" style="visibility: hidden"><legend>Advanced Options</legend>\
-            html (for pages where the user can edit data): <textarea id="html"></textarea><br />\
-            htmlPrint (for pages where the user can only read data): <textarea id="htmlPrint"></textarea><br />\
+            html (for pages where the user can edit data): <button id="btn_codeSave_html" type="button" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button><textarea id="html"></textarea><br />\
+            htmlPrint (for pages where the user can only read data): <button id="btn_codeSave_htmlPrint" type="button" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button><textarea id="htmlPrint"></textarea><br />\
             Template Variables:<br />\
             <b>{{ iID }}</b> will be replaced with the indicatorID # of the data field\
         </div></div>');
@@ -476,6 +475,41 @@ function getForm(indicatorID, series) {
     	$('#button_advanced').css('display', 'none');
     	$('#advanced').css('visibility', 'visible');
     });
+
+    function saveCodeHTML() {
+        $.ajax({
+            type: 'POST',
+            url: '../api/?a=formEditor/' + indicatorID + '/html',
+            data: {html: codeEditorHtml.getValue(),
+                CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(res) {
+                var time = new Date().toLocaleTimeString();
+                $('#codeSaveStatus_html').html('<br /> Last saved: ' + time);
+                if(res != null) {
+                }
+            }
+        });
+    }
+
+    function saveCodeHTMLPrint() {
+        $.ajax({
+            type: 'POST',
+            url: '../api/?a=formEditor/' + indicatorID + '/htmlPrint',
+            data: {htmlPrint: codeEditorHtmlPrint.getValue(),
+                CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(res) {
+            	$('#codeSaveStatus_htmlPrint').html('<br /> Last saved: ' + time);
+                if(res != null) {
+                }
+            }
+        });
+    }
+    $('#btn_codeSave_html').on('click', function() {
+    	saveCodeHTML();
+    });
+    $('#btn_codeSave_htmlPrint').on('click', function() {
+        saveCodeHTMLPrint();
+    });
     var codeEditorHtml = CodeMirror.fromTextArea(document.getElementById("html"), {
         mode: "htmlmixed",
         lineNumbers: true,
@@ -485,6 +519,9 @@ function getForm(indicatorID, series) {
             },
             "Esc": function(cm) {
               if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+            },
+            "Ctrl-S": function(cm) {
+                saveCodeHTML();
             }
           }
     });
@@ -497,6 +534,9 @@ function getForm(indicatorID, series) {
             },
             "Esc": function(cm) {
               if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+            },
+            "Ctrl-S": function(cm) {
+                saveCodeHTMLPrint();
             }
           }
     });
@@ -569,6 +609,7 @@ function getForm(indicatorID, series) {
                     }
                 }
                 dialog.indicateIdle();
+                $('#xhr').scrollTop(0);
             },
             cache: false
         });
@@ -717,8 +758,8 @@ function getForm(indicatorID, series) {
 }
 
 function mergeForm(categoryID) {
-    dialog.setTitle('Merge other form');
-    dialog.setContent('Select a form to merge: <div id="formOptions"></div>');
+    dialog.setTitle('Staple other form');
+    dialog.setContent('Select a form to staple: <div id="formOptions"></div>');
     dialog.indicateBusy();
 
     $.ajax({
@@ -772,8 +813,8 @@ function unmergeForm(categoryID, stapledCategoryID) {
 }
 
 function mergeFormDialog(categoryID) {
-    dialog_simple.setTitle('Merge other form');
-    dialog_simple.setContent('Merged forms will show up on the same page as the main form.<div id="mergedForms"></div>');
+    dialog_simple.setTitle('Staple other form');
+    dialog_simple.setContent('Stapled forms will show up on the same page as the primary form.<div id="mergedForms"></div>');
     dialog_simple.indicateBusy();
 
     $.ajax({
@@ -888,7 +929,7 @@ function buildMenu(categoryID) {
 	
 	$('#menu').append('<br /><div class="buttonNorm" onclick="createForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Add Internal-Use</div><br />');
 	
-    $('#menu').append('<br /><div class="buttonNorm" onclick="mergeFormDialog(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Merge Form" /> Merge other form</div><br />');
+    $('#menu').append('<br /><div class="buttonNorm" onclick="mergeFormDialog(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Staple Form" /> Staple other form</div><br />');
 
 	$('#menu').append('<br /><div class="buttonNorm" onclick="exportForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
 

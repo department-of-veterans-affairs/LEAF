@@ -27,7 +27,6 @@ class WorkflowController extends RESTfulResponse
         $this->index['GET']->register('workflow', function($args) use ($workflow) {
             $workflow->setWorkflowID($args[0]);
             return $workflow->getAllUniqueWorkflows();
-            //return print_r($args, true) . print_r($_GET, true);
         });
         
         $this->index['GET']->register('workflow/[digit]', function($args) use ($workflow) {

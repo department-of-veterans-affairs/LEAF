@@ -66,7 +66,7 @@ nationalEmployeeSelector.prototype.initialize = function() {
     	domains += '<option value="'+ tDomains[i] +'">' + tDomains[i] + '</option>'
     }
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="employeeSelectorBorder">\
-			<select id="'+ this.prefixID +'domain" class="employeeSelectorInput" style="width: 100px">\
+			<select id="'+ this.prefixID +'domain" class="employeeSelectorInput" style="width: 100px; display: none">\
 			<option value="">All Domains</option>\
 			'+ domains +'\
 			</select>\

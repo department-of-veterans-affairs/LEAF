@@ -510,8 +510,9 @@ class FormWorkflow
                 	$vars2 = array(':recordID' => $this->recordID,
                 	  			':stepID' => $actionable['stepID'],
                 				':time' => $time);
-                	$this->db->prepared_query("INSERT IGNORE INTO records_step_fulfillment (recordID, stepID, fulfillmentTime)
-                                                   VALUES (:recordID, :stepID, :time)", $vars2);
+                	$this->db->prepared_query("INSERT INTO records_step_fulfillment (recordID, stepID, fulfillmentTime)
+                                                   VALUES (:recordID, :stepID, :time)
+                								   ON DUPLICATE KEY UPDATE fulfillmentTime=:time", $vars2);
 
                 	// if the next step is to end it, then update the record's workflow's state
                 	if($res2[0]['nextStepID'] == 0) {

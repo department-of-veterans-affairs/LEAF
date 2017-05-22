@@ -86,11 +86,18 @@ var LeafFormQuery = function() {
 
     /**
      * Limit number of results
-     * @param limit
+     * @param offset / limit
+     * @param limit (optional)
      * @memberOf LeafFormQuery
      */
-    function setLimit(limit) {
-    	query.limit = limit;
+    function setLimit(offset, limit) {
+    	if(limit === undefined) {
+    		query.limit = offset;
+    	}
+    	else {
+        	query.limit = limit;
+        	setLimitOffset(offset);
+    	}
     }
 
     /**

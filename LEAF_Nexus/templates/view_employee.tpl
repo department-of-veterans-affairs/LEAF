@@ -114,23 +114,36 @@ function assignBackup() {
     dialog.setContent('Employee Search: <div id="employeeSelector"></div>');
     dialog.show(); // need to show early because of ie6
 
-    empSel = new employeeSelector('employeeSelector');
+    empSel = new nationalEmployeeSelector('employeeSelector');
     empSel.initialize();
     empSel.clearSearch();
     
     dialog.setSaveHandler(function() {
         if(empSel.selection != '') {
             dialog.indicateBusy();
+            var selectedUserName = empSel.selectionData[empSel.selection].userName;
             $.ajax({
                 type: 'POST',
-                url: './api/?a=employee/<!--{$empUID}-->/backup',
-                data: {backupEmpUID: empSel.selection,
-                    CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(response) {
-                	getBackupInfo();
-                	dialog.hide();
-                },
-                cache: false
+                url: './api/employee/import/_' + selectedUserName,
+                data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(empUID) {
+                    if(!isNaN(empUID)) {
+                        $.ajax({
+                            type: 'POST',
+                            url: './api/?a=employee/<!--{$empUID}-->/backup',
+                            data: {backupEmpUID: empUID,
+                                CSRFToken: '<!--{$CSRFToken}-->'},
+                            success: function(response) {
+                                getBackupInfo();
+                                dialog.hide();
+                            },
+                            cache: false
+                        });
+                    }
+                    else {
+                        alert(empUID);
+                    }
+                }
             });
         }
         else {

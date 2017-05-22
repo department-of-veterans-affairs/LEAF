@@ -2125,6 +2125,7 @@ class Form
 		$joinCategoryID = false;
 		$joinAllCategoryID = false;
 		$joinRecords_Dependencies = false;
+		$joinRecords_Step_Fulfillment = false;
 		$joinActionHistory = false;
 		if(isset($query['joins'])) {
 			foreach($query['joins'] as $table) {
@@ -2149,6 +2150,9 @@ class Form
 						break;
 					case 'action_history':
 						$joinActionHistory = true;
+						break;
+					case 'stepFulfillment':
+						$joinRecords_Step_Fulfillment = true;
 						break;
 					default:
 						break;
@@ -2275,6 +2279,21 @@ class Form
                                                 ORDER BY time', array());
     		foreach($res2 as $item) {
     			$data[$item['recordID']]['action_history'][] = $item;
+    		}
+    	}
+
+    	if($joinRecords_Step_Fulfillment) {
+    		$recordIDs = '';
+    		foreach($res as $item) {
+    			$recordIDs .= $item['recordID'] . ',';
+    		}
+    		$recordIDs = trim($recordIDs, ',');
+    		$res2 = $this->db->prepared_query('SELECT * FROM records_step_fulfillment
+    											LEFT JOIN workflow_steps USING (stepID)
+    											WHERE recordID IN ('. $recordIDs .')', array());
+    		foreach($res2 as $item) {
+    			$data[$item['recordID']]['stepFulfillment'][$item['stepID']]['time'] = $item['fulfillmentTime'];
+    			$data[$item['recordID']]['stepFulfillment'][$item['stepID']]['step'] = $item['stepTitle'];
     		}
     	}
 

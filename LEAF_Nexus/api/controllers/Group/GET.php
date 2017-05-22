@@ -20,11 +20,14 @@ $this->index['GET']->register('group/[digit]/list', function($args) use ($group)
 $this->index['GET']->register('group/[digit]/positions', function($args) use ($group) {
     return $group->listGroupPositions($args[0]);
 });
-	$this->index['GET']->register('group/[digit]/leader', function($args) use ($group) {
-		return $group->getGroupLeader($args[0]);
-	});
+$this->index['GET']->register('group/[digit]/leader', function($args) use ($group) {
+	return $group->getGroupLeader($args[0]);
+});
 $this->index['GET']->register('group/[digit]/employees', function($args) use ($group) {
     return $group->listGroupEmployees($args[0]);
+});
+$this->index['GET']->register('group/[digit]/employees/all', function($args) use ($group) {
+	return $group->listGroupEmployeesAll($args[0]);
 });
 $this->index['GET']->register('group/search', function($args) use ($group) {
 	if(isset($_GET['noLimit']) && $_GET['noLimit'] == 1) {

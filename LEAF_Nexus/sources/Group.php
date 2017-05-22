@@ -421,6 +421,11 @@ class Group extends Data
         return $res;
     }
 
+    /**
+     * Get all employees explicitly associated with a group 
+     * @param int $groupID
+     * @return array
+     */
     public function listGroupEmployees($groupID)
     {
         $vars = array(':groupID' => $groupID);
@@ -430,6 +435,45 @@ class Group extends Data
         										ORDER BY lastName ASC', $vars);
     
         return $res;
+    }
+
+    private function sortEmployees($a, $b)
+    {
+    	$first = substr(strtolower($a['lastName']), 0, 1);
+    	$second = substr(strtolower($b['lastName']), 0, 1);
+    	
+    	if($first == $second) {
+    		return 0;
+    	}
+    	return ($first < $second) ? -1 : 1;
+    }
+
+    /**
+     * Get all employees associated with a group
+     * @param int $groupID
+     * @return array
+     */
+    public function listGroupEmployeesAll($groupID)
+    {
+    	$output = [];
+    	require_once 'Position.php';
+    	$position = new Position($this->db, $this->login);
+
+    	$positions = $this->listGroupPositions($groupID);
+    	foreach($positions as $pos) {
+    		$resEmp = $position->getEmployees($pos['positionID']);
+    		foreach($resEmp as $employee) {
+    			$output[$employee['empUID']] = $employee;
+    		}
+    	}
+    	
+        $res = $this->listGroupEmployees($groupID);
+        foreach($res as $employee) {
+        	$output[$employee['empUID']] = $employee;
+        }
+
+        usort($output, array($this, 'sortEmployees'));
+        return $output;
     }
 
     /**

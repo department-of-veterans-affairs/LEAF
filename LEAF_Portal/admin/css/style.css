@@ -864,7 +864,7 @@ span.browsetypes {
     cursor: pointer;
 }
 
-.buttonNorm:hover, .buttonNormSelected {
+.buttonNorm:hover, .buttonNormSelected, .buttonNorm:hover>span {
     background-color: #2372b0;
     color: white;
 }

@@ -167,7 +167,7 @@ function addEmployee() {
 
     empSel = new nationalEmployeeSelector('employeeSelector');
     empSel.initialize();
-    empSel.setDomain('<!--{$userDomain}-->');
+//    empSel.setDomain('<!--{$userDomain}-->');
     empSel.clearSearch();
     
     dialog.setSaveHandler(function() {

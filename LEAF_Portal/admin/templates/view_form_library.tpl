@@ -31,7 +31,7 @@ function showPreview(recordID) {
     preview = new LeafPreview('preview');
     preview.load(recordID, 1, 0);
 
-    $('#btn_download').on('click', function() {
+    $('#btn_download').one('click', function() {
     	$.ajax({
     		type: 'POST',
     		url: 'ajaxIndex.php?a=importForm',

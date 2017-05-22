@@ -84,7 +84,7 @@ class Workflow
     public function getAllUniqueWorkflows()
     {
         $vars = array();
-        $res = $this->db->prepared_query('SELECT * FROM workflows', $vars);
+        $res = $this->db->prepared_query('SELECT * FROM workflows ORDER BY description ASC', $vars);
     
         return $res;
     }

@@ -12,7 +12,7 @@
         </div>
     </div>
     <div class="col span_4_of_6">
-        <div id="codeContainer" class="card" style="float: left; padding: 8px; display: none">
+        <div id="codeContainer" class="card" style="float: left; padding: 8px; width: 90%; display: none">
             <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
             <div id="reportURL" style="padding-left: 8px;"></div><br />
             <div style="border: 1px solid black">
@@ -37,8 +37,8 @@
         </div>
     </div>
     <div class="col span_1_of_6">
-        <div id="controls" style="float: right; width: 170px; visibility: hidden">
-            <div id="saveButton" class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes</div><br /><br /><br />
+        <div id="controls" style="float: right; visibility: hidden">
+            <div id="saveButton" class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes<span id="saveStatus"></span></div><br /><br /><br />
             <div class="buttonNorm" onclick="runReport();"><img id="saveIndicator" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Open Report" /> Open Report</div>
             <br /><br /><br /><br /><br /><br />
             <div id="deleteButton" class="buttonNorm" onclick="deleteReport();"><img src="../../libs/dynicons/?img=process-stop.svg&w=32" alt="Delete Report" /> Delete Report</div>
@@ -61,6 +61,8 @@ function save() {
 		success: function(res) {
 			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
+			var time = new Date().toLocaleTimeString();
+			$('#saveStatus').html('<br /> Last saved: ' + time);
             if(res != null) {
                 alert(res);
             }
@@ -140,6 +142,7 @@ function loadContent(file) {
 		},
 		cache: false
 	});
+	$('#saveStatus').html('');
 }
 
 var codeEditor = null;

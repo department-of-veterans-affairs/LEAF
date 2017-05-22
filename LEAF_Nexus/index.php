@@ -133,7 +133,7 @@ switch($action) {
 
         //$main->assign('useDojoUI', true);
 
-        $main->assign('javascripts', array('js/employeeSelector.js',
+        $main->assign('javascripts', array('js/nationalEmployeeSelector.js',
                                            'js/orgchartForm.js',
                                            'js/dialogController.js',
                                            'js/groupSelector.js',

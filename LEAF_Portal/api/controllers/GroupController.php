@@ -41,6 +41,7 @@ class GroupController extends RESTfulResponse
 
     public function post($act)
     {
+    	$this->verifyAdminReferrer();
         $group = $this->group;
 
         $this->index['POST'] = new ControllerMap();
@@ -58,6 +59,7 @@ class GroupController extends RESTfulResponse
 
     public function delete($act)
     {
+    	$this->verifyAdminReferrer();
         $group = $this->group;
 
         $this->index['DELETE'] = new ControllerMap();

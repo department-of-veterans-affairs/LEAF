@@ -5,7 +5,7 @@
 
 <script type="text/javascript">
 function checkForm() {
-	<!--{if count($services) != 0}-->
+    <!--{if count($services) != 0}-->
     if($("#service").val() == "") {
         alert('Service must not be blank in Step 1.');
         return false;
@@ -23,28 +23,28 @@ function checkForm() {
 }
 
 $(function() {
-	<!--{if count($services) != 0}-->
-	$('#service').chosen();
-	<!--{/if}-->
-	$('#priority').chosen({disable_search_threshold: 5});
-	<!--{foreach from=$categories item=category}-->
-	$('#num<!--{$category.categoryID}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
-	<!--{/foreach}-->
-	
-	$('#record').on('submit', function() {
-		if(checkForm() == true) {
-		    return true;
-		}
-		else {
-		    return false;
-		}
-	});
-	
-	// comment out to allow more than one form to be submitted simultaneously
-	$('.ischecked').on('change', function() {
-		$('.ischecked').icheck('unchecked');
-		$(this).icheck('checked');
-	});
+    <!--{if count($services) != 0}-->
+    $('#service').chosen();
+    <!--{/if}-->
+    $('#priority').chosen({disable_search_threshold: 5});
+    <!--{foreach from=$categories item=category}-->
+    $('#num<!--{$category.categoryID}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
+    <!--{/foreach}-->
+    
+    $('#record').on('submit', function() {
+        if(checkForm() == true) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    });
+    
+    // comment out to allow more than one form to be submitted simultaneously
+    $('.ischecked').on('change', function() {
+        $('.ischecked').icheck('unchecked');
+        $(this).icheck('checked');
+    });
 });
 
 </script>
@@ -68,21 +68,21 @@ $(function() {
                 <td>Contact Info</td>
                 <td><input id="recorder" type="text" title="" value="<!--{$recorder}-->" disabled="disabled"/> <input id="phone" type="text" title="" value="<!--{$phone}-->" disabled="disabled" /></td>
             </tr>
+            <!--{if count($services) != 0}-->
             <tr>
                 <td>Service</td>
                 <td>
-                    <!--{if count($services) != 0}-->
                     <select id="service" name="service">
                     <option value=""></option>
                     <!--{foreach from=$services item=service}-->
                     <option value="<!--{$service.serviceID}-->"<!--{if $selectedService == $service}-->selected="selected"<!--{/if}-->><!--{$service.service}--></option>
                     <!--{/foreach}-->
                     </select>
-                    <!--{else}-->
-                    <input type="hidden" id="service" name="service" value="0" />
-                    <!--{/if}-->
                 </td>
             </tr>
+            <!--{else}-->
+            <input type="hidden" id="service" name="service" value="0" />
+            <!--{/if}-->
             <tr>
                 <td>Priority</td>
                 <td>

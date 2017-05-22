@@ -37,7 +37,7 @@
     </div>
     <div class="col span_1_of_6">
         <div id="controls" style="float: right; width: 170px; visibility: hidden">
-            <div class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes</div><br /><br /><br />
+            <div class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes<span id="saveStatus"></span></div><br /><br /><br />
             <div class="buttonNorm modifiedTemplate" onclick="restore();"><img src="../../libs/dynicons/?img=x-office-document-template.svg&w=32" alt="Restore" /> Restore Original</div><br /><br /><br />
             <a class="buttonNorm" href="../../libs/dynicons/gallery.php" target="_blank" style="padding: 8px; text-decoration: none"><img src="../../libs/dynicons/?img=image-x-generic.svg&w=32" alt="Icon Library" /> Icon Library</a>
         </div>
@@ -63,6 +63,8 @@ function save() {
 		success: function(res) {
 			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
+            var time = new Date().toLocaleTimeString();
+            $('#saveStatus').html('<br /> Last saved: ' + time);
             if(res != null) {
                 alert(res);
             }
@@ -109,6 +111,7 @@ function loadContent(file) {
 		},
 		cache: false
 	});
+	$('#saveStatus').html('');
 }
 
 var codeEditor = null;

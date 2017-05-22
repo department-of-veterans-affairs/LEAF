@@ -111,6 +111,7 @@ switch($action) {
 				$t_form->assign('empMembership', $login->getMembership());
 				$t_form->assign('orgchartPath', Config::$orgchartPath);
 				$t_form->assign('systemSettings', $settings);
+				$t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
 			
 				//url
 				$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';

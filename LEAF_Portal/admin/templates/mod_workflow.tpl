@@ -1,4 +1,4 @@
-<div id="sideBar" style="float: left; width: 150px">
+<div id="sideBar" style="float: left; width: 180px">
     <div id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size: 120%; display: none"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
     Workflows: <br />
     <div id="workflowList"></div>
@@ -7,7 +7,7 @@
     <br />
     <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 100%; display: none"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
 </div>
-<div id="workflow" style="margin-left: 154px; background-color: #444444"></div>
+<div id="workflow" style="margin-left: 184px; background-color: #444444"></div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
@@ -894,20 +894,19 @@ function loadWorkflow(workflowID) {
 	steps = {};
 	jsPlumb.setSuspendDrawing(true);
 
-	$('.workflows');
-    $('.workflows').removeClass('buttonNormSelected');
-    $('#workflow_' + workflowID).addClass('buttonNormSelected');
+	$('#workflows').val(workflowID);
+	$('#workflows').trigger('chosen:updated');
 
 	$('#workflow').html('');
 	$('#workflow').append('<div class="workflowStep" id="step_-1">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>');
     $('#step_-1').css({
-        'left': 150 + 40 + 'px',
+        'left': 180 + 40 + 'px',
         'top': 80 + 40 + 'px',
         'background-color': '#e0e0e0'
     });
     $('#workflow').append('<div class="workflowStep" id="step_0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>');
     $('#step_0').css({
-        'left': 150 + 40 + 'px',
+        'left': 180 + 40 + 'px',
         'top': 80 + 40 + 'px',
         'background-color': '#ff8181'
     });
@@ -962,7 +961,7 @@ function loadWorkflow(workflowID) {
             }
             // draw the last step
             $('#step_0').css({
-                'left': 150 + 400 + 'px',
+                'left': 180 + 400 + 'px',
                 'top': 160 + maxY + 'px',
                 'background-color': '#ff8181'
             });
@@ -987,7 +986,7 @@ function loadWorkflowList(workflowID)
         type: 'GET',
         url: '../api/?a=workflow',
         success: function(res) {
-            var output = '';
+            var output = '<select id="workflows" style="width: 100%">';
             var count = 0;
             var firstWorkflowID = 0;
             for(var i in res) {
@@ -995,13 +994,20 @@ function loadWorkflowList(workflowID)
                     firstWorkflowID = res[i].workflowID;
                 }
                 workflows[res[i].workflowID] = res[i];
-                output += '<div class="buttonNorm workflows" id="workflow_'+ res[i].workflowID +'" onclick="loadWorkflow('+ res[i].workflowID +')"><b>' + res[i].description + '</b> (ID: #'+ res[i].workflowID +')</div>';
+                output += '<option value="'+ res[i].workflowID +'"><b>' + res[i].description + '</b> (ID: #'+ res[i].workflowID +')</option>';
                 count++;
             }
             if(count == 0) {
                 return;
             }
+            
+            output += '</select>';
+            
             $('#workflowList').html(output);
+            $('#workflows').on('change', function() {
+            	loadWorkflow($('#workflows').val());
+            });
+            $('#workflows').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '100%'});
             if(workflowID == undefined) {
             	workflowID = firstWorkflowID;
             }
