@@ -128,6 +128,24 @@ foreach($res as $service) {
             }
         }
     }
+    
+    // check if this service is also an ELT
+    // if so, update groups table
+    if($service['groupID'] == $quadID) {
+    	$vars = array(':groupID' => $service['groupID']);
+
+    	$db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
+
+    	$resChief = $db->prepared_query("SELECT * FROM service_chiefs
+    											WHERE serviceID=:groupID
+    												AND active=1", $vars);
+    	foreach($resChief as $chief) {
+    		$vars = array(':userID' => $chief['userID'],
+    				      ':groupID' => $quadID);
+    		$db->prepared_query('INSERT INTO users (userID, groupID)
+                                   		 VALUES (:userID, :groupID)', $vars);
+    	}
+    }
 }
 
 // import other groups

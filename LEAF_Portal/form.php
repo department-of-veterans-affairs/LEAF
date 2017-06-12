@@ -629,11 +629,9 @@ class Form
         if($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return 0;
         }
-        if($this->getOwnerID($recordID) != $this->login->getUserID()) {
-        	if(!$this->hasWriteAccess($recordID)) {
-        		return 'Cancel Request: Access denied.';
-        	}
-        }
+       	if(!$this->hasWriteAccess($recordID)) {
+       		return 'Please contact your administrator to cancel this request to help avoid confusion in the process.';
+       	}
 
         // only allow admins to delete resolved requests
         $vars = array(':recordID' => $recordID);
@@ -709,7 +707,7 @@ class Form
             return 0;
         }
 
-        if(!$this->hasWriteAccess($recordID)) {
+        if(!$this->hasWriteAccess($recordID, 0, $indicatorID)) {
             return 0;
         }
 
@@ -1051,13 +1049,25 @@ class Form
                                              VALUES (:recordID, :stepID)', $vars);
                 $hasInitialStep = true;
             }
+            // check if the request only needs to be marked as submitted (e.g.:for surveys)
+            if($workflow['initialStepID'] == 0) {
+            	$vars = array(':workflowID' => $workflow['workflowID']);
+            	$res = $this->db->prepared_query('SELECT * FROM workflow_routes
+            										WHERE workflowID=:workflowID
+            											AND stepID=-1
+            											AND actionType="submit"', $vars);
+            	if(count($res) > 0) {
+            		$hasInitialStep = true;
+            	}
+            }
+            
             if($workflow['workflowID'] > 0) {
             	$workflowIDs[] = $workflow['workflowID'];
             }
         }
 
         if(!$hasInitialStep) {
-            return 0;
+			return array('status' => 1, 'errors' => ['Workflow is configured incorrectly']);
         }
 
         $this->db->beginTransaction();
@@ -1067,17 +1077,19 @@ class Form
         $res = $this->db->prepared_query('UPDATE records SET
                                             submitted=:time,
                                             isWritableUser=0,
-                                            lastStatus = NULL
+                                            lastStatus = "Submitted"
                                             WHERE recordID=:recordID', $vars);
 
         // write history data, actionID 6 = filled dependency
         $vars = array(':recordID' => $recordID,
                       ':userID' => $this->login->getUserID(),
+        			  ':dependencyID' => 5,
+        			  ':actionType' => 'submit',
                       ':actionTypeID' => 6,
                       ':time' => time(),
-                      ':comment' => 'Request Submitted');
-        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, actionTypeID, time, comment)
-                                            VALUES (:recordID, :userID, :actionTypeID, :time, :comment)', $vars);
+                      ':comment' => '');
+        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
+                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars);
 
         // populate dependency data using new workflow system
         $vars = array(':recordID' => $recordID);
@@ -1116,8 +1128,8 @@ class Form
         $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID);
         $FormWorkflow->setEventFolder('../scripts/events/');
         foreach($workflowIDs as $id) {
-        	// special step id 0
-        	$status = $FormWorkflow->handleEvents($id, 0, 'submit', '');
+        	// The initial step for Requestor is special step id -1
+        	$status = $FormWorkflow->handleEvents($id, -1, 'submit', '');
         	if(count($status['errors']) > 0) {
         		$errors = array_merge($errors, $status['errors']);
         	}
@@ -1189,6 +1201,19 @@ class Form
             }
         }
 
+        $multipleCategories = [];
+        if($categoryID === 0
+        	&& $indicatorID == 0) {
+        	$vars = array(':recordID' => $recordID);
+        	$res = $this->db->prepared_query('SELECT * FROM category_count
+        										WHERE recordID=:recordID
+        										GROUP BY categoryID', $vars);
+        	foreach($res as $type) {
+        		$categoryID .= $type['categoryID'];
+        		$multipleCategories[] = $type['categoryID'];
+        	}
+        }
+
         // check cached result
         if(isset($this->cache["hasWriteAccess_{$recordID}_{$categoryID}"])) {
             return $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"];
@@ -1205,7 +1230,7 @@ class Form
             $this->cache["resRecords_{$recordID}"] = $resRecords;
         }
 
-        // give the requestor access if they haven't submitted
+        // give the requestor access if the record explictly gives them write access
         if($resRecords[0]['isWritableUser'] == 1
             && $this->login->getUserID() == $resRecords[0]['userID']) {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
@@ -1218,18 +1243,37 @@ class Form
         }
 
         // find out if explicit permissions have been granted to any groups
-        $vars = array(':categoryID' => $categoryID,
-        		':userID' => $this->login->getUserID());
-        $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
+        if(count($multipleCategories) <= 1) {
+        	$vars = array(':categoryID' => $categoryID,
+        			      ':userID' => $this->login->getUserID());
+        	$resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
                                                         LEFT JOIN users USING (groupID)
                                                         WHERE categoryID=:categoryID
                                                             AND userID=:userID
             												AND writable=1', $vars);
-        
-        if(count($resCategoryPrivs) > 0) {
-        	$this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
-        	return 1;
+
+        	if(count($resCategoryPrivs) > 0) {
+        		$this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
+        		return 1;
+        	}
         }
+        else {
+        	foreach($multipleCategories as $category) {
+        		$vars = array(':categoryID' => $category,
+        				      ':userID' => $this->login->getUserID());
+        		$resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
+                                                        LEFT JOIN users USING (groupID)
+                                                        WHERE categoryID=:categoryID
+                                                            AND userID=:userID
+            												AND writable=1', $vars);
+        		
+        		if(count($resCategoryPrivs) > 0) {
+        			$this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
+        			return 1;
+        		}
+        	}
+        }
+
 
 		// grant permissions to whoever currently "has" the form (whoever is the current approver)
         $vars = array(':recordID' => $recordID);

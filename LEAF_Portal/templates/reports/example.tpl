@@ -17,26 +17,29 @@ function getData() {
 	// Create a new Query
 	var query = new LeafFormQuery();
     
-	// This would limit results to only show a specific service, by its serviceID
+	// This would limit results to only find a specific service, by its serviceID
 	//query.addTerm('serviceID', '=', 14);
 	
-	// Show requests that contain the word "example" for indicatorID 16 
+	// Find requests that contain the word "example" for indicatorID 16 
 	//query.addDataTerm('data', 16, 'LIKE', 'example');
 	
-	// Show requests that contain data for indicatorID 20, if it's greater or equal than 30000 
+	// Find requests that contain data for indicatorID 20, if it's greater or equal than 30000 
     //query.addDataTerm('data', 20, '>=', '30000');
 	
-	// Show requests that have not passed dependencyID 8 - "the quadrad/pentad/ELT step"
+	// Find requests that have not passed dependencyID 8 - "the quadrad/pentad/ELT step"
     //query.addDataTerm('dependencyID', 8, '=', 0);
 	
-	// Show requests that have NOT been deleted
+    // Find requests that are currently on step #3
+    //query.addTerm('stepID', '=', 3);
+	
+	// Find requests that have NOT been deleted
 	query.addTerm('deleted', '=', 0);
 	
-	// Show requests that have been submitted
+	// Find requests that have been submitted
 	query.addTerm('submitted', '>', 0);
 	
-	// Show requests that match the "fte" categoryID
-	query.addTerm('categoryID', 'RIGHT JOIN', 'fte');
+	// Find requests that match a specific categoryID
+	query.addTerm('categoryID', '=', 'form_12345');
 
     // Include service data
 	query.join('service');

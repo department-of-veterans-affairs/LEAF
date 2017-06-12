@@ -29,9 +29,24 @@
 </div>
 <div id="results" style="display: none">Loading...</div>
 
+<!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <script>
 var CSRFToken = '<!--{$CSRFToken}-->';
+
+function loadWorkflow(recordID, prefixID) {
+    dialog_message.setTitle('Apply Action to #' + recordID);
+
+    currRecordID = recordID;
+    dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
+    workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
+    workflow.setActionSuccessCallback(function() {
+        dialog_message.hide();
+        $('#' + prefixID + 'tbody_tr' + recordID).fadeOut(1300);
+    });
+    workflow.getWorkflow(recordID);
+    dialog_message.show();
+}
 
 function prepareEmail() {
 	mailtoHref = 'mailto:?subject=' + $('#reportTitle').val() + '&body=Report%20Link:%20'+ encodeURIComponent(url +'&title='+ btoa($('#reportTitle').val())) +'%0A%0A';
@@ -97,6 +112,14 @@ function addHeader(column) {
             	});
             }});
             break;
+        case 'actionButton':
+        	headers.unshift({name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
+                $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
+                $('#'+data.cellContainerID).on('click', function() {
+                    loadWorkflow(data.recordID, grid.getPrefixID());
+                });
+        	}});
+        	break;
         case 'action_history':
             leafSearch.getLeafFormQuery().join('action_history');
             var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
@@ -186,6 +209,8 @@ function loadSearchPrereqs() {
             buffer += '<label class="checkable" style="width: 100px" for="indicators_status"> Current Status</label></div>';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_initiator" name="indicators[initiator]" value="initiator" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_initiator"> Initiator</label></div>';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_actionButton" name="indicators[actionButton]" value="actionButton" />';
+            buffer += '<label class="checkable" style="width: 100px" for="indicators_actionButton"> Action Button</label></div>';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_action_history" name="indicators[action_history]" value="action_history" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_action_history"> Comment History</label></div>';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" />';
@@ -235,7 +260,7 @@ function loadSearchPrereqs() {
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 200px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + i + '</div>';
                 for(var j in groupList[i]) {
                     buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
-                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
+                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
                 }
                 buffer += '</div>';
             }
@@ -382,10 +407,12 @@ var leafSearch;
 var headers = [];
 var t_inIndicators;
 var isNewQuery = false;
-var dialog;
+var dialog, dialog_message;
 var indicatorSort = {}; // object = indicatorID : sortID
+var grid;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
+	dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
     leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.renderUI();
@@ -431,7 +458,7 @@ $(function() {
 
     // Step 2
     var selectedIndicators = [];
-    var grid = new LeafFormGrid('results');
+    grid = new LeafFormGrid('results');
     grid.enableToolbar();
     var extendedToolbar = false;
     $('#generateReport').off();

@@ -117,7 +117,7 @@ function loadInboxData(depID) {
                      });
                  }},
                  {name: 'Action', indicatorID: 'action', editable: false, sortable: false, callback: function(data, blob) {
-                	 var depDescription = 'Apply Action';
+                	 var depDescription = 'Take Action';
                 	 $('#'+data.cellContainerID).html('<div class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" onclick="loadWorkflow('+ data.recordID +', \''+ depID +'\', \''+ formGrid.getPrefixID() +'\');">'+ depDescription +'</div>');
                  }}
              ]);

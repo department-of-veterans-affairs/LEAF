@@ -4,7 +4,6 @@
 <br style="clear: both" />
 <div>
     <span style="font-size: 18px; font-weight: bold"></span>
-    <br /><br />
 
     <div id="groupList"></div>
 </div>
@@ -106,108 +105,117 @@ function removeUser(groupID, userID) {
     });
 }
 
+function initiateWidget(serviceID) {
+    $('#' + serviceID).on('click', function(serviceID) {
+        return function() {
+            $.ajax({
+                type: 'GET',
+                url: '../api/service/' + serviceID + '/members',
+                success: function(res) {
+                    dialog.clear();
+                    var button_deleteGroup = '<br /><br /><div id="deleteGroup_'+serviceID+'" class="buttonNorm" style="background-color: red">Delete this group</div>';
+                    if(serviceID > 0) {
+                        button_deleteGroup = '';
+                    }
+                    dialog.setContent('<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />' + button_deleteGroup);
+                    $('#employees').html('<table id="employee_table" class="table"></table>');
+                    var counter = 0;
+                    for(var i in res) {
+                        var removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove</span>';
+                        var managedBy = '';
+                        if(res[i].locallyManaged != 1) {
+                            managedBy += '<br /> * Managed in Org. Chart';
+                        }
+                        if(res[i].active != 1) {
+                            managedBy += '<br /> * Managed in Org. Chart';
+                            managedBy += '<br /> * Override set, and they do not have access';
+                            removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove Override</span>';
+                        }
+                        $('#employee_table').append('<tr><td>'+ res[i].Lname + ', ' + res[i].Fname + managedBy +'</td><td>'+ removeButton +'</td></tr>');
+                        $('#removeMember_' + counter).on('click', function(userID) {
+                            return function() {
+                                removeUser(serviceID, userID);
+                                dialog.hide();
+                            };
+                        }(res[i].userName));
+                        counter++;
+                    }
+
+                    $('#deleteGroup_' + serviceID).on('click', function() {
+                        dialog_confirm.setContent('Are you sure you want to delete this service?');
+                        dialog_confirm.setSaveHandler(function() {
+                            $.ajax({
+                                type: 'DELETE',
+                                url: "../api/service/" + serviceID + '&CSRFToken=<!--{$CSRFToken}-->',
+                                success: function(response) {
+                                    location.reload();
+                                }
+                            });
+                        });
+                        dialog_confirm.show();
+                    });
+                    
+                    empSel = new nationalEmployeeSelector('employeeSelector');
+                    empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+                    empSel.rootPath = '<!--{$orgchartPath}-->/';
+                    empSel.outputStyle = 'micro';
+                    empSel.initialize();
+
+                    dialog.setSaveHandler(function() {
+                        if(empSel.selection != '') {
+                            var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                            $.ajax({
+                                type: 'POST',
+                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                                success: function(res) {
+                                    if(!isNaN(res)) {
+                                        addUser(serviceID, selectedUserName);
+                                    }
+                                    else {
+                                        alert(res);
+                                    }
+                                }
+                            });
+                        }
+                        getMembers(serviceID);
+                        dialog.hide();
+                    });
+
+                    dialog.show();
+                },
+                cache: false
+            });
+        };
+    }(serviceID));
+}
 
 function getGroupList() {
-    $('#groupList').html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
-
-    $.ajax({
-    	type: 'GET',
-        url: "../api/service",
-        dataType: "json",
-        success: function(res) {
-    	    $('#groupList').html('');
-    	    for(var i in res) {
-    	    	$('#groupList').append('<div id="'+ res[i].serviceID +'" title="serviceID: '+ res[i].serviceID +'" class="groupBlock">\
-    	    			                <h2 id="groupTitle'+ res[i].serviceID +'">'+ res[i].service +'</h2>\
-    	    			                <div id="members'+ res[i].serviceID +'"></div>\
-    	    		                    </div>');
-    	    	$('#' + res[i].serviceID).on('click', function(serviceID) {
-    	    		return function() {
-                        $.ajax({
-                            type: 'GET',
-                            url: '../api/service/' + serviceID + '/members',
-                            success: function(res) {
-                            	dialog.clear();
-                            	var button_deleteGroup = '<br /><br /><div id="deleteGroup_'+serviceID+'" class="buttonNorm" style="background-color: red">Delete this group</div>';
-                            	if(serviceID > 0) {
-                            		button_deleteGroup = '';
-                            	}
-                                dialog.setContent('<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />' + button_deleteGroup);
-                                $('#employees').html('<table id="employee_table" class="table"></table>');
-                                var counter = 0;
-                                for(var i in res) {
-                                	var removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove</span>';
-                                	var managedBy = '';
-                                	if(res[i].locallyManaged != 1) {
-                                		managedBy += '<br /> * Managed in Org. Chart';
-                                	}
-                                    if(res[i].active != 1) {
-                                        managedBy += '<br /> * Managed in Org. Chart';
-                                        managedBy += '<br /> * Override set, and they do not have access';
-                                        removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove Override</span>';
-                                    }
-                                	$('#employee_table').append('<tr><td>'+ res[i].Lname + ', ' + res[i].Fname + managedBy +'</td><td>'+ removeButton +'</td></tr>');
-                                    $('#removeMember_' + counter).on('click', function(userID) {
-                                        return function() {
-                                            removeUser(serviceID, userID);
-                                            dialog.hide();
-                                        };
-                                    }(res[i].userName));
-                                    counter++;
-                                }
-
-                                $('#deleteGroup_' + serviceID).on('click', function() {
-                                	dialog_confirm.setContent('Are you sure you want to delete this service?');
-                                	dialog_confirm.setSaveHandler(function() {
-                                	    $.ajax({
-                                	        type: 'DELETE',
-                                	        url: "../api/service/" + serviceID + '&CSRFToken=<!--{$CSRFToken}-->',
-                                	        success: function(response) {
-                                	            location.reload();
-                                	        }
-                                	    });
-                                	});
-                                	dialog_confirm.show();
-                                });
-                                
-                                empSel = new nationalEmployeeSelector('employeeSelector');
-                                empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                                empSel.rootPath = '<!--{$orgchartPath}-->/';
-                                empSel.outputStyle = 'micro';
-                                empSel.initialize();
-
-                                dialog.setSaveHandler(function() {
-                                    if(empSel.selection != '') {
-                                    	var selectedUserName = empSel.selectionData[empSel.selection].userName;
-                                        $.ajax({
-                                            type: 'POST',
-                                            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-                                            data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                                            success: function(res) {
-                                                if(!isNaN(res)) {
-                                                	addUser(serviceID, selectedUserName);
-                                                }
-                                                else {
-                                                    alert(res);
-                                                }
-                                            }
-                                        });
-                                    }
-                                    getMembers(serviceID);
-                                    dialog.hide();
-                                });
-
-                                dialog.show();
-                            },
-                            cache: false
-                        });
-    	    		};
-    	    	}(res[i].serviceID));
-    	    	populateMembers(res[i].serviceID, res[i].members);
-    	    }
-        },
-        cache: false
-    });
+	$.when(
+	    $.ajax({
+	        type: 'GET',
+	        url: '../api/service/quadrads'
+	    }),
+        $.ajax({
+            type: 'GET',
+            url: '../api/service'
+        })
+     )
+	.done(function(res1, res2) {
+		var quadrads = res1[0];
+		var services = res2[0];
+	    for(var i in quadrads) {
+	    	$('#groupList').append('<h2>'+ quadrads[i].name +'</h2><hr /><div id="group_'+ quadrads[i].groupID +'"></div><br style="clear: both" />');
+	    }
+	    for(var i in services) {
+	    	$('#group_' + services[i].groupID).append('<div id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlock">'
+                    + '<h2 id="groupTitle'+ services[i].serviceID +'">'+ services[i].service +'</h2>'
+                    + '<div id="members'+ services[i].serviceID +'"></div>'
+                    + '</div>');
+	    	initiateWidget(services[i].serviceID);
+	    	populateMembers(services[i].serviceID, services[i].members);
+	    }
+	});
 }
 
 $(function() {
@@ -219,6 +227,7 @@ $(function() {
     $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
 
     getGroupList();
+
 });
 
 /* ]]> */

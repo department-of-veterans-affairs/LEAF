@@ -282,7 +282,7 @@ function dependencyGrantAccess(dependencyID, stepID) {
 
 function newDependency(stepID) {
 	dialog.setTitle('Create a new requirement');
-    dialog.setContent('<br />Requirement Label: <input type="text" id="description"></input><br /><br />Example: "First line approval"');
+    dialog.setContent('<br />Requirement Label: <input type="text" id="description"></input><br /><br />Requirements determine the WHO and WHAT part of the process.<br />Example: "Fiscal Team Review"');
     
     dialog.setSaveHandler(function() {
     	$.ajax({
@@ -376,6 +376,20 @@ function setInitialStep(stepID) {
         data: {stepID: stepID,
                CSRFToken: CSRFToken},
         success: function() {
+        	// ending step
+        	if(stepID == 0) {
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=workflow/' + currentWorkflow + '/action',
+                    data: {stepID: -1,
+                           nextStepID: 0,
+                           action: 'submit',
+                           CSRFToken: CSRFToken},
+                    success: function() {
+                    }
+                });
+        	}
+        	
         	workflows = {};
             $.ajax({
                 type: 'GET',
@@ -557,12 +571,13 @@ function showActionInfo(params, evt) {
     $('.workflowStepInfo').css('display', 'none');
     $('#stepInfo_' + params.stepID).html('Loading...');
 
+    var stepID = params.stepID;
     $.ajax({
         type: 'GET',
-        url: '../api/?a=workflow/'+ currentWorkflow +'/step/' + params.stepID + '/_' + params.action + '/events',
+        url: '../api/?a=workflow/'+ currentWorkflow +'/step/' + stepID + '/_' + params.action + '/events',
         success: function(res) {
             var output = '';
-            stepTitle = steps[params.stepID] != undefined ? steps[params.stepID].stepTitle : 'Requestor';
+            stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
             output = '<h2>'+ stepTitle +' -> '+ params.action +'</h2>';
             output += '<br /><div>Events:<ul>';
             // the sendback action always notifies the requestor
@@ -570,24 +585,24 @@ function showActionInfo(params, evt) {
             	output += '<li><b>Notify the requestor via email</b></li>';
             }
             for(var i in res) {
-                output += '<li><b title="'+ res[i].eventID +'">'+ res[i].eventDescription +'</b> <img src="../../libs/dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent('+ currentWorkflow +', '+ params.stepID +', \''+ params.action +'\', \''+ res[i].eventID +'\')" alt="Remove Action" title="Remove Action" /></li>';
+                output += '<li><b title="'+ res[i].eventID +'">'+ res[i].eventDescription +'</b> <img src="../../libs/dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent('+ currentWorkflow +', '+ stepID +', \''+ params.action +'\', \''+ res[i].eventID +'\')" alt="Remove Action" title="Remove Action" /></li>';
             }
-            output += '<li style="padding-top: 8px"><span class="buttonNorm" id="event_'+ currentWorkflow + '_' + params.stepID + '_'+ params.action +'">Add Event</span>';
+            output += '<li style="padding-top: 8px"><span class="buttonNorm" id="event_'+ currentWorkflow + '_' + stepID + '_'+ params.action +'">Add Event</span>';
             output += '</ul></div>';
-            output += '<hr /><div style="padding: 4px"><span class="buttonNorm" onclick="removeAction('+ currentWorkflow +', '+ params.stepID +', '+ params.nextStepID +', \''+ params.action +'\')">Remove Action</span></div>';
-            $('#stepInfo_' + params.stepID).html(output);
-            $('#event_'+ currentWorkflow + '_' + params.stepID + '_'+ params.action).on('click', function() {
-            	addEventDialog(currentWorkflow, params.stepID, params.action);
+            output += '<hr /><div style="padding: 4px"><span class="buttonNorm" onclick="removeAction('+ currentWorkflow +', '+ stepID +', '+ params.nextStepID +', \''+ params.action +'\')">Remove Action</span></div>';
+            $('#stepInfo_' + stepID).html(output);
+            $('#event_'+ currentWorkflow + '_' + stepID + '_'+ params.action).on('click', function() {
+            	addEventDialog(currentWorkflow, stepID, params.action);
             });
         },
         cache: false
     });
     
-    $('#stepInfo_' + params.stepID).css({
+    $('#stepInfo_' + stepID).css({
         left: evt.pageX + 'px',
         top: evt.pageY + 'px'
     });
-    $('#stepInfo_' + params.stepID).show('slide', null, 200);
+    $('#stepInfo_' + stepID).show('slide', null, 200);
 }
 
 function setDynamicApprover(stepID) {
@@ -860,7 +875,7 @@ function drawRoutes(workflowID) {
                         cssClass:"workflowAction",
                         label: 'Submit',
                         location: loc,
-                        parameters: {'stepID': 0,
+                        parameters: {'stepID': -1,
                                      'nextStepID': workflows[workflowID].initialStepID,
                                      'action': 'submit'},
                         events: {

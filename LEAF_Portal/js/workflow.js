@@ -62,7 +62,10 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	            	for(var i in response.errors) {
 	            		errors += response.errors[i] + '<br />';
 	            	}
-	                $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error triggering events: '+ errors +'</div>');
+	                $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="../libs/dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" /> '+ errors +'<br /><span style="font-size: 14px; font-weight: normal">After resolving the errors, <button id="workflowbtn_tryagain" class="buttonNorm">click here to try again</button>.</span></div>');
+	                $("#workflowbtn_tryagain").on('click', function() {
+	                	getWorkflow(currRecordID);
+	                });
 	            }
 	            antiDblClick = 0;
 	        },
@@ -157,6 +160,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
      * @memberOf LeafWorkflow
      */
 	function drawWorkflowNoAccess(step) {
+		// hide cancel button since the user doesn't have access
+//		$('#btn_cancelRequest').css('display', 'none');
+		
 	    $('#' + containerID).append('<div id="workflowbox_dep'+ step.dependencyID +'" class="workflowbox"></div>');
 	    $('#workflowbox_dep'+ step.dependencyID).css({'background-color': step.stepBgColor,
 	                                'border': step.stepBorder,
@@ -199,17 +205,26 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	        dataType: 'json',
 	        success: function(response) {
 	            if(response == null) {
+	            	if(res == null) {
+	            		$('#' + containerID).append('No actions available');
+	            	}
 	                return null;
 	            }
+	            response.stepBgColor = response.stepBgColor == null ? '#e0e0e0' : response.stepBgColor;
+	            response.stepFontColor = response.stepFontColor == null ? '#000000' : response.stepFontColor;
+	            response.stepBorder = response.stepBorder == null ? '1px solid black' : response.stepBorder;
+	            var label = response.dependencyID == 5 ? response.categoryName: response.description;
 	    		if(res != null) {
-		            $('#' + containerID).append('<div id="workflowbox_lastAction" class="workflowbox" style="padding: 0px; margin-top: 8px"></div>');
-		            $('#workflowbox_lastAction').css({'background-color': response.stepBgColor, 'border': response.stepBorder});
+	    			if(response.dependencyID != 5) {
+	    				$('#' + containerID).append('<div id="workflowbox_lastAction" class="workflowbox" style="padding: 0px; margin-top: 8px"></div>');
+	    				$('#workflowbox_lastAction').css({'background-color': response.stepBgColor, 'border': response.stepBorder});
+	    			}
 		            
 		            var date = new Date(response.time * 1000);
 
 		            var text = '';
 		            if(response.description != null && response.actionText != null) {            
-		                text = '<div style="background-color: ' + darkenColor(response.stepBgColor) + '; padding: 4px"><span style="float: left; font-size: 90%">' + response.description + ': ' + response.actionTextPasttense + '</span>';
+		                text = '<div style="background-color: ' + darkenColor(response.stepBgColor) + '; padding: 4px"><span style="float: left; font-size: 90%">' + label + ': ' + response.actionTextPasttense + '</span>';
 		                text += '<span style="float: right; font-size: 90%">' + date.toLocaleString('en-US', {weekday: "long", year: "numeric", month: "long", day: "numeric"}) + '</span><br /></div>';
 		                if(response.comment != '' && response.comment != null) {
 		                    text += '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px">' + response.comment + '</div></div>';
@@ -219,7 +234,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		                text = "[ Please refer to this request's history for current status ]";
 		            }            
 
-		            $('#workflowbox_lastAction').append('<span style="font-weight: bold; color: '+response.stepFontColor+'">'+text+'</span>');
+		            if(response.dependencyID != 5) {
+			            $('#workflowbox_lastAction').append('<span style="font-weight: bold; color: '+response.stepFontColor+'">'+text+'</span>');
+		            }
 	    		}
 	    		else {
 	                $('#workflowcontent').append('<div id="workflowbox_lastAction"></div>');
@@ -233,14 +250,14 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
 	                var text = '';
 	                if(response.description != null && response.actionText != null) {            
-	                    text = '<div style="padding: 4px; background-color: ' + darkenColor(response.stepBgColor) + '">' + response.description + ': ' + response.actionTextPasttense;
+	                    text = '<div style="padding: 4px; background-color: ' + darkenColor(response.stepBgColor) + '">' + label + ': ' + response.actionTextPasttense;
 	                    text += '<br /><span style="font-size: 60%">' + date.toLocaleString('en-US', {weekday: "long", year: "numeric", month: "long", day: "numeric"}) + '</span></div>';
 	                    if(response.comment != '' && response.comment != null) {
 	                        text += '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black"><legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' + response.comment + '</span></fieldset></div>';
 	                    }                
 	                }
 	                else {
-	                    text = "[ Please refer to this request's history for current status ]";
+	                    text = "[ Please refer to this request's history for current status. ]";
 	                }            
 
 	                $('#workflowbox_lastAction').append('<span style="font-size: 150%; font-weight: bold", color: '+response.stepFontColor+'>'+ text +'</span>');

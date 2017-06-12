@@ -67,8 +67,20 @@ class Service
    		if(is_numeric($groupID) && $member != '') {
    			$vars = array(':userID' => $member,
    					':groupID' => $groupID);
-   			$res = $this->db->prepared_query("INSERT INTO service_chiefs (serviceID, userID, locallyManaged)
+   			$this->db->prepared_query("INSERT INTO service_chiefs (serviceID, userID, locallyManaged)
                                                    VALUES (:groupID, :userID, 1)", $vars);
+   			
+   			// check if this service is also an ELT
+   			$vars = array(':groupID' => $groupID);
+   			$res = $this->db->prepared_query("SELECT * FROM services
+   												WHERE serviceID=:groupID", $vars);
+   			// if so, update groups table
+   			if($res[0]['groupID'] == $groupID) {
+   				$vars = array(':userID' => $member,
+   							  ':groupID' => $groupID);
+   				$this->db->prepared_query("INSERT INTO users (userID, groupID)
+												VALUES (:userID, :groupID)", $vars);
+   			}
    		}
     	
     	return 1;
@@ -91,6 +103,19 @@ class Service
     					':groupID' => $groupID);
     			$res = $this->db->prepared_query("UPDATE service_chiefs SET active=0, locallyManaged=1
     												WHERE userID=:userID AND serviceID=:groupID", $vars);
+    		}
+
+    		// check if this service is also an ELT
+    		$vars = array(':groupID' => $groupID);
+    		$res = $this->db->prepared_query("SELECT * FROM services
+   												WHERE serviceID=:groupID", $vars);
+    		// if so, update groups table
+    		if($res[0]['groupID'] == $groupID) {
+    			$vars = array(':userID' => $member,
+    					':groupID' => $groupID);
+    			$this->db->prepared_query("DELETE FROM users
+    										WHERE userID=:userID
+    											AND groupID=:groupID", $vars);
     		}
     	}
     	
@@ -129,7 +154,8 @@ class Service
     	$res = $this->db->query('SELECT groupID, name FROM services
     								LEFT JOIN groups USING (groupID)
     								WHERE groupID IS NOT NULL
-    								GROUP BY groupID');
+    								GROUP BY groupID
+    								ORDER BY name');
     
     	return $res;
     }

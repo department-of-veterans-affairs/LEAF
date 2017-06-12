@@ -10,13 +10,6 @@
 </div>
 
 <br style="clear: both" />
-<hr />
-<div>
-    <span style="font-size: 18px; font-weight: bold">Executive Leadership Team</span>
-    <br /><br />
-
-    <div id="quadradList"></div>
-</div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
@@ -80,14 +73,9 @@ function getGroupList() {
             $('#groupList').html('');
             for(var i in res) {
 
+            	// only show explicit groups, not ELTs
             	if(res[i].parentGroupID == null) {
                     $('#groupList').append('<div id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
-                            <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].name +'</h2>\
-                            <div id="members'+ res[i].groupID +'"></div>\
-                            </div>');
-            	}
-            	else {
-                    $('#quadradList').append('<div id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
                             <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].name +'</h2>\
                             <div id="members'+ res[i].groupID +'"></div>\
                             </div>');

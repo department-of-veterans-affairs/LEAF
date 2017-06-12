@@ -197,17 +197,15 @@ class FormWorkflow
     	}
     	
     	$vars = array(':recordID' => $this->recordID);
-    	$res = $this->db->prepared_query('SELECT * FROM records_dependencies
+    	$res = $this->db->prepared_query('SELECT * FROM action_history
+	    									LEFT JOIN actions ON actions.actionType = action_history.actionType
 	    									LEFT JOIN category_count USING (recordID)
 	    									LEFT JOIN categories USING (categoryID)
-	    									LEFT JOIN step_dependencies USING (dependencyID)
-	    									LEFT JOIN workflow_routes USING (workflowID, stepID)
-	    									LEFT JOIN workflow_steps USING (workflowID, stepID)
-	    									LEFT JOIN actions USING (actionType)
 	    									LEFT JOIN dependencies USING (dependencyID)
-	    									RIGHT JOIN action_history USING (recordID, dependencyID, actionType)
-	    									WHERE records_dependencies.recordID=:recordID
-	    										AND actionType IS NOT NULL
+	    									LEFT JOIN step_dependencies USING (dependencyID)
+	    									LEFT JOIN workflow_steps USING (stepID)
+	    									WHERE recordID=:recordID
+	    										AND actions.actionType IS NOT NULL
 	    									ORDER BY actionID DESC
 	    									LIMIT 1', $vars);
     	// dependencyID -1 is for a person designated by the requestor

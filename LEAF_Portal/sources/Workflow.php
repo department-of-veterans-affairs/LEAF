@@ -218,11 +218,19 @@ class Workflow
     		return 'Admin access required.';
     	}
     
+    	if($stepID < 0) {
+    		return 'Invalid Action';
+    	}
+    	
     	$vars = array(':workflowID' => $this->workflowID,
     				  ':stepID' => $stepID
     	);
     	$res = $this->db->prepared_query('UPDATE workflows SET initialStepID=:stepID
     										WHERE workflowID=:workflowID', $vars);
+
+    	if($stepID != 0) {
+    		$this->deleteAction(-1, 0, 'submit');
+    	}
     	return true;
     }
 
@@ -414,7 +422,8 @@ class Workflow
     	}
 
     	$res = $this->db->prepared_query('SELECT * FROM categories
-    										WHERE workflowID = :workflowID', $vars);
+    										WHERE workflowID = :workflowID
+    											AND disabled=0', $vars);
     	if(count($res) > 0) {
     		return 'Forms must be disconnected from this workflow first.';
     	}

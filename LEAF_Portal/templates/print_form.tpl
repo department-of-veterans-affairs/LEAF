@@ -35,7 +35,7 @@
         <div onclick="toggleBookmark()" id="tool_bookmarkText"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" /> Delete Bookmark</div>
         <!--{/if}-->
         <br /><br />
-        <div onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" /> Cancel Request</div>
+        <div id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" /> Cancel Request</div>
     </div>
 
     <!--{if count($comments) > 0}-->
@@ -468,9 +468,11 @@ function admin_changeStep() {
                         });
                         dialog.hide();
                     });
-                }
+                },
+                cache: false
         	});
-        }
+        },
+        cache: false
     });
 }
 

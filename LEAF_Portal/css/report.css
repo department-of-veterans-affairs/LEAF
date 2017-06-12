@@ -4,9 +4,3 @@
     overflow: hidden;
     white-space: nowrap;
 }
-
-.indicatorOption:hover {
-    text-overflow: clip;
-    overflow: visible;
-    white-space: normal;
-}
