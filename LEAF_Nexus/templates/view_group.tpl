@@ -39,11 +39,9 @@
         <br />
         <!--{/if}-->
         <div onclick="editGroupName()"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</div>
-        <div id="button_addEmployeePosition" class="advancedOption" onclick="addEmployeePosition()"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee/" title="Add Employee/Position" /> Add Employee/Position</div>
+        <div id="button_addEmployeePosition" onclick="addEmployeePosition()"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee/" title="Add Employee/Position" /> Add Employee/Position</div>
         <br />
         <div onclick="confirmRemove()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
-        <br />
-        <div id="button_advancedOptions"><img src="../libs/dynicons/?img=gnome-system-run.svg&amp;w=16" style="vertical-align: middle" alt="Advanced Options" title="Advanced Options" /> Show Advanced Options</div>
     </div>
 
     <div class="toolbar_tags"><h1>Tags</h1>
@@ -136,7 +134,7 @@ function addEmployeePosition() {
     
     empSel = new nationalEmployeeSelector('employeeSelector');
     empSel.initialize();
-    empSel.setDomain('<!--{$userDomain}-->');
+//    empSel.setDomain('<!--{$userDomain}-->');
     empSel.hideInput();
 
     posSel = new positionSelector('positionSelector');
@@ -416,12 +414,6 @@ $(function() {
     
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     confirm_dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
-    
-    // Button to hide/show advanced options
-    $('#button_advancedOptions').on('click', function() {
-    	$('#button_advancedOptions').css('display', 'none');
-    	$('.advancedOption').css('display', 'block');
-    });
 });
 
 </script>

@@ -108,7 +108,7 @@
 
     <div id="currentEmployee" style="float: right; width: 220px; background-color: #ffe3e3; border: 1px solid black;">
     <!--{if $employee[0].empUID > 0}-->
-        <div id="currentEmployeeHeader" style="background-color: #f4bcbc; font-size: 110%; font-weight: bold; padding: 4px"><!--{$employee[0].firstName}--> <!--{$employee[0].lastName}--></div>
+        <div id="currentEmployeeHeader" style="background-color: #f4bcbc; font-size: 110%; font-weight: bold; padding: 4px"><a href="?a=view_employee&empUID=<!--{$employee[0].empUID}-->"><!--{$employee[0].firstName}--> <!--{$employee[0].lastName}--></a></div>
         <div id="currentEmployeeBody" style="padding: 4px">Loading...</div>
     <!--{else}-->
         <div style="padding: 8px">Your account is not present in the Org. Chart database.</div>
@@ -265,7 +265,7 @@ $(function() {
                     success: function(positionData) {
                         title = '';
                         if(positionData.title != '') {
-                            title = '<br /><span><a href="?a=view_position&amp;positionID=<!--{$employeePositions[0].positionID}-->">' + positionData.title + '</a></span>';
+                            title = '<br /><span>' + positionData.title + '</span>';
                         }
                         $('#currentEmployeeHeader').append(title);
                     }

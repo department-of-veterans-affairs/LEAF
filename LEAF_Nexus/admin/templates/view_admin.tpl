@@ -94,7 +94,7 @@ function newEmployee() {
     empSel.rootPath = '../';
     empSel.apiPath = '../api/';
     empSel.initialize();
-    empSel.setDomain('<!--{$userDomain}-->');
+//    empSel.setDomain('<!--{$userDomain}-->');
     
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
