@@ -86,7 +86,7 @@
             <!--{if $indicator.value[0] != ''}-->
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.value item=file}-->
-            <a href="file.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" target="_blank" class="printResponse"><img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=24" alt="file" /><!--{$file}--></a>
+            <a href="file.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" target="_blank" class="printResponse"><img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=24" alt="file" /><!--{$file}--></a><br />
             <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
             <!--{else}-->

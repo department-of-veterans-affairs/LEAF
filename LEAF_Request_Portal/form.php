@@ -14,7 +14,8 @@ class Form
     private $cache = array();
     public $employee;    // Org Chart
     public $position;    // Org Chart
-    public $group;    // Org Chart
+    public $group;       // Org Chart
+    public $oc_dbName;   // Org Chart
 
     function __construct($db, $login)
     {
@@ -44,6 +45,7 @@ class Form
         $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
         $oc_login = new OrgChart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
+        $this->oc_dbName = $config->dbName;
         $this->employee = new OrgChart\Employee($oc_db, $oc_login);
         $this->position = new OrgChart\Position($oc_db, $oc_login);
         $this->group = new OrgChart\Group($oc_db, $oc_login);
@@ -291,19 +293,7 @@ class Form
                 if(($field['format'] == 'fileupload'
                 		|| $field['format'] == 'image')
                     && isset($data[$idx]['data'])) {
-              		$child[$idx]['value'] = array();
-                	if(strpos($data[$idx]['data'], "\n") !== false) {
-                		$tmpFileNames = explode("\n", $data[$idx]['data']);
-                		foreach($tmpFileNames as $tmpFileName) {
-                			if(trim($tmpFileName) != '') {
-                				$child[$idx]['value'][] = $tmpFileName;
-                			}
-                		}
-                	}
-					else {
-						$child[$idx]['value'] = array();
-						$child[$idx]['value'][] = $data[$idx]['data'];
-					}
+              		$child[$idx]['value'] = $this->fileToArray($data[$idx]['data']);
                 }
 
                 // special handling for org chart data types
@@ -508,6 +498,7 @@ class Form
         if($data[0]['format'] == 'fileupload'
         		|| $data[0]['format'] == 'image') {
         	$form[$idx]['value'] = $this->fileToArray($data[0]['data']);
+        	$form[$idx]['raw'] = $data[0]['data'];
         }
 
         // special handling for org chart data types
@@ -2171,6 +2162,7 @@ class Form
 		$joinRecords_Dependencies = false;
 		$joinRecords_Step_Fulfillment = false;
 		$joinActionHistory = false;
+		$joinInitiatorNames = false;
 		if(isset($query['joins'])) {
 			foreach($query['joins'] as $table) {
 				switch($table) {
@@ -2197,6 +2189,9 @@ class Form
 						break;
 					case 'stepFulfillment':
 						$joinRecords_Step_Fulfillment = true;
+						break;
+					case 'initiatorName':
+						$joinInitiatorNames = true;
 						break;
 					default:
 						break;
@@ -2253,6 +2248,10 @@ class Form
 		if($joinSearchOrgchartEmployeeData) {
 			$joins .= "INNER JOIN (SELECT indicatorID, format FROM indicators
 									WHERE format = 'orgchart_employee') rj_OCEmployeeData ON (lj_data.indicatorID = rj_OCEmployeeData.indicatorID) ";
+		}
+
+		if($joinInitiatorNames) {
+			$joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
 		}
 
     	$res = $this->db->prepared_query('SELECT * FROM records
@@ -2397,22 +2396,30 @@ class Form
     /**
      * List of all available active indicators
      */
-    public function getIndicatorList()
+    public function getIndicatorList($sort = 'name')
     {
+    	$orderBy = '';
+    	switch($sort) {
+    		case 'indicatorID':
+    			$orderBy = ' ORDER BY indicatorID';
+    			break;
+    		case 'name':
+    		default:
+    			$orderBy = ' ORDER BY name';
+    			break;
+    	}
     	$vars = array();
-    	$res = $this->db->prepared_query('SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
+    	$res = $this->db->prepared_query('SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
 											LEFT JOIN categories USING (categoryID)
 						                    WHERE indicators.disabled = 0
 						    					AND format != ""
 						    					AND name != ""
-						    					AND categories.disabled = 0
-						    				ORDER BY name', $vars);
+						    					AND categories.disabled = 0' . $orderBy, $vars);
 
     	$resAll = $this->db->prepared_query('SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
 													LEFT JOIN categories USING (categoryID)
 								                    WHERE indicators.disabled = 0
-								    					AND categories.disabled = 0
-								    				ORDER BY name', $vars);
+								    					AND categories.disabled = 0' . $orderBy, $vars);
 
     	$dataStaples = array();
     	$resStaples = $this->db->prepared_query('SELECT * FROM category_staples', $vars);

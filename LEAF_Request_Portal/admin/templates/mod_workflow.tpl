@@ -654,7 +654,8 @@ function setDynamicGroupApprover(stepID) {
         success: function(res) {
             var indicatorList = '';
             for(var i in res) {
-                if(res[i]['format'] == 'orgchart_group') {
+                if(res[i]['format'] == 'orgchart_group'
+                	|| res[i]['format'] == 'raw_data') {
                     indicatorList += '<option value="'+ res[i].indicatorID +'">'+ res[i].categoryName +': '+ res[i].name +' (id: '+ res[i].indicatorID +')</option>';
                 }
             }

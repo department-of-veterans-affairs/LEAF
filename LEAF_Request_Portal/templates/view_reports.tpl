@@ -93,23 +93,9 @@ function addHeader(column) {
                          }});
             break;
         case 'initiator':
+        	leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
-            	$('#'+data.cellContainerID).html('<span class="initiator_'+ blob[data.recordID].userID +'">' + blob[data.recordID].userID + '</span>');
-            	$('.initiator_'+ blob[data.recordID].userID).off('mouseover.custom');
-            	$('.initiator_'+ blob[data.recordID].userID).on('mouseover.custom', function() {
-            		$('.initiator_'+ blob[data.recordID].userID).off('mouseover.custom');
-                    $.ajax({
-                        type: 'GET',
-                        url: '<!--{$orgchartPath}-->/api/?a=employee/search&q=' + blob[data.recordID].userID,
-                        success: function(res) {
-                        	var buffer = '';
-                        	for(var i in res) {
-                        		buffer += res[i].lastName + ', ' + res[i].firstName;
-                        	}
-                            $('.initiator_'+ blob[data.recordID].userID).html(buffer);
-                        }
-                    });            		
-            	});
+            	$('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
             }});
             break;
         case 'actionButton':
@@ -221,7 +207,7 @@ function loadSearchPrereqs() {
             var tmp = document.createElement('div');
             var temp;
             for(var i in res) {
-                temp = res[i].description != '' && res[i].description != null ? res[i].description : res[i].name;
+                temp = res[i].name;
                 tmp.innerHTML = temp;
                 temp = tmp.textContent || tmp.innerText || '';
                 temp = temp.replace(/[^\040-\176]/g, '');
@@ -302,7 +288,7 @@ function loadSearchPrereqs() {
                     else {
                         // pre-select defaults
                         $('#indicators_title').prop('checked', true);
-                        $('#indicators_service').prop('checked', true);
+//                        $('#indicators_service').prop('checked', true);
                     }
 
                     $('.icheck').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
@@ -400,6 +386,22 @@ function sortHeaders(a, b) {
         return 1;
     }
     return 0;
+}
+
+function showJSONendpoint() {
+	var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+	var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
+	var urlEncoded = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + encodeURIComponent(JSON.stringify(leafSearch.getLeafFormQuery().getQuery())); 
+
+	dialog_message.setTitle('Data Endpoints');
+	dialog_message.setContent('<p>These endpoints provide a live data source for custom dashboards or automated programs.</p>'
+			               + '<b>JSON:</b><br /><textarea style="width: 95%; height: 100px">'+ jsonPath +'</textarea><br />For JSONP, append <b>&amp;format=jsonp</b>'
+			               + '<br /><br /><b>HTML Table:</b><br /><textarea id="encodedTable" style="width: 95%; height: 100px">'+ urlEncoded +'&format=htmltable</textarea>'
+			               + '<br /><a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>');
+	$('#encodedTable').on('click', function() {
+		$('#encodedTable').select();
+	});
+	dialog_message.show();
 }
 
 var url, urlQuery, urlIndicators;
@@ -550,11 +552,14 @@ $(function() {
     	
     	// create save link once
     	if(!extendedToolbar) {
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<span class="buttonNorm" onclick="prepareEmail()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="email report" /> Email Report</span> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<span id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</span> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="prepareEmail()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="email report" /> Email Report</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
-            $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '380px');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<span class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify report" /> Modify Report</span> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '460px');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify report" /> Modify Report</button> ');
+            <!--{if $empMembership['groupID'][1]}-->
+            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=32" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
+            <!--{/if}-->
             extendedToolbar = true;
             
             $('#editReport').on('click', function() {

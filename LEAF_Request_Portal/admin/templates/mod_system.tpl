@@ -1,8 +1,20 @@
-<h2 id="progress">
+<style>
+.item label {
+    font-size: 120%;
+    font-weight: bold;
+    width: 250px;
+}
+
+.item {
+    padding-bottom: 16px;
+}
+</style>
+
+<h2 id="progress" style="color: red; text-align: center">
 </h2>
 
-<div style="width: 50%; margin: auto">
-    <div class="item" style="border: 2px solid black; float: left; margin: 4px; background-color: white; padding: 16px">
+<div style="width: 70%; margin: auto">
+    <div style="border: 2px solid black; margin: 4px; background-color: white; padding: 16px">
         <div class="item">
         <label for="heading">Title of LEAF site:&nbsp;</label>
         <input id="heading" type="text" title="" value="<!--{$heading}-->" />
@@ -41,7 +53,8 @@
             </span>
         </div>
 
-        <button class="buttonNorm" onclick="saveSettings();">Save</button>
+        <button class="buttonNorm" onclick="saveSettings();" style="float: right"><img src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="save icon" /> Save</button>
+        <br /><br />
     </div>
 </div>
 
@@ -88,7 +101,9 @@ function saveSettings()
             })
          ).then(function() {
         	 $('#progress').html('Settings saved.');
-             location.reload();
+        	 $('#progress').fadeIn(10, function() {
+                 $('#progress').fadeOut(2000);
+        	 });
          });
 }
 

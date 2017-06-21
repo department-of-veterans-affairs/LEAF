@@ -63,7 +63,7 @@ class View
 
         $res = $this->db->prepared_query('SELECT * FROM tags
         									LEFT JOIN records USING (recordID)
-        									LEFT JOIN (SELECT * FROM action_history
+        									LEFT JOIN (SELECT recordID, actionType, dependencyID FROM action_history
         												ORDER BY actionID DESC) lj1 USING (recordID)
         									LEFT JOIN actions USING (actionType)
         									LEFT JOIN step_dependencies USING (dependencyID)

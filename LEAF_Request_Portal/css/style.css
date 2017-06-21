@@ -36,6 +36,7 @@ input {
 
 textarea {
     border: 1px solid gray;
+    padding: 4px;
 }
 
 select {
@@ -881,6 +882,8 @@ span.browsetypes {
 button.buttonNorm {
     background-color: #e8f2ff;
     padding: 2px;
+    margin: 2px;
+    padding-right: 6px;
     border: 1px solid black;
     cursor: pointer;
     font-size: 12px;
@@ -943,4 +946,20 @@ button.buttonNorm {
         margin-left: 2px;
         color: black;
     }
+}
+
+.beta {
+  position: fixed;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin-top: -40px;
+  margin-left: 44px;
+  background: #fdb81e;
+  text-align: center;
+      box-shadow: 0 2px 6px #8e8e8e;
+  vertical-align: middle;
+  font-size: 12px;
+  color: black;
+  line-height: 40px;
 }

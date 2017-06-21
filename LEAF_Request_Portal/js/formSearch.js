@@ -493,7 +493,8 @@ var LeafFormSearch = function(containerID) {
 						if(callback != undefined) {
 							callback();
 						}
-					}
+					},
+					cache: false
 				});
 				break;
 			case 'userID':
@@ -527,7 +528,8 @@ var LeafFormSearch = function(containerID) {
 						if(callback != undefined) {
 							callback();
 						}
-					}
+					},
+					cache: false
 				});
 				break;
 			case 'stepID':
@@ -553,7 +555,8 @@ var LeafFormSearch = function(containerID) {
 						if(callback != undefined) {
 							callback();
 						}
-					}
+					},
+					cache: false
 				});
 				break;
 			case 'data':
@@ -678,7 +681,8 @@ var LeafFormSearch = function(containerID) {
 						if(callback != undefined) {
 							callback();
 						}
-					}
+					},
+					cache: false
 				});
 				break;
 			default:

@@ -87,7 +87,7 @@ class FormController extends RESTfulResponse
 		});
 
 		$this->index['GET']->register('form/indicator/list', function($args) use ($form) {
-			return $form->getIndicatorList();
+			return $form->getIndicatorList($_GET['sort']);
 		});
 		
 		$this->index['GET']->register('form/indicator/list/disabled', function($args) use ($form) {

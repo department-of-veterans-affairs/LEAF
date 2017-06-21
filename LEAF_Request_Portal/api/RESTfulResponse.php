@@ -131,6 +131,13 @@ abstract class RESTfulResponse
                 echo $xml->asXML();
                 break;
             case 'csv':
+            	// flatten out s1 value, which is map of data fields -> values
+            	foreach($out as $key => $item) {
+            		if(isset($item['s1'])) {
+            			$out[$key] = array_merge($out[$key], $item['s1']);
+            			unset($out[$key]['s1']);
+            		}
+            	}
             	$items = array_keys($out);
             	$columns = array_keys($out[$items[0]]);
 
@@ -159,6 +166,44 @@ abstract class RESTfulResponse
             		}
             		echo "\r\n";
             	}
+            	break;
+            case 'htmltable':
+            	// flatten out s1 value, which is map of data fields -> values
+            	foreach($out as $key => $item) {
+            		if(isset($item['s1'])) {
+            			$out[$key] = array_merge($out[$key], $item['s1']);
+            			unset($out[$key]['s1']);
+            		}
+            	}
+            	$items = array_keys($out);
+            	$columns = array_keys($out[$items[0]]);
+
+            	$body = '<table>';
+            	$body .= '<thead><tr>';
+            	foreach($columns as $column) {
+            		$body .= '<td>' . $column . '</td>';
+            	}
+            	$body .= '</tr></thead>';
+            	$body .= '<tbody>';
+            	foreach($out as $line) {
+            		$body .= '<tr>';
+            		foreach($columns as $column) {
+            			if(is_array($line[$column])) {
+            				$body .= '<td>';
+            				foreach($line[$column] as $tItem) {
+            					$body .= $tItem . ' ';
+            				}
+            				$body .= '</td>';
+            			}
+            			else {
+            				$temp = strip_tags($line[$column]);
+            				$body .= '<td>' . $temp . '</td>';
+            			}
+            		}
+            		$body .= '</tr>';
+            	}
+            	$body .= '</tbody>';
+            	echo $body;
             	break;
             case 'debug':
                 echo '<pre>'. print_r($out, true) . '</pre>';

@@ -61,7 +61,7 @@ class FormWorkflowController extends RESTfulResponse
        	$this->index['POST']->register('formWorkflow/[digit]/step', function($args) use ($formWorkflow) {
        		$formWorkflow->initRecordID($args[0]);
 
-       		return $formWorkflow->setStep($_POST['stepID']);
+       		return $formWorkflow->setStep($_POST['stepID'], false, $_POST['comment']);
        	});
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

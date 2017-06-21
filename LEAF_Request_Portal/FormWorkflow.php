@@ -203,7 +203,7 @@ class FormWorkflow
 	    									LEFT JOIN categories USING (categoryID)
 	    									LEFT JOIN dependencies USING (dependencyID)
 	    									LEFT JOIN step_dependencies USING (dependencyID)
-	    									LEFT JOIN workflow_steps USING (stepID)
+	    									LEFT JOIN workflow_steps ON step_dependencies.stepID=workflow_steps.stepID
 	    									WHERE recordID=:recordID
 	    										AND actions.actionType IS NOT NULL
 	    									ORDER BY actionID DESC
@@ -211,10 +211,14 @@ class FormWorkflow
     	// dependencyID -1 is for a person designated by the requestor
     	if(isset($res[0])
     		&& $res[0]['dependencyID'] == -1) {
-   			$resEmpUID = $form->getIndicator($res[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
-   			$res[0]['description'] = $resEmpUID[$res[0]['indicatorID_for_assigned_empUID']]['name'];
+    		require_once 'VAMC_Directory.php';
+    		$dir = new VAMC_Directory;
+    			 
+    		$approver = $dir->lookupLogin($res[0]['userID']);
+
+   			$res[0]['description'] = "{$approver[0]['firstName']} {$approver[0]['lastName']}";
     	}
-    	// dependencyID -3 is for a person designated by the requestor
+    	// dependencyID -3 is for a group designated by the requestor
     	if(isset($res[0])
     			&& $res[0]['dependencyID'] == -3) {
     				$resGroupID = $form->getIndicator($res[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
@@ -448,6 +452,7 @@ class FormWorkflow
                 // don't write duplicate log entries
                 $vars2 = array(':recordID' => $this->recordID,
                                ':userID' => $this->login->getUserID(),
+                			   ':stepID' => $actionable['stepID'],
                                ':dependencyID' => $dependencyID,
                                ':actionType' => $actionType,
                                ':actionTypeID' => 8,
@@ -457,8 +462,8 @@ class FormWorkflow
                 if(!isset($logCache[$logKey])) {
                     // write log
                     $logCache[$logKey] = 1;
-                    $this->db->prepared_query("INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)", $vars2);
+                    $this->db->prepared_query("INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment)
+                            VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment)", $vars2);
                 }
 
                 // get other action data
@@ -844,8 +849,10 @@ class FormWorkflow
 	 * Require admin access unless bypass is requested
 	 * Do not use in combination with multiple simultaneous workflows
 	 */
-	public function setStep($stepID, $bypassAdmin = false)
+	public function setStep($stepID, $bypassAdmin = false, $comment = "")
 	{
+		$comment = $this->sanitizeInput($comment);
+
 		if($this->recordID == 0
 			|| (!$this->login->checkGroup(1) && $bypassAdmin == false)) {
 			return false;
@@ -869,6 +876,12 @@ class FormWorkflow
             									WHERE stepID=:stepID", $vars);
 		$stepName = $res[0]['stepTitle'];
 
+		if($comment != '') {
+			$comment = "Moved to {$stepName} step. ". $comment;
+		}
+		else {
+			$comment = "Moved to {$stepName} step";
+		}
 		// write log entry
 		$vars2 = array(':recordID' => $this->recordID,
 				':userID' => $this->login->getUserID(),
@@ -876,7 +889,7 @@ class FormWorkflow
 				':actionType' => 'move',
 				':actionTypeID' => 8,
 				':time' => time(),
-				':comment' => "Moved to {$stepName} step");
+				':comment' => $comment);
 		$this->db->prepared_query("INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
                             VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)", $vars2);
 		

@@ -301,9 +301,7 @@ switch($action) {
         $t_form->right_delimiter= '}-->';
 
         $t_form->assign('is_service_chief', $login->isServiceChief());
-        $t_form->assign('ingroup_quadrad', $login->checkGroup(1) || $login->checkGroup(2)
-                                            || $login->checkGroup(3) || $login->checkGroup(4)
-                                            || $login->checkGroup(5)|| $login->checkGroup(1));        
+        $t_form->assign('empMembership', $login->getMembership());
 
         $t_form->assign('bookmarks', $view->buildViewBookmarks($login->getUserID()));
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -391,7 +389,8 @@ switch($action) {
    		$t_form->assign('indicators', $_GET['indicators']);
    		$t_form->assign('title', $_GET['title']);
    		$t_form->assign('version', (int)$_GET['v']);
-   
+   		$t_form->assign('empMembership', $login->getMembership());
+
    		$main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl')));
 
        	$o_login = $t_login->fetch('login.tpl');

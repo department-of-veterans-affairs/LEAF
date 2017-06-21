@@ -423,7 +423,7 @@ function changeService() {
 
 function admin_changeStep() {
     dialog.setTitle('Change Step');
-    dialog.setContent('Set to this step: <br /><div id="changeStep"></div>');
+    dialog.setContent('Set to this step: <br /><div id="changeStep"></div><br /><br />Comments:<br /><textarea id="changeStep_comment" type="text" style="width: 90%; padding: 4px"></textarea>');
     dialog.show();
     dialog.indicateBusy();
     $.ajax({
@@ -461,6 +461,7 @@ function admin_changeStep() {
                             type: 'POST',
                             url: 'api/?a=formWorkflow/<!--{$recordID}-->/step',
                             data: {stepID: $('#newStep').val(),
+                            	   comment: $('#changeStep_comment').val(),
                                    CSRFToken: CSRFToken},
                             success: function() {
                                 window.location.href="index.php?a=printview&recordID=<!--{$recordID}-->";

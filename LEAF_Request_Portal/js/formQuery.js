@@ -232,6 +232,7 @@ var LeafFormQuery = function() {
 		setLimit: setLimit,
 		setLimitOffset: setLimitOffset,
 		setRootURL: function(url) { rootURL = url; },
+		getRootURL: function() { return rootURL; },
 		useJSONP: function(state) { useJSONP = state; },
 		join: join,
 		sort: sort,
