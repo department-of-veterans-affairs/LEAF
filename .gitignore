@@ -1,1 +1,4 @@
 /.project
+*/templates_c/*.tpl.php
+*/admin/templates_c/*.tpl.php
+*/dynicons/cache/*.svg
