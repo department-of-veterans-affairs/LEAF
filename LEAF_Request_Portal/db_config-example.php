@@ -23,6 +23,7 @@ class Config
 {
     public $title = 'Resources';
     public $city = 'Anytown, USA';
+    public $adminLogonName = 'myAdmin';    // Administrator's logon name
     public $adPath = array('OU=myOU,DC=domain,DC=tld'); // Active directory path
 
     public static $uploadDir = './UPLOADS/'; // Directory for user uploads
