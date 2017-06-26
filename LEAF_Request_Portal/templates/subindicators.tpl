@@ -426,7 +426,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'orgchart_group' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <div id="grpSel_<!--{$indicator.indicatorID}-->"></div>
-            <input id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" style="visibility: hidden"></input>
+            <input id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value}-->" style="display: none"></input>
             
             <script>
             $(function() {
@@ -579,11 +579,11 @@
             };
             <!--{/if}-->
             </script>
-
+            <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'orgchart_employee' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <div id="empSel_<!--{$indicator.indicatorID}-->"></div>
-            <input id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" style="visibility: hidden"></input>
+            <input id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value}-->" style="display: none"></input>
             
             <script>
             $(function() {
@@ -655,6 +655,7 @@
             };
             <!--{/if}-->
             </script>
+            <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'raw_data' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <input type="text" id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value}-->" style="display: none" />

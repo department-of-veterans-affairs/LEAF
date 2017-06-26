@@ -498,6 +498,7 @@ function getForm(indicatorID, series) {
             data: {htmlPrint: codeEditorHtmlPrint.getValue(),
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
+            	var time = new Date().toLocaleTimeString();
             	$('#codeSaveStatus_htmlPrint').html('<br /> Last saved: ' + time);
                 if(res != null) {
                 }

@@ -834,11 +834,16 @@ class Form
 
     function isCategory($categoryID)
     {
+    	if(isset($this->cache['isCategory_' . $categoryID])) {
+    		return $this->cache['isCategory_' . $categoryID];
+    	}
         $vars = array(':categoryID' => $categoryID);
         $res = $this->db->prepared_query('SELECT COUNT(*) FROM categories WHERE categoryID=:categoryID', $vars);
         if($res[0]['COUNT(*)'] != 0) {
+        	$this->cache['isCategory_' . $categoryID] = 1;
             return 1;
         }
+        $this->cache['isCategory_' . $categoryID] = 0;
         return 0;
     }
 
@@ -1913,6 +1918,26 @@ class Form
     	return null;
     }
 
+    public function addFormType($recordID, $category) {
+    	// only allow admins
+    	if(!$this->login->checkGroup(1)) {
+    		return 0;
+    	}
+
+    	if($this->isCategory($category)) {
+    		$vars = array(':recordID' => $recordID,
+    					  ':categoryID' => $category,
+    					  ':count' => 1);
+    	
+    		$res = $this->db->prepared_query('INSERT INTO category_count (recordID, categoryID, count)
+                                                    VALUES (:recordID, :categoryID, :count)
+                                                    ON DUPLICATE KEY UPDATE count=:count', $vars);
+    	}
+    	else {
+    		return 0;
+    	}
+    }
+
     public function changeFormType($recordID, $categories) {
     	// only allow admins
     	if(!$this->login->checkGroup(1)) {
@@ -1924,18 +1949,7 @@ class Form
     								WHERE recordID=:recordID', $vars);
 
     	foreach($categories as $category) {
-    		if($this->isCategory($category)) {
-    			$vars = array(':recordID' => $recordID,
-    						  ':categoryID' => $category,
-    					      ':count' => 1);
-    			 
-    			$res = $this->db->prepared_query('INSERT INTO category_count (recordID, categoryID, count)
-                                                        VALUES (:recordID, :categoryID, :count)
-                                                        ON DUPLICATE KEY UPDATE count=:count', $vars);
-    		}
-    		else {
-    			return 0;
-    		}
+    		$this->addFormType($recordID, $category);
     	}
     	return 1;
     }

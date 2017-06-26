@@ -156,6 +156,10 @@ class FormController extends RESTfulResponse
    			return $form->changeFormType($args[0], $_POST['categories']);
    		});
 
+   		$this->index['POST']->register('form/[digit]/types/append', function($args) use ($form) {
+   			return $form->addFormType($args[0], $_POST['category']);
+   		});
+
      	// form/customData/ recordID list (csv) / indicatorID list (csv)
    		$this->index['POST']->register('form/customData', function($args) use ($form) {
  			$recordIDs = array();

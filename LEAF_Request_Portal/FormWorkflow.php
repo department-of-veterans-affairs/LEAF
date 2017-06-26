@@ -198,16 +198,38 @@ class FormWorkflow
     	
     	$vars = array(':recordID' => $this->recordID);
     	$res = $this->db->prepared_query('SELECT * FROM action_history
+	    									WHERE recordID=:recordID
+	    										AND actionType IS NOT NULL
+    											AND dependencyID != 0
+	    									ORDER BY actionID DESC
+	    									LIMIT 1', $vars);
+
+    	// backwards compatibility for records where action_history.stepID doesn't exist
+    	if($res[0]['stepID'] > 0) {
+    		$vars = array(':actionID' => $res[0]['actionID']);
+    		$res = $this->db->prepared_query('SELECT * FROM action_history
+	    									LEFT JOIN actions ON actions.actionType = action_history.actionType
+	    									LEFT JOIN category_count USING (recordID)
+	    									LEFT JOIN categories USING (categoryID)
+	    									LEFT JOIN dependencies USING (dependencyID)
+	    									LEFT JOIN step_dependencies USING (stepID)
+	    									LEFT JOIN workflow_steps ON step_dependencies.stepID=workflow_steps.stepID
+	    									WHERE actionID=:actionID
+    											LIMIT 1', $vars);
+    	}
+    	else {
+    		$vars = array(':actionID' => $res[0]['actionID']);
+    		$res = $this->db->prepared_query('SELECT * FROM action_history
 	    									LEFT JOIN actions ON actions.actionType = action_history.actionType
 	    									LEFT JOIN category_count USING (recordID)
 	    									LEFT JOIN categories USING (categoryID)
 	    									LEFT JOIN dependencies USING (dependencyID)
 	    									LEFT JOIN step_dependencies USING (dependencyID)
 	    									LEFT JOIN workflow_steps ON step_dependencies.stepID=workflow_steps.stepID
-	    									WHERE recordID=:recordID
-	    										AND actions.actionType IS NOT NULL
-	    									ORDER BY actionID DESC
-	    									LIMIT 1', $vars);
+	    									WHERE actionID=:actionID
+    											LIMIT 1', $vars);
+    	}
+
     	// dependencyID -1 is for a person designated by the requestor
     	if(isset($res[0])
     		&& $res[0]['dependencyID'] == -1) {
@@ -221,8 +243,7 @@ class FormWorkflow
     	// dependencyID -3 is for a group designated by the requestor
     	if(isset($res[0])
     			&& $res[0]['dependencyID'] == -3) {
-    				$resGroupID = $form->getIndicator($res[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
-    				$res[0]['description'] = $resGroupID[$res[0]['indicatorID_for_assigned_groupID']]['name'];
+    		$res[0]['description'] = $res[0]['stepTitle'];
     	}
     	return $res[0];
     }

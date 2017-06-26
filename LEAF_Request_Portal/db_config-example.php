@@ -22,9 +22,8 @@ class DB_Config
 class Config
 {
     public $title = 'Resources';
-    public $city = 'Washington D.C. VAMC';
-    public $adminLogonName = 'admin';    // Administrator's logon name
-    public $adPath = array('OU=Users,DC=va,DC=gov'); // Active directory path
+    public $city = 'Anytown, USA';
+    public $adPath = array('OU=myOU,DC=domain,DC=tld'); // Active directory path
 
     public static $uploadDir = './UPLOADS/'; // Directory for user uploads
                                              // using backslashes (/), with trailing slash
