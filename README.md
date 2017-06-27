@@ -2,9 +2,9 @@
 The Light Electronic Action Framework (LEAF) empowers VA staff in process improvement. LEAF is a solution that enables non-technical users to rapidly digitize paper processes, such as travel and tuition reimbursement, FTE, and many other types of resource requests.
 
 ## Dependencies
-* PHP 7.0+
+* PHP 7+
     * php_pdo_mysql
-* MySQL 5.6+ or compatible
+* MySQL 5.7+ or compatible
 * Apache 2.4.x or Microsoft IIS
 
 ## Repository Overview
