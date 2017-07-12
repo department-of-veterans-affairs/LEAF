@@ -62,7 +62,7 @@ class FormWorkflow
     	
         $steps = array();
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query("SELECT dependencyID, recordID, stepID, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID FROM records_workflow_state
+        $res = $this->db->prepared_query("SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID FROM records_workflow_state
         									LEFT JOIN records USING (recordID)
         									LEFT JOIN workflow_steps USING (stepID)
         									LEFT JOIN step_dependencies USING (stepID)
@@ -122,9 +122,9 @@ class FormWorkflow
                 	
                 	$approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
 
-                	$res[$i]['description'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
+                	$res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
                 	if(trim($res[$i]['description']) == '') {
-                		$res[$i]['description'] = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'];
+                		$res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'] . ')';
                 	}
                 }
                 

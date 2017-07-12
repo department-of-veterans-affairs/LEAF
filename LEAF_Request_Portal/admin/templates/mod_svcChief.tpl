@@ -194,11 +194,13 @@ function getGroupList() {
 	$.when(
 	    $.ajax({
 	        type: 'GET',
-	        url: '../api/service/quadrads'
+	        url: '../api/service/quadrads',
+	        cache: false
 	    }),
         $.ajax({
             type: 'GET',
-            url: '../api/service'
+            url: '../api/service',
+            cache: false
         })
      )
 	.done(function(res1, res2) {

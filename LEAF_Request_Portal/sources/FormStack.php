@@ -102,7 +102,8 @@ class FormStack
     		return 'File format or version not supported.';
     	}
     	
-    	$formCategoryID = $this->formEditor->createForm($formPacket['name'], $formPacket['description'], '', $_POST['formLibraryID']);
+    	$formName = mb_strimwidth($formPacket['name'], 0, 50, '...');
+    	$formCategoryID = $this->formEditor->createForm($formName, $formPacket['description'], '', $_POST['formLibraryID']);
 
     	foreach($formPacket['packet']['form'] as $indicator) {
     		$this->importIndicator($indicator, $formCategoryID);

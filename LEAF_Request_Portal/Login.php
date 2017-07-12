@@ -266,7 +266,7 @@ class Login
         											AND serviceID=:groupID
         											AND active=1', $var);
 
-        if(isset($result[0]) && $result[0]['userID'] == $this->userID) {
+        if(isset($result[0])) {
             $this->cache["isInService$groupID"] = true;
             return true;
         }
@@ -285,7 +285,7 @@ class Login
                                             WHERE userID=:userID
         										AND active=1', $var);
 
-        if(isset($result[0]) && $result[0]['userID'] == $this->userID) {
+        if(isset($result[0])) {
             $this->cache['isServiceChief'] = true;
             return true;
         }
@@ -310,7 +310,7 @@ class Login
         }
         $buffer = trim($buffer, ',');
 
-        if(isset($result[0]) && $result[0]['userID'] == $this->userID) {
+        if(isset($result[0])) {
             $this->cache['getQuadradGroupID'] = $buffer;
             return $buffer;
         }
@@ -331,7 +331,7 @@ class Login
                                             WHERE parentGroupID=-1
                                                 AND userID=:userID', $var);
 
-        if(isset($result[0]) && $result[0]['userID'] == $this->userID) {
+        if(isset($result[0])) {
             $this->cache['isQuadrad'] = true;
             return true;
         }
