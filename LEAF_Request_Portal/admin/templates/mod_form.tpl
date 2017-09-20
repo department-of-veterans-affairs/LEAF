@@ -343,7 +343,7 @@ function newQuestion(parentIndicatorID) {
             case 'dropdown':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 var buffer = $('#indicatorType').val();
-                buffer += "\n" + $('#indicatorMultiAnswer').val();
+                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
                 $('#format').val(buffer);
                 break;
             case 'checkbox':
@@ -626,7 +626,7 @@ function getForm(indicatorID, series) {
             case 'dropdown':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 var buffer = $('#indicatorType').val();
-                buffer += "\n" + $('#indicatorMultiAnswer').val();
+                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
                 $('#format').val(buffer);
                 break;
             case 'checkbox':
@@ -756,6 +756,25 @@ function getForm(indicatorID, series) {
    	    	dialog.hide();
    	     });
     });
+}
+
+function formatIndicatorMultiAnswer(multiAnswerValue){
+    if(multiAnswerValue == null || multiAnswerValue.length === 0){
+        return multiAnswerValue;
+    }
+    var uniqueNames = multiAnswerValue.split("\n");
+    uniqueNames = uniqueNames.filter(function(elem, index, self) {
+       return index == self.indexOf(elem.toLowerCase());
+    });
+    
+    $.each(uniqueNames, function(i, el){
+      if(el === "no") { 
+           uniqueNames[i] = "No";
+        }
+    });
+
+    multiAnswerValue = uniqueNames.join("\n");
+    return multiAnswerValue;
 }
 
 function mergeForm(categoryID) {
