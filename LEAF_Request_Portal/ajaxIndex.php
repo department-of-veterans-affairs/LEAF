@@ -75,7 +75,7 @@ switch($action) {
             	$t_form->assign('form', $indicator);
             	$t_form->assign('orgchartPath', Config::$orgchartPath);
             	$t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
-            	$t_form->display('ajaxForm.tpl');
+            	$t_form->display(customTemplate('ajaxForm.tpl'));
             }
             else {
             	echo '<img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">This field is currently read-only OR the field is not associated with any forms on this request.</div>';

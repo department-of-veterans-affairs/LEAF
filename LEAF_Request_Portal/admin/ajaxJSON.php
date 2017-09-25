@@ -37,14 +37,6 @@ if(!$login->checkGroup(1)) {
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch($action) {
-    case 'mod_groups_getGroupList':
-        require 'Group.php';
-        
-        $group = new Group($db, $login);
-        
-        echo json_encode($group->getGroupsAndMembers());
-
-        break;
     case 'mod_groups_getMembers':
         require 'Group.php';
         

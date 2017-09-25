@@ -143,7 +143,11 @@ class FormEditorController extends RESTfulResponse
 		$this->index['POST']->register('formEditor/formSort', function($args) use ($formEditor) {
 			return $formEditor->setFormSort($_POST['categoryID'], $_POST['sort']);
 		});
-   		
+
+	    $this->index['POST']->register('formEditor/formVisible', function($args) use ($formEditor) {
+	        return $formEditor->setFormVisible($_POST['categoryID'], $_POST['visible']);
+	    });
+
    		$this->index['POST']->register('formEditor/[text]/privileges', function($args) use ($formEditor) {
    			return $formEditor->setCategoryPrivileges($args[0], $_POST['groupID'], $_POST['read'], $_POST['write']);
    		});

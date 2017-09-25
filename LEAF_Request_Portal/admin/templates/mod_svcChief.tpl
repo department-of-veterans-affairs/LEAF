@@ -17,6 +17,7 @@
 /* <![CDATA[ */
 
 function createGroup() {
+	/*
 	dialog.clear();
     dialog.setTitle('Create new service');
     dialog.setContent('<b><span style="color: red">Before you proceed</span>, You should contact your Org Chart Administrators to determine whether the service needs to be added to the Org. Chart.</b>\
@@ -51,7 +52,12 @@ function createGroup() {
         dialog.hide();
     });
 
-    dialog.show();
+    dialog.show();*/
+
+    dialog_simple.setTitle('Create new service');
+    dialog_simple.setContent('Placeholder');
+    
+    dialog_simple.show();
 }
 
 function getMembers(groupID) {

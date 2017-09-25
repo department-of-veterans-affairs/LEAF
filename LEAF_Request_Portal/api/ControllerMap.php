@@ -49,4 +49,8 @@ class ControllerMap
         }
         return $str."  End of ControllerMap\n";
     }
+    
+    public function listEndpoints() {
+        return array_keys($this->controllers);
+    }
 }

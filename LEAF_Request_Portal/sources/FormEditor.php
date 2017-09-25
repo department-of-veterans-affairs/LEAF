@@ -244,6 +244,14 @@ class FormEditor
     								WHERE categoryID=:categoryID', $vars);
     }
 
+    function setFormVisible($categoryID, $input) {
+        $vars = array(':categoryID' => $categoryID,
+            ':input' => $input);
+        return $this->db->prepared_query('UPDATE categories
+    								SET visible=:input
+    								WHERE categoryID=:categoryID', $vars);
+    }
+
     function getCategoryPrivileges($categoryID) {
     	if(!$this->login->checkGroup(1)) {
     		return 'Admin Only';

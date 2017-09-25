@@ -107,6 +107,7 @@ switch($action) {
 				$t_form->left_delimiter = '<!--{';
 				$t_form->right_delimiter= '}-->';
 				$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+				$t_form->assign('userID', $login->getUserID());
 				$t_form->assign('empUID', $login->getEmpUID());
 				$t_form->assign('empMembership', $login->getMembership());
 				$t_form->assign('orgchartPath', Config::$orgchartPath);

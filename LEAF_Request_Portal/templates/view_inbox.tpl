@@ -99,11 +99,13 @@ function loadInboxData(depID) {
                  {name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
                 	 $('#'+data.cellContainerID).html(blob[depID]['records'][data.recordID].service);
                  }},
-                 {name: 'Title', indicatorID: 'title', callback: function(data, blob) {
-                     $('#'+data.cellContainerID).html(blob[depID]['records'][data.recordID].title + '<div id="inboxForm_' + depID + '_' + data.recordID +'" style="background-color: white; display: none; height: 300px; overflow: scroll"></div>');
-                     $('#'+data.cellContainerID).on('click', function() {
+                 {name: 'Title', indicatorID: 'title', editable: false, callback: function(data, blob) {
+                     $('#'+data.cellContainerID).html(blob[depID]['records'][data.recordID].title + ' <button id="'+ data.cellContainerID +'_preview" class="buttonNorm">View Request</button><div id="inboxForm_' + depID + '_' + data.recordID +'" style="background-color: white; display: none; height: 300px; overflow: scroll"></div>');
+                     $('#'+data.cellContainerID + '_preview').on('click', function() {
+                    	 $('#'+data.cellContainerID + '_preview').hide();
                     	 if($('#inboxForm_'+depID+'_'+data.recordID).html() == '') {
                     		 $('#inboxForm_'+depID+'_'+data.recordID).html('Loading...');
+                    		 $('#inboxForm_'+depID+'_'+data.recordID).slideDown();
                              $.ajax({
                                  type: 'GET',
                                  url: 'ajaxIndex.php?a=printview&recordID=' + data.recordID,
@@ -113,7 +115,6 @@ function loadInboxData(depID) {
                                  }
                              });
                     	 }
-//                         window.open('index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                      });
                  }},
                  {name: 'Action', indicatorID: 'action', editable: false, sortable: false, callback: function(data, blob) {

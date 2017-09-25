@@ -365,6 +365,7 @@ table.table {
     border: 1px solid black;
     border-collapse: collapse;
     margin: 2px;
+    color: black;
 }
 
 .table>thead {

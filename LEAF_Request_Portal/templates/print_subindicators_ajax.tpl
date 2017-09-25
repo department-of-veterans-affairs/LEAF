@@ -168,25 +168,8 @@
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
             <!--{if trim($indicator.value) != ''}-->
             <div style="padding: 0px">
-            <!--{if is_numeric($indicator.value)}-->
-            <script>
-            $(function() {
-                $.ajax({
-                    type: 'GET',
-                    url: "<!--{$orgchartPath}-->/api/?a=employee/<!--{$indicator.value}-->",
-                    dataType: 'json',
-                    success: function(data) {
-                        $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').html('<a href="#" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_emp" style="text-decoration: none">' + data.employee.lastName + ', ' + data.employee.firstName + '</a>');
-                        $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_emp').on('click', function() {
-                            window.open('<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$indicator.value}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');
-                        });
-                    }
-                });
-            });
-            <!--{/if}-->
-            </script>
                 <!--{if $indicator.displayedValue != ''}-->
-                    <!--{$indicator.displayedValue}-->
+                    <a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$indicator.value}-->"><!--{$indicator.displayedValue}--></a>
                 <!--{else}-->
                 Loading...
                 <!--{/if}-->

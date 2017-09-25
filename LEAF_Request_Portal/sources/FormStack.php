@@ -23,6 +23,7 @@ class FormStack
                                                 WHERE workflowID > 0
                                                     AND parentID = ''
                                                     AND disabled = 0
+                                                    AND visible = 1
                                                 ORDER BY sort, categoryName ASC", null);
         return $res;
     }

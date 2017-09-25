@@ -52,6 +52,10 @@ $tabText = '';
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
+function customTemplate($tpl) {
+    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+}
+
 // HQ logo
 if(strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6')) { // issue with dijit tabcontainer and ie6
     $main->assign('status', 'You appear to be using Microsoft Internet Explorer version 6. Some portions of this website may not display correctly unless you use Internet Explorer version 7 or higher.');
@@ -90,6 +94,73 @@ switch($action) {
        	$t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
        	$main->assign('body', $t_iframe->fetch('file_image_form.tpl'));
        	break;
+    case 'printview':
+        $main->assign('useUI', true);
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/jsdiff.js'));
+        
+        $form = new Form($db, $login);
+        $t_menu->assign('recordID', (int)$_GET['recordID']);
+        $t_menu->assign('action', $action);
+        $o_login = $t_login->fetch('login.tpl');
+        
+        $recordInfo = $form->getRecordInfo($_GET['recordID']);
+        $comments = $form->getActionComments($_GET['recordID']);
+        
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter= '}-->';
+        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('is_admin', $login->checkGroup(1));
+        $t_form->assign('recordID', (int)$_GET['recordID']);
+        $t_form->assign('name', $recordInfo['name']);
+        $t_form->assign('title', $recordInfo['title']);
+        $t_form->assign('priority', $recordInfo['priority']);
+        $t_form->assign('submitted', $recordInfo['submitted']);
+        $t_form->assign('stepID', $recordInfo['stepID']);
+        $t_form->assign('service', $recordInfo['service']);
+        $t_form->assign('serviceID', $recordInfo['serviceID']);
+        $t_form->assign('date', $recordInfo['date']);
+        $t_form->assign('deleted', $recordInfo['deleted']);
+        $t_form->assign('bookmarked', $recordInfo['bookmarked']);
+        $t_form->assign('categories', $recordInfo['categories']);
+        $t_form->assign('comments', $comments);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        
+        if($recordInfo['priority'] == -10) {
+            $main->assign('emergency', '<span style="position: absolute; right: 0px; top: -28px; padding: 2px; border: 1px solid black; background-color: white; color: red; font-weight: bold; font-size: 20px">EMERGENCY</span> ');
+        }
+                
+        //url
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+        $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
+        $main->assign('qrcodeURL', urlencode($qrcodeURL));
+        
+        switch($action) {
+            default:
+                $childForms = $form->getChildForms($_GET['recordID']);
+                $t_form->assign('childforms', $childForms);
+                
+                if($_GET['childCategoryID'] != '') {
+                    $match = 0;
+                    foreach($childForms as $cForm) {
+                        if($cForm['childCategoryID'] == $_GET['childCategoryID']) {
+                            $match = 1;
+                        }
+                    }
+                    if($match = 1) {
+                        // safe to pass in $_GET
+                        $t_form->assign('childCategoryID', $_GET['childCategoryID']);
+                    }
+                }
+                
+                $main->assign('body', $t_form->fetch(customTemplate('print_form_iframe.tpl')));
+                $t_menu->assign('hide_main_control', true);
+                break;
+        }
+        
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel'];
+        $tabText = $requestLabel . ' #' . (int)$_GET['recordID'];
+        break;
     case 'menu':
     default:
         if($login->isLogin()) {
