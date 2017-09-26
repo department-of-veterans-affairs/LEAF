@@ -1,4 +1,5 @@
 /.project
 */templates_c/*.tpl.php
 */admin/templates_c/*.tpl.php
-*/dynicons/cache/*.svg
+db_config.php
+config.php
