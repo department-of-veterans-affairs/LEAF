@@ -3,3 +3,4 @@
 */admin/templates_c/*.tpl.php
 db_config.php
 config.php
+libs/dynicons/cache/*.svg
