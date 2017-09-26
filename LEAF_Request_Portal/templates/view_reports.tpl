@@ -136,7 +136,11 @@ function addHeader(column) {
                                  var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
                                  var year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
                                  var formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
-                                 buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px">' + formattedDate + '</td><td>' + blob[data.recordID].action_history[i]['description'] + ': ' + blob[data.recordID].action_history[i]['actionTextPasttense'] + '</td></tr>';
+                                 buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px">'
+                                	   + formattedDate + '</td><td>'
+                                	   + blob[data.recordID].action_history[i]['description']
+                                	   + ' ('+ blob[data.recordID].action_history[i]['approverName'] +'): '
+                                	   + blob[data.recordID].action_history[i]['actionTextPasttense'] + '</td></tr>';
                              }
                              buffer += '</table>';
                              $('#'+data.cellContainerID).html(buffer);

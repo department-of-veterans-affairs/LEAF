@@ -291,7 +291,7 @@ class VAMC_Directory {
     	return $data;
     }
 
-    public function lookupLogin($login)
+    public function lookupLogin($login, $onlyGetName = false)
     {
         $res = $this->Employee->lookupLogin($login);
         $data = array();
@@ -301,9 +301,11 @@ class VAMC_Directory {
             $tdata['Lname'] = $result['lastName'];
             $tdata['Fname'] = $result['firstName'];
 
-            // orgchart data
-            $ocData = $this->Employee->getAllData($result['empUID']);
-            $tdata['Email'] = $ocData[6]['data'];
+            if(!$onlyGetName) {
+                // orgchart data
+                $ocData = $this->Employee->getAllData($result['empUID']);
+                $tdata['Email'] = $ocData[6]['data'];
+            }
             $data[] = $tdata; 
         }
         return $data;

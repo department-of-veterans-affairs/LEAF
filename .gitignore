@@ -4,3 +4,5 @@
 db_config.php
 config.php
 libs/dynicons/cache/*.svg
+.buildpath
+libs/qrcode/cache/*.png

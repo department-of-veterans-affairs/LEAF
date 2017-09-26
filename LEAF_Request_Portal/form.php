@@ -2324,6 +2324,9 @@ class Form
     	}
 
     	if($joinActionHistory) {
+    	    require_once 'VAMC_Directory.php';
+    	    $dir = new VAMC_Directory;
+
     		$recordIDs = '';
     		foreach($res as $item) {
     			$recordIDs .= $item['recordID'] . ',';
@@ -2335,6 +2338,10 @@ class Form
     											WHERE recordID IN ('. $recordIDs .')
                                                 ORDER BY time', array());
     		foreach($res2 as $item) {
+    		    $user = $dir->lookupLogin($item['userID']);
+    		    $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
+    		    $item['approverName'] = $name;
+
     			$data[$item['recordID']]['action_history'][] = $item;
     		}
     	}
