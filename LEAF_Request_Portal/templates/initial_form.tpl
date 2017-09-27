@@ -121,7 +121,7 @@ $(function() {
         <br />
     <!--{/foreach}-->
     <!--{if count($categories) == 0}-->
-        <span style="color: red">Your forms must have workflow before they can be selected here.<br /><br />Open the Form Editor, select your form, and click on "Edit Properties" to set a workflow.</span> 
+        <span style="color: red">Your forms must have an associated workflow before they can be selected here.<br /><br />Open the Form Editor, select your form, and click on "Edit Properties" to set a workflow.</span> 
     <!--{/if}-->
           </span>
         </div>

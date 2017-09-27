@@ -50,6 +50,10 @@ function openContent(url) {
                                  <td><select id="needToKnow"><option value="0">Off</option><option value="1">On</option></select></td>\
                              </tr>\
                              <tr class="isSubForm">\
+                                 <td>Availability <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="When hidden, users will not be able to select this form as an option."></td>\
+                                 <td><select id="visible"><option value="1">Available</option><option value="0">Hidden</option></select></td>\
+                             </tr>\
+                             <tr class="isSubForm">\
                                  <td>Sort Priority</td>\
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
@@ -58,6 +62,7 @@ function openContent(url) {
         $('#description').val(categories[currCategoryID].categoryDescription);
         $('#workflowID').val(categories[currCategoryID].workflowID);
         $('#needToKnow').val(categories[currCategoryID].needToKnow);
+        $('#visible').val(categories[currCategoryID].visible);
         $('#sort').val(categories[currCategoryID].sort);
         if(isSubForm) {
         	$('.isSubForm').css('display', 'none');
@@ -145,6 +150,17 @@ function openContent(url) {
                         if(res != null) {
                         }
                     }
+                }),
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/formVisible',
+                    data: {visible: $('#visible').val(),
+                        categoryID: currCategoryID,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
                 })
              ).then(function() {
                 categories[currCategoryID].categoryName = $('#name').val();
@@ -152,6 +168,7 @@ function openContent(url) {
                 categories[currCategoryID].description = '';
                 categories[currCategoryID].workflowID = $('#workflowID').val();
                 categories[currCategoryID].needToKnow = $('#needToKnow').val();
+                categories[currCategoryID].visible = $('#visible').val();
                 categories[currCategoryID].sort = $('#sort').val();
                 openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
                 dialog.hide();
