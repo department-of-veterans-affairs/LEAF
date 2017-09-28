@@ -67,7 +67,7 @@
 <a href="?a=mod_templates_reports">
     <span class="menuButton" style="background-color: black">
         <img class="menuIcon" src="../../libs/dynicons/?img=utilities-terminal.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuText" style="color: white">Report Programmer</span><br />
+        <span class="menuText" style="color: white">LEAF Programmer</span><br />
         <span class="menuDesc" style="color: white">Advanced Reports and Custom Pages</span>
     </span>
 </a>
