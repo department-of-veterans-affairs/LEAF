@@ -38,6 +38,14 @@ class FormStack
     }
 
     public function deleteForm($categoryID) {
+        // make sure the form isn't the target of the stapled form feature
+        $vars = array(':categoryID' => $categoryID);
+        $res = $this->db->prepared_query('SELECT * FROM category_staples
+    										WHERE stapledCategoryID=:categoryID', $vars);
+        if(count($res) != 0) {
+            return 'Cannot delete forms that have been stapled to another.';
+        }
+
     	$vars = array(':categoryID' => $categoryID);
     	$this->db->prepared_query('UPDATE categories
 		    							SET disabled=1
