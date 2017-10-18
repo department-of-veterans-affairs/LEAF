@@ -517,7 +517,16 @@ var LeafFormGrid = function(containerID, options) {
             	for(var i in res) {
             		if(dataBlob[i] != undefined) {
             			for(var j in dataBlob[i]) {
-            				res[i][j] = dataBlob[i][j];
+                            if(typeof dataBlob[i][j] == 'object') {
+                				//ECMA6
+                				//Object.assign(res[i][j], dataBlob[i][j]);
+                                for(var tAttr in dataBlob[i][j]) {
+                                    res[i][j][tAttr] = dataBlob[i][j][tAttr];
+                                }
+                            }
+            				else {
+                                res[i][j] = dataBlob[i][j];
+                            }
             			}
             		}
             		currentData.push(res[i]);
