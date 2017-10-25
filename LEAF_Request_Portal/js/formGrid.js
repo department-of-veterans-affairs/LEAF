@@ -521,6 +521,7 @@ var LeafFormGrid = function(containerID, options) {
                 				//ECMA6
                 				//Object.assign(res[i][j], dataBlob[i][j]);
                                 for(var tAttr in dataBlob[i][j]) {
+                                	res[i][j] = res[i][j] || {};
                                     res[i][j][tAttr] = dataBlob[i][j][tAttr];
                                 }
                             }

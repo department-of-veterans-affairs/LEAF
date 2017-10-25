@@ -301,7 +301,7 @@ function loadSearchPrereqs() {
                     buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
                     for(var i in res) {
                         buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />';
-                        buffer += '<label class="checkable" style="width: 100px" for="indicators_stepID_'+ res[i].stepID +'"> ' + res[i].stepTitle +'</label></div>';
+                        buffer += '<label class="checkable" style="width: 100px" for="indicators_stepID_'+ res[i].stepID +'"> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
                     }
                     buffer += '<div id="legacyDependencies"></div>'; // backwards compat
                     buffer += '</div>';
