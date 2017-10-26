@@ -112,9 +112,21 @@ class FormWorkflow
                 	if(!$res[$i]['hasAccess']) {
                 		$empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
                 		
+                        //check if the requester has any backups
+                        //get nexus db
+                        $nexusDB = $this->login->getNexusDB();
+                        $vars4 = array(':empId' => $empUID);
+                        $backupIds = $nexusDB->prepared_query("SELECT * FROM relation_employee_backup WHERE empUID =:empId", $var4);
                 		if($empUID == $this->login->getEmpUID()) {
                 			$res[$i]['hasAccess'] = true;
-                		}
+                		}else{
+                            //check and provide access to backups
+                            foreach($backupIds as $row) {
+                                if($row['backupEmpUID'] == $this->login->getEmpUID()) {
+                                    $res[$i]['hasAccess'] = true;
+                                } 
+                            }
+                        }
                 	}
 
                 	require_once 'VAMC_Directory.php';
@@ -396,9 +408,23 @@ class FormWorkflow
                 	$resEmpUID = $form->getIndicator($resPerson[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
                 	$empUID = $resEmpUID[$resPerson[0]['indicatorID_for_assigned_empUID']]['value'];
 
+                    $nexusDB = $this->login->getNexusDB();
+                    $vars4 = array(':empId' => $empUID);
+                    $backupIds = $nexusDB->prepared_query("SELECT * FROM relation_employee_backup WHERE empUID =:empId", $var4);
+
+                    $isBackUpAvailable = false;
                 	if($empUID != $this->login->getEmpUID()) {
-                		return array('status' => 0, 'errors' => ['User account does not match']);
-                	}
+                        //check there is a backup present
+                        foreach($backupIds as $row) {
+                            if($row['backupEmpUID'] == $this->login->getEmpUID()) {
+                               $isBackUpAvailable = true;
+                            } 
+                        }
+                	} ///also add for backup
+
+                    if(!$isBackUpAvailable){
+                        return array('status' => 0, 'errors' => ['User account does not match']);
+                    }
                     break;
                 case -2: // dependencyID -2 : requestor followup
                 	require_once 'form.php';
@@ -765,11 +791,24 @@ class FormWorkflow
                         	
                         	$resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
                         	$empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
-                        
+                            
+                             //check if the requester has any backups
+                            $nexusDB = $this->login->getNexusDB();
+                            $vars4 = array(':empId' => $empUID);
+                            $backupIds =  $nexusDB->prepared_query("SELECT * FROM relation_employee_backup WHERE empUID =:empId", $var4);
+                            
                        		if($empUID > 0) {
                        			$tmp = $dir->lookupEmpUID($empUID);
                        			$email->addRecipient($tmp[0]['Email']);
                        		}
+
+                            // add for backups    
+                            foreach($backupIds as $row) {
+                                if($row['backupEmpUID'] == $this->login->getEmpUID()) {
+                                    $tmp = $dir->lookupEmpUID($empUID);
+                                    $email->addRecipient($tmp[0]['Email']);
+                                } 
+                            }
                         }
                         
                         // dependencyID -2 : requestor followup

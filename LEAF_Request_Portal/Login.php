@@ -87,8 +87,8 @@ class Login
 
     function __construct($phonebookDB, $userDB)
     {
-        $this->db = $phonebookDB;
-        $this->userDB = $userDB;
+        $this->db = $phonebookDB; //nexus db
+        $this->userDB = $userDB; // portal db
 
         if(session_id() == '') {
             $sessionHandler = new Session($this->db);
@@ -105,6 +105,11 @@ class Login
     function register()
     {
         return false;
+    }
+
+    public function getNexusDB()
+    {
+        return $this->db;
     }
 
     public function isInDB()
