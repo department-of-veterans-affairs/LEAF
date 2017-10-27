@@ -52,7 +52,6 @@ class Inbox
         							WHERE deleted = 0
         								AND disabled = 0
         								AND workflowID > 0');
-
         $formCategories = [];
         foreach($res2 as $category) {
         	$formCategories[$category['recordID']][] = $category['categoryName'];  
@@ -116,23 +115,10 @@ class Inbox
 		                $resEmpUID = $this->form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
 		                $empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
                         $res[$i]['dependencyID'] = '-1_' . $empUID;
-
-                        //check if the requester has any backups
-                        $nexusDB = $this->login->getNexusDB();
-                        $vars4 = array(':empId' => $empUID);
-                        $backupIds =  $nexusDB->prepared_query("SELECT * FROM relation_employee_backup WHERE empUID =:empId", $var4);
-                        echo $backupIds;
+                    
                     	if($empUID == $this->login->getEmpUID()) {
                     		$res[$i]['hasAccess'] = true;
-                    	}else{
-                            //check and provide access to backups
-                            foreach($backupIds as $row) {
-                                if($row['backupEmpUID'] == $this->login->getEmpUID()) {
-                                    $res[$i]['hasAccess'] = true;
-                                } 
-                            }
-                        }
-
+                    	}
 
                         if($res[$i]['hasAccess']) {
                         	// populate relevant info
