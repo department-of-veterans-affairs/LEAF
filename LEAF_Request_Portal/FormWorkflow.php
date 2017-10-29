@@ -114,7 +114,7 @@ class FormWorkflow
                 		
                         //check if the requester has any backups
                         //get nexus db
-                        $nexusDB = $this->loign->getNexusDB();
+                        $nexusDB = $this->login->getNexusDB();
                         $vars4 = array(':empId' => $empUID);
                         $backupIds = $nexusDB->prepared_query("SELECT * FROM relation_employee_backup WHERE empUID =:empId", $vars4);
                        
