@@ -413,20 +413,21 @@ class FormWorkflow
                     $vars4 = array(':empId' => $empUID);
                     $backupIds = $nexusDB->prepared_query("SELECT * FROM relation_employee_backup WHERE empUID =:empId", $vars4);
 
-                    $isBackUpAvailable = false;
-
                 	if($empUID != $this->login->getEmpUID()) {
+                	    $isBackUpAvailable = false;
+
                         //check there is a backup present  
                         foreach($backupIds as $row) {  
                             if($row['backupEmpUID'] == $this->login->getEmpUID()) {  
-                                $isBackUpAvailable = true;  
+                                $isBackUpAvailable = true;
+                                break;
                             }   
-                        }  
-                    } ///also add for backup  
- 
-                    if(!$isBackUpAvailable){  
-                      return array('status' => 0, 'errors' => ['User account does not match']);  
-                    }  
+                        }
+
+                        if(!$isBackUpAvailable){
+                            return array('status' => 0, 'errors' => ['User account does not match']);
+                        }
+                    }
 
                     break;
                 case -2: // dependencyID -2 : requestor followup
