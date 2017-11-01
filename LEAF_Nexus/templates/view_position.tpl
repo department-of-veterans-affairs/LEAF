@@ -366,7 +366,7 @@ $(function() {
     		window.location.reload();
     	}
     });
-    <!--{include file="site_elements/orgchartForm_updateOutlook.js.tpl"}-->
+    // include file="site_elements/orgchartForm_updateOutlook.js.tpl"
 
     // Load position form and data
     $.ajax({
