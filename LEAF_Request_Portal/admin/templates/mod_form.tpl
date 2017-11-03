@@ -297,7 +297,7 @@ function newQuestion(parentIndicatorID) {
                     <option value="orgchart_position">Orgchart Position</option>\
                     <option value="orgchart_employee">Orgchart Employee</option>\
                     <option value="raw_data">Raw Data (for programmers)</option>\
-                    <option value="text">PIV Card Digital Signature Field</option>\
+                    <option value="text">PIV Card Digital Signature Field (placeholder)</option>\
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
@@ -420,7 +420,7 @@ function getForm(indicatorID, series) {
                     <option value="orgchart_position">Orgchart Position</option>\
                     <option value="orgchart_employee">Orgchart Employee</option>\
                     <option value="raw_data">Raw Data (for programmers)</option>\
-                    <option value="text">PIV Card Digital Signature Field</option>\
+                    <option value="text">PIV Card Digital Signature Field (placeholder)</option>\
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
