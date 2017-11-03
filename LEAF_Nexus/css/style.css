@@ -279,7 +279,7 @@ table#tform td {
 
 .printmainblock {
     page-break-inside: avoid;
-    border-bottom: 1px dashed black; 
+    border-bottom: 1px dashed black;
 }
 
 .printsubblock {
@@ -827,9 +827,19 @@ span.browsetypes {
     cursor: pointer;
 }
 
-.buttonNorm:hover, .buttonNormSelected {
+input.buttonNorm {
+   text-align: left;
+   white-space:normal;
+}
+
+.buttonNorm:hover, .buttonNormSelected, .buttonNorm:focus {
     background-color: #2372b0;
     color: white;
+}
+
+.buttonNorm:focus {
+ background-color: #2372b0;
+ color: white;
 }
 
 .buttonNorm>img {
@@ -850,7 +860,7 @@ button.buttonNorm {
 
 .nodisplay {
     display: none;
-    visibility: hidden; 
+    visibility: hidden;
 }
 
 .dialogInput {
