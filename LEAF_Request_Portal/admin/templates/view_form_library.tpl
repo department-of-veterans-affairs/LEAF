@@ -35,7 +35,7 @@ function showPreview(recordID) {
     	$.ajax({
     		type: 'POST',
     		url: 'ajaxIndex.php?a=importForm',
-    		data: { formPacket: preview.getRawForm(),
+    		data: { formPacket: JSON.stringify(preview.getRawForm()),
     			    formLibraryID: recordID},
     		success: function() {
     			window.location = '?a=form&referFormLibraryID=' + recordID;
