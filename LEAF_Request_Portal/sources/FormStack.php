@@ -99,7 +99,7 @@ class FormStack
     	     return 'No files selected';
     	}
     	if(isset($_POST['formPacket'])) {
-    		$formPacket = $_POST['formPacket'];
+    	    $formPacket = json_decode($_POST['formPacket'], true);;
     	}
     	else {
     		$file = file_get_contents($_FILES['formPacket']['tmp_name']);
