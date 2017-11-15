@@ -24,18 +24,18 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools" class="tools"><h1>Tools</h1>
         <!--{if $submitted == 0}-->
-        <div onclick="window.location='?a=view&amp;recordID=<!--{$recordID}-->'"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="Guided editor" title="Guided editor" /> Edit this form</div>
-        <br /><br />
+        <button onclick="window.location='?a=view&amp;recordID=<!--{$recordID}-->'" style="width: 100%"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="Guided editor" title="Guided editor" style="float: left"/> Edit this form</button>
+        <br />
         <!--{/if}-->
-        <div onclick="viewHistory()"><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" /> View History</div>
-        <div onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" /> Write Email</div>
+        <button onclick="viewHistory()" style="width: 100%"><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="float: left"/> View History</button>
+        <button onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" style="width: 100%"><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" style="float: left"/> Write Email</button>
         <!--{if $bookmarked == ''}-->
-        <div onclick="toggleBookmark()" id="tool_bookmarkText"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" /> Add Bookmark</div>
+        <button onclick="toggleBookmark()" id="tool_bookmarkText" style="width: 100%"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" style="float: left" /> Add Bookmark</button>
         <!--{else}-->
-        <div onclick="toggleBookmark()" id="tool_bookmarkText"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" /> Delete Bookmark</div>
+        <button onclick="toggleBookmark()" id="tool_bookmarkText" style="width: 100%"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="float: left"/> Delete Bookmark</button>
         <!--{/if}-->
-        <br /><br />
-        <div id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" /> Cancel Request</div>
+        <br />
+        <button id="btn_cancelRequest" onclick="cancelRequest()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="float: left"/> Cancel Request</button>
     </div>
 
     <!--{if count($comments) > 0}-->
@@ -52,9 +52,9 @@
 
     <div id="category_list">
         <h1>Internal Use</h1>
-        <div onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=printview&amp;recordID=<!--{$recordID}-->');"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" /> Main Request</div>
+        <button onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=printview&amp;recordID=<!--{$recordID}-->');"style="width: 100%"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" style="float: left"/> Main Request</button>
         <!--{section name=i loop=$childforms}-->
-            <div onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=internalonlyview&amp;recordID=<!--{$recordID}-->&amp;childCategoryID=<!--{$childforms[i].childCategoryID}-->');"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" /> <!--{$childforms[i].childCategoryName}--></div>
+            <button onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=internalonlyview&amp;recordID=<!--{$recordID}-->&amp;childCategoryID=<!--{$childforms[i].childCategoryID}-->');"style="width: 100%"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" style="float: left"/> <!--{$childforms[i].childCategoryName}--></button>
         <!--{/section}-->
     </div>
 
@@ -66,11 +66,11 @@
     <!--{if $is_admin}-->
     <div id="adminTools" class="tools"><h1>Administrative Tools</h1>
         <!--{if $submitted != 0}-->
-            <div onclick="admin_changeStep()"><img src="../libs/dynicons/?img=go-jump.svg&amp;w=32" alt="Change Current Step" title="Change Current Step" /> Change Current Step</div>
+            <button onclick="admin_changeStep()" style="width: 100%"><img src="../libs/dynicons/?img=go-jump.svg&amp;w=32" alt="Change Current Step" title="Change Current Step" style="float: left"/> Change Current Step</button>
         <!--{/if}-->
-        <div onclick="changeService()"><img src="../libs/dynicons/?img=user-home.svg&amp;w=32" alt="Change Service" title="Change Service" /> Change Service</div>
-        <div onclick="admin_changeForm()"><img src="../libs/dynicons/?img=system-file-manager.svg&amp;w=32" alt="Change Forms" title="Change Forms" /> Change Form(s)</div>
-        <div onclick="admin_changeInitiator()"><img src="../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32" alt="Change Initiator" title="Change Initiator" /> Change Initiator</div>
+        <button onclick="changeService()" style="width: 100%"><img src="../libs/dynicons/?img=user-home.svg&amp;w=32" alt="Change Service" title="Change Service" style="float: left"/> Change Service</button>
+        <button onclick="admin_changeForm()" style="width: 100%"><img src="../libs/dynicons/?img=system-file-manager.svg&amp;w=32" alt="Change Forms" title="Change Forms" style="float: left"/> Change Form(s)</button>
+        <button onclick="admin_changeInitiator()" style="width: 100%"><img src="../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32" alt="Change Initiator" title="Change Initiator" style="float: left"/> Change Initiator</button>
     </div>
     <!--{/if}-->
 </div>
@@ -143,7 +143,7 @@ function getIndicatorLog(indicatorID, series) {
 	dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><td>Date/Author</td><td>Data</td></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
     dialog_message.indicateBusy();
     dialog_message.show();
-    
+
     $.ajax({
         type: 'GET',
         url: "api/?a=form/<!--{$recordID}-->/" + indicatorID + "/" + series + '/history',
@@ -154,11 +154,11 @@ function getIndicatorLog(indicatorID, series) {
         		curr = res.pop();
         		date = new Date(curr.timestamp * 1000);
         		data = curr.data;
-        		
+
         		if(i != 0) {
         			data = diffString(prev, data);
         		}
-        		
+
         		$('#history_' + indicatorID).prepend('<tr><td>'+ date.toString() +'<br /><b>'+ curr.name +'</b></td><td><span class="printResponse" style="font-size: 16px">'+ data +'</span></td></tr>');
         		prev = curr.data;
         	}
@@ -294,7 +294,7 @@ function openContent(url) {
     	dataType: 'text',  // IE9 issue
     	success: function(res) {
     		$('#formcontent').empty().html(res);
-    		
+
     		// make box size more predictable
     		$('.printmainblock').each(function() {
                 var boxSizer = {};
@@ -600,7 +600,7 @@ function admin_changeInitiator() {
 
 function scrollPage(id) {
 	if($(document).height() < $('#'+id).offset().top + 100) {
-		$('html, body').animate({scrollTop: $('#'+id).offset().top}, 500);		
+		$('html, body').animate({scrollTop: $('#'+id).offset().top}, 500);
 	}
 }
 
