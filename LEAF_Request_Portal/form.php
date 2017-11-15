@@ -1783,7 +1783,8 @@ class Form
                                             LEFT JOIN dependencies USING (dependencyID)
                                             LEFT JOIN actions USING (actionType)
                                             WHERE recordID=:recordID
-                                                AND comment != ""', $vars);
+                                                AND comment != ""
+                                            ORDER BY time ASC', $vars);
 
         require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
