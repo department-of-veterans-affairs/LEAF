@@ -46,7 +46,6 @@ employeeSelector.prototype.initialize = function() {
 	});
 
 	this.showNotBusy();
-    $('#' + this.prefixID + 'input').focus();
     this.intervalID = setInterval(function(){t.search();}, 200);
 };
 

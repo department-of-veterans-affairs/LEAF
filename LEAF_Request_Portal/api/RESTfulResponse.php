@@ -282,7 +282,7 @@ abstract class RESTfulResponse
     public function verifyAdminReferrer()
     {
     	if(!isset($_SERVER['HTTP_REFERER'])) {
-    		echo 'Error: Invalid request.';
+    		echo 'Error: Invalid request. Missing Referer.';
     		exit();
     	}
 
@@ -300,7 +300,7 @@ abstract class RESTfulResponse
     	$checkMe = strtolower($url . $script . 'admin');
 
     	if(strncmp(strtolower($_SERVER['HTTP_REFERER']), $checkMe, strlen($checkMe)) !== 0) {
-    		echo 'Error: Invalid request.';
+    		echo 'Error: Invalid request. Mismatched Referer';
     		exit();
     	}
     }

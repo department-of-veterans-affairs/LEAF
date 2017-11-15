@@ -55,6 +55,7 @@ function prepareEmail() {
 }
 
 var tDepHeader = [];
+var tStepHeader = [];
 function addHeader(column) {
 	switch(column) {
 	    case 'title':
@@ -147,12 +148,12 @@ function addHeader(column) {
                          }});
             break;
 	    default:
-	    	if(column.substr(0, 6) == 'depID_') {
+	    	if(column.substr(0, 6) == 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
 	    		depID = column.substr(6);
 	    		tDepHeader[depID] = 0;
 	    		leafSearch.getLeafFormQuery().join('recordsDependencies');
 
-	            headers.push({name: 'Approval Date', indicatorID: column, editable: false, callback: function(depID) {
+	            headers.push({name: 'Checkpoint Date', indicatorID: column, editable: false, callback: function(depID) {
 	            	return function(data, blob) {
 	                    if(blob[data.recordID].recordsDependencies != undefined
 	                    	&& blob[data.recordID].recordsDependencies[depID] != undefined) {
@@ -169,6 +170,28 @@ function addHeader(column) {
 	            	}
                 }(depID)});
 	    	}
+            if(column.substr(0, 7) == 'stepID_') { // approval dates based on workflow steps
+                stepID = column.substr(7);
+                tStepHeader[stepID] = 0;
+                leafSearch.getLeafFormQuery().join('stepFulfillment');
+    
+                headers.push({name: 'Checkpoint Date', indicatorID: column, editable: false, callback: function(stepID) {
+                    return function(data, blob) {
+                        if(blob[data.recordID].stepFulfillment != undefined
+                            && blob[data.recordID].stepFulfillment[stepID] != undefined) {
+                            var date = new Date(blob[data.recordID].stepFulfillment[stepID].time * 1000);
+                            $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                            
+                            if(tStepHeader[stepID] == 0) {
+                                headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
+                                $('#' + headerID).html(blob[data.recordID].stepFulfillment[stepID].step);
+                                $('#Vheader_' + column).html(blob[data.recordID].stepFulfillment[stepID].step);
+                                tStepHeader[stepID] = 1;
+                            }
+                        }
+                    }
+                }(stepID)});
+            }
 	    	break;
 	}
 }
@@ -247,7 +270,7 @@ function loadSearchPrereqs() {
             		}
             	}
             	
-                buffer += '<div class="form category '+ associatedCategories +'" style="width: 200px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + i + '</div>';
+                buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + i + '</div>';
                 for(var j in groupList[i]) {
                     buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
                     buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
@@ -268,35 +291,56 @@ function loadSearchPrereqs() {
             	$(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
             		'font-weight': 'bold'});
             });
+            
             $.ajax({
-                type: 'GET',
-                url: './api/?a=workflow/dependencies',
-                dataType: 'json',
-                success: function(res) {
+            	type: 'GET',
+            	url: './api/workflow/steps',
+            	dataType: 'json',
+            	success: function(res) {
                     buffer = '';
-                    buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Approval Dates</div>';
+                    buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
                     for(var i in res) {
-                        buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
-                        buffer += '<label class="checkable" style="width: 100px" for="indicators_depID_'+ res[i].dependencyID +'"> ' + res[i].description +'</label></div>';
+                        buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />';
+                        buffer += '<label class="checkable" style="width: 100px" for="indicators_stepID_'+ res[i].stepID +'"> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
                     }
+                    buffer += '<div id="legacyDependencies"></div>'; // backwards compat
                     buffer += '</div>';
-
+                    
                     $('#indicatorList').append(buffer);
 
-                    // set user selections
-                    if(t_inIndicators != undefined) {
-                        for(var i in t_inIndicators) {
-                            $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
-                        }
-                    }
-                    else {
-                        // pre-select defaults
-                        $('#indicators_title').prop('checked', true);
-//                        $('#indicators_service').prop('checked', true);
-                    }
+                    $.ajax({
+                        type: 'GET',
+                        url: './api/?a=workflow/dependencies',
+                        dataType: 'json',
+                        success: function(res) {
+                            buffer2 = '';
+                            buffer2 += '<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>';
+                            for(var i in res) {
+                                buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
+                                buffer2 += '<label class="checkable" style="width: 100px" for="indicators_depID_'+ res[i].dependencyID +'"> ' + res[i].description +'</label></div>';
+                            }
+                            buffer2 += '</div>';
 
-                    $('.icheck').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
-                }
+                            $('#legacyDependencies').append(buffer2);
+
+                            // write buffer and finalize view
+                            //$('#indicatorList').append(buffer);
+
+                            // set user selections
+                            if(t_inIndicators != undefined) {
+                                for(var i in t_inIndicators) {
+                                    $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
+                                }
+                            }
+                            else {
+                                // pre-select defaults
+                                $('#indicators_title').prop('checked', true);
+                            }
+
+                            $('.icheck').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
+                        }
+                    });
+            	}
             });
         },
         cache: false

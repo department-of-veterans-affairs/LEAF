@@ -6,6 +6,7 @@
 
 function positionSelector(containerID) {
 	this.apiPath = './api/?a=';
+	this.rootPath = '';
 	this.selection = '';
 
 	this.containerID = containerID;
@@ -29,8 +30,8 @@ function positionSelector(containerID) {
 positionSelector.prototype.initialize = function() {
     var t = this;
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="positionSelectorBorder">\
-			<div style="float: left"><img id="'+this.prefixID+'icon" src="../libs/dynicons/?img=search.svg&w=16" class="positionSelectorIcon" alt="search" />\
-			<img id="'+this.prefixID+'iconBusy" src="images/indicator.gif" style="display: none" class="positionSelectorIcon" alt="search" /></div>\
+			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="positionSelectorIcon" alt="search" />\
+			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="positionSelectorIcon" alt="search" /></div>\
 			<input id="'+this.prefixID+'input" type="search" class="positionSelectorInput"></input></div>\
 			<div id="'+this.prefixID+'result"></div>');
 
@@ -43,7 +44,6 @@ positionSelector.prototype.initialize = function() {
 	});
 
 	this.showNotBusy();
-    $('#' + this.prefixID + 'input').focus();
     this.intervalID = setInterval(function(){t.search();}, 200);
 };
 
