@@ -24,18 +24,18 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools" class="tools"><h1>Tools</h1>
         <!--{if $submitted == 0}-->
-        <button onclick="window.location='?a=view&amp;recordID=<!--{$recordID}-->'" style="width: 100%"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="Guided editor" title="Guided editor" style="float: left"/> Edit this form</button>
+        <button class="buttonNorm" onclick="window.location='?a=view&amp;recordID=<!--{$recordID}-->'" style="width: 100%"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="Guided editor" title="Guided editor" style="float: left"/> Edit this form</button>
         <br />
         <!--{/if}-->
-        <button onclick="viewHistory()" style="width: 100%"><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="float: left"/> View History</button>
-        <button onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" style="width: 100%"><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" style="float: left"/> Write Email</button>
+        <button class="buttonNorm" onclick="viewHistory()" style="width: 100%"><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="float: left"/> View History</button>
+        <button class="buttonNorm" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" style="width: 100%"><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" style="float: left"/> Write Email</button>
         <!--{if $bookmarked == ''}-->
-        <button onclick="toggleBookmark()" id="tool_bookmarkText" style="width: 100%"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" style="float: left"/> Add Bookmark</button>
+        <button class="buttonNorm" onclick="toggleBookmark()" id="tool_bookmarkText" style="width: 100%"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" style="float: left"/> Add Bookmark</button>
         <!--{else}-->
-        <button onclick="toggleBookmark()" id="tool_bookmarkText" style="width: 100%"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="float: left"/> Delete Bookmark</button>
+        <button class="buttonNorm" onclick="toggleBookmark()" id="tool_bookmarkText" style="width: 100%"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="float: left"/> Delete Bookmark</button>
         <!--{/if}-->
         <br />
-        <button id="btn_cancelRequest" onclick="cancelRequest()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="float: left"/> Cancel Request</button>
+        <button class="buttonNorm" id="btn_cancelRequest" onclick="cancelRequest()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="float: left"/> Cancel Request</button>
     </div>
 
     <!--{if count($comments) > 0}-->
@@ -52,9 +52,9 @@
 
     <div id="category_list">
         <h1>Internal Use</h1>
-        <button onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=printview&amp;recordID=<!--{$recordID}-->');"style="width: 100%"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" style="float: left"/> Main Request</button>
+        <button class="buttonNorm" onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=printview&amp;recordID=<!--{$recordID}-->');"style="width: 100%"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" style="float: left"/> Main Request</button>
         <!--{section name=i loop=$childforms}-->
-            <button onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=internalonlyview&amp;recordID=<!--{$recordID}-->&amp;childCategoryID=<!--{$childforms[i].childCategoryID}-->');"style="width: 100%"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" style="float: left"/> <!--{$childforms[i].childCategoryName}--></button>
+            <button class="buttonNorm" onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=internalonlyview&amp;recordID=<!--{$recordID}-->&amp;childCategoryID=<!--{$childforms[i].childCategoryID}-->');"style="width: 100%"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" style="float: left"/> <!--{$childforms[i].childCategoryName}--></button>
         <!--{/section}-->
     </div>
 
@@ -66,11 +66,11 @@
     <!--{if $is_admin}-->
     <div id="adminTools" class="tools"><h1>Administrative Tools</h1>
         <!--{if $submitted != 0}-->
-            <button onclick="admin_changeStep()" style="width: 100%"><img src="../libs/dynicons/?img=go-jump.svg&amp;w=32" alt="Change Current Step" title="Change Current Step" style="float: left"/> Change Current Step</button>
+            <button class="buttonNorm" onclick="admin_changeStep()" style="width: 100%"><img src="../libs/dynicons/?img=go-jump.svg&amp;w=32" alt="Change Current Step" title="Change Current Step" style="float: left"/> Change Current Step</button>
         <!--{/if}-->
-        <button onclick="changeService()" style="width: 100%"><img src="../libs/dynicons/?img=user-home.svg&amp;w=32" alt="Change Service" title="Change Service" style="float: left"/> Change Service</button>
-        <button onclick="admin_changeForm()" style="width: 100%"><img src="../libs/dynicons/?img=system-file-manager.svg&amp;w=32" alt="Change Forms" title="Change Forms" style="float: left"/> Change Form(s)</button>
-        <button onclick="admin_changeInitiator()" style="width: 100%"><img src="../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32" alt="Change Initiator" title="Change Initiator" style="float: left"/> Change Initiator</button>
+        <button class="buttonNorm" onclick="changeService()" style="width: 100%"><img src="../libs/dynicons/?img=user-home.svg&amp;w=32" alt="Change Service" title="Change Service" style="float: left"/> Change Service</button>
+        <button class="buttonNorm" onclick="admin_changeForm()" style="width: 100%"><img src="../libs/dynicons/?img=system-file-manager.svg&amp;w=32" alt="Change Forms" title="Change Forms" style="float: left"/> Change Form(s)</button>
+        <button class="buttonNorm" onclick="admin_changeInitiator()" style="width: 100%"><img src="../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32" alt="Change Initiator" title="Change Initiator" style="float: left"/> Change Initiator</button>
     </div>
     <!--{/if}-->
 </div>
