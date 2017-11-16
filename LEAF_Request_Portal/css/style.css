@@ -877,6 +877,11 @@ span.browsetypes {
     color: white;
 }
 
+.buttonNorm:focus {
+ background-color: #2372b0;
+ color: white;
+}
+
 .buttonNorm>img {
     vertical-align: middle;
 }
