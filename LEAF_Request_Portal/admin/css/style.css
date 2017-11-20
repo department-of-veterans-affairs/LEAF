@@ -497,9 +497,10 @@ span.approval_disapproved {
     transition: box-shadow 0.3s ease;
 }
 
-.menuButton:hover {
+.menuButton:hover, :focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 14px;
+    outline:  4px 6px 2px #5d5959;
 }
 
 .menuIcon {
@@ -532,9 +533,10 @@ span.approval_disapproved {
     transition: box-shadow 0.3s ease;
 }
 
-.menuButtonSmall:hover {
+.menuButtonSmall:hover, :focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 12px;
+    outline-color: 0 4px 6px 2px #5d5959;
 }
 
 .menuIconSmall {
@@ -864,9 +866,14 @@ span.browsetypes {
     cursor: pointer;
 }
 
-.buttonNorm:hover, .buttonNormSelected, .buttonNorm:hover>span {
+.buttonNorm:hover, .buttonNormSelected, .buttonNorm:hover>span, .buttonNorm:focus {
     background-color: #2372b0;
     color: white;
+}
+
+.buttonNorm:focus, {
+ background-color: #2372b0;
+ color: white;
 }
 
 .buttonNorm>img {
@@ -900,7 +907,7 @@ button.buttonNorm {
 
 .nodisplay {
     display: none;
-    visibility: hidden; 
+    visibility: hidden;
 }
 
 @media(max-width: 520px) {
@@ -927,7 +934,7 @@ button.buttonNorm {
         font-weight: normal;
         text-align: right;
     }
-    
+
     #headerMenu > a {
         text-decoration: none;
         margin-left: 2px;

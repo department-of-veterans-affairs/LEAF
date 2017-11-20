@@ -503,9 +503,10 @@ span.approval_disapproved {
     transition: box-shadow 0.3s ease;
 }
 
-.menuButton:hover {
+.menuButton:hover, :focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 14px;
+    outline-color: 0 4px 6px 2px #5d5959;
 }
 
 .menuIcon {
@@ -541,7 +542,7 @@ span.approval_disapproved {
 .menuButtonSmall:hover, :focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 12px;
-    outline-color: 0 4px 6px 2px #5d5959
+    outline-color: 0 4px 6px 2px #5d5959;
 }
 
 .menuIconSmall {
@@ -877,7 +878,7 @@ span.browsetypes {
     color: white;
 }
 
-.buttonNorm:focus {
+.buttonNorm:focus, {
  background-color: #2372b0;
  color: white;
 }
