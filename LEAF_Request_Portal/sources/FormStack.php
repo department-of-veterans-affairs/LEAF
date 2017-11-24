@@ -61,7 +61,7 @@ class FormStack
     	return true;
     }
     
-    private function importIndicator($indicatorPackage, $categoryID, $parentID = null) {
+    private function importIndicator($indicatorPackage, $categoryID, $parentID = null, $overwriteExisting = false) {
     	$indicatorPackage['categoryID'] = $categoryID;
     	$indicatorPackage['parentID'] = $parentID;
 
@@ -71,10 +71,10 @@ class FormStack
     		}
     	}
     	
-    	$indicatorID = $this->formEditor->addIndicator($indicatorPackage);
+    	$indicatorID = $this->formEditor->addIndicator($indicatorPackage, $overwriteExisting);
     	if(is_array($indicatorPackage['child'])) {
     		foreach($indicatorPackage['child'] as $child) {
-    			$this->importIndicator($child, $categoryID, $indicatorID);
+    		    $this->importIndicator($child, $categoryID, $indicatorID, $overwriteExisting);
     		}
     	}
     }
@@ -86,7 +86,12 @@ class FormStack
     	}
     }
 
-    public function importForm() {
+    /**
+     * @param string $overwiteExisting - If specified, matching IDs will be overwritten.
+     *                             This should only be used with centrally standardized forms 
+     * @return string/bool
+     */
+    public function importForm($overwiteExisting = false) {
     	if(!$this->login->checkGroup(1)) {
     		return 'Admin access required';
     	}
@@ -106,23 +111,36 @@ class FormStack
     		$formPacket = json_decode($file, true);
     	}
 
+    	$categoryID = null;
+    	if($overwiteExisting) {
+    	    if($formPacket['packet']['categoryID'] == '') {
+    	        return 'Missing form ID';
+    	    }
+    	    $categoryID = $formPacket['packet']['categoryID'];
+    	    $workflowID = isset($formPacket['packet']['workflowID']) ? $formPacket['packet']['workflowID'] : 0;
+    	}
+
     	// cursory format verification
     	if($formPacket['version'] != 1) {
     		return 'File format or version not supported.';
     	}
     	
     	$formName = mb_strimwidth($formPacket['name'], 0, 50, '...');
-    	$formCategoryID = $this->formEditor->createForm($formName, $formPacket['description'], '', $_POST['formLibraryID']);
+    	$formCategoryID = $this->formEditor->createForm($formName, $formPacket['description'], '', $_POST['formLibraryID'], $categoryID, $workflowID);
 
     	foreach($formPacket['packet']['form'] as $indicator) {
-    		$this->importIndicator($indicator, $formCategoryID);
+    	    $this->importIndicator($indicator, $formCategoryID, null, $overwiteExisting);
     	}
 
-    	foreach($formPacket['packet']['subforms'] as $subform) {
-    		$subformCategoryID = $this->formEditor->createForm($subform['name'], $subform['description'], $formCategoryID);
+    	foreach($formPacket['packet']['subforms'] as $key=>$subform) {
+    	    $subformCategoryID = null;
+    	    if($overwiteExisting) {
+    	        $subformCategoryID = $key;
+    	    }
+    	    $subformCategoryID = $this->formEditor->createForm($subform['name'], $subform['description'], $formCategoryID, null, $subformCategoryID);
     		
     		foreach($subform['packet'] as $indicator) {
-    			$this->importIndicator($indicator, $subformCategoryID);
+    		    $this->importIndicator($indicator, $subformCategoryID, null, $overwiteExisting);
     		}
     	}
     	
