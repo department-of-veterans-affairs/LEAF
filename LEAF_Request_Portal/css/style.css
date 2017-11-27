@@ -873,12 +873,12 @@ span.browsetypes {
     white-space: nowrap;
 }
 
-.buttonNorm:hover, .buttonNormSelected, .buttonNorm:hover>span {
+.buttonNorm:hover, .buttonNormSelected, .buttonNorm:hover>span .buttonNorm:focus {
     background-color: #2372b0;
     color: white;
 }
 
-.buttonNorm:focus, {
+.buttonNorm:focus {
  background-color: #2372b0;
  color: white;
 }

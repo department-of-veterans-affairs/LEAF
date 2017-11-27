@@ -25,7 +25,7 @@
     <div id="tools" class="tools"><h1>Tools</h1>
         <!--{if $submitted == 0}-->
         <button class="buttonNorm" onclick="window.location='?a=view&amp;recordID=<!--{$recordID}-->'" style="width: 100%"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="Guided editor" title="Guided editor" style="float: left"/> Edit this form</button>
-        <br />
+        <br /> 
         <!--{/if}-->
         <button class="buttonNorm" onclick="viewHistory()" style="width: 100%"><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="float: left"/> View History</button>
         <button class="buttonNorm" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" style="width: 100%"><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" style="float: left"/> Write Email</button>
