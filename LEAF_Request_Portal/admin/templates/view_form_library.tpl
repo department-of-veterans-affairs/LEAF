@@ -29,6 +29,7 @@ function showPreview(recordID) {
 	dialog_simple.show();
 
     preview = new LeafPreview('preview');
+    preview.setNexusURL('<!--{$LEAF_NEXUS_URL}-->');
     preview.load(recordID, 1, 0);
 
     $('#btn_download').one('click', function() {
