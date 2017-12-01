@@ -146,6 +146,10 @@ span#headerMenu {
     color: white;
 }
 
+#headerMenu > a:focus, #headerMenu_container > a:focus{
+    text-decoration: underline;
+    color: white;
+}
 
 #headerMenu_links {
     display: none;
@@ -550,7 +554,7 @@ span.approval_disapproved {
 .menuButtonSmall:hover, .menuButtonSmall:focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 12px;
-    outline-color: 0 4px 6px 2px #5d5959;
+    
 }
 
 .menuIconSmall {
