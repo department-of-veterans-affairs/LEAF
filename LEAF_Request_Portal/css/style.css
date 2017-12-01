@@ -5,6 +5,13 @@ body {
     margin: 0px;
 }
 
+body p{
+  font-family: verdana;
+  font-size: 15px;
+  margin: 0px;
+  text-align: left;
+}
+
 body a:link, body a:visited {
     color: #004b76;
 }
@@ -138,6 +145,7 @@ span#headerMenu {
     text-decoration: underline;
     color: white;
 }
+
 
 #headerMenu_links {
     display: none;

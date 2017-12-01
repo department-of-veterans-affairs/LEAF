@@ -5,6 +5,12 @@ body {
     margin: 0px;
 }
 
+body p{
+  font-family: verdana;
+  font-size: 15px;
+  margin: 0px;
+}
+
 body a:link, body a:visited {
     color: #004b76;
 }
@@ -940,4 +946,3 @@ button.buttonNorm {
         margin-left: 2px;
         color: black;
     }
-}
