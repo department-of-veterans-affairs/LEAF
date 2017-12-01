@@ -5,12 +5,7 @@ body {
     margin: 0px;
 }
 
-body p{
-  font-family: verdana;
-  font-size: 15px;
-  margin: 0px;
-  text-align: left;
-}
+
 
 body a:link, body a:visited {
     color: #004b76;
@@ -554,7 +549,7 @@ span.approval_disapproved {
 .menuButtonSmall:hover, .menuButtonSmall:focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 12px;
-    
+
 }
 
 .menuIconSmall {
