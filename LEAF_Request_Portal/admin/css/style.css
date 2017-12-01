@@ -140,6 +140,11 @@ span#headerMenu {
     color: white;
 }
 
+#headerMenu > a:focus, #headerMenu_container > a:focus{
+    text-decoration: underline;
+    color: white;
+}
+
 #headerMenu_links {
     display: none;
     position: absolute;
