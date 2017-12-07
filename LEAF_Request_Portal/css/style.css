@@ -546,10 +546,9 @@ span.approval_disapproved {
     transition: box-shadow 0.3s ease;
 }
 
-.menuButtonSmall:hover, .menuButtonSmall:focus {
+.menuButtonSmall:hover {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 12px;
-
 }
 
 .menuIconSmall {
@@ -682,6 +681,28 @@ div#maincontent {
 
 .tools {
     background-color: #c0dbff;
+}
+
+button.tools{
+  background-color: #e8f2ff;
+  padding: 2px;
+  margin: 0px;
+  padding-right: 6px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid #e8f2ff;
+  border-left: 1px solid #e8f2ff;
+  border-right: 1px solid #e8f2ff;
+  cursor: pointer;
+  font-family: verdana;
+  font-size: 14px;
+  text-align: left;
+  width: 99%;
+  
+}
+
+button.tools:hover, button.tools:focus{
+  background-color: #2372b0;
+  color: white;
 }
 
 .tools>div {
@@ -977,4 +998,49 @@ button.buttonNorm {
   font-size: 12px;
   color: black;
   line-height: 40px;
+}
+
+button.IUbutton{
+  background-color: #f9e6df;
+  padding: 2px;
+  margin: 2px;
+  padding-right: 6px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid #f9e6df;
+  border-left: 1px solid #f9e6df;
+  border-right: 1px solid #f9e6df;;
+  cursor: pointer;
+  font-family: verdana;
+  font-size: 14px;
+  text-align: left;
+  width: 99%;
+  vertical-align: middle ;
+
+}
+
+button.IUbutton:hover, button.IUbutton:focus{
+  background-color: #2372b0;
+  color: white;
+}
+
+button.AdminButton{
+  background-color: #ffe8e8;
+  padding: 2px;
+  margin: 0px;
+  padding-right: 6px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid #ffe8e8;
+  border-left: 1px solid #ffe8e8;
+  border-right: 1px solid #ffe8e8;
+  cursor: pointer;
+  font-family: verdana;
+  font-size: 14px;
+  text-align: left;
+  width: 100%;
+
+}
+
+button.AdminButton:hover, button.AdminButton:focus {
+  background-color: #b02323;
+  color: white;
 }
