@@ -17,13 +17,6 @@ Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID}-->"><!--{$t
     <td>New Request Opened by <!--{$name}--></td>
 </tr>
 
-<!--{if $submitted > 0}-->
-<tr>
-    <td><!--{$submitted|date_format:"%B %e, %Y. %l:%M %p"}--></td>
-    <td>Request Submitted by <!--{$name}--></td>
-</tr>
-<!--{/if}-->
-
 
 <!--{foreach from=$agenda item=indicator}--><!--{strip}-->
 
