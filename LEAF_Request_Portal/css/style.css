@@ -546,10 +546,11 @@ span.approval_disapproved {
     transition: box-shadow 0.3s ease;
 }
 
-.menuButtonSmall:hover {
+.menuButtonSmall:hover, .menuButtonSmall:focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 12px;
-}
+    outline-style: dotted;
+  }
 
 .menuIconSmall {
     float: left;
@@ -697,7 +698,7 @@ button.tools{
   font-size: 14px;
   text-align: left;
   width: 99%;
-  
+
 }
 
 button.tools:hover, button.tools:focus{

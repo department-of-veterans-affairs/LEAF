@@ -129,6 +129,13 @@ span#headerMenu {
 }
 
 #headerMenu > a:hover, #headerMenu_container > a:hover{
+    background-color: #2372b0;
+    text-decoration: underline;
+    color: white;
+}
+
+#headerMenu > a:focus, #headerMenu_container > a:focus{
+    background-color: #2372b0;
     text-decoration: underline;
     color: white;
 }
@@ -498,9 +505,10 @@ span.approval_disapproved {
     transition: box-shadow 0.3s ease;
 }
 
-.menuButton:hover {
+.menuButton:hover, .menuButton:focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 14px;
+    outline-style: dotted;
 }
 
 .menuIcon {
@@ -533,9 +541,10 @@ span.approval_disapproved {
     transition: box-shadow 0.3s ease;
 }
 
-.menuButtonSmall:hover {
+.menuButtonSmall:hover, .menuButtonSmall:focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 12px;
+    outline-style: dotted;
 }
 
 .menuIconSmall {
@@ -832,7 +841,7 @@ input.buttonNorm {
    white-space:normal;
 }
 
-.buttonNorm:hover, .buttonNormSelected, .buttonNorm:focus {
+.buttonNorm:hover, .buttonNormSelected, {
     background-color: #2372b0;
     color: white;
 }
