@@ -1,6 +1,7 @@
 var LeafPreview = function(domID) {
     var numSection = 1;
     var rawForm = {};
+    var LEAF_NEXUS_URL = 'https://LEAF_NEXUS_URL/';
 
     $('#' + domID).html('');
 
@@ -78,7 +79,7 @@ var LeafPreview = function(domID) {
     function load(recordID, indicatorID, fileID, callback) {
     	$.ajax({
         	type: 'GET',
-            url: 'https://LEAF_NEXUS_URL/LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
+            url: LEAF_NEXUS_URL + 'LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
             dataType: 'json',
             xhrFields: {withCredentials: true},
             success: function(res) {
@@ -98,6 +99,7 @@ var LeafPreview = function(domID) {
 
     return {
         load: load,
-        getRawForm: function() { return rawForm; }
+        getRawForm: function() { return rawForm; },
+        setNexusURL: function(url) { LEAF_NEXUS_URL = url; }
     };
 }

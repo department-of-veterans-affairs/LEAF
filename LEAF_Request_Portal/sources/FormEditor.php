@@ -23,23 +23,45 @@ class FormEditor
 
     /**
      * @param array $package - Array of input items
+     * @param bool $overwriteExisting - If true, matching IDs will be overwritten
      * @return number
      */
-    function addIndicator($package) {
+    function addIndicator($package, $overwriteExisting = false) {
     	$package['parentID'] = $package['parentID'] == '' ? null : $package['parentID'];
 
-    	$vars = array(':name' => $package['name'],
-    				  ':format' => $package['format'],
-	    			  ':description' => $package['description'],
-	    			  ':default' => $package['default'],
-	    			  ':parentID' => $package['parentID'],
-	    			  ':categoryID' => $package['categoryID'],
-    				  ':html' => $package['html'],
-    				  ':htmlPrint' => $package['htmlPrint'],
-	    			  ':required' => $package['required'],
-    				  ':sort' => isset($package['sort']) ? $package['sort'] : 1);
-    	$this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, sort, timeAdded, disabled)
-    								VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :sort, CURRENT_TIMESTAMP, 0)', $vars);
+    	if(!$overwriteExisting) {
+    	    $vars = array(':name' => $package['name'],
+    	        ':format' => $package['format'],
+    	        ':description' => $package['description'],
+    	        ':default' => $package['default'],
+    	        ':parentID' => $package['parentID'],
+    	        ':categoryID' => $package['categoryID'],
+    	        ':html' => $package['html'],
+    	        ':htmlPrint' => $package['htmlPrint'],
+    	        ':required' => $package['required'],
+    	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
+
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, sort, timeAdded, disabled)
+            								VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :sort, CURRENT_TIMESTAMP, 0)', $vars);
+    	}
+    	else {
+    	    $vars = array(':indicatorID' => $package['indicatorID'],
+    	        ':name' => $package['name'],
+    	        ':format' => $package['format'],
+    	        ':description' => $package['description'],
+    	        ':default' => $package['default'],
+    	        ':parentID' => $package['parentID'],
+    	        ':categoryID' => $package['categoryID'],
+    	        ':html' => $package['html'],
+    	        ':htmlPrint' => $package['htmlPrint'],
+    	        ':required' => $package['required'],
+    	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
+
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, sort, timeAdded, disabled)
+            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :sort, CURRENT_TIMESTAMP, 0)
+                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, required=:required, sort=:sort', $vars);
+    	}
+
     	return $this->db->getLastInsertID();
     }
 
@@ -178,20 +200,34 @@ class FormEditor
     								SET htmlPrint=:input
     								WHERE indicatorID=:indicatorID', $vars);
     }
-    
-    function createForm($name, $description, $parentID = '', $formLibraryID = null) {
+
+    /**
+     * @param string $name
+     * @param string $description
+     * @param string $formLibraryID
+     * @param string $categoryID - Optional. If specified, existing data matching the ID will be overwritten
+     * @param string $workflowID
+     * @return string
+     */
+    function createForm($name, $description, $parentID = '', $formLibraryID = null, $categoryID = null, $workflowID = 0) {
     	$name = trim($name);
-    	$categoryID = 'form_' . substr(sha1($name . mt_rand()), 0, 5);
+    	if($categoryID == null) {
+    	    $categoryID = 'form_' . substr(sha1($name . mt_rand()), 0, 5);
+    	}
+    	if($workflowID == null) {
+    	    $workflowID = 0;
+    	}
     	
     	$vars = array(':name' => $name,
     				  ':description' => $description,
     			      ':parentID' => $parentID,
     			      ':categoryID' => $categoryID,
-    			      ':workflowID' => 0,
+    			      ':workflowID' => $workflowID,
     				  ':formLibraryID' => $formLibraryID
     	);
     	$this->db->prepared_query('INSERT INTO categories (categoryID, parentID, categoryName, categoryDescription, workflowID, formLibraryID)
-    										VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID)', $vars);
+    									VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID)
+                                        ON DUPLICATE KEY UPDATE categoryName=:name, categoryDescription=:description, workflowID=:workflowID, disabled=0', $vars);
     	return $categoryID;
     }
 

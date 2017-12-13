@@ -891,9 +891,20 @@ function exportForm(categoryID) {
 	        url: '../api/?a=form/_' + categoryID + '/export',
 	        success: function(res) {
 	            packet.form = res;
+	            packet.categoryID = categoryID;
 	        }
 	    });
 	});
+
+    promise = promise.then(function() {
+        return $.ajax({
+            type: 'GET',
+            url: '../api/?a=form/_' + categoryID + '/workflow',
+            success: function(res) {
+                packet.workflowID = res[0].workflowID;
+            }
+        });
+    });
 
 	for(var i in categories) {
         if(categories[i].parentID == categoryID) {
