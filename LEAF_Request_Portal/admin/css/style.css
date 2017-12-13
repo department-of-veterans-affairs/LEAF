@@ -507,7 +507,7 @@ span.approval_disapproved {
 .menuButton:hover, .menuButton:focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 14px;
-    outline:  4px 6px 2px #5d5959;
+    outline-style: dotted;
 }
 
 .menuIcon {
@@ -543,7 +543,7 @@ span.approval_disapproved {
 .menuButtonSmall:hover, .menuButtonSmall:focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 12px;
-    outline-color: 0 4px 6px 2px #5d5959;
+    outline-style: dotted;
 }
 
 .menuIconSmall {
