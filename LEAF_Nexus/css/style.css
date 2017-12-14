@@ -674,6 +674,32 @@ div#category_list {
     color: white;
 }
 
+.tools {
+    background-color: #c0dbff;
+}
+
+button.tools{
+  background-color: #e8f2ff;
+  padding: 2px;
+  margin: 0px;
+  padding-right: 6px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid #e8f2ff;
+  border-left: 1px solid #e8f2ff;
+  border-right: 1px solid #e8f2ff;
+  cursor: pointer;
+  font-family: verdana;
+  font-size: 14px;
+  text-align: left;
+  width: 99%;
+
+}
+
+button.tools:hover, button.tools:focus{
+  background-color: #2372b0;
+  color: white;
+}
+
 .toolbar_right {
     float: right;
     z-index: 500;
@@ -834,6 +860,7 @@ span.browsetypes {
     padding: 4px;
     border: 1px solid black;
     cursor: pointer;
+    text-align: left;
 }
 
 input.buttonNorm {
@@ -841,7 +868,7 @@ input.buttonNorm {
    white-space:normal;
 }
 
-.buttonNorm:hover, .buttonNormSelected, {
+.buttonNorm:hover, .buttonNormSelected {
     background-color: #2372b0;
     color: white;
 }
