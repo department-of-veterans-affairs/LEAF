@@ -229,18 +229,23 @@ class Inbox
             $res2 = $this->db->prepared_query("SELECT * FROM records_workflow_state
             									LEFT JOIN records USING (recordID)
             									LEFT JOIN step_dependencies USING (stepID)
+                                                LEFT JOIN workflow_steps USING (stepID)
             									LEFT JOIN records_dependencies USING (recordID, dependencyID)
-            									WHERE (dependencyID = 1 OR dependencyID = 8)
+            									WHERE (dependencyID = 1
+                                                         OR dependencyID = 8
+                                                         OR dependencyID = -1
+                                                         OR dependencyID = -2
+                                                         OR dependencyID = -3)
             										AND filled = 0", $vars2);
 
             foreach($res2 as $record) {
                 switch($record['dependencyID']) {
-                    case 1:
+                    case 1: // dependencyID 1 is for a special service chief group
                         if($this->login->checkService($record['serviceID'])) {
                             return 1;
                         }
                         break;
-                    case 8:
+                    case 8: // dependencyID 8 is for a special quadrad group
                         $hash = md5($this->login->getQuadradGroupID() . $record['serviceID']);
                         if(!isset($this->cache["getInboxStatus_{$hash}"])) {
                             $quadGroupIDs = $this->login->getQuadradGroupID();
@@ -252,6 +257,40 @@ class Inbox
                                 return 1;
                             }
                             $this->cache["getInboxStatus_{$hash}"] = 0;
+                        }
+                        break;
+                    case -1: // dependencyID -1 is for a person designated by the requestor
+                        $resEmpUID = $this->form->getIndicator($record['indicatorID_for_assigned_empUID'], 1, $record['recordID']);
+                        $empUID = $resEmpUID[$record['indicatorID_for_assigned_empUID']]['value'];
+                        
+                        //check if the requester has any backups
+                        $nexusDB = $this->login->getNexusDB();
+                        $vars4 = array(':empId' => $empUID);
+                        $backupIds =  $nexusDB->prepared_query("SELECT * FROM relation_employee_backup WHERE empUID =:empId", $vars4);
+                        
+                        if($empUID == $this->login->getEmpUID()) {
+                            return 1;
+                        }else{
+                            //check and provide access to backups
+                            foreach($backupIds as $row) {
+                                if($row['backupEmpUID'] == $this->login->getEmpUID()) {
+                                    return 1;
+                                }
+                            }
+                        }
+
+                        break;
+                    case -2: // dependencyID -2 is for requestor followup
+                        if($record['userID'] == $this->login->getUserID()) {
+                            return 1;
+                        }
+                        break;
+                    case -3: // dependencyID -3 is for a group designated by the requestor
+                        $resGroupID = $this->form->getIndicator($record['indicatorID_for_assigned_groupID'], 1, $record['recordID']);
+                        $groupID = $resGroupID[$record['indicatorID_for_assigned_groupID']]['value'];
+                        
+                        if($this->login->checkGroup($groupID)) {
+                            return 1;
                         }
                         break;
                     default:
@@ -314,5 +353,3 @@ class Inbox
     }
 }
 
-
-?>
