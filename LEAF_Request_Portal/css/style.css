@@ -882,10 +882,8 @@ span.browsetypes {
 
 button.buttonNorm {
     background-color: #e8f2ff;
-    padding: 2px;
-    margin: 2px;
-    padding-right: 6px;
     border: 1px solid black;
+    margin: 2px;
     cursor: pointer;
     font-size: 12px;
 }
