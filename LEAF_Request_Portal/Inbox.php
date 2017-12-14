@@ -230,17 +230,19 @@ class Inbox
             									LEFT JOIN records USING (recordID)
             									LEFT JOIN step_dependencies USING (stepID)
             									LEFT JOIN records_dependencies USING (recordID, dependencyID)
-            									WHERE (dependencyID = 1 OR dependencyID = 8)
+            									WHERE (dependencyID = 1
+                                                         OR dependencyID = 8
+                                                         OR dependencyID = -2)
             										AND filled = 0", $vars2);
 
             foreach($res2 as $record) {
                 switch($record['dependencyID']) {
-                    case 1:
+                    case 1: // dependencyID 1 is for a special service chief group
                         if($this->login->checkService($record['serviceID'])) {
                             return 1;
                         }
                         break;
-                    case 8:
+                    case 8: // dependencyID 8 is for a special quadrad group
                         $hash = md5($this->login->getQuadradGroupID() . $record['serviceID']);
                         if(!isset($this->cache["getInboxStatus_{$hash}"])) {
                             $quadGroupIDs = $this->login->getQuadradGroupID();
@@ -252,6 +254,11 @@ class Inbox
                                 return 1;
                             }
                             $this->cache["getInboxStatus_{$hash}"] = 0;
+                        }
+                        break;
+                    case -2: // dependencyID -2 is for requestor followup
+                        if($record['userID'] == $this->login->getUserID()) {
+                            return 1;
                         }
                         break;
                     default:
@@ -314,5 +321,3 @@ class Inbox
     }
 }
 
-
-?>
