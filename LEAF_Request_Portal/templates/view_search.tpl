@@ -41,7 +41,7 @@ $(function() {
             }
 
             $('#'+data.cellContainerID).html('<span class="browsecounter"><a '+priorityStyle+' href="'
-                    + 'index.php?a=printview&recordID='+data.recordID + '">' + data.recordID
+                    + 'index.php?a=printview&recordID='+data.recordID + '" tabindex="-1">' + data.recordID
                     + '</a></span><a href="' + 'index.php?a=printview&recordID='+data.recordID
                     + '">' + blob[data.recordID].title + '</a><br />'
                     + '<span class="browsetypes">' + types + '</span>' + priority);
