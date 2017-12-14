@@ -26,15 +26,15 @@ var LeafFormSearch = function(containerID) {
 			    <img id="'+prefixID+'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="'+ rootURL +'../libs/dynicons/?img=search.svg&w=16">\
 			    <img id="'+prefixID+'searchIconBusy" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display:none" src="'+ rootURL +'images/indicator.gif">\
 			    <input style="border: 1px solid black; padding: 4px" type="text" id="'+prefixID+'searchtxt" name="searchtxt" size="50" title="Enter your search text" value="" />\
-			    <span class="buttonNorm" id="'+prefixID+'advancedSearchButton">Advanced Options</span>\
+			    <button class="buttonNorm" id="'+prefixID+'advancedSearchButton">Advanced Options</button>\
 			    <fieldset id="'+prefixID+'advancedOptions" style="position: relative; display: none; margin: 0px; border: 1px solid black; background-color: white">\
 		        <legend>Advanced Search Options</legend>\
 		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer" alt="Close advanced search" />\
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="'+prefixID+'searchTerms"></table>\
-		        <span class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</span>\
+		        <button class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</button>\
 		        <br /><br />\
-		        <div id="'+prefixID+'advancedSearchApply" class="buttonNorm" style="text-align: center">Apply Filters</div>\
+		        <button id="'+prefixID+'advancedSearchApply" class="buttonNorm" style="text-align: center; width: 100%">Apply Filters</button>\
 		    </fieldset>\
 		    </div>\
 		    <div id="'+prefixID+'_result" style="margin-top: 8px">\
