@@ -1,6 +1,6 @@
 <div id="maincontent">
 
-<a href="../?a=browse_group">
+<a href="../?a=browse_group" tabindex="-1">
     <span class="menuButton" style="background-color: #cb9ed7" tabindex="0">
         <img class="menuIcon" src="../../libs/dynicons/?img=preferences-desktop-theme.svg&amp;w=96" style="position: relative" alt="Group Search" title="Group Search" />
         <span class="menuText">Groups</span><br />
@@ -8,7 +8,7 @@
     </span>
 </a>
 
-<a href="?a=admin_refresh_directory">
+<a href="?a=admin_refresh_directory" tabindex="-1">
     <span class="menuButton" style="background-color: #ffefa5" tabindex="0">
         <img class="menuIcon" src="../../libs/dynicons/?img=system-software-update.svg&amp;w=96" style="position: relative" alt="Directory Update" title="Directory Update" />
         <span class="menuText">Refresh Directory</span><br />
@@ -16,7 +16,7 @@
     </span>
 </a>
 
-<a href="?a=setup_medical_center">
+<a href="?a=setup_medical_center" tabindex="-1">
     <span class="menuButton" style="background-color: #c6ffbe" tabindex="0">
         <img class="menuIcon" src="../../libs/dynicons/?img=preferences-system.svg&amp;w=96" style="position: relative" alt="Bookmarks" title="Bookmarks" />
         <span class="menuText">Setup Wizard</span><br />
@@ -24,7 +24,7 @@
     </span>
 </a>
 
-<a href="?a=mod_templates_reports">
+<a href="?a=mod_templates_reports" tabindex="-1">
     <span class="menuButton" style="background-color: black" tabindex="0">
         <img class="menuIcon" src="../../libs/dynicons/?img=utilities-terminal.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
         <span class="menuText" style="color: white">Report Programmer</span><br />
@@ -44,7 +44,7 @@
 <hr />
 Programmer Options:<br />
 
-<a href="../?a=browse_search">
+<a href="../?a=browse_search" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: #414141" tabindex="0">
         <img class="menuIconSmall" src="../../libs/dynicons/?img=system-search.svg&amp;w=72" style="position: relative" alt="Search" title="Search" />
         <span class="menuTextSmall" style="color: white">Search</span><br />
@@ -52,7 +52,7 @@ Programmer Options:<br />
     </span>
 </a>
 
-<a href="#" onclick="newEmployee()">
+<a href="#" onclick="newEmployee()" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: #414141" tabindex="0">
         <img class="menuIconSmall" src="../../libs/dynicons/?img=list-add.svg&amp;w=72" style="position: relative" alt="Search" title="Search" />
         <span class="menuTextSmall" style="color: white">Import Employee</span><br />
@@ -60,7 +60,7 @@ Programmer Options:<br />
     </span>
 </a>
 
-<a href="?a=mod_system">
+<a href="?a=mod_system" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: black" tabindex="0">
         <img class="menuIconSmall" src="../../libs/dynicons/?img=preferences-desktop.svg&amp;w=72" style="position: relative" alt="Bookmarks" title="Bookmarks" />
         <span class="menuTextSmall" style="color: white">Change Site Name</span><br />
@@ -68,7 +68,7 @@ Programmer Options:<br />
     </span>
 </a>
 
-<a href="?a=admin_update_database">
+<a href="?a=admin_update_database" tabindex="-1">
     <span class="menuButton" style="background-color: #ffefa5" tabindex="0">
         <img class="menuIcon" src="../../libs/dynicons/?img=application-x-executable.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
         <span class="menuText">Update Database</span><br />

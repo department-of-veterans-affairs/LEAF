@@ -1,6 +1,6 @@
 <div class="menu2" style="width: 315px; float: left">
 
-<a href="?a=navigator">
+<a href="?a=navigator" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: #ffefa5" tabindex="0">
         <img class="menuIconSmall" src="../libs/dynicons/?img=applications-internet.svg&amp;w=76" style="position: relative" alt="Navigator" title="Navigator" />
         <span class="menuTextSmall">Browser</span><br />
@@ -9,7 +9,7 @@
 </a>
 
 <!--{if $groupLeader != ''}-->
-<a href="?a=navigator&amp;rootID=<!--{$groupLeader}-->">
+<a href="?a=navigator&amp;rootID=<!--{$groupLeader}-->" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: #b3ceff" tabindex="0">
         <img class="menuIconSmall" src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=76" style="position: relative" alt="Search" title="Search" />
         <span class="menuTextSmall">Service Org. Chart</span><br />
@@ -19,7 +19,7 @@
 <!--{/if}-->
 
 <!--{if $is_admin}-->
-<a href="./utils/exportPDL.php">
+<a href="./utils/exportPDL.php" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: black" tabindex="0">
         <img class="menuIconSmall" src="../libs/dynicons/?img=x-office-spreadsheet.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
         <span class="menuTextSmall" style="color: white">Export PDL</span><br />
@@ -28,7 +28,7 @@
 </a>
 <!--{/if}-->
 
-<a href="?a=summary">
+<a href="?a=summary" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: black" tabindex="0">
         <img class="menuIconSmall" src="../libs/dynicons/?img=x-office-presentation.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
         <span class="menuTextSmall" style="color: white">Vacancy Summary</span><br />
