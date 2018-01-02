@@ -495,10 +495,10 @@ class Position extends Data
     {
         $positionID = (int)$positionID;
         if($positionID == 0) {
-            return null;
+            return [];
         }
 
-        $res = null;
+        $res = [];
         if(isset($this->cache["findRootPositionByGroupTag_{$positionID}_{$tag}"])) {
         	$res = $this->cache["findRootPositionByGroupTag_{$positionID}_{$tag}"];
         }

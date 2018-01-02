@@ -7,8 +7,6 @@
 
 namespace Orgchart;
 
-ini_set('session.gc_maxlifetime', 2592000);
-
 // Sanitize all $_GET input
 if(count($_GET) > 0) {
     $keys = array_keys($_GET);
@@ -97,6 +95,7 @@ class Login
         $this->userDB = $userDB;
 
         if(session_id() == '') {
+            ini_set('session.gc_maxlifetime', 2592000);
             $sessionHandler = new Session($this->userDB);
             session_set_save_handler($sessionHandler, true);
             session_start();
