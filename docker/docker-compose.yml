@@ -1,12 +1,27 @@
 version: "2"
 
 services:
-
-  
+  php:
+      build:
+        context: ../
+        dockerfile: docker/php/Dockerfile
+      ports:
+        - 80:80
+        - 443:443
+      links:
+        - mysql
+      volumes:
+        - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
+        - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
+        - ../libs:/var/www/html/libs
+      networks:
+        code-network:
+          aliases:
+            - php
   mysql:
     build:
-      context: .
-      dockerfile: mysql/Dockerfile
+      context: ../
+      dockerfile: docker/mysql/Dockerfile
     expose:
       - '3306'
     ports:
@@ -27,22 +42,10 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ALLOW_EMPTY_PASSWORD=${MYSQL_ALLOW_EMPTY_PASSWORD}
 
-  php:
-    build:
-      context: .
-      dockerfile: php/Dockerfile
-    ports:
-      - 80:80
-      - 443:443
-    links:
-      - mysql
-    networks:
-      code-network:
-        aliases:
-          - php
-
 volumes:
   leaf-mysql-data:
+  leaf-php-data:
+
 
 networks:
   code-network:
