@@ -2,69 +2,64 @@
 The Light Electronic Action Framework (LEAF) empowers VA staff in process improvement. LEAF is a solution that enables non-technical users to rapidly digitize paper processes, such as travel and tuition reimbursement, FTE, and many other types of resource requests.
 
 ## Repository Overview
-* LEAF_Nexus
+* `LEAF_Nexus`
     * User account cache and user groups
     * Organizational Chart
-* LEAF_Request_Portal
+* `LEAF_Request_Portal`
     * Electronic forms and workflow system
-* libs
+* `libs`
     * Third party libraries
 
 ## Installation
 
-#### Download git
-https://git-scm.com/downloads	
+### Docker
 
-#### Clone github repo to directory with docker-compose.yml
-	git clone https://github.com/VHAINNOVATIONS/LEAF.git
+[Docker](https://docker.com) is used to provide a consistent enviroment between developers, and eventually production.
+
+### Configuration
+
+Several files need to be created/updated for LEAF to operate in your environment.
+
+In the sections below `$dbUser` and `$dbPass` are the same values used in the mysql Dockerfile and setup script.
+
+#### LEAF_Nexus
 	
-#### Checkout localtesting branch
-	cd LEAF
-	git checkout dev
+Rename `config-example.php` to `config.php` and change the following variables 
+```php
+$dbHost = 'mysql'
+$dbName = 'leaf_users'
+$dbUser = 'tester'
+$dbPass = 'tester'
+```
 
-#### Download and install Docker
-Windows Installation Instructions: https://docs.docker.com/docker-for-windows/install/
+#### LEAF_Request_Portal 
 
-Mac Installation Instructions: https://docs.docker.com/docker-for-mac/install/
-	
-Note: It will make you sign out and sign back in and could require restarting your computer
+Rename `db_config-example.php` to `db_config.php` and change the following variables:
 
-Recommended:  In Docker preferences, under the Advanced tab, increase the CPU's to 4 and memory to 8gb
+```php
+$dbHost = 'mysql'
+$dbName = 'leaf_users'
+$dbUser = 'tester'
+$dbPass = 'tester'
 
-### Using a text editor of your choice, edit the following files
-
-#### In the LEAF_Nexus directory
-	
-##### Rename config-example.php to config.php and change the following variables:
-	$dbHost = 'mysql'
-	$dbName = 'leaf_users'
-	$dbUser = 'tester'
-	$dbPass = 'tester'
-
-Add the line
-    $_SERVER['REMOTE_USER'] = "\\tester";
-Under the line that begins with init_set.    
-
-#### In the LEAF_Request_Portal directory
-##### Rename db_config-example.php to db_config.php and change the following variables:
-	$dbHost = 'mysql'
-	$dbName = 'leaf_users'
-	$dbUser = 'tester'
-	$dbPass = 'tester'
-	
-	$phonedbHost = 'mysql'
-	$phonedbName = 'leaf_users'
-	$phonedbUser = 'tester'
-	$phonedbPass = 'tester'	
+$phonedbHost = 'mysql'
+$phonedbName = 'leaf_users'
+$phonedbUser = 'tester'
+$phonedbPass = 'tester'	
+```
 
 ### Run
 
-#### In the same directory as docker-compose.yml run these commands
-	1.  docker-compose build
-	2.  docker-compose up
+In the same directory as `docker-compose.yml` run: 
 
-#### Navigate to localhost/LEAF_Nexus or localhost/LEAF_Request_Portal in your browser
-Once the scripts are finished, you should now be able to navigate to https://localhost/LEAF_Nexus
+```bash
+docker-compose up
+```
+
+Navigate to http://localhost/LEAF_Nexus or http://localhost/LEAF_Request_Portal in your browser.
+
+## NOTICE
 
 Within VA, LEAF is provided as a service (Software as a Service), and facilities are not responsible for procuring servers or installing software.
 
+LEAF is currently not configured/optimized for usage outside of the VA, proper setup and authentication are responsiblities of the user.
