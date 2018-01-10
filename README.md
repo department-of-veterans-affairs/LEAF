@@ -24,35 +24,38 @@ https://git-scm.com/downloads
 
 #### Download and install Docker
 Windows Installation Instructions: https://docs.docker.com/docker-for-windows/install/
+
 Mac Installation Instructions: https://docs.docker.com/docker-for-mac/install/
-	Note: It will make you sign out and sign back in and could require restarting your computer
+	
+Note: It will make you sign out and sign back in and could require restarting your computer
+
 Recommended:  In Docker preferences, under the Advanced tab, increase the CPU's to 4 and memory to 8gb
 
 ### Using a text editor of your choice, edit the following files
 
 #### In the LEAF_Nexus directory
 	
-	config-example.php
-#####		Rename to config.php
-		$dbHost = 'mysql'
-		$dbName = 'leaf_users'
-		$dbUser = 'tester'
-		$dbPass = 'tester'
+##### Rename config-example.php to config.php and change the following variables:
+	$dbHost = 'mysql'
+	$dbName = 'leaf_users'
+	$dbUser = 'tester'
+	$dbPass = 'tester'
 
-	Under the ini_set line, add: $_SERVER['REMOTE_USER'] = "\\tester";
+Add the line
+    $_SERVER['REMOTE_USER'] = "\\tester";
+Under the line that begins with init_set.    
 
 #### In the LEAF_Request_Portal directory
-	dbconfig-example.php
-#####		Rename to db_config.php
-		$dbHost = 'mysql'
-		$dbName = 'leaf_users'
-		$dbUser = 'tester'
-		$dbPass = 'tester'
-
-		$phonedbHost = 'mysql'
-		$phonedbName = 'leaf_users'
-		$phonedbUser = 'tester'
-		$phonedbPass = 'tester'	
+##### Rename db_config-example.php to db_config.php and change the following variables:
+	$dbHost = 'mysql'
+	$dbName = 'leaf_users'
+	$dbUser = 'tester'
+	$dbPass = 'tester'
+	
+	$phonedbHost = 'mysql'
+	$phonedbName = 'leaf_users'
+	$phonedbUser = 'tester'
+	$phonedbPass = 'tester'	
 
 ### Run
 
