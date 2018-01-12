@@ -6,7 +6,7 @@
     background-color: rgb(247, 247, 247);
     border: 1px solid black;
 
-    width: 450px;
+    width: 425px;
 
     margin: 10px 10px 0px 10px;
     padding: 13px;
@@ -48,10 +48,10 @@
 
 #searchBar {
     display: inline-flex;
-    padding-left: 10%;
-    padding-right: 14%;
+    padding-left: 20%;
+    padding-right: 4%;
     text-align: center;
-    width: 100%;
+    width: 76%;
 }
 #searchBar input {
     height: 35px;
