@@ -1,0 +1,36 @@
+{
+    "description": "Compliance scans for LEAF Nexus and Request Portal",
+    "reportHeader": "LEAF Accessibility Compliance Scan Results",
+    "rootURL": "http://localhost/",
+    "standard": "WCAG2AA",
+    "links": [
+        {
+            "id": "nexusHome",
+            "url": "LEAF_Nexus/"
+        },
+        {
+            "id": "nexusNavigator",
+            "url": "LEAF_Nexus/?a=navigator"
+        },
+        {
+            "id": "nexusVacancyReport",
+            "url": "LEAF_Nexus/?a=summary"
+        },
+        {
+            "id": "nexusViewEmployee",
+            "url": "LEAF_Nexus/?a=view_employee&empUID=1"
+        },
+        {
+            "id": "nexusViewGroup",
+            "url": "LEAF_Nexus/?a=view_group&groupID=1"
+        },
+        {
+            "id": "nexusViewPosition",
+            "url": "LEAF_Nexus/?a=view_position&positionUID=1"
+        },
+        {
+            "id": "portalHome",
+            "url": "LEAF_Request_Portal/"
+        }
+    ]
+}
