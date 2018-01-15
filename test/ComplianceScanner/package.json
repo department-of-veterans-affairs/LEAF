@@ -1,0 +1,21 @@
+{
+  "name": "accessibility-scanner",
+  "version": "0.1.0",
+  "author": "",
+  "description": "Accessibilty Scanner",
+  "license": "ISC",
+  "scripts": {
+    "test": ""
+  },
+  "dependencies": {
+    "async": "^2.6.0",
+    "commander": "^2.13.0",
+    "dot": "^1.1.2",
+    "pa11y": "^4.13.2"
+  },
+  "devDependencies": {},
+  "main": "./lib/complianceScan.js",
+  "bin": {
+    "complianceScan": "./bin/complianceScan.js"
+  }
+}
