@@ -18,7 +18,7 @@ final class GroupTest extends TestCase
     {
         $employees = LEAFClient::get('/LEAF_Nexus/api/?a=group/1/employees/detailed');
 
-        $this->assertEquals(2, count($employees));
+        $this->assertEquals(3, count($employees));
 
         $emp1 = $employees[0];
         $this->assertEquals(1, $emp1['empUID']);
