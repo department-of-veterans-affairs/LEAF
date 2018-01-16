@@ -22,6 +22,17 @@ Several files need to be created/updated for LEAF to operate in your environment
 
 In the sections below `$dbUser` and `$dbPass` are the same values used in the mysql Dockerfile and setup script.
 
+#### Apache
+
+Ensure that the apache server configuration contains:
+
+```apache
+RewriteEngine On
+RewriteRule (.*)/api/(.*)$ $1/api/index.php?a=$2 [QSA,L]
+```
+
+This will fix some issues where the API endpoint is unreachable.
+
 #### LEAF_Nexus
 	
 Rename `config-example.php` to `config.php` and change the following variables 
@@ -46,6 +57,9 @@ $phonedbHost = 'mysql'
 $phonedbName = 'leaf_users'
 $phonedbUser = 'tester'
 $phonedbPass = 'tester'	
+
+# this should point to the LEAF_Nexus directory
+$orgchartPath = '../LEAF_Nexus'
 ```
 
 ### Run
