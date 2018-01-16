@@ -29,6 +29,9 @@ $this->index['GET']->register('group/[digit]/employees', function($args) use ($g
 $this->index['GET']->register('group/[digit]/employees/all', function($args) use ($group) {
 	return $group->listGroupEmployeesAll($args[0]);
 });
+$this->index['GET']->register('group/[digit]/employees/detailed', function($args) use ($group) {
+    return $group->listGroupEmployeesDetailed($args[0]);
+});
 $this->index['GET']->register('group/search', function($args) use ($group) {
 	if(isset($_GET['noLimit']) && $_GET['noLimit'] == 1) {
 		$group->setNoLimit();
