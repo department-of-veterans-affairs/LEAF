@@ -82,6 +82,10 @@
                     <td>{{=it.reportParams.pa11yVersion}}</td>
                 </tr>
                 <tr>
+                    <td class="label">Scanner Version</td>
+                    <td>{{=it.reportParams.scannerVersion}}</td>
+                </tr>
+                <tr>
                     <td class="label">LEAF Version</td>
                     <td>{{=it.reportParams.leafVersion}}</td>
                 </tr>
@@ -174,6 +178,9 @@
                 <a href="http://squizlabs.github.io/HTML_CodeSniffer/Standards/WCAG2/">
                     Explation of WCAG2 findings
                 </a>
+            </li>
+            <li>
+                <a href="https://www.w3.org/TR/wai-aria/">WAI-ARIA specifications</a>
             </li>
         </ul>
     </div>

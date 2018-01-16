@@ -45,8 +45,17 @@ function generateReport(options) {
  * @returns {*} the pa11y object
  */
 function buildPa11y(options) {
+  // TODO: Change this to custom standards for HTML_CodeSniffer
+  var ignoreElements = [];
+  options.config.links.forEach(link => {
+    if (link.ignoreElements) {
+      ignoreElements.push(link.ignoreElements);
+    }
+  });
+
   return pa11y({
     standard: options.standard,
+    hideElements: ignoreElements.join(','),
     log: {
       error: console.error.bind(console),
       // hide any output that isn't an error
@@ -68,7 +77,8 @@ function buildTemplateData(results, options) {
     "reportParams": {
       "date": new Date(),
       "leafVersion": "unknown",
-      "pa11yVersion": pkg.dependencies.pa11y
+      "pa11yVersion": pkg.dependencies.pa11y,
+      "scannerVersion": pkg.version
     },
     "options": options,
     "overview": {
@@ -106,6 +116,7 @@ function buildTemplateData(results, options) {
 function buildTestSeries(pal, options) {
   var series = {};
   options.config.links.forEach((link, index) => {
+    pal.options.hideElements = link.ignoreElements ? link.ignoreElements.join(',') : '';
     series[link.id] = pal.run.bind(pal, options.config.rootURL + link.url);
   });
 
