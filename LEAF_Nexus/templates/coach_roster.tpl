@@ -55,12 +55,6 @@ function buildCoachProfile(coach) {
     $(document.createElement('li')).html('Resource Requests').appendTo(specialtyList);
     $(document.createElement('li')).html('Funding Requests').appendTo(specialtyList);
 
-    var bioDiv = 
-        $(document.createElement('div'))
-            .addClass('bio')
-            .html('Air Force Veteran, loves traveling across the US and spending time with his seventeen nieces and nephews')
-            .appendTo(coachDiv);
-    
     return coachDiv;
 }
 
