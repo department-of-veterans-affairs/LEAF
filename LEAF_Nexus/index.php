@@ -447,7 +447,7 @@ switch($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
 
-        $main->assign('javascripts', array('js/api/LEAFNexusAPI.js'));
+        $main->assign('javascripts', array('js/jsapi/LEAFNexusAPI.js'));
         $main->assign('stylesheets', array('css/coach_roster.css'));
 
         $main->assign('body', $t_form->fetch('coach_roster.tpl'));
