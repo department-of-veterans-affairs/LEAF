@@ -8,6 +8,15 @@ function LEAFRequestPortalAPI() {
 }
 
 /**
+ * Set the base URL for the LEAF Portal API (e.g. "/LEAF_Request_Portal/api/?a=")
+ * 
+ * @param baseURL   string  base URL
+ */
+LEAFRequestPortalAPI.prototype.setBaseURL = function(baseURL) {
+    this.baseURL = baseURL;
+}
+
+/**
  * API for working with Forms
  *
  * @param baseAPIURL 

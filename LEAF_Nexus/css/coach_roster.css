@@ -26,7 +26,9 @@
 }
 #coaches div.coach div.top div.info div.email {}
 #coaches div.coach div.top div.info div.geoLocation{}
-#coaches div.coach div.top div.info div.locationName{}
+#coaches div.coach div.top div.info div.locationName{
+    margin-top: 7px;
+}
 #coaches div.coach div.top div.info div.name {}
 #coaches div.coach div.top div.info div.phone {}
 #coaches div.coach div.top div.info div.pulseBioLink{
