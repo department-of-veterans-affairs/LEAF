@@ -3,7 +3,7 @@
 </div>
 
 <div id="searchBar">
-    <input id="searchRosterInput" type="text" placeholder="Search by name" />
+    <input id="searchRosterInput" type="text" placeholder="Search by Name, Process, or Location" />
     <img id="searchRosterBtn" 
         class="searchIcon" 
         src="../libs/dynicons/?img=search.svg&w=25" 
@@ -13,7 +13,6 @@
 <div id="coaches"></div>
 
 <script type="text/javascript">
-/* <![CDATA[ */
 
 function buildCoachProfile(coach) {
     // slightly faster than $("<div>")...
@@ -21,13 +20,10 @@ function buildCoachProfile(coach) {
 
     var topDiv = $(document.createElement('div')).addClass('top').appendTo(coachDiv);
 
-    var imgSrc = coach['data'][1]['data'].length > 0 
-        ? "image.php?categoryID=1&UID=" + coach['empUID'] + "&indicatorID=1"
-        : "../libs/dynicons/?img=system-users.svg&w=150";
     var imgDiv = 
         $(document.createElement('img'))
             .addClass('profileImage')
-            .attr('src', imgSrc)
+            .attr('src', coach.pictureSrc)
             .attr('alt', 'profile image')
             .appendTo(topDiv);
 
@@ -35,25 +31,24 @@ function buildCoachProfile(coach) {
     var nameDiv = 
         $(document.createElement('div'))
             .addClass('name')
-            .html(coach['firstName'] + ' ' + coach['lastName'])
+            .html(coach.name)
             .appendTo(infoDiv);
-    var emailDiv = $(document.createElement('div')).addClass('email').html(coach['data'][6]['data']).appendTo(infoDiv);
-    var phoneDiv = $(document.createElement('div')).addClass('phone').html(coach['data'][5]['data']).appendTo(infoDiv);
-    var pulseDiv = $(document.createElement('div')).addClass('pulseBioLink').appendTo(infoDiv);
-    var anchorDiv = $(document.createElement('a')).attr('href', '#').html('Pulse Bio Page').appendTo(pulseDiv);
 
-    var location = coach['data'][25] !== undefined ? coach['data'][25]['data'] : '';
+    var phoneDiv = $(document.createElement('div')).addClass('phone').html(coach.phone).appendTo(infoDiv);
+    if (coach.pulse !== undefined && coach.pulse.length > 0) {
+        var pulseDiv = $(document.createElement('div'))
+            .addClass('pulseBioLink').appendTo(infoDiv);
+        var anchorDiv = $(document.createElement('a'))
+            .attr('href', coach.pulse).html('Pulse Bio Page').appendTo(pulseDiv);
+    }
+
     var locationNameDiv = 
-        $(document.createElement('div')).addClass('locationName').html(location).appendTo(infoDiv);
+        $(document.createElement('div')).addClass('locationName').html(coach.facility).appendTo(infoDiv);
     var geoLocationDiv = 
-        $(document.createElement('div')).addClass('geoLocation').html(coach['data'][8]['data']).appendTo(infoDiv);
+        $(document.createElement('div')).addClass('geoLocation').html(coach.location).appendTo(infoDiv);
     
-
     var specialtiesDiv = $(document.createElement('div')).addClass('specialties').appendTo(coachDiv);
-    var specialtyList = $(document.createElement('ul')).appendTo(specialtiesDiv);
-    $(document.createElement('li')).html('Travel').appendTo(specialtyList);
-    $(document.createElement('li')).html('Resource Requests').appendTo(specialtyList);
-    $(document.createElement('li')).html('Funding Requests').appendTo(specialtyList);
+    $(document.createElement('ul')).html(coach.process).appendTo(specialtiesDiv);
 
     return coachDiv;
 }
@@ -69,14 +64,14 @@ function populateRoster(coaches) {
 }
 
 function searchForCoaches() {
-    nexusAPI.Groups.searchGroup(
-        1,
-        $('#searchRosterInput').val(),
-        -1,
-        0,
+    var coachQuery = new CoachQuery($('#searchRosterInput').val());
+
+    console.log(JSON.stringify(coachQuery.buildQuery()));
+    portalAPI.Forms.query(
+        coachQuery.buildQuery(),
         (results) => {
             clearCurrentRoster();
-            populateRoster(results['users']);
+            populateRoster(coachQuery.parseResults(results));
         },
         (err) => {
             console.log(err);
@@ -84,7 +79,7 @@ function searchForCoaches() {
     );
 }
 
-this.nexusAPI = new LEAFNexusAPI();
+this.portalAPI = new LEAFRequestPortalAPI();
 
 $(function() {
     $('#searchRosterBtn').click(function() {
@@ -102,5 +97,4 @@ $(function() {
     searchForCoaches();
 });
 
-/* ]]> */
 </script>
