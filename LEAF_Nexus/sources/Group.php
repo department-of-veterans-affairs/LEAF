@@ -441,23 +441,57 @@ class Group extends Data
      * Get all employees explicitly associated with a group with their extended
      * Employee info (data and positions). See Employee->getSummary().
      *
-     * @param int $groupID
+     * @param int       $groupID    the id of the group to retrieve
+     * @param string    $searchText searches the group by process, name, or facility
+     * @param int       $offset     sql query offset (used for paging, default=0)
+     * @param int       $limit      sql query limit (used for paging, default=10)
      * @return array
      */
-    public function listGroupEmployeesDetailed($groupID)
+    public function listGroupEmployeesDetailed($groupID, $searchText, $offset, $limit)
     {
         // Cannot use $this->listGroupEmployees() since that query does not
         // include Employee position data
-        $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query(
-          'SELECT *
-              FROM relation_group_employee
-              LEFT JOIN relation_position_employee USING (empUID)
-              LEFT JOIN employee USING (empUID)
-              WHERE groupID=:groupID
-							ORDER BY lastName ASC',
-          $vars
+        $vars = array(
+            ':groupID' => $groupID
         );
+
+        $rightJoinOn = "";
+        if ($searchText !== null && strlen($searchText) > 0) {
+            // Has to be done this way since the current version of prepared_query will not properly replace
+            // the LIKE statements that contain '%'
+            $rightJoinOn.= sprintf(' AND (firstName LIKE "%%%s%%"', $searchText);
+            $rightJoinOn.= sprintf(' OR lastName LIKE "%%%s%%")', $searchText);
+        }
+
+        $rightJoinOn.= ")";
+
+        $querySelect = 'SELECT *';
+        $query = '
+            FROM relation_group_employee rge
+            LEFT JOIN relation_position_employee USING (empUID)
+            RIGHT JOIN employee e 
+                ON (e.empUID=rge.empUID'; 
+        $query.= $rightJoinOn;
+        $query.= ' WHERE groupID=:groupID';
+
+        $query.= ' ORDER BY lastName ASC';
+
+        $countQuery = 'SELECT COUNT(*) AS totalUsers'.$query;
+
+        if ($limit !== -1) { 
+            // This has to be done instead of setting the variable in the $vars array because of a 
+            // "feature" (bug) in the mysql php pdo that quotes numeric arguments
+            $query.= sprintf(' LIMIT %d', (int)$limit); 
+        }
+
+        // OFFSET can only be used with LIMIT
+        // TODO: replace this with proper keyset pagination since LIMIT/OFFSET can be slow with large datasets
+        if ($offset > 0 && $limit !== -1) {
+            $query.= sprintf(' OFFSET %d', (int)$offset);
+        }
+        
+        $res = $this->db->prepared_query($querySelect.$query, $vars);
+        $countRes = $this->db->prepared_query($countQuery, $vars);
 
         // Employee->getAllData() relies on lots of variables defined in that
         // class, so let it do the hard work
@@ -468,7 +502,16 @@ class Group extends Data
           $res[$key]['positions'] = $employee->getPositions($value['empUID']);
         }
 
-        return $res;
+        $result = array(
+            'users' => $res,
+            'querymeta' => [
+                'totalusers' => $countRes[0]['totalUsers'],
+                'limit' => $limit,
+                'offset' => $offset
+            ]
+        );
+
+        return $result;
     }
 
     private function sortEmployees($a, $b)
