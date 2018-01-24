@@ -1,5 +1,5 @@
 <div id="rosterHeader">
-    <h1>Meet Our Change Agents</h1>
+    <h1>Find a LEAF Coach</h1>
 </div>
 
 <div id="searchBar">
