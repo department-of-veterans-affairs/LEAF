@@ -25,9 +25,15 @@ function CoachQuery(searchTerm) {
         "picture": "50"
     };
 
-    Object.values(this.indicatorMap).forEach(function (val) {
-        this.formQuery.addGetData(val);
-    }, this);
+    this.formQuery.addGetData("42");
+    this.formQuery.addGetData("43");
+    this.formQuery.addGetData("44");
+    this.formQuery.addGetData("45");
+    this.formQuery.addGetData("46");
+    this.formQuery.addGetData("47");
+    this.formQuery.addGetData("48");
+    this.formQuery.addGetData("49");
+    this.formQuery.addGetData("50");
 }
 
 /**

@@ -63,10 +63,7 @@
     font-size: large;
 }
 #searchBar .searchIcon {
-    margin-right: 9px;
-    margin-left: 9px;
-
-    cursor: pointer;
+    padding: 9px;
 }
 
 .pagerControl {
