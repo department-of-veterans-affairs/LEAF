@@ -4,10 +4,12 @@
 
 <div id="searchBar">
     <input id="searchRosterInput" type="text" placeholder="Search by Name, Process, or Location" />
-    <img id="searchRosterBtn" 
-        class="searchIcon" 
-        src="../libs/dynicons/?img=search.svg&w=25" 
-        alt="search icon" />
+    <a id="searchBtnAnchor" href="#">
+        <img id="searchRosterBtn" 
+            class="searchIcon" 
+            src="../libs/dynicons/?img=search.svg&w=25" 
+            alt="search icon" />
+    </a>
 </div>
 
 <div id="coaches"></div>
@@ -66,14 +68,13 @@ function populateRoster(coaches) {
 function searchForCoaches() {
     var coachQuery = new CoachQuery($('#searchRosterInput').val());
 
-    console.log(JSON.stringify(coachQuery.buildQuery()));
     portalAPI.Forms.query(
         coachQuery.buildQuery(),
-        (results) => {
+        function (results) {
             clearCurrentRoster();
             populateRoster(coachQuery.parseResults(results));
         },
-        (err) => {
+        function (err) {
             console.log(err);
         }
     );
@@ -82,7 +83,8 @@ function searchForCoaches() {
 this.portalAPI = new LEAFRequestPortalAPI();
 
 $(function() {
-    $('#searchRosterBtn').click(function() {
+    $('#searchBtnAnchor').click(function(e) {
+        e.preventDefault();
         searchForCoaches();
     });
 
