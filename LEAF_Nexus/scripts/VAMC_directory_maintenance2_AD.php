@@ -442,9 +442,12 @@ class VAMC_Directory_maintenance_AD {
             $pFirst = metaphone($emp['Fname']);
             $pLast = metaphone($emp['Lname']);
             $sql = "UPDATE {$this->tableName} SET PhoneticFname = '$pFirst' WHERE EmpID = {$emp['EmpID']}";
-            $this->db->query($sql);
+            $query = $this->db->prepare($sql);
+            $query->execute();
+
             $sql = "UPDATE {$this->tableName} SET PhoneticLname = '$pLast' WHERE EmpID = {$emp['EmpID']}";
-            $this->db->query($sql);
+            $query2 = $this->db->prepare($sql);
+            $query2->execute();
         }
     }
 

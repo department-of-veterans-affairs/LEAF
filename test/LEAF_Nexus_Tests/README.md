@@ -1,5 +1,7 @@
 # LEAF Nexus Testing
 
+**NOTE**: Currently these tests rely on data from the developers local database. This will be different from developer to developer. Expect these tests to randomly fail until a proper set of test data is available.
+
 ## Setup
 
 Install [composer](https://getcomposer.org/).
@@ -54,4 +56,4 @@ $jsonResponse = LEAFClient::get('/LEAF...', LEAFResponseType::JSON);
 ## TODO
 
 * Enable `POST` requests against the API, needs `CSRF` token
-* Setup separate testing database? Currently uses local dev database.
+* Create test data
