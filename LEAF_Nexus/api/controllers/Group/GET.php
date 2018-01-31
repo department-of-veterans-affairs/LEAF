@@ -30,11 +30,6 @@ $this->index['GET']->register('group/[digit]/employees/all', function($args) use
 	return $group->listGroupEmployeesAll($args[0]);
 });
 $this->index['GET']->register('group/[digit]/employees/detailed', function($args) use ($group) {
-    $searchText = "";
-    if (isset($_GET['search'])) {
-        $searchText = $_GET['search'];
-    }
-
     $limit = -1;
     if (isset($_GET['limit'])) {
         $limit = (int)$_GET['limit'];
