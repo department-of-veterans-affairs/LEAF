@@ -1,52 +1,95 @@
 /*
  * API for LEAF Nexux
  */
+var LEAFNexusAPI = function () {
+    var baseURL = '/LEAF_Nexus/api/?a=',
+        Groups = NexusGroupsAPI(this.baseURL),
 
- function LEAFNexusAPI() {
-     this.baseURL = '/LEAF_Nexus/api/?a=';
+        /**
+         * Get the base URL for the LEAF Nexus API (e.g. "/LEAF_Nexus/api/?a=")
+         */
+        getBaseURL = function () {
+            return baseURL;
+        },
 
-     this.Groups = new NexusGroupsAPI(this.baseURL);
- }
+        /**
+         * Set the base URL for the LEAF Nexus API (e.g. "/LEAF_Nexus/api/?a=")
+         */
+        setBaseURL = function (baseAPIURL) {
+            baseURL = baseAPIURL;
+        };
 
- function NexusGroupsAPI(baseAPIURL) {
-     this.apiBaseURL = baseAPIURL;
-     this.apiURL = this.apiBaseURL + 'group';
- }
+    return {
+        getBaseURL: getBaseURL,
+        setBaseURL: setBaseURL,
+        Groups: Groups
+    };
+};
 
- /**
-  * Search a Group for all its Users and return detailed information about them.
-  * 
-  * @param groupID      int                 The groupID to search
-  * @param searchText   string              Searches the users by first/last name, if empty/null returns all users in that group 
-  * @param limit        int                 the number of users to return
-  * @param offset       int                 the number of users to offset in the query
-  * @param onSuccess    function(coaches)   the callback containing all fetched users 
-  * @param onFail       function(error)     callback when query fails
-  */
-NexusGroupsAPI.prototype.searchGroup = function(groupID, searchText, limit, offset, onSuccess, onFail) {
-    var fetchURL = this.apiURL + "/" + groupID + "/employees/detailed";
-    if (limit !== -1) {
-        fetchURL += "&limit=" + limit;
-    }
-    
-    if (offset > 0) {
-        fetchURL += "&offset=" + offset;
-    }
+/**
+ * API for working the Nexus Groups
+ * 
+ * @param baseAPIURL    string  the base URL for the LEAF Nexus API (e.g. "/LEAF_Nexus/api/?a=") 
+ */
+var NexusGroupsAPI = function (baseAPIURl) {
+    var apiBaseURL = baseAPIURL,
+        apiURL = apiBaseURL + 'group',
 
-    if (searchText.length > 0) {
-        fetchURL += "&search=" + searchText;
-    }
+        /**
+         * Get the URL for the LEAF Nexus Groups API
+         */
+        getAPIURL = function () {
+            return apiURL;
+        },
 
-    $.ajax({
-        method: 'GET',
-        url: fetchURL,
-        dataType: 'json'
-    })
-    .done(function(msg) {
-        onSuccess(msg);
-    })
-    .fail(function(err) {
-        onFail(err);
-    });
-    // .always(function() {});
+        /**
+         * Get the base URL for the LEAF Nexus API
+         */
+        getBaseAPIURL = function () {
+            return apiBaseURL;
+        },
+
+        /**
+         * Get all employees associated with a group with their extended
+         * Employee info (data and positions). 
+         * 
+         * @param groupID      int                 The groupID to search
+         * @param limit        int                 the number of users to return
+         * @param offset       int                 the number of users to offset in the query
+         * @param onSuccess    function(employees)   the callback containing all fetched users 
+         * @param onFail       function(error)     callback when query fails
+         */
+        listGroupEmployeesDetailed = function (groupID, limit, offset, onSuccess, onFail) {
+            var fetchURL = this.apiURL + "/" + groupID + "/employees/detailed";
+            if (limit !== -1) {
+                fetchURL += "&limit=" + limit;
+            }
+
+            if (offset > 0) {
+                fetchURL += "&offset=" + offset;
+            }
+
+            if (searchText.length > 0) {
+                fetchURL += "&search=" + searchText;
+            }
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: 'json'
+            })
+                .done(function (msg) {
+                    onSuccess(msg);
+                })
+                .fail(function (err) {
+                    onFail(err);
+                });
+            // .always(function() {});
+        };
+
+    return {
+        getAPIURL: getBaseAPIURL,
+        getBaseAPIURL: getBaseAPIURL,
+        listGroupEmployeesDetailed: listGroupEmployeesDetailed
+    };
 };
