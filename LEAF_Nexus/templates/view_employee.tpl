@@ -39,7 +39,7 @@
     </div>
     <div id="group" style="width: 400px; margin: 8px">
         <div id="groupHeader">
-            <span id="positionTitle">Group Assignments</span>
+            <span id="GroupTitle">Group Assignments</span>
         </div>
         <div id="groupBody" style="width: 100%">
             <ul>
@@ -51,7 +51,7 @@
     </div>
     <div id="backup" style="float: left; width: 400px; margin: 8px; border: 1px solid black">
         <div id="backupHeader" style="padding: 4px">
-            <span id="positionTitle">Backup for <!--{$summary.employee.firstName}--> <!--{$summary.employee.lastName}--></span>
+            <span id="BackupTitle">Backup for <!--{$summary.employee.firstName}--> <!--{$summary.employee.lastName}--></span>
         </div>
         <div id="backupBody" style="width: 100%; padding: 4px 4px 4px 16px"></div>
     </div>
@@ -117,7 +117,7 @@ function assignBackup() {
     empSel = new nationalEmployeeSelector('employeeSelector');
     empSel.initialize();
     empSel.clearSearch();
-    
+
     dialog.setSaveHandler(function() {
         if(empSel.selection != '') {
             dialog.indicateBusy();
