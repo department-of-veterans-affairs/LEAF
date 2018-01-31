@@ -99,7 +99,7 @@
  */
 function CoachQuery(searchTerm) {
     this.categoryID = "form_b8543";
-    this.formQuery = new FormQuery();
+    this.formQuery = FormQuery();
     this.formQuery.addTerm("categoryID", "=", this.categoryID);
     this.formQuery.addTerm("deleted", "=", 0);
     this.formQuery.addDataTerm("data", "0", "LIKE", searchTerm);
@@ -248,7 +248,7 @@ function searchForCoaches() {
     );
 }
 
-this.portalAPI = new LEAFRequestPortalAPI();
+this.portalAPI = LEAFRequestPortalAPI();
 
 $(function() {
     $('#searchRosterBtn').click(function() {
