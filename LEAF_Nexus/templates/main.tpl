@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-US" xml:lang="en-US">
+<html lang="en" xml:lang="en">
 <head>
     {if $tabText != ''}
     <title>{$tabText} - {$title} | {$city}</title>
