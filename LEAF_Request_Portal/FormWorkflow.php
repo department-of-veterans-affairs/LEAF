@@ -152,17 +152,23 @@ class FormWorkflow
                 if($res[$i]['dependencyID'] == -3) {
                 	 
                 	$resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                	$groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
                 	 
                 	// make sure the right person has access
                 	if(!$res[$i]['hasAccess']) {
-                		$groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
-                
                 		if($this->login->checkGroup($groupID)) {
                 			$res[$i]['hasAccess'] = true;
                 		}
                 	}
                 
                 	$res[$i]['description'] = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
+
+                	// find actual group name
+                	$vars = array(':groupID' => $groupID);
+                	$tGroup = $this->db->prepared_query('SELECT * from groups WHERE groupID=:groupID', $vars);
+                	if(count($tGroup) >= 0) {
+                	    $res[$i]['description'] = $tGroup[0]['name'];
+                	}
                 }
 
                 foreach($res2 as $group) {
