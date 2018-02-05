@@ -116,15 +116,15 @@ function CoachQuery(searchTerm) {
         "picture": "50"
     };
 
-    this.formQuery.addGetData("42");
-    this.formQuery.addGetData("43");
-    this.formQuery.addGetData("44");
-    this.formQuery.addGetData("45");
-    this.formQuery.addGetData("46");
-    this.formQuery.addGetData("47");
-    this.formQuery.addGetData("48");
-    this.formQuery.addGetData("49");
-    this.formQuery.addGetData("50");
+    this.formQuery.includeIndicator("42");
+    this.formQuery.includeIndicator("43");
+    this.formQuery.includeIndicator("44");
+    this.formQuery.includeIndicator("45");
+    this.formQuery.includeIndicator("46");
+    this.formQuery.includeIndicator("47");
+    this.formQuery.includeIndicator("48");
+    this.formQuery.includeIndicator("49");
+    this.formQuery.includeIndicator("50");
 }
 
 /**
@@ -155,7 +155,7 @@ CoachQuery.prototype.parseResults = function (results) {
             var pictureData = data["id" + this.indicatorMap.picture];
 
             var imgSrc = (pictureData !== undefined && pictureData.length > 0)
-                ? "/LEAF_Request_Portal/image.php?"
+                ? "./image.php?"
                     + "id=" + this.indicatorMap.picture 
                     + "&series=" + result.series 
                     + "&form=" + result.recordID

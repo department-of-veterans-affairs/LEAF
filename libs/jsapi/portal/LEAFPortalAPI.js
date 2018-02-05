@@ -2,7 +2,7 @@
  * API for LEAF Request Portal
  */
 var LEAFRequestPortalAPI = function () {
-    var baseURL = '/LEAF_Request_Portal/api/?a=',
+    var baseURL = './api/?a=',
         Forms = PortalFormsAPI(baseURL),
 
         /**
