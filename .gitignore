@@ -6,4 +6,5 @@ config.php
 libs/dynicons/cache/*.svg
 .buildpath
 libs/qrcode/cache/*.png
-globals.php
+globals.phpLEAF_Nexus/UPLOADS
+LEAF_Request_Portal/UPLOADS

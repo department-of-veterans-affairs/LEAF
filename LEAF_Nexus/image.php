@@ -3,15 +3,10 @@ include 'db_mysql.php';
 include 'config.php';
 include './sources/Login.php';
 
-$config = new Orgchart\Config();
-
 // Enforce HTTPS
-if(isset($config->enforceHTTPS) && $config->enforceHTTPS == true) {
-	if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') {
-		header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-		exit();
-	}
-}
+include_once './enforceHTTPS.php';
+
+$config = new Orgchart\Config();
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
