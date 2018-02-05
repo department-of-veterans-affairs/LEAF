@@ -150,7 +150,7 @@ var FormQuery = function () {
          * @param indicatorID   string  the indicatorID to get data for
          * @memberOf LeafFormQuery
          */
-        addGetData = function (indicatorID) {
+        includeIndicator = function (indicatorID) {
             if (getData.indexOf(indicatorID) == -1) {
                 getData.push(indicatorID);
             }
@@ -168,15 +168,15 @@ var FormQuery = function () {
         };
 
     return {
-        buildQuery: buildQuery,
-        reset: reset,
-        addTerm: addTerm,
         addDataTerm: addDataTerm,
+        addJoin: addJoin,
+        addTerm: addTerm,
+        buildQuery: buildQuery,
         importQuery: importQuery,
+        includeIndicator: includeIndicator,
+        reset: reset,
         setLimit: setLimit,
         setLimitOffset: setLimitOffset,
-        addJoin: addJoin,
-        addGetData: addGetData,
         sort: sort
     };
 };

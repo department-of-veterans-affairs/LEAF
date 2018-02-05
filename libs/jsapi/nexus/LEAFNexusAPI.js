@@ -2,7 +2,7 @@
  * API for LEAF Nexux
  */
 var LEAFNexusAPI = function () {
-    var baseURL = '/LEAF_Nexus/api/?a=',
+    var baseURL = './api/?a=',
         Groups = NexusGroupsAPI(this.baseURL),
 
         /**
