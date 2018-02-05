@@ -1,6 +1,7 @@
-/************************
-    Form Query Helper
-*/
+/**
+ * Form Query Helper
+ * @deprecated
+ */
 
 var LeafFormQuery = function() {
 	var query = {};

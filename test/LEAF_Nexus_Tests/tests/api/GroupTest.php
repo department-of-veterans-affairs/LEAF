@@ -16,24 +16,24 @@ final class GroupTest extends TestCase
      */
     public function testListGroupEmployees(): void
     {
-        $employees = LEAFClient::get('/LEAF_Nexus/api/?a=group/1/employees/detailed');
+        $results = LEAFClient::get('/LEAF_Nexus/api/?a=group/1/employees/detailed');
 
-        $this->assertEquals(3, count($employees));
+        $users = $results['users'];
+        $meta = $results['querymeta'];
 
-        $emp1 = $employees[0];
+        $this->assertNotNull($users);
+        $this->assertNotNull($meta);
+
+        // TODO: this depends on what's in the developer dev database, eventually this will need
+        // to reflect users created specifically for this
+        $this->assertEquals(1, count($users));
+
+        $emp1 = $users[0];
         $this->assertEquals(1, $emp1['empUID']);
         $this->assertEquals(1, $emp1['groupID']);
-        $this->assertEquals("tester", $emp1['userName']);
+        $this->assertEquals("nathan", $emp1['userName']);
         $this->assertNotNull($emp1['data']);
         $this->assertEquals(8, count($emp1['data']));
         $this->assertNotNull($emp1['positions']);
-
-        $emp2 = $employees[1];
-        $this->assertEquals(2, $emp2['empUID']);
-        $this->assertEquals(1, $emp2['groupID']);
-        $this->assertEquals("tester2", $emp2['userName']);
-        $this->assertNotNull($emp2['data']);
-        $this->assertEquals(8, count($emp2['data']));
-        $this->assertNotNull($emp2['positions']);
     }
 }
