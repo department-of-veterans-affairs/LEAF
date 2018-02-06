@@ -94,10 +94,8 @@ Typical workflow:
 1. Push feature branch to remote origin.
 1. Create pull request for feature branch into `dev`.
 1. Teammates will comment and/or approve the changes.
-1. Make any necessary changes.
-1. After review/approval, merge `dev` branch into the feature branch to ensure it works with any other committed feature branches. 
-1. Rebase feature branch (again) into as few logical commits as possible (1-3 total commits is ideal). 
-1. Push merged feature branch to remote.
+1. Make any necessary changes. 
+1. Push changed feature branch to remote.
 1. The pull request from the feature branch will be automatically updated.
 1. After the pull request has been merged, the feature branch will be deleted.
 
