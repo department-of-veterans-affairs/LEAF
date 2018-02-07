@@ -212,7 +212,7 @@ class FormEditor
     function createForm($name, $description, $parentID = '', $formLibraryID = null, $categoryID = null, $workflowID = 0) {
     	$name = trim($name);
     	if($categoryID == null) {
-    	    $categoryID = 'form_' . substr(sha1($name . mt_rand()), 0, 5);
+    	    $categoryID = 'form_' . substr(sha1($name . random_int(1, 9999999)), 0, 5);
     	}
     	if($workflowID == null) {
     	    $workflowID = 0;
