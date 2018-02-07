@@ -30,7 +30,7 @@ $(function() {
     <!--{foreach from=$categories item=category}-->
     $('#num<!--{$category.categoryID}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
     <!--{/foreach}-->
-    
+
     $('#record').on('submit', function() {
         if(checkForm() == true) {
             return true;
@@ -39,7 +39,7 @@ $(function() {
             return false;
         }
     });
-    
+
     // comment out to allow more than one form to be submitted simultaneously
     $('.ischecked').on('change', function() {
         $('.ischecked').icheck('unchecked');
@@ -62,11 +62,11 @@ $(function() {
     <div class="card">
         <div style="background-color: black; color: white; padding: 4px; font-size: 22px; font-weight: bold">Step 1 - General Information</div>
         <br style="clear: both"/>
-        
+
         <table id="step1_questions" style="width: 100%; margin: 8px">
             <tr>
                 <td>Contact Info</td>
-                <td><input id="recorder" type="text" title="" value="<!--{$recorder}-->" disabled="disabled"/> <input id="phone" type="text" title="" value="<!--{$phone}-->" disabled="disabled" /></td>
+                <td><input id="recorder" aria-label="text" type="text" title="" value="<!--{$recorder}-->" disabled="disabled"/> <input id="phone" type="text" aria-label="text" title="" value="<!--{$phone}-->" disabled="disabled" /></td>
             </tr>
             <!--{if count($services) != 0}-->
             <tr>
@@ -86,7 +86,7 @@ $(function() {
             <tr>
                 <td>Priority</td>
                 <td>
-                    <select id="priority" name="priority">
+                    <select id="priority" name="priority" aria-label="priority">
                     <option value="-10">EMERGENCY</option>
                     <option value="0" selected="selected">Normal</option>
                     </select>
@@ -121,7 +121,7 @@ $(function() {
         <br />
     <!--{/foreach}-->
     <!--{if count($categories) == 0}-->
-        <span style="color: red">Your forms must have an associated workflow before they can be selected here.<br /><br />Open the Form Editor, select your form, and click on "Edit Properties" to set a workflow.</span> 
+        <span style="color: red">Your forms must have an associated workflow before they can be selected here.<br /><br />Open the Form Editor, select your form, and click on "Edit Properties" to set a workflow.</span>
     <!--{/if}-->
           </span>
         </div>
