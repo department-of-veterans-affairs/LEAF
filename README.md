@@ -14,7 +14,7 @@ The Light Electronic Action Framework (LEAF) empowers VA staff in process improv
 
 ### Docker
 
-[Docker](https://docker.com) is used to provide a consistent enviroment between developers, and eventually production.
+[Docker](https://docker.com) is used to provide a consistent environment between developers, and eventually production.
 
 ### Configuration
 
