@@ -38,7 +38,7 @@
 <br style="clear: both" />
 <br />
 
-<div id="btn_programmerMode" class="buttonNorm">Other Tools</div>
+<div id="btn_programmerMode" class="buttonNorm" tabindex="0">Other Tools</div>
 
 <div id="programmerMode" style="display: none">
 <hr />
@@ -130,6 +130,13 @@ $(function() {
     $('#btn_programmerMode').on('click', function() {
         $('#btn_programmerMode').css('display', 'none');
         $('#programmerMode').css('display', 'block');
+    });
+
+    $('#btn_programmerMode').keypress(function(e) {
+        if (e.keyCode === 13) {
+            $('#btn_programmerMode').css('display', 'none');
+            $('#programmerMode').css('display', 'block');
+        }
     });
 
     $.ajax({
