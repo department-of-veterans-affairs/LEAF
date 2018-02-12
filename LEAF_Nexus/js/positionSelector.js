@@ -32,7 +32,7 @@ positionSelector.prototype.initialize = function() {
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="positionSelectorBorder">\
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="positionSelectorIcon" alt="search" />\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="positionSelectorIcon" alt="search" /></div>\
-			<input id="'+this.prefixID+'input" type="search" class="positionSelectorInput"></input></div>\
+			<input id="'+this.prefixID+'input" type="search" class="positionSelectorInput" aria-label="Search"></input></div>\
 			<div id="'+this.prefixID+'result"></div>');
 
 	$('#' + this.prefixID+ 'input').on('keydown', function(e) {
@@ -123,10 +123,10 @@ positionSelector.prototype.search = function() {
 		return false;
 	}
 	this.timer += (this.timer > 5000) ? 0 : 200;
-	
+
 	if(this.timer > 300) {
 	    var txt = $('#' + this.prefixID + 'input').val();
-		
+
 	    if(txt != "" && txt != this.q) {
 	    	this.q = txt;
 
@@ -166,7 +166,7 @@ positionSelector.prototype.search = function() {
 	                				divide = ' - ';
 	                			}
 		                		if(item.services[i].groupAbbreviation != null) {
-		                			service += divide + item.services[i].groupAbbreviation; 
+		                			service += divide + item.services[i].groupAbbreviation;
 		                		}
 		                		else {
 		                			service += divide + item.services[i].groupTitle;
