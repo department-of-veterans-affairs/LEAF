@@ -34,7 +34,7 @@ employeeSelector.prototype.initialize = function() {
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="employeeSelectorBorder">\
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="search" /></div>\
-			<input id="'+this.prefixID+'input" type="search" class="employeeSelectorInput"></input></div>\
+			<input id="'+this.prefixID+'input" type="search" class="employeeSelectorInput" aria-label="search"></input></div>\
 			<div id="'+this.prefixID+'result"></div>');
 
 	$('#' + this.prefixID+ 'input').on('keydown', function(e) {
@@ -132,10 +132,10 @@ employeeSelector.prototype.search = function() {
 		return false;
 	}
 	this.timer += (this.timer > 5000) ? 0 : 200;
-	
+
 	if(this.timer > 300) {
 	    var txt = $('#' + this.prefixID + 'input').val();
-		
+
 	    if(txt != "" && txt != this.q) {
 	    	this.q = txt;
 
@@ -164,7 +164,7 @@ employeeSelector.prototype.search = function() {
 		            	$('#' + t.prefixID + 'result').html(buffer);
 
 		            	if(response.length == 0) {
-		            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');	            		
+		            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
 		            	}
 
 		            	t.selectionData = new Object();
@@ -174,7 +174,7 @@ employeeSelector.prototype.search = function() {
 		                	var photo = response[i].data[1] != undefined && response[i].data[1].data != '' ? '<img class="employeeSelectorPhoto" src="' + t.rootPath + 'image.php?categoryID=1&amp;UID='+response[i].empUID+'&amp;indicatorID=1" alt="photo" />' : '';
 		                	var positionTitle = response[i].positionData != undefined ? response[i].positionData.positionTitle : '';
 		                	var groupTitle = '';
-		                	
+
 		                	if(response[i].serviceData != undefined && response[i].serviceData[0].groupTitle != null) {
 		                		var counter = 0;
 		                		var divide = '';
@@ -186,7 +186,7 @@ employeeSelector.prototype.search = function() {
 		                			counter++;
 		                		}
 		                	}
-		                	
+
 		                	room = '';
 		                	if(response[i].data[8] != undefined) {
 		                		if(response[i].data[8].data != '') {
@@ -220,7 +220,7 @@ employeeSelector.prototype.search = function() {
 			                			<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
 		                    			<td class="employeeSelectorService">'+ groupTitle + '<span>' +  room + '</span></td>\
 		                    			<td class="employeeSelectorContact">'+ email + phone +'</td>\
-			                			</tr>');	                		
+			                			</tr>');
 		                	}
 
 		                	$('#' + t.prefixID + 'emp' + response[i].empUID).addClass('employeeSelector');
@@ -242,7 +242,7 @@ employeeSelector.prototype.search = function() {
 		                	else {
 			                	$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'tip">\
 			                			<td class="employeeSelectorName" colspan="3" style="background-color: white; text-align: center; font-weight: normal">&#x1f4a1; Refine your search for more results</td>\
-			                			</tr>');	                		
+			                			</tr>');
 		                	}
 		            	}
 
