@@ -74,7 +74,7 @@ img {
 }
 
 #footer a:link, #footer a:visited {
-    color: #b7b7b7;
+    color: #6f6f6f;
     text-decoration: none;
 }
 
@@ -907,7 +907,7 @@ button.buttonNorm {
 
 .nodisplay {
     display: none;
-    visibility: hidden; 
+    visibility: hidden;
 }
 
 .trumbowyg-editor {
@@ -939,7 +939,7 @@ button.buttonNorm {
         font-weight: normal;
         text-align: right;
     }
-    
+
     #headerMenu > a {
         text-decoration: none;
         margin-left: 2px;
