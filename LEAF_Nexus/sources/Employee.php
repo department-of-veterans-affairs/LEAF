@@ -88,7 +88,7 @@ class Employee extends Data
         }
 
         if($userName == '') {
-        	$userName = 'NOACCOUNT-' . mt_rand();
+        	$userName = 'NOACCOUNT-' . random_int(7, 9999999);
         }
         
         $vars = array(':firstName' => $this->sanitizeInput($firstName),

@@ -34,7 +34,7 @@ groupSelector.prototype.initialize = function() {
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="groupSelectorBorder">\
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ this.basePath +'../libs/dynicons/?img=search.svg&w=16" class="groupSelectorIcon" alt="search" />\
 			<img id="'+this.prefixID+'iconBusy" src="'+ this.basePath +'images/indicator.gif" style="display: none" class="groupSelectorIcon" alt="search" /></div>\
-			<input id="'+this.prefixID+'input" type="search" class="groupSelectorInput"></input></div>\
+			<input id="'+this.prefixID+'input" type="search" class="groupSelectorInput" aria-label="search"></input></div>\
 			<div id="'+this.prefixID+'result"></div>');
 
 	$(this.inputID).on('keydown', function(e) {
@@ -87,7 +87,7 @@ groupSelector.prototype.select = function(id) {
 };
 
 groupSelector.prototype.searchTag = function(tag) {
-	this.tag = tag; 
+	this.tag = tag;
 };
 
 groupSelector.prototype.setSelectHandler = function(func) {
@@ -136,7 +136,7 @@ groupSelector.prototype.search = function() {
 		return false;
 	}
 	this.timer += (this.timer > 5000) ? 0 : 200;
-	
+
 	if(this.timer > 300) {
     	var skip = 0;
 	    var txt = $('#' + this.prefixID + 'input').val();
@@ -173,7 +173,7 @@ groupSelector.prototype.search = function() {
 	            	$('#' + t.prefixID + 'result').html(buffer + $('#' + t.prefixID + 'result').html());
 
 	            	if(response.length == 0) {
-	            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center">No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');	            		
+	            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center">No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
 	            	}
 
 	                $.each(response, function(key, item) {
