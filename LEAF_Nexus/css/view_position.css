@@ -15,6 +15,14 @@ span#positionTitle {
     font-weight: bold;
 }
 
+span#groupTitle {
+    font-size: 140%;
+    font-weight: bold;
+}
+span#backupTitle {
+    font-size: 140%;
+    font-weight: bold;
+}
 span#serviceName {
     font-style: italic;
 }
