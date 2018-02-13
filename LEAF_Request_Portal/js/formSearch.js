@@ -429,13 +429,13 @@ var LeafFormSearch = function(containerID) {
 	function renderWidget(widgetID, callback) {
 		switch($('#' + prefixID + 'widgetTerm_' + widgetID).val()) {
 			case 'title':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 120px">\
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen"  aria-label="title" style="width: 120px">\
 						<option value="LIKE">CONTAINS</option>\
 						<option value="NOT LIKE">DOES NOT CONTAIN</option>\
 	            		<option value="=">=</option>\
 						<option value="!=">!=</option>\
 	            	</select>');
-				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 250px" />');
+				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 250px" />');
 				break;
 			case 'serviceID':
 				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
@@ -444,7 +444,7 @@ var LeafFormSearch = function(containerID) {
 					url: './api/?a=system/services',
 					dataType: 'json',
 					success: function(res) {
-						var services = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
+						var services = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="services" style="width: 250px">';
 						for(var i in res) {
 							services += '<option value="'+ res[i].groupID +'">'+ res[i].groupTitle +'</option>';
 						}
@@ -458,12 +458,12 @@ var LeafFormSearch = function(containerID) {
 				});
 				break;
 			case 'date':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen">\
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen" aria-label="date">\
 	            		<option value="=">ON</option>\
 	            		<option value=">=">ON AND AFTER</option>\
 	            		<option value="<=">ON AND BEFORE</option>\
 	            	</select>');
-				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
 				if(!jQuery.ui) {
 					$.getScript('../libs/js/jquery/jquery-ui.custom.min.js', function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).datepicker();
@@ -474,7 +474,7 @@ var LeafFormSearch = function(containerID) {
 				}
 				break;
 			case 'categoryID':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen">\
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen" aria-label="categoryID">\
 	            		<option value="=">IS</option>\
 	            		<option value="!=">IS NOT</option>\
 	            	</select>');
@@ -483,7 +483,7 @@ var LeafFormSearch = function(containerID) {
 					url: './api/?a=workflow/categoriesUnabridged',
 					dataType: 'json',
 					success: function(res) {
-						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
+						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="categories" style="width: 250px">';
 						for(var i in res) {
 							categories += '<option value="'+ res[i].categoryID +'">'+ res[i].categoryName +'</option>';
 						}
@@ -509,14 +509,14 @@ var LeafFormSearch = function(containerID) {
 					url: './api/?a=workflow/dependencies',
 					dataType: 'json',
 					success: function(res) {
-						var dependencies = '<select id="'+prefixID+'widgetIndicator_'+widgetID+'" class="chosen" style="width: 250px">';
+						var dependencies = '<select id="'+prefixID+'widgetIndicator_'+widgetID+'" class="chosen" aria-label="dependencies" style="width: 250px">';
 						for(var i in res) {
 							dependencies += '<option value="'+ res[i].dependencyID +'">'+ res[i].description +'</option>';
 						}
 						dependencies += '</select>';
 						$('#' + prefixID + 'widgetTerm_' + widgetID).after(dependencies);
 
-						var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
+						var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="options" style="width: 250px">';
 						options += '<option value="1">Signed</option>';
 						options += '<option value="0">Pending Signature</option>';
 						options += '<option value="-1">Returned to a previous step</option>';
@@ -539,7 +539,7 @@ var LeafFormSearch = function(containerID) {
 					url: './api/?a=workflow/steps',
 					dataType: 'json',
 					success: function(res) {
-						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
+						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="stepID" style="width: 250px">';
 						categories += '<option value="submitted">Submitted</option>';
 						categories += '<option value="notSubmitted">Not Submitted</option>';
 						categories += '<option value="deleted">Cancelled</option>';
@@ -565,7 +565,7 @@ var LeafFormSearch = function(containerID) {
 					url: './api/?a=form/indicator/list',
 					dataType: 'json',
 					success: function(res) {
-						var indicators = '<select id="'+prefixID+'widgetIndicator_'+widgetID+'" class="chosen" style="width: 250px">';
+						var indicators = '<select id="'+prefixID+'widgetIndicator_'+widgetID+'" class="chosen" aria-label="data" style="width: 250px">';
 						indicators += '<option value="'+ ALL_DATA_FIELDS +'">Any standard data field</option>';
 						indicators += '<option value="'+ ALL_OC_EMPLOYEE_DATA_FIELDS +'">Any Org. Chart employee field</option>';
 						for(var i in res) {
@@ -580,13 +580,13 @@ var LeafFormSearch = function(containerID) {
 
 							// set default conditions for "any data field"
 							if(iID == ALL_DATA_FIELDS) {
-								$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 120px">\
+								$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
 										<option value="LIKE">CONTAINS</option>\
 										<option value="NOT LIKE">DOES NOT CONTAIN</option>\
 					            		<option value="=">=</option>\
 										<option value="!=">!=</option>\
 					            	</select>');
-								$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+								$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
 								$('.chosen').chosen({disable_search_threshold: 6});
 							}
 							else if(iID == ALL_OC_EMPLOYEE_DATA_FIELDS) { // set conditions for orgchart employee fields
@@ -608,7 +608,7 @@ var LeafFormSearch = function(containerID) {
 									switch(format) {
 										case 'number':
 										case 'currency':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 55px">\
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="currency" style="width: 55px">\
 								            		<option value="=">=</option>\
 								            		<option value=">">></option>\
 								            		<option value=">=">>=</option>\
@@ -618,12 +618,12 @@ var LeafFormSearch = function(containerID) {
 											$('.chosen').chosen({disable_search_threshold: 6});
 											break;
 										case 'date':
-                            				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen">\
+                            				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen" aria-label="date">\
                             	            		<option value="=">ON</option>\
                             	            		<option value=">=">ON AND AFTER</option>\
                             	            		<option value="<=">ON AND BEFORE</option>\
                             	            	</select>');
-                            				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+                            				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
                             				if(!jQuery.ui) {
                             					$.getScript('../libs/js/jquery/jquery-ui.custom.min.js', function() {
                             						$('#' + prefixID + 'widgetMat_' + widgetID).datepicker();
@@ -654,7 +654,7 @@ var LeafFormSearch = function(containerID) {
 											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
 											var resOptions = res[i].format.split("\n");
 											resOptions.shift();
-											var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
+											var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="options" style="width: 250px">';
 											for(var i in resOptions) {
 												var currOption = resOptions[i].indexOf("default:") == -1 ? resOptions[i].trim() : resOptions[i].substr(8).trim();
 												options += '<option value="'+ currOption +'">'+ currOption +'</option>';
@@ -664,13 +664,13 @@ var LeafFormSearch = function(containerID) {
 											$('.chosen').chosen({disable_search_threshold: 6});
 											break;
 										default:
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 120px">\
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
 													<option value="LIKE">CONTAINS</option>\
 													<option value="NOT LIKE">DOES NOT CONTAIN</option>\
 								            		<option value="=">=</option>\
 													<option value="!=">!=</option>\
 								            	</select>');
-											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
 											$('.chosen').chosen({disable_search_threshold: 6});
 											break;
 									}
@@ -686,7 +686,7 @@ var LeafFormSearch = function(containerID) {
 				});
 				break;
 			default:
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 55px">\
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 55px">\
 		            		<option value="=">=</option>\
 		            		<option value=">">></option>\
 		            		<option value=">=">>=</option>\
@@ -694,7 +694,7 @@ var LeafFormSearch = function(containerID) {
 		            		<option value="<="><=</option>\
 		            		<option value="LIKE">CONTAINS</option>\
 		            	</select>');
-				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
 				break;
 		}
 	}
@@ -705,7 +705,7 @@ var LeafFormSearch = function(containerID) {
 	function newSearchWidget() {
 		var widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'">\
 						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" /></button></td>\
-						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen">\
+						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen" aria-label="condition">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
             				<option value="date">Date Initiated</option>\
