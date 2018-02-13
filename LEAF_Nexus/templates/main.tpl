@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     {if $tabText != ''}
     <title>{$tabText} - {$title} | {$city}</title>
