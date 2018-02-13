@@ -411,11 +411,12 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
         if (false !== strpos($_query_string, $smarty->smarty_debug_id)) {
             if (false !== strpos($_query_string, $smarty->smarty_debug_id . '=on')) {
                 // enable debugging for this browser session
-                setcookie('SMARTY_DEBUG', true);
+                setcookie('SMARTY_DEBUG', true, NULL, NULL, NULL, NULL, true);
                 $smarty->debugging = true;
             } elseif (false !== strpos($_query_string, $smarty->smarty_debug_id . '=off')) {
                 // disable debugging for this browser session
-                setcookie('SMARTY_DEBUG', false);
+                setcookie('SMARTY_DEBUG', false, NULL, NULL, NULL, NULL, true);
+
                 $smarty->debugging = false;
             } else {
                 // enable debugging for this page
