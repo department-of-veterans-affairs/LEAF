@@ -441,26 +441,41 @@ class Group extends Data
      * Get all employees explicitly associated with a group with their extended
      * Employee info (data and positions). See Employee->getSummary().
      *
-     * @param int $groupID
+     * @param int       $groupID    the id of the group to retrieve
+     * @param int       $offset     sql query offset (default=0)
+     * @param int       $limit      sql query limit (default=none)
      * @return array
      */
-    public function listGroupEmployeesDetailed($groupID)
+    public function listGroupEmployeesDetailed($groupID, $offset = 0, $limit = -1)
     {
         // Cannot use $this->listGroupEmployees() since that query does not
         // include Employee position data
-        $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query(
-          'SELECT *
-              FROM relation_group_employee
-              LEFT JOIN relation_position_employee USING (empUID)
-              LEFT JOIN employee USING (empUID)
-              WHERE groupID=:groupID
-							ORDER BY lastName ASC',
-          $vars
+        $vars = array(
+            ':groupID' => $groupID
         );
 
-        // Employee->getAllData() relies on lots of variables defined in that
-        // class, so let it do the hard work
+        $query = '
+            FROM relation_group_employee rge
+            LEFT JOIN relation_position_employee USING (empUID)
+            RIGHT JOIN employee e ON (e.empUID=rge.empUID)
+            WHERE groupID=:groupID
+            ORDER BY lastName ASC';
+
+        $detailQuery = 'SELECT * '.$query;
+
+        // used for query metadata, knowing the total number of users is useful for paging results
+        $countQuery = 'SELECT COUNT(*) AS totalUsers'.$query;
+
+        // TODO: replace this with keyset pagination. Using LIMIT/OFFSET can be slow on large data sets.
+        if ($limit !== -1) { 
+            $this->db->limit($offset, $limit);
+        }
+
+        $res = $this->db->prepared_query($detailQuery, $vars);
+        $countRes = $this->db->prepared_query($countQuery, $vars);
+
+        // Employee->getAllData() relies on lots of variables defined in that class, 
+        // so let it do the hard work
         require_once 'Employee.php';
         $employee = new Employee($this->db, $this->login);
         foreach($res as $key=>$value) {
@@ -468,7 +483,16 @@ class Group extends Data
           $res[$key]['positions'] = $employee->getPositions($value['empUID']);
         }
 
-        return $res;
+        $result = array(
+            'users' => $res,
+            'querymeta' => [
+                'totalusers' => $countRes[0]['totalUsers'],
+                'limit' => $limit,
+                'offset' => $offset
+            ]
+        );
+
+        return $result;
     }
 
     private function sortEmployees($a, $b)

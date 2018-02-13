@@ -22,17 +22,12 @@ include '../sources/Login.php';
 include '../db_mysql.php';
 include '../config.php';
 
+// Enforce HTTPS
+include_once '../enforceHTTPS.php';
+
 $config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
-
-// Enforce HTTPS
-if(isset($config->enforceHTTPS) && $config->enforceHTTPS == true) {
-    if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') {
-        header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-        exit();
-    }
-}
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
