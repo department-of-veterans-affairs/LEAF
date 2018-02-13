@@ -66,7 +66,7 @@ $(function() {
         <table id="step1_questions" style="width: 100%; margin: 8px">
             <tr>
                 <td>Contact Info</td>
-                <td><input id="recorder" aria-label="text" type="text" title="" value="<!--{$recorder}-->" disabled="disabled"/> <input id="phone" type="text" aria-label="text" title="" value="<!--{$phone}-->" disabled="disabled" /></td>
+                <td><input id="recorder" aria-label="recorder" type="text" title="" value="<!--{$recorder}-->" disabled="disabled"/> <input id="phone" type="text" aria-label="phone" title="" value="<!--{$phone}-->" disabled="disabled" /></td>
             </tr>
             <!--{if count($services) != 0}-->
             <tr>
