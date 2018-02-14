@@ -24,6 +24,7 @@ var parsedDataByService = {};
 $.ajax({
     type: 'GET',
     url: './utils/jsonExport_PDL.php',
+    timeout: 90000,
     success: function(data) {
         for(var i in data) {
             parsedData.push({
@@ -35,7 +36,8 @@ $.ajax({
                 payPlan: data[i].payPlan,
                 series: data[i].series,
                 payGrade: data[i].payGrade,
-                fte: data[i].fte,
+                fteCeiling: data[i].fteCeiling,
+                currentFte: data[i].currentFte,
                 pdNumber: data[i].pdNumber
             });
 
@@ -48,12 +50,12 @@ $.ajax({
                 parsedDataByService[data[i].service].recordID = i;
                 parsedDataByService[data[i].service].indicatorID = i;
             }
-            parsedDataByService[data[i].service].authorized = new BigNumber(parsedDataByService[data[i].service].authorized).plus(data[i].fte).round(3).toString();
-            if(data[i].employee == '') {
-                parsedDataByService[data[i].service].vacant = new BigNumber(parsedDataByService[data[i].service].vacant).plus(data[i].fte).round(3).toString();
+            parsedDataByService[data[i].service].authorized = new BigNumber(parsedDataByService[data[i].service].authorized).plus(data[i].fteCeiling).round(3).toString();
+            if(data[i].currentFte == 0) {
+                parsedDataByService[data[i].service].vacant = new BigNumber(parsedDataByService[data[i].service].vacant).plus(data[i].fteCeiling).round(3).toString();
             }
             else {
-                parsedDataByService[data[i].service].onBoard = new BigNumber(parsedDataByService[data[i].service].onBoard).plus(data[i].fte).round(3).toString();
+                parsedDataByService[data[i].service].onBoard = new BigNumber(parsedDataByService[data[i].service].onBoard).plus(data[i].fteCeiling).round(3).toString();
             }
         }
 
@@ -67,31 +69,31 @@ $.ajax({
         var cf = crossfilter(parsedData);
         var serviceDim = cf.dimension(function(d) { return d.service; });
         var vacancyDim = cf.dimension(function(d) {
-            if(d.employee == '') {
+            if(d.currentFte == 0) {
             	return 'Vacant';
             }
             return 'On Board';
         });
-        var serviceGroup = serviceDim.group().reduceSum(function(d) { return d.fte; });
-        var vacancyGroup = vacancyDim.group().reduceSum(function(d) { return d.fte; });
+        var serviceGroup = serviceDim.group().reduceSum(function(d) { return d.fteCeiling; });
+        var vacancyGroup = vacancyDim.group().reduceSum(function(d) { return d.fteCeiling; });
         var numFTEGroup = cf.groupAll().reduce(
             function(p, v) {
-                p.total += Number(v.fte);
-                if(v.employee == '') {
-                    p.vacant += Number(v.fte);
+                p.total += Number(v.fteCeiling);
+                if(v.currentFte == 0) {
+                    p.vacant += Number(v.fteCeiling);
                 }
                 else {
-                	p.onBoard += Number(v.fte);
+                	p.onBoard += Number(v.fteCeiling);
                 }
                 return p;
             },
             function(p, v) {
-                p.total -= Number(v.fte);
-                if(v.employee == '') {
-                    p.vacant -= Number(v.fte);
+                p.total -= Number(v.fteCeiling);
+                if(v.currentFte == 0) {
+                    p.vacant -= Number(v.fteCeiling);
                 }
                 else {
-                    p.onBoard -= Number(v.fte);
+                    p.onBoard -= Number(v.fteCeiling);
                 }
                 return p;
             },
@@ -190,6 +192,9 @@ $.ajax({
 
         dc.renderAll();
         postRender();
+    },
+    error: function(jXHR, text, error) {
+        alert(error);
     }
 });
 
