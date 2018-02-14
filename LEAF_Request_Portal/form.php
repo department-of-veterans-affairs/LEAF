@@ -2504,6 +2504,8 @@ class Form
     }
 
     /**
+    * @deprecated use XSSHelpers::sanitizeHTML() from helpers.php instead.
+    *
     * Clean up html input, allow some tags
     * @param string $in
     * @return string
