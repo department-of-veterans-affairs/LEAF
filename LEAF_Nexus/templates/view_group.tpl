@@ -41,6 +41,7 @@
         <button class="buttonNorm" onclick="editGroupName()" style="width: 100%"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</button>
         <button class="buttonNorm" id="button_addEmployeePosition" onclick="addEmployeePosition()" style="width: 100%"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee/" title="Add Employee/Position" /> Add Employee/Position</button>
         <br />
+        <br />
         <button class="buttonNorm" onclick="confirmRemove()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
     </button>
 
@@ -52,10 +53,11 @@
             <!--{if $groupPrivileges[$groupID].write == 1}-->
             <br /><br />
             <!--{foreach $tag_hierarchy as $tag}-->
-            <div class="buttonNorm" onclick="writeTag('<!--{$tag.tag}-->');">Add '<!--{$tag.tag}-->'</div>
+            <button class="buttonNorm" style="width: 100%" onclick="writeTag('<!--{$tag.tag}-->');">Add '<!--{$tag.tag}-->'</button>
             <!--{/foreach}-->
             <br />
-            <div class="buttonNorm" onclick="addTag();">Add Custom Tag</div>
+            <br />
+            <button class="buttonNorm" style="width: 100%" onclick="addTag();">Add Custom Tag</button>
             <!--{/if}-->
         </div>
     </div>
@@ -76,9 +78,9 @@
         <!--{/if}-->
         </div>
         <!--{if $groupPrivileges[$groupID].grant != 0}-->
-        <div class="buttonNorm" onclick="window.open('index.php?a=view_group_permissions&amp;groupID=<!--{$groupID}-->','OrgChart','width=840,resizable=yes,scrollbars=yes,menubar=yes');">
+        <button class="buttonPermission"  style="width: 100%" onclick="window.open('index.php?a=view_group_permissions&amp;groupID=<!--{$groupID}-->','OrgChart','width=840,resizable=yes,scrollbars=yes,menubar=yes');">
             <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Yes" style="vertical-align: middle" tabindex="0" /> Change Permissions
-        </div>
+        </button>
         <!--{/if}-->
     </div>
 </div>
