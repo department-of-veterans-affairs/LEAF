@@ -766,6 +766,21 @@ div#maincontent {
     margin: 2px;
 }
 
+.metaLabel {
+    text-align: center;
+    font-size: 12px;
+    margin: 0px;
+    padding: 2px;
+}
+
+.metaContent {
+    font-size: 42px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #d4d8e0;
+    margin: 2px;
+}
+
 .toolbar_inline {
 
 }
