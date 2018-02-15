@@ -106,11 +106,20 @@ final class HelpersTest extends TestCase
         $str1 = "<table><tr><td><p><b>unclosed<i>tags";
         $out1 = "<table class=\"table\"><tr><td><p><b>unclosed<i>tags</i></b></p></td></tr></table>";
 
-        $str2 = "<table><tr><td>unclosed inner tr</td></table>";
-        $out2 = "<table class=\"table\"><tr><td>unclosed inner tr</td></tr></table>";
+        $this->assertEquals($out1, XSSHelpers::sanitizeHTML($str1));
+    }
+
+    /**
+     * Tests XSSHelpers::sanitizeHTML()
+     * 
+     * Tests any unclosed inner element tags within the HTML input
+     */
+    public function testSanitizeHTML_UnclosedTags_Inner(): void
+    {
+        $str1 = "<table><tr><td>unclosed inner tr</td></table>";
+        $out1 = "<table class=\"table\"><tr><td>unclosed inner tr</td></tr></table>";
 
         $this->assertEquals($out1, XSSHelpers::sanitizeHTML($str1));
-        $this->assertEquals($out2, XSSHelpers::sanitizeHTML($str2));
     }
 
     /**
