@@ -106,8 +106,8 @@ final class HelpersTest extends TestCase
         $str1 = "<table><tr><td><p><b>unclosed<i>tags";
         $out1 = "<table class=\"table\"><tr><td><p><b>unclosed<i>tags</i></b></p></td></tr></table>";
 
-        $str2 = "<table><tr><td>unclosed tr</td></table>";
-        $out2 = "<table class=\"table\"><tr><td>unclosed tr</td></tr></table>";
+        $str2 = "<table><tr><td>unclosed inner tr</td></table>";
+        $out2 = "<table class=\"table\"><tr><td>unclosed inner tr</td></tr></table>";
 
         $this->assertEquals($out1, XSSHelpers::sanitizeHTML($str1));
         $this->assertEquals($out2, XSSHelpers::sanitizeHTML($str2));
