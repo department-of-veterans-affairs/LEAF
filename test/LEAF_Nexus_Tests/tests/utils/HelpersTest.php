@@ -23,11 +23,9 @@ final class HelpersTest extends TestCase
         $linebreaks3 = "text\r\nwith\r\nbreaks";
         $linebreaks4 = "text\n\rwith\n\rbreaks";
         $linebreaks5 = "text\n\nwith\n\nbreaks";
-        $linebreaks6 = "<p>text\nwith\nbreaks\nin\nparagraph</p>";
 
         $expectedOutput = "text<br />with<br />breaks";
         $expectedOutput2 = "text<br /><br />with<br /><br />breaks";
-        $expectedOutput3 = "<p>textwithbreaksinparagraph</p>";
 
         $this->assertEquals($expectedOutput, XSSHelpers::sanitizeHTML($linebreaks));
         $this->assertEquals($expectedOutput, XSSHelpers::sanitizeHTML($linebreaks2));
@@ -35,9 +33,20 @@ final class HelpersTest extends TestCase
         $this->assertEquals($expectedOutput, XSSHelpers::sanitizeHTML($linebreaks4));
 
         $this->assertEquals($expectedOutput2, XSSHelpers::sanitizeHTML($linebreaks5));
-
-        $this->assertEquals($expectedOutput3, XSSHelpers::sanitizeHTML($linebreaks6));
     }
+
+    /**
+     * Tests XSSHelpers::sanitizeHTML()
+     * 
+     * Tests processing line breaks (\n, \r) in a paragraph (<p>) within the HTML input 
+     */
+    public function testSanitizeHTML_LineBreaks_Paragraphs(): void
+    {
+        $str1 = "<p>text\nwith\nbreaks\nin\nparagraph</p>";
+        $out1 = "<p>textwithbreaksinparagraph</p>";
+        $this->assertEquals($out1, XSSHelpers::sanitizeHTML($str1));
+    }
+
 
     /**
      * Tests XSSHelpers::sanitizeHTML()
@@ -68,6 +77,23 @@ final class HelpersTest extends TestCase
         $out1 = "<ol><li>an</li><li>ordered</li><li>list</li></ol>";
 
         $this->assertEquals($out1, XSSHelpers::sanitizeHTML($str1));
+    }
+
+    /**
+     * Tests XSSHelpers::sanitizeHTML()
+     * 
+     * Tests scrubbing SSNs
+     */
+    public function testSanitizeHTML_SSN(): void
+    {
+        $str1 = "123-45-6789";
+        $out1 = "###-##-####";
+
+        $str2 = "<tr><td>123-45-6789</td></tr>";
+        $out2 = "<tr><td>###-##-####</td></tr>";
+
+        $this->assertEquals($out1, XSSHelpers::sanitizeHTML($str1));
+        $this->assertEquals($out2, XSSHelpers::sanitizeHTML($str2));
     }
 
     /**
