@@ -7,4 +7,4 @@ const DIRECTORY_DB = 'DB_NAME';
 const DIRECTORY_USER = 'USERNAME';
 const DIRECTORY_PASS = 'PASSWORD';
 
-const LEAF_NEXUS_URL = 'https://WWW_SERVER_HOSTNAME';
+const LEAF_NEXUS_URL = 'https://WWW_SERVER_HOSTNAME/'; // trailing slash required
