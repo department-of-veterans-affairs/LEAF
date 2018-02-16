@@ -2,15 +2,16 @@
 #coaches {
     display: inline-flex;
     flex-wrap: wrap;
+    justify-content: center;
 }
 #coaches div.coach {
-    background-color: rgb(247, 247, 247);
+    background-color: white;
     border: 1px solid black;
     box-shadow: 0 2px 6px #8e8e8e;
 
-    width: 425px;
+    width: 390px;
 
-    margin: 10px 10px 0px 10px;
+    margin: 7px 7px 0px 7px;
     padding: 13px;
 
     font-size: 13pt;
@@ -21,6 +22,9 @@
 #coaches div.coach div.specialties { }
 #coaches div.coach div.top {
     display: inline-flex;
+}
+div.specialties {
+    font-size: 90%;
 }
 #coaches div.coach div.top div.info {
     margin: 5px 5px 5px 10px;
@@ -38,8 +42,8 @@
 
 #coaches div.coach div.top img.profileImage {
     margin: 5px;
-    height: 150px;
-    width: 150px !important;
+    max-height: 150px !important;
+    max-width: 150px !important;
 }
 
 #rosterHeader {
@@ -54,6 +58,7 @@
     display: inline-flex;
     padding-left: 20%;
     padding-right: 4%;
+    padding-bottom: 16px;
     text-align: center;
     width: 76%;
 }
@@ -64,10 +69,11 @@
     font-size: large;
 }
 #searchBar .searchIcon {
-    margin-right: 9px;
-    margin-left: 9px;
-
+    margin-left: 8px;
+    margin-top: 8px;
     cursor: pointer;
+    height: 25px;
+    width: 25px;
 }
 </style>
 
@@ -98,7 +104,7 @@
  * @param searchTerm    string  the term to search indicator data for
  */
 function CoachQuery(searchTerm) {
-    this.categoryID = "form_b8543";
+    this.categoryID = "form_4847d";
     this.formQuery = FormQuery();
     this.formQuery.addTerm("categoryID", "=", this.categoryID);
     this.formQuery.addTerm("deleted", "=", 0);
@@ -218,7 +224,21 @@ function buildCoachProfile(coach) {
         $(document.createElement('div')).addClass('geoLocation').html(coach.location).appendTo(infoDiv);
     
     var specialtiesDiv = $(document.createElement('div')).addClass('specialties').appendTo(coachDiv);
-    $(document.createElement('ul')).html(coach.process).appendTo(specialtiesDiv);
+    var specialtiesList = coach.process.split('<br />');
+    var specialtiesText = "";
+    var maxDisplaySpecialties = 3;
+    for(var i =0; i < maxDisplaySpecialties; i++) {
+        if(specialtiesList[i] != undefined) {
+            specialtiesText += specialtiesList[i] + "<br />";
+        }
+    }
+
+    if(specialtiesList.length > maxDisplaySpecialties) {
+        specialtiesText += '<div>... and <a href="#"><b>' + (specialtiesList.length - maxDisplaySpecialties) + '</b> more</a></div>';
+    }
+    
+    var specialtiesArea = $(document.createElement('ul')).html(specialtiesText).appendTo(specialtiesDiv);
+    $(specialtiesArea).on('click', function() { $(specialtiesArea).html(coach.process); });
 
     return coachDiv;
 }
@@ -248,6 +268,25 @@ function searchForCoaches() {
     );
 }
 
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+        var context = this, args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
+
 this.portalAPI = LEAFRequestPortalAPI();
 
 $(function() {
@@ -255,14 +294,11 @@ $(function() {
         searchForCoaches();
     });
 
-    $('#searchRosterInput').keyup(function(e) {
-        // if keycode is 'Enter', uncomment the following if statement and 'return false' to disable search-as-you-type
-        // if (e.which == 13) {
-            searchForCoaches();
-            return true;
-            // return false;
-        // }
-    });
+    var debouncedSearch = debounce(function() {
+        searchForCoaches();
+    }, 300);
+
+    $('#searchRosterInput').keyup(debouncedSearch);
 
     searchForCoaches();
 });
