@@ -92,6 +92,12 @@ docker-compose up
 
 Navigate to http://localhost/LEAF_Nexus or http://localhost/LEAF_Request_Portal in your browser.
 
+### Testing
+
+All tests for LEAF are located in the [test](test) directory. Instructions for running and creating tests can be found in the README there.
+
+Tests for LEAF are in their infancy, so expect a lot of changes to happen in testing in the coming months.
+
 ### Contributing
 
 #### Branches

@@ -106,7 +106,8 @@ class XSSHelpers {
         }
 
         // close tags
-        $tags = array_keys($openTags);
+        // reverse array to close tags in proper order
+        $tags = array_reverse(array_keys($openTags));
         foreach($tags as $tag) {
             while($openTags[$tag] > 0) {
                 $in = $in . '</' . $tag . '>';
