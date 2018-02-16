@@ -455,7 +455,7 @@ class Form
         // check needToKnow mode
         if($recordID != null && $this->isNeedToKnow($recordID)) {
         	if(!$this->hasReadAccess($recordID)) {
-        		return 0;
+        		return [];
         	}
         }
         
@@ -548,7 +548,7 @@ class Form
     {
     	// check needToKnow mode
     	if(!$this->hasReadAccess($recordID)) {
-    		return 0;
+    		return [];
     	}
 
         $vars = array(':recordID' => $recordID,
@@ -1775,7 +1775,7 @@ class Form
     public function getActionComments($recordID)
     {
     	if(!$this->hasReadAccess($recordID)) {
-    		return 0;
+    		return [];
     	}
 
         $vars = array(':recordID' => $recordID);
@@ -1802,7 +1802,7 @@ class Form
     public function getTags($recordID)
     {
     	if(!$this->hasReadAccess($recordID)) {
-    		return 0;
+    		return [];
     	}
 
         $vars = array(':recordID' => $recordID);
