@@ -1,13 +1,8 @@
 <?php
-/************************
-    Index for everything
-    Date Created: September 11, 2007
-
-*/
-
 error_reporting(E_ALL & ~E_NOTICE);
 
-if(false) {
+if (false)
+{
     echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
     exit();
 }
@@ -37,7 +32,8 @@ unset($db_config);
 $login = new Login($db_phonebook, $db);
 
 $login->loginUser();
-if(!$login->isLogin() || !$login->isInDB()) {
+if (!$login->isLogin() || !$login->isInDB())
+{
     echo 'Session expired, please refresh the page.<br /><br />If this message persists, please include the following information to your administrator:';
     echo '<pre>';
     print_r($_SESSION);
@@ -55,8 +51,9 @@ $tabText = '';
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
-function customTemplate($tpl) {
-	return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+function customTemplate($tpl)
+{
+    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $t_login->assign('name', XSSHelpers::xscrub($login->getName()));
@@ -65,13 +62,14 @@ $t_menu->assign('is_admin', $login->checkGroup(1));
 $main->assign('useUI', false);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-if(isset($settings['timeZone'])) {
-	date_default_timezone_set($settings['timeZone']);
+if (isset($settings['timeZone']))
+{
+    date_default_timezone_set($settings['timeZone']);
 }
 
-switch($action) {
+switch ($action) {
     case 'newform':
-    	$main->assign('useLiteUI', true);
+        $main->assign('useLiteUI', true);
 
         $form = new Form($db, $login);
         include './sources/FormStack.php';
@@ -85,7 +83,7 @@ switch($action) {
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
+        $t_form->right_delimiter = '}-->';
         $t_form->assign('categories', $stack->getCategories());
         $t_form->assign('recorder', XSSHelpers::xscrub($login->getName()));
         $t_form->assign('services', $form->getServices2());
@@ -98,17 +96,19 @@ switch($action) {
 
         $o_login = $t_login->fetch('login.tpl');
         $tabText = 'Resource Request';
+
         break;
     case 'view':
-    	$main->assign('useUI', true);
-    	$main->assign('stylesheets', array('css/view.css'));
+        $main->assign('useUI', true);
+        $main->assign('stylesheets', array('css/view.css'));
         $main->assign('javascripts', array('js/form.js', 'js/formGrid.js'));
-        
-        $recordIDToView = (int) $_GET['recordID'];
+
+        $recordIDToView = (int)$_GET['recordID'];
         $form = new Form($db, $login);
         // prevent view if form is submitted
         // defines who can edit the form
-        if($form->hasWriteAccess($recordIDToView) || $login->checkGroup(1)) {
+        if ($form->hasWriteAccess($recordIDToView) || $login->checkGroup(1))
+        {
             $t_menu->assign('recordID', $recordIDToView);
             $t_menu->assign('action', XSSHelpers::xscrub($action));
             $o_login = $t_login->fetch('login.tpl');
@@ -117,7 +117,7 @@ switch($action) {
 
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
-            $t_form->right_delimiter= '}-->';
+            $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', $recordIDToView);
             $t_form->assign('lastStatus', XSSHelpers::xscrub($form->getLastStatus($recordIDToView)));
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -128,105 +128,114 @@ switch($action) {
             //     $t_form->assign('approval', $thisRecord['approval']);
             // }
 
-            switch($action) {
+            switch ($action) {
                 case 'review':
                     break;
                 default:
                     $main->assign('body', $t_form->fetch(customTemplate('form.tpl')));
+
                     break;
             }
         }
-        else {
+        else
+        {
             $main->assign('status', 'This form is locked from editing.');
         }
         $o_login = $t_login->fetch('login.tpl');
 
         $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::xscrub($settings['requestLabel']);
         $tabText = $requestLabel . ' #' . $recordIDToView;
+
         break;
     case 'printview':
-    	$main->assign('useUI', true);
+        $main->assign('useUI', true);
         $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/jsdiff.js'));
-        
+
         $recordIDToPrint = (int)$_GET['recordID'];
 
         $form = new Form($db, $login);
         $t_menu->assign('recordID', $recordIDToPrint);
         $t_menu->assign('action', XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
-  
+
         $recordInfo = $form->getRecordInfo($recordIDToPrint);
         $comments = $form->getActionComments($recordIDToPrint);
 
-  
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
+        $t_form->right_delimiter = '}-->';
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);
         $t_form->assign('name', XSSHelpers::xscrub($recordInfo['name']));
         $t_form->assign('title', XSSHelpers::xscrub($recordInfo['title']));
-        $t_form->assign('priority', (int) $recordInfo['priority']);
+        $t_form->assign('priority', (int)$recordInfo['priority']);
         $t_form->assign('submitted', XSSHelpers::xscrub($recordInfo['submitted']));
         $t_form->assign('stepID', (int)$recordInfo['stepID']);
         $t_form->assign('service', XSSHelpers::xscrub($recordInfo['service']));
-        $t_form->assign('serviceID', (int) $recordInfo['serviceID']);
+        $t_form->assign('serviceID', (int)$recordInfo['serviceID']);
         $t_form->assign('date', XSSHelpers::xscrub($recordInfo['date']));
         $t_form->assign('deleted', (int)$recordInfo['deleted']);
         $t_form->assign('bookmarked', XSSHelpers::xscrub($recordInfo['bookmarked']));
         $t_form->assign('categories', $recordInfo['categories']);
         $t_form->assign('comments', $comments);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-  
-        if($recordInfo['priority'] == -10) {
+
+        if ($recordInfo['priority'] == -10)
+        {
             $main->assign('emergency', '<span style="position: absolute; right: 0px; top: -28px; padding: 2px; border: 1px solid black; background-color: white; color: red; font-weight: bold; font-size: 20px">EMERGENCY</span> ');
         }
-  
+
         // get workflow status and check permissions
         require_once 'FormWorkflow.php';
         $formWorkflow = new FormWorkflow($db, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
-  
+
         //url
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
         $main->assign('qrcodeURL', urlencode($qrcodeURL));
-  
-        switch($action) {
+
+        switch ($action) {
             default:
-  					$childForms = $form->getChildForms($recordIDToPrint);
+                    $childForms = $form->getChildForms($recordIDToPrint);
                 $t_form->assign('childforms', $childForms);
-                
+
                 $childCatID = XSSHelpers::xscrub($_GET['childCategoryID']);
-                if($childCatID != '') {
-                	$match = 0;
-                	foreach($childForms as $cForm) {
-                		if($cForm['childCategoryID'] == $childCatID) {
-                			$match = 1;
-                		}
-                	}
-                	if($match = 1) {
-                		// safe to pass in $_GET
-                		$t_form->assign('childCategoryID', $childCatID);
-                	}
+                if ($childCatID != '')
+                {
+                    $match = 0;
+                    foreach ($childForms as $cForm)
+                    {
+                        if ($cForm['childCategoryID'] == $childCatID)
+                        {
+                            $match = 1;
+                        }
+                    }
+                    if ($match = 1)
+                    {
+                        // safe to pass in $_GET
+                        $t_form->assign('childCategoryID', $childCatID);
+                    }
                 }
-                
+
                 $main->assign('body', $t_form->fetch(customTemplate('print_form.tpl')));
                 $t_menu->assign('hide_main_control', true);
+
                 break;
         }
-        
+
         $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::xscrub($settings['requestLabel']);
         $tabText = $requestLabel . ' #' . $recordIDToPrint;
+
         break;
     case 'inbox':
-    	$main->assign('useUI', true);
-    	$main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js'));
+        $main->assign('useUI', true);
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js'));
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
+        $t_form->right_delimiter = '}-->';
 
         require_once 'Inbox.php';
         $inbox = new Inbox($db, $login);
@@ -235,10 +244,13 @@ switch($action) {
 
         $depIndex = array_keys($inboxItems);
         $depColors = array();
-        foreach($depIndex as $depID) {
+        foreach ($depIndex as $depID)
+        {
             $color = '';
-            foreach($inboxItems[$depID]['records'] as $item) {
+            foreach ($inboxItems[$depID]['records'] as $item)
+            {
                 $color = $item['stepBgColor'];
+
                 break;
             }
             $depColors[$depID] = $color;
@@ -252,6 +264,7 @@ switch($action) {
         $main->assign('body', $t_form->fetch(customTemplate('view_inbox.tpl')));
 
         $tabText = 'Inbox';
+
         break;
     case 'status':
         $form = new Form($db, $login);
@@ -265,49 +278,52 @@ switch($action) {
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
+        $t_form->right_delimiter = '}-->';
         $recordInfo = $form->getRecordInfo($recordIDForStatus);
         $t_form->assign('name', XSSHelpers::xscrub($recordInfo['name']));
         $t_form->assign('title', XSSHelpers::xscrub($recordInfo['title']));
-        $t_form->assign('priority', (int) $recordInfo['priority']);
-        $t_form->assign('submitted', (int) $recordInfo['submitted']);
+        $t_form->assign('priority', (int)$recordInfo['priority']);
+        $t_form->assign('submitted', (int)$recordInfo['submitted']);
         $t_form->assign('service', XSSHelpers::xscrub($recordInfo['service']));
         $t_form->assign('date', XSSHelpers::xscrub($recordInfo['date']));
         $t_form->assign('recordID', $recordIDForStatus);
         $t_form->assign('agenda', $view->buildViewStatus($recordIDForStatus));
-        $t_form->assign('dependencies', $form->getDependencyStatus($recordIDForStatus));            
+        $t_form->assign('dependencies', $form->getDependencyStatus($recordIDForStatus));
 
         $main->assign('body', $t_form->fetch('view_status.tpl'));
+
         break;
     case 'cancelled_request':
-    	$main->assign('useUI', false);
+        $main->assign('useUI', false);
         $body = '<div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px">';
-        $body .= '<img src="../libs/dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] .'</b> has been cancelled!<br /><br /></span></div>';
+        $body .= '<img src="../libs/dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
         $main->assign('body', $body);
+
         break;
     case 'import_from_webHR':
-   		$t_menu->assign('action', $action);
-   		$o_login = $t_login->fetch('login.tpl');
-   
-   		$t_form = new Smarty;
-   		$t_form->left_delimiter = '<!--{';
-   		$t_form->right_delimiter= '}-->';
-   
-   		$filter = isset($_GET['filter']) ? $_GET['filter'] : '';
-   
-   		$main->assign('body', $t_form->fetch('import_from_webHR.tpl'));
+        $t_menu->assign('action', $action);
+        $o_login = $t_login->fetch('login.tpl');
 
-       	$tabText = 'WebHR Importer';
-       	break;
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
+
+        $main->assign('body', $t_form->fetch('import_from_webHR.tpl'));
+
+           $tabText = 'WebHR Importer';
+
+           break;
     case 'bookmarks':
         include_once 'View.php';
         $view = new View($db, $login);
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
+        $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('is_service_chief', (bool) $login->isServiceChief());
+        $t_form->assign('is_service_chief', (bool)$login->isServiceChief());
         $t_form->assign('empMembership', $login->getMembership());
 
         $t_form->assign('bookmarks', $view->buildViewBookmarks($login->getUserID()));
@@ -315,13 +331,15 @@ switch($action) {
         $main->assign('body', $t_form->fetch('view_bookmarks.tpl'));
 
         $tabText = 'Bookmarks';
+
         break;
     case 'tag_cloud':
         $form = new Form($db, $login);
         $tags = $form->getUniqueTags();
         $count = 0;
         $tempTags = array();
-        foreach($tags as $tag) {
+        foreach ($tags as $tag)
+        {
             $count += $tag['COUNT(tag)'];
             $tempTags[$tag['tag']]['tag'] = $tag['tag'];
             $tempTags[$tag['tag']]['count'] = $tag['COUNT(tag)'];
@@ -329,18 +347,19 @@ switch($action) {
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
+        $t_form->right_delimiter = '}-->';
         $t_form->assign('total', $count);
         $t_form->assign('tags', $tempTags);
         $main->assign('body', $t_form->fetch('tag_cloud.tpl'));
 
         $tabText = 'Tag Cloud';
+
         break;
     case 'gettagmembers':
         $form = new Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';        
+        $t_form->right_delimiter = '}-->';
 
         $tagMembers = $form->getTagMembers($_GET['tag']);
 
@@ -348,108 +367,115 @@ switch($action) {
         $t_form->assign('totalNum', count($tagMembers));
         $t_form->assign('requests', $tagMembers);
         $main->assign('body', $t_form->fetch('tag_show_members.tpl'));
-        
+
         $tabText = 'Tagged Requests';
+
         break;
     case 'about':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
-        
+        $t_form->right_delimiter = '}-->';
+
         $rev = $db->query("SELECT * FROM settings WHERE setting='dbversion'");
         $t_form->assign('dbversion', $rev[0]['data']);
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
+
         break;
     case 'search':
-    	$main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
-    	$main->assign('useUI', true);
+        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
+        $main->assign('useUI', true);
 
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
+        $t_form->right_delimiter = '}-->';
 
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        
+
         $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl')));
 
         $o_login = $t_login->fetch('login.tpl');
+
         break;
     case 'reports':
-    	$main->assign('stylesheets', array('css/report.css'));
-       	$main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js', 'js/workflow.js', 'js/lz-string/lz-string.min.js'));
-       	$main->assign('useUI', true);
-
-   		$o_login = $t_login->fetch('login.tpl');
-   
-   		$t_form = new Smarty;
-   		$t_form->left_delimiter = '<!--{';
-   		$t_form->right_delimiter= '}-->';
-   
-   		$t_form->assign('orgchartPath', Config::$orgchartPath);
-   		$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-   		$t_form->assign('query', XSSHelpers::xscrub($_GET['query']));
-   		$t_form->assign('indicators', XSSHelpers::xscrub($_GET['indicators']));
-   		$t_form->assign('title', XSSHelpers::xscrub($_GET['title']));
-   		$t_form->assign('version', (int)$_GET['v']);
-   		$t_form->assign('empMembership', $login->getMembership());
-
-   		$main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl')));
-
-       	$o_login = $t_login->fetch('login.tpl');
-       	$tabText = 'Report Builder';
-       	break;
-    case 'logout':
-    	$login->logout();
-
-    	$t_form = new Smarty;
-    	$t_form->left_delimiter = '<!--{';
-    	$t_form->right_delimiter= '}-->';
-
-    	$main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::xscrub($settings['heading']));
-    	$main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::xscrub($settings['subheading']));
-    	$main->assign('revision', XSSHelpers::xscrub($settings['version']));
-
-    	$main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
-    	$main->display(customTemplate('main.tpl'));
-    	exit();
-    	break;
-    default:
-    	$main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
-    	$main->assign('useLiteUI', true);
+        $main->assign('stylesheets', array('css/report.css'));
+           $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js', 'js/workflow.js', 'js/lz-string/lz-string.min.js'));
+           $main->assign('useUI', true);
 
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
+        $t_form->right_delimiter = '}-->';
+
+        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('query', XSSHelpers::xscrub($_GET['query']));
+        $t_form->assign('indicators', XSSHelpers::xscrub($_GET['indicators']));
+        $t_form->assign('title', XSSHelpers::xscrub($_GET['title']));
+        $t_form->assign('version', (int)$_GET['v']);
+        $t_form->assign('empMembership', $login->getMembership());
+
+        $main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl')));
+
+           $o_login = $t_login->fetch('login.tpl');
+           $tabText = 'Report Builder';
+
+           break;
+    case 'logout':
+        $login->logout();
+
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::xscrub($settings['heading']));
+        $main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::xscrub($settings['subheading']));
+        $main->assign('revision', XSSHelpers::xscrub($settings['version']));
+
+        $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
+        $main->display(customTemplate('main.tpl'));
+        exit();
+
+        break;
+    default:
+        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
+        $main->assign('useLiteUI', true);
+
+        $o_login = $t_login->fetch('login.tpl');
+
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
 
         $t_form->assign('userID', XSSHelpers::xscrub($login->getUserID()));
         $t_form->assign('empUID', XSSHelpers::xscrub($login->getEmpUID()));
         $t_form->assign('empMembership', $login->getMembership());
-        $t_form->assign('is_service_chief', (bool) $login->isServiceChief());
-        $t_form->assign('is_quadrad', (bool) $login->isQuadrad() || (bool) $login->checkGroup(1));
-        $t_form->assign('is_admin', (bool) $login->checkGroup(1));
+        $t_form->assign('is_service_chief', (bool)$login->isServiceChief());
+        $t_form->assign('is_quadrad', (bool)$login->isQuadrad() || (bool)$login->checkGroup(1));
+        $t_form->assign('is_admin', (bool)$login->checkGroup(1));
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        
+
         $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
 
         require_once 'Inbox.php';
         $inbox = new Inbox($db, $login);
         $t_form->assign('inbox_status', $inbox->getInboxStatus());
-        
+
         $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
 
-        if($action != 'menu' && $action != '' && $action != 'dosubmit') {
+        if ($action != 'menu' && $action != '' && $action != 'dosubmit')
+        {
             $main->assign('status', 'The page you are looking for does not exist or may have been moved. Please update your bookmarks.');
         }
 
         $o_login = $t_login->fetch('login.tpl');
+
         break;
 }
 
@@ -466,9 +492,11 @@ $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers:
 $main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::xscrub($settings['subheading']));
 $main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
-if(!isset($_GET['iframe'])) {
-	$main->display(customTemplate('main.tpl'));
+if (!isset($_GET['iframe']))
+{
+    $main->display(customTemplate('main.tpl'));
 }
-else {
-	$main->display(customTemplate('main_iframe.tpl'));
+else
+{
+    $main->display(customTemplate('main_iframe.tpl'));
 }
