@@ -28,7 +28,7 @@ $(function() {
     <!--{/if}-->
     $('#priority').chosen({disable_search_threshold: 5});
     <!--{foreach from=$categories item=category}-->
-    $('#num<!--{$category.categoryID}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
+    $('#num<!--{$category.categoryID|strip_tags|escape}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
     <!--{/foreach}-->
 
     $('#record').on('submit', function() {
@@ -75,7 +75,7 @@ $(function() {
                     <select id="service" name="service">
                     <option value=""></option>
                     <!--{foreach from=$services item=service}-->
-                    <option value="<!--{$service.serviceID}-->"<!--{if $selectedService == $service}-->selected="selected"<!--{/if}-->><!--{$service.service}--></option>
+                    <option value="<!--{$service.serviceID|strip_tags|escape}-->"<!--{if $selectedService == $service}-->selected="selected"<!--{/if}-->><!--{$service.service|strip_tags|escape}--></option>
                     <!--{/foreach}-->
                     </select>
                 </td>
@@ -112,10 +112,10 @@ $(function() {
         <div style="text-align: left; padding: 8px"><span>
           <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
     <!--{foreach from=$categories item=category}-->
-        <input name="num<!--{$category.categoryID}-->" type="checkbox" class="ischecked" id="num<!--{$category.categoryID}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}-->style="font-family: Courier; font-size: 24px; font-weight: bold; margin: 4px" />
-        <label class="checkable" style="float: none" for="num<!--{$category.categoryID}-->"> <!--{$category.categoryName}-->
+        <input name="num<!--{$category.categoryID|strip_tags|escape}-->" type="checkbox" class="ischecked" id="num<!--{$category.categoryID|strip_tags|escape}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}-->style="font-family: Courier; font-size: 24px; font-weight: bold; margin: 4px" />
+        <label class="checkable" style="float: none" for="num<!--{$category.categoryID|strip_tags|escape}-->"> <!--{$category.categoryName|strip_tags|escape}-->
             <!--{if $category.categoryDescription != ''}-->
-            &nbsp;(<!--{$category.categoryDescription}-->)
+            &nbsp;(<!--{$category.categoryDescription|strip_tags|escape}-->)
             <!--{/if}-->
         </label>
         <br />

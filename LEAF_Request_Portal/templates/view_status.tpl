@@ -25,9 +25,9 @@ Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID}-->"><!--{$t
         <!--{$indicator.time|date_format:"%B %e, %Y. %l:%M %p"}-->
     </td>
     <td>
-        <span><b><!--{$indicator.description}-->: <!--{$indicator.actionText}--></b> by <!--{$indicator.userName}-->
+        <span><b><!--{$indicator.description|escape}-->: <!--{$indicator.actionText|escape}--></b> by <!--{$indicator.userName|escape}-->
         <!--{if $indicator.comment != ''}-->
-        <br />Comment: <!--{$indicator.comment}--></span>
+        <br />Comment: <!--{$indicator.comment|escape}--></span>
         <!--{/if}-->
     </td>
 </tr>
@@ -41,11 +41,11 @@ Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID}-->"><!--{$t
 Required Actions:<br />
 <!--{foreach from=$dependencies item=dependency}--><!--{strip}-->
     <!--{if $dependency.filled==1}-->
-        <span style="padding: 4px; margin: 4px; color: green; font-weight: bold"><img class="print" src="../libs/dynicons/?img=dialog-apply.svg&w=16" alt="checked" /> <!--{$dependency.description}--></span><br />
+        <span style="padding: 4px; margin: 4px; color: green; font-weight: bold"><img class="print" src="../libs/dynicons/?img=dialog-apply.svg&w=16" alt="checked" /> <!--{$dependency.description|escape}--></span><br />
     <!--{elseif $dependency.filled==0}-->
-        <span style="padding: 4px; margin: 4px; color: gray">[ ? ] <!--{$dependency.description}--> (Pending)</span><br />
+        <span style="padding: 4px; margin: 4px; color: gray">[ ? ] <!--{$dependency.description|escape}--> (Pending)</span><br />
     <!--{else}-->
-        <span style="padding: 4px; margin: 4px; color: red"><img class="print" src="../libs/dynicons/?img=process-stop.svg&w=16" alt="not checked" /> <!--{$dependency.description}--></span><br />
+        <span style="padding: 4px; margin: 4px; color: red"><img class="print" src="../libs/dynicons/?img=process-stop.svg&w=16" alt="not checked" /> <!--{$dependency.description|escape}--></span><br />
     <!--{/if}-->
 <!--{/strip}--><!--{/foreach}-->
 </div>
