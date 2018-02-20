@@ -100,6 +100,8 @@ Tests for LEAF are in their infancy, so expect a lot of changes to happen in tes
 
 ### Contributing
 
+See the [README](docs/README.md) in the `docs` directory for information about coding standards.
+
 #### Branches
 
 Major branches:
