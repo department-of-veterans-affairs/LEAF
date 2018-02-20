@@ -22,6 +22,9 @@ include 'form.php';
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
+// Include XSSHelpers
+include_once './helpers.php';
+
 $db_config = new DB_Config();
 $config = new Config();
 
@@ -56,7 +59,7 @@ function customTemplate($tpl) {
 	return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
-$t_login->assign('name', $login->getName());
+$t_login->assign('name', XSSHelpers::xscrub($login->getName()));
 $t_menu->assign('is_admin', $login->checkGroup(1));
 
 $main->assign('useUI', false);
@@ -74,7 +77,7 @@ switch($action) {
         include './sources/FormStack.php';
         $stack = new FormStack($db, $login);
 
-        $t_menu->assign('action', $action);
+        $t_menu->assign('action', XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
 
         $currEmployee = $form->employee->lookupLogin($_SESSION['userID']);
@@ -84,10 +87,10 @@ switch($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
         $t_form->assign('categories', $stack->getCategories());
-        $t_form->assign('recorder', $login->getName());
+        $t_form->assign('recorder', XSSHelpers::xscrub($login->getName()));
         $t_form->assign('services', $form->getServices2());
-        $t_form->assign('city', $config->city);
-        $t_form->assign('phone', $currEmployeeData[5]['data']);
+        $t_form->assign('city', XSSHelpers::xscrub($config->city));
+        $t_form->assign('phone', XSSHelpers::xscrub($currEmployeeData[5]['data']));
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -99,28 +102,31 @@ switch($action) {
     case 'view':
     	$main->assign('useUI', true);
     	$main->assign('stylesheets', array('css/view.css'));
-    	$main->assign('javascripts', array('js/form.js', 'js/formGrid.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js'));
+        
+        $recordIDToView = (int) $_GET['recordID'];
         $form = new Form($db, $login);
         // prevent view if form is submitted
         // defines who can edit the form
-        if($form->hasWriteAccess($_GET['recordID'])
-                || $login->checkGroup(1)) {
-            $t_menu->assign('recordID', (int)$_GET['recordID']);
-            $t_menu->assign('action', $action);
+        if($form->hasWriteAccess($recordIDToView) || $login->checkGroup(1)) {
+            $t_menu->assign('recordID', $recordIDToView);
+            $t_menu->assign('action', XSSHelpers::xscrub($action));
             $o_login = $t_login->fetch('login.tpl');
 
-//            $thisRecord = $form->getRecord($_GET['recordID']);
+            // $thisRecord = $form->getRecord($_GET['recordID']);
 
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter= '}-->';
-            $t_form->assign('recordID', (int)$_GET['recordID']);
-            $t_form->assign('lastStatus', $form->getLastStatus($_GET['recordID']));
+            $t_form->assign('recordID', $recordIDToView);
+            $t_form->assign('lastStatus', XSSHelpers::xscrub($form->getLastStatus($recordIDToView)));
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('isIframe', $_GET['iframe'] == 1 ? 1 : 0);
-            if(isset($thisRecord['approval'])) {
-                $t_form->assign('approval', $thisRecord['approval']);
-            }
+            $t_form->assign('isIframe', (int)$_GET['iframe'] == 1 ? 1 : 0);
+
+            // since $thisRecord was already commented out above, this can probably be removed
+            // if(isset($thisRecord['approval'])) {
+            //     $t_form->assign('approval', $thisRecord['approval']);
+            // }
 
             switch($action) {
                 case 'review':
@@ -135,37 +141,40 @@ switch($action) {
         }
         $o_login = $t_login->fetch('login.tpl');
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel'];
-        $tabText = $requestLabel . ' #' . (int)$_GET['recordID'];
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::xscrub($settings['requestLabel']);
+        $tabText = $requestLabel . ' #' . $recordIDToView;
         break;
     case 'printview':
     	$main->assign('useUI', true);
-    	$main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/jsdiff.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/jsdiff.js'));
+        
+        $recordIDToPrint = (int)$_GET['recordID'];
 
         $form = new Form($db, $login);
-        $t_menu->assign('recordID', (int)$_GET['recordID']);
-        $t_menu->assign('action', $action);
+        $t_menu->assign('recordID', $recordIDToPrint);
+        $t_menu->assign('action', XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
   
-        $recordInfo = $form->getRecordInfo($_GET['recordID']);
-        $comments = $form->getActionComments($_GET['recordID']);
+        $recordInfo = $form->getRecordInfo($recordIDToPrint);
+        $comments = $form->getActionComments($recordIDToPrint);
+
   
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
-        $t_form->assign('recordID', (int)$_GET['recordID']);
-        $t_form->assign('name', $recordInfo['name']);
-        $t_form->assign('title', $recordInfo['title']);
-        $t_form->assign('priority', $recordInfo['priority']);
-        $t_form->assign('submitted', $recordInfo['submitted']);
-        $t_form->assign('stepID', $recordInfo['stepID']);
-        $t_form->assign('service', $recordInfo['service']);
-        $t_form->assign('serviceID', $recordInfo['serviceID']);
-        $t_form->assign('date', $recordInfo['date']);
-        $t_form->assign('deleted', $recordInfo['deleted']);
-        $t_form->assign('bookmarked', $recordInfo['bookmarked']);
+        $t_form->assign('recordID', $recordIDToPrint);
+        $t_form->assign('name', XSSHelpers::xscrub($recordInfo['name']));
+        $t_form->assign('title', XSSHelpers::xscrub($recordInfo['title']));
+        $t_form->assign('priority', (int) $recordInfo['priority']);
+        $t_form->assign('submitted', XSSHelpers::xscrub($recordInfo['submitted']));
+        $t_form->assign('stepID', (int)$recordInfo['stepID']);
+        $t_form->assign('service', XSSHelpers::xscrub($recordInfo['service']));
+        $t_form->assign('serviceID', (int) $recordInfo['serviceID']);
+        $t_form->assign('date', XSSHelpers::xscrub($recordInfo['date']));
+        $t_form->assign('deleted', (int)$recordInfo['deleted']);
+        $t_form->assign('bookmarked', XSSHelpers::xscrub($recordInfo['bookmarked']));
         $t_form->assign('categories', $recordInfo['categories']);
         $t_form->assign('comments', $comments);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -176,7 +185,7 @@ switch($action) {
   
         // get workflow status and check permissions
         require_once 'FormWorkflow.php';
-        $formWorkflow = new FormWorkflow($db, $login, $_GET['recordID']);
+        $formWorkflow = new FormWorkflow($db, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
   
         //url
@@ -186,19 +195,20 @@ switch($action) {
   
         switch($action) {
             default:
-  					$childForms = $form->getChildForms($_GET['recordID']);
+  					$childForms = $form->getChildForms($recordIDToPrint);
                 $t_form->assign('childforms', $childForms);
                 
-                if($_GET['childCategoryID'] != '') {
+                $childCatID = XSSHelpers::xscrub($_GET['childCategoryID']);
+                if($childCatID != '') {
                 	$match = 0;
                 	foreach($childForms as $cForm) {
-                		if($cForm['childCategoryID'] == $_GET['childCategoryID']) {
+                		if($cForm['childCategoryID'] == $childCatID) {
                 			$match = 1;
                 		}
                 	}
                 	if($match = 1) {
                 		// safe to pass in $_GET
-                		$t_form->assign('childCategoryID', $_GET['childCategoryID']);
+                		$t_form->assign('childCategoryID', $childCatID);
                 	}
                 }
                 
@@ -207,8 +217,8 @@ switch($action) {
                 break;
         }
         
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel'];
-        $tabText = $requestLabel . ' #' . (int)$_GET['recordID'];
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::xscrub($settings['requestLabel']);
+        $tabText = $requestLabel . ' #' . $recordIDToPrint;
         break;
     case 'inbox':
     	$main->assign('useUI', true);
@@ -247,23 +257,25 @@ switch($action) {
         $form = new Form($db, $login);
         include_once 'View.php';
         $view = new View($db, $login);
-        $t_menu->assign('recordID', (int)$_GET['recordID']);
-        $t_menu->assign('action', $action);
+        $recordIDForStatus = (int)$_GET['recordID'];
+
+        $t_menu->assign('recordID', $recordIDForStatus);
+        $t_menu->assign('action', XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
-        $recordInfo = $form->getRecordInfo($_GET['recordID']);
-        $t_form->assign('name', $recordInfo['name']);
-        $t_form->assign('title', $recordInfo['title']);
-        $t_form->assign('priority', $recordInfo['priority']);
-        $t_form->assign('submitted', $recordInfo['submitted']);
-        $t_form->assign('service', $recordInfo['service']);
-        $t_form->assign('date', $recordInfo['date']);
-        $t_form->assign('recordID', (int)$_GET['recordID']);
-        $t_form->assign('agenda', $view->buildViewStatus($_GET['recordID']));
-        $t_form->assign('dependencies', $form->getDependencyStatus($_GET['recordID']));            
+        $recordInfo = $form->getRecordInfo($recordIDForStatus);
+        $t_form->assign('name', XSSHelpers::xscrub($recordInfo['name']));
+        $t_form->assign('title', XSSHelpers::xscrub($recordInfo['title']));
+        $t_form->assign('priority', (int) $recordInfo['priority']);
+        $t_form->assign('submitted', (int) $recordInfo['submitted']);
+        $t_form->assign('service', XSSHelpers::xscrub($recordInfo['service']));
+        $t_form->assign('date', XSSHelpers::xscrub($recordInfo['date']));
+        $t_form->assign('recordID', $recordIDForStatus);
+        $t_form->assign('agenda', $view->buildViewStatus($recordIDForStatus));
+        $t_form->assign('dependencies', $form->getDependencyStatus($recordIDForStatus));            
 
         $main->assign('body', $t_form->fetch('view_status.tpl'));
         break;
@@ -295,7 +307,7 @@ switch($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
 
-        $t_form->assign('is_service_chief', $login->isServiceChief());
+        $t_form->assign('is_service_chief', (bool) $login->isServiceChief());
         $t_form->assign('empMembership', $login->getMembership());
 
         $t_form->assign('bookmarks', $view->buildViewBookmarks($login->getUserID()));
@@ -380,9 +392,9 @@ switch($action) {
    
    		$t_form->assign('orgchartPath', Config::$orgchartPath);
    		$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-   		$t_form->assign('query', $_GET['query']);
-   		$t_form->assign('indicators', $_GET['indicators']);
-   		$t_form->assign('title', $_GET['title']);
+   		$t_form->assign('query', XSSHelpers::xscrub($_GET['query']));
+   		$t_form->assign('indicators', XSSHelpers::xscrub($_GET['indicators']));
+   		$t_form->assign('title', XSSHelpers::xscrub($_GET['title']));
    		$t_form->assign('version', (int)$_GET['v']);
    		$t_form->assign('empMembership', $login->getMembership());
 
@@ -398,9 +410,9 @@ switch($action) {
     	$t_form->left_delimiter = '<!--{';
     	$t_form->right_delimiter= '}-->';
 
-    	$main->assign('title', $settings['heading'] == '' ? $config->title : $settings['heading']);
-    	$main->assign('city', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
-    	$main->assign('revision', $settings['version']);
+    	$main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::xscrub($settings['heading']));
+    	$main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::xscrub($settings['subheading']));
+    	$main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
     	$main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
     	$main->display(customTemplate('main.tpl'));
@@ -416,12 +428,12 @@ switch($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
 
-        $t_form->assign('userID', $login->getUserID());
-        $t_form->assign('empUID', $login->getEmpUID());
+        $t_form->assign('userID', XSSHelpers::xscrub($login->getUserID()));
+        $t_form->assign('empUID', XSSHelpers::xscrub($login->getEmpUID()));
         $t_form->assign('empMembership', $login->getMembership());
-        $t_form->assign('is_service_chief', $login->isServiceChief());
-        $t_form->assign('is_quadrad', $login->isQuadrad() || $login->checkGroup(1));
-        $t_form->assign('is_admin', $login->checkGroup(1));
+        $t_form->assign('is_service_chief', (bool) $login->isServiceChief());
+        $t_form->assign('is_quadrad', (bool) $login->isQuadrad() || (bool) $login->checkGroup(1));
+        $t_form->assign('is_admin', (bool) $login->checkGroup(1));
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         
@@ -442,17 +454,17 @@ switch($action) {
 }
 
 $main->assign('login', $t_login->fetch('login.tpl'));
-$t_menu->assign('action', $action);
+$t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
-$main->assign('tabText', $tabText);
+$main->assign('tabText', XSSHelpers::xscrub($tabText));
 
-$main->assign('title', $settings['heading'] == '' ? $config->title : $settings['heading']);
-$main->assign('city', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
-$main->assign('revision', $settings['version']);
+$main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::xscrub($settings['heading']));
+$main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::xscrub($settings['subheading']));
+$main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
 if(!isset($_GET['iframe'])) {
 	$main->display(customTemplate('main.tpl'));

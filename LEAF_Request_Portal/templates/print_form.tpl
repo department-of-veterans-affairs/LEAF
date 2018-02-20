@@ -42,9 +42,9 @@
     <div id="comments">
     <h1>Comments</h1>
         <!--{section name=i loop=$comments}-->
-            <div><span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'}--></span>
-                <span class="comments_name"><!--{$comments[i].actionTextPasttense}--> by <!--{$comments[i].name}--></span>
-                <div class="comments_message"><!--{$comments[i].comment}--></div>
+            <div><span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'|escape}--></span>
+                <span class="comments_name"><!--{$comments[i].actionTextPasttense|strip_tags|escape}--> by <!--{$comments[i].name}--></span>
+                <div class="comments_message"><!--{$comments[i].comment|escape}--></div>
             </div>
         <!--{/section}-->
     </div>
@@ -54,7 +54,7 @@
         <h1>Internal Use</h1>
         <div onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=printview&amp;recordID=<!--{$recordID}-->');"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" /> Main Request</div>
         <!--{section name=i loop=$childforms}-->
-            <div onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=internalonlyview&amp;recordID=<!--{$recordID}-->&amp;childCategoryID=<!--{$childforms[i].childCategoryID}-->');"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" /> <!--{$childforms[i].childCategoryName}--></div>
+            <div onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=internalonlyview&amp;recordID=<!--{$recordID}-->&amp;childCategoryID=<!--{$childforms[i].childCategoryID|strip_tags|escape}-->');"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" /> <!--{$childforms[i].childCategoryName|strip_tags|escape}--></div>
         <!--{/section}-->
     </div>
 
