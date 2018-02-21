@@ -1,6 +1,6 @@
 <!--{**}-->
         <!--{if $indicator.format == 'textarea'}-->
-            <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$categoryID}-->_<!--{$uid}-->">
+            <span class="printResponse" id="data_<!--{$indicator.indicatorID|strip_tags|escape}-->_<!--{$categoryID|strip_tag|escape}-->_<!--{$uid}-->">
                 <!--{$indicator.data}-->
             </span>
         <!--{/if}-->
@@ -33,13 +33,13 @@
                 </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'text'}-->
-            <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$categoryID}-->_<!--{$uid}-->">
-                <!--{$indicator.data}-->
+            <span class="printResponse" id="data_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID|strip_tags|escape}-->_<!--{$uid|strip_tags|escape}-->">
+                <!--{$indicator.data|strip_tags}-->
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'number'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$categoryID}-->_<!--{$uid}-->">
-                <!--{$indicator.data}-->
+                <!--{$indicator.data|escape}-->
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'numberspinner'}-->
@@ -49,18 +49,18 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'date'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$categoryID}-->_<!--{$uid}-->">
-                <!--{$indicator.data|date_format:"%A, %B %e, %Y"}-->
+                <!--{$indicator.data|date_format:"%A, %B %e, %Y"|strip|escape}-->
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'time'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$categoryID}-->_<!--{$uid}-->">
-                <!--{$indicator.data|date_format:"%l:%M %p"}-->
+                <!--{$indicator.data|date_format:"%l:%M %p"|strip|escape}-->
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'currency'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$categoryID}-->_<!--{$uid}-->">
                 <!--{if $indicator.data != 'NaN'}-->
-                    $<!--{$indicator.data|number_format:2:".":","}-->
+                    $<!--{$indicator.data|number_format:2:".":","|strip|escape}-->
                 <!--{else}-->
 
                 <!--{/if}-->
@@ -91,7 +91,7 @@
             <span class="printResponse" style="text-align: right" id="data_<!--{$indicator.indicatorID}-->_<!--{$categoryID}-->_<!--{$uid}-->">
             <!--{if $indicator.data[0] != ''}-->
             <!--{foreach from=$indicator.data item=file}-->
-            <a href="file.php?categoryID=<!--{$categoryID}-->&amp;UID=<!--{$uid}-->&amp;indicatorID=<!--{$indicator.indicatorID}-->&amp;file=<!--{$file|urlencode}-->" target="_blank" class="printResponse" onclick="event.stopPropagation();"><img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" /><!--{$file}--></a>
+            <a href="file.php?categoryID=<!--{$categoryID|strip_tags|escape}-->&amp;UID=<!--{$uid|escape}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags|escape}-->&amp;file=<!--{$file|urlencode|strip_tags|escape}-->" target="_blank" class="printResponse" onclick="event.stopPropagation();"><img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" /><!--{$file}--></a>
             <!--{/foreach}-->
             <!--{else}-->
             No files attached.
