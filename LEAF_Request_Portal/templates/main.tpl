@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     {if $tabText != ''}
-    <title>{$tabText} - {$title} | {$city}</title>
+    <title>{$tabText|strip_tags|escape} - {$title|strip_tags|escape} | {$city|strip_tags|escape}</title>
     {else}
-    <title>{$title} | {$city}</title>
+    <title>{$title|strip_tags|escape} | {$city|strip_tags|escape}</title>
     {/if}
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css" media="screen">
@@ -45,8 +45,8 @@
     {/if}
     <div style="cursor: pointer" onclick="window.location='./'">
       <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
-      <span id="headerLabel">{$city}</span>
-      <span id="headerDescription">{$title}</span>
+      <span id="headerLabel">{$city|strip_tags|escape}</span>
+      <span id="headerDescription">{$title|strip_tags|escape}</span>
     </div>
     <span id="headerHelp">{$login}</span>
     <span id="headerLogin"></span>

@@ -15,6 +15,9 @@ include 'db_config.php';
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
+// Include XSSHelpers
+include_once './helpers.php';
+
 $db_config = new DB_Config();
 $config = new Config();
 
@@ -57,15 +60,19 @@ switch($action) {
         if(is_numeric($_GET['indicatorID'])) {
             $t_form = new Smarty;
 
-            $indicator = $form->getIndicator($_GET['indicatorID'], $_GET['series'], $_GET['recordID']);
-            $recordInfo = $form->getRecordInfo($_GET['recordID']);
+            $indicatorID = (int)$_GET['indicatorID'];
+            $series = XSSHelpers::xscrub($_GET['series']);
+            $recordID = (int) $_GET['recordID'];
+
+            $indicator = $form->getIndicator($indicatorID, $series, $recordID);
+            $recordInfo = $form->getRecordInfo($recordID);
             if($indicator[$_GET['indicatorID']]['isWritable'] == 1) {
             	$t_form->left_delimiter = '<!--{';
             	$t_form->right_delimiter= '}-->';
-            	$t_form->assign('recordID', (int)$_GET['recordID']);
-            	$t_form->assign('series', (int)$_GET['series']);
-            	$t_form->assign('serviceID', $recordInfo['serviceID']);
-            	$t_form->assign('recorder', $_SESSION['name']);
+            	$t_form->assign('recordID', $recordID);
+            	$t_form->assign('series', $series);
+            	$t_form->assign('serviceID', (int)$recordInfo['serviceID']);
+            	$t_form->assign('recorder', XSSHelpers::xscrub($_SESSION['name']));
             	$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             	$t_form->assign('form', $indicator);
             	$t_form->assign('orgchartPath', Config::$orgchartPath);
@@ -80,17 +87,21 @@ switch($action) {
     case 'getprintindicator':
         require 'form.php';
         $form = new Form($db, $login);
-        if(is_numeric($_GET['indicatorID'])) {
+        $indicatorID = (int)$_GET['indicatorID'];
+        $series = XSSHelpers::xscrub($_GET['series']);
+        $recordID = (int) $_GET['recordID'];
+
+        if(is_numeric($indicatorID)) {
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter= '}-->';
 
-            if(is_numeric($_GET['indicatorID']) && is_numeric($_GET['series'])) {
-                $t_form->assign('recordID', (int)$_GET['recordID']);
-                $t_form->assign('series', (int)$_GET['series']);
-                $t_form->assign('recorder', $_SESSION['name']);
-                $indicator = $form->getIndicator($_GET['indicatorID'], $_GET['series'], $_GET['recordID']);
-                $t_form->assign('indicator', $indicator[$_GET['indicatorID']]);
+            if(is_numeric($series)) {
+                $t_form->assign('recordID', $recordID);
+                $t_form->assign('series', $series);
+                $t_form->assign('recorder', XSSHelpers::xscrub($_SESSION['name']));
+                $indicator = $form->getIndicator($indicatorID, $series, $recordID);
+                $t_form->assign('indicator', $indicator[$indicatorID]);
                 $t_form->assign('orgchartPath', Config::$orgchartPath);
                 $t_form->display('print_subindicators_ajax.tpl');
             }
@@ -99,11 +110,15 @@ switch($action) {
     case 'getindicatorlog':
         require 'form.php';
         $form = new Form($db, $login);
-        if(is_numeric($_GET['indicatorID'])) {
+        $indicatorID = (int)$_GET['indicatorID'];
+        $series = XSSHelpers::xscrub($_GET['series']);
+        $recordID = (int) $_GET['recordID'];
+
+        if(is_numeric($indicatorID)) {
             $t_form = new Smarty;
 
-            if($_GET['indicatorID'] > 0 || $_GET['series'] > 0) {
-                $t_form->assign('log', $form->getIndicatorLog($_GET['indicatorID'], $_GET['series'], $_GET['recordID']));
+            if($indicatorID > 0 || $series > 0) {
+                $t_form->assign('log', $form->getIndicatorLog($indicatorID, $series, $recordID));
                 $t_form->display('ajaxIndicatorLog.tpl');
             }
         }
@@ -111,12 +126,13 @@ switch($action) {
     case 'domodify':
         require 'form.php';
         $form = new Form($db, $login);
-        echo $form->doModify($_POST['recordID']);
+        echo $form->doModify((int)$_POST['recordID']);
         break;
     case 'getsubmitcontrol':
     	$t_form = new Smarty;
+        $recordID = (int) $_GET['recordID'];
 
-        $vars = array('recordID' => $_GET['recordID']);
+        $vars = array('recordID' => $recordID);
 		// check if request has a workflow
         $res = $db->prepared_query('SELECT * FROM category_count
                                              LEFT JOIN categories USING (categoryID)
@@ -136,9 +152,9 @@ switch($action) {
 
         $lastActionTime = isset($res[0]['time']) ? $res[0]['time'] : 0;
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel'];
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::xscrub($settings['requestLabel']);
 
-        $t_form->assign('recordID', (int)$_GET['recordID']);
+        $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
         $t_form->assign('requestLabel', $requestLabel);
         $t_form->display(customTemplate('submitForm.tpl'));
@@ -146,10 +162,11 @@ switch($action) {
     case 'dosubmit': // legacy action
         require 'form.php';
         $form = new Form($db, $login);
-        if(is_numeric($_GET['recordID']) && $form->getProgress($_GET['recordID']) >= 100) {
-            $status = $form->doSubmit($_GET['recordID']);
+        $recordID = (int) $_GET['recordID'];
+        if(is_numeric($recordID) && $form->getProgress($recordID) >= 100) {
+            $status = $form->doSubmit($recordID);
             if($status['status'] == 1) {
-            	echo (int)$_GET['recordID']."submitOK";
+            	echo $recordID."submitOK";
             }
             else {
             	echo $status['errors'];
@@ -164,7 +181,7 @@ switch($action) {
 
         if(is_numeric($_POST['cancel'])) {
             $form = new Form($db, $login);
-            echo $form->deleteRecord($_POST['cancel']);
+            echo $form->deleteRecord((int)$_POST['cancel']);
         }
         break;
     case 'restore':
@@ -172,7 +189,7 @@ switch($action) {
     
         if(is_numeric($_POST['restore'])) {
             $form = new Form($db, $login);
-            echo $form->restoreRecord($_POST['restore']);
+            echo $form->restoreRecord((int)$_POST['restore']);
         }
         break;
     case 'doapproval':
@@ -259,7 +276,7 @@ switch($action) {
         require 'form.php';
         $form = new Form($db, $login);
 
-        echo $form->deleteAttachment($_POST['recordID'], $_POST['indicatorID'], $_POST['series'], $_POST['file']);
+        echo $form->deleteAttachment((int)$_POST['recordID'], (int)$_POST['indicatorID'], XSSHelpers::xscrub($_POST['series']), XSSHelpers::xscrub($_POST['file']));
 
         break;
     case 'getstatus':
@@ -271,15 +288,15 @@ switch($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
-        $recordInfo = $form->getRecordInfo($_GET['recordID']);
-        $t_form->assign('name', $recordInfo['name']);
-        $t_form->assign('title', $recordInfo['title']);
-        $t_form->assign('priority', $recordInfo['priority']);
-        $t_form->assign('submitted', $recordInfo['submitted']);
-        $t_form->assign('service', $recordInfo['service']);
+        $recordInfo = $form->getRecordInfo((int)$_GET['recordID']);
+        $t_form->assign('name', XSSHelpers::xscrub($recordInfo['name']));
+        $t_form->assign('title', XSSHelpers::xscrub($recordInfo['title']));
+        $t_form->assign('priority', (int)$recordInfo['priority']);
+        $t_form->assign('submitted', (int)$recordInfo['submitted']);
+        $t_form->assign('service', XSSHelpers::xscrub($recordInfo['service']));
         $t_form->assign('date', $recordInfo['date']);
         $t_form->assign('recordID', (int)$_GET['recordID']);
-        $t_form->assign('agenda', $view->buildViewStatus($_GET['recordID']));
+        $t_form->assign('agenda', $view->buildViewStatus((int)$_GET['recordID']));
         $t_form->assign('dependencies', $form->getDependencyStatus($_GET['recordID']));
 
         $t_form->display('view_status.tpl');
@@ -290,8 +307,9 @@ switch($action) {
         if($login->isLogin()) {
             require 'form.php';
             $form = new Form($db, $login);
+            $recordIDToPrint = (int)$_GET['recordID'];
 
-            $recordInfo = $form->getRecordInfo($_GET['recordID']);
+            $recordInfo = $form->getRecordInfo($recordIDToPrint);
             
             $categoryText = '';
             if(is_array($recordInfo['categoryNames'])) {
@@ -306,38 +324,38 @@ switch($action) {
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter= '}-->';
-            $t_form->assign('recordID', (int)$_GET['recordID']);
-            $t_form->assign('name', $recordInfo['name']);
-            $t_form->assign('title', $recordInfo['title']);
-            $t_form->assign('priority', $recordInfo['priority']);
-            $t_form->assign('submitted', $recordInfo['submitted']);
-            $t_form->assign('service', $recordInfo['service']);
+            $t_form->assign('recordID', $recordIDToPrint);
+            $t_form->assign('name', XSSHelpers::xscrub($recordInfo['name']));
+            $t_form->assign('title', XSSHelpers::xscrub($recordInfo['title']));
+            $t_form->assign('priority', (int)$recordInfo['priority']);
+            $t_form->assign('submitted', (int)$recordInfo['submitted']);
+            $t_form->assign('service', XSSHelpers::xscrub($recordInfo['service']));
             $t_form->assign('date', $recordInfo['submitted']);
-            $t_form->assign('categoryText', $categoryText);
-            $t_form->assign('deleted', $recordInfo['deleted']);
+            $t_form->assign('categoryText', XSSHelpers::xscrub($categoryText));
+            $t_form->assign('deleted', (int)$recordInfo['deleted']);
             $t_form->assign('orgchartPath', Config::$orgchartPath);
             $t_form->assign('is_admin', $login->checkGroup(1));
 
             switch($action) {
                 case 'internalonlyview':
-                    $t_form->assign('form', $form->getFullForm($_GET['recordID'], $_GET['childCategoryID']));
+                    $t_form->assign('form', $form->getFullForm($recordIDToPrint, (int)$_GET['childCategoryID']));
                     break;
                 default:
-                    $t_form->assign('form', $form->getFullForm($_GET['recordID']));
+                    $t_form->assign('form', $form->getFullForm($recordIDToPrint));
                     break;
             }
 
             // get tags
-            $t_form->assign('tags', $form->getTags($_GET['recordID']));
+            $t_form->assign('tags', $form->getTags($recordIDToPrint));
 
             if(!isset($_GET['enclosed'])) {
-            	$childForms = $form->getChildForms($_GET['recordID']);
+            	$childForms = $form->getChildForms($recordIDToPrint);
             	$tChildForms = [];
             	foreach($childForms as $childForm) {
             		$tChildForms[$childForm['childCategoryID']] = $childForm['childCategoryName'];
             	}
 
-                $t_form->assign('subtype', isset($_GET['childCategoryID']) ? '(' . strip_tags($tChildForms[$_GET['childCategoryID']]) . ')' : '');
+                $t_form->assign('subtype', isset($_GET['childCategoryID']) ? '(' . strip_tags($tChildForms[(int)$_GET['childCategoryID']]) . ')' : '');
                 $t_form->display(customTemplate('print_form_ajax.tpl'));
             }
             else {
@@ -367,7 +385,7 @@ switch($action) {
             $t_form = new Smarty;
 
             if($_GET['recordID'] > 0) {
-                $t_form->assign('tags', $form->getTags($_GET['recordID']));
+                $t_form->assign('tags', $form->getTags((int)$_GET['recordID']));
                 $t_form->display('print_form_ajax_tags.tpl');
             }
         }
@@ -379,7 +397,7 @@ switch($action) {
             $t_form = new Smarty;
 
             if($_GET['recordID'] > 0) {
-                $t_form->assign('tags', $form->getTags($_GET['recordID']));
+                $t_form->assign('tags', $form->getTags((int)$_GET['recordID']));
                 $t_form->display('form_tags.tpl');
             }
         }
@@ -391,7 +409,7 @@ switch($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';        
 
-        $tagMembers = $form->getTagMembers($_GET['tag']);
+        $tagMembers = $form->getTagMembers(XSSHelpers::xscrub($_GET['tag']));
 
         $t_form->assign('tag', strip_tags($_GET['tag']));
         $t_form->assign('totalNum', count($tagMembers));
@@ -401,7 +419,7 @@ switch($action) {
     case 'updatetags':
         require 'form.php';
         $form = new Form($db, $login);
-        $form->parseTags($_POST['recordID'], $_POST['taginput']);
+        $form->parseTags((int)$_POST['recordID'], XSSHelpers::xscrub($_POST['taginput']));
         break;
     case 'addbookmark':
         if($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
@@ -409,7 +427,7 @@ switch($action) {
         }
         require 'form.php';
         $form = new Form($db, $login);
-        $form->addTag($_GET['recordID'], 'bookmark_' . $login->getUserID());
+        $form->addTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
         break;
     case 'removebookmark':
         if($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
@@ -417,7 +435,7 @@ switch($action) {
         }
         require 'form.php';
         $form = new Form($db, $login);
-        $form->deleteTag($_GET['recordID'], 'bookmark_' . $login->getUserID());
+        $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
         break;
     default:
         break;
