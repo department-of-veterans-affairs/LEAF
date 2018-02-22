@@ -51,7 +51,7 @@ $(function() {
 
 <form id="record" method="post" action="ajaxIndex.php?a=newform">
     <div class="item" style="text-align: left; border: 2px dotted black; padding: 5px">
-        <span>Welcome, <b><!--{$recorder}--></b>, to the <!--{$city}--> request website.<br />
+        <span>Welcome, <b><!--{$recorder|strip_tags|escape}--></b>, to the <!--{$city|strip_tags|escape}--> request website.<br />
         After clicking "proceed", you will be presented with a series of request related questions. Incomplete requests may result
         in delays. Upon completion of the request, you will be given an opportunity to print the submission.</span>
     </div>
@@ -66,7 +66,7 @@ $(function() {
         <table id="step1_questions" style="width: 100%; margin: 8px">
             <tr>
                 <td>Contact Info</td>
-                <td><input id="recorder" aria-label="recorder" type="text" title="" value="<!--{$recorder}-->" disabled="disabled"/> <input id="phone" type="text" aria-label="phone" title="" value="<!--{$phone}-->" disabled="disabled" /></td>
+                <td><input id="recorder" aria-label="recorder" type="text" title="" value="<!--{$recorder|strip_tags|escape}-->" disabled="disabled"/> <input id="phone" type="text" aria-label="phone" title="" value="<!--{$phone|strip_tags|escape}-->" disabled="disabled" /></td>
             </tr>
             <!--{if count($services) != 0}-->
             <tr>

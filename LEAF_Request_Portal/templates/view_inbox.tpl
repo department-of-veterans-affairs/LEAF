@@ -10,7 +10,7 @@ The following is a list of requests that are pending your action:
 <!--{foreach from=$inbox item=dep}-->
 <br /><br />
 <table id="depTitle_<!--{$dep.dependencyID}-->" class="agenda" style="width: 100%; margin: 0px auto">
-    <tr style="background-color: <!--{$dep.dependencyBgColor|strip_tags}-->; cursor: pointer" onclick="toggleDepVisibility('<!--{$dep.dependencyID}-->')">
+    <tr style="background-color: <!--{$dep.dependencyBgColor|strip_tags}-->; cursor: pointer" onclick="toggleDepVisibility('<!--{$dep.dependencyID|strip_tags|escape}-->')">
       <td colspan="3">
       <span style="float: left; font-size: 120%; font-weight: bold">
           <!--{if $dep.dependencyID != -1}-->
@@ -19,7 +19,7 @@ The following is a list of requests that are pending your action:
               Action required from: <!--{$dep.approverName|strip_tags|escape}-->
           <!--{/if}-->
       </span>
-      <span style="float: right; text-decoration: underline; font-weight: bold"><span id="depTitleAction_<!--{$dep.dependencyID}-->">View</span> <!--{$dep.count}--> requests</span>
+      <span style="float: right; text-decoration: underline; font-weight: bold"><span id="depTitleAction_<!--{$dep.dependencyID|strip_tags|escape}-->">View</span> <!--{$dep.count}--> requests</span>
       </td>
     </tr>
 </table>
@@ -155,7 +155,7 @@ var dialog_message;
 $(function() {
 	dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
     <!--{foreach from=$inbox item=dep}-->
-    toggleDepVisibility('<!--{$dep.dependencyID}-->', 1);
+    toggleDepVisibility('<!--{$dep.dependencyID|strip_tags|escape}-->', 1);
     <!--{/foreach}-->
 
 });
