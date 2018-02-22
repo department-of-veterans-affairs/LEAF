@@ -1,9 +1,9 @@
-<div><a href="?a=status&amp;recordID=<!--{$recordID}-->"><img src="../libs/dynicons/?img=printer.svg&amp;w=16" alt="Print status" /></a></div>
+<div><a href="?a=status&amp;recordID=<!--{$recordID|strip_tags|escape}-->"><img src="../libs/dynicons/?img=printer.svg&amp;w=16" alt="Print status" /></a></div>
 <div> <!-- main content -->
-<span style="font-weight: bold; font-size: 16px">History of Request ID#: <!--{$recordID}--></span>
+<span style="font-weight: bold; font-size: 16px">History of Request ID#: <!--{$recordID|strip_tags|escape}--></span>
 <br />
-Service: <!--{$service}--><br />
-Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID}-->"><!--{$title}--></a><br /><br />
+Service: <!--{$service|strip_tags|escape}--><br />
+Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID|strip_tags|escape}-->"><!--{$title|strip_tags|escape}--></a><br /><br />
 
 <div style="float: left; padding: 2px">
 <table class="agenda" id="maintable">
@@ -14,13 +14,13 @@ Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID}-->"><!--{$t
 
 <tr>
     <td><!--{$date|date_format:"%B %e, %Y. %l:%M %p"}--></td>
-    <td>New Request Opened by <!--{$name}--></td>
+    <td>New Request Opened by <!--{$name|strip_tags|escape}--></td>
 </tr>
 
 
 <!--{foreach from=$agenda item=indicator}--><!--{strip}-->
 
-<tr id="id_<!--{$indicator.recordID}-->">
+<tr id="id_<!--{$indicator.recordID|strip_tags|escape}-->">
     <td>
         <!--{$indicator.time|date_format:"%B %e, %Y. %l:%M %p"}-->
     </td>
