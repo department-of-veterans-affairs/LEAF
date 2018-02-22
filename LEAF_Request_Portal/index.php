@@ -485,7 +485,6 @@ $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
-$tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', XSSHelpers::xscrub($tabText));
 
 $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::xscrub($settings['heading']));
