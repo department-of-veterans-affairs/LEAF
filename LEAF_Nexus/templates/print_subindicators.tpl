@@ -21,9 +21,9 @@
       <div class="printmainblock<!--{if ($indicator.required == 0 && $indicator.data == '') || $indicator.format == 'json'}--> notrequired<!--{/if}-->">
         <div class="printmainlabel">
             <!--{if $indicator.required == 1 && $indicator.isEmpty == true}-->
-                <div id="PHindicator_<!--{$indicator.indicatorID}-->" class="printheading_missing" style="cursor: pointer" onclick="orgchartForm.getForm(<!--{$uid}-->, <!--{$categoryID}-->, <!--{$indicator.indicatorID}-->);">
+                <div id="PHindicator_<!--{$indicator.indicatorID|strip_tags|escape}-->" class="printheading_missing" style="cursor: pointer" onclick="orgchartForm.getForm(<!--{$uid|strip_tags|escape}-->, <!--{$categoryID|strip_tags|escape}-->, <!--{$indicator.indicatorID|strip_tags|escape}-->);">
             <!--{else}-->
-                <div id="PHindicator_<!--{$indicator.indicatorID}-->" class="printheading" style="cursor: pointer" onclick="orgchartForm.getForm(<!--{$uid}-->, <!--{$categoryID}-->, <!--{$indicator.indicatorID}-->);">
+                <div id="PHindicator_<!--{$indicator.indicatorID|strip_tags|escape}-->" class="printheading" style="cursor: pointer" onclick="orgchartForm.getForm(<!--{$uid|strip_tags|escape}-->, <!--{$categoryID|strip_tags|escape}-->, <!--{$indicator.indicatorID|strip_tags|escape}-->);">
             <!--{/if}-->
             <div style="float: left">
             <!--{if $date < $indicator.timestamp && $date > 0}-->
