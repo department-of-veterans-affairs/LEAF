@@ -230,10 +230,11 @@ $(function() {
         posSel.timer = 0;
         grpSel.timer = 0;
         grp2Sel.timer = 0;
-        empSel.forceSearch($('#search').val());
-        posSel.forceSearch($('#search').val());
-        grpSel.forceSearch($('#search').val());
-        grp2Sel.forceSearch($('#search').val());
+        var search = $('#search').val().replace(/[^a-zA-Z0-9.-]/g);
+        empSel.forceSearch(search);
+        posSel.forceSearch(search);
+        grpSel.forceSearch(search);
+        grp2Sel.forceSearch(search);
         sideOffset = 350;
         setSearchWidth();
         if($('#search').val() != '') {
