@@ -1,6 +1,6 @@
 <!--{**}-->
         <!--{if $indicator.format == 'textarea'}-->
-            <span class="printResponse" id="data_<!--{$indicator.indicatorID|strip_tags|escape}-->_<!--{$categoryID|strip_tag|escape}-->_<!--{$uid}-->">
+            <span class="printResponse" id="data_<!--{$indicator.indicatorID|strip_tags|escape}-->_<!--{$categoryID|strip_tags|escape}-->_<!--{$uid}-->">
                 <!--{$indicator.data}-->
             </span>
         <!--{/if}-->
