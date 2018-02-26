@@ -21,6 +21,8 @@ include 'config.php';
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
+include_once './sources/XSSHelpers.php';
+
 $config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
@@ -53,7 +55,7 @@ function customTemplate($tpl) {
 
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
-$t_login->assign('name', $login->getName());
+$t_login->assign('name', XSSHelpers::xscrub($login->getName()));
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
@@ -62,7 +64,7 @@ switch($action) {
     case 'navigator_service':
         require 'sources/Group.php';
         $group = new Orgchart\Group($db, $login);
-        $_GET['rootID'] = $group->getGroupLeader($_GET['groupID']);
+        $_GET['rootID'] = $group->getGroupLeader((int)$_GET['groupID']);
     case 'navigator':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -343,8 +345,8 @@ switch($action) {
 
         $t_form->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_form->assign('UID', (int)$_GET['UID']);
-        $t_form->assign('indicator', $indicators->getIndicator($_GET['indicatorID']));
-        $t_form->assign('permissions', $indicators->getPrivileges($_GET['indicatorID']));
+        $t_form->assign('indicator', $indicators->getIndicator((int)$_GET['indicatorID']));
+        $t_form->assign('permissions', $indicators->getPrivileges((int)$_GET['indicatorID']));
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('body', $t_form->fetch('view_permissions.tpl'));
 
@@ -519,7 +521,7 @@ switch($action) {
 }
 
 $memberships = $login->getMembership();
-$t_menu->assign('action', $action);
+$t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');

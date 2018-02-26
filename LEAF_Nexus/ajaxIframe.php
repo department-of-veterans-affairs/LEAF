@@ -20,6 +20,8 @@ include 'config.php';
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
+include_once './sources/XSSHelpers.php';
+
 $config = new Orgchart\Config();
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
@@ -55,7 +57,7 @@ else {
     $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 }
 
-$t_login->assign('name', $login->getName());
+$t_login->assign('name', XSSHelpers::xscrub($login->getName()));
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
@@ -90,19 +92,24 @@ switch($action) {
         $main->assign('useDojoUI', false);
 
         $type = null;
-        switch($_GET['categoryID']) {
-            case 1:    // employee
-                $type = 'empUID';
-                break;
-            case 2:    // position
-                $type = 'positionID';
-                break;
-            case 3:    // group
-                $type = 'groupID';
-                break;
-            default:
-                return false;
-                break;
+        $categoryID = $_GET['categoryID'];
+        if (is_numeric($categoryID)) {
+            switch ($_GET['categoryID']) {
+                case 1:    // employee
+                    $type = 'empUID';
+                    break;
+                case 2:    // position
+                    $type = 'positionID';
+                    break;
+                case 3:    // group
+                    $type = 'groupID';
+                    break;
+                default:
+                    return false;
+                    break;
+            }
+        } else {
+            return false;
         }
 
         $t_iframe = new Smarty;

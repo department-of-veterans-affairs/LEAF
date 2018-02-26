@@ -90,7 +90,7 @@ positionSelector.prototype.setSelectLink = function(link) {
 };
 
 positionSelector.prototype.forceSearch = function(query) {
-	$('#' + this.prefixID + 'input').val(query);
+	$('#' + this.prefixID + 'input').val(query.replace(/[^a-zA-Z0-9.-]/g));
 };
 
 positionSelector.prototype.hideInput = function() {
@@ -125,7 +125,7 @@ positionSelector.prototype.search = function() {
 	this.timer += (this.timer > 5000) ? 0 : 200;
 
 	if(this.timer > 300) {
-	    var txt = $('#' + this.prefixID + 'input').val();
+	    var txt = $('#' + this.prefixID + 'input').val().replace(/[^a-zA-Z0-9.-]/g);
 
 	    if(txt != "" && txt != this.q) {
 	    	this.q = txt;
