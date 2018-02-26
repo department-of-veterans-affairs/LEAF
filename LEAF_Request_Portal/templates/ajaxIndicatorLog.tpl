@@ -10,8 +10,8 @@ Log of modifications made to this field:<br /><br />
     <tbody>
 {foreach from=$log item=indicator}
     <tr>
-        <td>{$indicator.timestamp|date_format:"%A, %B %e, %Y"}<br /><b>{$indicator.name|strip_tags|escape}</b></td>
-        <td>{$indicator.data|strip_tags|escape}</td>
+        <td>{$indicator.timestamp|date_format:"%A, %B %e, %Y"}<br /><b>{$indicator.name|sanitize}</b></td>
+        <td>{$indicator.data|sanitize}</td>
     </tr>
 {/foreach}
     </tbody>
