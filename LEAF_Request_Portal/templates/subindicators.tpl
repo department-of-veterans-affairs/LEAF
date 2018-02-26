@@ -22,16 +22,16 @@
         <div class="mainlabel">
             <div>
             <span>
-                <b><!--{$indicator.name}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}--><br />
+                <b><!--{$indicator.name|sanitize}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}--><br />
             </span>
             </div>
                 <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID}-->">
             <span>
                     <!--{if $indicator.format == null}-->
-                        <br /><b><!--{$indicator.name|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
+                        <br /><b><!--{$indicator.name|indent:$depth:""|sanitize}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->
-                        <br /><!--{$indicator.name|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
+                        <br /><!--{$indicator.name|indent:$depth:""|sanitize}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
                     <!--{/if}-->
             </span>
                 <!--{/if}-->
@@ -43,7 +43,7 @@
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'textarea' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-            <textarea id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" style="width: 97%; padding: 8px; font-size: 1.3em; font-family: monospace" rows="10"><!--{$indicator.value}--></textarea>
+            <textarea id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" style="width: 97%; padding: 8px; font-size: 1.3em; font-family: monospace" rows="10"><!--{$indicator.value|sanitize}--></textarea>
             <div id="textarea_format_button_<!--{$indicator.indicatorID}-->" style="text-align: right; font-size: 12px"><span class="link">formatting options</span></div>
             <script>
             $(function() {
@@ -85,17 +85,17 @@
                 <!--{if is_array($option)}-->
                     <!--{assign var='option' value=$option[0]}-->
                     <!--{if $option|escape == $indicator.value}-->
-                        <input type="radio" id="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$option}-->" checked="checked" />
+                        <input type="radio" id="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$option|escape}-->" checked="checked" />
                         <label class="checkable" for="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->"><!--{$option|escape}--></label><br />
                     <!--{else}-->
-                        <input type="radio" id="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$option}-->" />
+                        <input type="radio" id="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$option|escape}-->" />
                         <label class="checkable" for="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->"><!--{$option|escape}--></label><br />
                     <!--{/if}-->
                 <!--{elseif $option|escape == $indicator.value}-->
-                    <input type="radio" id="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$option}-->" checked="checked" />
+                    <input type="radio" id="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$option|escape}-->" checked="checked" />
                     <label class="checkable" for="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->"><!--{$option|escape}--></label><br />
                 <!--{else}-->
-                    <input type="radio" id="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$option}-->" />
+                    <input type="radio" id="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$option|escape}-->" />
                     <label class="checkable" for="<!--{$indicator.indicatorID}-->_radio<!--{$ctr}-->"><!--{$option|escape}--></label><br />
                 <!--{/if}-->
                 <!--{counter print=false}-->
@@ -155,7 +155,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'text' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
-                <input type="text" id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value}-->" trim="true" style="width: 50%; font-size: 1.3em; font-family: monospace" />
+                <input type="text" id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value|sanitize}-->" trim="true" style="width: 50%; font-size: 1.3em; font-family: monospace" />
             </span>
             <script>
             <!--{if $indicator.required == 1}-->
@@ -173,7 +173,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'number' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
-                <input type="text" id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value}-->" style="font-size: 1.3em; font-family: monospace" />
+                <input type="text" id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value|sanitize}-->" style="font-size: 1.3em; font-family: monospace" />
                 <span id="<!--{$indicator.indicatorID}-->_error" style="color: red; display: none">Data must be numeric</span>
             </span>
             <script type="text/javascript">
@@ -210,13 +210,13 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'numberspinner' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
-                <br /><input type="text" id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value}-->" />
+                <br /><input type="text" id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value|sanitize}-->" />
             </span>
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'date' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
-                <input type="text" id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" style="background: url(../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="<!--{$indicator.value}-->" />
+                <input type="text" id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" style="background: url(../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="<!--{$indicator.value|sanitize}-->" />
             </span>
             <script>
             $(function() {
@@ -238,13 +238,13 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'time' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
-                <br /><input type="text" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value}-->" />
+                <br /><input type="text" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value|sanitize}-->" />
             </span>
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'currency' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
-                <br />$<input type="text" id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value}-->" style="font-size: 1.3em; font-family: monospace" /> (Amount in USD)
+                <br />$<input type="text" id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value|sanitize}-->" style="font-size: 1.3em; font-family: monospace" /> (Amount in USD)
                 <span id="<!--{$indicator.indicatorID}-->_error" style="color: red; display: none">Data must be numeric</span>
             </span>
             <script type="text/javascript">
@@ -307,10 +307,10 @@
                     <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" /> <!-- dumb workaround -->
                     <!--{if $option == $indicator.value[$idx]}-->
                         <br /><input type="checkbox" class="icheck<!--{$indicator.indicatorID}-->" id="<!--{$indicator.indicatorID}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="<!--{$option|escape}-->" checked="checked" />
-                        <label class="checkable" for="<!--{$indicator.indicatorID}-->_<!--{$idx}-->"><!--{$option}--></label>
+                        <label class="checkable" for="<!--{$indicator.indicatorID}-->_<!--{$idx}-->"><!--{$option|escape}--></label>
                     <!--{else}-->
                         <br /><input type="checkbox" class="icheck<!--{$indicator.indicatorID}-->" id="<!--{$indicator.indicatorID}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="<!--{$option|escape}-->" />
-                        <label class="checkable" for="<!--{$indicator.indicatorID}-->_<!--{$idx}-->"><!--{$option}--></label>
+                        <label class="checkable" for="<!--{$indicator.indicatorID}-->_<!--{$idx}-->"><!--{$option|escape}--></label>
                     <!--{/if}-->
                     <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
@@ -418,9 +418,9 @@
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{if is_array($option)}-->
                     <!--{assign var='option' value=$option[0]}-->
-                    <!--{$option}--> <input type="checkbox" name="<!--{$indicator.indicatorID}-->[]" value="<!--{$option}-->" checked="checked" /><br />
+                    <!--{$option}--> <input type="checkbox" name="<!--{$indicator.indicatorID}-->[]" value="<!--{$option|escape}-->" checked="checked" /><br />
                 <!--{else}-->
-                    <!--{$option}--> <input type="checkbox" name="<!--{$indicator.indicatorID}-->[]" value="<!--{$option}-->" /><br />
+                    <!--{$option}--> <input type="checkbox" name="<!--{$indicator.indicatorID}-->[]" value="<!--{$option|escape}-->" /><br />
                 <!--{/if}-->
             <!--{/foreach}-->
         <!--{/if}-->
@@ -583,7 +583,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'orgchart_employee' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <div id="empSel_<!--{$indicator.indicatorID}-->"></div>
-            <input id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value}-->" style="display: none"></input>
+            <input id="<!--{$indicator.indicatorID}-->" name="<!--{$indicator.indicatorID}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none"></input>
             
             <script>
             $(function() {

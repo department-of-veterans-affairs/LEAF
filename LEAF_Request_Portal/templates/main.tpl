@@ -50,7 +50,7 @@
     </div>
     <span id="headerHelp">{$login}</span>
     <span id="headerLogin"></span>
-    <span id="headerTab">{$emergency}{$tabText}</span>
+    <span id="headerTab">{$emergency}{$tabText|sanitize}</span>
     <span id="headerTabImg"><img src="images/tab.png" alt="tab" /></span>
     <span id="headerMenu" class="noprint">{$menu}</span>
 </div>
