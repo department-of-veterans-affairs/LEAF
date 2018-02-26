@@ -15,7 +15,7 @@ class XSSHelpers {
      * @return  string  the sanitized data
      */
     static function xssafe($data, $encoding='UTF-8') {
-        return htmlspecialchars($data, ENT_QUOTES | ENT_HTML401,$encoding);
+        return htmlspecialchars($data, ENT_QUOTES | ENT_HTML5, $encoding);
     }
 
     /**
@@ -30,7 +30,9 @@ class XSSHelpers {
     }
 
     /**
-    * Sanitize a HTML string, allows some tags.
+    * Sanitize a HTML string, allows some tags for use in rich text editors.
+    * 
+    * Allowed tags: <a><b><i><u><ol><li><br><p><table><td><tr>
     *
     * @param    string  $in the string to be sanitized
     *
@@ -70,7 +72,8 @@ class XSSHelpers {
                             "</p>\n<p>"
         );
 
-        $in = html_entity_decode($in);
+        // $in = html_entity_decode($in);
+        $in = html_entity_decode($in, ENT_QUOTES | ENT_HTML5, "UTF-8");
         $in = strip_tags($in, '<b><i><u><ol><li><br><p><table><td><tr>');
         $in = preg_replace($pattern, $replace, htmlspecialchars($in, ENT_QUOTES));
 
