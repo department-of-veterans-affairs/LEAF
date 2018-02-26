@@ -1,9 +1,9 @@
-<div><a href="?a=status&amp;recordID=<!--{$recordID|strip_tags|escape}-->"><img src="../libs/dynicons/?img=printer.svg&amp;w=16" alt="Print status" /></a></div>
+<div><a href="?a=status&amp;recordID=<!--{$recordID|strip_tags}-->"><img src="../libs/dynicons/?img=printer.svg&amp;w=16" alt="Print status" /></a></div>
 <div> <!-- main content -->
-<span style="font-weight: bold; font-size: 16px">History of Request ID#: <!--{$recordID|strip_tags|escape}--></span>
+<span style="font-weight: bold; font-size: 16px">History of Request ID#: <!--{$recordID|sanitize}--></span>
 <br />
-Service: <!--{$service|strip_tags|escape}--><br />
-Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID|strip_tags|escape}-->"><!--{$title|strip_tags|escape}--></a><br /><br />
+Service: <!--{$service|sanitize}--><br />
+Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID|strip_tags|escape}-->"><!--{$title|sanitize}--></a><br /><br />
 
 <div style="float: left; padding: 2px">
 <table class="agenda" id="maintable">
@@ -14,20 +14,20 @@ Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID|strip_tags|e
 
 <tr>
     <td><!--{$date|date_format:"%B %e, %Y. %l:%M %p"}--></td>
-    <td>New Request Opened by <!--{$name|strip_tags|escape}--></td>
+    <td>New Request Opened by <!--{$name|sanitize}--></td>
 </tr>
 
 
 <!--{foreach from=$agenda item=indicator}--><!--{strip}-->
 
-<tr id="id_<!--{$indicator.recordID|strip_tags|escape}-->">
+<tr id="id_<!--{$indicator.recordID|strip_tags}-->">
     <td>
         <!--{$indicator.time|date_format:"%B %e, %Y. %l:%M %p"}-->
     </td>
     <td>
-        <span><b><!--{$indicator.description|escape}-->: <!--{$indicator.actionText|escape}--></b> by <!--{$indicator.userName|escape}-->
+        <span><b><!--{$indicator.description|sanitize}-->: <!--{$indicator.actionText|sanitize}--></b> by <!--{$indicator.userName|sanitize}-->
         <!--{if $indicator.comment != ''}-->
-        <br />Comment: <!--{$indicator.comment|escape}--></span>
+        <br />Comment: <!--{$indicator.comment|sanitize}--></span>
         <!--{/if}-->
     </td>
 </tr>
@@ -41,11 +41,11 @@ Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID|strip_tags|e
 Required Actions:<br />
 <!--{foreach from=$dependencies item=dependency}--><!--{strip}-->
     <!--{if $dependency.filled==1}-->
-        <span style="padding: 4px; margin: 4px; color: green; font-weight: bold"><img class="print" src="../libs/dynicons/?img=dialog-apply.svg&w=16" alt="checked" /> <!--{$dependency.description|escape}--></span><br />
+        <span style="padding: 4px; margin: 4px; color: green; font-weight: bold"><img class="print" src="../libs/dynicons/?img=dialog-apply.svg&w=16" alt="checked" /> <!--{$dependency.description|sanitize}--></span><br />
     <!--{elseif $dependency.filled==0}-->
-        <span style="padding: 4px; margin: 4px; color: gray">[ ? ] <!--{$dependency.description|escape}--> (Pending)</span><br />
+        <span style="padding: 4px; margin: 4px; color: gray">[ ? ] <!--{$dependency.description|sanitize}--> (Pending)</span><br />
     <!--{else}-->
-        <span style="padding: 4px; margin: 4px; color: red"><img class="print" src="../libs/dynicons/?img=process-stop.svg&w=16" alt="not checked" /> <!--{$dependency.description|escape}--></span><br />
+        <span style="padding: 4px; margin: 4px; color: red"><img class="print" src="../libs/dynicons/?img=process-stop.svg&w=16" alt="not checked" /> <!--{$dependency.description|sanitize}--></span><br />
     <!--{/if}-->
 <!--{/strip}--><!--{/foreach}-->
 </div>

@@ -1,6 +1,6 @@
 <!--{if $deleted > 0}-->
 <div style="font-size: 36px"><img src="../libs/dynicons/?img=emblem-unreadable.svg&amp;w=96" alt="Unreadable" style="float: left" /> Notice: This request has been marked as deleted.<br />
-    <span class="buttonNorm" onclick="restoreRequest(<!--{$recordID|strip_tags|escape}-->)"><img src="../libs/dynicons/?img=user-trash-full.svg&amp;w=32" alt="un-delete" /> Un-delete request</span>
+    <span class="buttonNorm" onclick="restoreRequest(<!--{$recordID|strip_tags}-->)"><img src="../libs/dynicons/?img=user-trash-full.svg&amp;w=32" alt="un-delete" /> Un-delete request</span>
 </div><br style="clear: both" />
 <hr />
 <!--{/if}-->
@@ -24,11 +24,11 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools" class="tools"><h1>Tools</h1>
         <!--{if $submitted == 0}-->
-        <div onclick="window.location='?a=view&amp;recordID=<!--{$recordID|strip_tags|escape}-->'"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="Guided editor" title="Guided editor" /> Edit this form</div>
+        <div onclick="window.location='?a=view&amp;recordID=<!--{$recordID|strip_tags}-->'"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="Guided editor" title="Guided editor" /> Edit this form</div>
         <br /><br />
         <!--{/if}-->
         <div onclick="viewHistory()"><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" /> View History</div>
-        <div onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags|escape}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" /> Write Email</div>
+        <div onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" /> Write Email</div>
         <!--{if $bookmarked == ''}-->
         <div onclick="toggleBookmark()" id="tool_bookmarkText"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" /> Add Bookmark</div>
         <!--{else}-->
@@ -43,8 +43,8 @@
     <h1>Comments</h1>
         <!--{section name=i loop=$comments}-->
             <div><span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'|escape}--></span>
-                <span class="comments_name"><!--{$comments[i].actionTextPasttense|strip_tags|escape}--> by <!--{$comments[i].name}--></span>
-                <div class="comments_message"><!--{$comments[i].comment|escape}--></div>
+                <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> by <!--{$comments[i].name}--></span>
+                <div class="comments_message"><!--{$comments[i].comment|sanitize}--></div>
             </div>
         <!--{/section}-->
     </div>
@@ -52,9 +52,9 @@
 
     <div id="category_list">
         <h1>Internal Use</h1>
-        <div onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=printview&amp;recordID=<!--{$recordID|strip_tags|escape}-->');"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" /> Main Request</div>
+        <div onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=printview&amp;recordID=<!--{$recordID|strip_tags}-->');"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" /> Main Request</div>
         <!--{section name=i loop=$childforms}-->
-            <div onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=internalonlyview&amp;recordID=<!--{$recordID|strip_tags|escape}-->&amp;childCategoryID=<!--{$childforms[i].childCategoryID|strip_tags|escape}-->');"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" /> <!--{$childforms[i].childCategoryName|strip_tags|escape}--></div>
+            <div onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=internalonlyview&amp;recordID=<!--{$recordID|strip_tags}-->&amp;childCategoryID=<!--{$childforms[i].childCategoryID|strip_tags}-->');"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" /> <!--{$childforms[i].childCategoryName|sanitize}--></div>
         <!--{/section}-->
     </div>
 
@@ -85,8 +85,8 @@
 <script type="text/javascript">
 var currIndicatorID;
 var currSeries;
-var recordID = <!--{$recordID|strip_tags|escape}-->;
-var serviceID = <!--{$serviceID|strip_tags|escape}-->;
+var recordID = <!--{$recordID|strip_tags}-->;
+var serviceID = <!--{$serviceID|strip_tags}-->;
 var CSRFToken = '<!--{$CSRFToken}-->';
 function doSubmit(recordID) {
 	$('#submitControl').empty().html('<img src="./images/indicator.gif" />Submitting...');
@@ -115,7 +115,7 @@ function updateTags() {
 	$('#tags').fadeOut(250);
 	$.ajax({
 		type: 'GET',
-		url: "./api/?a=form/<!--{$recordID|strip_tags|escape}-->/tags",
+		url: "./api/?a=form/<!--{$recordID|strip_tags}-->/tags",
 		success: function(res) {
 			var buffer = '';
 			if(res.length > 0) {
@@ -146,7 +146,7 @@ function getIndicatorLog(indicatorID, series) {
     
     $.ajax({
         type: 'GET',
-        url: "api/?a=form/<!--{$recordID|strip_tags|escape}-->/" + indicatorID + "/" + series + '/history',
+        url: "api/?a=form/<!--{$recordID|strip_tags}-->/" + indicatorID + "/" + series + '/history',
         success: function(res) {
         	var numChanges = res.length;
         	var prev = '';
@@ -176,7 +176,7 @@ function getIndicatorLog(indicatorID, series) {
 function getIndicator(indicatorID, series) {
     $.ajax({
         type: 'GET',
-        url: "ajaxIndex.php?a=getprintindicator&recordID=<!--{$recordID|strip_tags|escape}-->&indicatorID=" + indicatorID + "&series=" + series,
+        url: "ajaxIndex.php?a=getprintindicator&recordID=<!--{$recordID|strip_tags}-->&indicatorID=" + indicatorID + "&series=" + series,
         dataType: 'text',
         success: function(response) {
             if($("#PHindicator_" + indicatorID + "_" + series).hasClass("printheading_missing")) {
@@ -195,7 +195,7 @@ function getIndicator(indicatorID, series) {
 function updateProgress() {
     $.ajax({
         type: 'GET',
-        url: "./api/form/<!--{$recordID|strip_tags|escape}-->/progress",
+        url: "./api/form/<!--{$recordID|strip_tags}-->/progress",
         dataType: 'json',
         success: function(response) {
             if(response < 100) {
@@ -208,7 +208,7 @@ function updateProgress() {
                 $('#progressSidebar').slideUp(500);
                 $.ajax({
                     type: 'GET',
-                    url: "ajaxIndex.php?a=getsubmitcontrol&recordID=<!--{$recordID|strip_tags|escape}-->",
+                    url: "ajaxIndex.php?a=getsubmitcontrol&recordID=<!--{$recordID|strip_tags}-->",
                     dataType: 'text',
                     success: function(response) {
                         $("#submitContent").empty().html(response);
@@ -240,7 +240,7 @@ function restoreRequest() {
             CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
             if(response > 0) {
-                window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags|escape}-->";
+                window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
             }
         }
 	});
@@ -267,7 +267,7 @@ function toggleBookmark() {
 function addBookmark() {
     $.ajax({
         type: 'POST',
-        url: "ajaxIndex.php?a=addbookmark&recordID=<!--{$recordID|strip_tags|escape}-->",
+        url: "ajaxIndex.php?a=addbookmark&recordID=<!--{$recordID|strip_tags}-->",
         data: {CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
         	updateTags();
@@ -278,7 +278,7 @@ function addBookmark() {
 function removeBookmark() {
     $.ajax({
         type: 'POST',
-        url: "ajaxIndex.php?a=removebookmark&recordID=<!--{$recordID|strip_tags|escape}-->",
+        url: "ajaxIndex.php?a=removebookmark&recordID=<!--{$recordID|strip_tags}-->",
         data: {CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
             updateTags();
@@ -328,7 +328,7 @@ function viewHistory() {
 	dialog_message.indicateBusy();
 	$.ajax({
 		type: 'GET',
-		url: 'ajaxIndex.php?a=getstatus&recordID=<!--{$recordID|strip_tags|escape}-->',
+		url: 'ajaxIndex.php?a=getstatus&recordID=<!--{$recordID|strip_tags}-->',
 		dataType: 'text',
 		success: function(res) {
 			 dialog_message.setContent(res);
@@ -349,7 +349,7 @@ function cancelRequest() {
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
             	if(response == 1) {
-                    window.location.href="index.php?a=cancelled_request&cancelled=<!--{$recordID|strip_tags|escape}-->";
+                    window.location.href="index.php?a=cancelled_request&cancelled=<!--{$recordID|strip_tags}-->";
                 }
             	else {
             		alert(response);
@@ -368,7 +368,7 @@ function changeTitle() {
     dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'POST',
-        	url: 'api/?a=form/<!--{$recordID|strip_tags|escape}-->/title',
+        	url: 'api/?a=form/<!--{$recordID|strip_tags}-->/title',
         	data: {title: $('#title').val(),
                 CSRFToken: '<!--{$CSRFToken}-->'},
         	success: function(res) {
@@ -405,11 +405,11 @@ function changeService() {
             dialog.setSaveHandler(function() {
                 $.ajax({
                     type: 'POST',
-                    url: 'api/?a=form/<!--{$recordID|strip_tags|escape}-->/service',
+                    url: 'api/?a=form/<!--{$recordID|strip_tags}-->/service',
                     data: {serviceID: $('#newService').val(),
                            CSRFToken: CSRFToken},
                     success: function() {
-                        window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags|escape}-->";
+                        window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
                     }
                 });
                 dialog.hide();
@@ -428,7 +428,7 @@ function admin_changeStep() {
     dialog.indicateBusy();
     $.ajax({
         type: 'GET',
-        url: 'api/?a=formWorkflow/<!--{$recordID|strip_tags|escape}-->/currentStep',
+        url: 'api/?a=formWorkflow/<!--{$recordID|strip_tags}-->/currentStep',
         dataType: 'json',
         success: function(res) {
         	var workflows = {};
@@ -459,12 +459,12 @@ function admin_changeStep() {
                     dialog.setSaveHandler(function() {
                         $.ajax({
                             type: 'POST',
-                            url: 'api/?a=formWorkflow/<!--{$recordID|strip_tags|escape}-->/step',
+                            url: 'api/?a=formWorkflow/<!--{$recordID|strip_tags}-->/step',
                             data: {stepID: $('#newStep').val(),
                             	   comment: $('#changeStep_comment').val(),
                                    CSRFToken: CSRFToken},
                             success: function() {
-                                window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags|escape}-->";
+                                window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
                             }
                         });
                         dialog.hide();
@@ -505,17 +505,17 @@ function admin_changeForm() {
             	});
                 $.ajax({
                     type: 'POST',
-                    url: 'api/?a=form/<!--{$recordID|strip_tags|escape}-->/types',
+                    url: 'api/?a=form/<!--{$recordID|strip_tags}-->/types',
                     data: data,
                     success: function() {
-                        window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags|escape}-->";
+                        window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
                     }
                 });
                 dialog.hide();
             });
 
             // find current forms
-            var query = {terms: [{id: 'recordID', operator: '=', match: '<!--{$recordID|strip_tags|escape}-->'}],joins: ['categoryNameUnabridged']};
+            var query = {terms: [{id: 'recordID', operator: '=', match: '<!--{$recordID|strip_tags}-->'}],joins: ['categoryNameUnabridged']};
             $.ajax({
                 type: 'GET',
                 url: './api/?a=form/query',
@@ -547,7 +547,7 @@ function admin_changeInitiator() {
     	if($('#changeInitiator').val() != '') {
             $.ajax({
                 type: 'POST',
-                url: './api/?a=form/<!--{$recordID|strip_tags|escape}-->/initiator',
+                url: './api/?a=form/<!--{$recordID|strip_tags}-->/initiator',
                 data: {CSRFToken: CSRFToken,
                 	   initiator: $('#changeInitiator').val()},
                 success: function() {
@@ -645,9 +645,9 @@ $(function() {
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
     <!--{if $childCategoryID == ''}-->
-    openContent('ajaxIndex.php?a=printview&recordID=<!--{$recordID|strip_tags|escape}-->');
+    openContent('ajaxIndex.php?a=printview&recordID=<!--{$recordID|strip_tags}-->');
     <!--{else}-->
-    openContent('ajaxIndex.php?a=internalonlyview&recordID=<!--{$recordID|strip_tags|escape}-->&childCategoryID=<!--{$childCategoryID|strip_tags|escape}-->');
+    openContent('ajaxIndex.php?a=internalonlyview&recordID=<!--{$recordID|strip_tags}-->&childCategoryID=<!--{$childCategoryID|strip_tags}-->');
     <!--{/if}-->
 
     sideBar();

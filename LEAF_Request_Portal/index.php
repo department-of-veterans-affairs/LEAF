@@ -18,7 +18,7 @@ include 'form.php';
 include_once './enforceHTTPS.php';
 
 // Include XSSHelpers
-include_once './helpers.php';
+include_once './sources/XSSHelpers.php';
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -85,10 +85,10 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('categories', $stack->getCategories());
-        $t_form->assign('recorder', XSSHelpers::xscrub($login->getName()));
+        $t_form->assign('recorder', XSSHelpers::sanitizeHTML($login->getName()));
         $t_form->assign('services', $form->getServices2());
-        $t_form->assign('city', XSSHelpers::xscrub($config->city));
-        $t_form->assign('phone', XSSHelpers::xscrub($currEmployeeData[5]['data']));
+        $t_form->assign('city', XSSHelpers::sanitizeHTML($config->city));
+        $t_form->assign('phone', XSSHelpers::sanitizeHTML($currEmployeeData[5]['data']));
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -119,7 +119,7 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', $recordIDToView);
-            $t_form->assign('lastStatus', XSSHelpers::xscrub($form->getLastStatus($recordIDToView)));
+            $t_form->assign('lastStatus', XSSHelpers::sanitizeHTMl($form->getLastStatus($recordIDToView)));
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('isIframe', (int)$_GET['iframe'] == 1 ? 1 : 0);
 
@@ -143,7 +143,7 @@ switch ($action) {
         }
         $o_login = $t_login->fetch('login.tpl');
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::xscrub($settings['requestLabel']);
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
         $tabText = $requestLabel . ' #' . $recordIDToView;
 
         break;
@@ -167,16 +167,16 @@ switch ($action) {
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);
-        $t_form->assign('name', XSSHelpers::xscrub($recordInfo['name']));
-        $t_form->assign('title', XSSHelpers::xscrub($recordInfo['title']));
+        $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
+        $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
         $t_form->assign('priority', (int)$recordInfo['priority']);
-        $t_form->assign('submitted', XSSHelpers::xscrub($recordInfo['submitted']));
+        $t_form->assign('submitted', XSSHelpers::sanitizeHTML($recordInfo['submitted']));
         $t_form->assign('stepID', (int)$recordInfo['stepID']);
-        $t_form->assign('service', XSSHelpers::xscrub($recordInfo['service']));
+        $t_form->assign('service', XSSHelpers::sanitizeHTML($recordInfo['service']));
         $t_form->assign('serviceID', (int)$recordInfo['serviceID']);
-        $t_form->assign('date', XSSHelpers::xscrub($recordInfo['date']));
+        $t_form->assign('date', XSSHelpers::sanitizeHTML($recordInfo['date']));
         $t_form->assign('deleted', (int)$recordInfo['deleted']);
-        $t_form->assign('bookmarked', XSSHelpers::xscrub($recordInfo['bookmarked']));
+        $t_form->assign('bookmarked', XSSHelpers::sanitizeHTML($recordInfo['bookmarked']));
         $t_form->assign('categories', $recordInfo['categories']);
         $t_form->assign('comments', $comments);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -225,7 +225,7 @@ switch ($action) {
                 break;
         }
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::xscrub($settings['requestLabel']);
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
         $tabText = $requestLabel . ' #' . $recordIDToPrint;
 
         break;
@@ -280,12 +280,12 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $recordInfo = $form->getRecordInfo($recordIDForStatus);
-        $t_form->assign('name', XSSHelpers::xscrub($recordInfo['name']));
-        $t_form->assign('title', XSSHelpers::xscrub($recordInfo['title']));
+        $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
+        $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
         $t_form->assign('priority', (int)$recordInfo['priority']);
         $t_form->assign('submitted', (int)$recordInfo['submitted']);
-        $t_form->assign('service', XSSHelpers::xscrub($recordInfo['service']));
-        $t_form->assign('date', XSSHelpers::xscrub($recordInfo['date']));
+        $t_form->assign('service', XSSHelpers::sanitizeHTML($recordInfo['service']));
+        $t_form->assign('date', XSSHelpers::sanitizeHTML($recordInfo['date']));
         $t_form->assign('recordID', $recordIDForStatus);
         $t_form->assign('agenda', $view->buildViewStatus($recordIDForStatus));
         $t_form->assign('dependencies', $form->getDependencyStatus($recordIDForStatus));
@@ -416,7 +416,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('query', XSSHelpers::xscrub($_GET['query']));
         $t_form->assign('indicators', XSSHelpers::xscrub($_GET['indicators']));
-        $t_form->assign('title', XSSHelpers::xscrub($_GET['title']));
+        $t_form->assign('title', XSSHelpers::sanitizeHTML($_GET['title']));
         $t_form->assign('version', (int)$_GET['v']);
         $t_form->assign('empMembership', $login->getMembership());
 
@@ -433,9 +433,9 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::xscrub($settings['heading']));
-        $main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::xscrub($settings['subheading']));
-        $main->assign('revision', XSSHelpers::xscrub($settings['version']));
+        $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
+        $main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subheading']));
+        $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
 
         $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
         $main->display(customTemplate('main.tpl'));
@@ -452,8 +452,8 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('userID', XSSHelpers::xscrub($login->getUserID()));
-        $t_form->assign('empUID', XSSHelpers::xscrub($login->getEmpUID()));
+        $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
+        $t_form->assign('empUID', XSSHelpers::sanitizeHTML($login->getEmpUID()));
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('is_service_chief', (bool)$login->isServiceChief());
         $t_form->assign('is_quadrad', (bool)$login->isQuadrad() || (bool)$login->checkGroup(1));
@@ -485,11 +485,11 @@ $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
-$main->assign('tabText', XSSHelpers::xscrub($tabText));
+$main->assign('tabText', XSSHelpers::sanitizeHTML($tabText));
 
-$main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::xscrub($settings['heading']));
-$main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::xscrub($settings['subheading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
+$main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subheading']));
+$main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
 
 if (!isset($_GET['iframe']))
 {
