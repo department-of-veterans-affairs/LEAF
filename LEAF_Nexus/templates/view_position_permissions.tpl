@@ -10,7 +10,7 @@
 <div id="maincontent">
     <div style="background-color: #fff297; border: 1px solid black; padding: 4px">
         <div style="font-size: 150%">
-            Permissions for position ID# <!--{$positionID}-->
+            Permissions for position ID# <!--{$positionID|strip_tags|escape}-->
         </div>
         <div style="background-color: #fffad7; font-size: 120%; padding: 8px">
             <table class="table" style="width: 80%">
@@ -18,7 +18,7 @@
                     <td>Position Title</td>
                 </tr>
                 <tr style="background-color: white; text-align: center">
-                    <td>"<!--{$positionTitle}-->"</td>
+                    <td>"<!--{$positionTitle|sanitize}-->"</td>
                 </tr>
             </table>
         </div>
@@ -117,7 +117,7 @@ function addEmployee() {
 
     empSel = new employeeSelector('employeeSelector');
     empSel.initialize();
-    
+
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
         $.ajax({
@@ -139,7 +139,7 @@ function addPosition() {
 
     posSel = new positionSelector('positionSelector');
     posSel.initialize();
-    
+
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
         $.ajax({
@@ -161,7 +161,7 @@ function addGroup() {
 
     grpSel = new groupSelector('groupSelector');
     grpSel.initialize();
-    
+
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
         $.ajax({
