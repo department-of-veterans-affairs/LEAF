@@ -34,7 +34,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'text'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID|strip_tags|escape}-->_<!--{$uid|strip_tags|escape}-->">
-                <!--{$indicator.data|strip_tags}-->
+                <!--{$indicator.data}-->
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'number'}-->
