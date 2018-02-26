@@ -16,7 +16,7 @@ include 'db_config.php';
 include_once './enforceHTTPS.php';
 
 // Include XSSHelpers
-include_once './helpers.php';
+include_once './sources/XSSHelpers.php';
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -80,7 +80,7 @@ switch ($action) {
                 $t_form->assign('recordID', $recordID);
                 $t_form->assign('series', $series);
                 $t_form->assign('serviceID', (int)$recordInfo['serviceID']);
-                $t_form->assign('recorder', XSSHelpers::xscrub($_SESSION['name']));
+                $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', Config::$orgchartPath);
@@ -111,7 +111,7 @@ switch ($action) {
             {
                 $t_form->assign('recordID', $recordID);
                 $t_form->assign('series', $series);
-                $t_form->assign('recorder', XSSHelpers::xscrub($_SESSION['name']));
+                $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
                 $t_form->assign('orgchartPath', Config::$orgchartPath);
@@ -171,7 +171,7 @@ switch ($action) {
 
         $lastActionTime = isset($res[0]['time']) ? $res[0]['time'] : 0;
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::xscrub($settings['requestLabel']);
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
 
         $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
@@ -332,11 +332,11 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $recordInfo = $form->getRecordInfo((int)$_GET['recordID']);
-        $t_form->assign('name', XSSHelpers::xscrub($recordInfo['name']));
-        $t_form->assign('title', XSSHelpers::xscrub($recordInfo['title']));
+        $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
+        $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
         $t_form->assign('priority', (int)$recordInfo['priority']);
         $t_form->assign('submitted', (int)$recordInfo['submitted']);
-        $t_form->assign('service', XSSHelpers::xscrub($recordInfo['service']));
+        $t_form->assign('service', XSSHelpers::sanitizeHTML($recordInfo['service']));
         $t_form->assign('date', $recordInfo['date']);
         $t_form->assign('recordID', (int)$_GET['recordID']);
         $t_form->assign('agenda', $view->buildViewStatus((int)$_GET['recordID']));
@@ -373,13 +373,13 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', $recordIDToPrint);
-            $t_form->assign('name', XSSHelpers::xscrub($recordInfo['name']));
-            $t_form->assign('title', XSSHelpers::xscrub($recordInfo['title']));
+            $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
+            $t_form->assign('title', XSSHelpers::sanitizeHTMl($recordInfo['title']));
             $t_form->assign('priority', (int)$recordInfo['priority']);
             $t_form->assign('submitted', (int)$recordInfo['submitted']);
-            $t_form->assign('service', XSSHelpers::xscrub($recordInfo['service']));
+            $t_form->assign('service', XSSHelpers::sanitizeHTMl($recordInfo['service']));
             $t_form->assign('date', $recordInfo['submitted']);
-            $t_form->assign('categoryText', XSSHelpers::xscrub($categoryText));
+            $t_form->assign('categoryText', XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
             $t_form->assign('orgchartPath', Config::$orgchartPath);
             $t_form->assign('is_admin', $login->checkGroup(1));
