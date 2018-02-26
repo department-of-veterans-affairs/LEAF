@@ -80,7 +80,7 @@ switch($action) {
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : $position->getTopSupervisorID(1);
         $t_form->assign('rootID', $rootID);
         $t_form->assign('topPositionID', (int)$position->getTopSupervisorID(1));
-        $t_form->assign('header', XSSHelpers::sanitizeHTML($_GET['header']));
+        $t_form->assign('header', $_GET['header']);
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . urlencode($_SERVER['REQUEST_URI']);
@@ -146,7 +146,7 @@ switch($action) {
         if($empUID != 0) {
 	        require 'sources/Employee.php';
 	        $employee = new Orgchart\Employee($db, $login);
-	        $summary = XSSHelpers::sanitizeHTML($employee->getSummary($empUID));
+	        $summary = $employee->getSummary($empUID);
 
 	        $t_form->assign('empUID', $empUID);
 	        $t_form->assign('summary', $summary);
