@@ -55,7 +55,7 @@ function customTemplate($tpl) {
 
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
-$t_login->assign('name', XSSHelpers::xscrub($login->getName()));
+$t_login->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
@@ -79,8 +79,8 @@ switch($action) {
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : $position->getTopSupervisorID(1);
         $t_form->assign('rootID', $rootID);
-        $t_form->assign('topPositionID', $position->getTopSupervisorID(1));
-        $t_form->assign('header', $_GET['header']);
+        $t_form->assign('topPositionID', (int)$position->getTopSupervisorID(1));
+        $t_form->assign('header', XSSHelpers::sanitizeHTML($_GET['header']));
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . urlencode($_SERVER['REQUEST_URI']);
@@ -107,7 +107,7 @@ switch($action) {
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : 0;
         $t_form->assign('rootID', $rootID);
-        $t_form->assign('topPositionID', $position->getTopSupervisorID(1));
+        $t_form->assign('topPositionID', (int)$position->getTopSupervisorID(1));
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $t_form->assign('resolvedService', $position->getService($rootID));
@@ -146,7 +146,7 @@ switch($action) {
         if($empUID != 0) {
 	        require 'sources/Employee.php';
 	        $employee = new Orgchart\Employee($db, $login);
-	        $summary = $employee->getSummary($empUID);
+	        $summary = XSSHelpers::sanitizeHTML($employee->getSummary($empUID));
 
 	        $t_form->assign('empUID', $empUID);
 	        $t_form->assign('summary', $summary);
