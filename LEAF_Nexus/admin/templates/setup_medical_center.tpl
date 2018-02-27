@@ -1,9 +1,9 @@
 <div id="menu" style="float: left; width: 200px; margin: 4px">
-    <div id="menu_admins" class="buttonNorm step" onclick="setupAdmins();">1. System Administrators</div>
-    <div id="menu_preferences" class="buttonNorm step" onclick="setupPreferences();">2. Site Preferences</div>
-    <div id="menu_director" class="buttonNorm step" onclick="setupDirector();">3. Site Director</div>
-    <div id="menu_leadership" class="buttonNorm step" onclick="setupLeadership();">4. Executive Leadership Team</div>
-    <div id="menu_services" class="buttonNorm step" onclick="setupServices();">5. Services</div>
+    <div onclick="setupAdmins();"><input id="menu_admins" class="buttonNorm step" style="width: 200px;"  type="button" value="1. System Administrators" /></div>
+    <div onclick="setupPreferences();"><input id="menu_preferences" class="buttonNorm step" style="width: 200px;" type="button" value="2. Site Preferences" /></div>
+    <div onclick="setupDirector();"><input id="menu_director" class="buttonNorm step" style="width: 200px;" type="button" value="3. Site Director" /></div>
+    <div  onclick="setupLeadership();"><input id="menu_leadership" class="buttonNorm step" style="width: 200px;" type="button" value="4. Executive Leadership Team" /></div>
+    <div  onclick="setupServices();"><input id="menu_services" class="buttonNorm step" style="width: 200px;" type="button" value="5. Services" /></div>
 </div>
 <div id="setupContainer" style="float: left; margin: 8px; width: 800px; height: 600px">
 
@@ -19,14 +19,14 @@ var CSRFToken = '<!--{$CSRFToken}-->';
 function setupAdmins() {
     $('.step').removeClass('buttonNormSelected');
     $('#menu_admins').addClass('buttonNormSelected');
-    
+
     $('#setupContainer').html('<iframe style="border: 0px; width: 100%; height: 100%" src="../?a=view_group&groupID=1&iframe=1"></iframe>');
 }
 
 function setupPreferences() {
 	$('.step').removeClass('buttonNormSelected');
 	$('#menu_preferences').addClass('buttonNormSelected');
-	
+
 	$('#setupContainer').html('<iframe style="border: 0px; width: 100%; height: 100%" src="./?a=mod_system&iframe=1"></iframe>');
 }
 
@@ -50,7 +50,7 @@ function setupDirector() {
     $('#director').on('click', function() {
     	dialog_large.setTitle('Site Director');
     	dialog_large.setContent('<iframe id="directorIframe" style="border: 0px; width: 100%; height: 100%" src="../?a=view_position&positionID=1&iframe=1"></iframe>');
-        
+
         dialog_large.setCancelHandler(function() {
         	setupDirector();
         });
@@ -139,7 +139,7 @@ function createDirectorGroup() {
                     }
                     else {
                         tagNomenclature(groupID); // tag group
-                        
+
                         $.ajax({ // add position to the group
                             type: 'POST',
                             url: '../api/group/' + groupID + '/position',
@@ -219,7 +219,7 @@ function createGroup() {
 					}
 					else {
 						tagNomenclature(groupID); // tag group
-						
+
 						// create position
 			            $.ajax({
 			                type: 'POST',
@@ -343,7 +343,7 @@ function setupLeadership() {
 		            		return function() {
 		            	        dialog_large.setTitle('Leadership Team');
 		            	        dialog_large.setContent('<iframe id="directorIframe" style="border: 0px; width: 100%; height: 100%" src="../?a=view_group&groupID=' + groupID + '&iframe=1"></iframe>');
-		            	        
+
 		            	        dialog_large.setCancelHandler(function() {
 		            	        	setupLeadership();
 		            	        });
@@ -408,7 +408,7 @@ function createService(parentGroupID) {
                     }
                     else {
                         tagNomenclature(groupID); // tag group
-                        
+
                         // get the executive leader first
                         $.ajax({
                             type: 'GET',
@@ -487,7 +487,7 @@ function createService(parentGroupID) {
 function setupServices() {
     $('.step').removeClass('buttonNormSelected');
     $('#menu_services').addClass('buttonNormSelected');
-    
+
     $('#setupContainer').html('<div id="leaders"></div>');
 
     var leadershipNomenclature = '';
@@ -567,7 +567,7 @@ $(function() {
 		    setupAdmins();
 		    break;
 	}
-	
+
 	$('#setupContainer').css('width', $(document).width() - 200 - 40);
 });
 

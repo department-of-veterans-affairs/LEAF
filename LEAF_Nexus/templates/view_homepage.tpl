@@ -1,7 +1,7 @@
 <div class="menu2" style="width: 315px; float: left">
 
-<a href="?a=navigator">
-    <span class="menuButtonSmall" style="background-color: #ffefa5">
+<a href="?a=navigator" tabindex="-1">
+    <span class="menuButtonSmall" style="background-color: #ffefa5" tabindex="0">
         <img class="menuIconSmall" src="../libs/dynicons/?img=applications-internet.svg&amp;w=76" style="position: relative" alt="Navigator" title="Navigator" />
         <span class="menuTextSmall">Browser</span><br />
         <span class="menuDescSmall">View Organizational Charts</span>
@@ -9,8 +9,8 @@
 </a>
 
 <!--{if $groupLeader != ''}-->
-<a href="?a=navigator&amp;rootID=<!--{$groupLeader}-->">
-    <span class="menuButtonSmall" style="background-color: #b3ceff">
+<a href="?a=navigator&amp;rootID=<!--{$groupLeader}-->" tabindex="-1">
+    <span class="menuButtonSmall" style="background-color: #b3ceff" tabindex="0">
         <img class="menuIconSmall" src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=76" style="position: relative" alt="Search" title="Search" />
         <span class="menuTextSmall">Service Org. Chart</span><br />
         <span class="menuDescSmall">View your service's Org. Chart</span>
@@ -19,8 +19,8 @@
 <!--{/if}-->
 
 <!--{if $is_admin}-->
-<a href="./utils/exportPDL.php">
-    <span class="menuButtonSmall" style="background-color: black">
+<a href="./utils/exportPDL.php" tabindex="-1">
+    <span class="menuButtonSmall" style="background-color: black" tabindex="0">
         <img class="menuIconSmall" src="../libs/dynicons/?img=x-office-spreadsheet.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
         <span class="menuTextSmall" style="color: white">Export PDL</span><br />
         <span class="menuDescSmall" style="color: white">Download the Position Description List</span>
@@ -28,8 +28,8 @@
 </a>
 <!--{/if}-->
 
-<a href="?a=summary">
-    <span class="menuButtonSmall" style="background-color: black">
+<a href="?a=summary" tabindex="-1">
+    <span class="menuButtonSmall" style="background-color: black" tabindex="0">
         <img class="menuIconSmall" src="../libs/dynicons/?img=x-office-presentation.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
         <span class="menuTextSmall" style="color: white">Vacancy Summary</span><br />
         <span class="menuDescSmall" style="color: white">View vacancies by Service</span>
@@ -135,7 +135,7 @@ function postProcess()
     }
     else {
         $('#employeeAllResults').css('display', 'none');
-    }    
+    }
 
     if(posSel.numResults == 0) {
         $('#position').css('display', 'none');
@@ -148,7 +148,7 @@ function postProcess()
     }
     else {
         $('#positionAllResults').css('display', 'none');
-    }    
+    }
 
     if(grpSel.numResults == 0) {
         $('#group').css('display', 'none');
@@ -167,7 +167,7 @@ function postProcess()
     }
     else {
         $('#groupAllResults').css('display', 'none');
-    }    
+    }
 
     if(timer > 400) {
     	$('#searchIcon').css('display', "inline");
@@ -237,7 +237,7 @@ $(function() {
         sideOffset = 350;
         setSearchWidth();
         if($('#search').val() != '') {
-        	$('#searchTips').css('display', 'none');	
+        	$('#searchTips').css('display', 'none');
         }
         else {
         	$('#searchTips').css('display', 'inline');
