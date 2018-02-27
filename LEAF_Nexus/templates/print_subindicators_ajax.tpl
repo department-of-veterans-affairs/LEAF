@@ -1,7 +1,7 @@
 <!--{**}-->
         <!--{if $indicator.format == 'textarea'}-->
-            <span class="printResponse" id="data_<!--{$indicator.indicatorID|strip_tags|escape}-->_<!--{$categoryID|strip_tags|escape}-->_<!--{$uid|strip_tags|escape}-->">
-                <!--{$indicator.data|strip_tags|escape}-->
+            <span class="printResponse" id="data_<!--{$indicator.indicatorID|strip_tags|escape}-->_<!--{$categoryID|strip_tags|escape}-->_<!--{$uid}-->">
+                <!--{$indicator.data|sanitize}-->
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'radio'}-->
