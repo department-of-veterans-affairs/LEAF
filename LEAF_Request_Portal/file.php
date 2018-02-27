@@ -8,12 +8,9 @@ $db_config = new DB_Config();
 $config = new Config();
 
 // Enforce HTTPS
-if(isset($config->enforceHTTPS) && $config->enforceHTTPS == true) {
-	if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') {
-		header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-		exit();
-	}
-}
+include_once './enforceHTTPS.php';
+
+include_once '../sources/XSSHelpers.php';
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
@@ -24,7 +21,8 @@ $login->loginUser();
 
 $form = new Form($db, $login);
 
-$data = $form->getIndicator($_GET['id'], $_GET['series'], $_GET['form']);
+$data = $form->getIndicator(
+    XSSHelpers::xscrub($_GET['id']), XSSHelpers::xscrub($_GET['series']), XSSHelpers::xscrub($_GET['form']));
 
 $value = $data[$_GET['id']]['value'];
 
