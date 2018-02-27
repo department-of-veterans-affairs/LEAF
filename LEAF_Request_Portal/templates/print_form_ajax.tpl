@@ -33,7 +33,6 @@
 </div>
 <div class="tags<!--{if count($tags) == 0}--> noprint<!--{/if}-->" id="tags" style="border: 1px solid black; padding: 2px; text-align: right">
     <!--{include file="print_form_ajax_tags.tpl" tags=$tags}-->
-    <!--{if count($tags) == 0}--><a href="#" onclick="getTags(<!--{$recordID|strip_tags}-->);"></a><!--{/if}-->
 </div>
 
 <div class="printmainform">
