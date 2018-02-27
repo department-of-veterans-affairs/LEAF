@@ -29,6 +29,19 @@ $this->index['GET']->register('group/[digit]/employees', function($args) use ($g
 $this->index['GET']->register('group/[digit]/employees/all', function($args) use ($group) {
 	return $group->listGroupEmployeesAll($args[0]);
 });
+$this->index['GET']->register('group/[digit]/employees/detailed', function($args) use ($group) {
+    $limit = -1;
+    if (isset($_GET['limit'])) {
+        $limit = (int)$_GET['limit'];
+    }
+
+    $offset = 0;
+    if (isset($_GET['offset'])) {
+        $offset = (int)$_GET['offset'];
+    }
+
+    return $group->listGroupEmployeesDetailed($args[0], $searchText, $offset, $limit);
+});
 $this->index['GET']->register('group/search', function($args) use ($group) {
 	if(isset($_GET['noLimit']) && $_GET['noLimit'] == 1) {
 		$group->setNoLimit();

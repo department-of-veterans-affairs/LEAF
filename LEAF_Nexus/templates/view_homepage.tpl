@@ -41,15 +41,15 @@
 <div id="main">
     <div id="searchContainer" style="float: left; border: 1px solid #e0e0e0; padding: 4px; background-color: white">
         <div style="padding: 8px; color: white; font-weight: bold; font-size: 140%; background-color: #5A79A5">
-            <div id="searchBorder" style="white-space: nowrap">
+            <div id="searchBorder" style="white-space: nowrap; background-color: #5a79a5;">
                 <img id="searchIcon" src="../libs/dynicons/?img=search.svg&w=16" style="position: absolute; margin-left: 66px; padding: 10px" alt="search" />
                 <img id="searchIconBusy" src="images/indicator.gif" style="display: none; position: absolute; margin-left: 66px; padding: 10px" alt="search" />
-                Search <input id="search" style="font-size: 140%; width: 75%; padding: 2px 2px 2px 26px; border: 1px solid black; background-repeat: no-repeat; background-position: right center" type="text" />
+                Search <input id="search" name="search" aria-label="Search" style="font-size: 140%; width: 75%; padding: 2px 2px 2px 26px; border: 1px solid black; background-repeat: no-repeat; background-position: right center" type="text" />
             </div>
         </div>
         <br />
         <div id="searchTips" style="max-width: 300px">
-            <fieldset><legend style="font-size: 11px">Available Search Options</legend>
+            <fieldset><legend style="font-size: 11px; color: #767676">Available Search Options</legend>
                <div>
                    <img title="Employees" alt="Employees" style="float: left; padding: 8px" src="../libs/dynicons/?img=contact-new.svg&amp;w=32" />
                    <div><h3>Employees</h3>

@@ -14,16 +14,11 @@ require 'RESTfulResponse.php';
 require '../sources/Exception.php';
 require 'ControllerMap.php';
 
+// Enforce HTTPS
+include_once '../enforceHTTPS.php';
+
 $db_config = new DB_Config();
 $config = new Config();
-
-// Enforce HTTPS
-if(isset($config->enforceHTTPS) && $config->enforceHTTPS == true) {
-    if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') {
-        header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-        exit();
-    }
-}
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);

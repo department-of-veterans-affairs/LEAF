@@ -19,13 +19,13 @@
     <div style="padding: 8px">
         <div id="indicatorList" class="section group" style="padding: 8px">Loading...</div>
         <br style="clear: both" />
-        <div id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 38px; padding-top: 8px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="../libs/dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></div>
+        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="../libs/dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
     </div>
 </div>
 
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%"></div>
-    <input id="reportTitle" type="text" style="font-size: 200%; width: 50%" value="Untitled Report"></input>
+    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" value="Untitled Report"></input>
 </div>
 <div id="results" style="display: none">Loading...</div>
 

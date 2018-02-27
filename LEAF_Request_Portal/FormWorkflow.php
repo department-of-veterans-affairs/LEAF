@@ -152,17 +152,23 @@ class FormWorkflow
                 if($res[$i]['dependencyID'] == -3) {
                 	 
                 	$resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                	$groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
                 	 
                 	// make sure the right person has access
                 	if(!$res[$i]['hasAccess']) {
-                		$groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
-                
                 		if($this->login->checkGroup($groupID)) {
                 			$res[$i]['hasAccess'] = true;
                 		}
                 	}
                 
                 	$res[$i]['description'] = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
+
+                	// find actual group name
+                	$vars = array(':groupID' => $groupID);
+                	$tGroup = $this->db->prepared_query('SELECT * from groups WHERE groupID=:groupID', $vars);
+                	if(count($tGroup) >= 0) {
+                	    $res[$i]['description'] = $tGroup[0]['name'];
+                	}
                 }
 
                 foreach($res2 as $group) {
@@ -670,37 +676,35 @@ class FormWorkflow
         		require_once 'form.php';
         		$form = new Form($this->db, $this->login);
         		$form->openForEditing($this->recordID);
-        		// Send emails
-        		require_once 'Email.php';
-        		$email = new Email();
-        		
-        		$vars = array(':recordID' => $this->recordID);
-        		$record = $this->db->prepared_query('SELECT * FROM records
+        	}
+
+        	// Send emails
+        	require_once 'Email.php';
+        	$email = new Email();
+        	
+        	$vars = array(':recordID' => $this->recordID);
+        	$record = $this->db->prepared_query('SELECT * FROM records
                                                     LEFT JOIN services USING (serviceID)
                                                     WHERE recordID=:recordID', $vars);
-        		//            $summary = $this->db->prepared_query('SELECT * FROM data WHERE recordID=:recordID AND indicatorID=16 AND series=1', $vars);    // indicator 16 for summary
-        		//            $summary[0]['data'] = strip_tags((isset($summary[0]['data']) ? $summary[0]['data'] : ''));
-        		$summary[0]['data'] = '';
-        		
-        		$vars = array(':stepID' => $stepID);
-        		$groupName = $this->db->prepared_query('SELECT * FROM workflow_steps WHERE stepID=:stepID', $vars);
-        		
-        		$title = strlen($record[0]['title']) > 45 ? substr($record[0]['title'], 0, 42) . '...' : $record[0]['title'];
-        		$email->setSubject('RETURNED '. $title .' (#' . $this->recordID . ') to ' . $record[0]['service']);
-        		$email->setBody("Request ID#: {$this->recordID}\r\n\r\nRequest status: Sent Back by {$groupName[0]['stepTitle']}\r\n\r\nComments: $comment\r\n\r\n------------------------\r\n{$this->siteRoot}?a=printview&recordID={$this->recordID}\r\n\r\n{$record[0]['title']}\r\n\r\n{$summary[0]['data']}");
-        		
-        		require_once 'VAMC_Directory.php';
-        		$dir = new VAMC_Directory;
-        		
-        		$requester = $dir->lookupLogin($record[0]['userID']);
-        		$author = $dir->lookupLogin($this->login->getUserID());
-        		
-        		$email->addRecipient($requester[0]['Email']);
-        		$email->addRecipient($author[0]['Email']);
-        		$email->setSender($author[0]['Email']);
-        		
-        		$email->sendMail();
-        	}
+        	
+        	$vars = array(':stepID' => $stepID);
+        	$groupName = $this->db->prepared_query('SELECT * FROM workflow_steps WHERE stepID=:stepID', $vars);
+        	
+        	$title = strlen($record[0]['title']) > 45 ? substr($record[0]['title'], 0, 42) . '...' : $record[0]['title'];
+        	$email->setSubject('RETURNED '. $title .' (#' . $this->recordID . ') to ' . $record[0]['service']);
+        	$email->setBody("Request ID#: {$this->recordID}\r\n\r\nRequest status: Sent Back by {$groupName[0]['stepTitle']}\r\n\r\nComments: $comment\r\n\r\n------------------------\r\n{$this->siteRoot}?a=printview&recordID={$this->recordID}\r\n\r\n{$record[0]['title']}\r\n\r\n");
+        	
+        	require_once 'VAMC_Directory.php';
+        	$dir = new VAMC_Directory;
+        	
+        	$requester = $dir->lookupLogin($record[0]['userID']);
+        	$author = $dir->lookupLogin($this->login->getUserID());
+        	
+        	$email->addRecipient($requester[0]['Email']);
+        	$email->addRecipient($author[0]['Email']);
+        	$email->setSender($author[0]['Email']);
+        	
+        	$email->sendMail();
         }
         
         
