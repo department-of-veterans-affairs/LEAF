@@ -176,9 +176,8 @@ span#headerTab {
     font-size: 20px;
     font-weight: bold;
     text-align: right;
-/*    background-image: url(../images/tab.gif);
-    background-repeat: no-repeat;*/
     background-color: #5a79a5;
+    padding-right: 0.25em;
 }
 
 .link {

@@ -2,8 +2,9 @@
 /************************
     Form Workflow
     Date Created: May 25, 2011
-
 */
+
+require_once 'sources/XSSHelpers.php';
 
 class FormWorkflow
 {
@@ -152,17 +153,23 @@ class FormWorkflow
                 if($res[$i]['dependencyID'] == -3) {
                 	 
                 	$resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                	$groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
                 	 
                 	// make sure the right person has access
                 	if(!$res[$i]['hasAccess']) {
-                		$groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
-                
                 		if($this->login->checkGroup($groupID)) {
                 			$res[$i]['hasAccess'] = true;
                 		}
                 	}
                 
                 	$res[$i]['description'] = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
+
+                	// find actual group name
+                	$vars = array(':groupID' => $groupID);
+                	$tGroup = $this->db->prepared_query('SELECT * from groups WHERE groupID=:groupID', $vars);
+                	if(count($tGroup) >= 0) {
+                	    $res[$i]['description'] = $tGroup[0]['name'];
+                	}
                 }
 
                 foreach($res2 as $group) {
@@ -257,7 +264,14 @@ class FormWorkflow
     	if(isset($res[0])
     			&& $res[0]['dependencyID'] == -3) {
     		$res[0]['description'] = $res[0]['stepTitle'];
-    	}
+        }
+        
+        // sanitize the comment on the action
+        if (isset($res[0]) && isset($res[0]['comment']))
+        {
+            $res[0]['comment'] = XSSHelpers::sanitizeHTML($res[0]['comment']);
+        }
+
     	return $res[0];
     }
     
