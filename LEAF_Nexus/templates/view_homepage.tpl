@@ -251,7 +251,7 @@ $(function() {
     };
     ppInterval = setInterval(function(){postProcess();}, 100);
 
-    <!--{if $employee[0].empUID > 0}-->
+    <!--{if $employee[0].empUID > 0 && is_numeric($employee[0].empUID)}-->
     $.ajax({
         url: "ajaxEmployee.php?a=getForm&empUID=<!--{$employee[0].empUID}-->",
         success: function(response) {
