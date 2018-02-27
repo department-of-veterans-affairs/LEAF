@@ -1,6 +1,6 @@
 <div>
-<b><!--{$totalNum}--></b> requests tagged as '<!--{$tag}-->'<br /><br />
+<b><!--{$totalNum|sanitize}--></b> requests tagged as '<!--{$tag|sanitize}-->'<br /><br />
 <!--{foreach from=$requests item=request}-->
-#<!--{$request.recordID}--> - <a href="index.php?a=printview&amp;recordID=<!--{$request.recordID}-->" style="color: black"><!--{$request.title|escape:'html'}--></a><br />
+<!--{$request.recordID|strip_tags}--> - <a href="index.php?a=printview&amp;recordID=<!--{$request.recordID|strip_tags}-->" style="color: black"><!--{$request.title|escape:'html'}--></a><br />
 <!--{/foreach}-->
 </div>

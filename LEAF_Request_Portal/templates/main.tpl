@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     {if $tabText != ''}
-    <title>{$tabText} - {$title} | {$city}</title>
+    <title>{$tabText|sanitize} - {$title|sanitize} | {$city|sanitize}</title>
     {else}
-    <title>{$title} | {$city}</title>
+    <title>{$title|strip_tags|escape} | {$city|sanitize}</title>
     {/if}
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css" media="screen">
@@ -45,12 +45,12 @@
     {/if}
     <div style="cursor: pointer" onclick="window.location='./'">
       <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
-      <span id="headerLabel">{$city}</span>
-      <span id="headerDescription">{$title}</span>
+      <span id="headerLabel">{$city|sanitize}</span>
+      <span id="headerDescription">{$title|sanitize}</span>
     </div>
     <span id="headerHelp">{$login}</span>
     <span id="headerLogin"></span>
-    <span id="headerTab">{$emergency}{$tabText}</span>
+    <span id="headerTab">{$emergency}{$tabText|sanitize}</span>
     <span id="headerTabImg"><img src="images/tab.png" alt="tab" /></span>
     <span id="headerMenu" class="noprint">{$menu}</span>
 </div>
