@@ -23,7 +23,7 @@ var LeafFormSearch = function(containerID) {
 	// constants
 	var ALL_DATA_FIELDS = '0';
 	var ALL_OC_EMPLOYEE_DATA_FIELDS = '0.0';
-	
+
 	function renderUI() {
 		$('#' + containerID).html('<div>\
 			    <img id="'+prefixID+'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="'+ rootURL +'../libs/dynicons/?img=search.svg&w=16">\
@@ -57,7 +57,7 @@ var LeafFormSearch = function(containerID) {
 	            $('#' + prefixID + 'searchtxt').focus();
 	        });
 	    });
-	
+
 	    $('#' + prefixID + 'advancedSearchButton').on('click', function() {
 	    	searchOrigWidth = $('#' + prefixID + 'searchtxt').width();
 	    	$('#' + prefixID + 'advancedSearchButton').fadeOut();
@@ -73,7 +73,7 @@ var LeafFormSearch = function(containerID) {
 	            renderPreviousAdvancedSearch();
 	    	});
 	    });
-	
+
 	    $('#' + prefixID + 'advancedSearchApply').on('click', function() {
 	    	showBusy();
 	    	generateSearchQuery();
@@ -82,7 +82,7 @@ var LeafFormSearch = function(containerID) {
 	    	newSearchWidget();
 	    	$('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
 	    });
-	
+
 		$('#' + prefixID+ 'searchtxt').on('keydown', function(e) {
 			showBusy();
 			timer = 0;
@@ -90,7 +90,7 @@ var LeafFormSearch = function(containerID) {
 				search($('#' + prefixID+ 'searchtxt').val());
 			}
 		});
-	
+
 		newSearchWidget();
 	}
 
@@ -148,7 +148,7 @@ var LeafFormSearch = function(containerID) {
         		advSearch = prevQuery;
         	}
         	else {
-        		advSearch = JSON.parse(getLastSearch());        		
+        		advSearch = JSON.parse(getLastSearch());
         	}
         }
         catch(err) {
@@ -168,7 +168,7 @@ var LeafFormSearch = function(containerID) {
             		renderWidget(i, function(widgetID, indicatorID, operator, match) {
             			return function() {
             				$('#' + prefixID + 'widgetIndicator_' + widgetID).val(indicatorID);
-            				$('#' + prefixID + 'widgetIndicator_' + widgetID).trigger('chosen:updated');            			
+            				$('#' + prefixID + 'widgetIndicator_' + widgetID).trigger('chosen:updated');
                     		$('#' + prefixID + 'widgetCod_' + widgetID).val(operator);
                     		$('#' + prefixID + 'widgetCod_' + widgetID).trigger('chosen:updated');
                     		$('#' + prefixID + 'widgetMat_' + widgetID).val(match.replace(/\*/g, ''));
@@ -252,7 +252,7 @@ var LeafFormSearch = function(containerID) {
 		timer += (timer > 5000) ? 0 : 200;
 		if(timer > 400) {
 		    var txt = $('#' + prefixID + 'searchtxt').val();
-			
+
 		    if(txt != "" && txt != q) {
 		    	q = txt;
 
@@ -603,7 +603,7 @@ var LeafFormSearch = function(containerID) {
 								$('#' + prefixID + 'widgetMatch_' + widgetID).html('<div id="'+prefixID+'widgetEmp_'+widgetID+'" style="width: 280px"></div><input type="hidden" id="'+prefixID+'widgetMat_'+widgetID+'" />');
 								createEmployeeSelectorWidget(widgetID, 'empUID');
 							}
-							
+
 							for(var i in res) {
 								if(res[i].indicatorID == iID) {
 									var format = '';
@@ -712,7 +712,7 @@ var LeafFormSearch = function(containerID) {
 	 */
 	function newSearchWidget() {
 		var widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'">\
-						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" /></td>\
+						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" /></button></td>\
 						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
@@ -781,7 +781,7 @@ var LeafFormSearch = function(containerID) {
 	return {
 		init: init,
 		renderUI: renderUI,
-		setOrgchartPath: setOrgchartPath, 
+		setOrgchartPath: setOrgchartPath,
 		focus: focus,
 		getPrefixID: function() { return prefixID; },
 		getSearchInput: function() { return $('#' + prefixID + 'searchtxt').val(); },
@@ -789,7 +789,7 @@ var LeafFormSearch = function(containerID) {
 		getLastSearch: getLastSearch,
 		generateQuery: generateSearchQuery,
 		getLeafFormQuery: function() {
-			return leafFormQuery; 
+			return leafFormQuery;
 		},
 		renderPreviousAdvancedSearch: renderPreviousAdvancedSearch,
 		setSearchFunc: setSearchFunc,

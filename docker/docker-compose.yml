@@ -1,0 +1,52 @@
+version: "2"
+
+services:
+  php:
+      build:
+        context: ../
+        dockerfile: docker/php/Dockerfile
+      ports:
+        - 80:80
+        - 443:443
+      links:
+        - mysql
+      volumes:
+        - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
+        - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
+        - ../libs:/var/www/html/libs
+      networks:
+        code-network:
+          aliases:
+            - php
+  mysql:
+    build:
+      context: ../
+      dockerfile: docker/mysql/Dockerfile
+    expose:
+      - '3306'
+    ports:
+      - "3306:3306"
+    restart: 'always'
+    volumes:
+      - leaf-mysql-data:/var/lib/mysql
+    networks:
+      code-network:
+        aliases:
+          - mysql
+
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_ROOT_HOST=${MYSQL_ROOT_HOST}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=${MYSQL_ALLOW_EMPTY_PASSWORD}
+
+volumes:
+  leaf-mysql-data:
+  leaf-php-data:
+
+
+networks:
+  code-network:
+    driver: bridge

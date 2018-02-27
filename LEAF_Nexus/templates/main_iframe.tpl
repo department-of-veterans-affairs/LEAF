@@ -1,5 +1,5 @@
 {strip}<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     {if $tabText != ''}
     <title>{$tabText} - {$title} | {$city}</title>
@@ -10,7 +10,7 @@
         {if $useDojo == true && $useDojoUI == true}
         @import "../libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";
         @import "../libs/js/jquery/chosen/chosen.min.css";
-        {/if}        
+        {/if}
         @import "css/style.css";
 {section name=i loop=$stylesheets}
         @import "{$stylesheets[i]}";

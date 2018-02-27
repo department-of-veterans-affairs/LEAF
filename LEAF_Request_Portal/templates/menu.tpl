@@ -2,7 +2,7 @@
     <a href="./" class="buttonNorm"><img src="../libs/dynicons/?img=go-home.svg&amp;w=16" alt="Main Page" title="Main Page" />Main Page</a>
 {/if}
 <div id="headerMenu_container" style="display: inline-block">
-    <a id="button_showLinks" href="#" class="buttonNorm">Links &#9660;</a>
+    <a id="button_showLinks" tabindex="0" class="buttonNorm">Links &#9660;</a>
     <div id="headerMenu_links">
     {include file="menu_links.tpl"}
     </div>
@@ -12,6 +12,14 @@
 {/if}
 {if $hide_main_control == 1}
 {/if}
+
+<script>
+    $('#button_showLinks').keypress(function(e) {
+        if (e.keyCode === 13) {
+            $('#headerMenu_links').css("display", "block");
+        }
+    });
+</script>
 
 <br />
 <noscript><div class="alert"><span>Javascript must be enabled for this version of software to work!</span></div></noscript>
