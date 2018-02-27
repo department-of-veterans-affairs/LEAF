@@ -21,6 +21,8 @@ include 'form.php';
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
+include_once './sources/XSSHelpers.php';
+
 $db_config = new DB_Config();
 $config = new Config();
 
@@ -98,8 +100,8 @@ switch($action) {
         $t_menu->assign('action', $action);
         $o_login = $t_login->fetch('login.tpl');
         
-        $recordInfo = $form->getRecordInfo($_GET['recordID']);
-        $comments = $form->getActionComments($_GET['recordID']);
+        $recordInfo = $form->getRecordInfo((int)$_GET['recordID']);
+        $comments = $form->getActionComments((int)$_GET['recordID']);
         
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -107,16 +109,16 @@ switch($action) {
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', (int)$_GET['recordID']);
-        $t_form->assign('name', $recordInfo['name']);
-        $t_form->assign('title', $recordInfo['title']);
-        $t_form->assign('priority', $recordInfo['priority']);
-        $t_form->assign('submitted', $recordInfo['submitted']);
-        $t_form->assign('stepID', $recordInfo['stepID']);
-        $t_form->assign('service', $recordInfo['service']);
-        $t_form->assign('serviceID', $recordInfo['serviceID']);
-        $t_form->assign('date', $recordInfo['date']);
-        $t_form->assign('deleted', $recordInfo['deleted']);
-        $t_form->assign('bookmarked', $recordInfo['bookmarked']);
+        $t_form->assign('name', XSSHelpers::sanitizeHMTL($recordInfo['name']));
+        $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
+        $t_form->assign('priority', (int)$recordInfo['priority']);
+        $t_form->assign('submitted', XSSHelpers::sanitizeHTML($recordInfo['submitted']));
+        $t_form->assign('stepID', XSSHelpers::sanitizeHTML($recordInfo['stepID']));
+        $t_form->assign('service', XSSHelpers::sanitizeHTML($recordInfo['service']));
+        $t_form->assign('serviceID', (int)$recordInfo['serviceID']);
+        $t_form->assign('date', XSSHelpers::sanitizeHTML($recordInfo['date']));
+        $t_form->assign('deleted', (int)$recordInfo['deleted']);
+        $t_form->assign('bookmarked', XSSHelpers::sanitizeHTML($recordInfo['bookmarked']));
         $t_form->assign('categories', $recordInfo['categories']);
         $t_form->assign('comments', $comments);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -132,7 +134,7 @@ switch($action) {
         
         switch($action) {
             default:
-                $childForms = $form->getChildForms($_GET['recordID']);
+                $childForms = $form->getChildForms((int)$_GET['recordID']);
                 $t_form->assign('childforms', $childForms);
                 
                 if($_GET['childCategoryID'] != '') {
@@ -153,7 +155,7 @@ switch($action) {
                 break;
         }
         
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel'];
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
         $tabText = $requestLabel . ' #' . (int)$_GET['recordID'];
         break;
     case 'menu':
@@ -179,8 +181,8 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$main->assign('title', $settings['heading'] == '' ? $config->title : $settings['heading']);
-$main->assign('city', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
+$main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
+$main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subheading']));
 $main->assign('revision', $settings['version']);
 
 $main->display('main_iframe.tpl');

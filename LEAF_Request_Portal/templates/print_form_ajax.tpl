@@ -1,19 +1,19 @@
 <!-- form -->
 <br />
 <div class="printmainform" style="border-bottom: 0px; min-height: 64px">
-    <div id="requestTitle"><!--{$title}--> <!--{$subtype}-->
+    <div id="requestTitle"><!--{$title|sanitize}--> <!--{$subtype|sanitize}-->
     <!--{if $submitted == 0 || $is_admin}-->
         <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" style="cursor: pointer" alt="Edit Title" title="Edit Title" onclick="changeTitle()" />
     <!--{/if}-->
 
-    <br /><span style="font-weight: normal; color: #686868; font-style: italic"><!--{$categoryText}--></span>
+    <br /><span style="font-weight: normal; color: #686868; font-style: italic"><!--{$categoryText|sanitize}--></span>
     </div>
     <div id="requestInfo">
         <table>
             <tr>
                 <td><!--{if $service != ''}-->Service<!--{else}-->&nbsp;<!--{/if}-->
                 </td>
-                <td><b><!--{$service}--></b>
+                <td><b><!--{$service|sanitize}--></b> 
                     <!--{if $submitted == 0}-->
                         <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" style="cursor: pointer" alt="Edit Service" title="Edit Service" onclick="changeService()" />
                     <!--{/if}-->
@@ -21,7 +21,7 @@
             </tr>
             <tr>
                 <td>Initiated by</td>
-                <td><b><!--{$name}--></b></td>
+                <td><b><!--{$name|sanitize}--></b></td>
             </tr>
             <tr>
                 <td>Submitted</td>

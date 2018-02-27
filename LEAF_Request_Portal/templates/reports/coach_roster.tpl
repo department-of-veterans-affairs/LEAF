@@ -4,13 +4,13 @@
     flex-wrap: wrap;
 }
 #coaches div.coach {
-    background-color: rgb(247, 247, 247);
+    background-color: white;
     border: 1px solid black;
     box-shadow: 0 2px 6px #8e8e8e;
 
-    width: 425px;
+    width: 410px;
 
-    margin: 10px 10px 0px 10px;
+    margin: 7px 7px 0px 7px;
     padding: 13px;
 
     font-size: 13pt;
@@ -38,8 +38,8 @@
 
 #coaches div.coach div.top img.profileImage {
     margin: 5px;
-    height: 150px;
-    width: 150px !important;
+    max-height: 150px !important;
+    max-width: 150px !important;
 }
 
 #rosterHeader {
@@ -248,6 +248,25 @@ function searchForCoaches() {
     );
 }
 
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+function debounce(func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		var later = function() {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
+};
+
 this.portalAPI = LEAFRequestPortalAPI();
 
 $(function() {
@@ -255,14 +274,11 @@ $(function() {
         searchForCoaches();
     });
 
-    $('#searchRosterInput').keyup(function(e) {
-        // if keycode is 'Enter', uncomment the following if statement and 'return false' to disable search-as-you-type
-        // if (e.which == 13) {
-            searchForCoaches();
-            return true;
-            // return false;
-        // }
-    });
+    var debouncedSearch = debounce(function() {
+        searchForCoaches();
+    }, 300);
+
+    $('#searchRosterInput').keyup(debouncedSearch);
 
     searchForCoaches();
 });

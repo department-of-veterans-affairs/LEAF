@@ -90,7 +90,7 @@ switch($action) {
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl')));
         
-        $tabText = 'Groups';
+        $tabText = 'User Access Groups';
         break;
     case 'mod_svcChief':
         $t_form = new Smarty;
