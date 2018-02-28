@@ -96,7 +96,7 @@ employeeSelector.prototype.clearSearch = function() {
 };
 
 employeeSelector.prototype.forceSearch = function(query) {
-	$('#' + this.prefixID + 'input').val(query.replace(/[^a-zA-Z0-9.-]/g));
+	$('#' + this.prefixID + 'input').val(query.replace(/<[^>]*>/g, ''));
 };
 
 employeeSelector.prototype.hideInput = function() {
@@ -134,7 +134,7 @@ employeeSelector.prototype.search = function() {
 	this.timer += (this.timer > 5000) ? 0 : 200;
 
 	if(this.timer > 300) {
-	    var txt = $('#' + this.prefixID + 'input').val().replace(/[^a-zA-Z0-9.-]/g);
+	    var txt = $('#' + this.prefixID + 'input').val().replace(/<[^>]*>/g, '');
 
 	    if(txt != "" && txt != this.q) {
 	    	this.q = txt;
