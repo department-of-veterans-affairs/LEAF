@@ -7,10 +7,6 @@ namespace LEAFTest;
 
 use GuzzleHttp\Client;
 
-use LEAFTest\LEAFResponseType;
-use LEAFTest\ResponseFormatter;
-
-
 /**
  * Simple HTTP client that wraps GuzzleHttp\Client.
  *
@@ -26,13 +22,14 @@ class LEAFClient
      *
      * @return Client   a GuzzleHttp\Client configured for LEAF
      */
-    public static function getClient(): Client
+    public static function getClient() : Client
     {
-        if (self::$client == null) {
-            self::$client = new Client([
+        if (self::$client == null)
+        {
+            self::$client = new Client(array(
               'base_uri' => 'http://localhost/',
-              'cookies' => true
-            ]);
+              'cookies' => true,
+            ));
 
             // get PHPSESSIONID so requests are authenticated
             self::$client->get('/LEAF_Nexus/auth_domain/?');
@@ -52,6 +49,7 @@ class LEAFClient
     public static function get($url, $returnType = LEAFResponseType::JSON)
     {
         $response = self::getClient()->get($url);
+
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
 
@@ -66,9 +64,10 @@ class LEAFClient
      */
     public static function postEncodedForm($url, $formParams, $returnType = LEAFResponseType::JSON)
     {
-        $response = self::getClient()->post($url, [
-          'form_params' => $formParams
-        ]);
+        $response = self::getClient()->post($url, array(
+          'form_params' => $formParams,
+        ));
+
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
 }
