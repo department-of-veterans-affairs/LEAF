@@ -169,6 +169,7 @@ CoachQuery.prototype.parseResults = function (results) {
                 : "../libs/dynicons/?img=system-users.svg&w=150";
 
             coaches.push({
+                "id": result.recordID,
                 "name": data["id" + this.indicatorMap.name],
                 "pulse": data["id" + this.indicatorMap.pulse],
                 "phone": data["id" + this.indicatorMap.phone],
@@ -193,6 +194,7 @@ CoachQuery.prototype.parseResults = function (results) {
 function buildCoachProfile(coach) {
     // slightly faster than $("<div>")...
     var coachDiv = $(document.createElement('div')).addClass('coach');
+    coachDiv.attr('name', 'coach_' + coach.id);
 
     var topDiv = $(document.createElement('div')).addClass('top').appendTo(coachDiv);
 
@@ -234,7 +236,7 @@ function buildCoachProfile(coach) {
     }
 
     if(specialtiesList.length > maxDisplaySpecialties) {
-        specialtiesText += '<div>... and <a href="#"><b>' + (specialtiesList.length - maxDisplaySpecialties) + '</b> more</a></div>';
+        specialtiesText += '<div>... and <a href="#coach_'+ coach.id +'"><b>' + (specialtiesList.length - maxDisplaySpecialties) + '</b> more</a></div>';
     }
     
     var specialtiesArea = $(document.createElement('ul')).html(specialtiesText).appendTo(specialtiesDiv);
