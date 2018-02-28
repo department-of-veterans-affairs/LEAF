@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-include "../../LEAF_Nexus/helpers.php";
+include "../../LEAF_Nexus/XSSHelpers.php";
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests LEAF_Nexus/helpers.php
+ * Tests LEAF_Nexus/XSSHelpers.php
  */
 final class HelpersTest extends TestCase
 {

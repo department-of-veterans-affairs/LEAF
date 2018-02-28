@@ -72,7 +72,7 @@ class XSSHelpers {
 
         $in = html_entity_decode($in);
         $in = strip_tags($in, '<b><i><u><ol><li><br><p><table><td><tr>');
-        $in = preg_replace($pattern, $replace, htmlspecialchars($in, ENT_QUOTES));
+        $in = preg_replace($pattern, $replace, htmlspecialchars($in, ENT_QUOTES, "UTF-8"));
 
         // verify tag grammar
         $matches = array();

@@ -32,7 +32,7 @@
         <div id="positionBody">
             <ul>
         <!--{foreach $summary.employee.positions as $position}-->
-                <li id="pos_<!--{$position.positionID}-->"><!--{$position.positionID}--></li>
+                <li id="pos_<!--{$position.positionID|strip_tags}-->"><!--{$position.positionID|strip_tags}--></li>
         <!--{/foreach}-->
             </ul>
         </div>
@@ -44,14 +44,14 @@
         <div id="groupBody" style="width: 100%">
             <ul>
             <!--{foreach $groups as $group}-->
-                <li><a href="?a=view_group&groupID=<!--{$group.groupID}-->"><!--{$group.groupTitle}--></a></li>
+                <li><a href="?a=view_group&groupID=<!--{$group.groupID|strip_tags}-->"><!--{$group.groupTitle|sanitize}--></a></li>
             <!--{/foreach}-->
             </ul>
         </div>
     </div>
     <div id="backup" style="float: left; width: 400px; margin: 8px; border: 1px solid black">
         <div id="backupHeader" style="padding: 4px">
-            <span id="backupTitle">Backup for <!--{$summary.employee.firstName}--> <!--{$summary.employee.lastName}--></span>
+            <span id="backupTitle">Backup for <!--{$summary.employee.firstName|sanitize}--> <!--{$summary.employee.lastName|sanitize}--></span>
         </div>
         <div id="backupBody" style="width: 100%; padding: 4px 4px 4px 16px"></div>
     </div>
