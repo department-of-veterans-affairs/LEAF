@@ -455,7 +455,7 @@ class Form
         // check needToKnow mode
         if($recordID != null && $this->isNeedToKnow($recordID)) {
         	if(!$this->hasReadAccess($recordID)) {
-        		return 0;
+        		return [];
         	}
         }
         
@@ -548,7 +548,7 @@ class Form
     {
     	// check needToKnow mode
     	if(!$this->hasReadAccess($recordID)) {
-    		return 0;
+    		return [];
     	}
 
         $vars = array(':recordID' => $recordID,
@@ -948,7 +948,8 @@ class Form
                     $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
                 }
                 else {
-                    $_POST[$key] = $this->sanitizeInput($_POST[$key]);
+                    require_once './sources/XSSHelpers.php';
+                    $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
                 }
 
                 $vars = array(':recordID' => $recordID,
@@ -1775,7 +1776,7 @@ class Form
     public function getActionComments($recordID)
     {
     	if(!$this->hasReadAccess($recordID)) {
-    		return 0;
+    		return [];
     	}
 
         $vars = array(':recordID' => $recordID);
@@ -1802,7 +1803,7 @@ class Form
     public function getTags($recordID)
     {
     	if(!$this->hasReadAccess($recordID)) {
-    		return 0;
+    		return [];
     	}
 
         $vars = array(':recordID' => $recordID);
@@ -2504,6 +2505,8 @@ class Form
     }
 
     /**
+    * @deprecated use XSSHelpers::sanitizeHTML() from XSSHelpers.php instead.
+    *
     * Clean up html input, allow some tags
     * @param string $in
     * @return string

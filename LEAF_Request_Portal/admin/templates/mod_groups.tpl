@@ -1,11 +1,13 @@
-<div id="sideBar" style="float: right; width: 150px">
-    <div class="buttonNorm" onclick="createGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Group" /> Create Group</div><br />
+<div id="sideBar" style="float: right">
+    <button class="buttonNorm" onclick="importGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Import Group" /> Import Existing Group</button>
+    <button class="buttonNorm" onclick="createGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Group" /> Create New Group</button>
 </div>
 <br style="clear: both" />
 <div>
-    <span style="font-size: 18px; font-weight: bold">List of Groups</span>
-    <br /><br />
-
+    <h2>Site Administrators</h2>
+    <div id="adminList"></div>
+    <br style="clear: both" />
+    <h2>User Groups</h2>
     <div id="groupList"></div>
 </div>
 
@@ -74,8 +76,15 @@ function getGroupList() {
             for(var i in res) {
 
             	// only show explicit groups, not ELTs
-            	if(res[i].parentGroupID == null) {
+            	if(res[i].parentGroupID == null
+            		&& res[i].groupID != 1) {
                     $('#groupList').append('<div id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
+                            <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].name +'</h2>\
+                            <div id="members'+ res[i].groupID +'"></div>\
+                            </div>');
+            	}
+            	else if(res[i].groupID == 1) {
+                    $('#adminList').append('<div id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
                             <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].name +'</h2>\
                             <div id="members'+ res[i].groupID +'"></div>\
                             </div>');
@@ -102,7 +111,7 @@ function getGroupList() {
                 }
                 else { // if is admin
                 	$('#' + res[i].groupID).on('click', function() {
-                		dialog.setContent('<h2>System Administrators</h2><div id="adminList"></div><br /><h3>Add Administrator:</h3><div id="employeeSelector"></div>');
+                		dialog.setContent('<h2>System Administrators</h2><div id="adminSummary"></div><br /><h3>Add Administrator:</h3><div id="employeeSelector"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -133,10 +142,10 @@ function getGroupList() {
                 	        url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
                 	        dataType: "json",
                 	        success: function(res) {
-                	        	$('#adminList').html('');
+                	        	$('#adminSummary').html('');
                 	        	var counter = 0;
                 	            for(var i in res) {
-                	            	$('#adminList').append('<div>&bull; '+ res[i].Lname  + ', ' + res[i].Fname +' [ <a href="#" id="removeAdmin_'+ counter +'">Remove</a> ]</div>');
+                	            	$('#adminSummary').append('<div>&bull; '+ res[i].Lname  + ', ' + res[i].Fname +' [ <a href="#" id="removeAdmin_'+ counter +'">Remove</a> ]</div>');
                 	            	$('#removeAdmin_' + counter).on('click', function(userID) {
                 	            		return function() {
                                             removeAdmin(userID);
@@ -157,69 +166,83 @@ function getGroupList() {
     });
 }
 
-function createGroup() {
-    dialog.setTitle('Create new group');
-    dialog.setContent('<br />Group Title: <div id="groupSel_container"></div><br />Note: If the group already exists, you may import it.');
+// used to import and add groups
+function tagAndUpdate(groupID, callback) {
+    $.when(
+            $.ajax({
+                type: 'POST',
+                url: '<!--{$orgchartPath}-->/api/?a=group/'+ groupID + '/tag',
+                data: {
+                    tag: '<!--{$orgchartImportTag}-->',
+                    CSRFToken: '<!--{$CSRFToken}-->'
+                },
+                success: function() {
+                }
+            }),
+            $.ajax({
+                type: 'GET',
+                url: '../api/?a=system/updateGroup/' + groupID,
+                success: function() {
+                },
+                cache: false
+            })
+        ).then(function() {
+        	if(callback != undefined) {
+        		callback();
+        	}
+            window.location.reload();
+    });
+}
+
+function importGroup() {
+    dialog.setTitle('Import Group');
+    dialog.setContent('<h2>Import a group from another LEAF site.</h2><br />Group Title: <div id="groupSel_container"></div>');
     
     var groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     groupSel.basePath = '../';
     groupSel.setResultHandler(function() {
-    	if(groupSel.numResults == 0) {
-    		groupSel.hideResults();
-    	}
-    	else {
-    		groupSel.showResults();
-    	}
+        if(groupSel.numResults == 0) {
+            groupSel.hideResults();
+        }
+        else {
+            groupSel.showResults();
+        }
 
-    	// prevent services from showing up as search results
-    	for(var i in groupSel.jsonResponse) {
-    		if(groupSel.jsonResponse[i].tags.service != undefined) {
-    			$('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).css('display', 'none');
-    		}
-    	}
+        // prevent services from showing up as search results
+        for(var i in groupSel.jsonResponse) {
+            if(groupSel.jsonResponse[i].tags.service != undefined) {
+                $('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).css('display', 'none');
+            }
+        }
     });
     groupSel.initialize();
-    
-    function tagAndUpdate(groupID) {
-        $.when(
-                $.ajax({
-                    type: 'POST',
-                    url: '<!--{$orgchartPath}-->/api/?a=group/'+ groupID + '/tag',
-                    data: {
-                        tag: '<!--{$orgchartImportTag}-->',
-                        CSRFToken: '<!--{$CSRFToken}-->'
-                    },
-                    success: function() {
-                    }
-                }),
-                $.ajax({
-                    type: 'GET',
-                    url: '../api/?a=system/updateGroup/' + groupID,
-                    success: function() {
-                    },
-                    cache: false
-                })
-            ).then(function() {
-                window.location.reload();
-            });
-    }
-    
+
     dialog.setSaveHandler(function() {
-    	if(groupSel.selection == '') {
-            $.ajax({
-                type: 'POST',
-                url: '<!--{$orgchartPath}-->/api/?a=group',
-                data: {title: $('#' + groupSel.prefixID + 'input').val(),
-                       CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    tagAndUpdate(res);
-                }
-            });
-    	}
-    	else {
-    		tagAndUpdate(groupSel.selection);
-    	}
+        if(groupSel.selection != '') {
+        	tagAndUpdate(groupSel.selection);
+        }
+    });
+    dialog.show();
+}
+
+function createGroup() {
+    dialog.setTitle('Create a new group');
+    dialog.setContent('<br />Group Title: <input id="groupName"></input>');
+
+    dialog.setSaveHandler(function() {
+    	dialog.indicateBusy();
+        $.ajax({
+            type: 'POST',
+            url: '<!--{$orgchartPath}-->/api/?a=group',
+            data: {title: $('#groupName').val(),
+                   CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(res) {
+                tagAndUpdate(res, function() {
+                    dialog.indicateIdle();
+                });
+            }
+        });
     });
     dialog.show();
 }
