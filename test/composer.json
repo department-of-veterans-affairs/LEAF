@@ -6,8 +6,8 @@
 
   "autoload": {
     "files": [
-      "src/LEAFClient.php",
-      "src/ResponseFormatter.php"
+      "shared/src/LEAFClient.php",
+      "shared/src/ResponseFormatter.php"
     ]
   }
 }
