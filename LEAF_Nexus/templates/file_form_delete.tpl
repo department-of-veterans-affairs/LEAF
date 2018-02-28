@@ -14,10 +14,10 @@ function hideConfirmation() {
 function confirmDelete() {
     $.ajax({
     	type: 'POST',
-        url: "ajaxIndex.php?a=deleteattachment&categoryID=<!--{$categoryID}-->",
-        data: {categoryID: <!--{$categoryID}-->,
-        	      UID: <!--{$UID}-->,
-        	      indicatorID: <!--{$indicatorID}-->,
+        url: "ajaxIndex.php?a=deleteattachment&categoryID=<!--{$categoryID|strip_tags|escape}-->",
+        data: {categoryID: <!--{$categoryID|strip_tags|escape}-->,
+        	      UID: <!--{$UID|strip_tags|escape}-->,
+        	      indicatorID: <!--{$indicatorID|strip_tags|escape}-->,
         	      file: '<!--{$file}-->',
         	      CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
