@@ -1,11 +1,13 @@
 <?php
 include 'db_mysql.php';
 include 'db_config.php';
-include 'login.php';
+include 'Login.php';
 include 'form.php';
 
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
+
+include_once './sources/XSSHelpers.php';
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -19,7 +21,8 @@ $login->loginUser();
 
 $form = new Form($db, $login);
 
-$data = $form->getIndicator($_GET['id'], $_GET['series'], $_GET['form']);
+$data = $form->getIndicator(
+    XSSHelpers::sanitizeHTML($_GET['id']), XSSHelpers::sanitizeHTML($_GET['series']), $_GET['form']);
 
 $value = $data[$_GET['id']]['value'];
 

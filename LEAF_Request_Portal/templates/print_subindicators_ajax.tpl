@@ -1,37 +1,37 @@
 <!--{**}-->
         <!--{if $indicator.format == 'textarea'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'}-->
+                <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'|sanitize}-->
             </span>
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'radio'}-->
                 <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                <!--{$indicator.value}-->
+                <!--{$indicator.value|sanitize}-->
                 </span>
                 <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'dropdown'}-->
                 <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                <!--{$indicator.value}-->
+                <!--{$indicator.value|sanitize}-->
                 </span>
                 <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'text'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                <!--{$indicator.value}-->
+                <!--{$indicator.value|sanitize}-->
             </span>
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'number'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                <!--{$indicator.value}-->
+                <!--{$indicator.value|sanitize}-->
             </span>
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'numberspinner'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                <!--{$indicator.value}-->
+                <!--{$indicator.value|sanitize}-->
             </span>
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
@@ -63,7 +63,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'checkbox'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                 <!--{$indicator.value}-->
+                 <!--{$indicator.value|sanitize}-->
             </span>
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
@@ -74,7 +74,7 @@
                     <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" /> <!-- dumb workaround -->
                     <!--{if $indicator.value[$idx] != 'no'}-->
                         <br /><img class="print" src="../libs/dynicons/?img=dialog-apply.svg&w=16" style="vertical-align: middle" alt="checked" />
-                        <!--{$option}-->
+                        <!--{$option|sanitize}-->
                     <!--{/if}-->
                     <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
@@ -113,7 +113,7 @@
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
             <!--{if $indicator.value != ''}-->
                 <!--{if $indicator.displayedValue != ''}-->
-                    <!--{$indicator.displayedValue}-->
+                    <!--{$indicator.displayedValue|sanitize}-->
                 <!--{/if}-->
             <!--{else}-->
             Unassigned
@@ -128,14 +128,14 @@
             $(function() {
                 $.ajax({
                     type: 'GET',
-                    url: '<!--{$orgchartPath}-->/api/?a=position/<!--{$indicator.value}-->',
+                    url: '<!--{$orgchartPath}-->/api/?a=position/<!--{$indicator.value|escape}-->',
                     dataType: 'json',
                     success: function(data) {
                         if(data.title != false) {
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').append('<div style="border: 1px solid black" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos">\
                                     <img src="../libs/dynicons/?img=preferences-system-windows.svg&w=32" alt="View Position Details" style="float: left; padding: 4px" /><b>' + data.title + '</b><br />' + data[2].data + '-' + data[13].data + '-' + data[14].data + '</div>');
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos').on('click', function() {
-                                window.open('<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.value}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');
+                                window.open('<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.value|escape}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');
                             });
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos').addClass('buttonNorm noprint');
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos').css('margin-top', '8px');
@@ -154,7 +154,7 @@
             });
             </script>
                 <!--{if $indicator.displayedValue != ''}-->
-                    <!--{$indicator.displayedValue}-->
+                    <!--{$indicator.displayedValue|sanitize}-->
                 <!--{else}-->
                 Loading...
                 <!--{/if}-->
@@ -169,7 +169,7 @@
             <!--{if trim($indicator.value) != ''}-->
             <div style="padding: 0px">
                 <!--{if $indicator.displayedValue != ''}-->
-                    <a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$indicator.value}-->"><!--{$indicator.displayedValue}--></a>
+                    <a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$indicator.value|escape}-->"><!--{$indicator.displayedValue|sanitize}--></a>
                 <!--{else}-->
                 Loading...
                 <!--{/if}-->
@@ -180,7 +180,7 @@
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'raw_data'}-->
-            <textarea class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="display: none"><!--{$indicator.value}--></textarea>
+            <textarea class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="display: none"><!--{$indicator.value|sanitize}--></textarea>
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{include file="print_subindicators.tpl" form=$indicator.child depth=$depth+4 recordID=$recordID}-->

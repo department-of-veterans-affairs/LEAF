@@ -1,6 +1,6 @@
 <!--{if $deleted > 0}-->
 <div style="font-size: 36px"><img src="../libs/dynicons/?img=emblem-unreadable.svg&amp;w=96" alt="Unreadable" style="float: left" /> Notice: This request has been marked as deleted.<br />
-    <span class="buttonNorm" onclick="restoreRequest(<!--{$recordID}-->)"><img src="../libs/dynicons/?img=user-trash-full.svg&amp;w=32" alt="un-delete" /> Un-delete request</span>
+    <span class="buttonNorm" onclick="restoreRequest(<!--{$recordID|strip_tags}-->)"><img src="../libs/dynicons/?img=user-trash-full.svg&amp;w=32" alt="un-delete" /> Un-delete request</span>
 </div><br style="clear: both" />
 <hr />
 <!--{/if}-->
@@ -43,7 +43,7 @@ function getIndicatorLog(indicatorID, series) {
     
     $.ajax({
         type: 'GET',
-        url: "api/?a=form/<!--{$recordID}-->/" + indicatorID + "/" + series + '/history',
+        url: "api/?a=form/<!--{$recordID|strip_tags}-->/" + indicatorID + "/" + series + '/history',
         success: function(res) {
         	var numChanges = res.length;
         	var prev = '';
@@ -73,7 +73,7 @@ function getIndicatorLog(indicatorID, series) {
 function getIndicator(indicatorID, series) {
     $.ajax({
         type: 'GET',
-        url: "ajaxIndex.php?a=getprintindicator&recordID=<!--{$recordID}-->&indicatorID=" + indicatorID + "&series=" + series,
+        url: "ajaxIndex.php?a=getprintindicator&recordID=<!--{$recordID|strip_tags}-->&indicatorID=" + indicatorID + "&series=" + series,
         dataType: 'text',
         success: function(response) {
             if($("#PHindicator_" + indicatorID + "_" + series).hasClass("printheading_missing")) {
@@ -101,7 +101,7 @@ function restoreRequest() {
             CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
             if(response > 0) {
-                window.location.href="index.php?a=printview&recordID=<!--{$recordID}-->";
+                window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
             }
         }
 	});
@@ -163,9 +163,9 @@ $(function() {
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
     <!--{if $childCategoryID == ''}-->
-    openContent('ajaxIndex.php?a=printview&recordID=<!--{$recordID}-->');
+    openContent('ajaxIndex.php?a=printview&recordID=<!--{$recordID|strip_tags}-->');
     <!--{else}-->
-    openContent('ajaxIndex.php?a=internalonlyview&recordID=<!--{$recordID}-->&childCategoryID=<!--{$childCategoryID}-->');
+    openContent('ajaxIndex.php?a=internalonlyview&recordID=<!--{$recordID|strip_tags}-->&childCategoryID=<!--{$childCategoryID}-->');
     <!--{/if}-->
 
 });

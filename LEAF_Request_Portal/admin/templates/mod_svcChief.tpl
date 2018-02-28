@@ -55,7 +55,7 @@ function createGroup() {
     dialog.show();*/
 
     dialog_simple.setTitle('Create new service');
-    dialog_simple.setContent('Placeholder');
+    dialog_simple.setContent('Changes to services must be made through Links->Nexus at the moment.');
     
     dialog_simple.show();
 }
