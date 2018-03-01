@@ -1,5 +1,5 @@
 <?php
-
+set_time_limit(90);
 include '../config.php';
 include '../sources/Login.php';
 include '../db_mysql.php';
@@ -70,11 +70,21 @@ foreach($res as $pos) {
 	$output[$pos['positionID']]['data']['Pay Grade'] = $data[14]['data'];
 //	$output[$pos['positionID']]['data']['FTE Ceiling'] = ($data[11]['data'] / count($output[$pos['positionID']]['employeees']));
 //	$output[$pos['positionID']]['data']['Current FTE'] = ($data[17]['data'] / count($output[$pos['positionID']]['employeees']));
-	$output[$pos['positionID']]['data']['FTE'] = 0;
-	if(is_numeric($data[11]['data'])
-		&& is_numeric($data[19]['data'])) {
-			$output[$pos['positionID']]['data']['FTE'] = $data[19]['data'] == 0 ? 0 : round($data[11]['data'] / $data[19]['data'], 5);
+	$output[$pos['positionID']]['data']['FTE Ceiling'] = 0;
+	$output[$pos['positionID']]['data']['Current FTE'] = 0;
+
+    // calculate FTE Ceiling. Includes support for one-to-many position-employee
+	if(is_numeric($data[11]['data']) // fte ceiling
+		&& is_numeric($data[19]['data'])) { // total headcount
+			$output[$pos['positionID']]['data']['FTE Ceiling'] = $data[19]['data'] == 0 ? 0 : round($data[11]['data'] / $data[19]['data'], 5);
 	}
+
+    // calculate current FTE. Includes support for one-to-many position-employee
+	if(is_numeric($data[17]['data']) // current fte
+		&& is_numeric($data[19]['data'])) { // total headcount
+			$output[$pos['positionID']]['data']['Current FTE'] = $data[19]['data'] == 0 ? 0 : round($data[17]['data'] / $data[19]['data'], 5);
+	}
+
 	$output[$pos['positionID']]['data']['PD Number'] = $data[9]['data'];
 	
 	foreach($output[$pos['positionID']]['employeees'] as $key=>$emp) {
@@ -104,7 +114,8 @@ foreach($res as $pos) {
     		$packet['payPlan'] = $output[$pos['positionID']]['data']['Pay Plan'];
     		$packet['series'] = $output[$pos['positionID']]['data']['Series'];
     		$packet['payGrade'] = $output[$pos['positionID']]['data']['Pay Grade'];
-    		$packet['fte'] = $output[$pos['positionID']]['data']['FTE'];
+    		$packet['fteCeiling'] = $output[$pos['positionID']]['data']['FTE Ceiling'];
+    		$packet['currentFte'] = $output[$pos['positionID']]['data']['Current FTE'];
     		$packet['pdNumber'] = $output[$pos['positionID']]['data']['PD Number'];
     		$jsonOut[] = $packet;
         }
@@ -134,7 +145,8 @@ foreach($res as $pos) {
     		$packet['payPlan'] = $output[$pos['positionID']]['data']['Pay Plan'];
     		$packet['series'] = $output[$pos['positionID']]['data']['Series'];
     		$packet['payGrade'] = $output[$pos['positionID']]['data']['Pay Grade'];
-    		$packet['fte'] = $output[$pos['positionID']]['data']['FTE'];
+    		$packet['fteCeiling'] = $output[$pos['positionID']]['data']['FTE Ceiling'];
+    		$packet['currentFte'] = $output[$pos['positionID']]['data']['Current FTE'];
     		$packet['pdNumber'] = $output[$pos['positionID']]['data']['PD Number'];
     		$jsonOut[] = $packet;
 		}

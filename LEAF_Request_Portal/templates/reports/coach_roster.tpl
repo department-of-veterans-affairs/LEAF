@@ -2,14 +2,13 @@
 #coaches {
     display: inline-flex;
     flex-wrap: wrap;
+    justify-content: center;
 }
 #coaches div.coach {
     background-color: white;
     border: 1px solid black;
     box-shadow: 0 2px 6px #8e8e8e;
-
-    width: 410px;
-
+    width: 390px;
     margin: 7px 7px 0px 7px;
     padding: 13px;
 
@@ -21,6 +20,9 @@
 #coaches div.coach div.specialties { }
 #coaches div.coach div.top {
     display: inline-flex;
+}
+div.specialties {
+    font-size: 90%;
 }
 #coaches div.coach div.top div.info {
     margin: 5px 5px 5px 10px;
@@ -54,6 +56,7 @@
     display: inline-flex;
     padding-left: 20%;
     padding-right: 4%;
+    padding-bottom: 16px;
     text-align: center;
     width: 76%;
 }
@@ -64,10 +67,11 @@
     font-size: large;
 }
 #searchBar .searchIcon {
-    margin-right: 9px;
-    margin-left: 9px;
-
+    margin-left: 8px;
+    margin-top: 8px;
     cursor: pointer;
+    height: 25px;
+    width: 25px;
 }
 </style>
 
@@ -98,7 +102,7 @@
  * @param searchTerm    string  the term to search indicator data for
  */
 function CoachQuery(searchTerm) {
-    this.categoryID = "form_b8543";
+    this.categoryID = "form_4847d";
     this.formQuery = FormQuery();
     this.formQuery.addTerm("categoryID", "=", this.categoryID);
     this.formQuery.addTerm("deleted", "=", 0);
@@ -163,6 +167,7 @@ CoachQuery.prototype.parseResults = function (results) {
                 : "../libs/dynicons/?img=system-users.svg&w=150";
 
             coaches.push({
+                "id": result.recordID,
                 "name": data["id" + this.indicatorMap.name],
                 "pulse": data["id" + this.indicatorMap.pulse],
                 "phone": data["id" + this.indicatorMap.phone],
@@ -187,6 +192,7 @@ CoachQuery.prototype.parseResults = function (results) {
 function buildCoachProfile(coach) {
     // slightly faster than $("<div>")...
     var coachDiv = $(document.createElement('div')).addClass('coach');
+    coachDiv.attr('name', 'coach_' + coach.id);
 
     var topDiv = $(document.createElement('div')).addClass('top').appendTo(coachDiv);
 
@@ -218,7 +224,21 @@ function buildCoachProfile(coach) {
         $(document.createElement('div')).addClass('geoLocation').html(coach.location).appendTo(infoDiv);
     
     var specialtiesDiv = $(document.createElement('div')).addClass('specialties').appendTo(coachDiv);
-    $(document.createElement('ul')).html(coach.process).appendTo(specialtiesDiv);
+    var specialtiesList = coach.process.split('<br />');
+    var specialtiesText = "";
+    var maxDisplaySpecialties = 3;
+    for(var i =0; i < maxDisplaySpecialties; i++) {
+        if(specialtiesList[i] != undefined) {
+            specialtiesText += specialtiesList[i] + "<br />";
+        }
+    }
+
+    if(specialtiesList.length > maxDisplaySpecialties) {
+        specialtiesText += '<div>... and <a href="#coach_'+ coach.id +'"><b>' + (specialtiesList.length - maxDisplaySpecialties) + '</b> more</a></div>';
+    }
+    
+    var specialtiesArea = $(document.createElement('ul')).html(specialtiesText).appendTo(specialtiesDiv);
+    $(specialtiesArea).on('click', function() { $(specialtiesArea).html(coach.process); });
 
     return coachDiv;
 }

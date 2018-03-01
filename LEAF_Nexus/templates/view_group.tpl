@@ -1,7 +1,7 @@
 <div id="maincontent">
     <div id="group">
         <div id="groupHeader">
-            <span id="groupTitle"><!--{$group[0].groupTitle}-->
+            <span id="groupTitle"><!--{$group[0].groupTitle|sanitize}-->
             <!--{if $group[0].groupAbbreviation != ''}-->
                 (<!--{$group[0].groupAbbreviation}-->)
             <!--{/if}-->
@@ -35,7 +35,7 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Options</h1>
         <!--{if array_search('service', $tags) !== false}-->
-        <div onclick="window.location='?a=navigator&amp;rootID=<!--{$groupLeader}-->'"><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
+        <div onclick="window.location='?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->'"><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
         <br />
         <!--{/if}-->
         <button class="options" onclick="editGroupName()" style="width: 100%"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</button>

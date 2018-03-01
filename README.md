@@ -34,31 +34,51 @@ RewriteRule (.*)/api/(.*)$ $1/api/index.php?a=$2 [QSA,L]
 This will fix some issues where the API endpoint is unreachable.
 
 #### LEAF_Nexus
+
+Copy `globals.php.example` to `globals.php` and change the following variables to reflect your setup:
+
+```php
+const DIRECTORY_HOST = 'mysql_host';
+const DIRECTORY_DB = 'leaf_users';
+const DIRECTORY_USER = 'dbnexususer';
+const DIRECTORY_PASS = 'dbnexuspass';
+```
 	
-Rename `config-example.php` to `config.php` and change the following variables 
+Copy `config-example.php` to `config.php` and change the following variables to reflect your setup:
+
 ```php
 $dbHost = 'mysql'
 $dbName = 'leaf_users'
-$dbUser = 'tester'
-$dbPass = 'tester'
+$dbUser = 'dbnexususer'
+$dbPass = 'dbnexuspass'
 ```
 
 #### LEAF_Request_Portal 
 
-Rename `db_config-example.php` to `db_config.php` and change the following variables:
+Copy `globals.php.example` to `globals.php` and change the following variables to reflect your setup:
 
 ```php
-$dbHost = 'mysql'
-$dbName = 'leaf_users'
-$dbUser = 'tester'
-$dbPass = 'tester'
+const DIRECTORY_HOST = 'mysql_host';
+const DIRECTORY_DB = 'leaf_portal';
+const DIRECTORY_USER = 'dbportaluser';
+const DIRECTORY_PASS = 'dbportalpass';
+const LEAF_NEXUS_URL = 'https://wherever/path/to/nexus/'
+```
 
-$phonedbHost = 'mysql'
+Copy `db_config-example.php` to `db_config.php` and change the following variables to reflect your setup:
+
+```php
+$dbHost = 'mysql_host'
+$dbName = 'leaf_portal'
+$dbUser = 'dbportaluser'
+$dbPass = 'dbportaluser'
+
+$phonedbHost = 'mysql_host'
 $phonedbName = 'leaf_users'
-$phonedbUser = 'tester'
-$phonedbPass = 'tester'	
+$phonedbUser = 'dbnexususer'
+$phonedbPass = 'dbnexuspass'	
 
-# this should point to the LEAF_Nexus directory
+# this should point to the LEAF Nexus base path 
 $orgchartPath = '../LEAF_Nexus'
 ```
 
@@ -72,7 +92,15 @@ docker-compose up
 
 Navigate to http://localhost/LEAF_Nexus or http://localhost/LEAF_Request_Portal in your browser.
 
+### Testing
+
+All tests for LEAF are located in the [test](test) directory. Instructions for running and creating tests can be found in the README there.
+
+Tests for LEAF are in their infancy, so expect a lot of changes to happen in testing in the coming months.
+
 ### Contributing
+
+See the [README](docs/README.md) in the `docs` directory for information about coding standards.
 
 #### Branches
 
