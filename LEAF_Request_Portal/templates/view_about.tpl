@@ -10,7 +10,7 @@ This software was developed by VA employees in an effort to streamline daily pro
 <table class="agenda">
     <tr>
         <td>Database version</td>
-        <td><!--{$dbversion}--></td>
+        <td><!--{$dbversion|sanitize}--></td>
     </tr>
     <tr>
         <td>Server Timezone</td>
