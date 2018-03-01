@@ -1,6 +1,6 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
-        <button class="tools" onclick="newGroup()"><img src="../libs/dynicons/?img=folder-new.svg&amp;w=32" style="vertical-align: middle" alt="New Group" title="New Group" /> Create New Group</button>
+        <div onclick="newGroup()"><img src="../libs/dynicons/?img=folder-new.svg&amp;w=32" style="vertical-align: middle" alt="New Group" title="New Group" /> Create New Group</div>
     </div>
 </div>
 
@@ -26,7 +26,7 @@ function newGroup()
     dialog.setContent('Group Name: <input id="groupName" style="width: 300px" class="dialogInput"></input>');
     dialog.setTitle('Create New Group');
     dialog.show(); // need to show early because of ie6
-
+    
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
         $.ajax({

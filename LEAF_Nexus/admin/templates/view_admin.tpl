@@ -1,31 +1,31 @@
 <div id="maincontent">
 
-<a href="../?a=browse_group" tabindex="-1">
-    <span class="menuButton" style="background-color: #cb9ed7" tabindex="0">
+<a href="../?a=browse_group">
+    <span class="menuButton" style="background-color: #cb9ed7">
         <img class="menuIcon" src="../../libs/dynicons/?img=preferences-desktop-theme.svg&amp;w=96" style="position: relative" alt="Group Search" title="Group Search" />
         <span class="menuText">Groups</span><br />
         <span class="menuDesc">View groups such as services, sub-sections, etc.</span>
     </span>
 </a>
 
-<a href="?a=admin_refresh_directory" tabindex="-1">
-    <span class="menuButton" style="background-color: #ffefa5" tabindex="0">
+<a href="?a=admin_refresh_directory">
+    <span class="menuButton" style="background-color: #ffefa5">
         <img class="menuIcon" src="../../libs/dynicons/?img=system-software-update.svg&amp;w=96" style="position: relative" alt="Directory Update" title="Directory Update" />
         <span class="menuText">Refresh Directory</span><br />
         <span class="menuDesc">Update account list from Active Directory</span>
     </span>
 </a>
 
-<a href="?a=setup_medical_center" tabindex="-1">
-    <span class="menuButton" style="background-color: #c6ffbe" tabindex="0">
+<a href="?a=setup_medical_center">
+    <span class="menuButton" style="background-color: #c6ffbe">
         <img class="menuIcon" src="../../libs/dynicons/?img=preferences-system.svg&amp;w=96" style="position: relative" alt="Bookmarks" title="Bookmarks" />
         <span class="menuText">Setup Wizard</span><br />
         <span class="menuDesc">Initial setup for VA Medical Centers</span>
     </span>
 </a>
 
-<a href="?a=mod_templates_reports" tabindex="-1">
-    <span class="menuButton" style="background-color: black" tabindex="0">
+<a href="?a=mod_templates_reports">
+    <span class="menuButton" style="background-color: black">
         <img class="menuIcon" src="../../libs/dynicons/?img=utilities-terminal.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
         <span class="menuText" style="color: white">Report Programmer</span><br />
         <span class="menuDesc" style="color: white">Advanced Reports and Custom Pages</span>
@@ -44,32 +44,32 @@
 <hr />
 Programmer Options:<br />
 
-<a href="../?a=browse_search" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: #414141" tabindex="0">
+<a href="../?a=browse_search">
+    <span class="menuButtonSmall" style="background-color: #414141">
         <img class="menuIconSmall" src="../../libs/dynicons/?img=system-search.svg&amp;w=72" style="position: relative" alt="Search" title="Search" />
         <span class="menuTextSmall" style="color: white">Search</span><br />
         <span class="menuDescSmall" style="color: white">All-in-one search</span>
     </span>
 </a>
 
-<a href="#" onclick="newEmployee()" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: #414141" tabindex="0">
+<a href="#" onclick="newEmployee()">
+    <span class="menuButtonSmall" style="background-color: #414141">
         <img class="menuIconSmall" src="../../libs/dynicons/?img=list-add.svg&amp;w=72" style="position: relative" alt="Search" title="Search" />
         <span class="menuTextSmall" style="color: white">Import Employee</span><br />
         <span class="menuDescSmall" style="color: white">Old tool to import employees into the database</span>
     </span>
 </a>
 
-<a href="?a=mod_system" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: black" tabindex="0">
+<a href="?a=mod_system">
+    <span class="menuButtonSmall" style="background-color: black">
         <img class="menuIconSmall" src="../../libs/dynicons/?img=preferences-desktop.svg&amp;w=72" style="position: relative" alt="Bookmarks" title="Bookmarks" />
         <span class="menuTextSmall" style="color: white">Change Site Name</span><br />
         <span class="menuDescSmall" style="color: white">Edit site name and other parameters</span>
     </span>
 </a>
 
-<a href="?a=admin_update_database" tabindex="-1">
-    <span class="menuButton" style="background-color: #ffefa5" tabindex="0">
+<a href="?a=admin_update_database">
+    <span class="menuButton" style="background-color: #ffefa5">
         <img class="menuIcon" src="../../libs/dynicons/?img=application-x-executable.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
         <span class="menuText">Update Database</span><br />
         <span class="menuDesc">Updates the system database, if available</span>
@@ -89,13 +89,13 @@ Programmer Options:<br />
 function newEmployee() {
     dialog.setContent('<fieldset><legend>Employee:</legend><div id="empSelector_container"></div><br />Hint: If there are too many results, use their E-mail address as a search term.</fieldset>');
     dialog.show(); // need to show early because of ie6
-
+    
     var empSel = new nationalEmployeeSelector('empSelector_container');
     empSel.rootPath = '../';
     empSel.apiPath = '../api/';
     empSel.initialize();
 //    empSel.setDomain('<!--{$userDomain}-->');
-
+    
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
         if(empSel.selection == '') {
