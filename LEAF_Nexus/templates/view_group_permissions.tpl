@@ -13,7 +13,7 @@
 <div id="maincontent">
     <div style="background-color: #fff297; border: 1px solid black; padding: 4px">
         <div style="font-size: 150%">
-            Permissions for group ID# <!--{$groupID}-->
+            Permissions for group ID# <!--{$groupID|strip_tags}-->
         </div>
         <div style="background-color: #fffad7; font-size: 120%; padding: 8px">
             <table class="table" style="width: 80%">
@@ -21,7 +21,7 @@
                     <td>Group Name</td>
                 </tr>
                 <tr style="background-color: white; text-align: center">
-                    <td>"<!--{$groupTitle}-->"</td>
+                    <td>"<!--{$groupTitle|sanitize}-->"</td>
                 </tr>
             </table>
         </div>
@@ -36,8 +36,8 @@
         </tr>
     <!--{foreach from=$permissions item=permission}-->
         <tr style="background-color: <!--{cycle values='#e0e0e0,#c4c4c4'}-->">
-            <td id="<!--{$permission.categoryID}-->_<!--{$permission.UID}-->" style="font-size: 14px; font-weight: bold"><img src="images/largespinner.gif" alt="loading..." /> Loading <!--{$permission.categoryID}-->...</td>
-            <td id="<!--{$permission.categoryID}-->_<!--{$permission.UID}-->_read" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID}-->', <!--{$permission.UID}-->, 'read')">
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->" style="font-size: 14px; font-weight: bold"><img src="images/largespinner.gif" alt="loading..." /> Loading <!--{$permission.categoryID|strip_tags}-->...</td>
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_read" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', <!--{$permission.UID|strip_tags}-->, 'read')">
                 <div class="buttonNorm">
                 <!--{if $permission.read == 1}-->
                 <img src="../libs/dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
@@ -46,7 +46,7 @@
                 <!--{/if}-->
                 </div>
             </td>
-            <td id="<!--{$permission.categoryID}-->_<!--{$permission.UID}-->_write" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID}-->', <!--{$permission.UID}-->, 'write')">
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_write" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', <!--{$permission.UID|strip_tags}-->, 'write')">
                 <div class="buttonNorm">
                 <!--{if $permission.write == 1}-->
                 <img src="../libs/dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
@@ -55,7 +55,7 @@
                 <!--{/if}-->
                 </div>
             </td>
-            <td id="<!--{$permission.categoryID}-->_<!--{$permission.UID}-->_grant" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID}-->', <!--{$permission.UID}-->, 'grant')">
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_grant" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', <!--{$permission.UID|strip_tags}-->, 'grant')">
                 <div class="buttonNorm">
                 <!--{if $permission.grant == 1}-->
                 <img src="../libs/dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes

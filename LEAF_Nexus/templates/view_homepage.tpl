@@ -9,7 +9,7 @@
 </a>
 
 <!--{if $groupLeader != ''}-->
-<a href="?a=navigator&amp;rootID=<!--{$groupLeader}-->" tabindex="-1">
+<a href="?a=navigator&amp;rootID=<!--{$groupLeader|strip_tags}-->" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: #b3ceff" tabindex="0">
         <img class="menuIconSmall" src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=76" style="position: relative" alt="Search" title="Search" />
         <span class="menuTextSmall">Service Org. Chart</span><br />
@@ -108,7 +108,7 @@
 
     <div id="currentEmployee" style="float: right; width: 220px; background-color: #ffe3e3; border: 1px solid black;">
     <!--{if $employee[0].empUID > 0}-->
-        <div id="currentEmployeeHeader" style="background-color: #f4bcbc; font-size: 110%; font-weight: bold; padding: 4px"><a href="?a=view_employee&empUID=<!--{$employee[0].empUID}-->"><!--{$employee[0].firstName}--> <!--{$employee[0].lastName}--></a></div>
+        <div id="currentEmployeeHeader" style="background-color: #f4bcbc; font-size: 110%; font-weight: bold; padding: 4px"><a href="?a=view_employee&empUID=<!--{$employee[0].empUID|strip_tags}-->"><!--{$employee[0].firstName|sanitize}--> <!--{$employee[0].lastName|sanitize}--></a></div>
         <div id="currentEmployeeBody" style="padding: 4px">Loading...</div>
     <!--{else}-->
         <div style="padding: 8px">Your account is not present in the Org. Chart database.</div>
@@ -251,7 +251,7 @@ $(function() {
     };
     ppInterval = setInterval(function(){postProcess();}, 100);
 
-    <!--{if $employee[0].empUID > 0}-->
+    <!--{if $employee[0].empUID > 0 && is_numeric($employee[0].empUID)}-->
     $.ajax({
         url: "ajaxEmployee.php?a=getForm&empUID=<!--{$employee[0].empUID}-->",
         success: function(response) {

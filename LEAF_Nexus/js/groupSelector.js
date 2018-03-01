@@ -107,7 +107,7 @@ groupSelector.prototype.clearSearch = function() {
 };
 
 groupSelector.prototype.forceSearch = function(query) {
-	$('#' + this.prefixID + 'input').val(query);
+	$('#' + this.prefixID + 'input').val(query.replace(/<[^>]*>/g, ''));
 };
 
 groupSelector.prototype.hideInput = function() {
@@ -139,7 +139,7 @@ groupSelector.prototype.search = function() {
 
 	if(this.timer > 300) {
     	var skip = 0;
-	    var txt = $('#' + this.prefixID + 'input').val();
+	    var txt = $('#' + this.prefixID + 'input').val().replace(/<[^>]*>/g, '');
 	    if(txt == undefined) {
 	    	clearInterval(this.intervalID);
 	    	return false;

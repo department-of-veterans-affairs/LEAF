@@ -1,6 +1,6 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
-        <div onclick="window.location='?a=navigator&amp;rootID=<!--{$positionID}-->';"><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee" title="Add Employee" /> View in Org Chart</div>
+        <div onclick="window.location='?a=navigator&amp;rootID=<!--{$positionID|strip_tags}-->';"><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee" title="Add Employee" /> View in Org Chart</div>
         <div onclick="addEmployee()"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee" title="Add Employee" /> Add Employee</div>
         <div onclick="editTitle()"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Title</div>
         <div onclick="changeSupervisor()"><img src="../libs/dynicons/?img=system-users.svg&amp;w=32" style="vertical-align: middle" alt="Change Service" title="Change Service" /> Change Supervisor</div>
@@ -26,7 +26,7 @@
                 None
             <!--{/if}-->
             <!--{foreach $groups as $group}-->
-                <div> - <a href="?a=view_group&amp;groupID=<!--{$group.groupID}-->"><!--{$group.groupTitle}--></a></div>
+                <div> - <a href="?a=view_group&amp;groupID=<!--{$group.groupID|strip_tags}-->"><!--{$group.groupTitle|strip_tags}--></a></div>
             <!--{/foreach}-->
             <!--{if $positionPrivileges[$positionID].write == 1}-->
             <br /><br />
@@ -61,20 +61,20 @@
 <div id="maincontent">
     <div id="position">
         <div id="positionHeader">
-            <span id="positionTitle"><!--{$positionSummary.title}--></span><br />
+            <span id="positionTitle"><!--{$positionSummary.title|sanitize}--></span><br />
             <!--{$counter = 0}-->
             <!--{foreach $positionSummary.services as $services}-->
-            <span id="serviceName"><!--{if $counter++ > 0}-->- <!--{/if}--><!--{$services.groupTitle}--></span>
+            <span id="serviceName"><!--{if $counter++ > 0}-->- <!--{/if}--><!--{$services.groupTitle|sanitize}--></span>
             <!--{/foreach}-->&nbsp;
 
             <!--{$numSupervisors = 0}-->
             <span id="supervisor" style="float: right">Supervisor:
             <!--{foreach $positionSummary.supervisor as $supervisor}-->
                 <!--{if $supervisor.firstName != ''}-->
-                <a href="?a=view_position&amp;positionID=<!--{$supervisor.positionID}-->"><!--{$supervisor.firstName}--> <!--{$supervisor.lastName}-->
+                <a href="?a=view_position&amp;positionID=<!--{$supervisor.positionID|strip_tags}-->"><!--{$supervisor.firstName|sanitize}--> <!--{$supervisor.lastName|sanitize}-->
                     <!--{if $supervisor.isActing == 1}-->(Acting)<!--{/if}--></a>
                 <!--{else if $supervisor.positionID != ''}-->
-                <a href="?a=view_position&amp;positionID=<!--{$supervisor.positionID}-->">VACANT</a>
+                <a href="?a=view_position&amp;positionID=<!--{$supervisor.positionID|strip_tags}-->">VACANT</a>
                 <!--{/if}-->
             <!--{/foreach}-->
             </span>
@@ -92,8 +92,8 @@
           <!--{/if}-->
           <div id="employee_<!--{$counter}-->" class="employee">
               <div id="employeeHeader_<!--{$counter}-->" class="employeeHeader">
-                  <img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="float: right; cursor: pointer" onclick="confirmUnlink(<!--{$employee.empUID}-->); return false;" alt="Unlink Employee" title="Unlink Employee" />
-                  <span id="employeeName_<!--{$counter}-->" class="employeeName" style="cursor: pointer" onclick="window.location='?a=view_employee&amp;empUID=<!--{$employee.empUID}-->'"><!--{$employee.lastName}-->, <!--{$employee.firstName}--><!--{if $employee.isActing == 1}--> <span style="font-weight: bold; color: blue">(Acting)</span><!--{/if}--></span>
+                  <img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="float: right; cursor: pointer" onclick="confirmUnlink(<!--{$employee.empUID|strip_tags}-->); return false;" alt="Unlink Employee" title="Unlink Employee" />
+                  <span id="employeeName_<!--{$counter}-->" class="employeeName" style="cursor: pointer" onclick="window.location='?a=view_employee&amp;empUID=<!--{$employee.empUID|strip_tags}-->'"><!--{$employee.lastName|sanitize}-->, <!--{$employee.firstName|sanitize}--><!--{if $employee.isActing == 1}--> <span style="font-weight: bold; color: blue">(Acting)</span><!--{/if}--></span>
               </div>
               <div id="employeeBody_<!--{$counter}-->" class="employeeBody">
                   <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>  
@@ -132,7 +132,7 @@
         <div style="border-bottom: 2px solid black; line-height: 30px"><br /></div>
         <div id="start_requestloadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 100px; width: 460px">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
         <div id="start_requestxhr" style="width: 540px; height: 100px; overflow: auto; font-size: 12px"></div>
-        <div id="start_requestbutton_save" class="buttonNorm" style="width: 80%"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="save" /> Start FTE Request to fill <b><!--{$positionSummary.employeeList[0].positionTitle}--></b></div>
+        <div id="start_requestbutton_save" class="buttonNorm" style="width: 80%"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="save" /> Start FTE Request to fill <b><!--{$positionSummary.employeeList[0].positionTitle|sanitize}--></b></div>
         <br /><br />
     </div>
 </form>
