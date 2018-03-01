@@ -551,7 +551,7 @@
                     });
                 }
                 else {
-                    posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags
+                    posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
                     posSel.apiPath = '<!--{$orgchartPath}-->/api/';
                     posSel.enableEmployeeSearch();
 
