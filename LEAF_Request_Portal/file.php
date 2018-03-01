@@ -10,7 +10,7 @@ $config = new Config();
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
-include_once '../sources/XSSHelpers.php';
+include_once './sources/XSSHelpers.php';
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
