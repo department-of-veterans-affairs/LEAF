@@ -11,13 +11,13 @@
             <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
         </div>
 
-
+        
         <div id="position" class="position">
             <div id="positionHeader" class="positionHeader">
                 <span id="positionName" class="positionName">Positions</span><br />
             </div>
             <div id="positionBody" class="positionBody">
-                <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
+                <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>  
             </div>
         </div>
 
@@ -26,7 +26,7 @@
                 <span id="employeeName" class="employeeName">Employees</span><br />
             </div>
             <div id="employeeBody" class="employeeBody" style="line-height: 220%">
-                <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
+                <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>  
             </div>
         </div>
     </div>
@@ -38,12 +38,11 @@
         <div onclick="window.location='?a=navigator&amp;rootID=<!--{$groupLeader}-->'"><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
         <br />
         <!--{/if}-->
-        <button class="options" onclick="editGroupName()" style="width: 100%"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</button>
-        <button class="options" id="button_addEmployeePosition" onclick="addEmployeePosition()" style="width: 100%"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee/" title="Add Employee/Position" /> Add Employee/Position</button>
+        <div onclick="editGroupName()"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</div>
+        <div id="button_addEmployeePosition" onclick="addEmployeePosition()"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee/" title="Add Employee/Position" /> Add Employee/Position</div>
         <br />
-        <br />
-        <button class="options" onclick="confirmRemove()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
-    </button>
+        <div onclick="confirmRemove()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
+    </div>
 
     <div class="toolbar_tags"><h1>Tags</h1>
         <div class="tags">
@@ -53,11 +52,10 @@
             <!--{if $groupPrivileges[$groupID].write == 1}-->
             <br /><br />
             <!--{foreach $tag_hierarchy as $tag}-->
-            <button class="buttonNorm" style="width: 100%" onclick="writeTag('<!--{$tag.tag}-->');">Add '<!--{$tag.tag}-->'</button>
+            <div class="buttonNorm" onclick="writeTag('<!--{$tag.tag}-->');">Add '<!--{$tag.tag}-->'</div>
             <!--{/foreach}-->
             <br />
-            <br />
-            <button class="buttonNorm" style="width: 100%" onclick="addTag();">Add Custom Tag</button>
+            <div class="buttonNorm" onclick="addTag();">Add Custom Tag</div>
             <!--{/if}-->
         </div>
     </div>
@@ -78,9 +76,9 @@
         <!--{/if}-->
         </div>
         <!--{if $groupPrivileges[$groupID].grant != 0}-->
-        <button class="buttonPermission"  style="width: 100%" onclick="window.open('index.php?a=view_group_permissions&amp;groupID=<!--{$groupID}-->','OrgChart','width=840,resizable=yes,scrollbars=yes,menubar=yes');">
-            <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Yes" style="vertical-align: middle" tabindex="0" /> Change Permissions
-        </button>
+        <div class="buttonNorm" onclick="window.open('index.php?a=view_group_permissions&amp;groupID=<!--{$groupID}-->','OrgChart','width=840,resizable=yes,scrollbars=yes,menubar=yes');">
+            <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Yes" style="vertical-align: middle" /> Change Permissions
+        </div>
         <!--{/if}-->
     </div>
 </div>
@@ -101,7 +99,7 @@ function editGroupName() {
     dialog.setContent('Group Name: <input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
     		Alternate Names: <input id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
     dialog.show(); // need to show early because of ie6
-
+    
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
         $.ajax({
@@ -133,7 +131,7 @@ function addEmployeePosition() {
     	$('#container_ignorePositions').css('display', 'none');
         $('#container_includeSub').css('display', 'none');
     }
-
+    
     empSel = new nationalEmployeeSelector('employeeSelector');
     empSel.initialize();
 //    empSel.setDomain('<!--{$userDomain}-->');
@@ -161,7 +159,7 @@ function addEmployeePosition() {
             empSel.hideResults();
     	}
     });
-
+    
     posSel.setResultHandler(function() {
     	if(ignorePositions == false) {
             if(posSel.numResults == 0
@@ -323,7 +321,7 @@ function writeTag(input) {
 function addTag() {
     dialog.setContent('Tag Name: <input id="inputtitle" style="width: 300px" class="dialogInput" value=""></input>');
     dialog.show(); // need to show early because of ie6
-
+    
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
         writeTag($('#inputtitle').val());
@@ -360,13 +358,13 @@ $(function() {
             		positions += '<div style="background-color: #e6f5ff">&#10148; <a href="?a=view_position&positionID='+response[id].positionID+'" style="font-size: 120%; font-weight: bold">' + response[id].positionTitle + '</a> [ <a href="#" onclick="confirmUnlinkPosition('+ response[id].positionID +'); return false;">Remove</a> ]<ul id="pos_'+ response[id].positionID +'"></ul></div>';
             	}
                 $('#positionBody').html(positions);
-
+                
                 // discourage users from adding more than one position for services
                 if(response.length >= 1
                 	&& tags['service'] != undefined) {
                 	$('#button_addEmployeePosition').css('display', 'none');
                 }
-
+                
                 for(var id in response) {
                     $.ajax({
                         url: "./api/position/" + response[id].positionID + "/employees",
@@ -378,7 +376,7 @@ $(function() {
                             		if(employees[t].lastName) {
                             			name = employees[t].lastName + ', ' + employees[t].firstName;
                             		}
-                            		$('#pos_' + employees[t].positionID).append('<li>' + name + '</li>');
+                            		$('#pos_' + employees[t].positionID).append('<li>' + name + '</li>'); 
                             	}
                             }
                         },
@@ -413,7 +411,7 @@ $(function() {
     <!--{if $groupID >= 2 && $groupID <= 10}-->
     alert('This is a special group for internal use. Do not modify.');
     <!--{/if}-->
-
+    
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     confirm_dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 });

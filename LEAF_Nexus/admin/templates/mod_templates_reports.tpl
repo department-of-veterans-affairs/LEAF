@@ -1,5 +1,5 @@
 <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">
-    <button class="buttonNorm" onclick="newReport();" style="float: left; width: 200px; margin: 4px;"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="New File" /> New File</button><br />
+    <div class="buttonNorm" onclick="newReport();"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="New File" /> New File</div><br />
     <b>Files:</b>
     <div id="fileList"></div>
 </div>
@@ -21,7 +21,7 @@
 
 <script>
 
-function save() {
+function save() { 
 	$('#saveIndicator').attr('src', '../images/indicator.gif');
 	$.ajax({
 		type: 'POST',
@@ -41,7 +41,7 @@ function save() {
 function newReport() {
     dialog.setTitle('New File');
     dialog.setContent('Filename: <input type="text" id="newFilename"></input>');
-
+    
     dialog.setSaveHandler(function() {
     	console.log($('#newFile').val());
     	var file = $('#newFilename').val();
@@ -61,14 +61,14 @@ function newReport() {
         });
         dialog.hide();
     });
-
+    
     dialog.show();
 }
 
 function deleteReport() {
 	dialog_confirm.setTitle('Are you sure?');
 	dialog_confirm.setContent('This will irreversibly delete this report.');
-
+    
 	dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
@@ -79,7 +79,7 @@ function deleteReport() {
         });
         dialog_confirm.hide();
     });
-
+    
 	dialog_confirm.show();
 }
 
@@ -134,7 +134,7 @@ $(function() {
 	      }
 	  });
 	codeEditor.setSize(codeWidth - 2 + 'px', $(document).height() - 80);
-
+	
 	$.ajax({
 		type: 'GET',
 		url: '../api/system/reportTemplates',
@@ -151,7 +151,7 @@ $(function() {
 		},
 		cache: false
 	});
-
+	
 	loadContent('example');
 });
 </script>
