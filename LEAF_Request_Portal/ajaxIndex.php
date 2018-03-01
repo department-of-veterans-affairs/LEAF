@@ -407,7 +407,7 @@ switch ($action) {
                     $tChildForms[$childForm['childCategoryID']] = $childForm['childCategoryName'];
                 }
 
-                $t_form->assign('subtype', isset($_GET['childCategoryID']) ? '(' . strip_tags($tChildForms[(int)$_GET['childCategoryID']]) . ')' : '');
+                $t_form->assign('subtype', isset($_GET['childCategoryID']) ? '(' . strip_tags($tChildForms[XSSHelpers::xssafe($_GET['childCategoryID'])]) . ')' : '');
                 $t_form->display(customTemplate('print_form_ajax.tpl'));
             }
             else
