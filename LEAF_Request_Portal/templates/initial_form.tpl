@@ -28,7 +28,7 @@ $(function() {
     <!--{/if}-->
     $('#priority').chosen({disable_search_threshold: 5});
     <!--{foreach from=$categories item=category}-->
-    $('#num<!--{$category.categoryID}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
+    $('#num<!--{$category.categoryID|strip_tags|escape}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
     <!--{/foreach}-->
 
     $('#record').on('submit', function() {
@@ -51,7 +51,7 @@ $(function() {
 
 <form id="record" method="post" action="ajaxIndex.php?a=newform">
     <div class="item" style="text-align: left; border: 2px dotted black; padding: 5px">
-        <span>Welcome, <b><!--{$recorder}--></b>, to the <!--{$city}--> request website.<br />
+        <span>Welcome, <b><!--{$recorder|sanitize}--></b>, to the <!--{$city|sanitize}--> request website.<br />
         After clicking "proceed", you will be presented with a series of request related questions. Incomplete requests may result
         in delays. Upon completion of the request, you will be given an opportunity to print the submission.</span>
     </div>
@@ -66,7 +66,7 @@ $(function() {
         <table id="step1_questions" style="width: 100%; margin: 8px">
             <tr>
                 <td>Contact Info</td>
-                <td><input id="recorder" aria-label="recorder" type="text" title="" value="<!--{$recorder}-->" disabled="disabled"/> <input id="phone" type="text" aria-label="phone" title="" value="<!--{$phone}-->" disabled="disabled" /></td>
+                <td><input id="recorder" aria-label="recorder" type="text" title="" value="<!--{$recorder|sanitize}-->" disabled="disabled"/> <input id="phone" type="text" aria-label="phone" title="" value="<!--{$phone|sanitize}-->" disabled="disabled" /></td>
             </tr>
             <!--{if count($services) != 0}-->
             <tr>
@@ -75,7 +75,7 @@ $(function() {
                     <select id="service" name="service">
                     <option value=""></option>
                     <!--{foreach from=$services item=service}-->
-                    <option value="<!--{$service.serviceID}-->"<!--{if $selectedService == $service}-->selected="selected"<!--{/if}-->><!--{$service.service}--></option>
+                    <option value="<!--{$service.serviceID|strip_tags}-->"<!--{if $selectedService == $service}-->selected="selected"<!--{/if}-->><!--{$service.service|sanitize}--></option>
                     <!--{/foreach}-->
                     </select>
                 </td>
@@ -112,10 +112,10 @@ $(function() {
         <div style="text-align: left; padding: 8px"><span>
           <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
     <!--{foreach from=$categories item=category}-->
-        <input name="num<!--{$category.categoryID}-->" type="checkbox" class="ischecked" id="num<!--{$category.categoryID}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}-->style="font-family: Courier; font-size: 24px; font-weight: bold; margin: 4px" />
-        <label class="checkable" style="float: none" for="num<!--{$category.categoryID}-->"> <!--{$category.categoryName}-->
+        <input name="num<!--{$category.categoryID|strip_tags|escape}-->" type="checkbox" class="ischecked" id="num<!--{$category.categoryID|strip_tags}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}-->style="font-family: Courier; font-size: 24px; font-weight: bold; margin: 4px" />
+        <label class="checkable" style="float: none" for="num<!--{$category.categoryID|strip_tags}-->"> <!--{$category.categoryName|sanitize}-->
             <!--{if $category.categoryDescription != ''}-->
-            &nbsp;(<!--{$category.categoryDescription}-->)
+            &nbsp;(<!--{$category.categoryDescription|sanitize}-->)
             <!--{/if}-->
         </label>
         <br />

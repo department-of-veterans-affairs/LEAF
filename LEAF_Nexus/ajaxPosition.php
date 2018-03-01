@@ -42,7 +42,7 @@ switch($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
         
-        $t_form->assign('form', $position->getAllData($_GET['pID']));
+        $t_form->assign('form', $position->getAllData((int)$_GET['pID']));
         $t_form->assign('uid', (int)$_GET['pID']);
         $t_form->assign('categoryID', $position->getDataTableCategoryID());
         $t_form->display('print_subindicators.tpl');

@@ -2,8 +2,9 @@
 /************************
     Form Workflow
     Date Created: May 25, 2011
-
 */
+
+require_once 'sources/XSSHelpers.php';
 
 class FormWorkflow
 {
@@ -263,7 +264,14 @@ class FormWorkflow
     	if(isset($res[0])
     			&& $res[0]['dependencyID'] == -3) {
     		$res[0]['description'] = $res[0]['stepTitle'];
-    	}
+        }
+        
+        // sanitize the comment on the action
+        if (isset($res[0]) && isset($res[0]['comment']))
+        {
+            $res[0]['comment'] = XSSHelpers::sanitizeHTML($res[0]['comment']);
+        }
+
     	return $res[0];
     }
     
