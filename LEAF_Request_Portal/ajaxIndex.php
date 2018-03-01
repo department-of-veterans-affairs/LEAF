@@ -386,7 +386,7 @@ switch ($action) {
 
             switch ($action) {
                 case 'internalonlyview':
-                    $t_form->assign('form', $form->getFullForm($recordIDToPrint, (int)$_GET['childCategoryID']));
+                    $t_form->assign('form', $form->getFullForm($recordIDToPrint, XSSHelpers::xssafe($_GET['childCategoryID'])));
 
                     break;
                 default:
