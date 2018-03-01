@@ -129,6 +129,13 @@ span#headerMenu {
 }
 
 #headerMenu > a:hover, #headerMenu_container > a:hover{
+    background-color: #2372b0;
+    text-decoration: underline;
+    color: white;
+}
+
+#headerMenu > a:focus, #headerMenu_container > a:focus{
+    background-color: #2372b0;
     text-decoration: underline;
     color: white;
 }
@@ -498,9 +505,10 @@ span.approval_disapproved {
     transition: box-shadow 0.3s ease;
 }
 
-.menuButton:hover {
+.menuButton:hover, .menuButton:focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 14px;
+    outline-style: dotted;
 }
 
 .menuIcon {
@@ -533,9 +541,10 @@ span.approval_disapproved {
     transition: box-shadow 0.3s ease;
 }
 
-.menuButtonSmall:hover {
+.menuButtonSmall:hover, .menuButtonSmall:focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 12px;
+    outline-style: dotted;
 }
 
 .menuIconSmall {
@@ -665,6 +674,32 @@ div#category_list {
     color: white;
 }
 
+.tools {
+    background-color: #c0dbff;
+}
+
+button.tools{
+  background-color: #e8f2ff;
+  padding: 2px;
+  margin: 0px;
+  padding-right: 6px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid #e8f2ff;
+  border-left: 1px solid #e8f2ff;
+  border-right: 1px solid #e8f2ff;
+  cursor: pointer;
+  font-family: verdana;
+  font-size: 14px;
+  text-align: left;
+  width: 99%;
+
+}
+
+button.tools:hover, button.tools:focus{
+  background-color: #2372b0;
+  color: white;
+}
+
 .toolbar_right {
     float: right;
     z-index: 500;
@@ -713,6 +748,46 @@ div#category_list {
     background-color: #cbcbcb;
     border: 1px solid black;
     padding: 2px;
+}
+
+.buttonPermission {
+    padding: 2px;
+    border: 1px solid black;
+    background-color: #e3e3e3;
+    text-align: left;
+    cursor: pointer;
+}
+
+.buttonPermission:hover  {
+    background-color: #2372b0;
+    color: white;
+}
+
+.buttonPermission:focus {
+ background-color: #2372b0;
+ color: white;
+}
+
+button.options{
+  background-color: #e8f2ff;
+  padding: 2px;
+  margin: 0px;
+  padding-right: 6px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid #e8f2ff;
+  border-left: 1px solid #e8f2ff;
+  border-right: 1px solid #e8f2ff;
+  cursor: pointer;
+  font-family: verdana;
+  font-size: 14px;
+  text-align: left;
+  width: 99%;
+
+}
+
+button.options:hover, button.options:focus{
+  background-color: #2372b0;
+  color: white;
 }
 
 .toolbar_security>div {
@@ -825,11 +900,22 @@ span.browsetypes {
     padding: 4px;
     border: 1px solid black;
     cursor: pointer;
+    text-align: left;
+}
+
+input.buttonNorm {
+   text-align: left;
+   white-space:normal;
 }
 
 .buttonNorm:hover, .buttonNormSelected {
     background-color: #2372b0;
     color: white;
+}
+
+.buttonNorm:focus {
+ background-color: #2372b0;
+ color: white;
 }
 
 .buttonNorm>img {
