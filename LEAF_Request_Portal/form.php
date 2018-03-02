@@ -1702,7 +1702,7 @@ class Form
                                     WHERE indicatorID IN ({$indicatorID_list})
                                         AND recordID IN ({$recordIDs})");
 
-        if(count($res) > 0) {
+        if(is_array($res) && count($res) > 0) {
             foreach($res as $item) {
                 // handle special data types
             	if($indicators[$item['indicatorID']]['format'] == 'date') {
