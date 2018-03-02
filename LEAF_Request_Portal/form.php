@@ -495,8 +495,9 @@ class Form
         $form[$idx]['sort'] = $data[0]['sort'];
 
         // handle file upload
-        if($data[0]['format'] == 'fileupload'
-        		|| $data[0]['format'] == 'image') {
+        if(isset($data[0]['data'])
+            && ($data[0]['format'] == 'fileupload'
+                || $data[0]['format'] == 'image')) {
         	$form[$idx]['value'] = $this->fileToArray($data[0]['data']);
         	$form[$idx]['raw'] = $data[0]['data'];
         }
