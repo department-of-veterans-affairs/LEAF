@@ -1,11 +1,13 @@
 {
   "require": {
     "guzzlehttp/guzzle": "~6.0@dev",
-    "phpunit/phpunit": "^6.5"
+    "phpunit/phpunit": "^6.5",
+    "robmorgan/phinx": "^0.9.2"
   },
 
   "autoload": {
     "files": [
+      "shared/src/DatabaseTest.php",
       "shared/src/LEAFClient.php",
       "shared/src/ResponseFormatter.php"
     ]
