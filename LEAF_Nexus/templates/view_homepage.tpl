@@ -18,7 +18,6 @@
 </a>
 <!--{/if}-->
 
-<!--{if $is_admin}-->
 <a href="./utils/exportPDL.php" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: black" tabindex="0">
         <img class="menuIconSmall" src="../libs/dynicons/?img=x-office-spreadsheet.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
@@ -26,7 +25,6 @@
         <span class="menuDescSmall" style="color: white">Download the Position Description List</span>
     </span>
 </a>
-<!--{/if}-->
 
 <a href="?a=summary" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: black" tabindex="0">
