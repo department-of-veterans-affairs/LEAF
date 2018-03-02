@@ -184,19 +184,19 @@
                 <!--{if $indicator.data[0] != ''}-->
                 <!--{assign "counter" 0}-->
                 <!--{foreach from=$indicator.data item=file}-->
-                <div style="background-color: #b7c5ff; padding: 4px"><img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" /> <b>File Attached:</b> <a href="file.php?categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID|strip_tags=<!--{$indicator.indicatorID|strip_tags}-->&amp;file=<!--{$file|urlencode}-->" target="_blank"><!--{$file}--></a>
+                <div style="background-color: #b7c5ff; padding: 4px"><img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" /> <b>File Attached:</b> <a href="file.php?categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&amp;file=<!--{$file|urlencode}-->" target="_blank"><!--{$file}--></a>
                     <div style="float: right; padding: 4px">
                     [ <span class="link" onclick="$('#fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->_<!--{$counter}-->').css('display', 'inline'); $('#fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->_<!--{$counter}-->').css('visibility', 'visible');">Delete</span> ]
                     </div>
-                    <iframe id="fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->_<!--{$counter}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getdeleteprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID|strip_tags=<!--{$indicator.indicatorID|strip_tags}-->&amp;file=<!--{$file|urlencode}-->" frameborder="0" width="440px" height="85px"></iframe>
+                    <iframe id="fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->_<!--{$counter}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getdeleteprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&amp;file=<!--{$file|urlencode}-->" frameborder="0" width="440px" height="85px"></iframe>
                 </div>
                 <!--{assign "counter" $counter+1}-->
                 <!--{/foreach}-->
-                <iframe id="fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID|strip_tags=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe>
+                <iframe id="fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe>
                 <br />
                 <span id="fileAdditional" class="buttonNorm" onclick="$('#fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('display', 'inline'); $('#fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('visibility', 'visible'); $('#fileAdditional').css('visibility', 'hidden')"><img src="../libs/dynicons/?img=document-open.svg&amp;w=32" /> Attach Additional File</span>
                 <!--{else}-->
-                    <iframe src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID|strip_tags=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe><br />
+                    <iframe src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe><br />
                 <!--{/if}-->
                 </span>
             </fieldset>
@@ -206,13 +206,13 @@
                 <legend>Photo Attachment</legend>
                 <span class="text">
                 <!--{if $indicator.data != ''}-->
-                <div style="background-color: #b7c5ff; padding: 4px"><img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" /> <b>Photo Attached:</b> <img src="image.php?categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID|strip_tags=<!--{$indicator.indicatorID|strip_tags}-->" style="max-width: 150px" alt="<!--{$indicator.data}-->" /></div>
+                <div style="background-color: #b7c5ff; padding: 4px"><img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" /> <b>Photo Attached:</b> <img src="image.php?categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" style="max-width: 150px" alt="<!--{$indicator.data}-->" /></div>
                 <div style="float: right; padding: 4px">
                 [ <span class="link" onclick="$('#fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('display', 'inline'); $('#fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('visibility', 'visible');">Replace</span> | <span class="link" onclick="$('#fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('display', 'inline'); $('#fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('visibility', 'visible');">Delete</span> ]</div>
-                <iframe id="fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getdeleteprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID|strip_tags=<!--{$indicator.indicatorID|strip_tags}-->&amp;file=<!--{$indicator.data}-->" frameborder="0" width="440px" height="85px"></iframe>
-                <iframe id="fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID|strip_tags=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe>
+                <iframe id="fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getdeleteprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID<!--{$indicator.indicatorID|strip_tags}-->&amp;file=<!--{$indicator.data}-->" frameborder="0" width="440px" height="85px"></iframe>
+                <iframe id="fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe>
                 <!--{else}-->
-                    <iframe src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID|strip_tags=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe><br />
+                    <iframe src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe><br />
                 <!--{/if}-->
                 </span>
             </fieldset>
@@ -397,7 +397,7 @@
         <div>
             <br />
             <fieldset><legend>Access Permissions</legend>
-            <iframe src="ajaxIframe.php?a=permission&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID|strip_tags=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="140px"></iframe>
+            <iframe src="ajaxIframe.php?a=permission&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="140px"></iframe>
             </fieldset>
         </div>
         <!--{include file="subindicators.tpl" form=$indicator.child depth=$depth+4 recordID=$recordID}-->
