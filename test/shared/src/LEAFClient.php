@@ -14,28 +14,61 @@ use GuzzleHttp\Client;
  */
 class LEAFClient
 {
-    private static $client = null;
+    private $client = null;
+
+    private function __construct($client)
+    {
+        $this->client = $client;
+    }
 
     /**
-     * Get a GuzzleHttp\Client configured for LEAF and authenticated to make
-     * API calls.
-     *
-     * @return Client   a GuzzleHttp\Client configured for LEAF
+     * Get a GuzzleHttp\Client configured for LEAF.
+     * 
+     * @param string    $baseURI    The base URI of the API
+     * @param string    $authURL    URL to authenticate against
+     * 
+     * @return Client   a GuzzleHttp\Client 
      */
-    public static function getClient() : Client
+    private static function getBaseClient($baseURI, $authURL = null) : Client
     {
-        if (self::$client == null)
-        {
-            self::$client = new Client(array(
-              'base_uri' => 'http://localhost/',
-              'cookies' => true,
-            ));
+        $guzzle = new Client(array(
+            'base_uri' => $baseURI,
+            'cookies' => true,
+        ));
 
-            // get PHPSESSIONID so requests are authenticated
-            self::$client->get('/LEAF_Nexus/auth_domain/?');
+        if ($authURL != null)
+        {
+            $guzzle->get($authURL);
         }
 
-        return self::$client;
+        return $guzzle;
+    }
+
+    /**
+     * Get a HTTP Client configured for LEAF and authenticated to make 
+     * API calls against the Nexus. 
+     * 
+     * @param string    $baseURI    The base URI for the Nexus API (default: "http://localhost/LEAF_Nexus/api/")
+     *
+     * @return LEAFClient   a HTTP Client configured for LEAF
+     */
+    public static function createNexusClient($baseURI = "http://localhost/LEAF_Nexus/api/") : LEAFClient
+    {
+        $leafClient = new LEAFClient(self::getBaseClient($baseURI, "../auth_domain/?"));
+        return $leafClient;
+    }
+
+    /**
+     * Get a HTTP Client configured for LEAF and authenticated to make 
+     * API calls against the Request Portal. 
+     *
+     * @param string    $baseURI    The base URI for the Request Portal API (default: "http://localhost/LEAF_Request_Portal/api/")
+     * @return LEAFClient   a HTTP Client configured for LEAF
+     */
+    public static function createRequestPortalClient($baseURI = "http://localhost/LEAF_Request_Portal/api/") : LEAFClient
+    {
+        $leafClient = new LEAFClient(self::getBaseClient($baseURI, "../auth_domain/?"));
+        return $leafClient;
     }
 
     /**
@@ -46,9 +79,9 @@ class LEAFClient
      *
      * @return object           the formatted response
      */
-    public static function get($url, $returnType = LEAFResponseType::JSON)
+    public function get($url, $returnType = LEAFResponseType::JSON)
     {
-        $response = self::getClient()->get($url);
+        $response = $this->client->get($url);
 
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
@@ -62,9 +95,9 @@ class LEAFClient
      *
      * @return object           the formatted response
      */
-    public static function postEncodedForm($url, $formParams, $returnType = LEAFResponseType::JSON)
+    public function postEncodedForm($url, $formParams, $returnType = LEAFResponseType::JSON)
     {
-        $response = self::getClient()->post($url, array(
+        $response = $this->client->post($url, array(
           'form_params' => $formParams,
         ));
 
