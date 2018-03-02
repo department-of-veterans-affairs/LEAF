@@ -14,12 +14,6 @@ $login = new Orgchart\Login($db, $db);
 $login->setBaseDir('../');
 $login->loginUser();
 
-$memberships = $login->getMembership();
-if(!isset($memberships['groupID'][1])) {
-	echo 'Admin only';
-	exit();
-}
-
 $position = new Orgchart\Position($db, $login);
 $tag = new Orgchart\Tag($db, $login);
 
