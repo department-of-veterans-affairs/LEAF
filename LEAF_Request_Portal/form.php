@@ -1745,7 +1745,7 @@ class Form
                 else if($indicators[$item['indicatorID']]['format'] == 'orgchart_group') {
                 	$groupTitle = $this->group->getTitle($item['data']);
                 
-                	$item['data'] = $groupTitle[0]['groupTitle'];
+                	$item['data'] = isset($groupTitle[0]['groupTitle']) ? $groupTitle[0]['groupTitle'] : '';
                 }
                 $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
                 if(isset($item['dataOrgchart'])) {
