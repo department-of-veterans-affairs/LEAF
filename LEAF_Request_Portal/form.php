@@ -6,6 +6,7 @@
 */
 
 define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
+require_once dirname(__FILE__) . './sources/XSSHelpers.php';
 
 class Form
 {
@@ -949,7 +950,6 @@ class Form
                     $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
                 }
                 else {
-                    require_once './sources/XSSHelpers.php';
                     $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
                 }
 

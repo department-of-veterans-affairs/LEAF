@@ -198,7 +198,7 @@ switch ($action) {
 
         switch ($action) {
             default:
-                    $childForms = $form->getChildForms($recordIDToPrint);
+                $childForms = $form->getChildForms($recordIDToPrint);
                 $t_form->assign('childforms', $childForms);
 
                 $childCatID = XSSHelpers::xscrub($_GET['childCategoryID']);
