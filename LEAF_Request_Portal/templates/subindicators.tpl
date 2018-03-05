@@ -22,7 +22,7 @@
         <div class="mainlabel">
             <div>
             <span>
-                <b><!--{$indicator.name|sanitizeLinks}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}--><br />
+                <b><!--{$indicator.name}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}--><br />
             </span>
             </div>
                 <!--{else}-->
