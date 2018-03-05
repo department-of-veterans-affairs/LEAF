@@ -70,6 +70,10 @@ class FormController extends RESTfulResponse
 			return $form->getFullFormData($args[0]);
 		});
 
+		$this->index['GET']->register('form/[digit]/dataforsigning', function($args) use ($form) {
+			return $form->getFullFormDataForSigning($args[0]);
+		});
+
 		$this->index['GET']->register('form/[digit]/progress', function($args) use ($form) {
 			return $form->getProgress($args[0]);
 		});

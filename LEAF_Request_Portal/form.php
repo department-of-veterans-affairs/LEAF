@@ -126,6 +126,48 @@ class Form
     }
 
     /**
+     * Retrieves a form in JSON format and includes any associated data, 
+     * in a flat data array, with additional fields that are required 
+     * when preparing a form to be digitally signed.
+     * 
+     * @param int       $recordID       The record id to retrieve for signing
+     * @param string    $limitCategory  The internal use form (optional)
+     * 
+     * @return array    An array that represents the form ready for signing
+     */
+    function getFullFormDataForSigning($recordID, $limitCategory = null)
+    {
+        // This function cannot use getFullFormData() above since that
+        // function does not allow access to the $form object.
+        // It uses the contents of getFullForm().
+
+        // contents of getFullForm()
+        // build the whole form structure
+        $form = $this->getForm($recordID, $limitCategory);
+        $fullForm = array();
+        if(isset($form['items'])) {
+        	foreach($form['items'] as $section) {
+        		foreach($section['children'] as $subsection) {
+                    $fullForm = array_merge($fullForm, $this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID));
+        		}
+        	}
+        }
+
+        $indicators = array();
+        $this->flattenFullFormData($fullForm, $indicators);
+
+        $output = array(
+            "form_id" => $form['items'][0]['children'][0]['type'],
+            "record_id" => $recordID,
+            "compiled_on" => date(DATE_ISO8601),
+            "limit_category" => $limitCategory != null ? $limitCategory : "",
+            "indicators" => $indicators
+        );
+
+        return $output;
+    }
+
+    /**
      * Retrieves a form based on categoryID
      * @param int $recordID
      * @param bool $parseTemplate - see getIndicator()
