@@ -286,16 +286,14 @@ nationalEmployeeSelector.prototype.search = function() {
 		            	}
 
 		            	if(t.numResults >= 5) {
+		            		var resultColSpan = 3;
 		                	if(t.outputStyle == 'micro') {
-			                	$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'tip">\
-			                			<td class="employeeSelectorName" colspan="2" style="background-color: white; text-align: center; font-weight: normal">&#x1f4a1; Refine your search for more results</td>\
-			                			</tr>');
+		                		resultColSpan = 2;
 		                	}
-		                	else {
-			                	$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'tip">\
-			                			<td class="employeeSelectorName" colspan="3" style="background-color: white; text-align: center; font-weight: normal">&#x1f4a1; Refine your search for more results</td>\
-			                			</tr>');	                		
-		                	}
+	
+		                	$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'tip">\
+		                			<td class="employeeSelectorName" colspan="'+ resultColSpan +'" style="background-color: white; text-align: center; font-weight: normal">&#x1f4a1; Can&apos;t find someone? Trying searching their Email address</td>\
+		                			</tr>');	  
 		            	}
 
 		            	if(t.resultHandler != null) {
