@@ -30,53 +30,53 @@ class XSSHelpers {
     }
 
     /**
-    * Sanitize a HTML string, allows some tags for use in rich text editors.
-    * 
-    * Allowed tags: <a><b><i><u><ol><li><br><p><table><td><tr>
-    *
-    * @param    string  $in the string to be sanitized
-    *
-    * @return   string  the sanitized string
-    */
-    static public function sanitizeHTML($in)
-    {
+     * Sanitize a HTML string, allows some tags for use in rich text editors.
+     *
+     * @param    string  $in the string to be sanitized
+     * @param    array   $patterns array of regex strings to match against
+     * @param    array   $replacements array of strings to replace matched $patterns
+     * @param    string  $allowedTags list of allowed tags in strip_tags format
+     *
+     * @return   string  the sanitized string
+     */
+    static private function sanitizer($in, $patterns, $replacements, $allowedTags) {
         // replace linebreaks with <br /> if there's no html <p>'s
         if(strpos($in, '<p>') === false
             && strpos($in, '<table') === false) {
             $in = nl2br($in, true);
         }
-
+        
         // strip out uncommon characters
         $in = preg_replace('/[^\040-\176]/', '', $in);
-
+        
         // hard character limit of 65535
         $in = strlen($in) > 65535 ? substr($in, 0, 65535) : $in;
-
+        
         $pattern = array('/&lt;table(\s.+)?&gt;/Ui',
-                            '/&lt;\/table&gt;/Ui',
-                            '/&lt;(\/)?br(\s.+)?\s\/&gt;/Ui',
-                            '/&lt;(\/)?(\S+)(\s.+)?&gt;/U', // all other allowed tags
-                            '/\b\d{3}-\d{2}-\d{4}\b/', // mask SSN
-                            '/(\<\/p\>\<\/p\>){2,}/',
-                            '/(\<p\>\<\/p\>){2,}/',
-                            '/\<\/p\>(\s+)?\<br\>(\s+)?\<p\>/U' // scrub line breaks between paragraphs
+            '/&lt;\/table&gt;/Ui',
+            '/&lt;(\/)?br(\s.+)?\s\/&gt;/Ui',
+            '/&lt;(\/)?(\S+)(\s.+)?&gt;/U', // all other allowed tags
+            '/\b\d{3}-\d{2}-\d{4}\b/', // mask SSN
+            '/(\<\/p\>\<\/p\>){2,}/',
+            '/(\<p\>\<\/p\>){2,}/',
+            '/\<\/p\>(\s+)?\<br\>(\s+)?\<p\>/U' // scrub line breaks between paragraphs
         );
-
+        
         $replace = array('<table class="table">',
-                            '</table>',
-                            '<\1br />',
-                            '<\1\2>',
-                            '###-##-####',
-                            '',
-                            '',
-                            "</p>\n<p>"
+            '</table>',
+            '<\1br />',
+            '<\1\2>',
+            '###-##-####',
+            '',
+            '',
+            "</p>\n<p>"
         );
-
+        
         // $in = html_entity_decode($in);
         $in = html_entity_decode($in, ENT_QUOTES | ENT_HTML5, "UTF-8");
         $in = strip_tags($in, '<b><i><u><ol><li><br><p><table><td><tr>');
         $in = preg_replace($pattern, $replace, htmlspecialchars($in, ENT_QUOTES, "UTF-8"));
-
+        
         // verify tag grammar
         $matches = array();
         preg_match_all('/\<(\/)?([A-Za-z]+)(\s.+)?\>/U', $in, $matches, PREG_PATTERN_ORDER);
@@ -107,7 +107,7 @@ class XSSHelpers {
                 // print_r($openTags);
             }
         }
-
+            
         // close tags
         $tags = array_reverse(array_keys($openTags));
         foreach($tags as $tag) {
@@ -116,7 +116,43 @@ class XSSHelpers {
                 $openTags[$tag]--;
             }
         }
-
+            
         return $in;
+    }
+    
+    /**
+    * Sanitize a HTML string, allows some tags for use in rich text editors.
+    * 
+    * Allowed tags: <a><b><i><u><ol><li><br><p><table><td><tr>
+    *
+    * @param    string  $in the string to be sanitized
+    *
+    * @return   string  the sanitized string
+    */
+    static public function sanitizeHTML($in)
+    {
+        $pattern = array('/&lt;table(\s.+)?&gt;/Ui',
+                            '/&lt;\/table&gt;/Ui',
+                            '/&lt;(\/)?br(\s.+)?\s\/&gt;/Ui',
+                            '/&lt;(\/)?(\S+)(\s.+)?&gt;/U', // all other allowed tags
+                            '/\b\d{3}-\d{2}-\d{4}\b/', // mask SSN
+                            '/(\<\/p\>\<\/p\>){2,}/',
+                            '/(\<p\>\<\/p\>){2,}/',
+                            '/\<\/p\>(\s+)?\<br\>(\s+)?\<p\>/U' // scrub line breaks between paragraphs
+        );
+
+        $replace = array('<table class="table">',
+                            '</table>',
+                            '<\1br />',
+                            '<\1\2>',
+                            '###-##-####',
+                            '',
+                            '',
+                            "</p>\n<p>"
+        );
+
+        $allowedTags = '<b><i><u><ol><li><br><p><table><td><tr>';
+
+        return XSSHelpers::sanitizer($in, $pattern, $replace, $allowedTags);
     }
 }
