@@ -1,9 +1,8 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use LEAFTest\LEAFClient;
-use GuzzleHttp\Client;
 
 /**
  * Tests the LEAF_Nexus/api/?a=group API
@@ -21,7 +20,7 @@ class GroupTest extends DatabaseTest
     /**
      * Tests the `group/<id>/employees/detailed` endpoint
      */
-    public function testListGroupEmployees(): void
+    public function testListGroupEmployees() : void
     {
         $results = self::$reqClient->get('?a=group/1/employees/detailed');
 
@@ -38,7 +37,7 @@ class GroupTest extends DatabaseTest
         $emp1 = $users[0];
         $this->assertEquals(1, $emp1['empUID']);
         $this->assertEquals(1, $emp1['groupID']);
-        $this->assertEquals("tester", $emp1['userName']);
+        $this->assertEquals('tester', $emp1['userName']);
         $this->assertNotNull($emp1['data']);
         $this->assertEquals(7, count($emp1['data']));
         $this->assertNotNull($emp1['positions']);
