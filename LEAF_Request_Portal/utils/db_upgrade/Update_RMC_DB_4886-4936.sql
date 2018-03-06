@@ -1,6 +1,6 @@
 START TRANSACTION;
 
-CREATE TABLE `category_staples` (
+CREATE TABLE IF NOT EXISTS `category_staples` (
   `categoryID` varchar(20) NOT NULL,
   `stapledCategoryID` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
