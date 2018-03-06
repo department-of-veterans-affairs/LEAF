@@ -2957,4 +2957,171 @@ class Form
 
         return 0;
     }
+
+    /**
+     * Companion function to getIndicator()
+     * @param int $id
+     * @param int $series
+     * @param int $recordID
+     * @param bool $parseTemplate - see getIndicator()
+     * @return array
+     */
+    private function buildFormTree($id, $series = null, $recordID = null, $parseTemplate = true)
+    {
+        if (!isset($this->cache["indicator_parentID{$id}"]))
+        {
+            $var = array(':parentID' => $id);
+            $res = $this->db->prepared_query('SELECT * FROM indicators WHERE parentID=:parentID AND disabled = 0 ORDER BY sort', $var);
+            $this->cache["indicator_parentID{$id}"] = $res;
+        }
+        else
+        {
+            $res = $this->cache["indicator_parentID{$id}"];
+        }
+
+        $data = array();
+
+        $child = null;
+        if (count($res) > 0)
+        {
+            $indicatorList = '';
+            foreach ($res as $field)
+            {
+                if ($series != null && $recordID != null && is_numeric($field['indicatorID']))
+                {
+                    $indicatorList .= "{$field['indicatorID']},";
+                }
+            }
+
+            if ($series != null && $recordID != null)
+            {
+                $indicatorList = trim($indicatorList, ',');
+                $var = array(':series' => $series,
+                             ':recordID' => $recordID, );
+                $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID FROM data
+                									LEFT JOIN indicator_mask USING (indicatorID)
+                									WHERE indicatorID IN (' . $indicatorList . ') AND series=:series AND recordID=:recordID', $var);
+
+                foreach ($res2 as $resIn)
+                {
+                    $idx = $resIn['indicatorID'];
+                    $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
+                    $data[$idx]['timestamp'] = isset($resIn['timestamp']) ? $resIn['timestamp'] : 0;
+                    $data[$idx]['groupID'] = isset($resIn['groupID']) ? $resIn['groupID'] : null;
+                }
+            }
+
+            foreach ($res as $field)
+            {
+                $idx = $field['indicatorID'];
+
+                // todo: cleanup required field
+                $required = isset($field['required']) && $field['required'] == 1 ? ' required="true" ' : '';
+
+                $child[$idx]['indicatorID'] = $field['indicatorID'];
+                $child[$idx]['series'] = $series;
+                $child[$idx]['name'] = $field['name'];
+                $child[$idx]['default'] = $field['default'];
+                $child[$idx]['html'] = $parseTemplate ? str_replace('{{ iID }}', $idx, $field['html'])
+                                            : $field['html'];
+                $child[$idx]['htmlPrint'] = $parseTemplate ? str_replace('{{ iID }}', $idx, $field['htmlPrint'])
+                                                : $field['htmlPrint'];
+                $child[$idx]['required'] = $field['required'];
+                $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;
+                $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '') ? $data[$idx]['data'] : $child[$idx]['default'];
+                $child[$idx]['value'] = @unserialize($data[$idx]['data']) === false ? $child[$idx]['value'] : unserialize($data[$idx]['data']);
+                $child[$idx]['timestamp'] = isset($data[$idx]['timestamp']) ? $data[$idx]['timestamp'] : 0;
+                $child[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $field['categoryID']);
+                $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
+
+                if ($child[$idx]['isMasked'])
+                {
+                    $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '')
+                                                ? '[protected data]' : '';
+                }
+
+                $inputType = explode("\n", $field['format']);
+                $numOptions = count($inputType) > 1 ? count($inputType) : 0;
+                for ($i = 1; $i < $numOptions; $i++)
+                {
+                    $inputType[$i] = isset($inputType[$i]) ? trim($inputType[$i]) : '';
+                    if (strpos($inputType[$i], 'default:') !== false)
+                    {
+                        $child[$idx]['options'][] = substr($inputType[$i], 8); // legacy support
+                    }
+                    else
+                    {
+                        $child[$idx]['options'][] = $inputType[$i];
+                    }
+                }
+
+                // handle file upload
+                if (($field['format'] == 'fileupload'
+                        || $field['format'] == 'image')
+                    && isset($data[$idx]['data']))
+                {
+                    $child[$idx]['value'] = $this->fileToArray($data[$idx]['data']);
+                }
+
+                // special handling for org chart data types
+                if ($field['format'] == 'orgchart_employee')
+                {
+                    $empRes = $this->employee->lookupEmpUID($data[$idx]['data']);
+                    $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                }
+                if ($field['format'] == 'orgchart_position')
+                {
+                    $positionTitle = $this->position->getTitle($data[$idx]['data']);
+                    $child[$idx]['displayedValue'] = $positionTitle;
+                }
+                if ($field['format'] == 'orgchart_group')
+                {
+                    $groupTitle = $this->group->getGroup($data[$idx]['data']);
+                    $child[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
+                }
+
+                $child[$idx]['format'] = trim($inputType[0]);
+
+                $child[$idx]['child'] = $this->buildFormTree($field['indicatorID'], $series, $recordID);
+            }
+        }
+
+        return $child;
+    }
+
+    /**
+     * Convert fileupload data into array
+     * @param string $data
+     * @return array
+     */
+    private function fileToArray($data)
+    {
+        $data = str_replace('<br />', "\n", $data);
+        $tmpFileNames = explode("\n", $data);
+        $out = array();
+        foreach ($tmpFileNames as $tmpFileName)
+        {
+            if (trim($tmpFileName) != '')
+            {
+                $out[] = $tmpFileName;
+            }
+        }
+
+        return $out;
+    }
+
+    private function isIndicatorOrphan($indicator, &$indicatorList)
+    {
+        if (!isset($indicatorList[$indicator['indicatorID']]))
+        {
+            return 1;
+        }
+
+        if ($indicator['parentIndicatorID'] != '')
+        {
+            return $this->isIndicatorOrphan($indicatorList[$indicator['parentIndicatorID']], $indicatorList);
+        }
+
+        return 0;
+    }
 }
