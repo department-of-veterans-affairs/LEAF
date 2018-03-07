@@ -4,14 +4,14 @@ paths:
 
 environments:
     default_migration_table: phinxlog
-    default_database: nexus_testing
+    default_database: portal_testing
 
-    nexus_testing:
+    portal_testing:
         adapter: mysql
         host: 127.0.0.1
-        name: nexus_testing
-        user: root
-        pass: 'stuff'
+        name: portal_testing
+        user: dbuser
+        pass: 'dbpass'
         port: 3306
         charset: utf8
 
