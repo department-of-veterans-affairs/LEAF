@@ -53,12 +53,18 @@ Seeding the database is main purpose of Phinx within LEAF. To create a new seed,
 
 ```bash
 phinx seed:create SeederClassName
+
+# run the seed
+phinx seed:run -s SeederClassName
 ```
 
-This creates a basic template within the projects `db/migrations` for executing a database seed. Note that, unlike migrations, the seed file is not time-stamped.
+This creates a basic template within the projects `db/seeds` for executing a database seed. Note that, unlike migrations, the seed file is not time-stamped. Seeds can be called by name at any time and should reflect a specific task (seeding base data, setting up a specific form, etc..).
 
 Reading and executing a pure SQL file is not required for seeding purposes (unlike migrations). The `Phinx` API can be used to seed data.
 
+##### Common Seeds
+
+Several seed names are shared between the two test projects
 ## Running Tests
 
 All tests should be run from the project specific test directory (`LEAF_Nexus_Tests` or `LEAF_Request_Portal_Tests`), the `include` paths and `PHPUnit/Phinx` configs depend on it.
@@ -92,12 +98,21 @@ All tests should live in the `tests` directory of each projects root directory (
 
 ### LEAFClient
 
-For testing HTTP/API endpoints, `LEAFClient` is configured for LEAF and
-authenticated to make API calls.
+For testing HTTP/API endpoints, [LEAFClient](shared/src/LEAFClient.php) is configured for LEAF and
+authenticated to make API calls against both Nexus and Request Portal.
+
+Each client create function accepts a single parameter to use as the base URL to make requests against. By default, both point to `localhost`.
 
 ```php
-$getResponse = LEAFClient::get('/LEAF_Nexus/api/?a=...');
-$postResponse = LEAFClient::post('/LEAF_Nexus/api/?a=...', ["formField" => "fieldValue"]);
+$defaultNexusClient = LEAFClient::createNexusClient();
+$defaultPortalClient = LEAFClient::createRequestPortalClient();
+
+// clients with different base API URLs
+$nexusClient = LEAFClient::createNexusClient("https://some_url/Nexus/api/");
+$portalClient = LEAFClient::createRequestPortalClient("https://some_url/Portal/api/");
+
+$getResponse = $portalClient->get('?a=group/1/employees');
+$postResponse = $nexusClient->post('?a=...', ["formField" => "fieldValue"]);
 ```
 
 The `LEAFClient` can format the response. Currently the supported types are:
@@ -111,6 +126,20 @@ $jsonResponse = LEAFClient::get('/LEAF...', LEAFResponseType::JSON);
 ### DatabaseTest
 
 To write a test against the database, extend the [DatabaseTest](shared/src/DatabaseTest.php) class. It provides a few methods for seeding the database (using `Phinx`). See [GroupTest.php](LEAF_Nexus_Tests/tests/api/GroupTest.php) for an example.
+
+#### Common Seeds
+
+`DatabaseTest` makes use of a few "shared" seeds. These are seeds that have the same name, but are implemented for the project they reside in. This allows the test superclass to work across all test projects in a predictable way.
+
+```php
+BaseTestSeed    // populates with the bare minimum amount of data to 
+                // successfully run unit tests
+
+InitialSeed     // populates with the data was supplied when the 
+                // database is created from scratch
+
+TruncateTables  // clears all data from all tables
+```
 
 ## TODO
 
