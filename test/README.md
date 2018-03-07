@@ -25,7 +25,7 @@ Create two database tables for testing Nexus and Portal: `nexus_testing` and `po
 
 Copy [LEAF_Nexus_Tests/phinx.yml.example](LEAF_Nexus_Tests/phinx.yml.example) and [LEAF_Request_Portal_Tests/phinx.yml.example](LEAF_Request_Portal_Tests/phinx.yml.example) and rename them to `phinx.yml` in their respective directories. `phinx.yml` should not be committed to the repository. 
 
-Edit [LEAF_Nexus_Tests/phinx.yml](LEAF_Nexus_Tests/phinx.yml) and [LEAF_Request_Portal_Tests/phinx.yml](LEAF_Request_Portal_Tests/phinx.yml) and set your system specific variables.
+Edit `LEAF_Nexus_Tests/phinx.yml` and `LEAF_Request_Portal_Tests/phinx.yml` and set your system specific variables.
 
 Within each test project directory, run the migrations:
 
@@ -106,7 +106,7 @@ composer dump-autoload
 
 All tests should live in the `tests` directory of each projects root directory (e.g. `LEAF_Nexus_Tests`).
 
-When deciding where to place a test that requires database interaction, it should be the project it interacts with the most. For example, [CryptoHelpersTest](LEAF_Request_Portal_Tests/tests/helpers/CryptoHelpersTest) actually tests [CryptoHelpers](../libs/php-commons/CryptoHelpers) in the [libs](../libs/php-commons) project, but the test interacts with the [Request Portal](../LEAF_Request_Portal) database, so it lives in the [LEAF_Request_Portal_Tests](LEAF_Request_Portal_Tests) directory.
+When deciding where to place a test that requires database interaction, it should be the project it interacts with the most. For example, [CryptoHelpersTest](LEAF_Request_Portal_Tests/tests/helpers/CryptoHelpersTest.php) actually tests [CryptoHelpers](../libs/php-commons/CryptoHelpers.php) in the [libs](../libs/php-commons) project, but the test interacts with the [Request Portal](../LEAF_Request_Portal) database, so it lives in the [LEAF_Request_Portal_Tests](LEAF_Request_Portal_Tests) directory.
 
 ### LEAFClient
 
