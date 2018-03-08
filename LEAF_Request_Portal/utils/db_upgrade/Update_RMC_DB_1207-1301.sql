@@ -1,1 +1,3 @@
-ALTER TABLE `categories` CHANGE `categoryID` `categoryID` VARCHAR( 20 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL 
+START TRANSACTION;
+ALTER TABLE `categories` CHANGE `categoryID` `categoryID` VARCHAR( 20 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL; 
+COMMIT;

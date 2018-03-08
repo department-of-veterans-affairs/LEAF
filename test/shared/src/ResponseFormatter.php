@@ -33,7 +33,7 @@ class ResponseFormatter
           case LEAFResponseType::JSON:
             return self::JSON($data);
           default:
-            return "Unknown LEAFResponseType";
+            return 'Unknown LEAFResponseType';
         }
     }
 

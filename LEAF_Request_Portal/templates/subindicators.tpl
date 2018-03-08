@@ -76,7 +76,7 @@
             };
             <!--{/if}-->
             </script>
-            <!--{$indicator.html|escape}-->
+            <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'radio' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
                 <span>
@@ -474,6 +474,7 @@
                 }
             });
             </script>
+            <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'orgchart_position' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <!--{if $indicator.value != ''}-->

@@ -1,3 +1,4 @@
+START TRANSACTION;
 ALTER TABLE `actions` ADD `actionTextPasttense` VARCHAR( 20 ) NOT NULL AFTER `actionText`;
 UPDATE `actions` SET `actionTextPasttense` = 'Approved' WHERE `actions`.`actionType` = 'approve';
 UPDATE `actions` SET `actionTextPasttense` = 'Concurred' WHERE `actions`.`actionType` = 'concur';
@@ -7,3 +8,5 @@ UPDATE `actions` SET `actionTextPasttense` = 'Sent Back' WHERE `actions`.`action
 
 
 UPDATE `settings` SET `data` = '1597' WHERE `settings`.`setting` = 'dbversion';
+
+COMMIT;
