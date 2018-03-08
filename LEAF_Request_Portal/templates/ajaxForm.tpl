@@ -6,4 +6,5 @@
 <script>
 var recordID = <!--{$recordID|strip_tags}-->;
 var serviceID = <!--{$serviceID|strip_tags}-->;
+var orgchartPath = '<!--{$orgchartPath|strip_tags}-->';
 </script>
