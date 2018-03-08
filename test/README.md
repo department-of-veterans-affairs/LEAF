@@ -74,13 +74,19 @@ The following will run all tests in the [LEAF_Nexus_Tests/tests](LEAF_Nexus_Test
 phpunit --bootstrap ../bootstrap.php tests
 ```
 
-To run tests in a subdirectory (in this case `utils`):
+To run tests in a subdirectory (in this example `utils`):
 
 ```bash
 phpunit --bootstrap ../bootstrap.php tests/utils 
 ```
 
-This is useful when the entire suite of tests does not need to be run.
+To run a single test method from a test class (in this example, from [CryptoHelpersTest](LEAF_Request_Portal_Tests/tests/helpers/CryptoHelpersTest.php)):
+
+```bash
+phpunit --bootstrap ../bootstrap.php tests/helpers --filter testVerifySignature_authentic
+```
+
+These are useful when the entire suite of tests does not need to be run.
 
 Currently, the values in:
 
