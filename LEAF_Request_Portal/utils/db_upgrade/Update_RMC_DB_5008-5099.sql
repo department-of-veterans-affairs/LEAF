@@ -1,6 +1,6 @@
 START TRANSACTION;
 
-CREATE TABLE `records_step_fulfillment` (
+CREATE TABLE IF NOT EXISTS `records_step_fulfillment` (
   `recordID` smallint(5) UNSIGNED NOT NULL,
   `stepID` smallint(6) NOT NULL,
   `fulfillmentTime` int(10) UNSIGNED NOT NULL

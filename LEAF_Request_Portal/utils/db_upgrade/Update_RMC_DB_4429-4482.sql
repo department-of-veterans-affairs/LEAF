@@ -1,7 +1,7 @@
 START TRANSACTION;
 
 INSERT INTO `dependencies` (`dependencyID`, `description`) VALUES ('-2', 'Requestor Followup');
-CREATE TABLE `data_extended` (
+CREATE TABLE IF NOT EXISTS `data_extended` (
   `recordID` smallint unsigned NOT NULL,
   `indicatorID` smallint NOT NULL,
   `data` text NOT NULL,
