@@ -1,3 +1,8 @@
+<script src="../libs/js/LEAF/formQuery.js"></script>
+<script src="../libs/js/LEAF/formGrid.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/2.3.0/bignumber.min.js"></script>
+
 <link rel="stylesheet" type="text/css" href="../libs/js/jquery/layout-grid/css/layout-grid.min.css" />
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"></script>
@@ -12,10 +17,14 @@ function postRender() {
 
 $(function() {
 
+var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+
 var parsedData = Array();
+var parsedDataByService = {};
 $.ajax({
     type: 'GET',
     url: './utils/jsonExport_PDL.php',
+    timeout: 90000,
     success: function(data) {
         for(var i in data) {
             parsedData.push({
@@ -27,9 +36,27 @@ $.ajax({
                 payPlan: data[i].payPlan,
                 series: data[i].series,
                 payGrade: data[i].payGrade,
-                fte: data[i].fte,
+                fteCeiling: data[i].fteCeiling,
+                currentFte: data[i].currentFte,
                 pdNumber: data[i].pdNumber
             });
+
+            if(parsedDataByService[data[i].service] == undefined) {
+                parsedDataByService[data[i].service] = {};
+                parsedDataByService[data[i].service].service = data[i].service;
+                parsedDataByService[data[i].service].authorized = 0;
+                parsedDataByService[data[i].service].onBoard = 0;
+                parsedDataByService[data[i].service].vacant = 0;
+                parsedDataByService[data[i].service].recordID = i;
+                parsedDataByService[data[i].service].indicatorID = i;
+            }
+            parsedDataByService[data[i].service].authorized = new BigNumber(parsedDataByService[data[i].service].authorized).plus(data[i].fteCeiling).round(3).toString();
+            if(data[i].currentFte == 0) {
+                parsedDataByService[data[i].service].vacant = new BigNumber(parsedDataByService[data[i].service].vacant).plus(data[i].fteCeiling).round(3).toString();
+            }
+            else {
+                parsedDataByService[data[i].service].onBoard = new BigNumber(parsedDataByService[data[i].service].onBoard).plus(data[i].fteCeiling).round(3).toString();
+            }
         }
 
         var chart_countFTEtotal = dc.numberDisplay('#chart_totalFTE');
@@ -42,31 +69,31 @@ $.ajax({
         var cf = crossfilter(parsedData);
         var serviceDim = cf.dimension(function(d) { return d.service; });
         var vacancyDim = cf.dimension(function(d) {
-            if(d.employee == '') {
+            if(d.currentFte == 0) {
                 return 'Vacant';
             }
             return 'On Board';
         });
-        var serviceGroup = serviceDim.group().reduceSum(function(d) { return d.fte; });
-        var vacancyGroup = vacancyDim.group().reduceSum(function(d) { return d.fte; });
+        var serviceGroup = serviceDim.group().reduceSum(function(d) { return d.fteCeiling; });
+        var vacancyGroup = vacancyDim.group().reduceSum(function(d) { return d.fteCeiling; });
         var numFTEGroup = cf.groupAll().reduce(
             function(p, v) {
-                p.total += Number(v.fte);
-                if(v.employee == '') {
-                    p.vacant += Number(v.fte);
+                p.total += Number(v.fteCeiling);
+                if(v.currentFte == 0) {
+                    p.vacant += Number(v.fteCeiling);
                 }
                 else {
-                    p.onBoard += Number(v.fte);
+                    p.onBoard += Number(v.fteCeiling);
                 }
                 return p;
             },
             function(p, v) {
-                p.total -= Number(v.fte);
-                if(v.employee == '') {
-                    p.vacant -= Number(v.fte);
+                p.total -= Number(v.fteCeiling);
+                if(v.currentFte == 0) {
+                    p.vacant -= Number(v.fteCeiling);
                 }
                 else {
-                    p.onBoard -= Number(v.fte);
+                    p.onBoard -= Number(v.fteCeiling);
                 }
                 return p;
             },
@@ -92,7 +119,31 @@ $.ajax({
             .valueAccessor(function(d) { return d.vacant; })
             .group(numFTEGroup)
             .formatNumber(d3.format(',.3f'));
-        
+
+        // service vacancy breakdown
+        var tGridData = [];
+        for(var i in parsedDataByService) {
+            tGridData.push(parsedDataByService[i]);
+        }
+
+        var grid = new LeafFormGrid('grid_service_vacancy', {readOnly: true});
+        grid.disableVirtualHeader();
+        grid.hideIndex();
+        grid.enableToolbar();
+        grid.setData(tGridData);
+        grid.setHeaders([{name: 'Service', indicatorID: 'service', callback: function(data, blob) {
+            $('#'+data.cellContainerID).html(grid.getDataByIndex(data.index).service);
+        }},
+        {name: 'Authorized FTE', indicatorID: 'authorizedFTE', callback: function(data, blob) {
+            $('#'+data.cellContainerID).html(grid.getDataByIndex(data.index).authorized);
+        }},
+        {name: 'On Board FTE', indicatorID: 'onboardFTE', callback: function(data, blob) {
+            $('#'+data.cellContainerID).html(grid.getDataByIndex(data.index).onBoard);
+        }},
+        {name: 'Vacant FTE', indicatorID: 'vacantFTE', callback: function(data, blob) {
+            $('#'+data.cellContainerID).html(grid.getDataByIndex(data.index).vacant);
+        }}]);
+        grid.renderBody();
 
         // data table
         chart_dataTable
@@ -115,7 +166,7 @@ $.ajax({
             .dimension(serviceDim)
             .group(serviceGroup)
             .fixedBarHeight(20)
-            .height(serviceGroup.all().length * 28)
+            .height((serviceGroup.all().length * 28) + 30)
             .ordering(function(d) { return d.key; })
             .title(function(d) { return d.key + ': ' + Math.round(d.value * 100) / 100 + ' FTE'; })
             .elasticX(true);
@@ -125,7 +176,8 @@ $.ajax({
             .group(vacancyGroup)
             .title(function(d) { return d.key + ': ' + Math.round(d.value * 100) / 100 + ' FTE'; });
 
-        $('#progressContainer').css('display', 'none');
+        $('#progressContainer').slideUp();
+        $('#reportBody').fadeIn();
 
         // don't show full dataTable unless requested
         function showAll() {
@@ -140,6 +192,9 @@ $.ajax({
 
         dc.renderAll();
         postRender();
+    },
+    error: function(jXHR, text, error) {
+        alert(error);
     }
 });
 
@@ -152,9 +207,11 @@ $.ajax({
     <h1 style="text-align: center">Loading... <img src="./images/largespinner.gif" alt="Loading" /></h1>
 </div>
 
+<div id="reportBody" style="display: none">
+
 <span class="buttonNorm" style="float: right" onclick="dc.filterAll(); dc.renderAll(); postRender();">Reset Filters</span>
 
-<h2 style="">Vacancy Report - Work in progress</h2>
+<h2 style="">Vacancy Report</h2>
 
 <br style="clear: both" />
 
@@ -223,4 +280,7 @@ $.ajax({
     </div>
 </div>
 
+<hr /><br />
+<div id="grid_service_vacancy">Service Breakdown</div>
 
+</div> <!-- End reportBody-->
