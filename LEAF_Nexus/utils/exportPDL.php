@@ -20,7 +20,7 @@ $tag = new Orgchart\Tag($db, $login);
 header('Content-type: text/csv');
 header('Content-Disposition: attachment; filename="Exported_'.time().'.csv"');
 
-echo "LEAF Position ID, HR Smart Position Number, Position Title, Classification Title, Employee Name, Supervisor Name, Service, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
+echo "LEAF Position ID, HR Smart Position Number, Position Title, Classification Title, Employee Name, Employee Username, Supervisor Name, Service, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
 
 $res = $db->query('SELECT * FROM positions');
 
@@ -86,6 +86,7 @@ foreach($res as $pos) {
 		else {
 			echo "\"\",";
 		}
+		echo "\"{$emp['userName']}\",";
 		echo "\"{$supervisorName}\",";
 		echo "\"{$output[$pos['positionID']]['service']}\",";
 		echo "\"{$output[$pos['positionID']]['data']['Pay Plan']}\",";
@@ -119,6 +120,7 @@ foreach($res as $pos) {
 			echo "\"{$output[$pos['positionID']]['data']['HR Smart Position #']}\",";
 			echo "\"{$output[$pos['positionID']]['positionTitle']}\",";
 			echo "\"{$output[$pos['positionID']]['data']['Classification Title']}\",";
+			echo "\"\","; // vacant employee
 			echo "\"\","; // vacant employee
 			echo "\"{$supervisorName}\",";
 			echo "\"{$output[$pos['positionID']]['service']}\",";
