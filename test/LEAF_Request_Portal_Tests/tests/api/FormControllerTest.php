@@ -23,18 +23,12 @@ final class FormTest extends DatabaseTest
     public function testDataForSigning() : void
     {
         $results = self::$reqClient->get('?a=form/1/dataforsigning');
-        // track date for comparison
-        $d = date(DATE_ISO8601);
 
         $this->assertNotNull($results);
         $this->assertTrue(isset($results['form_id']));
         $this->assertTrue(isset($results['record_id']));
-        $this->assertTrue(isset($results['compiled_on']));
         $this->assertTrue(isset($results['indicators']));
 
-        // compare the date strings up to minute accuracy, the seconds
-        // can differ slightly
-        $this->assertTrue(substr($results['compiled_on'], 0, 17) == substr($d, 0, 17));
         $this->assertEquals('form_f4687', $results['form_id']);
         $this->assertEquals('1', $results['record_id']);
         $this->assertEquals('', $results['limit_category']);
