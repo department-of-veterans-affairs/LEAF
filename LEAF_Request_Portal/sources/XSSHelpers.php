@@ -5,6 +5,19 @@
  */
 class XSSHelpers {
 
+    static private $specialPattern = [
+        '/\b\d{3}-\d{2}-\d{4}\b/', // mask SSN
+        '/(\<\/p\>\<\/p\>){2,}/', // flatten extra <p>
+        '/(\<p\>\<\/p\>){2,}/', // flatten extra <p>
+        '/\<\/p\>(\s+)?\<br\>(\s+)?\<p\>/U' // scrub line breaks between paragraphs
+    ];
+    static private $specialReplace = [
+        '###-##-####',
+        '',
+        '',
+        "</p>\n<p>"
+    ];
+
     /**
      * Sanitize a string with the specified encoding (default 'UTF-8'), escapes all HTML tags.
      * Uses htmlspecialchars()
@@ -33,13 +46,11 @@ class XSSHelpers {
      * Sanitize a HTML string, allows some tags for use in rich text editors.
      *
      * @param    string  $in the string to be sanitized
-     * @param    array   $patterns array of regex strings to match against
-     * @param    array   $replacements array of strings to replace matched $patterns
      * @param    string  $allowedTags list of allowed tags in strip_tags format
      *
      * @return   string  the sanitized string
      */
-    static private function sanitizer($in, $patterns, $replacements, $allowedTags) {
+    static private function sanitizer($in, $allowedTags, $encoding = 'UTF-8') {
         // replace linebreaks with <br /> if there's no html <p>'s
         if(strpos($in, '<p>') === false
             && strpos($in, '<table') === false) {
@@ -51,31 +62,41 @@ class XSSHelpers {
         
         // hard character limit of 65535
         $in = strlen($in) > 65535 ? substr($in, 0, 65535) : $in;
-        
-        $pattern = array('/&lt;table(\s.+)?&gt;/Ui',
-            '/&lt;\/table&gt;/Ui',
-            '/&lt;(\/)?br(\s.+)?\s\/&gt;/Ui',
-            '/&lt;(\/)?(\S+)(\s.+)?&gt;/U', // all other allowed tags
-            '/\b\d{3}-\d{2}-\d{4}\b/', // mask SSN
-            '/(\<\/p\>\<\/p\>){2,}/',
-            '/(\<p\>\<\/p\>){2,}/',
-            '/\<\/p\>(\s+)?\<br\>(\s+)?\<p\>/U' // scrub line breaks between paragraphs
-        );
-        
-        $replace = array('<table class="table">',
-            '</table>',
-            '<\1br />',
-            '<\1\2>',
-            '###-##-####',
-            '',
-            '',
-            "</p>\n<p>"
-        );
-        
-        // $in = html_entity_decode($in);
-        $in = html_entity_decode($in, ENT_QUOTES | ENT_HTML5, "UTF-8");
-        $in = strip_tags($in, '<b><i><u><ol><li><br><p><table><td><tr>');
-        $in = preg_replace($pattern, $replace, htmlspecialchars($in, ENT_QUOTES, "UTF-8"));
+
+        $pattern = [];
+        $replace = [];
+        foreach($allowedTags as $tag) {
+            switch($tag) {
+                case 'table':
+                    $pattern[] = '/&lt;table(\s.+)?&gt;/Ui';
+                    $replace[] = '<table class="table">';
+                    $pattern[] = '/&lt;\/table&gt;/Ui';
+                    $replace[] = '</table>';
+                    break;
+                case 'a':
+                    $pattern[] = '/&lt;a href=&quot;(?!javascript)(\S+)&quot;(\s.+)?&gt;/Ui';
+                    $replace[] = '<a href="\1" target="_blank">';
+                    $pattern[] = '/&lt;\/a&gt;/Ui';
+                    $replace[] = '</a>';
+                    break;
+                case 'span':
+                    $pattern[] = '/&lt;span style=&quot;(\S.+)&quot;(\s.+)?&gt;/Ui';
+                    $replace[] = '<span style="\1">';
+                    $pattern[] = '/&lt;\/span&gt;/Ui';
+                    $replace[] = '</span>';
+                    break;
+                default:
+                    $pattern[] = '/&lt;(\/)?'. $tag .'(\s.+)?&gt;/U';
+                    $replace[] = '<\1'. $tag .'>';
+                    break;
+            }
+        }
+        while($in != html_entity_decode($in, ENT_QUOTES | ENT_HTML5, $encoding)) {
+            $in = html_entity_decode($in, ENT_QUOTES | ENT_HTML5, $encoding);
+        }
+        $in = preg_replace(XSSHelpers::$specialPattern, XSSHelpers::$specialReplace, $in); // modifiers to support features
+
+        $in = preg_replace($pattern, $replace, htmlspecialchars($in, ENT_QUOTES, $encoding));
         
         // verify tag grammar
         $matches = array();
@@ -123,7 +144,7 @@ class XSSHelpers {
     /**
     * Sanitize a HTML string, allows some tags for use in rich text editors.
     * 
-    * Allowed tags: <a><b><i><u><ol><li><br><p><table><td><tr>
+    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr>
     *
     * @param    string  $in the string to be sanitized
     *
@@ -131,28 +152,25 @@ class XSSHelpers {
     */
     static public function sanitizeHTML($in)
     {
-        $pattern = array('/&lt;table(\s.+)?&gt;/Ui',
-                            '/&lt;\/table&gt;/Ui',
-                            '/&lt;(\/)?br(\s.+)?\s\/&gt;/Ui',
-                            '/&lt;(\/)?(\S+)(\s.+)?&gt;/U', // all other allowed tags
-                            '/\b\d{3}-\d{2}-\d{4}\b/', // mask SSN
-                            '/(\<\/p\>\<\/p\>){2,}/',
-                            '/(\<p\>\<\/p\>){2,}/',
-                            '/\<\/p\>(\s+)?\<br\>(\s+)?\<p\>/U' // scrub line breaks between paragraphs
-        );
+        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr'];
 
-        $replace = array('<table class="table">',
-                            '</table>',
-                            '<\1br />',
-                            '<\1\2>',
-                            '###-##-####',
-                            '',
-                            '',
-                            "</p>\n<p>"
-        );
+        return XSSHelpers::sanitizer($in, $allowedTags);
+    }
 
-        $allowedTags = '<b><i><u><ol><li><br><p><table><td><tr>';
+    /**
+    * Sanitize a HTML string, allows some tags for use in rich text editors.
+    * Used in form field headings, which include some links and formatted text
+    * 
+    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr><a><span><strong>
+    *
+    * @param    string  $in the string to be sanitized
+    *
+    * @return   string  the sanitized string
+    */
+    static public function sanitizeHTMLRich($in)
+    {
+        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr', 'a', 'span', 'strong'];
 
-        return XSSHelpers::sanitizer($in, $pattern, $replace, $allowedTags);
+        return XSSHelpers::sanitizer($in, $allowedTags);
     }
 }
