@@ -662,7 +662,7 @@
             <input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
             <!--{$indicator.html}-->
         <!--{/if}-->
-        <!--{include file="subindicators.tpl" form=$indicator.child depth=$depth+4 recordID=$recordID}-->
+        <!--{include file=$subindicatorsTemplate form=$indicator.child depth=$depth+4 recordID=$recordID}-->
 
         </div>
     <!--{/foreach}-->
