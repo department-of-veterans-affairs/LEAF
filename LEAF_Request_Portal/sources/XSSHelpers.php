@@ -169,7 +169,7 @@ class XSSHelpers {
     */
     static public function sanitizeHTMLRich($in)
     {
-        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr', 'a', 'span', 'strong'];
+        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr', 'a', 'span', 'strong', 'em'];
 
         return XSSHelpers::sanitizer($in, $allowedTags);
     }
