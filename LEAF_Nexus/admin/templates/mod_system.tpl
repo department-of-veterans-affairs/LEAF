@@ -16,6 +16,7 @@
             <option value="quadrad" <!--{if $serviceParent == 'quadrad'}-->selected<!--{/if}--> >Quadrad</option>
             <option value="pentad" <!--{if $serviceParent == 'pentad'}-->selected<!--{/if}--> >Pentad</option>
             <option value="ELT" <!--{if $serviceParent == 'ELT'}-->selected<!--{/if}--> >ELT</option>
+            <option value="VISN" <!--{if $serviceParent == 'VISN'}-->selected<!--{/if}--> >VISN</option>
         </select>
         </div>
 
