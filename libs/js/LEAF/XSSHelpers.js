@@ -4,50 +4,98 @@
 var XSSHelpers = function () {
 
     /**
+     * Builds a RegExp that will match the given HTML tag. Also
+     * matches even if the tag contains attributes. Can be in
+     * the format "<strong>", or just "strong". 
+     * 
+     * @param string    tag     The tag to build a regex for
+     * 
+     * @return RegExp   a Javascript RegExp object
+     */
+    buildTagRegex = function(tag) {
+        return new RegExp('(<\\/?\\s*\\b' + tag + '\\b(.*?)\\s*>)', "g");
+    },
+
+    /**
+     * Removes the chevrons, front slash, and any white space from an
+     * HTML tag. This ensures any regex operations will be working with
+     * the same data without concerns of formatting (e.g., "</strong>"
+     * will return "strong").
+     * 
+     * @param string    tag     The tag to clean
+     * 
+     * @return string   The cleaned tag
+     */
+    cleanTag = function(tag) {
+        // remove chevrons, forward slashes, and whitespace
+        return tag.replace(/<\s*\/?|>/g, "").trim();
+    },
+
+    /**
+     * Checks the given text for the specified tag.
+     * 
+     * @param text  string  The text to check for tag
+     * @param tag   string  The tag to search for    
+     * 
+     * @return bool If the specified tag was found in the text
+     */
+    containsTag = function (text, tag) {
+        return buildTagRegex(cleanTag(tag)).exec(text) !== null;
+    },
+
+    /**
      * Checks the given text for the specified tags.
      * 
      * @param text  string      The text to check for tags
-     * @param tags  string[]    An array of strings that represents the
-     *                          tags to search for
+     * @param tags  string[]    An array of tags to search for    
      * 
-     * @return bool If ANY of the specified tags were found in the text
+     * @return bool If ALL of the specified tags were found in the text
      */
-    containsTags = function (text, tags) {
+    containsTags = function(text, tags) {
         for (var i = 0; i < tags.length; i++) {
-            var pattern = new RegExp(tags[i]);
-            if (pattern.test(text)) {
-                return true;
-            }
+            if (!containsTag(text, tags[i])) return false;
         }
 
-        return false;
+        return true;
     },
-    
+
     /**
-     * An inelegant function to strip the given text of all the specified tags.
+     * Strips the given text of the specified tag.
      * 
-     * @param text  string      The text to strip tags from
-     * @param tags  string[]    An array of strings that represents the
-     *                          tags to strip. It's only necessary to include
-     *                          the opening tag (e.g. "<a>").
+     * @param text  string  The text to strip tags from
+     * @param tag   string  The tag to strip from the text   
      * 
      * @return string   The stripped text
      */
-    stripTags = function (text, tags) {
-        for (var i = 0; i < tags.length; i++) {
-            var openingTag = tags[i];
-            var closingTag = openingTag.slice(0,1) + "/" + openingTag.slice(1); 
+    stripTag = function (text, tag) {
+        return text.replace(buildTagRegex(cleanTag(tag)), "");
+    },
 
-            // ugly, but it works
-            text = text.replace(openingTag, "");
-            text = text.replace(closingTag, "");
+    /**
+     * Strips the given text of the specified tags.
+     * 
+     * @param text  string  The text to strip tags from
+     * @param tags  string  Array of tags to strip from the text   
+     * 
+     * @return string   The stripped text
+     */
+    stripTags = function(text, tags) {
+        for (var i = 0; i < tags.length; i++) {
+            text = stripTag(text, tags[i]);
         }
 
         return text;
     };
 
     return {
+        buildTagRegex: buildTagRegex,
+        containsTag: containsTag,
         containsTags: containsTags,
+        stripTag: stripTag,
         stripTags: stripTags
     };
 }();
+
+if (typeof module !== 'undefined') {
+    module.exports = XSSHelpers;
+}
