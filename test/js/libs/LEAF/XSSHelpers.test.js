@@ -13,7 +13,9 @@ test('containsTags()', () => {
     var input = "This <strong>is</strong> <a href='#'>input</a>";
 
     expect(XSSHelpers.containsTags(input, ["b"])).toBe(false);
-    expect(XSSHelpers.containsTags(input, ["strong", "div"])).toBe(false);
+    expect(XSSHelpers.containsTags(input, ["strong", "div"])).toBe(true);
+    expect(XSSHelpers.containsTags(input, ["strong", "div"], false)).toBe(true);
+    expect(XSSHelpers.containsTags(input, ["strong", "div"], true)).toBe(false);
     expect(XSSHelpers.containsTags(input, ["<a>"])).toBe(true);
     expect(XSSHelpers.containsTags(input, ["strong"])).toBe(true);
     expect(XSSHelpers.containsTags(input, ["<strong>", "a"])).toBe(true);

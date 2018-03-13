@@ -48,15 +48,24 @@ var XSSHelpers = function () {
      * 
      * @param text  string      The text to check for tags
      * @param tags  string[]    An array of tags to search for    
+     * @param bool  containsAll If the given text should contain ALL
      * 
-     * @return bool If ALL of the specified tags were found in the text
+     * @return bool If any/all (depends on containsAll) of the 
+     *              specified tags were found in the text.
      */
-    containsTags = function(text, tags) {
+    containsTags = function(text, tags, containsAll = false) {
+
         for (var i = 0; i < tags.length; i++) {
-            if (!containsTag(text, tags[i])) return false;
+            var hasTag = containsTag(text, tags[i]);
+
+            if (containsAll) {
+                if (!hasTag) { return false; }
+            } else {
+                if (hasTag) { return true; }
+            }
         }
 
-        return true;
+        return false;
     },
 
     /**
