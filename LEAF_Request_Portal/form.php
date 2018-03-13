@@ -180,7 +180,6 @@ class Form
         $output = array(
             'form_id' => $form['items'][0]['children'][0]['type'],
             'record_id' => $recordID,
-            'compiled_on' => date(DATE_ISO8601),
             'limit_category' => $limitCategory != null ? $limitCategory : '',
             'indicators' => $indicators,
         );
