@@ -22,16 +22,16 @@
         <div class="mainlabel">
             <div>
             <span>
-                <b><!--{$indicator.name}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}--><br />
+                <b><!--{$indicator.name|sanitizeLinks}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}--><br />
             </span>
             </div>
                 <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
             <span>
                     <!--{if $indicator.format == null}-->
-                        <br /><b><!--{$indicator.name|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
+                        <br /><b><!--{$indicator.name|sanitizeLinks|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->
-                        <br /><!--{$indicator.name|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
+                        <br /><!--{$indicator.name|sanitizeLinks|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
                     <!--{/if}-->
             </span>
                 <!--{/if}-->
@@ -47,16 +47,16 @@
             <div id="textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->" style="text-align: right; font-size: 12px"><span class="link">formatting options</span></div>
             <script>
             $(function() {
-                if($('#<!--{$indicator.indicatorID|strip_tags}-->').val().indexOf('<p>') >= 0
-                	|| $('#<!--{$indicator.indicatorID|strip_tags}-->').val().indexOf('<table') >= 0) {
-                	useAdvancedEditor();
+                var indicator = $('#<!--{$indicator.indicatorID|strip_tags}-->');
+                if(XSSHelpers.containsTags(indicator.val(), ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
+                    useAdvancedEditor();
                 }
                 else {
-                	var tmp = $('#<!--{$indicator.indicatorID|strip_tags}-->').val();
-                	$('#<!--{$indicator.indicatorID|strip_tags}-->').val(tmp.replace(/\<br\s?\/?>/g, "\n"));
+                	indicator.val(indicator.val().replace(/\<br\s?\/?>/g, "\n"));
                 }
                 function useAdvancedEditor() {
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->').trumbowyg({
+                    indicator.val(XSSHelpers.stripTags(indicator.val(), ['<script>']));
+                    indicator.trumbowyg({
                         btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'justifyLeft', 'justifyCenter', 'justifyRight', 'fullscreen']
                     });
                     $('#textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->').css('display', 'none');
@@ -662,7 +662,7 @@
             <input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
             <!--{$indicator.html}-->
         <!--{/if}-->
-        <!--{include file="subindicators.tpl" form=$indicator.child depth=$depth+4 recordID=$recordID}-->
+        <!--{include file=$subindicatorsTemplate form=$indicator.child depth=$depth+4 recordID=$recordID}-->
 
         </div>
     <!--{/foreach}-->
