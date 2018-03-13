@@ -60,6 +60,17 @@ var XSSHelpers = function () {
     },
 
     /**
+     * Strips ALL HTML tags from the given text.
+     * 
+     * @param string    text    The text to strip tags from
+     * 
+     * @return string   The stripped text
+     */
+    stripAllTags = function (text) {
+        return text.replace(buildTagRegex(""), "");
+    },
+
+    /**
      * Strips the given text of the specified tag.
      * 
      * @param text  string  The text to strip tags from
@@ -91,6 +102,7 @@ var XSSHelpers = function () {
         buildTagRegex: buildTagRegex,
         containsTag: containsTag,
         containsTags: containsTags,
+        stripAllTags: stripAllTags,
         stripTag: stripTag,
         stripTags: stripTags
     };
