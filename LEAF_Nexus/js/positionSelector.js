@@ -118,7 +118,8 @@ positionSelector.prototype.enableNoLimit = function() {
 };
 
 positionSelector.prototype.search = function() {
-	if($('#' + this.prefixID + 'input') == null) {
+	if($('#' + this.prefixID + 'input').val() == undefined
+		|| $('#' + this.prefixID + 'input') == null) {
 		clearInterval(this.intervalID);
 		return false;
 	}
