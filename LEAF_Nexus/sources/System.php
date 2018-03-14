@@ -19,7 +19,7 @@ class System
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
 
-        include_once 'XSSHelpers.php';
+        include_once '../../libs/php-commons/XSSHelpers.php';
     }
 
     public function setHeading($heading) {
