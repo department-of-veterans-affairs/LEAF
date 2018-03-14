@@ -559,7 +559,7 @@ abstract class Data
     	$vars = array(':cacheID' => 'lastModified',
     			':data' => $time,
     			':cacheTime' => $time);
-    	$res = $this->db->prepared_query("INSERT INTO cache (cacheID, data, cacheTime)
+    	$this->db->prepared_query("INSERT INTO cache (cacheID, data, cacheTime)
         									VALUES (:cacheID, :data, :cacheTime)
         									ON DUPLICATE KEY UPDATE data=:data, cacheTime=:cacheTime", $vars);
     	$this->cache['updateLastModified'] = $time;
