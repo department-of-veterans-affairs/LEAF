@@ -98,7 +98,7 @@ function openContent(url) {
                 $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formName',
-                    data: {name: XSSHelpers.stripAllTags($('#name').val()),
+                    data: {name: $('#name').val(),
                     	categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
                     success: function(res) {
@@ -109,7 +109,7 @@ function openContent(url) {
                 $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formDescription',
-                    data: {description: XSSHelpers.stripAllTags($('#description').val()),
+                    data: {description: $('#description').val(),
                     	categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
                     success: function(res) {
@@ -163,8 +163,8 @@ function openContent(url) {
                     }
                 })
              ).then(function() {
-                categories[currCategoryID].categoryName = XSSHelpers.stripAllTags($('#name').val());
-                categories[currCategoryID].categoryDescription = XSSHelpers.stripAllTags($('#description').val());
+                categories[currCategoryID].categoryName = $('#name').val();
+                categories[currCategoryID].categoryDescription = $('#description').val();
                 categories[currCategoryID].description = '';
                 categories[currCategoryID].workflowID = $('#workflowID').val();
                 categories[currCategoryID].needToKnow = $('#needToKnow').val();
@@ -379,10 +379,10 @@ function newQuestion(parentIndicatorID) {
         $.ajax({
             type: 'POST',
             url: '../api/?a=formEditor/newIndicator',
-            data: {name: XSSHelpers.stripAllTags($('#name').val()),
+            data: {name: $('#name').val(),
             	format: $('#format').val(),
-            	description: XSSHelpers.stripAllTags($('#description').val()),
-            	default: XSSHelpers.stripTag($('#default').val(), "<script>"),
+            	description: $('#description').val(),
+            	default: $('#default').val(),
             	parentID: parentIndicatorID,
             	categoryID: currCategoryID,
             	required: isRequired,
@@ -502,7 +502,7 @@ function getForm(indicatorID, series) {
         $.ajax({
             type: 'POST',
             url: '../api/?a=formEditor/' + indicatorID + '/html',
-            data: {html: XSSHelpers.stripTag(codeEditorHtml.getValue(), "<script>"),
+            data: {html: codeEditorHtml.getValue(),
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
                 var time = new Date().toLocaleTimeString();
@@ -517,7 +517,7 @@ function getForm(indicatorID, series) {
         $.ajax({
             type: 'POST',
             url: '../api/?a=formEditor/' + indicatorID + '/htmlPrint',
-            data: {htmlPrint: XSSHelpers.stripTag(codeEditorHtmlPrint.getValue(), "<script>"),
+            data: {htmlPrint: codeEditorHtmlPrint.getValue(),
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
             	var time = new Date().toLocaleTimeString();
@@ -675,7 +675,7 @@ function getForm(indicatorID, series) {
    	        $.ajax({
    	            type: 'POST',
    	            url: '../api/?a=formEditor/' + indicatorID + '/name',
-   	            data: {name: XSSHelpers.stripAllTags($('#name').val()),
+   	            data: {name: $('#name').val(),
    	                CSRFToken: '<!--{$CSRFToken}-->'},
    	            success: function(res) {
    	                if(res != null) {
@@ -695,7 +695,7 @@ function getForm(indicatorID, series) {
    	        $.ajax({
    	            type: 'POST',
    	            url: '../api/?a=formEditor/' + indicatorID + '/description',
-   	            data: {description: XSSHelpers.stripAllTags($('#description').val()),
+   	            data: {description: $('#description').val(),
    	                CSRFToken: '<!--{$CSRFToken}-->'},
    	            success: function(res) {
    	                if(res != null) {
@@ -705,7 +705,7 @@ function getForm(indicatorID, series) {
    	        $.ajax({
    	            type: 'POST',
    	            url: '../api/?a=formEditor/' + indicatorID + '/default',
-   	            data: {default: XSSHelpers.stripAllTags($('#default').val()),
+   	            data: {default: $('#default').val(),
    	                CSRFToken: '<!--{$CSRFToken}-->'},
    	            success: function(res) {
    	                if(res != null) {
@@ -756,7 +756,7 @@ function getForm(indicatorID, series) {
             $.ajax({
                 type: 'POST',
                 url: '../api/?a=formEditor/' + indicatorID + '/html',
-                data: {html: XSSHelpers.stripTag(codeEditorHtml.getValue(), "<script>"),
+                data: {html: codeEditorHtml.getValue(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                     if(res != null) {
@@ -766,7 +766,7 @@ function getForm(indicatorID, series) {
             $.ajax({
                 type: 'POST',
                 url: '../api/?a=formEditor/' + indicatorID + '/htmlPrint',
-                data: {htmlPrint: XSSHelpers.stripTag(codeEditorHtmlPrint.getValue(), "<script>"),
+                data: {htmlPrint: codeEditorHtmlPrint.getValue(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                     if(res != null) {
@@ -1068,13 +1068,13 @@ function createForm(parentID) {
     dialog.show();
 
     dialog.setSaveHandler(function() {
-    	var categoryName = XSSHelpers.stripAllTags($('#name').val());
-    	var categoryDescription = XSSHelpers.stripAllTags($('#description').val());
+    	var categoryName = $('#name').val();
+    	var categoryDescription = $('#description').val();
     	$.ajax({
     		type: 'POST',
     		url: '<!--{$APIroot}-->?a=formEditor/new',
-    		data: {name: XSSHelpers.stripAllTags($('#name').val()),
-    			   description: XSSHelpers.stripAllTags($('#description').val()),
+    		data: {name: $('#name').val(),
+    			   description: $('#description').val(),
     			   parentID: parentID,
     			   CSRFToken: '<!--{$CSRFToken}-->'},
     		success: function(res) {
