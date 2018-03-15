@@ -21,6 +21,13 @@ test('containsTags()', () => {
     expect(XSSHelpers.containsTags(input, ["<strong>", "a"])).toBe(true);
 });
 
+test('stripAllTags()', () => {
+    var input = "This <strong>is</strong> <a href='#'>input</a> <script lang='javascript'>alert('hi')</script>";
+    var output = "This is input alert('hi')";
+
+    expect(XSSHelpers.stripAllTags(input)).toBe(output);
+});
+
 test('stripTag()', () => {
     var input = "This <strong>is</strong> <a href='#'>input</a> <script lang='javascript'>alert('hi')</script>";
     var output = "This <strong>is</strong> <a href='#'>input</a> alert('hi')";
