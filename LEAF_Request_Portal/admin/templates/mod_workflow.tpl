@@ -24,7 +24,7 @@ function newWorkflow() {
         $.ajax({
             type: 'POST',
             url: '../api/workflow/new',
-            data: {description: XSSHelpers.stripAllTags($('#description').val()),
+            data: {description: $('#description').val(),
                    CSRFToken: CSRFToken},
             success: function(res) {
                 loadWorkflowList(res);
@@ -148,7 +148,7 @@ function editStep(stepID) {
         $.ajax({
             type: 'POST',
             data: {CSRFToken: CSRFToken,
-            	   title: XSSHelpers.stripAllTags($('#title').val())},
+            	   title: $('#title').val()},
             url: '../api/?a=workflow/step/' + stepID,
             success: function(res) {
                 if(res == 1) {
@@ -172,7 +172,7 @@ function editRequirement(dependencyID) {
         $.ajax({
             type: 'POST',
             data: {CSRFToken: CSRFToken,
-            	   description: XSSHelpers.stripAllTags($('#description').val())},
+            	   description: $('#description').val()},
             url: '../api/?a=workflow/dependency/' + dependencyID,
             success: function() {
                 $('.workflowStepInfo').css('display', 'none');
@@ -288,7 +288,7 @@ function newDependency(stepID) {
     	$.ajax({
     		type: 'POST',
     		url: '../api/?a=workflow/dependencies',
-    		data: {description: XSSHelpers.stripAllTags($('#description').val()),
+    		data: {description: $('#description').val(),
     			   CSRFToken: CSRFToken},
     		success: function(res) {
     			dialog.hide();
@@ -358,7 +358,7 @@ function createStep() {
 		$.ajax({
 			type: 'POST',
 			url: '../api/?a=workflow/' + currentWorkflow + '/step',
-			data: {stepTitle: XSSHelpers.stripAllTags($('#stepTitle').val()),
+			data: {stepTitle: $('#stepTitle').val(),
 				   CSRFToken: CSRFToken},
 			success: function(res) {
 				loadWorkflow(currentWorkflow);
@@ -440,9 +440,9 @@ function newAction() {
             $.ajax({
                 type: 'POST',
                 url: '../api/?a=system/actions',
-                data: {actionText: XSSHelpers.stripAllTags($('#actionText').val()),
-                       actionTextPasttense: XSSHelpers.stripAllTags($('#actionTextPasttense').val()),
-                       actionIcon: XSSHelpers.stripTag($('#actionIcon').val(), "<script"),
+                data: {actionText: $('#actionText').val(),
+                       actionTextPasttense: $('#actionTextPasttense').val(),
+                       actionIcon: $('#actionIcon').val(),
                        fillDependency: $('#fillDependency').val(),
                        CSRFToken: CSRFToken},
                 success: function() {
