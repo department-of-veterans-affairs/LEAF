@@ -53,8 +53,10 @@ var XSSHelpers = function () {
      * @return bool If any/all (depends on containsAll) of the 
      *              specified tags were found in the text.
      */
-    containsTags = function(text, tags, containsAll = false) {
-
+    containsTags = function(text, tags, containsAll) {
+    	if(containsAll == undefined) {
+    		containsAll = false;
+    	}
         for (var i = 0; i < tags.length; i++) {
             var hasTag = containsTag(text, tags[i]);
 
