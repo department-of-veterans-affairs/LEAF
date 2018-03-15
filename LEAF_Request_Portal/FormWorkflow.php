@@ -4,7 +4,7 @@
     Date Created: May 25, 2011
 */
 
-require_once '../libs/php-commons/XSSHelpers.php';
+require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 
 class FormWorkflow
 {
