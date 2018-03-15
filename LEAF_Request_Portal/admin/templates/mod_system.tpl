@@ -70,7 +70,7 @@ function saveSettings()
             $.ajax({
                 type: 'POST',
                 url: '../api/?a=system/settings/heading',
-                data: {heading: XSSHelpers.stripTag($('#heading').val(), "<script>"),
+                data: {heading: $('#heading').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                 }
@@ -78,7 +78,7 @@ function saveSettings()
             $.ajax({
                 type: 'POST',
                 url: '../api/?a=system/settings/subHeading',
-                data: {subHeading: XSSHelpers.stripTag($('#subHeading').val(), "<script>"),
+                data: {subHeading: $('#subHeading').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                 }
@@ -86,7 +86,7 @@ function saveSettings()
             $.ajax({
                 type: 'POST',
                 url: '../api/?a=system/settings/requestLabel',
-                data: {requestLabel: XSSHelpers.stripAllTags($('#requestLabel').val()),
+                data: {requestLabel: $('#requestLabel').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                 }
