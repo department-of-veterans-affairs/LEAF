@@ -152,6 +152,49 @@ final class FormEditorControllerTest extends DatabaseTest
     }
 
     /**
+     * Tests the `formEditor/newIndicator` endpoint
+     * 
+     * Tests input that contains HTML.
+     */
+    public function testNewIndicator_HTMLinput() : void
+    {
+        $indicator = self::$client->get('?a=formEditor/indicator/7');
+
+        // returns an empty "null" indicator
+        $this->assertNotNull($indicator);
+        $this->assertNull($indicator[""]['indicatorID']);
+
+        $newIndicator = array(
+            "name" => "<script lang='javascript'>alert('hi')</script><b>NEWTESTINDICATOR</b>",
+            "format" => "<script lang='javascript'>alert('hi')</script>text",
+            "description" => "<strong>NEWTESTINDICATORDESCRIPTION</strong>",
+            "default" => "",
+            "parentID" => "",
+            "categoryID" => "form_f4687",
+            "html" => "<script lang='javascript'>alert('hi')</script><b>the html</b>",
+            "htmlPrint" => "<script lang='javascript'>alert('hi')</script><b>the html</b>",
+            "required" => 0,
+            "sort" => 1
+        );
+
+        self::$client->postEncodedForm('?a=formEditor/newIndicator', $newIndicator);
+
+        $indicator = self::$client->get('?a=formEditor/indicator/7');
+
+        $this->assertNotNull($indicator);
+        $this->assertEquals("7", $indicator["7"]['indicatorID']);
+        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>NEWTESTINDICATOR</b>", $indicator["7"]['name']);
+        $this->assertEquals("alert('hi')text", $indicator["7"]['format']);
+        $this->assertEquals("&lt;strong&gt;NEWTESTINDICATORDESCRIPTION&lt;/stro", $indicator["7"]['description']);
+        $this->assertEquals($newIndicator['default'], $indicator["7"]['default']);
+        $this->assertEquals(null, $indicator["7"]['parentID']);
+        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>the html</b>", $indicator["7"]['html']);
+        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>the html</b>", $indicator["7"]['htmlPrint']);
+        $this->assertEquals(0, $indicator["7"]['required']);
+        $this->assertEquals(1, $indicator["7"]['sort']);
+    }
+
+    /**
      * Tests the `formEditor/formName` endpoint.
      */
     public function testSetFormName() : void
@@ -194,6 +237,28 @@ final class FormEditorControllerTest extends DatabaseTest
     }
 
     /**
+     * Tests the `formEditor/[digit]/name` endpoint.
+     * 
+     * Tests the endpoint with input containing HTML.
+     */
+    public function testSetIndicatorName_HTMLinput() : void
+    {
+        $indicator = self::$client->get('?a=formEditor/indicator/6');
+
+        $this->assertNotNull($indicator);
+        $this->assertEquals("Favorite Day", $indicator["6"]["name"]);
+
+        self::$client->postEncodedForm('?a=formEditor/6/name', [
+            "name" => "<script lang='javascript'>alert('hi')</script><b>new name</b>"
+        ]);
+
+        $indicator = self::$client->get('?a=formEditor/indicator/6');
+
+        $this->assertNotNull($indicator);
+        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>new name</b>", $indicator["6"]["name"]);
+    }
+
+    /**
      * Tests the `formEditor/[digit]/format` endpoint.
      */
     public function testSetIndicatorFormat() : void
@@ -209,6 +274,28 @@ final class FormEditorControllerTest extends DatabaseTest
 
         $this->assertNotNull($indicator);
         $this->assertEquals("text", $indicator["6"]["format"]);
+    }
+
+    /**
+     * Tests the `formEditor/[digit]/format` endpoint.
+     * 
+     * Tests the endpoint with input containing HTML.
+     */
+    public function testSetIndicatorFormat_HTMLinput() : void
+    {
+        $indicator = self::$client->get('?a=formEditor/indicator/6');
+
+        $this->assertNotNull($indicator);
+        $this->assertEquals("date", $indicator["6"]["format"]);
+
+        self::$client->postEncodedForm('?a=formEditor/6/format', [
+            "format" => "<script lang='javascript'>alert('hi')</script>text"
+        ]);
+
+        $indicator = self::$client->get('?a=formEditor/indicator/6');
+
+        $this->assertNotNull($indicator);
+        $this->assertEquals("alert('hi')text", $indicator["6"]["format"]);
     }
 
     /**
@@ -230,6 +317,28 @@ final class FormEditorControllerTest extends DatabaseTest
     }
 
     /**
+     * Tests the `formEditor/[digit]/description` endpoint.
+     * 
+     * Tests the endpoint with input containing HTML.
+     */
+    public function testSetIndicatorDescription_HTMLinput() : void
+    {
+        $indicator = self::$client->get('?a=formEditor/indicator/6');
+
+        $this->assertNotNull($indicator);
+        $this->assertEquals("favorite day", $indicator["6"]["description"]);
+
+        self::$client->postEncodedForm('?a=formEditor/6/description', [
+            "description" => "<script lang='javascript'>alert('hi')</script><b>stuff</b>"
+        ]);
+
+        $indicator = self::$client->get('?a=formEditor/indicator/6');
+
+        $this->assertNotNull($indicator);
+        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#", $indicator["6"]["description"]);
+    }
+
+    /**
      * Tests the `formEditor/[digit]/default` endpoint.
      */
     public function testSetIndicatorDefault() : void
@@ -245,6 +354,26 @@ final class FormEditorControllerTest extends DatabaseTest
 
         $this->assertNotNull($indicator);
         $this->assertEquals("some default", $indicator["6"]["default"]);
+    }
+
+    /**
+     * Tests the `formEditor/[digit]/default` endpoint.
+     */
+    public function testSetIndicatorDefault_HTMLinput() : void
+    {
+        $indicator = self::$client->get('?a=formEditor/indicator/6');
+
+        $this->assertNotNull($indicator);
+        $this->assertEquals("", $indicator["6"]["default"]);
+
+        self::$client->postEncodedForm('?a=formEditor/6/default', [
+            "default" => "<script lang='javascript'>alert('hi')</script><b>stuff</b>"
+        ]);
+
+        $indicator = self::$client->get('?a=formEditor/indicator/6');
+
+        $this->assertNotNull($indicator);
+        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>stuff</b>", $indicator["6"]["default"]);
     }
 
     /**
@@ -334,7 +463,7 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("<strong>html</strong>", $indicator["6"]["html"]);
+        $this->assertEquals("&lt;strong&gt;html&lt;/strong&gt;", $indicator["6"]["html"]);
     }
 
     /**
