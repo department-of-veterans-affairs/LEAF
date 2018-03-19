@@ -37,9 +37,9 @@
             <!--{/if}-->
             </div>
             <!--{if $indicator.isWritable == 0}-->
-            <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags}-->"><!--{$indicator.name|strip_tags|escape}--></span>
+            <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags}-->"><!--{$indicator.name|strip_tags|sanitize}--></span>
             <!--{else}-->
-            <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID|strip_tags}-->" onclick="getForm(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)"><!--{$indicator.name|strip_tags|escape}--></span>
+            <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID|strip_tags}-->" onclick="getForm(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)"><!--{$indicator.name|strip_tags|sanitize}--></span>
             <!--{/if}-->
         <!--{else}-->
       <div class="printsubblock" id="subIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->">
@@ -50,9 +50,9 @@
                 <div class="printsubheading"<!--{if $indicator.name == ''}--> style="display: none"<!--{/if}-->>
             <!--{/if}-->
             <!--{if $indicator.format == null}-->
-                <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags}-->"><!--{$indicator.name|strip_tags|escape|indent:$depth:""}--></span>
+                <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags}-->"><!--{$indicator.name|strip_tags|sanitize|indent:$depth:""}--></span>
             <!--{else}-->
-                <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags}-->"><!--{$indicator.name|strip_tags|escape|indent:$depth:""}--></span>
+                <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags}-->"><!--{$indicator.name|strip_tags|sanitize|indent:$depth:""}--></span>
             <!--{/if}-->
             <!--{if $date < $indicator.timestamp && $date > 0}-->
                 &nbsp;<img src="../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" />
