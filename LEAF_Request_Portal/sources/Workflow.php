@@ -483,6 +483,8 @@ class Workflow
     	return true;
     }
 
+    // traverses routes to the end of a workflow, deletes dead ends
+    // $routePath tracks routes that have already been checked
     private function checkRoute($stepID, $originStepID, &$routeData, $routePath = [])
     {
     	if(!isset($routeData[$stepID])) {
@@ -498,7 +500,8 @@ class Workflow
     		$routeData[$stepID]['triggerCount']++;
     		if($route['nextStepID'] != 0) {
     			if($originStepID == $route['nextStepID']) {
-    				unset($routeData[$stepID]);
+    			    unset($routeData[$stepID]['routes'][$key]);
+    			    continue;
     			}
     			if(!isset($routeData[$route['nextStepID']]['triggerCount'])) {
     				if($originStepID != 0) {
@@ -510,6 +513,7 @@ class Workflow
     	}
     }
 
+    // removes routes that don't lead to the end
     private function pruneRoutes($initialStepID, &$routeData)
     {
     	$this->checkRoute($initialStepID, 0, $routeData);
@@ -580,9 +584,12 @@ class Workflow
     												LEFT JOIN dependencies USING (dependencyID)
     												WHERE stepID IN ({$stepIDs})");
 
-    	foreach($resStepDependencies as $stepDependency) {
-    		$routeData[$stepDependency['stepID']]['dependencies'][$stepDependency['dependencyID']] = $stepDependency['description'];
-    	}
+        if($resStepDependencies != null) {
+    	    foreach($resStepDependencies as $stepDependency) {
+    	        $routeData[$stepDependency['stepID']]['dependencies'][$stepDependency['dependencyID']] = $stepDependency['description'];
+    	    }
+        }
+
 
     	$routeData[0]['routes'][0]['nextStepID'] = $initialStepID;
     	$routeData[0]['stepTitle'] = 'Request Submitted';
