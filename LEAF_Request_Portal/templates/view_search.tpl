@@ -59,7 +59,7 @@ $(function() {
              var waitText = blob[data.recordID].blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
              var status = '';
              if(blob[data.recordID].stepID == null && blob[data.recordID].submitted == '0') {
-                 status = '<span style="color: red">Not Submitted</span>';
+                 status = '<span style="color: #e00000">Not Submitted</span>';
              }
              else if(blob[data.recordID].stepID == null) {
             	 var lastStatus = blob[data.recordID].lastStatus;
@@ -71,11 +71,11 @@ $(function() {
              else {
                  status = waitText + blob[data.recordID].stepTitle;
              }
-             
+
              if(blob[data.recordID].deleted > 0) {
             	 status += ', Cancelled';
              }
-             
+
              $('#'+data.cellContainerID).html(status);
              if(blob[data.recordID].userID == '<!--{$userID}-->') {
                  $('#'+data.cellContainerID).css('background-color', '#feffd1');
@@ -139,7 +139,7 @@ $(function() {
             for(var i in advSearch) {
                 if(advSearch[i].id != 'data'
                 	&& advSearch[i].id != 'dependencyID') {
-                    query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);                  
+                    query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);
                 }
                 else {
                     query.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match);
@@ -147,7 +147,7 @@ $(function() {
 
                 if(advSearch[i].id == 'title'
                         && advSearch[i].match == '**') {
-                    query.setLimit(50);                 
+                    query.setLimit(50);
                 }
             }
         }

@@ -4,11 +4,11 @@
 <table class="table">
     <thead>
         <tr>
-            <td>indicatorID</td>
-            <td>Form</td>
-            <td>Field Name</td>
-            <td>Input Format</td>
-            <td>Restore</td>
+            <th>indicatorID</th>
+            <th>Form</th>
+            <th>Field Name</th>
+            <th>Input Format</th>
+            <th>Restore</th>
         </tr>
     </thead>
     <tbody id="fields"></tbody>
@@ -36,23 +36,23 @@ $(function() {
         type: 'GET',
         url: '../api/form/indicator/list/disabled',
         success: function(res) {
-        
+
             var buffer = '';
             for(var i in res) {
                 buffer += '<tr id="field_'+ res[i].indicatorID +'">';
-                buffer += '<td>'+ res[i].indicatorID +'</td>';
-                buffer += '<td>'+ res[i].categoryName +'</td>';
-                buffer += '<td>'+ res[i].name +'</td>';
-                buffer += '<td>'+ res[i].format +'</td>';
-                buffer += '<td><button class="buttonNorm" onclick="restoreField('+res[i].indicatorID+');">Restore this field</button></td>';
+                buffer += '<th>'+ res[i].indicatorID +'</th>';
+                buffer += '<th>'+ res[i].categoryName +'</th>';
+                buffer += '<th>'+ res[i].name +'</th>';
+                buffer += '<th>'+ res[i].format +'</th>';
+                buffer += '<th><button class="buttonNorm" onclick="restoreField('+res[i].indicatorID+');">Restore this field</button></th>';
                 buffer += '</tr>';
             }
             $('#fields').html(buffer);
-        
+
         },
         cache: false
     });
 
 });
-    
+
 </script>
