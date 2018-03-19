@@ -6,7 +6,7 @@
 */
 
 define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
-require_once dirname(__FILE__) . '/sources/XSSHelpers.php';
+require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 
 class Form
 {
@@ -2451,7 +2451,7 @@ class Form
                         $joinCategoryID = true;
                         // see below
                         break;
-                    case 'categoryNameUnabridged':
+                    case 'categoryNameUnabridged': // include categories marked as disabled
                         $joinAllCategoryID = true;
                         // see below
                         break;
@@ -2567,6 +2567,7 @@ class Form
             foreach ($res2 as $item)
             {
                 $data[$item['recordID']]['categoryNames'][] = $item['categoryName'];
+                $data[$item['recordID']]['categoryIDs'][] = $item['categoryID'];
             }
         }
 
@@ -2585,6 +2586,7 @@ class Form
             foreach ($res2 as $item)
             {
                 $data[$item['recordID']]['categoryNamesUnabridged'][] = $item['categoryName'];
+                $data[$item['recordID']]['categoryIDsUnabridged'][] = $item['categoryID'];
             }
         }
 
