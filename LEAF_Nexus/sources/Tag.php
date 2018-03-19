@@ -63,7 +63,16 @@ class Tag
     		);
     		$this->db->prepared_query('UPDATE tag_hierarchy SET parentTag=:parentTag WHERE tag=:tag', $vars);
     	}
-    	$this->updateLastModified();
+
+    	// update lastModified timestamp
+    	$time = time();
+	    $vars = array(':cacheID' => 'lastModified',
+        	          ':data' => $time,
+        	          ':cacheTime' => $time);
+	    $this->db->prepared_query("INSERT INTO cache (cacheID, data, cacheTime)
+    								   VALUES (:cacheID, :data, :cacheTime)
+    								   ON DUPLICATE KEY UPDATE data=:data, cacheTime=:cacheTime", $vars);
+
     	return 1;
     }
 
