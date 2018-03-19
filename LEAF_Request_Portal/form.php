@@ -2567,6 +2567,7 @@ class Form
             foreach ($res2 as $item)
             {
                 $data[$item['recordID']]['categoryNames'][] = $item['categoryName'];
+                $data[$item['recordID']]['categoryIDs'][] = $item['categoryID'];
             }
         }
 
@@ -2585,6 +2586,7 @@ class Form
             foreach ($res2 as $item)
             {
                 $data[$item['recordID']]['categoryNamesUnabridged'][] = $item['categoryName'];
+                $data[$item['recordID']]['categoryIDsUnabridged'][] = $item['categoryID'];
             }
         }
 
