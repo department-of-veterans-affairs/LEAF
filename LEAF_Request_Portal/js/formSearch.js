@@ -65,6 +65,7 @@ var LeafFormSearch = function(containerID) {
 	            $('#' + prefixID + 'advancedOptions').css('display', 'inline');
 	            $('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
 	            renderPreviousAdvancedSearch();
+							$('#' + prefixID + 'widgetMat_0').focus();
 	    	});
 	    });
 
@@ -176,7 +177,9 @@ var LeafFormSearch = function(containerID) {
         		$('#' + prefixID + 'widgetCod_' + i).val(advSearch[i].operator);
         		if(typeof advSearch[i].match == 'string') {
         			$('#' + prefixID + 'widgetMat_' + i).val(advSearch[i].match.replace(/\*/g, ''));
+
         		}
+						
         	}
         }
 	}
