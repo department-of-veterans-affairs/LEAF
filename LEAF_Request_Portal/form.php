@@ -2451,7 +2451,7 @@ class Form
                         $joinCategoryID = true;
                         // see below
                         break;
-                    case 'categoryNameUnabridged':
+                    case 'categoryNameUnabridged': // include categories marked as disabled
                         $joinAllCategoryID = true;
                         // see below
                         break;
