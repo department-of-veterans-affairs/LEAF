@@ -2620,7 +2620,7 @@ class Form
                 $recordIDs .= $item['recordID'] . ',';
             }
             $recordIDs = trim($recordIDs, ',');
-            $res2 = $this->db->prepared_query('SELECT recordID, userID, time, description, actionTextPasttense, comment FROM action_history
+            $res2 = $this->db->prepared_query('SELECT recordID, stepID, userID, time, description, actionTextPasttense, comment FROM action_history
     											LEFT JOIN dependencies USING (dependencyID)
     											LEFT JOIN actions USING (actionType)
     											WHERE recordID IN (' . $recordIDs . ')
