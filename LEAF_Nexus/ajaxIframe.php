@@ -20,7 +20,7 @@ include 'config.php';
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
-include_once './sources/XSSHelpers.php';
+include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 
 $config = new Orgchart\Config();
 

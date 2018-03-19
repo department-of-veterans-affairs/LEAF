@@ -7,7 +7,7 @@ include 'form.php';
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
-include_once './sources/XSSHelpers.php';
+include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 
 $db_config = new DB_Config();
 $config = new Config();
