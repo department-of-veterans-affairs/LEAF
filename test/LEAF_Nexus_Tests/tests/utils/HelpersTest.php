@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-include '../../LEAF_Request_Portal/sources/XSSHelpers.php';
+include '../../libs/php-commons/XSSHelpers.php';
 
 use PHPUnit\Framework\TestCase;
 
