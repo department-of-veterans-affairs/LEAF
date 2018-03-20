@@ -50,7 +50,7 @@ class XSSHelpers {
      *
      * @return   string  the sanitized string
      */
-    static private function sanitizer($in, $allowedTags, $encoding = 'UTF-8') {
+    static public function sanitizer($in, $allowedTags, $encoding = 'UTF-8') {
         // replace linebreaks with <br /> if there's no html <p>'s
         if(strpos($in, '<p>') === false
             && strpos($in, '<table') === false) {

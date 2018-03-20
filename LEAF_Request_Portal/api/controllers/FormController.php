@@ -1,6 +1,7 @@
 <?php
 
 require '../form.php';
+include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 
 class FormController extends RESTfulResponse
 {
@@ -153,7 +154,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['POST']->register('form/[digit]/title', function ($args) use ($form) {
-            return $form->setTitle($args[0], $_POST['title']);
+            return $form->setTitle($args[0], XSSHelpers::sanitizeHTML($_POST['title']));
         });
 
         $this->index['POST']->register('form/[digit]/service', function ($args) use ($form) {
@@ -161,7 +162,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['POST']->register('form/[digit]/initiator', function ($args) use ($form) {
-            return $form->setInitiator($args[0], $_POST['initiator']);
+            return $form->setInitiator($args[0], XSSHelpers::sanitizeHTML($_POST['initiator']));
         });
 
         $this->index['POST']->register('form/[digit]/types', function ($args) use ($form) {
@@ -169,7 +170,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['POST']->register('form/[digit]/types/append', function ($args) use ($form) {
-            return $form->addFormType($args[0], $_POST['category']);
+            return $form->addFormType($args[0], XSSHelpers::sanitizeHTML($_POST['category']));
         });
 
         // form/customData/ recordID list (csv) / indicatorID list (csv)

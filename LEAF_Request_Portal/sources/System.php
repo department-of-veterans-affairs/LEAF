@@ -195,9 +195,9 @@ class System
 			$alignment = 'left';
 		}
     	
-    	$vars = array(':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['actionText']),
-    			':actionText' => $_POST['actionText'],
-    			':actionTextPasttense' => $_POST['actionTextPasttense'],
+    	$vars = array(':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($_POST['actionText'])),
+    			':actionText' => strip_tags($_POST['actionText']),
+    			':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
     			':actionIcon' => $_POST['actionIcon'],
     			':actionAlignment' => $alignment,
     			':sort' => 0,
