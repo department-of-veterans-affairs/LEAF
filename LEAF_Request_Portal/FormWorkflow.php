@@ -377,7 +377,7 @@ class FormWorkflow
         if($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return array('status' => 0, 'errors' => ['Invalid Token']);
         }
-        $comment = XSSHelpers::sanitzeHTML($comment);
+        $comment = XSSHelpers::sanitizeHTML($comment);
         $time = time();
 
         // first check if the user has access
