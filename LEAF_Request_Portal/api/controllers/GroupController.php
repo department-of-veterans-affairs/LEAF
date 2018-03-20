@@ -4,6 +4,8 @@
 
 require '../admin/Group.php';
 
+include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+
 class GroupController extends RESTfulResponse
 {
     private $API_VERSION = 1;    // Integer
@@ -47,7 +49,10 @@ class GroupController extends RESTfulResponse
         $this->index['POST'] = new ControllerMap();
 
         $this->index['POST']->register('group', function($args) use ($group) {
-			return $group->addGroup($_POST['groupName'], $_POST['groupDesc']);
+			return $group->addGroup(
+                XSSHelpers::sanitizeHTML($_POST['groupName']), 
+                XSSHelpers::sanitizeHTML($_POST['groupDesc'])
+            );
         });
 
         $this->index['POST']->register('group/[digit]/members', function($args) use ($group) {
