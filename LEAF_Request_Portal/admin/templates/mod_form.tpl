@@ -477,7 +477,11 @@ function getForm(indicatorID, series) {
     	$('#advNameEditor').css('display', 'none');
         $('#name').trumbowyg({
             resetCss: true,
-            btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'link', '|', 'foreColor', '|', 'viewHTML']
+            btns: ['bold', 'italic', 'underline', '|',
+            	'unorderedList', 'orderedList', '|',
+            	'link', '|',
+            	'foreColor', '|',
+            	'justifyLeft', 'justifyCenter', 'justifyRight', 'viewHTML']
         });
         
         $('.trumbowyg-box').css({
@@ -595,6 +599,10 @@ function getForm(indicatorID, series) {
                 }
 
                 $('#name').html(res[indicatorID].name);
+                // auto select advanced editor if it was previously used
+                if(XSSHelpers.containsTags(res[indicatorID].name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
+                    $('#advNameEditor').click();
+                }
                 $('#format').val(format);
                 $('#indicatorType').val(format);
                 $('#description').val(res[indicatorID].description);
