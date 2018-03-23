@@ -822,6 +822,7 @@ class Form
 
     public static function getFileHash($recordID, $indicatorID, $series, $fileName)
     {
+        $fileName = strip_tags($fileName);
         return "{$recordID}_{$indicatorID}_{$series}_{$fileName}";
     }
 
@@ -2985,6 +2986,7 @@ class Form
     private function fileToArray($data)
     {
         $data = str_replace('<br />', "\n", $data);
+        $data = str_replace('<br>', "\n", $data);
         $tmpFileNames = explode("\n", $data);
         $out = array();
         foreach ($tmpFileNames as $tmpFileName)
