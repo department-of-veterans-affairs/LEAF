@@ -20,12 +20,14 @@ final class CryptoHelpersTest extends DatabaseTest
     // signature of signed object
     private static $signature = "d134b276d0f858c78b35656e695344346c00e06f71f4eecee2e3f7b0992f2e9cca8db61b117e2bce39d9eb20b467c8c33dbc22972b3cc7791725fcac7c27bb0c";
 
+    public static function setUpBeforeClass()
+    {
+        self::$portalClient = LEAFClient::createRequestPortalClient();
+    }
 
-    // runs before every test
     protected function setUp()
     {
         $this->resetDatabase();
-        self::$portalClient = LEAFClient::createRequestPortalClient();
     }
 
     /**

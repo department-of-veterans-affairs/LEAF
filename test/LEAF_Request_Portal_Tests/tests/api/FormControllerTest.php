@@ -11,10 +11,14 @@ final class FormTest extends DatabaseTest
 {
     private static $reqClient = null;
 
+    public static function setUpBeforeClass()
+    {
+        self::$reqClient = LEAFClient::createRequestPortalClient();
+    }
+
     protected function setUp()
     {
         $this->resetDatabase();
-        self::$reqClient = LEAFClient::createRequestPortalClient();
     }
 
     /**
@@ -83,4 +87,5 @@ final class FormTest extends DatabaseTest
         $this->assertEquals('1520268896', $ind6['timestamp']);
         $this->assertEquals('05/23/1934', $ind6['value']);
     }
+
 }

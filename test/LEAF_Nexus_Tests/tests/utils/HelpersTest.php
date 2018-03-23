@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-include '../../LEAF_Request_Portal/sources/XSSHelpers.php';
+include '../../libs/php-commons/XSSHelpers.php';
 
 use PHPUnit\Framework\TestCase;
 
@@ -24,8 +24,8 @@ final class HelpersTest extends TestCase
         $linebreaks4 = "text\n\rwith\n\rbreaks";
         $linebreaks5 = "text\n\nwith\n\nbreaks";
 
-        $expectedOutput = 'text<br />with<br />breaks';
-        $expectedOutput2 = 'text<br /><br />with<br /><br />breaks';
+        $expectedOutput = 'text<br>with<br>breaks';
+        $expectedOutput2 = 'text<br><br>with<br><br>breaks';
 
         $this->assertEquals($expectedOutput, XSSHelpers::sanitizeHTML($linebreaks));
         $this->assertEquals($expectedOutput, XSSHelpers::sanitizeHTML($linebreaks2));
@@ -155,7 +155,7 @@ final class HelpersTest extends TestCase
     public function testSanitizeHTML_UL() : void
     {
         $str1 = '<ul><li>an</li><li>unordered</li><li>list</li></ul>';
-        $out1 = '<li>an</li><li>unordered</li><li>list</li>';
+        $out1 = '&lt;ul&gt;<li>an</li><li>unordered</li><li>list</li>&lt;/ul&gt;';
 
         $this->assertEquals($out1, XSSHelpers::sanitizeHTML($str1));
     }

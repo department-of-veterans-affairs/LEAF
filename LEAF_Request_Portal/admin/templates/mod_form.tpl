@@ -297,12 +297,10 @@ function newQuestion(parentIndicatorID) {
                     <option value="orgchart_position">Orgchart Position</option>\
                     <option value="orgchart_employee">Orgchart Employee</option>\
                     <option value="raw_data">Raw Data (for programmers)</option>\
-                    <option value="text">PIV Card Digital Signature Field (placeholder)</option>\
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
                 <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
-                <div id="container_pivSignature" style="display: none">Text for Signature: <input type="text" id="indicatorPiVSignature"></input> <a href="#">click here for signature</a> </div> \
             <fieldset><legend>Attributes</legend>\
                 <table>\
                     <tr>\
@@ -322,7 +320,6 @@ function newQuestion(parentIndicatorID) {
             case 'checkbox':
             	$('#container_indicatorMultiAnswer').css('display', 'none');
             	$('#container_indicatorSingleAnswer').css('display', 'block');
-                $('#container_pivSignature').css('display', 'none');
             	break;
             default:
             	$('#container_indicatorMultiAnswer').css('display', 'none');
@@ -420,12 +417,10 @@ function getForm(indicatorID, series) {
                     <option value="orgchart_position">Orgchart Position</option>\
                     <option value="orgchart_employee">Orgchart Employee</option>\
                     <option value="raw_data">Raw Data (for programmers)</option>\
-                    <option value="text">PIV Card Digital Signature Field (placeholder)</option>\
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
                 <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
-                <div id="container_pivSignature" style="display: none">Text for Signature: <input type="text" id="indicatorPiVSignature"></input> <a href="#">click here for signature</a> </div> \
             <fieldset><legend>Attributes</legend>\
                 <table>\
                     <tr>\
