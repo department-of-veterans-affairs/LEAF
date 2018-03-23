@@ -99,6 +99,12 @@ class XSSHelpers {
                     $pattern[] = '/&lt;\/span&gt;/Ui';
                     $replace[] = '</span>';
                     break;
+                case 'img':
+                    $pattern[] = '/&lt;img src=&quot;(?!javascript)(\S+)&quot;(\s.+)?&gt;/Ui';
+                    $replace[] = '<img src="\1">';
+                    $pattern[] = '/&lt;\/img&gt;/Ui';
+                    $replace[] = '</img>';
+                    break;
                 default:
                     $pattern[] = '/&lt;(\/)?'. $tag .'(\s.+)?&gt;/U';
                     $replace[] = '<\1'. $tag .'>';
@@ -158,7 +164,7 @@ class XSSHelpers {
     /**
     * Sanitize a HTML string, allows some tags for use in rich text editors.
     * 
-    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr>
+    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr><thead><tbody>
     *
     * @param    string  $in the string to be sanitized
     *
@@ -166,7 +172,7 @@ class XSSHelpers {
     */
     static public function sanitizeHTML($in)
     {
-        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr'];
+        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody'];
 
         return XSSHelpers::sanitizer($in, $allowedTags);
     }
@@ -175,7 +181,7 @@ class XSSHelpers {
     * Sanitize a HTML string, allows some tags for use in rich text editors.
     * Used in form field headings, which include some links and formatted text
     * 
-    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr><a><span><strong>
+    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr><thead><tbody><a><span><strong><em><h1><h2><img>
     *
     * @param    string  $in the string to be sanitized
     *
@@ -183,7 +189,7 @@ class XSSHelpers {
     */
     static public function sanitizeHTMLRich($in)
     {
-        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr', 'a', 'span', 'strong', 'em'];
+        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody', 'a', 'span', 'strong', 'em', 'h1', 'h2', 'img'];
 
         return XSSHelpers::sanitizer($in, $allowedTags);
     }
