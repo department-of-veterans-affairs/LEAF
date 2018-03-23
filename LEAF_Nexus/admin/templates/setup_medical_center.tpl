@@ -80,7 +80,7 @@ function setupDirector() {
     	type: 'GET',
     	url: '../api/position/1/service',
     	success: function(res) {
-    		if(res != null) {
+    		if(res[0] != null) {
     			$('#service').html('<span style="font-size: 140%">' + res[0].groupTitle + '</span>');
     		}
     		else {
