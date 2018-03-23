@@ -62,6 +62,12 @@ class XSSHelpers {
         
         // hard character limit of 65535
         $in = strlen($in) > 65535 ? substr($in, 0, 65535) : $in;
+        
+        // strip excess tags if we detect copy/paste from MS Office
+        if(strpos($in, '<meta name="Generator"') !== false
+            || strpos($in, '<w:WordDocument>') !== false) {
+            $in = strip_tags($in, '<br>');
+        }
 
         $pattern = [];
         $replace = [];
