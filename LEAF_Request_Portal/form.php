@@ -2956,7 +2956,10 @@ class Form
                 if ($field['format'] == 'orgchart_employee')
                 {
                     $empRes = $this->employee->lookupEmpUID($data[$idx]['data']);
-                    $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                    $child[$idx]['displayedValue'] = '';
+                    if(isset($empRes[0])) {
+                        $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                    }
                 }
                 if ($field['format'] == 'orgchart_position')
                 {
