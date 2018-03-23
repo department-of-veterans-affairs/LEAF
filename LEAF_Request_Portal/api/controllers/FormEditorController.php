@@ -66,21 +66,21 @@ class FormEditorController extends RESTfulResponse
 
         $this->index['POST']->register('formEditor/newIndicator', function($args) use ($formEditor) {
         	$package = array();
-        	$package['name'] = XSSHelpers::sanitizeHTML($_POST['name']);
+        	$package['name'] = XSSHelpers::sanitizeHTMLRich($_POST['name']);
         	$package['format'] = strip_tags($_POST['format']);
         	$package['description'] = XSSHelpers::sanitizeHTML($_POST['description']);
         	$package['default'] = XSSHelpers::sanitizeHTML($_POST['default']);
         	$package['parentID'] = $_POST['parentID'];
         	$package['categoryID'] = $_POST['categoryID'];
-        	$package['html'] = XSSHelpers::sanitizeHTML($_POST['html']);
-        	$package['htmlPrint'] = XSSHelpers::sanitizeHTML($_POST['htmlPrint']);
+        	$package['html'] = $_POST['html'];
+        	$package['htmlPrint'] = $_POST['htmlPrint'];
         	$package['required'] = $_POST['required'];
         	$package['sort'] = $_POST['sort'];
         	return $formEditor->addIndicator($package);
 		});
 
         $this->index['POST']->register('formEditor/[digit]/name', function($args) use ($formEditor) {
-	        return $formEditor->setName($args[0], XSSHelpers::sanitizeHTML($_POST['name']));
+	        return $formEditor->setName($args[0], XSSHelpers::sanitizeHTMLRich($_POST['name']));
         });
 
         $this->index['POST']->register('formEditor/[digit]/format', function($args) use ($formEditor) {
@@ -115,12 +115,14 @@ class FormEditorController extends RESTfulResponse
        		return $formEditor->setSort($args[0], $_POST['sort']);
        	});
 
+       	// Advanced Option allows HTML/JS
    		$this->index['POST']->register('formEditor/[digit]/html', function($args) use ($formEditor) {
-   			return $formEditor->setHtml($args[0], XSSHelpers::sanitizeHTML($_POST['html']));
+   			return $formEditor->setHtml($args[0], $_POST['html']);
 		});
 
+   		// Advanced Option allows HTML/JS
        	$this->index['POST']->register('formEditor/[digit]/htmlPrint', function($args) use ($formEditor) {
-       		return $formEditor->setHtmlPrint($args[0], XSSHelpers::sanitizeHTML($_POST['htmlPrint']));
+       		return $formEditor->setHtmlPrint($args[0], $_POST['htmlPrint']);
        	});
        			
    		$this->index['POST']->register('formEditor/new', function($args) use ($formEditor) {
