@@ -88,6 +88,8 @@ class XSSHelpers {
                 case 'p':
                     $pattern[] = '/&lt;p style=&quot;(\S.+)&quot;(\s.+)?&gt;/Ui';
                     $replace[] = '<p style="\1">';
+                    $pattern[] = '/&lt;p&gt;/Ui';
+                    $replace[] = '<p>';
                     $pattern[] = '/&lt;\/p&gt;/Ui';
                     $replace[] = '</p>';
                     break;
