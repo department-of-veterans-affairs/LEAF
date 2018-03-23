@@ -2285,42 +2285,96 @@ class Form
 
                     break;
                 case 'stepID':
-                    if (is_numeric($vars[':stepID' . $count]))
-                    {
-                        $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
-									WHERE stepID=:stepID{$count}) rj_stepID{$count}
-									USING (recordID) ";
-                    }
-                    else
-                    {
+                    if ($q['operator'] == '=') {
                         switch ($vars[':stepID' . $count]) {
                             case 'submitted':
                                 $conditions .= 'submitted > 0 AND ';
 
                                 break;
-                            case 'notSubmitted':
+                            case 'notSubmitted': // backwards compat
                                 $conditions .= 'submitted = 0 AND ';
-
+                                
                                 break;
                             case 'deleted':
                                 $conditions .= 'deleted > 0 AND ';
-
+                                
                                 break;
-                            case 'notDeleted':
+                            case 'notDeleted': // backwards compat
                                 $conditions .= 'deleted = 0 AND ';
-
+                                
                                 break;
                             case 'resolved':
                                 $conditions .= 'records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0 AND ';
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
-
+                                
                                 break;
-                            case 'notResolved':
+                            case 'notResolved': // backwards compat
                                 $conditions .= 'records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0 AND ';
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+                                
+                                break;
+                            default:
+                                if (is_numeric($vars[':stepID' . $count]))
+                                {
+                                    $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
+                									WHERE stepID=:stepID{$count}) rj_stepID{$count}
+                									USING (recordID) ";
+                                }
+                                else {
+                                    return 'Unsupported match in stepID';
+                                }
 
                                 break;
                         }
+                    }
+                    else if ($q['operator'] == '!='){
+                        switch ($vars[':stepID' . $count]) {
+                            case 'submitted':
+                                $conditions .= 'submitted = 0 AND ';
+                                
+                                break;
+                            case 'notSubmitted': // backwards compat
+                                $conditions .= 'submitted > 0 AND ';
+                                
+                                break;
+                            case 'deleted':
+                                $conditions .= 'deleted = 0 AND ';
+
+                                break;
+                            case 'notDeleted': // backwards compat
+                                $conditions .= 'deleted > 0 AND ';
+                                
+                                break;
+                            case 'resolved':
+                                $conditions .= 'records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0 AND ';
+                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+                                
+                                break;
+                            case 'notResolved': // backwards compat
+                                $conditions .= 'records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0 AND ';
+                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+                                
+                                break;
+                            default:
+                                if (is_numeric($vars[':stepID' . $count]))
+                                {
+                                    $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
+                									WHERE stepID != :stepID{$count}) rj_stepID{$count}
+                									USING (recordID) ";
+                                }
+                                else {
+                                    return 'Unsupported match in stepID';
+                                }
+                                
+                                break;
+                        }
+                    }
+                    else {
+                        return 'Invalid operator for stepID';
+                    }
+
+                    if (!is_numeric($vars[':stepID' . $count]))
+                    {
                         unset($vars[':stepID' . $count]);
                     }
 
