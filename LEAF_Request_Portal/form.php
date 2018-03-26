@@ -1903,7 +1903,7 @@ class Form
                                 {
                                     $groupTitle = $this->group->getTitle($item['data']);
 
-                                    $item['data'] = isset($groupTitle[0]['groupTitle']) ? $groupTitle[0]['groupTitle'] : '';
+                                    $item['data'] = $groupTitle;
                                 }
                             }
                         }
