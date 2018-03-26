@@ -1,10 +1,10 @@
 @charset "UTF-8";
 /**
- * Pure css masonary grid
+ * Pure css masonry grid
  *
- * Assign width, height x and y positin for each item in the grid, for 4 screen sizes, using only css classes
+ * Assign width, height, x and y position for each item in the grid, for 4 screen sizes, using only css classes
  *
- * Example calsses for "lg" size:
+ * Example classes for "lg" size:
  *
  * ┌────────────────────────┐┌─────────────┐
  * │       lt-lg-x-0        ││  lt-lg-x-2  │
@@ -24,7 +24,8 @@
   width: 100%; }
 
 .lt {
-  position: absolute; }
+  position: absolute;
+  touch-action: none; }
 
 .lt-body {
   position: absolute;

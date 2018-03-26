@@ -71,11 +71,10 @@ var Grid = (function () {
     }
 
     /**
-     * Move a rect inside the grid, or update its size
-     * If there is overlap move rects downards
+     * Call update() and if there is overlap move rects downards
      *
-     * @param  {Rect}   rect
-     * @param  {Object} params An object with optional keys x, y, w, h to modify the rect
+     * @param  {Rect}   rect   passed to update()
+     * @param  {Object} params passed to update()
      * @return {Grid}          self
      */
     Grid.prototype.updateNoOverlap = function (rect, params) {

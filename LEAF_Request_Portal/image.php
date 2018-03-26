@@ -7,7 +7,7 @@ include 'form.php';
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
-include_once './sources/XSSHelpers.php';
+include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -44,11 +44,19 @@ $fileExtension = strtolower($fileExtension);
 $imageExtensionWhitelist = array('png', 'jpg', 'jpeg', 'gif');
 
 if(file_exists($filename) && in_array($fileExtension, $imageExtensionWhitelist)) {
-    $time = time();
-    header('Last-Modified: ' . date(DATE_RFC822, $time));
-    header('Expires: ' . date(DATE_RFC822, time() - 5));    // don't cache
+    header_remove('Pragma');
+    header_remove('Cache-Control');
+    header_remove('Expires');
+    $etag = sha1_file($filename);
     header('Content-Type: image/' . $fileExtension);
 
+    if(isset($_SERVER['HTTP_IF_NONE_MATCH'])
+           && $_SERVER['HTTP_IF_NONE_MATCH'] == $etag) {
+        header('Etag: '. $etag, true, 304);
+    }
+    else {
+        header('Etag: '. $etag);
+    }
     readfile($filename);
     exit();
 }
