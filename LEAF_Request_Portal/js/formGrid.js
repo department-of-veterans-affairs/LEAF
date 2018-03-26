@@ -25,8 +25,8 @@ var LeafFormGrid = function(containerID, options) {
 
 	$('#' + containerID).html('<div id="'+prefixID+'grid"></div><div id="'+prefixID+'form" style="display: none"></div>');
 
-	$('#' + prefixID+'grid').html('<div style="position: relative"><div id="'+prefixID+'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="'+prefixID+'table_stickyHeader" style="display: none"></div><table id="'+prefixID+'table" class="leaf_grid"><thead id="'+prefixID+'thead"></thead><tbody id="'+prefixID+'tbody"></tbody><tfoot id="'+prefixID+'tfoot"></tfoot></table>');
-	
+	$('#' + prefixID+'grid').html('<div style="position: relative"><div id="'+prefixID+'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="'+prefixID+'table_stickyHeader" style="display: none"></div><table id="'+prefixID+'table" class="leaf_grid"><thead id="'+prefixID+'thead" aria-lable="Search Results"></thead><tbody id="'+prefixID+'tbody"></tbody><tfoot id="'+prefixID+'tfoot"></tfoot></table>');
+
 	$('#' + prefixID+'thead').css({'background-color': headerColor});
 
 	if(options == undefined) {
@@ -337,7 +337,7 @@ var LeafFormGrid = function(containerID, options) {
     	if(!isRenderingVirtualHeader) {
     		return false;
     	}
-    	
+
     	var virtHeaderSizes = [];
 		$('#' + prefixID + 'thead>tr>td').each(function() {
 			virtHeaderSizes.push($(this).css('width'));
