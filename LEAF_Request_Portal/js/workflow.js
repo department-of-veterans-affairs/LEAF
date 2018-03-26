@@ -106,6 +106,13 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		                'padding': '4px',
 		                'resize': 'vertical'});
 
+		if (step.requiresDigitalSignature == true) {
+			$(document.createElement('div'))
+				.css({'margin': 'auto', 'width': '95%', 'padding': '8px'})
+				.html("TEXT TBD. This step requires a Digital Signature. You may enter a comment if needed. Ensure your PIV card is inserted into the card reader. Then you will be prompted to enter your PIN.")
+				.appendTo('#form_dep' + step.dependencyID);
+		}
+
 		// draw buttons
 		for(var i in step.dependencyActions) {
 			var icon = '';
@@ -122,10 +129,18 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
 		    $('#button_step'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType).on('click', { step: step, idx: i },
 		    	function(e) {
+
 		        var data = new Object();
 		        data['comment'] = $('#comment_dep'+ e.data.step.dependencyID).val();
 		        data['actionType'] = e.data.step.dependencyActions[e.data.idx].actionType;
-		        data['dependencyID'] = e.data.step.dependencyID;
+				data['dependencyID'] = e.data.step.dependencyID;
+
+				// TODO: eventually this will be handled by Workflow extension
+				if (step.requiresDigitalSignature == true) {
+					// TODO: handle getting signature here
+					data['signature'] = "TEMPORARY SIGNATURE";
+				}
+
 		        data['CSRFToken'] = CSRFToken;
 
 		        if (e.data.step.dependencyActions[e.data.idx].fillDependency > 0)

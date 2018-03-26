@@ -119,8 +119,10 @@ switch($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
-        								   '../' . Config::$orgchartPath . '/js/groupSelector.js'
+        $main->assign('javascripts', array(
+			'../../libs/js/jsPlumb/dom.jsPlumb-min.js',
+			'../' . Config::$orgchartPath . '/js/groupSelector.js',
+			'../../libs/jsapi/portal/LEAFPortalAPI.js'
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
         			 					   '../' . Config::$orgchartPath . '/css/groupSelector.css'
