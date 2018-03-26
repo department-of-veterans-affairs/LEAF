@@ -65,7 +65,7 @@ var LeafFormSearch = function(containerID) {
 	            $('#' + prefixID + 'advancedOptions').css('display', 'inline');
 	            $('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
 	            renderPreviousAdvancedSearch();
-							$('#' + prefixID + 'widgetMat_0').focus();
+	            $('#' + prefixID + 'widgetMat_0').focus();
 	    	});
 	    });
 

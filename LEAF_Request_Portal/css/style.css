@@ -449,6 +449,10 @@ table.leaf_grid {
     margin: 2px;
 }
 
+table.leaf_grid th {
+    font-weight: normal;
+}
+
 table.leaf_grid>tbody {
     background-color: white;
 }
