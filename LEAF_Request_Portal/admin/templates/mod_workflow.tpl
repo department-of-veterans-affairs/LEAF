@@ -931,10 +931,14 @@ function loadWorkflow(workflowID) {
         type: 'GET',
         url: '../api/?a=workflow/' + workflowID,
         success: function(res) {
+        	var minY = 80;
         	var maxY = 80;
             for(var i in res) {
             	steps[res[i].stepID] = res[i];
             	posY = parseFloat(res[i].posY)
+            	if(posY < minY) {
+            		posY = minY;
+            	}
             	$('#workflow').append('<div class="workflowStep" id="step_'+ res[i].stepID +'">'+ res[i].stepTitle +'</div><div class="workflowStepInfo" id="stepInfo_'+ res[i].stepID +'"></div>');
             	$('#step_' + res[i].stepID).css({
             		'left': parseFloat(res[i].posX) + 'px',
