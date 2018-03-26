@@ -1057,6 +1057,8 @@ class Form
             return $recordID;
         }
 
+        $this->db->beginTransaction();
+
         // write new workflow states
         $vars = array(':recordID' => $recordID);
         $res = $this->db->prepared_query('SELECT * FROM category_count
@@ -1070,11 +1072,17 @@ class Form
         {
             if ($workflow['initialStepID'] > 0)
             {
-                $vars = array(':recordID' => $recordID,
-                              ':stepID' => $workflow['initialStepID'], );
-                $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
+                // make sure the initial step is valid
+                $vars = array(':stepID' => $workflow['initialStepID']);
+                $res = $this->db->prepared_query('SELECT * FROM workflow_steps
+                                                     WHERE stepID=:stepID', $vars);
+                if($res[0]['workflowID'] == $workflow['workflowID']) {
+                    $vars = array(':recordID' => $recordID,
+                                  ':stepID' => $workflow['initialStepID']);
+                    $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
                                              VALUES (:recordID, :stepID)', $vars);
-                $hasInitialStep = true;
+                    $hasInitialStep = true;
+                }
             }
             // check if the request only needs to be marked as submitted (e.g.:for surveys)
             if ($workflow['initialStepID'] == 0)
@@ -1100,8 +1108,6 @@ class Form
         {
             return array('status' => 1, 'errors' => array('Workflow is configured incorrectly'));
         }
-
-        $this->db->beginTransaction();
 
         $vars = array(':recordID' => $recordID,
                       ':time' => time(), );
@@ -1903,7 +1909,7 @@ class Form
                                 {
                                     $groupTitle = $this->group->getTitle($item['data']);
 
-                                    $item['data'] = isset($groupTitle[0]['groupTitle']) ? $groupTitle[0]['groupTitle'] : '';
+                                    $item['data'] = $groupTitle;
                                 }
                             }
                         }
@@ -2956,7 +2962,10 @@ class Form
                 if ($field['format'] == 'orgchart_employee')
                 {
                     $empRes = $this->employee->lookupEmpUID($data[$idx]['data']);
-                    $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                    $child[$idx]['displayedValue'] = '';
+                    if(isset($empRes[0])) {
+                        $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                    }
                 }
                 if ($field['format'] == 'orgchart_position')
                 {
