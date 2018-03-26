@@ -339,7 +339,7 @@ var LeafFormGrid = function(containerID, options) {
     	}
 
     	var virtHeaderSizes = [];
-		$('#' + prefixID + 'thead>tr>td').each(function() {
+		$('#' + prefixID + 'thead>tr>th').each(function() {
 			virtHeaderSizes.push($(this).css('width'));
 		});
 
@@ -349,7 +349,8 @@ var LeafFormGrid = function(containerID, options) {
 		});
 		$('#' + prefixID + 'table_stickyHeader > table > thead > tr > th').each(function(idx) {
 			$(this).css({'width': virtHeaderSizes[idx],
-                         'padding': '2px'});
+                         'padding': '2px',
+                         'font-weight': 'normal'});
 		});
 
 		$('#' + prefixID+'table_stickyHeader > table').css({'border': '1px solid black',
