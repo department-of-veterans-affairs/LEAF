@@ -635,18 +635,30 @@ var LeafFormSearch = function(containerID) {
 											$('.chosen').chosen({disable_search_threshold: 6});
 										    break;
 										case 'orgchart_employee':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
+								            		<option value="=">IS</option>\
+													<option value="!=">IS NOT</option>\
+								            	</select>');
 											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<div id="'+prefixID+'widgetEmp_'+widgetID+'" style="width: 280px"></div><input type="hidden" id="'+prefixID+'widgetMat_'+widgetID+'" />');
+											$('.chosen').chosen({disable_search_threshold: 6});
 											createEmployeeSelectorWidget(widgetID, 'empUID');
 											break;
 										case 'orgchart_position':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
+								            		<option value="=">IS</option>\
+													<option value="!=">IS NOT</option>\
+								            	</select>');
 											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<div id="'+prefixID+'widgetPos_'+widgetID+'" style="width: 280px"></div><input type="hidden" id="'+prefixID+'widgetMat_'+widgetID+'" />');
+											$('.chosen').chosen({disable_search_threshold: 6});
 											createPositionSelectorWidget(widgetID, 'empUID');
 											break;
 										case 'orgchart_group':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
+								            		<option value="=">IS</option>\
+													<option value="!=">IS NOT</option>\
+								            	</select>');
 											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<div id="'+prefixID+'widgetGrp_'+widgetID+'" style="width: 280px"></div><input type="hidden" id="'+prefixID+'widgetMat_'+widgetID+'" />');
+											$('.chosen').chosen({disable_search_threshold: 6});
 											createGroupSelectorWidget(widgetID);
 											break;
 										case 'dropdown':
