@@ -161,6 +161,10 @@ span#headerMenu {
     display: block;
 }
 
+#headerMenu_container > a::after {
+    content:'\25BC';
+}
+
 span#headerTabImg {
     position: relative;
     top: 49px;
