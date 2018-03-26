@@ -26,7 +26,7 @@ var LeafFormGrid = function(containerID, options) {
 	$('#' + containerID).html('<div id="'+prefixID+'grid"></div><div id="'+prefixID+'form" style="display: none"></div>');
 
 	$('#' + prefixID+'grid').html('<div style="position: relative"><div id="'+prefixID+'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="'+prefixID+'table_stickyHeader" style="display: none"></div><table id="'+prefixID+'table" class="leaf_grid"><thead id="'+prefixID+'thead"></thead><tbody id="'+prefixID+'tbody"></tbody><tfoot id="'+prefixID+'tfoot"></tfoot></table>');
-	
+
 	$('#' + prefixID+'thead').css({'background-color': headerColor});
 
 	if(options == undefined) {
@@ -81,8 +81,8 @@ var LeafFormGrid = function(containerID, options) {
     	var temp = '<tr id="'+prefixID + 'thead_tr'+'">';
     	var virtualHeader = '<tr id="'+prefixID + 'tVirt_tr'+'">';
     	if(showIndex) {
-    		temp += '<td id="'+ prefixID +'header_UID" style="text-align: center">UID</td>';
-    		virtualHeader += '<td style="text-align: center">UID</td>';
+    		temp += '<th id="'+ prefixID +'header_UID" style="text-align: center">UID</th>';
+    		virtualHeader += '<th style="text-align: center">UID</th>';
     	}
     	$('#' + prefixID + 'thead').html(temp);
 
@@ -113,8 +113,8 @@ var LeafFormGrid = function(containerID, options) {
     			continue;
     		}
     		var align = headers[i].align != undefined ? headers[i].align : 'center';
-    		$('#' + prefixID + 'thead_tr').append('<td id="' + prefixID + 'header_'+headers[i].indicatorID+'" style="text-align:'+align+'">'+headers[i].name+'<span id="'+ prefixID +'header_'+ headers[i].indicatorID +'_sort" class="'+prefixID+'sort"></span></td>');
-    		virtualHeader += '<td id="Vheader_'+headers[i].indicatorID+'" style="text-align:'+align+'">'+headers[i].name+'</td>';
+    		$('#' + prefixID + 'thead_tr').append('<th id="' + prefixID + 'header_'+headers[i].indicatorID+'" style="text-align:'+align+'">'+headers[i].name+'<span id="'+ prefixID +'header_'+ headers[i].indicatorID +'_sort" class="'+prefixID+'sort"></span></th>');
+    		virtualHeader += '<th id="Vheader_'+headers[i].indicatorID+'" style="text-align:'+align+'">'+headers[i].name+'</th>';
     		if(headers[i].sortable == undefined
     				|| headers[i].sortable == true) {
     			$('#'+ prefixID +'header_' + headers[i].indicatorID).css('cursor', 'pointer');
@@ -141,7 +141,7 @@ var LeafFormGrid = function(containerID, options) {
     	$('#' + prefixID + 'thead').append('</tr>');
     	virtualHeader += '</tr>';
 
-    	$('#' + prefixID+'table>thead>tr>td').css({'border': '1px solid black',
+    	$('#' + prefixID+'table>thead>tr>th').css({'border': '1px solid black',
 			   'padding': '4px 2px 4px 2px',
 			   'font-size': '12px'});
 
@@ -337,9 +337,9 @@ var LeafFormGrid = function(containerID, options) {
     	if(!isRenderingVirtualHeader) {
     		return false;
     	}
-    	
+
     	var virtHeaderSizes = [];
-		$('#' + prefixID + 'thead>tr>td').each(function() {
+		$('#' + prefixID + 'thead>tr>th').each(function() {
 			virtHeaderSizes.push($(this).css('width'));
 		});
 
@@ -347,9 +347,10 @@ var LeafFormGrid = function(containerID, options) {
 			'width': $('#' + prefixID + 'thead').css('width'),
 			'height': '30px'
 		});
-		$('#' + prefixID + 'table_stickyHeader > table > thead > tr > td').each(function(idx) {
+		$('#' + prefixID + 'table_stickyHeader > table > thead > tr > th').each(function(idx) {
 			$(this).css({'width': virtHeaderSizes[idx],
-                         'padding': '2px'});
+                         'padding': '2px',
+                         'font-weight': 'normal'});
 		});
 
 		$('#' + prefixID+'table_stickyHeader > table').css({'border': '1px solid black',
@@ -359,7 +360,7 @@ var LeafFormGrid = function(containerID, options) {
 			'background-color': 'black',
 			'color': 'white'
 		});
-		$('#' + prefixID+'table_stickyHeader > table > thead > tr > td').css('border', '1px solid #e0e0e0');
+		$('#' + prefixID+'table_stickyHeader > table > thead > tr > th').css('border', '1px solid #e0e0e0');
     }
 
     /**
@@ -591,7 +592,7 @@ var LeafFormGrid = function(containerID, options) {
             }
     		var output = [];
     		var headers = [];
-    		$('#' + prefixID + 'thead>tr>td').each(function(idx, val) {
+    		$('#' + prefixID + 'thead>tr>th').each(function(idx, val) {
     			headers.push($(val).text().trim());
     		});
 

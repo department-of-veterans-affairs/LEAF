@@ -61,7 +61,7 @@ $(function() {
              var waitText = blob[data.recordID].blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
              var status = '';
              if(blob[data.recordID].stepID == null && blob[data.recordID].submitted == '0') {
-                 status = '<span style="color: red">Not Submitted</span>';
+                 status = '<span style="color: #e00000">Not Submitted</span>';
              }
              else if(blob[data.recordID].stepID == null) {
                  var lastStatus = blob[data.recordID].lastStatus;
@@ -73,11 +73,11 @@ $(function() {
              else {
                  status = waitText + blob[data.recordID].stepTitle;
              }
-             
+
              if(blob[data.recordID].deleted > 0) {
                  status += ', Cancelled';
              }
-             
+
              $('#'+data.cellContainerID).html(status);
              if(blob[data.recordID].userID == '<!--{$userID}-->') {
                  $('#'+data.cellContainerID).css('background-color', '#feffd1');

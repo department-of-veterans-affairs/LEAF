@@ -7,11 +7,12 @@ Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID|strip_tags|e
 
 <div style="float: left; padding: 2px">
 <table class="agenda" id="maintable">
+<thead>
 <tr>
-    <td>Timestamp</td>
-    <td>Action Taken</td>
+    <th>Timestamp</th>
+    <th>Action Taken</th>
 </tr>
-
+</thead>
 <tr>
     <td><!--{$date|date_format:"%B %e, %Y. %l:%M %p"}--></td>
     <td>New Request Opened by <!--{$name|sanitize}--></td>
