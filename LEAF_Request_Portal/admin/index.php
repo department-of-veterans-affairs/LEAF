@@ -120,7 +120,8 @@ switch($action) {
         $main->assign('useUI', true);
 
         $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
-        								   '../' . Config::$orgchartPath . '/js/groupSelector.js'
+										   '../' . Config::$orgchartPath . '/js/groupSelector.js',
+										   '../../libs/js/LEAF/XSSHelpers.js'
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
         			 					   '../' . Config::$orgchartPath . '/css/groupSelector.css'
@@ -146,7 +147,8 @@ switch($action) {
 							        		'../../libs/js/codemirror/mode/javascript/javascript.js',
 							        		'../../libs/js/codemirror/mode/css/css.js',
 							        		'../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-        		                            '../../libs/js/codemirror/addon/display/fullscreen.js'
+											'../../libs/js/codemirror/addon/display/fullscreen.js',
+											'../../libs/js/LEAF/XSSHelpers.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
 							        		'../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
@@ -295,6 +297,7 @@ switch($action) {
     	$main->assign('useUI', true);
 //   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
    		$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $main->assign('javascripts', array( '../../libs/js/LEAF/XSSHelpers.js'));
 
    		$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
    		$t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);

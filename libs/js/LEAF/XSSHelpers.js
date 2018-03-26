@@ -53,8 +53,10 @@ var XSSHelpers = function () {
      * @return bool If any/all (depends on containsAll) of the 
      *              specified tags were found in the text.
      */
-    containsTags = function(text, tags, containsAll = false) {
-
+    containsTags = function(text, tags, containsAll) {
+    	if(containsAll == undefined) {
+    		containsAll = false;
+    	}
         for (var i = 0; i < tags.length; i++) {
             var hasTag = containsTag(text, tags[i]);
 
@@ -66,6 +68,17 @@ var XSSHelpers = function () {
         }
 
         return false;
+    },
+
+    /**
+     * Strips ALL HTML tags from the given text.
+     * 
+     * @param string    text    The text to strip tags from
+     * 
+     * @return string   The stripped text
+     */
+    stripAllTags = function (text) {
+        return text.replace(buildTagRegex(""), "");
     },
 
     /**
@@ -100,6 +113,7 @@ var XSSHelpers = function () {
         buildTagRegex: buildTagRegex,
         containsTag: containsTag,
         containsTags: containsTags,
+        stripAllTags: stripAllTags,
         stripTag: stripTag,
         stripTags: stripTags
     };
