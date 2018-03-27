@@ -1,6 +1,6 @@
 <a href="../" class="buttonNorm"><img src="../../libs/dynicons/?img=go-home.svg&amp;w=16" alt="Main Page" title="Main Page" />Main Page</a>
 <div id="headerMenu_container" style="display: inline-block">
-    <a id="button_showLinks" href="#" class="buttonNorm">Links &#9660;</a>
+    <a id="button_showLinks" href="#" class="buttonNorm" alt="Links Dropdown" title="Links">Links</a>
     <div id="headerMenu_links">
     {include file="menu_links.tpl"}
     </div>
