@@ -40,7 +40,7 @@ var LeafFormSearch = function(containerID) {
 		        <div id="'+prefixID+'advancedSearchApply" class="buttonNorm" style="text-align: center">Apply Filters</div>\
 		    </fieldset>\
 		    </div>\
-		    <div id="'+prefixID+'_result" style="margin-top: 8px" aria-lable="Search Results">\
+		    <div id="'+prefixID+'_result" style="margin-top: 8px" aria-label="Search Results">\
 		    </div>');
 
 	    var searchOrigWidth = 0;
