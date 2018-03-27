@@ -142,7 +142,7 @@ function getForm(indicatorID, series) {
 }
 
 function getIndicatorLog(indicatorID, series) {
-	dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><td>Date/Author</td><td>Data</td></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
+	dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><th>Date/Author</th><th>Data</th></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
     dialog_message.indicateBusy();
     dialog_message.show();
 

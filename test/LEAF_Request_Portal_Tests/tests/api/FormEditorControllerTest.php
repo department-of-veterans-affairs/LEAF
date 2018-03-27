@@ -188,8 +188,8 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertEquals("&lt;strong&gt;NEWTESTINDICATORDESCRIPTION&lt;/stro", $indicator["7"]['description']);
         $this->assertEquals($newIndicator['default'], $indicator["7"]['default']);
         $this->assertEquals(null, $indicator["7"]['parentID']);
-        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>the html</b>", $indicator["7"]['html']);
-        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>the html</b>", $indicator["7"]['htmlPrint']);
+        $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator["7"]['html']); // Advanced Option allows HTML/JS
+        $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator["7"]['htmlPrint']); // Advanced Option allows HTML/JS
         $this->assertEquals(0, $indicator["7"]['required']);
         $this->assertEquals(1, $indicator["7"]['sort']);
     }

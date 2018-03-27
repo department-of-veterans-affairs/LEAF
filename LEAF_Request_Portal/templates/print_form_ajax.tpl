@@ -23,7 +23,7 @@
                 <td>Initiated by</td>
                 <td><b><!--{$name|sanitize}--></b></td>
             </tr>
-            <tr>
+            <tr<!--{if $date == 0}--> style="display: none"<!--{/if}-->>
                 <td>Submitted</td>
                 <td><b><!--{if $date > 0}--><!--{$date|date_format:"%A, %B %e, %Y"}--><!--{else}-->Not submitted<!--{/if}--></b></td>
             </tr>

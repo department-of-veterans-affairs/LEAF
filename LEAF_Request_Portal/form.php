@@ -822,6 +822,7 @@ class Form
 
     public static function getFileHash($recordID, $indicatorID, $series, $fileName)
     {
+        $fileName = strip_tags($fileName);
         return "{$recordID}_{$indicatorID}_{$series}_{$fileName}";
     }
 
@@ -1056,6 +1057,8 @@ class Form
             return $recordID;
         }
 
+        $this->db->beginTransaction();
+
         // write new workflow states
         $vars = array(':recordID' => $recordID);
         $res = $this->db->prepared_query('SELECT * FROM category_count
@@ -1069,11 +1072,17 @@ class Form
         {
             if ($workflow['initialStepID'] > 0)
             {
-                $vars = array(':recordID' => $recordID,
-                              ':stepID' => $workflow['initialStepID'], );
-                $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
+                // make sure the initial step is valid
+                $vars = array(':stepID' => $workflow['initialStepID']);
+                $res = $this->db->prepared_query('SELECT * FROM workflow_steps
+                                                     WHERE stepID=:stepID', $vars);
+                if($res[0]['workflowID'] == $workflow['workflowID']) {
+                    $vars = array(':recordID' => $recordID,
+                                  ':stepID' => $workflow['initialStepID']);
+                    $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
                                              VALUES (:recordID, :stepID)', $vars);
-                $hasInitialStep = true;
+                    $hasInitialStep = true;
+                }
             }
             // check if the request only needs to be marked as submitted (e.g.:for surveys)
             if ($workflow['initialStepID'] == 0)
@@ -1099,8 +1108,6 @@ class Form
         {
             return array('status' => 1, 'errors' => array('Workflow is configured incorrectly'));
         }
-
-        $this->db->beginTransaction();
 
         $vars = array(':recordID' => $recordID,
                       ':time' => time(), );
@@ -1902,7 +1909,7 @@ class Form
                                 {
                                     $groupTitle = $this->group->getTitle($item['data']);
 
-                                    $item['data'] = isset($groupTitle[0]['groupTitle']) ? $groupTitle[0]['groupTitle'] : '';
+                                    $item['data'] = $groupTitle;
                                 }
                             }
                         }
@@ -2285,42 +2292,96 @@ class Form
 
                     break;
                 case 'stepID':
-                    if (is_numeric($vars[':stepID' . $count]))
-                    {
-                        $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
-									WHERE stepID=:stepID{$count}) rj_stepID{$count}
-									USING (recordID) ";
-                    }
-                    else
-                    {
+                    if ($q['operator'] == '=') {
                         switch ($vars[':stepID' . $count]) {
                             case 'submitted':
                                 $conditions .= 'submitted > 0 AND ';
 
                                 break;
-                            case 'notSubmitted':
+                            case 'notSubmitted': // backwards compat
                                 $conditions .= 'submitted = 0 AND ';
-
+                                
                                 break;
                             case 'deleted':
                                 $conditions .= 'deleted > 0 AND ';
-
+                                
                                 break;
-                            case 'notDeleted':
+                            case 'notDeleted': // backwards compat
                                 $conditions .= 'deleted = 0 AND ';
-
+                                
                                 break;
                             case 'resolved':
                                 $conditions .= 'records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0 AND ';
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
-
+                                
                                 break;
-                            case 'notResolved':
+                            case 'notResolved': // backwards compat
                                 $conditions .= 'records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0 AND ';
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+                                
+                                break;
+                            default:
+                                if (is_numeric($vars[':stepID' . $count]))
+                                {
+                                    $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
+                									WHERE stepID=:stepID{$count}) rj_stepID{$count}
+                									USING (recordID) ";
+                                }
+                                else {
+                                    return 'Unsupported match in stepID';
+                                }
 
                                 break;
                         }
+                    }
+                    else if ($q['operator'] == '!='){
+                        switch ($vars[':stepID' . $count]) {
+                            case 'submitted':
+                                $conditions .= 'submitted = 0 AND ';
+                                
+                                break;
+                            case 'notSubmitted': // backwards compat
+                                $conditions .= 'submitted > 0 AND ';
+                                
+                                break;
+                            case 'deleted':
+                                $conditions .= 'deleted = 0 AND ';
+
+                                break;
+                            case 'notDeleted': // backwards compat
+                                $conditions .= 'deleted > 0 AND ';
+                                
+                                break;
+                            case 'resolved':
+                                $conditions .= 'records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0 AND ';
+                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+                                
+                                break;
+                            case 'notResolved': // backwards compat
+                                $conditions .= 'records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0 AND ';
+                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+                                
+                                break;
+                            default:
+                                if (is_numeric($vars[':stepID' . $count]))
+                                {
+                                    $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
+                									WHERE stepID != :stepID{$count}) rj_stepID{$count}
+                									USING (recordID) ";
+                                }
+                                else {
+                                    return 'Unsupported match in stepID';
+                                }
+                                
+                                break;
+                        }
+                    }
+                    else {
+                        return 'Invalid operator for stepID';
+                    }
+
+                    if (!is_numeric($vars[':stepID' . $count]))
+                    {
                         unset($vars[':stepID' . $count]);
                     }
 
@@ -2901,7 +2962,10 @@ class Form
                 if ($field['format'] == 'orgchart_employee')
                 {
                     $empRes = $this->employee->lookupEmpUID($data[$idx]['data']);
-                    $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                    $child[$idx]['displayedValue'] = '';
+                    if(isset($empRes[0])) {
+                        $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                    }
                 }
                 if ($field['format'] == 'orgchart_position')
                 {
@@ -2931,6 +2995,7 @@ class Form
     private function fileToArray($data)
     {
         $data = str_replace('<br />', "\n", $data);
+        $data = str_replace('<br>', "\n", $data);
         $tmpFileNames = explode("\n", $data);
         $out = array();
         foreach ($tmpFileNames as $tmpFileName)

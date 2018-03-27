@@ -1,7 +1,7 @@
 <?php
 
 abstract class RESTfulResponse
-{   
+{
     /**
      * Returns result for HTTP GET requests
      * @param array $actionList
@@ -181,7 +181,7 @@ abstract class RESTfulResponse
             	$body = '<table>';
             	$body .= '<thead><tr>';
             	foreach($columns as $column) {
-            		$body .= '<td>' . $column . '</td>';
+            		$body .= '<th>' . $column . '</th>';
             	}
             	$body .= '</tr></thead>';
             	$body .= '<tbody>';
@@ -214,7 +214,7 @@ abstract class RESTfulResponse
     /**
      * Parses url input into generic format
      * @param string api path
-     * @return string parsed path 
+     * @return string parsed path
      */
     public function parseAction($action)
     {
@@ -267,7 +267,7 @@ abstract class RESTfulResponse
                     $this->buildXML($out[$key], $subXML);
                 }
                 else {
-                    $xml->addChild($tkey, $out[$key]);                    
+                    $xml->addChild($tkey, $out[$key]);
                 }
             }
         }
@@ -290,13 +290,13 @@ abstract class RESTfulResponse
     	if($_SERVER['SERVER_PORT'] == '443') {
     		$url = 'https://';
     	}
-    	
+
     	$url .= $_SERVER['HTTP_HOST'];
-    	
+
     	$script = $_SERVER['SCRIPT_NAME'];
     	$apiOffset = strpos($script, 'api');
     	$script = substr($script, 0, $apiOffset);
-    	
+
     	$checkMe = strtolower($url . $script . 'admin');
 
     	if(strncmp(strtolower($_SERVER['HTTP_REFERER']), $checkMe, strlen($checkMe)) !== 0) {

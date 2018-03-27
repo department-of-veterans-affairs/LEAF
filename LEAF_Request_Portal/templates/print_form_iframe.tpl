@@ -37,10 +37,10 @@ function getForm(indicatorID, series) {
 }
 
 function getIndicatorLog(indicatorID, series) {
-	dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><td>Date/Author</td><td>Data</td></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
+	dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><th>Date/Author</th><th>Data</th></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
     dialog_message.indicateBusy();
     dialog_message.show();
-    
+
     $.ajax({
         type: 'GET',
         url: "api/?a=form/<!--{$recordID|strip_tags}-->/" + indicatorID + "/" + series + '/history',
@@ -51,11 +51,11 @@ function getIndicatorLog(indicatorID, series) {
         		curr = res.pop();
         		date = new Date(curr.timestamp * 1000);
         		data = curr.data;
-        		
+
         		if(i != 0) {
         			data = diffString(prev, data);
         		}
-        		
+
         		$('#history_' + indicatorID).prepend('<tr><td>'+ date.toString() +'<br /><b>'+ curr.name +'</b></td><td><span class="printResponse" style="font-size: 16px">'+ data +'</span></td></tr>');
         		prev = curr.data;
         	}
@@ -115,7 +115,7 @@ function openContent(url) {
     	dataType: 'text',  // IE9 issue
     	success: function(res) {
     		$('#formcontent').empty().html(res);
-    		
+
     		// make box size more predictable
     		$('.printmainblock').each(function() {
                 var boxSizer = {};
@@ -146,7 +146,7 @@ function openContent(url) {
 
 function scrollPage(id) {
 	if($(document).height() < $('#'+id).offset().top + 100) {
-		$('html, body').animate({scrollTop: $('#'+id).offset().top}, 500);		
+		$('html, body').animate({scrollTop: $('#'+id).offset().top}, 500);
 	}
 }
 
