@@ -9,6 +9,21 @@ class System
 {
     private $db;
     private $login;
+    private $fileExtensionWhitelist = array( // for file manager
+                'doc', 'docx', 'docm', 'dotx', 'dotm',
+                'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
+                'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm',
+                'pdf',
+                'txt',
+                'html',
+                'png', 'jpg', 'bmp', 'gif', 'tif', 'svg',
+                'vsd',
+                'rtf',
+                'js',
+                'css',
+                'pub',
+                'msg', 'ics'
+    );
     public $siteRoot = '';
 
     function __construct($db, $login)
@@ -412,26 +427,12 @@ class System
     		return 'Admin access required';
     	}
 
-    	$fileExtensionWhitelist = array(
-    			'doc', 'docx', 'docm', 'dotx', 'dotm',
-                                            'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
-                                            'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm',
-                                            'pdf',
-                                            'txt',
-                                            'png', 'jpg', 'bmp', 'gif', 'tif', 'svg',
-                                            'vsd',
-                                            'rtf',
-                                            'js',
-    										'css',
-            								'pub',
-    										'msg', 'ics'
-    	);
-
     	$list = scandir('../files/');
     	$out = [];
     	foreach($list as $item) {
     		$ext = substr($item, strrpos($item, '.') + 1);
-    		if(in_array($ext, $fileExtensionWhitelist)) {
+    		if(in_array($ext, $this->fileExtensionWhitelist)
+    		    && $item != 'index.html') {
     			$out[] = $item;
     		}
     	}
@@ -448,23 +449,8 @@ class System
     				return 'Invalid filename. Must only contain alphanumeric characters.';
     	}
 
-    	$fileExtensionWhitelist = array(
-    			'doc', 'docx', 'docm', 'dotx', 'dotm',
-                                            'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
-                                            'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm',
-                                            'pdf',
-                                            'txt',
-                                            'png', 'jpg', 'bmp', 'gif', 'tif', 'svg',
-                                            'vsd',
-                                            'rtf',
-                                            'js',
-    										'css',
-            								'pub',
-    									    'msg', 'ics'
-    	);
-
     	$ext = substr($fileName, strrpos($fileName, '.') + 1);
-    	if(!in_array($ext, $fileExtensionWhitelist)) {
+    	if(!in_array($ext, $this->fileExtensionWhitelist)) {
     		return 'Unsupported file type.';
     	}
 
@@ -489,7 +475,8 @@ class System
     	$list = $this->getFileList();
 
     	if(array_search($in, $list) !== false) {
-    		if(file_exists(__DIR__ . '/../files/' . $in)) {
+    		if(file_exists(__DIR__ . '/../files/' . $in)
+    		    && $in != 'index.html') {
     			return unlink(__DIR__ . '/../files/' . $in);
     		}
     	}

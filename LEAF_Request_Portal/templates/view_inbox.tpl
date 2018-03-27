@@ -11,7 +11,7 @@ The following is a list of requests that are pending your action:
 <br /><br />
 <table id="depTitle_<!--{$dep.dependencyID}-->" class="agenda" style="width: 100%; margin: 0px auto">
     <tr style="background-color: <!--{$dep.dependencyBgColor|strip_tags}-->; cursor: pointer" onclick="toggleDepVisibility('<!--{$dep.dependencyID|strip_tags}-->')">
-      <td colspan="3">
+      <th colspan="3">
       <span style="float: left; font-size: 120%; font-weight: bold">
           <!--{if $dep.dependencyID != -1}-->
               <!--{$dep.dependencyDesc|sanitize}-->
@@ -20,7 +20,7 @@ The following is a list of requests that are pending your action:
           <!--{/if}-->
       </span>
       <span style="float: right; text-decoration: underline; font-weight: bold"><span id="depTitleAction_<!--{$dep.dependencyID|strip_tags}-->">View</span> <!--{$dep.count}--> requests</span>
-      </td>
+    </th>
     </tr>
 </table>
 <div id="depContainer_<!--{$dep.dependencyID|strip_tags}-->" style="background-color: <!--{$dep.dependencyBgColor|strip_tags}-->">
@@ -119,7 +119,7 @@ function loadInboxData(depID) {
                  }},
                  {name: 'Action', indicatorID: 'action', editable: false, sortable: false, callback: function(data, blob) {
                 	 var depDescription = 'Take Action';
-                	 $('#'+data.cellContainerID).html('<div class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" onclick="loadWorkflow('+ data.recordID +', \''+ depID +'\', \''+ formGrid.getPrefixID() +'\');">'+ depDescription +'</div>');
+                	 $('#'+data.cellContainerID).html('<button class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" onclick="loadWorkflow('+ data.recordID +', \''+ depID +'\', \''+ formGrid.getPrefixID() +'\');">'+ depDescription +'</button>');
                  }}
              ]);
             formGrid.loadData(recordIDs);
