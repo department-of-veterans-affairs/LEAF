@@ -7,10 +7,40 @@ include '../../libs/php-commons/XSSHelpers.php';
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests LEAF_Nexus/XSSHelpers.php
+ * Tests libs/php-commons/XSSHelpers.php
  */
-final class HelpersTest extends TestCase
+final class XSSHelpersTest extends TestCase
 {
+
+    /**
+     * Tests XSSHelpers::sanitizer($in, $allowedTags)
+     * 
+     * Tests sanitizing HTML with anchor elements.
+     */
+    public function testSanitizer_links() : void
+    {
+        $in1 = "<a href='http://google.com'>Google</a>";
+        $in2 = "<a href='#' onclick='alert(\"gotcha\")'>Hello</a>";
+
+        $this->assertEquals(
+            '&lt;a href=&#039;http://google.com&#039;&gt;Google</a>',
+            XSSHelpers::sanitizer($in1, ['a'])
+        );
+        $this->assertEquals(
+            '&lt;a href=&#039;#&#039; onclick=&#039;alert(&quot;gotcha&quot;)&#039;&gt;Hello</a>',
+            XSSHelpers::sanitizer($in2, ['a'])
+        );
+
+        $this->assertEquals(
+            '&lt;a href=&#039;#&#039; onclick=&#039;alert(&quot;gotcha&quot;)&#039;&gt;Hello&lt;/a&gt;',
+            XSSHelpers::sanitizer($in2, [])
+        );
+        $this->assertEquals(
+            '&lt;a href=&#039;http://google.com&#039;&gt;Google&lt;/a&gt;',
+            XSSHelpers::sanitizer($in1, [''])
+        );
+    }
+
     /**
      * Tests XSSHelpers::sanitizeHTML()
      *
