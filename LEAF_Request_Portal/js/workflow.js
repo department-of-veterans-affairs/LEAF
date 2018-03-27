@@ -27,7 +27,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	    r = r + Math.round(r * factor);
 	    g = g + Math.round(g * factor);
 	    b = b + Math.round(b * factor);
-	    
+
 	    return '#' + ((r << 16) + (g << 8) + b).toString(16);
 	}
 
@@ -95,12 +95,12 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
     	// draw comment area and button anchors
         $('#form_dep'+ step.dependencyID).append('<div id="form_dep_container'+ step.dependencyID +'">\
-                <span class="noprint">Comments:</span><br />\
-                <textarea id="comment_dep'+ step.dependencyID +'"></textarea>\
-                </div>');   
+                <span class="noprint" aria-label="comments">Comments:</span><br />\
+                <textarea id="comment_dep'+ step.dependencyID +'" aria-label="comment text area"></textarea>\
+                </div>');
 		$('#form_dep_container'+ step.dependencyID).css({'margin': 'auto', 'width': '95%', 'padding': '8px'});
 		$('#workflowbox_dep'+ step.dependencyID).append('<br style="clear: both"/>');
-		
+
 		$('#comment_dep'+ step.dependencyID).css({'height': '40px',
 		                'width': '100%',
 		                'padding': '4px',
@@ -142,7 +142,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		        }
 		    });
 		}
-		
+
 		// load jsAssets
 		for(var u in step.jsSrcList) {
 		    $.ajax({
@@ -162,7 +162,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	function drawWorkflowNoAccess(step) {
 		// hide cancel button since the user doesn't have access
 //		$('#btn_cancelRequest').css('display', 'none');
-		
+
 	    $('#' + containerID).append('<div id="workflowbox_dep'+ step.dependencyID +'" class="workflowbox"></div>');
 	    $('#workflowbox_dep'+ step.dependencyID).css({'background-color': step.stepBgColor,
 	                                'border': step.stepBorder,
@@ -219,20 +219,20 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	    				$('#' + containerID).append('<div id="workflowbox_lastAction" class="workflowbox" style="padding: 0px; margin-top: 8px"></div>');
 	    				$('#workflowbox_lastAction').css({'background-color': response.stepBgColor, 'border': response.stepBorder});
 	    			}
-		            
+
 		            var date = new Date(response.time * 1000);
 
 		            var text = '';
-		            if(response.description != null && response.actionText != null) {            
+		            if(response.description != null && response.actionText != null) {
 		                text = '<div style="background-color: ' + darkenColor(response.stepBgColor) + '; padding: 4px"><span style="float: left; font-size: 90%">' + label + ': ' + response.actionTextPasttense + '</span>';
 		                text += '<span style="float: right; font-size: 90%">' + date.toLocaleString('en-US', {weekday: "long", year: "numeric", month: "long", day: "numeric"}) + '</span><br /></div>';
 		                if(response.comment != '' && response.comment != null) {
 		                    text += '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px">' + response.comment + '</div></div>';
-		                }                
+		                }
 		            }
 		            else {
 		                text = "[ Please refer to this request's history for current status ]";
-		            }            
+		            }
 
 		            if(response.dependencyID != 5) {
 			            $('#workflowbox_lastAction').append('<span style="font-weight: bold; color: '+response.stepFontColor+'">'+text+'</span>');
@@ -245,20 +245,20 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	                                            'text-align': 'center', padding: '0px'
 	                                           });
 	                $('#workflowbox_lastAction').addClass('workflowbox');
-	                
+
 	                var date = new Date(response.time * 1000);
 
 	                var text = '';
-	                if(response.description != null && response.actionText != null) {            
+	                if(response.description != null && response.actionText != null) {
 	                    text = '<div style="padding: 4px; background-color: ' + darkenColor(response.stepBgColor) + '">' + label + ': ' + response.actionTextPasttense;
 	                    text += '<br /><span style="font-size: 60%">' + date.toLocaleString('en-US', {weekday: "long", year: "numeric", month: "long", day: "numeric"}) + '</span></div>';
 	                    if(response.comment != '' && response.comment != null) {
 	                        text += '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black"><legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' + response.comment + '</span></fieldset></div>';
-	                    }                
+	                    }
 	                }
 	                else {
 	                    text = "[ Please refer to this request's history for current status. ]";
-	                }            
+	                }
 
 	                $('#workflowbox_lastAction').append('<span style="font-size: 150%; font-weight: bold", color: '+response.stepFontColor+'>'+ text +'</span>');
 	    		}
