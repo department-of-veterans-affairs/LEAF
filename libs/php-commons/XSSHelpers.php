@@ -80,28 +80,28 @@ class XSSHelpers {
                     $replace[] = '</table>';
                     break;
                 case 'a':
-                    $pattern[] = '/&lt;a href=&quot;(?!javascript)(\S+)&quot;(\s.+)?&gt;/Ui';
-                    $replace[] = '<a href="\1" target="_blank">';
+                    $pattern[] = '/&lt;a href=&(quot|#039);(?!javascript)(\S+)&(quot|#039);(\s.+)?&gt;/Ui';
+                    $replace[] = '<a href="\2" target="_blank">';
                     $pattern[] = '/&lt;\/a&gt;/Ui';
                     $replace[] = '</a>';
                     break;
                 case 'p':
-                    $pattern[] = '/&lt;p style=&quot;(\S.+)&quot;(\s.+)?&gt;/Ui';
-                    $replace[] = '<p style="\1">';
+                    $pattern[] = '/&lt;p style=&(quot|#039);(\S.+)&(quot|#039);(\s.+)?&gt;/Ui';
+                    $replace[] = '<p style="\2">';
                     $pattern[] = '/&lt;p&gt;/Ui';
                     $replace[] = '<p>';
                     $pattern[] = '/&lt;\/p&gt;/Ui';
                     $replace[] = '</p>';
                     break;
                 case 'span':
-                    $pattern[] = '/&lt;span style=&quot;(\S.+)&quot;(\s.+)?&gt;/Ui';
-                    $replace[] = '<span style="\1">';
+                    $pattern[] = '/&lt;span style=&(quot|#039);(\S.+)&(quot|#039);(\s.+)?&gt;/Ui';
+                    $replace[] = '<span style="\2">';
                     $pattern[] = '/&lt;\/span&gt;/Ui';
                     $replace[] = '</span>';
                     break;
                 case 'img':
-                    $pattern[] = '/&lt;img src=&quot;(?!javascript)(\S+)&quot;(\s.+)?&gt;/Ui';
-                    $replace[] = '<img src="\1">';
+                    $pattern[] = '/&lt;img src=&(quot|#039);(?!javascript)(\S+)&(quot|#039);(\s.+)?&gt;/Ui';
+                    $replace[] = '<img src="\2">';
                     $pattern[] = '/&lt;\/img&gt;/Ui';
                     $replace[] = '</img>';
                     break;
