@@ -12,7 +12,7 @@
     <span class="menuButton" style="background-color: #aeedb5"tabindex="0">
         <img class="menuIcon" src="../../libs/dynicons/?img=system-users.svg&amp;w=96" style="position: relative" alt="Modify service chief listing" title="Modify service chief listing" />
         <span class="menuText">Service Chiefs</span><br />
-        <span class="menuDesc">Review service chiefs</span>
+        <span class="menuDesc">Review service chiefs and set backups</span>
     </span>
 </a>
 
@@ -28,7 +28,7 @@
     <span class="menuButton" style="background-color: #fffde6" tabindex="0">
         <img class="menuIcon" src="../../libs/dynicons/?img=preferences-desktop-wallpaper.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
         <span class="menuText">Site Settings</span><br />
-        <span class="menuDesc">Edit site name and other labels</span>
+        <span class="menuDesc">Edit site name, time zone, and other labels</span>
     </span>
 </a>
 
@@ -48,37 +48,49 @@
     </span>
 </a>
 
-<a href="?a=mod_templates" tabindex="-1">
-    <span class="menuButton" style="background-color: #ffdddd" tabindex="0">
-        <img class="menuIcon" src="../../libs/dynicons/?img=text-x-script.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuText">Template Editor</span><br />
-        <span class="menuDesc">Edit HTML Templates</span>
+<a href="?a=formLibrary" tabindex="-1">
+    <span class="menuButton" style="background-color: #2e8540" tabindex="0">
+        <img class="menuIcon" src="../../libs/dynicons/?img=system-file-manager.svg&amp;w=96" style="position: relative" alt="Workflow Visualizer" title="Workflow Visualizer" />
+        <span class="menuText" style="color: white">LEAF Library</span><br />
+        <span class="menuDesc" style="color: white">Use a form made by the LEAF community</span>
     </span>
 </a>
 
-<a href="?a=admin_sync_services" tabindex="-1">
-    <span class="menuButton" style="background-color: #574d68" tabindex="0">
-        <img class="menuIcon" src="../../libs/dynicons/?img=applications-other.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
-        <span class="menuText" style="color: white">Sync Services</span><br />
-        <span class="menuDesc" style="color: white">Update Service listing from Org Chart</span>
-    </span>
-</a>
-
-<a href="?a=mod_templates_reports" tabindex="-1">
-    <span class="menuButton" style="background-color: black" tabindex="0">
-        <img class="menuIcon" src="../../libs/dynicons/?img=utilities-terminal.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuText" style="color: white">LEAF Programmer</span><br />
-        <span class="menuDesc" style="color: white">Advanced Reports and Custom Pages</span>
-    </span>
-</a>
-
+</div>
+<hr style="clear: both; visibility: hidden; margin-bottom: 100px"/>
+<div class="menu">
+<hr />
+Advanced Options:<br />
+    <a href="?a=mod_templates" tabindex="-1">
+        <span class="menuButton" style="background-color: #ffdddd" tabindex="0">
+            <img class="menuIcon" src="../../libs/dynicons/?img=text-x-script.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+            <span class="menuText">Template Editor</span><br />
+            <span class="menuDesc">Edit HTML Templates</span>
+        </span>
+    </a>
+    
+    <a href="?a=admin_sync_services" tabindex="-1">
+        <span class="menuButton" style="background-color: #574d68" tabindex="0">
+            <img class="menuIcon" src="../../libs/dynicons/?img=applications-other.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
+            <span class="menuText" style="color: white">Sync Services</span><br />
+            <span class="menuDesc" style="color: white">Update Service listing from Org Chart</span>
+        </span>
+    </a>
+    
+    <a href="?a=mod_templates_reports" tabindex="-1">
+        <span class="menuButton" style="background-color: black" tabindex="0">
+            <img class="menuIcon" src="../../libs/dynicons/?img=utilities-terminal.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+            <span class="menuText" style="color: white">LEAF Programmer</span><br />
+            <span class="menuDesc" style="color: white">Advanced Reports and Custom Pages</span>
+        </span>
+    </a>
 </div>
 
 <br style="clear: both" />
 <br />
 <div id="btn_programmerMode" class="buttonNorm" tabindex="0">Show Other Programmer Options</div>
 
-<div id="programmerMode" style="display: none">
+<div id="programmerMode" class="menu" style="display: none">
 <hr />
 Programmer Options:<br />
 
