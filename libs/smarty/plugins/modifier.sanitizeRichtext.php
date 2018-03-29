@@ -12,7 +12,7 @@
  * Name:     sanitize<br>
  * Purpose:  Simple HTML sanitation, allows some tags for use in rich text editors. 
  * 
- * Allowed tags: <a><b><i><u><ol><li><br><p><table><td><tr>
+ * Allowed tags: <a><b><i><u><ol><li><br><p><table><td><tr><a><span><strong><em>
  *  
  * 
  * @author Nathan Sullivan
@@ -22,7 +22,7 @@
  * @return string
  */
 include_once dirname(__FILE__) . '/../../php-commons/XSSHelpers.php';
-function smarty_modifier_sanitize($in)
+function smarty_modifier_sanitizeRichtext($in)
 {
-    return XSSHelpers::sanitizeHTML($in);
+    return XSSHelpers::sanitizeHTMLRich($in);
 }

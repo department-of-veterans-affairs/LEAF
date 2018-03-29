@@ -99,6 +99,12 @@ class XSSHelpers {
                     $pattern[] = '/&lt;\/span&gt;/Ui';
                     $replace[] = '</span>';
                     break;
+                case 'font':
+                    $pattern[] = '/&lt;font color=&(quot|#039);(\S.+)&(quot|#039);(\s.+)?&gt;/Ui';
+                    $replace[] = '<font color="\2">';
+                    $pattern[] = '/&lt;\/font&gt;/Ui';
+                    $replace[] = '</font>';
+                    break;
                 case 'img':
                     $pattern[] = '/&lt;img src=&(quot|#039);(?!javascript)(\S+)&(quot|#039);(\s.+)?&gt;/Ui';
                     $replace[] = '<img src="\2">';
@@ -181,7 +187,7 @@ class XSSHelpers {
     * Sanitize a HTML string, allows some tags for use in rich text editors.
     * Used in form field headings, which include some links and formatted text
     * 
-    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr><thead><tbody><a><span><strong><em><h1><h2><img>
+    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr><thead><tbody><a><span><strong><em><h1><h2><h3><h4><img><font>
     *
     * @param    string  $in the string to be sanitized
     *
@@ -189,7 +195,9 @@ class XSSHelpers {
     */
     static public function sanitizeHTMLRich($in)
     {
-        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody', 'a', 'span', 'strong', 'em', 'h1', 'h2', 'img'];
+        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table',
+                        'td', 'tr', 'thead', 'tbody', 'a', 'span', 'strong',
+                        'em', 'h1', 'h2', 'h3', 'h4', 'img', 'font'];
 
         return XSSHelpers::sanitizer($in, $allowedTags);
     }

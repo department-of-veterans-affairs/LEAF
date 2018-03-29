@@ -398,7 +398,7 @@ function newQuestion(parentIndicatorID) {
 // edit question
 function getForm(indicatorID, series) {
 	dialog.setTitle('Editing indicatorID: ' + indicatorID);
-    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button><div style="float: right">Describe field in 1-2 words<br /><input type="text" id="description" maxlength="50"></input></div></fieldset> \
+    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button><div style="float: right">Describe field in 1-2 words<br /><input type="text" id="description" maxlength="50"></input></div></fieldset> \
             <fieldset><legend>Input Format</legend>\
                 <select id="indicatorType">\
                     <option value="">None</option>\
@@ -473,15 +473,21 @@ function getForm(indicatorID, series) {
             alert('You can\'t mark a field as required if the Input Format is "None".');
         }
     });
+    $('#rawNameEditor').on('click', function() {
+        $('#advNameEditor').css('display', 'inline');
+        $('#rawNameEditor').css('display', 'none');
+    	$('#name').trumbowyg('destroy');
+    });
     $('#advNameEditor').on('click', function() {
     	$('#advNameEditor').css('display', 'none');
+    	$('#rawNameEditor').css('display', 'inline');
         $('#name').trumbowyg({
             resetCss: true,
-            btns: ['bold', 'italic', 'underline', '|',
+            btns: ['formatting', 'bold', 'italic', 'underline', '|',
             	'unorderedList', 'orderedList', '|',
             	'link', '|',
             	'foreColor', '|',
-            	'justifyLeft', 'justifyCenter', 'justifyRight', 'viewHTML']
+            	'justifyLeft', 'justifyCenter', 'justifyRight']
         });
         
         $('.trumbowyg-box').css({
