@@ -13,18 +13,20 @@ The following is a list of requests that are pending your action:
     <tr style="background-color: <!--{$dep.dependencyBgColor|strip_tags}-->; cursor: pointer" onclick="toggleDepVisibility('<!--{$dep.dependencyID|strip_tags}-->')">
       <th colspan="3">
       <span style="float: left; font-size: 120%; font-weight: bold">
-          <!--{if $dep.dependencyID != -1}-->
+          <!--{if $dep.dependencyID > 0}-->
               <!--{$dep.dependencyDesc|sanitize}-->
           <!--{else}-->
-              Action required from: <!--{$dep.approverName|sanitize}-->
+              <!--{$dep.approverName|sanitize}-->
           <!--{/if}-->
       </span>
       <span style="float: right; text-decoration: underline; font-weight: bold"><span id="depTitleAction_<!--{$dep.dependencyID|strip_tags}-->">View</span> <!--{$dep.count}--> requests</span>
     </th>
     </tr>
 </table>
-<div id="depContainer_<!--{$dep.dependencyID|strip_tags}-->" style="background-color: <!--{$dep.dependencyBgColor|strip_tags}-->">
-    <div style="border: 1px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px">Loading...</div>
+<div style="background-color: <!--{$dep.dependencyBgColor|strip_tags}-->">
+        <div id="depContainerIndicator_<!--{$dep.dependencyID|strip_tags}-->" style="display: none; border: 1px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px">Loading...</div>
+        <div id="depContainer_<!--{$dep.dependencyID|strip_tags}-->">
+    </div>
 </div>
 <!--{/foreach}-->
 </div>
@@ -71,6 +73,7 @@ function stripHtml(input) {
 var CSRFToken = '<!--{$CSRFToken}-->';
 var inboxDataLoaded = new Object();
 function loadInboxData(depID) {
+	$('#depContainerIndicator_' + depID).css('display', 'block');
 	var formGrid = new LeafFormGrid('depContainer_' + depID);
 
     $.ajax({
@@ -124,8 +127,13 @@ function loadInboxData(depID) {
              ]);
             formGrid.loadData(recordIDs);
             $('#' + formGrid.getPrefixID() + 'header_title').css('width', '60%');
+            $('#depContainerIndicator_' + depID).css('display', 'none');
         },
-        cache: false
+        error: function(err) {
+        	alert('Error: ' + err.statusText + ' in api/inbox/dependency/_' + depID);
+        },
+        cache: false,
+        timeout: 5000
     });
 }
 
