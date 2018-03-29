@@ -25,7 +25,7 @@
 
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%"></div>
-    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" value="Untitled Report"></input>
+    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" value="Untitled Report" />
 </div>
 <div id="results" style="display: none">Loading...</div>
 
