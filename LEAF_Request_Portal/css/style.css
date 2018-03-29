@@ -18,7 +18,6 @@ body a:hover {
 span {
     color: black;
     font-family: verdana;
-    font-size: 12px;
 }
 
 button {
@@ -591,6 +590,10 @@ span.approval_disapproved {
     float: left;
     font-size: 22px;
     padding: 8px;
+}
+
+#requestTitle>span {
+    font-size: 12px;
 }
 
 #requestInfo {
