@@ -1005,7 +1005,7 @@ var postRenderFormBrowser;
 var categories = {};
 function showFormBrowser() {
 	$('#menu').html('<div class="buttonNorm" onclick="createForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
-	$('#menu').append('<div class="buttonNorm" onclick="formLibrary();" style="font-size: 120%"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> Form Library</div><br />');
+	$('#menu').append('<div class="buttonNorm" onclick="formLibrary();" style="font-size: 120%"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
 	$('#menu').append('<br /><div class="buttonNorm" onclick="importForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
 	$('#menu').append('<br /><br /><div class="buttonNorm" onclick="window.location = \'?a=disabled_fields\';" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
     $.ajax({
@@ -1018,6 +1018,7 @@ function showFormBrowser() {
             	categories[res[i].categoryID] = res[i];
             	if(res[i].parentID == '') {
             		formTitle = res[i].categoryName == '' ? 'Untitled' : res[i].categoryName;
+            		availability = res[i].visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
             		var needToKnow = '';
             		if(res[i].needToKnow == 1) {
             			needToKnow = ' <img src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="Need to know mode enabled" title="Need to know mode enabled" />';
@@ -1030,11 +1031,11 @@ function showFormBrowser() {
             			formActiveID = '#forms_inactive';
             		}
             		var workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
-                    $(formActiveID).append('<div class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'"><b>'+ formTitle + needToKnow + '</b>\
-                    		<br /><br />\
-                    		'+ res[i].categoryDescription +'\
-                    		<br /><br />\
-                    		<span style="vertical-align: bottom">'+ workflow +'</span>\
+                    $(formActiveID).append('<div class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
+                    		<div class="formPreviewTitle">'+ formTitle + needToKnow + '</div>\
+                    		<div class="formPreviewDescription">'+ res[i].categoryDescription +'</div>\
+                    		<div class="formPreviewStatus">'+ availability +'</div>\
+                    		<div class="formPreviewWorkflow">'+ workflow +'</div>\
                     		</div>');
                     $('#' + res[i].categoryID).on('click', function(categoryID) {
                         return function() {
