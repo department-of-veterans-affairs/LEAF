@@ -65,7 +65,8 @@ class XSSHelpers {
         
         // strip excess tags if we detect copy/paste from MS Office
         if(strpos($in, '<meta name="Generator"') !== false
-            || strpos($in, '<w:WordDocument>') !== false) {
+            || strpos($in, '<w:WordDocument>') !== false
+            || strpos($in, '<font face') !== false) {
             $in = strip_tags($in, '<br>');
         }
 
@@ -73,6 +74,10 @@ class XSSHelpers {
         $replace = [];
         foreach($allowedTags as $tag) {
             switch($tag) {
+                case 'br':
+                    $pattern[] = '/&lt;br(\s.+)?(\/)?&gt;/U';
+                    $replace[] = '<br />';
+                    break;
                 case 'table':
                     $pattern[] = '/&lt;table(\s.+)?&gt;/Ui';
                     $replace[] = '<table class="table">';
@@ -106,10 +111,10 @@ class XSSHelpers {
                     $replace[] = '</font>';
                     break;
                 case 'img':
-                    $pattern[] = '/&lt;img src=&(quot|#039);(?!javascript)(\S+)&(quot|#039);(\s.+)?&gt;/Ui';
-                    $replace[] = '<img src="\2">';
-                    $pattern[] = '/&lt;\/img&gt;/Ui';
-                    $replace[] = '</img>';
+                    $pattern[] = '/&lt;img src=&(?:quot|#039);(?!javascript)(\S+)&(?:quot|#039); alt=&(?:quot|#039);(\S+)&(?:quot|#039);(\s.*)?\/?&gt;/Ui';
+                    $replace[] = '<img src="\1" alt="\2" />';
+                    $pattern[] = '/&lt;img src=&(?:quot|#039);(?!javascript)(\S+)&(?:quot|#039);(\s.+)?\/?&gt;/Ui';
+                    $replace[] = '<img src="\1" alt="" />';
                     break;
                 default:
                     $pattern[] = '/&lt;(\/)?'. $tag .'(\s.+)?&gt;/U';
@@ -130,7 +135,8 @@ class XSSHelpers {
         $openTags = array();
         $numTags = count($matches[2]);
         for($i = 0; $i < $numTags; $i++) {
-            if($matches[2][$i] != 'br') {
+            if($matches[2][$i] != 'br'
+                || $matches[2][$i] != 'img') {
                 //echo "examining: {$matches[1][$i]}{$matches[2][$i]}\n";
                 // proper closure
                 if($matches[1][$i] == '/' && isset($openTags[$matches[2][$i]]) && $openTags[$matches[2][$i]] > 0) {
