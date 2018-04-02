@@ -2256,8 +2256,7 @@ class Form
                     $conditions .= "userID {$operator} :userID{$count} AND ";
 
                     break;
-                case 'date':
-                case 'dateInitiated':
+                case 'date': // backwards compatibility
                     $vars[':date' . $count] = strtotime($vars[':date' . $count]);
                     switch ($operator) {
                         case '=':
@@ -2274,6 +2273,24 @@ class Form
                             break;
                     }
 
+                    break;
+                case 'dateInitiated':
+                    $vars[':dateInitiated' . $count] = strtotime($vars[':dateInitiated' . $count]);
+                    switch ($operator) {
+                        case '=':
+                            $vars[':date' . $count . 'b'] = $vars[':date' . $count] + 86400;
+                            $conditions .= "date >= :dateInitiated{$count} AND date <= :dateInitiated{$count}b AND ";
+                            
+                            break;
+                        case '<=':
+                            $vars[':dateInitiated' . $count] += 86400; // set to end of day
+                            // no break
+                        default:
+                            $conditions .= "date {$operator} :dateInitiated{$count} AND ";
+                            
+                            break;
+                    }
+                    
                     break;
                 case 'dateSubmitted':
                     $vars[':dateSubmitted' . $count] = strtotime($vars[':dateSubmitted' . $count]);
