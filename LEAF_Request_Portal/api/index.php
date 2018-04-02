@@ -60,12 +60,6 @@ if($login->checkGroup(1))
         $controller->handler($action);
     });
 
-    $controllerMap->register('formStack', function() use ($db, $login, $action) {
-    	require 'controllers/FormStackController.php';
-    	$formStackController = new FormStackController($db, $login);
-    	$formStackController->handler($action);
-    });
-
     $controllerMap->register('formEditor', function() use ($db, $login, $action) {
     	require 'controllers/FormEditorController.php';
     	$formEditorController = new FormEditorController($db, $login);
@@ -89,6 +83,12 @@ $controllerMap->register('form', function() use ($db, $login, $action) {
     require 'controllers/FormController.php';
     $formController = new FormController($db, $login);
     $formController->handler($action);
+});
+
+$controllerMap->register('formStack', function() use ($db, $login, $action) {
+    require 'controllers/FormStackController.php';
+    $formStackController = new FormStackController($db, $login);
+    $formStackController->handler($action);
 });
 
 $controllerMap->register('formWorkflow', function() use ($db, $login, $action) {
