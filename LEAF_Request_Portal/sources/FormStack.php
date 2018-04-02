@@ -38,6 +38,10 @@ class FormStack
     }
 
     public function deleteForm($categoryID) {
+        if(!$this->login->checkGroup(1)) {
+            return 'Admin access required';
+        }
+
         // make sure the form isn't the target of the stapled form feature
         $vars = array(':categoryID' => $categoryID);
         $res = $this->db->prepared_query('SELECT * FROM category_staples
