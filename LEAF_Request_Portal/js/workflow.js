@@ -109,7 +109,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		if (step.requiresDigitalSignature == true) {
 			$(document.createElement('div'))
 				.css({'margin': 'auto', 'width': '95%', 'padding': '8px'})
-				.html("TEXT TBD. This step requires a Digital Signature. You may enter a comment if needed. Ensure your PIV card is inserted into the card reader. Then you will be prompted to enter your PIN.")
+				.html("<img src='../libs/dynicons/?img=application-certificate.svg&w=32' alt='Digital Signature Required' title='Digital Signature Required'> Digital Signature Required")
 				.appendTo('#form_dep' + step.dependencyID);
 		}
 

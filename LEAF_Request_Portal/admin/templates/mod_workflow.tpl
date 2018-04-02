@@ -699,7 +699,7 @@ function signatureRequired(cb, stepID) {
 
     if (cb.checked) {
         if (
-            confirm("TEXT TBD. This will require the User to have a PIV card enabled device and Internet Explorer version 9.0(?) or greater. Are you sure you want to require a digital signature on this step?")
+            confirm("Are you sure you want to require a digital signature on this step?")
         ) {
             innerRequired(true, stepID);
         } else {
