@@ -191,6 +191,37 @@ final class XSSHelpersTest extends TestCase
     }
 
     /**
+     * Tests XSSHelpers::sanitizeHTMLRich()
+     *
+     * Tests processing images within the HTML input
+     */
+    public function testSanitizeHTMLRich_Img() : void
+    {
+        $img = '<img src="hello.jpg">';
+        $img2 = '<img src="hello.jpg"/>';
+        $img3 = '<img src="hello.jpg" />';
+        $img4 = '<img src="hello.jpg" alt="world">';
+        $img5 = '<img src="hello.jpg" alt="world"/>';
+        $img6 = '<img src="hello.jpg" alt="world" />';
+        $img7 = '<img src="javascript:alert(\'hello.jpg\')">';
+        
+        $expectedOutput = '<img src="hello.jpg" alt="" />"';
+        $expectedOutput2 = '<img src="hello.jpg" alt="world" />"';
+        $expectedOutput3 = '&lt;img src=&quot;javascript:alert(&#039;hello.jpg&#039;)&quot;&gt;';
+        
+        $this->assertEquals($expectedOutput, XSSHelpers::sanitizeHTML($img));
+        $this->assertEquals($expectedOutput, XSSHelpers::sanitizeHTML($img2));
+        $this->assertEquals($expectedOutput, XSSHelpers::sanitizeHTML($img3));
+        
+        $this->assertEquals($expectedOutput2, XSSHelpers::sanitizeHTML($img4));
+        $this->assertEquals($expectedOutput2, XSSHelpers::sanitizeHTML($img5));
+        $this->assertEquals($expectedOutput2, XSSHelpers::sanitizeHTML($img6));
+        
+        $this->assertEquals($expectedOutput3, XSSHelpers::sanitizeHTML($img7));
+    }
+    
+
+    /**
      * Tests XSSHelpers::xscrub()
      *
      * Tests escaping HTML tags
