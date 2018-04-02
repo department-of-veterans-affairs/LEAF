@@ -2256,7 +2256,7 @@ class Form
                     $conditions .= "userID {$operator} :userID{$count} AND ";
 
                     break;
-                case 'date':
+                case 'date': // backwards compatibility
                     $vars[':date' . $count] = strtotime($vars[':date' . $count]);
                     switch ($operator) {
                         case '=':
@@ -2273,6 +2273,42 @@ class Form
                             break;
                     }
 
+                    break;
+                case 'dateInitiated':
+                    $vars[':dateInitiated' . $count] = strtotime($vars[':dateInitiated' . $count]);
+                    switch ($operator) {
+                        case '=':
+                            $vars[':date' . $count . 'b'] = $vars[':date' . $count] + 86400;
+                            $conditions .= "date >= :dateInitiated{$count} AND date <= :dateInitiated{$count}b AND ";
+                            
+                            break;
+                        case '<=':
+                            $vars[':dateInitiated' . $count] += 86400; // set to end of day
+                            // no break
+                        default:
+                            $conditions .= "date {$operator} :dateInitiated{$count} AND ";
+                            
+                            break;
+                    }
+                    
+                    break;
+                case 'dateSubmitted':
+                    $vars[':dateSubmitted' . $count] = strtotime($vars[':dateSubmitted' . $count]);
+                    switch ($operator) {
+                        case '=':
+                            $vars[':dateSubmitted' . $count . 'b'] = $vars[':dateSubmitted' . $count] + 86400;
+                            $conditions .= "submitted >= :dateSubmitted{$count} AND submitted <= :dateSubmitted{$count}b AND ";
+                            
+                            break;
+                        case '<=':
+                            $vars[':date' . $count] += 86400; // set to end of day
+                            // no break
+                        default:
+                            $conditions .= "submitted {$operator} :dateSubmitted{$count} AND ";
+                            
+                            break;
+                    }
+                    
                     break;
                 case 'categoryID':
                     if ($q['operator'] != '!=')
