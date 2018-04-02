@@ -461,6 +461,8 @@ var LeafFormSearch = function(containerID) {
 				});
 				break;
 			case 'date':
+			case 'dateInitiated':
+			case 'dateSubmitted':
 				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen" aria-label="date">\
 	            		<option value="=">ON</option>\
 	            		<option value=">=">ON AND AFTER</option>\
@@ -723,7 +725,7 @@ var LeafFormSearch = function(containerID) {
 						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen" aria-label="condition">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
-            				<option value="date">Date Initiated</option>\
+            				<option value="dateSubmitted">Date Submitted</option>\
             				<option value="categoryID">Type</option>\
             				<option value="userID">Initiator</option>\
             				<option value="dependencyID">Requirement</option>\
