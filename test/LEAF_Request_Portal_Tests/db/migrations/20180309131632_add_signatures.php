@@ -27,12 +27,9 @@ class AddSignatures extends AbstractMigration
         // Remove the added action
         $this->execute("DELETE FROM `actions` WHERE `actionType` = 'sign';");
 
-        // Remove the foreign key constraint
-        $this->execute('ALTER TABLE `signatures` DROP FOREIGN KEY `action_history_signature_fk`;');
-
-        // Remove the added column and index
-        $this->execute('ALTER TABLE `action_history` DROP INDEX `signatureIDX`;');
-        $this->execute('ALTER TABLE `action_history` DROP COLUMN `signature`;');
+        // Remove the added column and foreign key
+        $this->execute('ALTER TABLE `action_history` DROP FOREIGN KEY `signatures_id_fk`;');
+        $this->execute('ALTER TABLE `action_history` DROP COLUMN `signature_id`;');
 
         // Drop the added table
         $this->execute('DROP TABLE `signatures`');
