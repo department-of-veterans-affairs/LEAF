@@ -113,7 +113,7 @@ var LeafFormGrid = function(containerID, options) {
     			continue;
     		}
     		var align = headers[i].align != undefined ? headers[i].align : 'center';
-    		$('#' + prefixID + 'thead_tr').append('<th id="' + prefixID + 'header_'+headers[i].indicatorID+'" style="text-align:'+align+'">'+headers[i].name+'<span id="'+ prefixID +'header_'+ headers[i].indicatorID +'_sort" class="'+prefixID+'sort"></span></th>');
+    		$('#' + prefixID + 'thead_tr').append('<th id="' + prefixID + 'header_'+headers[i].indicatorID+'" tabindex="0"  style="text-align:'+align+'">'+headers[i].name+'<span id="'+ prefixID +'header_'+ headers[i].indicatorID +'_sort" class="'+prefixID+'sort"></span></th>');
     		virtualHeader += '<th id="Vheader_'+headers[i].indicatorID+'" style="text-align:'+align+'">'+headers[i].name+'</th>';
     		if(headers[i].sortable == undefined
     				|| headers[i].sortable == true) {
@@ -129,6 +129,21 @@ var LeafFormGrid = function(containerID, options) {
         			}
         			renderBody(0, Infinity);
         		});
+						//using enter key to sort the the table heads for 508 compliance
+						$('#'+ prefixID +'header_' + headers[i].indicatorID).on('keydown', null, headers[i].indicatorID, function(data) {
+							if(data.keyCode == 13){
+
+							if(headerToggle == 0) {
+								sort(data.data, 'asc');
+								headerToggle = 1;
+							}
+							else {
+								sort(data.data, 'desc');
+								headerToggle = 0;
+							}
+							renderBody(0, Infinity);
+						}
+						});
         		// todo: move this into a stylesheet
         		$('#'+ prefixID +'header_' + headers[i].indicatorID).on('mouseover', null, headers[i].indicatorID, function(data) {
         			$('#'+ prefixID +'header_' + data.data).css('background-color', '#79a2ff');
