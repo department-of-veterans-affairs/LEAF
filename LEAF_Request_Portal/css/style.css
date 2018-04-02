@@ -411,6 +411,14 @@ table.table {
     color: white;
 }
 
+.table_editable:hover a {
+    color: white;
+}
+
+.table_editable:hover>.browsetypes {
+    color: white;
+}
+
 .table_priority {
     cursor: pointer;
 }
