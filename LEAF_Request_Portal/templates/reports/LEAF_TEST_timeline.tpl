@@ -48,19 +48,19 @@ function processData(queryResult, workflowData) {
 
         for(var j in request.action_history) {
             var idx = Number(j);
-            if(request.action_history[idx + 1] != undefined
-                && request.action_history[idx + 1].stepID != 0) { // don't count time taken during sendbacks or other route overrides
-
+            if(request.action_history[idx + 1] != undefined) {
                 var stepID = request.action_history[idx + 1].stepID;
-                var hash = stepID + request.action_history[idx + 1].description;
                 var startTime = request.action_history[idx].time;
                 var endTime = request.action_history[idx + 1].time;
 
-                timelines[stepID] = timelines[stepID] || {};
-                timelines[stepID].label = timelines[stepID].label == undefined ? request.action_history[idx + 1].description : timelines[stepID].label;
-
                 if(workflow[stepID] != undefined) {
+                    timelines[stepID] = timelines[stepID] || {};
                     timelines[stepID].label = workflow[stepID];
+                }
+                else {
+                    stepID = 'Other route';
+                    timelines[stepID] = timelines[stepID] || {};
+                    timelines[stepID].label = 'Other route';
                 }
 
                 // only count the slowest approver in a multi-requirement step   
