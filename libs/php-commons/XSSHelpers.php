@@ -9,13 +9,15 @@ class XSSHelpers {
         '/\b\d{3}-\d{2}-\d{4}\b/', // mask SSN
         '/(\<\/p\>\<\/p\>){2,}/', // flatten extra <p>
         '/(\<p\>\<\/p\>){2,}/', // flatten extra <p>
-        '/\<\/p\>(\s+)?\<br\>(\s+)?\<p\>/U' // scrub line breaks between paragraphs
+        '/\<\/p\>(\s+)?\<br\>(\s+)?\<p\>/U', // scrub line breaks between paragraphs
+        '/(<br \/?><br \/?><br \/?>)+/' // scrub excess linebreaks
     ];
     static private $specialReplace = [
         '###-##-####',
         '',
         '',
-        "</p>\n<p>"
+        "</p>\n<p>",
+        '<br />'
     ];
 
     /**
@@ -75,7 +77,7 @@ class XSSHelpers {
         foreach($allowedTags as $tag) {
             switch($tag) {
                 case 'br':
-                    $pattern[] = '/&lt;br(\s.+)?(\/)?&gt;/U';
+                    $pattern[] = '/&lt;(\/)?br(\s.+)?(\/)?&gt;/U';
                     $replace[] = '<br />';
                     break;
                 case 'table':
@@ -136,7 +138,7 @@ class XSSHelpers {
         $numTags = count($matches[2]);
         for($i = 0; $i < $numTags; $i++) {
             if($matches[2][$i] != 'br'
-                || $matches[2][$i] != 'img') {
+                && $matches[2][$i] != 'img') {
                 //echo "examining: {$matches[1][$i]}{$matches[2][$i]}\n";
                 // proper closure
                 if($matches[1][$i] == '/' && isset($openTags[$matches[2][$i]]) && $openTags[$matches[2][$i]] > 0) {
@@ -176,7 +178,7 @@ class XSSHelpers {
     /**
     * Sanitize a HTML string, allows some tags for use in rich text editors.
     * 
-    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr><thead><tbody>
+    * Allowed tags: <b><i><u><ol><ul><li><br><p><table><td><tr><thead><tbody>
     *
     * @param    string  $in the string to be sanitized
     *
@@ -184,7 +186,7 @@ class XSSHelpers {
     */
     static public function sanitizeHTML($in)
     {
-        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody'];
+        $allowedTags = ['b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody'];
 
         return XSSHelpers::sanitizer($in, $allowedTags);
     }
@@ -193,7 +195,7 @@ class XSSHelpers {
     * Sanitize a HTML string, allows some tags for use in rich text editors.
     * Used in form field headings, which include some links and formatted text
     * 
-    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr><thead><tbody><a><span><strong><em><h1><h2><h3><h4><img><font>
+    * Allowed tags: <b><i><u><ol><ul><li><br><p><table><td><tr><thead><tbody><a><span><strong><em><h1><h2><h3><h4><img><font>
     *
     * @param    string  $in the string to be sanitized
     *
@@ -201,7 +203,7 @@ class XSSHelpers {
     */
     static public function sanitizeHTMLRich($in)
     {
-        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table',
+        $allowedTags = ['b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table',
                         'td', 'tr', 'thead', 'tbody', 'a', 'span', 'strong',
                         'em', 'h1', 'h2', 'h3', 'h4', 'img', 'font'];
 

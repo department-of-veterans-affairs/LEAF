@@ -47,6 +47,7 @@ function processData(queryResult, workflowData) {
         var request = res[i];
 
         for(var j in request.action_history) {
+            var isCounted = false;
             var idx = Number(j);
             if(request.action_history[idx + 1] != undefined) {
                 var stepID = request.action_history[idx + 1].stepID;
@@ -66,8 +67,17 @@ function processData(queryResult, workflowData) {
                 // only count the slowest approver in a multi-requirement step   
                 if(request.action_history[idx].stepID != request.action_history[idx + 1].stepID) {
                     timelines[stepID].count = timelines[stepID].count == undefined ? 1 : timelines[stepID].count + 1;
+                    isCounted = true;
                 }
                 timelines[stepID].time = timelines[stepID].time == undefined ? diffBusinessTime(startTime, endTime) : timelines[stepID].time + diffBusinessTime(startTime, endTime);
+
+                // don't count time taken during sendbacks or other route overrides
+                if(request.action_history[idx + 1].stepID == 0) {
+                    if(isCounted) {
+                        timelines[stepID].count--;
+                    }
+                    timelines[stepID].time -= diffBusinessTime(startTime, endTime);
+                }
             }
         }
     }
@@ -262,7 +272,7 @@ $(function() {
 </div>
 
 <div id="chartBody" style="display: none">
-
+    <h1 style="color: red">TEST - In development</h1>
     <h2 style="text-align: center">Average Business days to resolve requests (past 3 months)</h2>
     
     <div id="chartContainer" style="background-color: white; width: 800px; height: 400px; margin: auto; border: 1px solid black">
