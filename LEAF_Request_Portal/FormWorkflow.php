@@ -369,11 +369,11 @@ class FormWorkflow
      * @param int       $dependencyID
      * @param string    $actionType
      * @param string    $comment
-     * @param string    $signature      A digital signature footprint (default: null)
+     * @param string    $signature_id   A id for a signature database entry (default: null)
      * 
      * @return array {status(int), errors[string]}
      */
-    public function handleAction($dependencyID, $actionType, $comment, $signature = null)
+    public function handleAction($dependencyID, $actionType, $comment, $signature_id = null)
     {
     	$errors = [];
 
@@ -526,13 +526,13 @@ class FormWorkflow
                                ':actionTypeID' => 8,
                                ':time' => $time,
                                ':comment' => $comment,
-                               ':signature' => $signature);
+                               ':signature_id' => $signature_id);
                 $logKey = sha1(serialize($vars2));
                 if(!isset($logCache[$logKey])) {
                     // write log
                     $logCache[$logKey] = 1;
-                    $this->db->prepared_query("INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment, signature)
-                            VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :signature)", $vars2);
+                    $this->db->prepared_query("INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment, signature_id)
+                            VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :signature_id)", $vars2);
                 }
 
                 // get other action data
