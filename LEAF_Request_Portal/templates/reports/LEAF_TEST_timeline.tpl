@@ -50,17 +50,24 @@ function processData(queryResult, workflowData) {
             var idx = Number(j);
             if(request.action_history[idx + 1] != undefined
                 && request.action_history[idx + 1].stepID != 0) { // don't count time taken during sendbacks or other route overrides
+
                 var stepID = request.action_history[idx + 1].stepID;
                 var hash = stepID + request.action_history[idx + 1].description;
                 var startTime = request.action_history[idx].time;
                 var endTime = request.action_history[idx + 1].time;
-                timelines[hash] = timelines[hash] || {};
-                timelines[hash].label = timelines[hash].label == undefined ? request.action_history[idx + 1].description : timelines[hash].label;
+
+                timelines[stepID] = timelines[stepID] || {};
+                timelines[stepID].label = timelines[stepID].label == undefined ? request.action_history[idx + 1].description : timelines[stepID].label;
+
                 if(workflow[stepID] != undefined) {
-                    timelines[hash].label = workflow[stepID];
+                    timelines[stepID].label = workflow[stepID];
                 }
-                timelines[hash].count = timelines[hash].count == undefined ? 1 : timelines[hash].count + 1;
-                timelines[hash].time = timelines[hash].time == undefined ? diffBusinessTime(startTime, endTime) : timelines[hash].time + diffBusinessTime(startTime, endTime);
+
+                // only count the slowest approver in a multi-requirement step   
+                if(request.action_history[idx].stepID != request.action_history[idx + 1].stepID) {
+                    timelines[stepID].count = timelines[stepID].count == undefined ? 1 : timelines[stepID].count + 1;
+                }
+                timelines[stepID].time = timelines[stepID].time == undefined ? diffBusinessTime(startTime, endTime) : timelines[stepID].time + diffBusinessTime(startTime, endTime);
             }
         }
     }
@@ -93,6 +100,7 @@ function renderData(categoryID, label) {
     for(var i in chartConfig.data.datasets) {
         chartConfig.data.datasets[i].data.push(null);
     }
+
     for(var i in timelines) {
         var dataSet = {
             label: timelines[i].label,
@@ -182,16 +190,17 @@ function newChartConfig() {
             },
             scales: {
                 xAxes: [{
+                    stacked: true,
                     scaleLabel: {
                         display: true,
                         labelString: 'Business Days'
                     }
                 }],
                 yAxes: [{
+                    stacked: true,
                     ticks: {
                         beginAtZero:true
                     },
-                    stacked: true,
                     scaleLabel: {
                         display: true,
                         labelString: 'Request Type'
