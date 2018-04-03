@@ -12,6 +12,8 @@ namespace LEAFTest;
 class LEAFResponseType
 {
     const JSON = 0;
+
+    const TEXT = 1;
 }
 
 /**
@@ -32,8 +34,16 @@ class ResponseFormatter
         switch ($responseType) {
           case LEAFResponseType::JSON:
             return self::JSON($data);
+
+            break;
+          case LEAFResponseType::TEXT:
+            return (string)$data;
+
+            break;
           default:
             return 'Unknown LEAFResponseType';
+
+            break;
         }
     }
 

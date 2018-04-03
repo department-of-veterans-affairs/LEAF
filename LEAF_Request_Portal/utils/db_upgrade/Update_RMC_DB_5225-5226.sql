@@ -19,7 +19,6 @@ CREATE TABLE IF NOT EXISTS `signatures` (
     `id`        MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
     `signature` VARCHAR(255) NOT NULL,
     `recordID`  SMALLINT(5) unsigned NOT NULL,
-    `actionID`  MEDIUMINT(8) unsigned NOT NULL,
 
     -- Typically this will hold a JSON object, but the MySQL JSON data type is not used here since the JSON document
     -- elements will never be accessed individually and this is here only for accounting and validation purposes
