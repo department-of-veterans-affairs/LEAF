@@ -1080,7 +1080,7 @@ var endpointOptions = {
     
 this.portalAPI = LEAFRequestPortalAPI();
 this.portalAPI.setBaseURL('../api/?a=');
-this.portalAPI.Workflow.setCSRFToken(CSRFToken);
+this.portalAPI.setCSRFToken(CSRFToken);
 
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
