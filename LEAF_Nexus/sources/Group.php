@@ -245,7 +245,7 @@ class Group extends Data
         $privs = $this->getUserPrivileges($groupID);
         // Don't allow special reserved groups (1-10) to be edited
         if($privs[$groupID]['write'] == 0
-            && groupID <= 3) {
+            && $groupID <= 3) {
             throw new Exception('Access denied');
         }
         if(!isset($newTitle) || strlen($newTitle) == 0) {
