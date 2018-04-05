@@ -186,7 +186,7 @@ class XSSHelpers {
     */
     static public function sanitizeHTML($in)
     {
-        $allowedTags = ['b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody'];
+        $allowedTags = ['b', 'i', 'u', 'strong', 'em', 'ol', 'ul', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody'];
 
         return XSSHelpers::sanitizer($in, $allowedTags);
     }
