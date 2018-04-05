@@ -441,7 +441,10 @@ var LeafFormSearch = function(containerID) {
 				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 250px" />');
 				break;
 			case 'serviceID':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+                $('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen"  aria-label="title" style="width: 120px">\
+                        <option value="=">IS</option>\
+                        <option value="!=">IS NOT</option>\
+                    </select>');
 				$.ajax({
 					type: 'GET',
 					url: './api/?a=system/services',
