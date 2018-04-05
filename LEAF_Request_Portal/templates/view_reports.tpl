@@ -668,8 +668,12 @@ $(function() {
         $('#reportTitle').css('display', 'none');
         try {
         	if(<!--{$version}--> >= 2) {
-                inQuery = JSON.parse(LZString.decompressFromBase64('<!--{$query|escape:"html"}-->'));
-                t_inIndicators = JSON.parse(LZString.decompressFromBase64('<!--{$indicators|escape:"html"}-->'));
+        	    var query = '<!--{$query|escape:"html"}-->';
+        	    var indicators = '<!--{$indicators|escape:"html"}-->';
+                query = query.replace(/ /g, '+');
+                indicators = indicators.replace(/ /g, '+');
+                inQuery = JSON.parse(LZString.decompressFromBase64(query));
+                t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
         	}
         	else {
                 inQuery = JSON.parse(atob('<!--{$query|escape:"html"}-->'));

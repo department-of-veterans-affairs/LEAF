@@ -3030,6 +3030,7 @@ class Form
      */
     private function fileToArray($data)
     {
+        $data = XSSHelpers::sanitizeHTML($data);
         $data = str_replace('<br />', "\n", $data);
         $data = str_replace('<br>', "\n", $data);
         $tmpFileNames = explode("\n", $data);
