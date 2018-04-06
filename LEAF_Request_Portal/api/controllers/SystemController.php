@@ -54,6 +54,10 @@ class SystemController extends RESTfulResponse
         	return $system->getTemplate($args[0]);
         });
 
+        $this->index['GET']->register('system/templates/[text]/standard', function($args) use ($system) {
+            return $system->getTemplate($args[0], true);
+        });
+
         $this->index['GET']->register('system/reportTemplates', function($args) use ($system) {
         	return $system->getReportTemplateList();
         });
