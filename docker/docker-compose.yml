@@ -41,6 +41,20 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ALLOW_EMPTY_PASSWORD=${MYSQL_ALLOW_EMPTY_PASSWORD}
 
+  java:
+    build:
+      context: ../
+      dockerfile: docker/java/Dockerfile
+    expose:
+      - "8765"
+    ports:
+      - "8765:8765"
+    restart: 'always'
+    networks:
+      code-network:
+        aliases:
+          - java
+
 volumes:
   leaf-mysql-data:
   leaf-php-data:
