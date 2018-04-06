@@ -237,7 +237,7 @@ class System
     	return $out;
     }
 
-    public function getTemplate($template) {
+    public function getTemplate($template, $getStandard = false) {
     	if(!$this->login->checkGroup(1)) {
     		return 'Admin access required';
     	}
@@ -245,7 +245,8 @@ class System
 
     	$data = [];
     	if(array_search($template, $list) !== false) {
-    		if(file_exists("../templates/custom_override/{$template}")) {
+    		if(file_exists("../templates/custom_override/{$template}")
+    		      && !$getStandard) {
     			$data['modified'] = 1;
     			$data['file'] = file_get_contents("../templates/custom_override/{$template}");
     		}
