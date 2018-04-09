@@ -532,6 +532,12 @@ span.approval_disapproved {
     font-size: 14px;
 }
 
+#menuLink:focus {
+    box-shadow: 0 4px 6px 2px #8e8e8e;
+    margin: 12px;
+    outline: black dotted;
+}
+
 .menuButtonSmall {
     float: left;
     width: 280px;
