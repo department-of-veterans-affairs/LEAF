@@ -3,8 +3,8 @@ Log of modifications made to this field:<br /><br />
 <table class="agenda">
     <thead>
         <tr>
-        <td>Date/Author</td>
-        <td>Data</td>
+        <th>Date/Author</th>
+        <th>Data</th>
         </tr>
     </thead>
     <tbody>

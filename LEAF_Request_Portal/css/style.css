@@ -161,6 +161,10 @@ span#headerMenu {
     display: block;
 }
 
+#headerMenu_container > a::after {
+    content:'\25BC';
+}
+
 span#headerTabImg {
     position: relative;
     top: 49px;
@@ -449,10 +453,18 @@ table.leaf_grid {
     margin: 2px;
 }
 
+table.leaf_grid th {
+    font-weight: normal;
+}
+
 table.leaf_grid>tbody {
     background-color: white;
 }
 
+.agenda th {
+    padding: 8px 4px 8px 4px;
+    border: 1px solid black;
+}
 
 .agenda td {
     padding: 8px 4px 8px 4px;
@@ -887,7 +899,7 @@ span.browsetitle a {
 
 span.browsetypes {
     font-size: 80%;
-    color: #a2a2a2;
+    color: #707070;
 }
 
 .button {

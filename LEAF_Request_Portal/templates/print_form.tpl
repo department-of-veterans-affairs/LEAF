@@ -31,9 +31,9 @@
         <button class="tools" onclick="viewHistory()" ><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="vertical-align: middle" /> View History</button>
         <button class="tools" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" ><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" style="vertical-align: middle"/> Write Email</button>
         <!--{if $bookmarked == ''}-->
-        <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" style="vertical-align: middle" /> Add Bookmark</button>
+        <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" style="vertical-align: middle" /> Add Bookmark</button>
         <!--{else}-->
-        <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> Delete Bookmark</button>
+        <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> Delete Bookmark</button>
         <!--{/if}-->
         <br />
         <br />
@@ -142,7 +142,7 @@ function getForm(indicatorID, series) {
 }
 
 function getIndicatorLog(indicatorID, series) {
-	dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><td>Date/Author</td><td>Data</td></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
+	dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><th>Date/Author</th><th>Data</th></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
     dialog_message.indicateBusy();
     dialog_message.show();
 

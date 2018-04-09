@@ -141,6 +141,10 @@ span#headerMenu {
     color: white;
 }
 
+#headerMenu_container > a::after {
+    content:'\25BC';
+}
+
 #headerMenu_links {
     display: none;
     position: absolute;

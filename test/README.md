@@ -23,7 +23,9 @@ Each testing project has it's own Phinx configuration since the two databases ar
 
 Create two database tables for testing Nexus and Portal: `nexus_testing` and `portal_testing`.
 
-Edit [LEAF_Nexus_Tests/phinx.yml](LEAF_Nexus_Tests/phinx.yml) and [LEAF_Request_Portal_Tests/phinx.yml](LEAF_Request_Portal_Tests/phinx.yml) and set your system specific variables.
+Copy [LEAF_Nexus_Tests/phinx.yml.example](LEAF_Nexus_Tests/phinx.yml.example) and [LEAF_Request_Portal_Tests/phinx.yml.example](LEAF_Request_Portal_Tests/phinx.yml.example) and rename them to `phinx.yml` in their respective directories. `phinx.yml` should not be committed to the repository. 
+
+Edit `LEAF_Nexus_Tests/phinx.yml` and `LEAF_Request_Portal_Tests/phinx.yml` and set your system specific variables.
 
 Within each test project directory, run the migrations:
 
@@ -62,9 +64,6 @@ This creates a basic template within the projects `db/seeds` for executing a dat
 
 Reading and executing a pure SQL file is not required for seeding purposes (unlike migrations). The `Phinx` API can be used to seed data.
 
-##### Common Seeds
-
-Several seed names are shared between the two test projects
 ## Running Tests
 
 All tests should be run from the project specific test directory (`LEAF_Nexus_Tests` or `LEAF_Request_Portal_Tests`), the `include` paths and `PHPUnit/Phinx` configs depend on it.
@@ -75,13 +74,30 @@ The following will run all tests in the [LEAF_Nexus_Tests/tests](LEAF_Nexus_Test
 phpunit --bootstrap ../bootstrap.php tests
 ```
 
-To run tests in a subdirectory (in this case `utils`):
+To run tests in a subdirectory (in this example `utils`):
 
 ```bash
 phpunit --bootstrap ../bootstrap.php tests/utils 
 ```
 
-This is useful when the entire suite of tests does not need to be run.
+To run a single test method from a test class (in this example, from [CryptoHelpersTest](LEAF_Request_Portal_Tests/tests/helpers/CryptoHelpersTest.php)):
+
+```bash
+phpunit --bootstrap ../bootstrap.php tests/helpers --filter testVerifySignature_authentic
+```
+
+These are useful when the entire suite of tests does not need to be run.
+
+Currently, the values in:
+
+```
+LEAF_Nexus/globals.php
+LEAF_Nexus/config.php
+LEAF_Request_Portal/globals.php
+LEAF_Request_Portal/db_config.php
+```
+
+need to be updated to the same database name/user/pass that was used when configuring the test databases (`nexus_testing`, `portal_testing`). In other words, make sure the LEAF application isn't configured to use the production/dev databases or any database tests will fail. 
 
 The `bootstrap.php` file autoloads the classes/files in the `shared/src` directory. If
 a new source file is added in the `shared/src` directory, add the file in the
@@ -95,6 +111,8 @@ composer dump-autoload
 ## Writing Tests
 
 All tests should live in the `tests` directory of each projects root directory (e.g. `LEAF_Nexus_Tests`).
+
+When deciding where to place a test that requires database interaction, it should be the project it interacts with the most. For example, [CryptoHelpersTest](LEAF_Request_Portal_Tests/tests/helpers/CryptoHelpersTest.php) actually tests [CryptoHelpers](../libs/php-commons/CryptoHelpers.php) in the [libs](../libs/php-commons) project, but the test interacts with the [Request Portal](../LEAF_Request_Portal) database, so it lives in the [LEAF_Request_Portal_Tests](LEAF_Request_Portal_Tests) directory.
 
 ### LEAFClient
 

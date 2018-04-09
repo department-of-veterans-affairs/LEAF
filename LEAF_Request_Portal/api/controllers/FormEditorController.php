@@ -3,6 +3,8 @@
 require '../form.php';
 require '../sources/FormEditor.php';
 
+include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+
 class FormEditorController extends RESTfulResponse
 {
     private $API_VERSION = 1;    // Integer
@@ -25,7 +27,8 @@ class FormEditorController extends RESTfulResponse
         $formEditor = $this->formEditor;
 
         $this->index['GET'] = new ControllerMap();
-        $cm = $this->index['GET'];
+		$cm = $this->index['GET'];
+		
         $this->index['GET']->register('formEditor/version', function() {
             return $this->API_VERSION;
         });
@@ -63,10 +66,10 @@ class FormEditorController extends RESTfulResponse
 
         $this->index['POST']->register('formEditor/newIndicator', function($args) use ($formEditor) {
         	$package = array();
-        	$package['name'] = $_POST['name'];
-        	$package['format'] = $_POST['format'];
-        	$package['description'] = $_POST['description'];
-        	$package['default'] = $_POST['default'];
+        	$package['name'] = XSSHelpers::sanitizeHTMLRich($_POST['name']);
+        	$package['format'] = strip_tags($_POST['format']);
+        	$package['description'] = XSSHelpers::sanitizeHTML($_POST['description']);
+        	$package['default'] = XSSHelpers::sanitizeHTML($_POST['default']);
         	$package['parentID'] = $_POST['parentID'];
         	$package['categoryID'] = $_POST['categoryID'];
         	$package['html'] = $_POST['html'];
@@ -74,22 +77,22 @@ class FormEditorController extends RESTfulResponse
         	$package['required'] = $_POST['required'];
         	$package['sort'] = $_POST['sort'];
         	return $formEditor->addIndicator($package);
-        });
+		});
 
         $this->index['POST']->register('formEditor/[digit]/name', function($args) use ($formEditor) {
-	        return $formEditor->setName($args[0], $_POST['name']);
+	        return $formEditor->setName($args[0], XSSHelpers::sanitizeHTMLRich($_POST['name']));
         });
 
         $this->index['POST']->register('formEditor/[digit]/format', function($args) use ($formEditor) {
-        	return $formEditor->setFormat($args[0], $_POST['format']);
+        	return $formEditor->setFormat($args[0], strip_tags($_POST['format']));
         });
 
         $this->index['POST']->register('formEditor/[digit]/description', function($args) use ($formEditor) {
-        	return $formEditor->setDescription($args[0], $_POST['description']);
+        	return $formEditor->setDescription($args[0], XSSHelpers::sanitizeHTML($_POST['description']));
         });
 
         $this->index['POST']->register('formEditor/[digit]/default', function($args) use ($formEditor) {
-        	return $formEditor->setDefault($args[0], $_POST['default']);
+        	return $formEditor->setDefault($args[0], XSSHelpers::sanitizeHTML($_POST['default']));
         });
 
         $this->index['POST']->register('formEditor/[digit]/parentID', function($args) use ($formEditor) {
@@ -112,24 +115,36 @@ class FormEditorController extends RESTfulResponse
        		return $formEditor->setSort($args[0], $_POST['sort']);
        	});
 
+       	// Advanced Option allows HTML/JS
    		$this->index['POST']->register('formEditor/[digit]/html', function($args) use ($formEditor) {
    			return $formEditor->setHtml($args[0], $_POST['html']);
-   		});
-       	
+		});
+
+   		// Advanced Option allows HTML/JS
        	$this->index['POST']->register('formEditor/[digit]/htmlPrint', function($args) use ($formEditor) {
        		return $formEditor->setHtmlPrint($args[0], $_POST['htmlPrint']);
        	});
        			
    		$this->index['POST']->register('formEditor/new', function($args) use ($formEditor) {
-   			return $formEditor->createForm($_POST['name'], $_POST['description'], $_POST['parentID']);
+   			return $formEditor->createForm(
+				XSSHelpers::sanitizeHTML($_POST['name']), 
+				XSSHelpers::sanitizeHTML($_POST['description']), 
+				XSSHelpers::sanitizeHTML($_POST['parentID'])
+			);
    		});
 
    		$this->index['POST']->register('formEditor/formName', function($args) use ($formEditor) {
-   			return $formEditor->setFormName($_POST['categoryID'], $_POST['name']);
+   			return $formEditor->setFormName(
+				strip_tags($_POST['categoryID']), 
+				XSSHelpers::sanitizeHTML($_POST['name'])
+			);
    		});
 
    		$this->index['POST']->register('formEditor/formDescription', function($args) use ($formEditor) {
-   			return $formEditor->setFormDescription($_POST['categoryID'], $_POST['description']);
+   			return $formEditor->setFormDescription(
+				$_POST['categoryID'], 
+				XSSHelpers::sanitizeHTML($_POST['description'])
+			);
    		});
 
    		$this->index['POST']->register('formEditor/formWorkflow', function($args) use ($formEditor) {

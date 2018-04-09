@@ -16,7 +16,7 @@ include 'db_config.php';
 include_once './enforceHTTPS.php';
 
 // Include XSSHelpers
-include_once './sources/XSSHelpers.php';
+include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -85,6 +85,7 @@ switch ($action) {
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', Config::$orgchartPath);
                 $t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
+                $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
             }
             else

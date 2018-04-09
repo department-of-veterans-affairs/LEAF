@@ -104,9 +104,11 @@ foreach($res as $pos) {
     		if($emp['lastName'] != ''
     			&& $emp['isActing'] == 0) {
     			$packet['employee'] = "{$emp['lastName']}, {$emp['firstName']}";
+    			$packet['employeeUserName'] = $emp['userName'];
     		}
     		else {
     			$packet['employee'] = '';
+    			$packet['employeeUserName'] = '';
     		}
     
     		$packet['supervisor'] = $supervisorName;
@@ -139,7 +141,8 @@ foreach($res as $pos) {
     		$packet = [];
     		$packet['positionID'] = $pos['positionID'];
     		$packet['positionTitle'] = $output[$pos['positionID']]['positionTitle'];
-    		$packet['employee'] = '';    		
+    		$packet['employee'] = '';
+    		$packet['employeeUserName'] = '';
 			$packet['supervisor'] = $supervisorName;
 			$packet['service'] = $output[$pos['positionID']]['service'];
     		$packet['payPlan'] = $output[$pos['positionID']]['data']['Pay Plan'];

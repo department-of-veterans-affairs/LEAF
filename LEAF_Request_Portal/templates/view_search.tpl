@@ -1,10 +1,12 @@
 <div id="searchContainer"></div>
+<button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; float: right">Show more records</button>
 <script>
 var CSRFToken = '<!--{$CSRFToken}-->';
 
 
 $(function() {
     var query = new LeafFormQuery();
+    var queryLimit = 50;
     var leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
 
@@ -27,9 +29,9 @@ $(function() {
          {name: 'Title', indicatorID: 'title', callback: function(data, blob) {
             var types = '';
             for(var i in blob[data.recordID].categoryNames) {
-            	if(blob[data.recordID].categoryNames[i] != '') {
+                if(blob[data.recordID].categoryNames[i] != '') {
                     types += blob[data.recordID].categoryNames[i] + ' | ';
-            	}
+                }
             }
             types = types.substr(0, types.length - 3);
 
@@ -59,23 +61,23 @@ $(function() {
              var waitText = blob[data.recordID].blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
              var status = '';
              if(blob[data.recordID].stepID == null && blob[data.recordID].submitted == '0') {
-                 status = '<span style="color: red">Not Submitted</span>';
+                 status = '<span style="color: #e00000">Not Submitted</span>';
              }
              else if(blob[data.recordID].stepID == null) {
-            	 var lastStatus = blob[data.recordID].lastStatus;
-            	 if(lastStatus == '') {
-            		 lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
-            	 }
+                 var lastStatus = blob[data.recordID].lastStatus;
+                 if(lastStatus == '') {
+                     lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
+                 }
                  status = '<span style="font-weight: bold">' + lastStatus + '</span>';
              }
              else {
                  status = waitText + blob[data.recordID].stepTitle;
              }
-             
+
              if(blob[data.recordID].deleted > 0) {
-            	 status += ', Cancelled';
+                 status += ', Cancelled';
              }
-             
+
              $('#'+data.cellContainerID).html(status);
              if(blob[data.recordID].userID == '<!--{$userID}-->') {
                  $('#'+data.cellContainerID).css('background-color', '#feffd1');
@@ -83,21 +85,21 @@ $(function() {
          }}
          ]);
         grid.setPostProcessDataFunc(function(data) {
-        	var data2 = [];
-        	for(var i in data) {
-        		<!--{if !$is_admin}-->
-        		if(data[i].submitted == '0'
+            var data2 = [];
+            for(var i in data) {
+                <!--{if !$is_admin}-->
+                if(data[i].submitted == '0'
                     && data[i].userID == '<!--{$userID}-->') {
                     data2.push(data[i]);
                 }
                 else if(data[i].submitted != '0') {
                     data2.push(data[i]);
                 }
-        		<!--{else}-->
-        		data2.push(data[i]);
-        		<!--{/if}-->
-        	}
-        	return data2;
+                <!--{else}-->
+                data2.push(data[i]);
+                <!--{/if}-->
+            }
+            return data2;
         });
 
         var tGridData = [];
@@ -111,6 +113,17 @@ $(function() {
         $('#header_date').css('width', '60px');
         $('#header_service').css('width', '150px');
         $('#header_currentStatus').css('width', '100px');
+        
+        // UI for "show more results". After 150 results, "show all results"
+        if(Object.keys(res).length % 50 == 0) {
+            $('#searchContainer_getMoreResults').css('display', 'inline');
+        }
+        else {
+            $('#searchContainer_getMoreResults').css('display', 'none');
+        }
+        if(queryLimit > 100) {
+            $('#searchContainer_getMoreResults').html('Show ALL records');
+        }
     });
     leafSearch.setSearchFunc(function(txt) {
         query.clearTerms();
@@ -126,7 +139,7 @@ $(function() {
 
         txt = txt.trim();
         if(txt == '' || txt == '*') {
-            query.setLimit(50);
+            query.setLimit(queryLimit);
         }
 
         if(txt == '') {
@@ -138,7 +151,7 @@ $(function() {
         else if(isJSON) {
             for(var i in advSearch) {
                 if(advSearch[i].id != 'data'
-                	&& advSearch[i].id != 'dependencyID') {
+                    && advSearch[i].id != 'dependencyID') {
                     query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);                  
                 }
                 else {
@@ -147,7 +160,7 @@ $(function() {
 
                 if(advSearch[i].id == 'title'
                         && advSearch[i].match == '**') {
-                    query.setLimit(50);                 
+                    query.setLimit(queryLimit);                 
                 }
             }
         }
@@ -158,18 +171,17 @@ $(function() {
         // check if the user wants to search for deleted requests
         var hasDeleteQuery = false;
         for(var i in query.getQuery().terms) {
-        	if(query.getQuery().terms[i].id == 'stepID'
-        		&& query.getQuery().terms[i].operator == '='
-        		&& query.getQuery().terms[i].match == 'deleted') {
-        		hasDeleteQuery = true;
-        		break;
-        	}
+            if(query.getQuery().terms[i].id == 'stepID'
+                && query.getQuery().terms[i].operator == '='
+                && query.getQuery().terms[i].match == 'deleted') {
+                hasDeleteQuery = true;
+                break;
+            }
         }
         if(!hasDeleteQuery) {
             query.addTerm('deleted', '=', 0);
         }
 
-        //  query.addTerm('categoryID', 'RIGHT JOIN', 'equipment');
         query.join('service');
         query.join('status');
         query.join('categoryName');
@@ -177,5 +189,16 @@ $(function() {
         return query.execute();
     });
     leafSearch.init();
+    
+    $('#searchContainer_getMoreResults').on('click', function() {
+        if(queryLimit <= 100) {
+            queryLimit += 50;
+            query.setLimit(queryLimit);
+        }
+        else {
+            query.setLimit();
+        }
+        query.execute()
+    });
 });
 </script>

@@ -24,12 +24,12 @@ var LeafFormSearch = function(containerID) {
 	function renderUI() {
 		$('#' + containerID).html('<div>\
 			    <img id="'+prefixID+'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="'+ rootURL +'../libs/dynicons/?img=search.svg&w=16">\
-			    <img id="'+prefixID+'searchIconBusy" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display:none" src="'+ rootURL +'images/indicator.gif">\
+			    <img id="'+prefixID+'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="'+ rootURL +'images/indicator.gif">\
 			    <input style="border: 1px solid black; padding: 4px" type="text" id="'+prefixID+'searchtxt" name="searchtxt" size="50" title="Enter your search text" value="" />\
 			    <button class="buttonNorm" id="'+prefixID+'advancedSearchButton">Advanced Options</button>\
 			    <fieldset id="'+prefixID+'advancedOptions" style="position: relative; display: none; margin: 0px; border: 1px solid black; background-color: white">\
 		        <legend>Advanced Search Options</legend>\
-		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer" alt="Close advanced search" />\
+		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer" alt="Close advanced search"/>\
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="'+prefixID+'searchTerms"></table>\
 		        <button class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</button>\
@@ -37,7 +37,7 @@ var LeafFormSearch = function(containerID) {
 		        <button id="'+prefixID+'advancedSearchApply" class="buttonNorm" style="text-align: center; width: 100%">Apply Filters</button>\
 		    </fieldset>\
 		    </div>\
-		    <div id="'+prefixID+'_result" style="margin-top: 8px">\
+		    <div id="'+prefixID+'_result" style="margin-top: 8px" aria-label="Search Results">\
 		    </div>');
 
 	    var searchOrigWidth = 0;
@@ -65,6 +65,7 @@ var LeafFormSearch = function(containerID) {
 	            $('#' + prefixID + 'advancedOptions').css('display', 'inline');
 	            $('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
 	            renderPreviousAdvancedSearch();
+	            $('#' + prefixID + 'widgetMat_0').focus();
 	    	});
 	    });
 
@@ -176,7 +177,9 @@ var LeafFormSearch = function(containerID) {
         		$('#' + prefixID + 'widgetCod_' + i).val(advSearch[i].operator);
         		if(typeof advSearch[i].match == 'string') {
         			$('#' + prefixID + 'widgetMat_' + i).val(advSearch[i].match.replace(/\*/g, ''));
+
         		}
+						
         	}
         }
 	}
@@ -517,8 +520,8 @@ var LeafFormSearch = function(containerID) {
 						$('#' + prefixID + 'widgetTerm_' + widgetID).after(dependencies);
 
 						var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="options" style="width: 250px">';
-						options += '<option value="1">Signed</option>';
-						options += '<option value="0">Pending Signature</option>';
+						options += '<option value="1">Reviewed</option>';
+						options += '<option value="0">Not Reviewed</option>';
 						options += '<option value="-1">Returned to a previous step</option>';
 						options += '</select>';
 						$('#' + prefixID + 'widgetMatch_' + widgetID).html(options);
@@ -533,7 +536,10 @@ var LeafFormSearch = function(containerID) {
 				});
 				break;
 			case 'stepID':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen" aria-label="categoryID">\
+	            		<option value="=">IS</option>\
+	            		<option value="!=">IS NOT</option>\
+	            	</select>');
 				$.ajax({
 					type: 'GET',
 					url: './api/?a=workflow/steps',
@@ -541,11 +547,8 @@ var LeafFormSearch = function(containerID) {
 					success: function(res) {
 						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="stepID" style="width: 250px">';
 						categories += '<option value="submitted">Submitted</option>';
-						categories += '<option value="notSubmitted">Not Submitted</option>';
 						categories += '<option value="deleted">Cancelled</option>';
-						categories += '<option value="notDeleted">Not Cancelled</option>';
 						categories += '<option value="resolved">Resolved</option>';
-						categories += '<option value="notResolved">Not Resolved</option>';
 						for(var i in res) {
 							categories += '<option value="'+ res[i].stepID +'">'+ res[i].description + ': ' + res[i].stepTitle +'</option>';
 						}
@@ -635,18 +638,30 @@ var LeafFormSearch = function(containerID) {
 											$('.chosen').chosen({disable_search_threshold: 6});
 										    break;
 										case 'orgchart_employee':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
+								            		<option value="=">IS</option>\
+													<option value="!=">IS NOT</option>\
+								            	</select>');
 											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<div id="'+prefixID+'widgetEmp_'+widgetID+'" style="width: 280px"></div><input type="hidden" id="'+prefixID+'widgetMat_'+widgetID+'" />');
+											$('.chosen').chosen({disable_search_threshold: 6});
 											createEmployeeSelectorWidget(widgetID, 'empUID');
 											break;
 										case 'orgchart_position':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
+								            		<option value="=">IS</option>\
+													<option value="!=">IS NOT</option>\
+								            	</select>');
 											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<div id="'+prefixID+'widgetPos_'+widgetID+'" style="width: 280px"></div><input type="hidden" id="'+prefixID+'widgetMat_'+widgetID+'" />');
+											$('.chosen').chosen({disable_search_threshold: 6});
 											createPositionSelectorWidget(widgetID, 'empUID');
 											break;
 										case 'orgchart_group':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
+								            		<option value="=">IS</option>\
+													<option value="!=">IS NOT</option>\
+								            	</select>');
 											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<div id="'+prefixID+'widgetGrp_'+widgetID+'" style="width: 280px"></div><input type="hidden" id="'+prefixID+'widgetMat_'+widgetID+'" />');
+											$('.chosen').chosen({disable_search_threshold: 6});
 											createGroupSelectorWidget(widgetID);
 											break;
 										case 'dropdown':
