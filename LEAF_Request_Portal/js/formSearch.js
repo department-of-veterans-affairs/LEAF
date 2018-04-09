@@ -29,7 +29,7 @@ var LeafFormSearch = function(containerID) {
 			    <button class="buttonNorm" id="'+prefixID+'advancedSearchButton">Advanced Options</button>\
 			    <fieldset id="'+prefixID+'advancedOptions" style="position: relative; display: none; margin: 0px; border: 1px solid black; background-color: white">\
 		        <legend>Advanced Search Options</legend>\
-		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer" alt="Close advanced search"/>\
+		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" tabindex="0" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer" alt="Close advanced search"/>\
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="'+prefixID+'searchTerms"></table>\
 		        <button class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</button>\
@@ -52,6 +52,22 @@ var LeafFormSearch = function(containerID) {
 	            $('#' + prefixID + 'searchtxt').animate({'width': searchOrigWidth}, 400, 'swing');
 	            $('#' + prefixID + 'searchtxt').focus();
 	        });
+	    });
+
+			var searchOrigWidth = 0;
+	    $('#' + prefixID + 'advancedOptionsClose').on('keydown', function(e) {
+				if(e.keyCode == 13){
+	    	localStorage.setItem(localStorageNamespace + '.search', '');
+	    	$('#' + prefixID + 'searchtxt').val('');
+	    	search('');
+	    	$('#' + prefixID + 'advancedOptionsClose').css('display', 'none');
+	        $('#' + prefixID + 'advancedOptions').slideUp(function() {
+	        	$('#' + prefixID + 'advancedSearchButton').fadeIn();
+	        	$('#' + prefixID + 'searchtxt').css('display', 'inline');
+	            $('#' + prefixID + 'searchtxt').animate({'width': searchOrigWidth}, 400, 'swing');
+	            $('#' + prefixID + 'searchtxt').focus();
+	        });
+				}
 	    });
 
 	    $('#' + prefixID + 'advancedSearchButton').on('click', function() {
@@ -179,7 +195,7 @@ var LeafFormSearch = function(containerID) {
         			$('#' + prefixID + 'widgetMat_' + i).val(advSearch[i].match.replace(/\*/g, ''));
 
         		}
-						
+
         	}
         }
 	}
