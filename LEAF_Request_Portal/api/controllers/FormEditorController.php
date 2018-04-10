@@ -66,7 +66,7 @@ class FormEditorController extends RESTfulResponse
 
         $this->index['POST']->register('formEditor/newIndicator', function($args) use ($formEditor) {
         	$package = array();
-        	$package['name'] = XSSHelpers::sanitizeHTMLRich($_POST['name']);
+        	$package['name'] = $_POST['name'];
         	$package['format'] = strip_tags($_POST['format']);
         	$package['description'] = XSSHelpers::sanitizeHTML($_POST['description']);
         	$package['default'] = XSSHelpers::sanitizeHTML($_POST['default']);
@@ -80,7 +80,7 @@ class FormEditorController extends RESTfulResponse
 		});
 
         $this->index['POST']->register('formEditor/[digit]/name', function($args) use ($formEditor) {
-	        return $formEditor->setName($args[0], XSSHelpers::sanitizeHTMLRich($_POST['name']));
+	        return $formEditor->setName($args[0], $_POST['name']);
         });
 
         $this->index['POST']->register('formEditor/[digit]/format', function($args) use ($formEditor) {
