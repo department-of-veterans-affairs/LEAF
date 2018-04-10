@@ -246,8 +246,10 @@ function removePermission(groupID) {
 function editPermissions() {
 	formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 
-	dialog_simple.setTitle('Edit Collaborators');
-	dialog_simple.setContent('Groups listed below have access to write on the <b>'+ formTitle +'</b> form.<div id="formPrivs"></div>');
+	dialog_simple.setTitle('Edit Collaborators - ' + formTitle);
+	dialog_simple.setContent('<h2>Collaborators have access to fill out data fields at any time in the workflow.</h2><br />'
+	                             + 'This is typically used to give groups access to fill out internal-use fields.<br />' 
+	                             + '<div id="formPrivs"></div>');
 	dialog_simple.indicateBusy();
 
 	$.ajax({
@@ -957,7 +959,10 @@ function deleteForm() {
 			type: 'DELETE',
 			url: '../api/?a=formStack/_' + currCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
 			success: function(res) {
-				window.location.reload();
+			    if(res != true) {
+			        alert(res);
+			    }
+		        window.location.reload();
 			}
 		});
 	});
