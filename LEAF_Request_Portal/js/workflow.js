@@ -135,26 +135,73 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		        data['actionType'] = e.data.step.dependencyActions[e.data.idx].actionType;
 				data['dependencyID'] = e.data.step.dependencyID;
 
+				var completeAction = function() {
+					data['CSRFToken'] = CSRFToken;
+
+					if (e.data.step.dependencyActions[e.data.idx].fillDependency > 0)
+						if(typeof workflowModule[e.data.step.dependencyID] !== 'undefined') {
+							workflowModule[e.data.step.dependencyID].trigger(function() {
+								applyAction(data);
+							});
+						}
+						else {
+							applyAction(data);
+						}
+					else {
+						applyAction(data);
+					}
+				};
+
 				// TODO: eventually this will be handled by Workflow extension
 				if (step.requiresDigitalSignature == true) {
+					if (signer !== undefined && LEAFRequestPortalAPI !== undefined) {
+
+						var portalAPI = LEAFRequestPortalAPI();
+						portalAPI.setCSRFToken(CSRFToken);
+
+						portalAPI.Forms.getJSONForSigning(
+							currRecordID,
+							function (json) {
+								var jsonStr = JSON.stringify(json);
+								signer.setLogHandler(function(logData) {
+									console.log(logData);
+								})
+								.addData(jsonStr, "")
+								.sign(function (signedDataList) {
+									var sigData = JSON.stringify(signedDataList);
+
+									portalAPI.Signature.create(
+										sigData,
+										currRecordID,
+										jsonStr,
+										function (id) {
+											data['signature'] = id.replace('"', "");
+											console.log("IDDDDD: " + id.replace('"', ""));
+
+											completeAction();
+										},
+										function (err) {
+											console.log(err);
+										}
+									);
+
+								}, function (err) {
+									// TODO: display error message to user
+									console.log(err);
+								});
+
+							},
+							function (err) {
+								console.log(err);
+							}
+						);
+
+					}
 					// TODO: handle getting signature here
-					data['signature'] = "TEMPORARY SIGNATURE";
+					// data['signature'] = "TEMPORARY SIGNATURE";
+				} else {
+					completeAction();
 				}
-
-		        data['CSRFToken'] = CSRFToken;
-
-		        if (e.data.step.dependencyActions[e.data.idx].fillDependency > 0)
-			        if(typeof workflowModule[e.data.step.dependencyID] !== 'undefined') {
-			            workflowModule[e.data.step.dependencyID].trigger(function() {
-			                applyAction(data);
-			            });
-			        }
-			        else {
-			            applyAction(data);
-			        }
-		        else {
-		        	applyAction(data);
-		        }
 		    });
 		}
 

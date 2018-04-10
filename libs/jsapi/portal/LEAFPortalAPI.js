@@ -84,6 +84,30 @@ var PortalFormsAPI = function (baseAPIURL) {
         },
 
         /**
+         * Get a JSON representation of a form that is appropriate for digital signing.
+         * 
+         * @param record    string              the record ID to generate JSON for
+         * @param onSuccess function(results)   callback containing the JSON
+         * @param onFail    function(error)     callback when operation fails
+         */
+        getJSONForSigning = function (recordID, onSuccess, onFail) {
+            var fetchURL = apiURL + '/' + recordID + '/dataforsigning';
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: 'json'
+            })
+                .done(function (msg) {
+                    onSuccess(msg);
+                })
+                .fail(function (err) {
+                    onFail(err);
+                });
+
+        },
+
+        /**
          * Query a form using the Report Builder JSON syntax
          *
          * @param query     object              the JSON query object
@@ -110,6 +134,7 @@ var PortalFormsAPI = function (baseAPIURL) {
     return {
         getAPIURL: getAPIURL,
         getBaseAPIURL: getBaseAPIURL,
+        getJSONForSigning: getJSONForSigning,
         setBaseAPIURL: setBaseAPIURL,
         query: query
     };
@@ -170,7 +195,7 @@ var PortalSignaturesAPI = function (baseAPIURL) {
                 url: apiURL + '/create',
                 dataType: "text",
                 data: {
-                    "signature": signature, 
+                    "signature": signature,
                     "recordID": recordID,
                     "message": message,
                     CSRFToken: csrfToken

@@ -3,7 +3,7 @@ START TRANSACTION;
 -- New action to indicate a digital signature 
 INSERT INTO `actions` 
     (`actionType`, `actionText`, `actionTextPasttense`, `actionIcon`, `actionAlignment`, `sort`, `fillDependency`)
-    VALUES ('sign', 'Sign', 'Signed', 'application-certificate.svg', 'right', 0, 0);
+    VALUES ('sign', 'Sign', 'Signed', 'application-certificate.svg', 'right', 0, 1);
 
 -- Add signature field to action_history
 ALTER TABLE `action_history` ADD `signature_id` MEDIUMINT(9) DEFAULT NULL;
@@ -17,7 +17,7 @@ START TRANSACTION;
 -- Create table to hold signatures
 CREATE TABLE IF NOT EXISTS `signatures` (
     `id`        MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
-    `signature` VARCHAR(255) NOT NULL,
+    `signature` TEXT NOT NULL,
     `recordID`  SMALLINT(5) unsigned NOT NULL,
 
     -- Typically this will hold a JSON object, but the MySQL JSON data type is not used here since the JSON document

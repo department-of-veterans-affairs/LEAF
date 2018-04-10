@@ -59,7 +59,7 @@ class FormWorkflowController extends RESTfulResponse
                 $_POST['dependencyID'], 
                 $_POST['actionType'], 
                 $_POST['comment'],
-                $_POST['signature']
+                (int) $_POST['signature']
             );
         });
 
