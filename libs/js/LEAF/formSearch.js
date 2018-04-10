@@ -57,7 +57,7 @@ var LeafFormSearch = function(containerID) {
 	            $('#' + prefixID + 'searchtxt').focus();
 	        });
 	    });
-
+			//added for keyboard navigation and accessibility to close advanced search options
 			var searchOrigWidth = 0;
 	    $('#' + prefixID + 'advancedOptionsClose').on('keydown', function(e) {
 				if(e.keyCode == 13){
