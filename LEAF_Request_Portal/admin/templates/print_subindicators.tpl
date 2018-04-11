@@ -33,7 +33,7 @@
             </div>
             <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)">
             <!--{if trim($indicator.name) != ''}-->
-                <!--{$indicator.name}-->
+                <!--{$indicator.name|sanitizeRichtext|strip_tags}-->
             <!--{else}-->
                 [ blank ]
             <!--{/if}-->
@@ -49,7 +49,7 @@
             <!--{/if}-->
                 <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->"><span onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)">
                     <!--{if trim($indicator.name) != ''}-->
-                        <!--{$indicator.name|indent:$depth:""}-->
+                        <!--{$indicator.name|sanitizeRichtext|strip_tags|indent:$depth:""}-->
                     <!--{else}-->
                         [ blank ]
                     <!--{/if}-->

@@ -99,6 +99,10 @@ class XSSHelpers {
                     $replace[] = '<p>';
                     $pattern[] = '/&lt;\/p&gt;/Ui';
                     $replace[] = '</p>';
+                    
+                    // IE 11 workarounds
+                    $pattern[] = '/&lt;p align=&quot;(\S.+)&quot;(\s.+)?&gt;/Ui';
+                    $replace[] = '<p align="\1">';
                     break;
                 case 'span':
                     $pattern[] = '/&lt;span style=&(quot|#039);(\S.+)&(quot|#039);(\s.+)?&gt;/Ui';
@@ -106,18 +110,20 @@ class XSSHelpers {
                     $pattern[] = '/&lt;\/span&gt;/Ui';
                     $replace[] = '</span>';
                     break;
-                case 'font':
-                    $pattern[] = '/&lt;font color=&(quot|#039);(\S.+)&(quot|#039);(\s.+)?&gt;/Ui';
-                    $replace[] = '<font color="\2">';
-                    $pattern[] = '/&lt;\/font&gt;/Ui';
-                    $replace[] = '</font>';
-                    break;
                 case 'img':
                     $pattern[] = '/&lt;img src=&(?:quot|#039);(?!javascript)(\S+)&(?:quot|#039); alt=&(?:quot|#039);(\S+)&(?:quot|#039);(\s.*)?\/?&gt;/Ui';
                     $replace[] = '<img src="\1" alt="\2" />';
                     $pattern[] = '/&lt;img src=&(?:quot|#039);(?!javascript)(\S+)&(?:quot|#039);(\s.+)?\/?&gt;/Ui';
                     $replace[] = '<img src="\1" alt="" />';
                     break;
+                // Start IE 11 workarounds
+                case 'font':
+                    $pattern[] = '/&lt;font color=&(quot|#039);(\S.+)&(quot|#039);(\s.+)?&gt;/Ui';
+                    $replace[] = '<font color="\2">';
+                    $pattern[] = '/&lt;\/font&gt;/Ui';
+                    $replace[] = '</font>';
+                    break;
+                // End IE 11 workarounds
                 default:
                     $pattern[] = '/&lt;(\/)?'. $tag .'(\s.+)?&gt;/U';
                     $replace[] = '<\1'. $tag .'>';
@@ -205,8 +211,12 @@ class XSSHelpers {
     {
         $allowedTags = ['b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table',
                         'td', 'tr', 'thead', 'tbody', 'a', 'span', 'strong',
-                        'em', 'h1', 'h2', 'h3', 'h4', 'img', 'font'];
+                        'em', 'h1', 'h2', 'h3', 'h4', 'img'];
 
+        // IE 11 workarounds
+        $allowedTags[] = 'font';
+        $allowedTags[] = 'center';
+        
         return XSSHelpers::sanitizer($in, $allowedTags);
     }
 }
