@@ -176,7 +176,9 @@ employeeSelector.prototype.search = function() {
 		                	var positionTitle = response[i].positionData != undefined ? response[i].positionData.positionTitle : '';
 		                	var groupTitle = '';
 
-		                	if(response[i].serviceData != undefined && response[i].serviceData[0].groupTitle != null) {
+		                	if(response[i].serviceData != undefined
+		                	    && response[i].serviceData[0] != undefined
+		                	    && response[i].serviceData[0].groupTitle != null) {
 		                		var counter = 0;
 		                		var divide = '';
 		                		for(var j in response[i].serviceData) {

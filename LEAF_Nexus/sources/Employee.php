@@ -553,8 +553,8 @@ class Employee extends Data
 
                 if (($midIdx = strpos($first, ' ')) > 0) {
                     $this->log[] = 'Detected possible Middle initial';
-                    $middle = trim(trim(substr($first, 0, $midIdx + 1)), '.');
-                    $first = trim(substr($first, $midIdx + 1));
+                    $middle = trim(trim(substr($first, $midIdx + 1)), '.');
+                    $first = trim(substr($first, 0, $midIdx + 1));
                 }
 
                 $searchResult = $this->lookupName($last, $first, $middle);
