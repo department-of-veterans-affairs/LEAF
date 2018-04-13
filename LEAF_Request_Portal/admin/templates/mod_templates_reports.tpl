@@ -92,7 +92,11 @@ function newReport() {
         });
         dialog.hide();
     });
-    
+
+    $('#newFilename').on('keyup change', function(e) {
+        $('#newFilename').val($('#newFilename').val().replace(/[^a-z0-9\.\/]/gi, '_'));
+    });
+
     dialog.show();
 }
 
