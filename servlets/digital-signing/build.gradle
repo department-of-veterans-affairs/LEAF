@@ -1,0 +1,33 @@
+group 'Websocket-Digital-Signature'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.59'
+    compile group: 'org.glassfish.tyrus', name: 'tyrus-server', version: '1.13.1'
+    compile group: 'org.glassfish', name: 'javax.json', version: '1.1.2'
+    compile group: 'org.glassfish.tyrus', name: 'tyrus-container-grizzly-server', version: '1.13.1'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+jar {
+    exclude('META-INF/*.SF')
+    exclude('META-INF/*.DSA')
+    exclude('META-INF/*.RSA')
+    from {
+        (configurations.runtime).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes("Main-Class": "leaf.Main" )
+    }
+}
