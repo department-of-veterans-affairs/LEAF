@@ -87,7 +87,7 @@ class XSSHelpers {
                     $replace[] = '</table>';
                     break;
                 case 'a':
-                    $pattern[] = '/&lt;a href=&(quot|#039);(?!javascript)(\S+)&(quot|#039);(\s.+)?&gt;/Ui';
+                    $pattern[] = '/&lt;a href=&(quot|#039);(?!javascript)(.+)&(quot|#039);(\s.+)?&gt;/Ui';
                     $replace[] = '<a href="\2" target="_blank">';
                     $pattern[] = '/&lt;\/a&gt;/Ui';
                     $replace[] = '</a>';
@@ -111,9 +111,9 @@ class XSSHelpers {
                     $replace[] = '</span>';
                     break;
                 case 'img':
-                    $pattern[] = '/&lt;img src=&(?:quot|#039);(?!javascript)(\S+)&(?:quot|#039); alt=&(?:quot|#039);(\S+)&(?:quot|#039);(\s.*)?\/?&gt;/Ui';
+                    $pattern[] = '/&lt;img src=&(?:quot|#039);(?!javascript)(.+)&(?:quot|#039); alt=&(?:quot|#039);(.+)&(?:quot|#039);(\s.*)?\/?&gt;/Ui';
                     $replace[] = '<img src="\1" alt="\2" />';
-                    $pattern[] = '/&lt;img src=&(?:quot|#039);(?!javascript)(\S+)&(?:quot|#039);(\s.+)?\/?&gt;/Ui';
+                    $pattern[] = '/&lt;img src=&(?:quot|#039);(?!javascript)(.+)&(?:quot|#039);(\s.+)?\/?&gt;/Ui';
                     $replace[] = '<img src="\1" alt="" />';
                     break;
                 // Start IE 11 workarounds

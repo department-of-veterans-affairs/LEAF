@@ -19,7 +19,7 @@ span#groupTitle {
     font-size: 140%;
     font-weight: bold;
 }
-span#backupTitle {
+span#backupTitle, span#backupForTitle {
     font-size: 140%;
     font-weight: bold;
 }
