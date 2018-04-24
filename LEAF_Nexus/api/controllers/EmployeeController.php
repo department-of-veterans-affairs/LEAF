@@ -31,6 +31,10 @@ class EmployeeController extends RESTfulResponse
        		return $employee->getBackups($args[0]);
        	});
 
+   	    $this->index['GET']->register('employee/[digit]/backupFor', function($args) use ($employee) {
+   	        return $employee->getBackupsFor($args[0]);
+   	    });
+
         $this->index['GET']->register('employee/search', function() use ($employee) {
         	if(isset($_GET['noLimit']) && $_GET['noLimit'] == 1) {
         		$employee->setNoLimit();
