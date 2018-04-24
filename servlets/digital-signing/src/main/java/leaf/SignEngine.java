@@ -4,7 +4,10 @@ import sun.security.pkcs11.SunPKCS11;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.ProviderException;
 import java.security.Security;
 import java.security.Signature;
@@ -26,7 +29,9 @@ public class SignEngine {
                 ByteArrayInputStream config = new ByteArrayInputStream(providerConfig);
                 provider = new SunPKCS11(config);
                 Security.addProvider(provider);
+                System.out.println("instance created");
             } catch (Exception e) {
+                System.out.println("In the catch");
                 e.printStackTrace();
             }
         }
@@ -48,12 +53,21 @@ public class SignEngine {
             provider.logout();
             Formatter formatter = new Formatter();
             for (byte b : signedBytes) formatter.format("%02x", b);
-            Security.removeProvider("OpenSC");
             return formatter.toString();
+        } catch (KeyStoreException e) {
+            return "ERROR: Token not found or invalid PIN input";
+        } catch (ProviderException e) {
+            return "ERROR: No cryptography library found";
+        } catch (NoSuchAlgorithmException e) {
+            return "ERROR: No cryptography library found";
+        } catch (InvalidKeyException e) {
+            return "ERROR: Invalid certificate for digital signatures";
         } catch (Exception e) {
-            e.printStackTrace();
-            if (!(e instanceof ProviderException)) SignUI.showErrorMessage("ERROR: " + e.getMessage());
             return "ERROR: " + e.getMessage();
         }
+    }
+
+    public static boolean hasInstance() {
+        return signEngine == null;
     }
 }

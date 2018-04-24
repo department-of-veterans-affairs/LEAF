@@ -154,7 +154,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
 				// TODO: eventually this will be handled by Workflow extension
 				if (step.requiresDigitalSignature == true) {
-					if (signer !== undefined && LEAFRequestPortalAPI !== undefined) {
+					if (LEAFRequestPortalAPI !== undefined) {
 
 						var portalAPI = LEAFRequestPortalAPI();
 						portalAPI.setCSRFToken(CSRFToken);
@@ -163,11 +163,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 							currRecordID,
 							function (json) {
 								var jsonStr = JSON.stringify(json);
-								signer.setLogHandler(function(logData) {
-									console.log(logData);
-								})
-								.addData(jsonStr, "")
-								.sign(function (signedDataList) {
+								Signer.sign(jsonStr, function (signedDataList) {
 									var sigData = JSON.stringify(signedDataList);
 
 									portalAPI.Signature.create(

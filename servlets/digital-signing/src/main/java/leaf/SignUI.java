@@ -56,7 +56,7 @@ public class SignUI {
         return retVal == JOptionPane.OK_OPTION ? textField.getText() : "";
     }
 
-    public static Certificate askForCertificate(final KeyStore keyStore) {
+    private static Certificate askForCertificate(final KeyStore keyStore) {
         final Choice certificateComboBox = new Choice();
         final JOptionPane optionPane = new JOptionPane();
         optionPane.setMessageType(JOptionPane.PLAIN_MESSAGE);
@@ -112,7 +112,7 @@ public class SignUI {
         return null;
     }
 
-    public static char[] askForPin() {
+    static char[] askForPin() {
         final JOptionPane optionPane = new JOptionPane();
         optionPane.setMessageType(JOptionPane.PLAIN_MESSAGE);
         final JPasswordField passwordField = new JPasswordField(8);
@@ -183,7 +183,7 @@ public class SignUI {
         return true;
     }
 
-    public static void showErrorMessage(String message){
+    public static void showErrorMessage(String message) {
         JOptionPane.showMessageDialog(null, message, "ERROR", JOptionPane.ERROR_MESSAGE);
     }
 

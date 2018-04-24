@@ -34,14 +34,7 @@ public class WebSocketService {
 
     @OnMessage
     public String startSignProcess(String message, Session session) {
-        try {
-            return SignEngine.getInstance().getSignature(message);
-        } catch (Exception e) {
-            SignUI.showErrorMessage(e.getMessage());
-            return "{\"error\" : \"" +
-                    e.getMessage().replace("\"", "\\\"").replace("\\", "\\\\") +
-                    "\"}";
-        }
+        return SignEngine.getInstance().getSignature(message);
     }
 
 }
