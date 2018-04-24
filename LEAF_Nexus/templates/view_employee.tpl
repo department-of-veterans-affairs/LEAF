@@ -55,6 +55,12 @@
         </div>
         <div id="backupBody" style="width: 100%; padding: 4px 4px 4px 16px"></div>
     </div>
+    <div id="backupFor" style="float: left; width: 400px; margin: 8px; border: 1px solid black">
+        <div id="backupForHeader" style="padding: 4px">
+            <span id="backupForTitle"><!--{$summary.employee.firstName|sanitize}--> <!--{$summary.employee.lastName|sanitize}--> serves as a backup for</span>
+        </div>
+        <div id="backupForBody" style="width: 100%; padding: 4px 4px 4px 16px"></div>
+    </div>
 </div>
 
 <div id="orgchartForm"></div>
@@ -86,6 +92,32 @@ function getBackupInfo() {
             }
             else {
                 $('#backupBody').html('None');
+            }
+        },
+        cache: false
+    });
+}
+
+function getBackupForInfo() {
+    // get backup for info
+    $('#backupForBody').html('');
+    $.ajax({
+        url: "./api/?a=employee/" + <!--{$empUID}--> + "/backupFor",
+        success: function(response) {
+            if(response != '') {
+                for(var key in response) {
+                    $('#backupForBody').append('<div id="backupFor_'+ response[key].empUID +'">'+response[key].empUID+'</div>');
+                    $.ajax({
+                        url: "./api/?a=employee/" + response[key].empUID,
+                        success: function(response) {
+                            $('#backupFor_'+response.employee.empUID).html(response.employee.firstName + ' ' + response.employee.lastName);
+                        },
+                        cache: false
+                    });
+                }
+            }
+            else {
+                $('#backupForBody').html('None');
             }
         },
         cache: false
@@ -230,6 +262,7 @@ $(function() {
     <!--{/foreach}-->
 
     getBackupInfo();
+    getBackupForInfo();
 
     orgchartForm = new orgchartForm('orgchartForm');
     orgchartForm.initialize();
