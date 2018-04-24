@@ -450,7 +450,7 @@ class Employee extends Data
     }
 
     /**
-     * Retrieve list of backup employees
+     * Retrieve list of backup employees for a given employee
      * @param int $empUID
      */
     public function getBackups($empUID)
@@ -466,6 +466,24 @@ class Employee extends Data
 
     	$this->cache["getBackups_{$empUID}"] = $res;
     	return $res;
+    }
+
+    /**
+     * Retrieve list of employees for which a given employee is a backup for
+     * @param int $empUID
+     */
+    public function getBackupsFor($empUID)
+    {
+        if(isset($this->cache["getBackupsFor_{$empUID}"])) {
+            return $this->cache["getBackupsFor_{$empUID}"];
+        }
+        $vars = array(':empUID' => $empUID);
+        $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
+    										LEFT JOIN employee USING (empUID)
+    										WHERE relation_employee_backup.backupEmpUID=:empUID', $vars);
+        
+        $this->cache["getBackupsFor_{$empUID}"] = $res;
+        return $res;
     }
 
 	/**
