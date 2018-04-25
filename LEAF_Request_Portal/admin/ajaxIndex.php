@@ -49,7 +49,7 @@ switch($action) {
     case 'add_user_old':
         checkToken();
         require 'Group.php';
-        
+
         $group = new Group($db, $login);
         $group->addMember($_POST['userID'], $_POST['groups']);
         break;
@@ -61,20 +61,20 @@ switch($action) {
 
         $group = new Group($db, $login);
         foreach($deleteList as $del) {
-            $group->removeMember($del['userID'], $del['groupID']);
+            $group->removeMember (XSSHelpers::xscrub $del['userID'], XSSHelpers::xscrub $del['groupID']);
         }
         break;
     case 'add_user':
       	checkToken();
        	require 'Group.php';
-       
+
        	$group = new Group($db, $login);
        	$group->addMember($_POST['userID'], $_POST['groupID']);
        	break;
     case 'remove_user':
        	checkToken();
        	require 'Group.php';
-       	 
+
        	$group = new Group($db, $login);
        	$group->removeMember($_POST['userID'], $_POST['groupID']);
        	break;

@@ -37,12 +37,11 @@ class ConverterController extends RESTfulResponse
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('converter', function($args) {
         });
-        
+
         $this->index['POST']->register('converter/json', function($args) {
             return json_decode($_POST['input'], true);
         });
 
-        return $this->index['POST']->runControl($act['key'], $act['args']);
+        return $this->index['POST']->runControl(XSSHelpers::xscrub $act['key'], XSSHelpers::xscrub $act['args']);
     }
 }
-
