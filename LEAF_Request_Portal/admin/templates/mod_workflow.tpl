@@ -708,10 +708,10 @@ function signatureRequired(cb, stepID) {
             steps[stepID].requiresDigitalSignature = true;
             showStepInfo(stepID);
         });
-        dialog_confirm.show();
-/*        dialog_confirm.setCancelHandler(function() {
+        dialog_confirm.setCancelHandler(function() {
             cb.checked = false;
-        });*/
+        });
+        dialog_confirm.show();
     } else {
         innerRequired(false, stepID);
         steps[stepID].requiresDigitalSignature = false;
