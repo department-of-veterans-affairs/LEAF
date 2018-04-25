@@ -702,11 +702,13 @@ function signatureRequired(cb, stepID) {
             confirm("Are you sure you want to require a digital signature on this step?")
         ) {
             innerRequired(true, stepID);
+            steps[stepID].requiresDigitalSignature = true;
         } else {
             cb.checked = false;
         }
     } else {
         innerRequired(false, stepID);
+        steps[stepID].requiresDigitalSignature = false;
         cb.checked = false;
     }
 }
