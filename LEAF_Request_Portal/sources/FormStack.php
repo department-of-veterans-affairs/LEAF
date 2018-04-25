@@ -45,7 +45,9 @@ class FormStack
         // make sure the form isn't the target of the stapled form feature
         $vars = array(':categoryID' => $categoryID);
         $res = $this->db->prepared_query('SELECT * FROM category_staples
-    										WHERE stapledCategoryID=:categoryID', $vars);
+                                            LEFT JOIN categories USING (categoryID)
+    										WHERE stapledCategoryID=:categoryID
+                                                AND disabled=0', $vars);
         if(count($res) != 0) {
             return 'Cannot delete forms that have been stapled to another.';
         }

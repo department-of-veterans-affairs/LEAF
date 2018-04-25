@@ -246,8 +246,10 @@ function removePermission(groupID) {
 function editPermissions() {
 	formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 
-	dialog_simple.setTitle('Edit Collaborators');
-	dialog_simple.setContent('Groups listed below have access to write on the <b>'+ formTitle +'</b> form.<div id="formPrivs"></div>');
+	dialog_simple.setTitle('Edit Collaborators - ' + formTitle);
+	dialog_simple.setContent('<h2>Collaborators have access to fill out data fields at any time in the workflow.</h2><br />'
+	                             + 'This is typically used to give groups access to fill out internal-use fields.<br />' 
+	                             + '<div id="formPrivs"></div>');
 	dialog_simple.indicateBusy();
 
 	$.ajax({
@@ -957,7 +959,10 @@ function deleteForm() {
 			type: 'DELETE',
 			url: '../api/?a=formStack/_' + currCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
 			success: function(res) {
-				window.location.reload();
+			    if(res != true) {
+			        alert(res);
+			    }
+		        window.location.reload();
 			}
 		});
 	});
@@ -989,10 +994,28 @@ function buildMenu(categoryID) {
 		}
 	}
 	
-	$('#menu').append('<br /><div class="buttonNorm" onclick="createForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Add Internal-Use</div><br />');
+	$('#menu').append('<div class="buttonNorm" onclick="createForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Form" /> Add Internal-Use</div><br />');
 	
-    $('#menu').append('<br /><div class="buttonNorm" onclick="mergeFormDialog(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Staple Form" /> Staple other form</div><br />');
+    $('#menu').append('<br /><div class="buttonNorm" onclick="mergeFormDialog(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=tab-new.svg&w=32" alt="Staple Form" /> Staple other form</div>\
+                          <div id="stapledArea"></div><br />');
 
+    // show stapled forms in the menu area
+    $.ajax({
+        type: 'GET',
+        url: '../api/formEditor/_'+ categoryID + '/stapled',
+        success: function(res) {
+            let buffer = '<ul>';
+            for(var i in res) {
+                buffer += '<li>'+ res[i].categoryName +'</li>';
+            }
+            buffer += '</ul>';
+            if(res.length > 0) {
+                $('#stapledArea').append(buffer);
+            }
+        }
+    });
+    
+    
 	$('#menu').append('<br /><div class="buttonNorm" onclick="exportForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
 
 	$('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div><br />');
@@ -1010,6 +1033,7 @@ var postRenderFormBrowser;
 
 var categories = {};
 function showFormBrowser() {
+    window.location = '#';
 	$('#menu').html('<div class="buttonNorm" onclick="createForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
 	$('#menu').append('<div class="buttonNorm" onclick="formLibrary();" style="font-size: 120%"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
 	$('#menu').append('<br /><div class="buttonNorm" onclick="importForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
@@ -1047,6 +1071,7 @@ function showFormBrowser() {
                         return function() {
                             currCategoryID = categoryID;
                             buildMenu(categoryID);
+                            window.location = '#' + categoryID;
                             openContent('ajaxIndex.php?a=printview&categoryID='+ categoryID);
                         };
                     }(res[i].categoryID));
@@ -1063,15 +1088,18 @@ function showFormBrowser() {
 function createForm(parentID) {
 	if(parentID == undefined) {
 		parentID = '';
+		dialog.setTitle('New Form');
 	}
-    dialog.setTitle('New Form');
+	else {
+	    dialog.setTitle('New Internal-Use Form');
+	}
     dialog.setContent('<table>\
     		             <tr>\
-    		                 <td>Name for Form</td>\
+    		                 <td>Form Label</td>\
     		                 <td><input id="name" type="text" maxlength="50"></input></td>\
     		             </tr>\
     		             <tr>\
-    		                 <td>Description for Form</td>\
+    		                 <td>Form Description</td>\
                              <td><textarea id="description" maxlength="255"></textarea></td>\
                          </tr>\
     		           </table>');
