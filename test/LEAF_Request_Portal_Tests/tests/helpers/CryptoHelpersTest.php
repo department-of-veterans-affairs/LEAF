@@ -18,7 +18,7 @@ final class CryptoHelpersTest extends DatabaseTest
     private static $publicSignKey = "7bd9ef2f1049e05ed8abb9fb497bf200e2f9e70451f3ad0e694cf778f001568e";
 
     // signature of signed object
-    private static $signature = "d134b276d0f858c78b35656e695344346c00e06f71f4eecee2e3f7b0992f2e9cca8db61b117e2bce39d9eb20b467c8c33dbc22972b3cc7791725fcac7c27bb0c";
+    private static $signature = "59451fa9c8c666305977d47bb2b4e3341c952bdfbd57716018806c3dfda2d7275542b6f29c5775357cb728b26f5fb09033b78f85d25a087a64219f324da36308";
 
     public static function setUpBeforeClass()
     {
@@ -44,7 +44,7 @@ final class CryptoHelpersTest extends DatabaseTest
      */
     public function testHashObject() : void
     {
-        $hexHash = "5940716038aa9c53f1fb6fc66b185b04d6d71222db10c1440c609576fa85b0c5";
+        $hexHash = "71c7e92d4527c9172078c7ce8709d46c4156787a9dbda2e79ff4014988776393";
 
         $formToSign = self::$portalClient->get('?a=form/1/dataforsigning');
         $formObj = json_encode($formToSign, JSON_FORCE_OBJECT);
