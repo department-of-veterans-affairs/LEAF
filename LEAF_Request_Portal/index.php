@@ -151,7 +151,7 @@ switch ($action) {
         $main->assign('useUI', true);
         $main->assign('javascripts', array(
             'js/form.js', 
-            '../libs/js/SmartcardHelpers.js',
+            '../libs/js/LEAF/SmartcardHelpers.js',
             'js/workflow.js', 
             'js/formGrid.js', 
             'js/formQuery.js', 
