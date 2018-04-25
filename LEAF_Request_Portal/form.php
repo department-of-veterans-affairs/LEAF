@@ -2113,6 +2113,24 @@ class Form
                                             	userID=:userID
                                             	WHERE recordID=:recordID', $vars);
 
+            // write log entry
+            require_once 'VAMC_Directory.php';
+            $dir = new VAMC_Directory;
+
+            $user = $dir->lookupLogin($userID);
+            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
+
+            $comment = "Initiator changed to {$name}";
+            $vars2 = array(':recordID' => $recordID,
+                ':userID' => $this->login->getUserID(),
+                ':dependencyID' => 0,
+                ':actionType' => 'changeInitiator',
+                ':actionTypeID' => 8,
+                ':time' => time(),
+                ':comment' => $comment);
+            $this->db->prepared_query("INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
+                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)", $vars2);
+
             return $userID;
         }
     }
