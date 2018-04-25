@@ -427,8 +427,36 @@
         <!--{if $indicator.format == 'orgchart_group' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <div id="grpSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|strip_tags}-->" style="display: none"></input>
-            
+            <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Invalid Group</span>
             <script>
+            formValidator.id<!--{$indicator.indicatorID}--> = {
+                setValidator: function() {
+                    return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                },
+                setValidatorError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
+                    if($('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display') != 'none') {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').effect('pulsate');
+                    }
+                    else {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
+                    }
+                },
+                setValidatorOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '1px solid gray');
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_error').hide('fade');
+                }
+            };
+            <!--{if $indicator.required == 1}-->
+            formRequired.id<!--{$indicator.indicatorID}--> = {
+                setRequired: function() {
+                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
+                },
+                setRequiredError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                }
+            };
+            <!--{/if}-->
             $(function() {
                 if(typeof groupSelector == 'undefined') {
                     $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/groupSelector.css" />');

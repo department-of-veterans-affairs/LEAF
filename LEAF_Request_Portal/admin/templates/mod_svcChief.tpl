@@ -1,5 +1,5 @@
-<div id="sideBar" style="float: right; width: 150px">
-    <div class="buttonNorm" onclick="createGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Service" /> Create Service</div><br />
+<div id="sideBar" style="float: right; width: 200px">
+    <div class="buttonNorm" onclick="syncServices();" style="font-size: 120%"><img src="../../libs/dynicons/?img=go-down.svg&w=32" alt="Import from Nexus" /> Import from Nexus</div><br />
 </div>
 <br style="clear: both" />
 <div>
@@ -15,6 +15,19 @@
 
 <script type="text/javascript">
 /* <![CDATA[ */
+
+function syncServices() {
+    dialog_simple.setTitle('Importing from Nexus...');
+    dialog_simple.show();
+    $.ajax({
+        type: 'GET',
+        url: "../scripts/updateServicesFromOrgChart.php",
+        success: function(response) {
+            dialog_simple.setContent(response);
+        },
+        cache: false
+    });
+}
 
 function createGroup() {
 	/*

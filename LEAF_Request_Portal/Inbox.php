@@ -149,6 +149,7 @@ class Inbox
                     if($res[$i]['dependencyID'] == -2) {
                     	if($res[$i]['userID'] == $this->login->getUserID()) {
                     		$res[$i]['hasAccess'] = true;
+                    		$out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
                     	}
                     }
                     
