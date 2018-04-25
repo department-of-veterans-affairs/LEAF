@@ -63,7 +63,7 @@ final class FormEditorControllerTest extends DatabaseTest
      */
     public function testGetIndicator_nonexistentIndicator() : void
     {
-        $indicator = self::$client->get('?a=formEditor/indicator/7');
+        $indicator = self::$client->get('?a=formEditor/indicator/8');
 
         $this->assertNotNull($indicator);
         $ind = $indicator[""];
@@ -115,7 +115,7 @@ final class FormEditorControllerTest extends DatabaseTest
      */
     public function testNewIndicator() : void
     {
-        $indicator = self::$client->get('?a=formEditor/indicator/7');
+        $indicator = self::$client->get('?a=formEditor/indicator/8');
 
         // returns an empty "null" indicator
         $this->assertNotNull($indicator);
@@ -136,19 +136,19 @@ final class FormEditorControllerTest extends DatabaseTest
 
         self::$client->postEncodedForm('?a=formEditor/newIndicator', $newIndicator);
 
-        $indicator = self::$client->get('?a=formEditor/indicator/7');
+        $indicator = self::$client->get('?a=formEditor/indicator/8');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("7", $indicator["7"]['indicatorID']);
-        $this->assertEquals($newIndicator['name'], $indicator["7"]['name']);
-        $this->assertEquals($newIndicator['format'], $indicator["7"]['format']);
-        $this->assertEquals($newIndicator['description'], $indicator["7"]['description']);
-        $this->assertEquals($newIndicator['default'], $indicator["7"]['default']);
-        $this->assertEquals(null, $indicator["7"]['parentID']);
-        $this->assertEquals(null, $indicator["7"]['html']);
-        $this->assertEquals(null, $indicator["7"]['htmlPrint']);
-        $this->assertEquals(0, $indicator["7"]['required']);
-        $this->assertEquals(1, $indicator["7"]['sort']);
+        $this->assertEquals("8", $indicator["8"]['indicatorID']);
+        $this->assertEquals($newIndicator['name'], $indicator["8"]['name']);
+        $this->assertEquals($newIndicator['format'], $indicator["8"]['format']);
+        $this->assertEquals($newIndicator['description'], $indicator["8"]['description']);
+        $this->assertEquals($newIndicator['default'], $indicator["8"]['default']);
+        $this->assertEquals(null, $indicator["8"]['parentID']);
+        $this->assertEquals(null, $indicator["8"]['html']);
+        $this->assertEquals(null, $indicator["8"]['htmlPrint']);
+        $this->assertEquals(0, $indicator["8"]['required']);
+        $this->assertEquals(1, $indicator["8"]['sort']);
     }
 
     /**
@@ -158,7 +158,7 @@ final class FormEditorControllerTest extends DatabaseTest
      */
     public function testNewIndicator_HTMLinput() : void
     {
-        $indicator = self::$client->get('?a=formEditor/indicator/7');
+        $indicator = self::$client->get('?a=formEditor/indicator/8');
 
         // returns an empty "null" indicator
         $this->assertNotNull($indicator);
@@ -179,19 +179,19 @@ final class FormEditorControllerTest extends DatabaseTest
 
         self::$client->postEncodedForm('?a=formEditor/newIndicator', $newIndicator);
 
-        $indicator = self::$client->get('?a=formEditor/indicator/7');
+        $indicator = self::$client->get('?a=formEditor/indicator/8');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("7", $indicator["7"]['indicatorID']);
-        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>NEWTESTINDICATOR</b>", $indicator["7"]['name']);
-        $this->assertEquals("alert('hi')text", $indicator["7"]['format']);
-        $this->assertEquals("&lt;strong&gt;NEWTESTINDICATORDESCRIPTION&lt;/stro", $indicator["7"]['description']);
-        $this->assertEquals($newIndicator['default'], $indicator["7"]['default']);
-        $this->assertEquals(null, $indicator["7"]['parentID']);
-        $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator["7"]['html']); // Advanced Option allows HTML/JS
-        $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator["7"]['htmlPrint']); // Advanced Option allows HTML/JS
-        $this->assertEquals(0, $indicator["7"]['required']);
-        $this->assertEquals(1, $indicator["7"]['sort']);
+        $this->assertEquals("8", $indicator["8"]['indicatorID']);
+        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>NEWTESTINDICATOR</b>", $indicator["8"]['name']);
+        $this->assertEquals("alert('hi')text", $indicator["8"]['format']);
+        $this->assertEquals("<strong>NEWTESTINDICATORDESCRIPTION</strong>", $indicator["8"]['description']);
+        $this->assertEquals($newIndicator['default'], $indicator["8"]['default']);
+        $this->assertEquals(null, $indicator["8"]['parentID']);
+        $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator["8"]['html']); // Advanced Option allows HTML/JS
+        $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator["8"]['htmlPrint']); // Advanced Option allows HTML/JS
+        $this->assertEquals(0, $indicator["8"]['required']);
+        $this->assertEquals(1, $indicator["8"]['sort']);
     }
 
     /**
@@ -255,7 +255,9 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>new name</b>", $indicator["6"]["name"]);
+        $this->assertEquals(
+            "<script lang='javascript'>alert('hi')</script><b>new name</b>",
+            $indicator["6"]["name"]);
     }
 
     /**
@@ -463,7 +465,7 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("&lt;strong&gt;html&lt;/strong&gt;", $indicator["6"]["html"]);
+        $this->assertEquals("<strong>html</strong>", $indicator["6"]["html"]);
     }
 
     /**
@@ -673,5 +675,13 @@ final class FormEditorControllerTest extends DatabaseTest
 
         $this->assertNotNull($privs);
         $this->assertEquals(0, count($privs));
+    }
+
+    /**
+     * Tests the `form/indicator/<indicatorID>/groups` endpoint
+     */
+    public function testGetIndicatorPrivileges() : void
+    {
+
     }
 }
