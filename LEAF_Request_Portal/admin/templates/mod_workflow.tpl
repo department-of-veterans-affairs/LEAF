@@ -698,14 +698,20 @@ function signatureRequired(cb, stepID) {
     }
 
     if (cb.checked) {
-        if (
-            confirm("Are you sure you want to require a digital signature on this step?")
-        ) {
+        $('.workflowStepInfo').css('display', 'none');
+        dialog_confirm.setTitle('Confirmation required');
+        dialog_confirm.setContent('Are you sure you want to require a digital signature on this step?<br /><br />'
+                + '<span style="color: red">Digital signatures should only be used if it\'s required by your business process.</span>');
+        dialog_confirm.setSaveHandler(function() {
+            dialog_confirm.hide();
             innerRequired(true, stepID);
             steps[stepID].requiresDigitalSignature = true;
-        } else {
+            showStepInfo(stepID);
+        });
+        dialog_confirm.show();
+/*        dialog_confirm.setCancelHandler(function() {
             cb.checked = false;
-        }
+        });*/
     } else {
         innerRequired(false, stepID);
         steps[stepID].requiresDigitalSignature = false;
