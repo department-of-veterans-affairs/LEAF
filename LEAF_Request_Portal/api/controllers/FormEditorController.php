@@ -39,7 +39,11 @@ class FormEditorController extends RESTfulResponse
 
         $this->index['GET']->register('formEditor/indicator/[digit]', function($args) use ($form, $formEditor) {
 			return $form->getIndicator($args[0], 1, null, false);
-        });
+		});
+
+        $this->index['GET']->register('formEditor/indicator/[digit]/privileges', function ($args) use ($formEditor) {
+            return $formEditor->getIndicatorPrivileges((int)$args[0]);
+		});
 
         $this->index['GET']->register('formEditor/[text]/privileges', function($args) use ($formEditor) {
         	return $formEditor->getCategoryPrivileges($args[0]);
@@ -66,7 +70,7 @@ class FormEditorController extends RESTfulResponse
 
         $this->index['POST']->register('formEditor/newIndicator', function($args) use ($formEditor) {
         	$package = array();
-        	$package['name'] = $_POST['name'];
+        	$package['name'] = XSSHelpers::sanitizeHTML($_POST['name']);
         	$package['format'] = strip_tags($_POST['format']);
         	$package['description'] = XSSHelpers::sanitizeHTML($_POST['description']);
         	$package['default'] = XSSHelpers::sanitizeHTML($_POST['default']);
@@ -169,7 +173,11 @@ class FormEditorController extends RESTfulResponse
 
    		$this->index['POST']->register('formEditor/[text]/stapled', function($args) use ($formEditor) {
    			return $formEditor->addStapledCategory($args[0], $_POST['stapledCategoryID']);
-   		});
+		});
+		   
+		$this->index['POST']->register('formEditor/indicator/[digit]/privileges', function ($args) use ($formEditor) {
+			return $formEditor->setIndicatorPrivileges((int)$args[0], $_POST['groupIDs']);
+		});
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
