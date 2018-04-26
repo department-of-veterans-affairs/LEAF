@@ -35,24 +35,24 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $ind = $indicator["6"];
-        $this->assertEquals("6", $ind['indicatorID']);
+        $ind = $indicator['6'];
+        $this->assertEquals('6', $ind['indicatorID']);
         $this->assertEquals(1, $ind['series']);
-        $this->assertEquals("Favorite Day", $ind['name']);
-        $this->assertEquals("favorite day", $ind['description']);
-        $this->assertEquals("", $ind['default']);
+        $this->assertEquals('Favorite Day', $ind['name']);
+        $this->assertEquals('favorite day', $ind['description']);
+        $this->assertEquals('', $ind['default']);
         $this->assertEquals(null, $ind['parentID']);
         $this->assertEquals(null, $ind['html']);
         $this->assertEquals(null, $ind['htmlPrint']);
-        $this->assertEquals("1", $ind['required']);
+        $this->assertEquals('1', $ind['required']);
         $this->assertEquals(true, $ind['isEmpty']);
-        $this->assertEquals("", $ind['value']);
-        $this->assertEquals("", $ind['displayedValue']);
+        $this->assertEquals('', $ind['value']);
+        $this->assertEquals('', $ind['displayedValue']);
         $this->assertEquals(0, $ind['timestamp']);
         $this->assertEquals(1, $ind['isWritable']);
         $this->assertEquals(0, $ind['isMasked']);
-        $this->assertEquals("1", $ind['sort']);
-        $this->assertEquals("date", $ind['format']);
+        $this->assertEquals('1', $ind['sort']);
+        $this->assertEquals('date', $ind['format']);
         $this->assertEquals(null, $ind['child']);
     }
 
@@ -66,7 +66,7 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/8');
 
         $this->assertNotNull($indicator);
-        $ind = $indicator[""];
+        $ind = $indicator[''];
         $this->assertEquals(null, $ind['indicatorID']);
         $this->assertEquals(1, $ind['series']);
         $this->assertEquals(null, $ind['name']);
@@ -78,19 +78,19 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertEquals(null, $ind['required']);
         $this->assertEquals(true, $ind['isEmpty']);
         $this->assertEquals(null, $ind['value']);
-        $this->assertEquals("", $ind['displayedValue']);
+        $this->assertEquals('', $ind['displayedValue']);
         $this->assertEquals(0, $ind['timestamp']);
         $this->assertEquals(1, $ind['isWritable']);
         $this->assertEquals(0, $ind['isMasked']);
         $this->assertEquals(null, $ind['sort']);
-        $this->assertEquals("", $ind['format']);
+        $this->assertEquals('', $ind['format']);
         $this->assertEquals(null, $ind['child']);
     }
 
     public function testGetIndicator_nondigitParam() : void
     {
         $indicator = self::$client->get('?a=formEditor/indicator/nondigit');
-        $this->assertEquals("Controller is undefined.", $indicator);
+        $this->assertEquals('Controller is undefined.', $indicator);
     }
 
     /**
@@ -101,13 +101,13 @@ final class FormEditorControllerTest extends DatabaseTest
         $privs = self::$client->get('?a=formEditor/_form_f4687/privileges');
 
         $this->assertNotNull($privs);
-        $this->assertEquals("2", $privs[0]['groupID']);
-        $this->assertEquals("form_f4687", $privs[0]['categoryID']);
-        $this->assertEquals("1", $privs[0]['readable']);
-        $this->assertEquals("1", $privs[0]['writable']);
+        $this->assertEquals('2', $privs[0]['groupID']);
+        $this->assertEquals('form_f4687', $privs[0]['categoryID']);
+        $this->assertEquals('1', $privs[0]['readable']);
+        $this->assertEquals('1', $privs[0]['writable']);
         $this->assertEquals(null, $privs[0]['parentGroupID']);
-        $this->assertEquals("Test Group", $privs[0]['name']);
-        $this->assertEquals("A Group for Testing", $privs[0]['groupDescription']);
+        $this->assertEquals('Test Group', $privs[0]['name']);
+        $this->assertEquals('A Group for Testing', $privs[0]['groupDescription']);
     }
 
     /**
@@ -119,19 +119,19 @@ final class FormEditorControllerTest extends DatabaseTest
 
         // returns an empty "null" indicator
         $this->assertNotNull($indicator);
-        $this->assertNull($indicator[""]['indicatorID']);
+        $this->assertNull($indicator['']['indicatorID']);
 
         $newIndicator = array(
-            "name" => "NEWTESTINDICATOR",
-            "format" => "text",
-            "description" => "NEWTESTINDICATORDESCRIPTION",
-            "default" => "",
-            "parentID" => "",
-            "categoryID" => "form_f4687",
-            "html" => null,
-            "htmlPrint" => null,
-            "required" => 0,
-            "sort" => 1
+            'name' => 'NEWTESTINDICATOR',
+            'format' => 'text',
+            'description' => 'NEWTESTINDICATORDESCRIPTION',
+            'default' => '',
+            'parentID' => '',
+            'categoryID' => 'form_f4687',
+            'html' => null,
+            'htmlPrint' => null,
+            'required' => 0,
+            'sort' => 1,
         );
 
         self::$client->postEncodedForm('?a=formEditor/newIndicator', $newIndicator);
@@ -139,21 +139,21 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/8');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("8", $indicator["8"]['indicatorID']);
-        $this->assertEquals($newIndicator['name'], $indicator["8"]['name']);
-        $this->assertEquals($newIndicator['format'], $indicator["8"]['format']);
-        $this->assertEquals($newIndicator['description'], $indicator["8"]['description']);
-        $this->assertEquals($newIndicator['default'], $indicator["8"]['default']);
-        $this->assertEquals(null, $indicator["8"]['parentID']);
-        $this->assertEquals(null, $indicator["8"]['html']);
-        $this->assertEquals(null, $indicator["8"]['htmlPrint']);
-        $this->assertEquals(0, $indicator["8"]['required']);
-        $this->assertEquals(1, $indicator["8"]['sort']);
+        $this->assertEquals('8', $indicator['8']['indicatorID']);
+        $this->assertEquals($newIndicator['name'], $indicator['8']['name']);
+        $this->assertEquals($newIndicator['format'], $indicator['8']['format']);
+        $this->assertEquals($newIndicator['description'], $indicator['8']['description']);
+        $this->assertEquals($newIndicator['default'], $indicator['8']['default']);
+        $this->assertEquals(null, $indicator['8']['parentID']);
+        $this->assertEquals(null, $indicator['8']['html']);
+        $this->assertEquals(null, $indicator['8']['htmlPrint']);
+        $this->assertEquals(0, $indicator['8']['required']);
+        $this->assertEquals(1, $indicator['8']['sort']);
     }
 
     /**
      * Tests the `formEditor/newIndicator` endpoint
-     * 
+     *
      * Tests input that contains HTML.
      */
     public function testNewIndicator_HTMLinput() : void
@@ -162,19 +162,19 @@ final class FormEditorControllerTest extends DatabaseTest
 
         // returns an empty "null" indicator
         $this->assertNotNull($indicator);
-        $this->assertNull($indicator[""]['indicatorID']);
+        $this->assertNull($indicator['']['indicatorID']);
 
         $newIndicator = array(
-            "name" => "<script lang='javascript'>alert('hi')</script><b>NEWTESTINDICATOR</b>",
-            "format" => "<script lang='javascript'>alert('hi')</script>text",
-            "description" => "<strong>NEWTESTINDICATORDESCRIPTION</strong>",
-            "default" => "",
-            "parentID" => "",
-            "categoryID" => "form_f4687",
-            "html" => "<script lang='javascript'>alert('hi')</script><b>the html</b>",
-            "htmlPrint" => "<script lang='javascript'>alert('hi')</script><b>the html</b>",
-            "required" => 0,
-            "sort" => 1
+            'name' => "<script lang='javascript'>alert('hi')</script><b>NEWTESTINDICATOR</b>",
+            'format' => "<script lang='javascript'>alert('hi')</script>text",
+            'description' => '<strong>NEWTESTINDICATORDESCRIPTION</strong>',
+            'default' => '',
+            'parentID' => '',
+            'categoryID' => 'form_f4687',
+            'html' => "<script lang='javascript'>alert('hi')</script><b>the html</b>",
+            'htmlPrint' => "<script lang='javascript'>alert('hi')</script><b>the html</b>",
+            'required' => 0,
+            'sort' => 1,
         );
 
         self::$client->postEncodedForm('?a=formEditor/newIndicator', $newIndicator);
@@ -182,16 +182,16 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/8');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("8", $indicator["8"]['indicatorID']);
-        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>NEWTESTINDICATOR</b>", $indicator["8"]['name']);
-        $this->assertEquals("alert('hi')text", $indicator["8"]['format']);
-        $this->assertEquals("<strong>NEWTESTINDICATORDESCRIPTION</strong>", $indicator["8"]['description']);
-        $this->assertEquals($newIndicator['default'], $indicator["8"]['default']);
-        $this->assertEquals(null, $indicator["8"]['parentID']);
-        $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator["8"]['html']); // Advanced Option allows HTML/JS
-        $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator["8"]['htmlPrint']); // Advanced Option allows HTML/JS
-        $this->assertEquals(0, $indicator["8"]['required']);
-        $this->assertEquals(1, $indicator["8"]['sort']);
+        $this->assertEquals('8', $indicator['8']['indicatorID']);
+        $this->assertEquals('&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>NEWTESTINDICATOR</b>', $indicator['8']['name']);
+        $this->assertEquals("alert('hi')text", $indicator['8']['format']);
+        $this->assertEquals('<strong>NEWTESTINDICATORDESCRIPTION</strong>', $indicator['8']['description']);
+        $this->assertEquals($newIndicator['default'], $indicator['8']['default']);
+        $this->assertEquals(null, $indicator['8']['parentID']);
+        $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator['8']['html']); // Advanced Option allows HTML/JS
+        $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator['8']['htmlPrint']); // Advanced Option allows HTML/JS
+        $this->assertEquals(0, $indicator['8']['required']);
+        $this->assertEquals(1, $indicator['8']['sort']);
     }
 
     /**
@@ -202,20 +202,20 @@ final class FormEditorControllerTest extends DatabaseTest
         $form = self::$client->get('?a=form/1');
 
         $this->assertNotNull($form);
-        $this->assertEquals("Sample Form", $form['items'][0]['name']);
+        $this->assertEquals('Sample Form', $form['items'][0]['name']);
 
         $result = self::$client->postEncodedForm(
             '?a=formEditor/formName',
-            [
-                "categoryID" => "form_f4687",
-                "name" => "Test Form"
-            ]
+            array(
+                'categoryID' => 'form_f4687',
+                'name' => 'Test Form',
+            )
         );
 
         $form = self::$client->get('?a=form/1');
 
         $this->assertNotNull($form);
-        $this->assertEquals("Test Form", $form['items'][0]['name']);
+        $this->assertEquals('Test Form', $form['items'][0]['name']);
     }
 
     /**
@@ -226,19 +226,19 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("Favorite Day", $indicator["6"]["name"]);
+        $this->assertEquals('Favorite Day', $indicator['6']['name']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/name', ["name" => "New Indicator Name"]);
+        self::$client->postEncodedForm('?a=formEditor/6/name', array('name' => 'New Indicator Name'));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("New Indicator Name", $indicator["6"]["name"]);
+        $this->assertEquals('New Indicator Name', $indicator['6']['name']);
     }
 
     /**
      * Tests the `formEditor/[digit]/name` endpoint.
-     * 
+     *
      * Tests the endpoint with input containing HTML.
      */
     public function testSetIndicatorName_HTMLinput() : void
@@ -246,18 +246,19 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("Favorite Day", $indicator["6"]["name"]);
+        $this->assertEquals('Favorite Day', $indicator['6']['name']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/name', [
-            "name" => "<script lang='javascript'>alert('hi')</script><b>new name</b>"
-        ]);
+        self::$client->postEncodedForm('?a=formEditor/6/name', array(
+            'name' => "<script lang='javascript'>alert('hi')</script><b>new name</b>",
+        ));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
         $this->assertEquals(
             "<script lang='javascript'>alert('hi')</script><b>new name</b>",
-            $indicator["6"]["name"]);
+            $indicator['6']['name']
+        );
     }
 
     /**
@@ -268,19 +269,19 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("date", $indicator["6"]["format"]);
+        $this->assertEquals('date', $indicator['6']['format']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/format', ["format" => "text"]);
+        self::$client->postEncodedForm('?a=formEditor/6/format', array('format' => 'text'));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("text", $indicator["6"]["format"]);
+        $this->assertEquals('text', $indicator['6']['format']);
     }
 
     /**
      * Tests the `formEditor/[digit]/format` endpoint.
-     * 
+     *
      * Tests the endpoint with input containing HTML.
      */
     public function testSetIndicatorFormat_HTMLinput() : void
@@ -288,16 +289,16 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("date", $indicator["6"]["format"]);
+        $this->assertEquals('date', $indicator['6']['format']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/format', [
-            "format" => "<script lang='javascript'>alert('hi')</script>text"
-        ]);
+        self::$client->postEncodedForm('?a=formEditor/6/format', array(
+            'format' => "<script lang='javascript'>alert('hi')</script>text",
+        ));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("alert('hi')text", $indicator["6"]["format"]);
+        $this->assertEquals("alert('hi')text", $indicator['6']['format']);
     }
 
     /**
@@ -308,19 +309,19 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("favorite day", $indicator["6"]["description"]);
+        $this->assertEquals('favorite day', $indicator['6']['description']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/description', ["description" => "a changed description"]);
+        self::$client->postEncodedForm('?a=formEditor/6/description', array('description' => 'a changed description'));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("a changed description", $indicator["6"]["description"]);
+        $this->assertEquals('a changed description', $indicator['6']['description']);
     }
 
     /**
      * Tests the `formEditor/[digit]/description` endpoint.
-     * 
+     *
      * Tests the endpoint with input containing HTML.
      */
     public function testSetIndicatorDescription_HTMLinput() : void
@@ -328,16 +329,16 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("favorite day", $indicator["6"]["description"]);
+        $this->assertEquals('favorite day', $indicator['6']['description']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/description', [
-            "description" => "<script lang='javascript'>alert('hi')</script><b>stuff</b>"
-        ]);
+        self::$client->postEncodedForm('?a=formEditor/6/description', array(
+            'description' => "<script lang='javascript'>alert('hi')</script><b>stuff</b>",
+        ));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#", $indicator["6"]["description"]);
+        $this->assertEquals('&lt;script lang=&#039;javascript&#039;&gt;alert(&#', $indicator['6']['description']);
     }
 
     /**
@@ -348,14 +349,14 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("", $indicator["6"]["default"]);
+        $this->assertEquals('', $indicator['6']['default']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/default', ["default" => "some default"]);
+        self::$client->postEncodedForm('?a=formEditor/6/default', array('default' => 'some default'));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("some default", $indicator["6"]["default"]);
+        $this->assertEquals('some default', $indicator['6']['default']);
     }
 
     /**
@@ -366,16 +367,16 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("", $indicator["6"]["default"]);
+        $this->assertEquals('', $indicator['6']['default']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/default', [
-            "default" => "<script lang='javascript'>alert('hi')</script><b>stuff</b>"
-        ]);
+        self::$client->postEncodedForm('?a=formEditor/6/default', array(
+            'default' => "<script lang='javascript'>alert('hi')</script><b>stuff</b>",
+        ));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>stuff</b>", $indicator["6"]["default"]);
+        $this->assertEquals('&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>stuff</b>', $indicator['6']['default']);
     }
 
     /**
@@ -386,14 +387,14 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals(null, $indicator["6"]["parentID"]);
+        $this->assertEquals(null, $indicator['6']['parentID']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/parentID', ["parentID" => 7]);
+        self::$client->postEncodedForm('?a=formEditor/6/parentID', array('parentID' => 7));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals(7, $indicator["6"]["parentID"]);
+        $this->assertEquals(7, $indicator['6']['parentID']);
     }
 
     /**
@@ -404,14 +405,14 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("1", $indicator["6"]["required"]);
+        $this->assertEquals('1', $indicator['6']['required']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/required', ["required" => "0"]);
+        self::$client->postEncodedForm('?a=formEditor/6/required', array('required' => '0'));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("0", $indicator["6"]["required"]);
+        $this->assertEquals('0', $indicator['6']['required']);
     }
 
     /**
@@ -422,14 +423,14 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("Favorite Day", $indicator["6"]["name"]);
+        $this->assertEquals('Favorite Day', $indicator['6']['name']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/disabled', ["disabled" => "1"]);
+        self::$client->postEncodedForm('?a=formEditor/6/disabled', array('disabled' => '1'));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals(null, $indicator[""]["indicatorID"]);
+        $this->assertEquals(null, $indicator['']['indicatorID']);
     }
 
     /**
@@ -440,14 +441,14 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("1", $indicator["6"]["sort"]);
+        $this->assertEquals('1', $indicator['6']['sort']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/sort', ["sort" => "0"]);
+        self::$client->postEncodedForm('?a=formEditor/6/sort', array('sort' => '0'));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("0", $indicator["6"]["sort"]);
+        $this->assertEquals('0', $indicator['6']['sort']);
     }
 
     /**
@@ -458,14 +459,14 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals(null, $indicator["6"]["html"]);
+        $this->assertEquals(null, $indicator['6']['html']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/html', ["html" => "<strong>html</strong>"]);
+        self::$client->postEncodedForm('?a=formEditor/6/html', array('html' => '<strong>html</strong>'));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("<strong>html</strong>", $indicator["6"]["html"]);
+        $this->assertEquals('<strong>html</strong>', $indicator['6']['html']);
     }
 
     /**
@@ -476,14 +477,14 @@ final class FormEditorControllerTest extends DatabaseTest
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals(null, $indicator["6"]["htmlPrint"]);
+        $this->assertEquals(null, $indicator['6']['htmlPrint']);
 
-        self::$client->postEncodedForm('?a=formEditor/6/htmlPrint', ["htmlPrint" => "<b>html</b>"]);
+        self::$client->postEncodedForm('?a=formEditor/6/htmlPrint', array('htmlPrint' => '<b>html</b>'));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals("<b>html</b>", $indicator["6"]["htmlPrint"]);
+        $this->assertEquals('<b>html</b>', $indicator['6']['htmlPrint']);
     }
 
     /**
@@ -493,17 +494,17 @@ final class FormEditorControllerTest extends DatabaseTest
     {
         $categoryID = self::$client->postEncodedForm(
             '?a=formEditor/new',
-            [
-                "name" => "Unit Test Form",
-                "description" => "Unit test description",
-                "parentID" => ""
-            ]
+            array(
+                'name' => 'Unit Test Form',
+                'description' => 'Unit test description',
+                'parentID' => '',
+            )
         );
 
         $this->assertNotNull($categoryID);
-        $this->assertEquals("form_", substr($categoryID, 0, 5));
+        $this->assertEquals('form_', substr($categoryID, 0, 5));
 
-        $form = self::$client->get('?a=form/_'.$categoryID);
+        $form = self::$client->get('?a=form/_' . $categoryID);
 
         $this->assertNotNull($form);
         $this->assertEquals(0, count($form));
@@ -519,10 +520,10 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertEquals('form_f4687', $category['categoryID']);
         $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
 
-        self::$client->postEncodedForm('?a=formEditor/formDescription', [
+        self::$client->postEncodedForm('?a=formEditor/formDescription', array(
             'categoryID' => $category['categoryID'],
-            'description' => 'Some new Description'
-        ]);
+            'description' => 'Some new Description',
+        ));
 
         $category = self::$client->get('?a=formStack/categoryList/all')[1];
         $this->assertNotNull($category);
@@ -538,17 +539,17 @@ final class FormEditorControllerTest extends DatabaseTest
         $category = self::$client->get('?a=formStack/categoryList/all')[1];
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
-        $this->assertEquals("1", $category['workflowID']);
+        $this->assertEquals('1', $category['workflowID']);
 
-        self::$client->postEncodedForm('?a=formEditor/formWorkflow', [
+        self::$client->postEncodedForm('?a=formEditor/formWorkflow', array(
             'categoryID' => $category['categoryID'],
-            'workflowID' => '2'
-        ]);
+            'workflowID' => '2',
+        ));
 
         $category = self::$client->get('?a=formStack/categoryList/all')[1];
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
-        $this->assertEquals("2", $category['workflowID']);
+        $this->assertEquals('2', $category['workflowID']);
     }
 
     /**
@@ -559,17 +560,17 @@ final class FormEditorControllerTest extends DatabaseTest
         $category = self::$client->get('?a=formStack/categoryList/all')[1];
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
-        $this->assertEquals("0", $category['needToKnow']);
+        $this->assertEquals('0', $category['needToKnow']);
 
-        self::$client->postEncodedForm('?a=formEditor/formNeedToKnow', [
+        self::$client->postEncodedForm('?a=formEditor/formNeedToKnow', array(
             'categoryID' => $category['categoryID'],
-            'needToKnow' => '1'
-        ]);
+            'needToKnow' => '1',
+        ));
 
         $category = self::$client->get('?a=formStack/categoryList/all')[1];
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
-        $this->assertEquals("1", $category['needToKnow']);
+        $this->assertEquals('1', $category['needToKnow']);
     }
 
     /**
@@ -580,17 +581,17 @@ final class FormEditorControllerTest extends DatabaseTest
         $category = self::$client->get('?a=formStack/categoryList/all')[1];
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
-        $this->assertEquals("0", $category['sort']);
+        $this->assertEquals('0', $category['sort']);
 
-        self::$client->postEncodedForm('?a=formEditor/formSort', [
+        self::$client->postEncodedForm('?a=formEditor/formSort', array(
             'categoryID' => $category['categoryID'],
-            'sort' => '1'
-        ]);
+            'sort' => '1',
+        ));
 
         $category = self::$client->get('?a=formStack/categoryList/all')[1];
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
-        $this->assertEquals("1", $category['sort']);
+        $this->assertEquals('1', $category['sort']);
     }
 
     /**
@@ -601,22 +602,22 @@ final class FormEditorControllerTest extends DatabaseTest
         $category = self::$client->get('?a=formStack/categoryList/all')[1];
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
-        $this->assertEquals("1", $category['visible']);
+        $this->assertEquals('1', $category['visible']);
 
-        self::$client->postEncodedForm('?a=formEditor/formVisible', [
+        self::$client->postEncodedForm('?a=formEditor/formVisible', array(
             'categoryID' => $category['categoryID'],
-            'visible' => '0'
-        ]);
+            'visible' => '0',
+        ));
 
         $category = self::$client->get('?a=formStack/categoryList/all')[1];
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
-        $this->assertEquals("0", $category['visible']);
+        $this->assertEquals('0', $category['visible']);
     }
 
     /**
      * Tests the `formEditor/[text]/privileges` endpoint.
-     * 
+     *
      * Tests adding a category group privilege.
      */
     public function testSetCategoryPrivileges_addPriv() : void
@@ -628,14 +629,14 @@ final class FormEditorControllerTest extends DatabaseTest
 
         $priv = $privs[0];
 
-        $this->assertEquals("2", $priv['groupID']);
-        $this->assertEquals("form_f4687", $priv['categoryID']);
+        $this->assertEquals('2', $priv['groupID']);
+        $this->assertEquals('form_f4687', $priv['categoryID']);
 
-        self::$client->postEncodedForm('?a=formEditor/_form_f4687/privileges', [
-            "groupID" => "3",
-            "read" => "1",
-            "write" => "1"
-        ]);
+        self::$client->postEncodedForm('?a=formEditor/_form_f4687/privileges', array(
+            'groupID' => '3',
+            'read' => '1',
+            'write' => '1',
+        ));
 
         $privs = self::$client->get('?a=formEditor/_form_f4687/privileges');
 
@@ -644,13 +645,13 @@ final class FormEditorControllerTest extends DatabaseTest
 
         $priv = $privs[1];
 
-        $this->assertEquals("3", $priv["groupID"]);
-        $this->assertEquals("form_f4687", $priv['categoryID']);
+        $this->assertEquals('3', $priv['groupID']);
+        $this->assertEquals('form_f4687', $priv['categoryID']);
     }
 
     /**
      * Tests the `formEditor/[text]/privileges` endpoint.
-     * 
+     *
      * Tests removing a category group privilege.
      */
     public function testSetCategoryPrivileges_removePriv() : void
@@ -662,14 +663,14 @@ final class FormEditorControllerTest extends DatabaseTest
 
         $priv = $privs[0];
 
-        $this->assertEquals("2", $priv['groupID']);
-        $this->assertEquals("form_f4687", $priv['categoryID']);
+        $this->assertEquals('2', $priv['groupID']);
+        $this->assertEquals('form_f4687', $priv['categoryID']);
 
-        self::$client->postEncodedForm('?a=formEditor/_form_f4687/privileges', [
-            "groupID" => "2",
-            "read" => "1",
-            "write" => "0"
-        ]);
+        self::$client->postEncodedForm('?a=formEditor/_form_f4687/privileges', array(
+            'groupID' => '2',
+            'read' => '1',
+            'write' => '0',
+        ));
 
         $privs = self::$client->get('?a=formEditor/_form_f4687/privileges');
 
@@ -679,9 +680,58 @@ final class FormEditorControllerTest extends DatabaseTest
 
     /**
      * Tests the `form/indicator/<indicatorID>/groups` endpoint
+     *
+     * Tests getting the privileges of an indicator
      */
-    public function testGetIndicatorPrivileges() : void
+    public function testIndicatorPrivileges_getPrivileges() : void
     {
+        $privs = self::$client->get('?a=formEditor/indicator/7/privileges');
 
+        $this->assertNotNull($privs);
+        $this->assertEquals(1, count($privs));
+        $this->assertEquals(1, $privs[0]);
+    }
+
+    /**
+     * Tests the `form/indicator/<indicatorID>/groups` endpoint
+     *
+     * Tests setting the privileges of an indicator with invalid input
+     */
+    public function testIndicatorPrivileges_setPrivileges() : void
+    {
+        $res = self::$client->postEncodedForm(
+            '?a=formEditor/indicator/7/privileges',
+            array(
+                'groupIDs' => [2, 3]
+            )
+        );
+
+        $this->assertNotNull($res);
+        $this->assertTrue($res);
+
+        $privs = self::$client->get('?a=formEditor/indicator/7/privileges');
+
+        $this->assertNotNull($privs);
+        $this->assertEquals(2, count($privs));
+        $this->assertEquals(2, $privs[0]);
+        $this->assertEquals(3, $privs[1]);
+    }
+
+    /**
+     * Tests the `form/indicator/<indicatorID>/groups` endpoint
+     *
+     * Tests setting the privileges of an indicator with invalid input
+     */
+    public function testIndicatorPrivileges_setPrivileges_invalidInput() : void
+    {
+        $res = self::$client->postEncodedForm(
+            '?a=formEditor/indicator/7/privileges',
+            array(
+                'groupIDs' => 'NotAnArray',
+            )
+        );
+
+        $this->assertNotNull($res);
+        $this->assertFalse($res);
     }
 }
