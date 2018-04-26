@@ -4,6 +4,7 @@
 var LEAFRequestPortalAPI = function () {
     var baseURL = './api/?a=',
         Forms = PortalFormsAPI(baseURL),
+        FormEditor = PortalFormEditorAPI(baseURL),
         Signature = PortalSignaturesAPI(baseURL),
         Workflow = PortalWorkflowAPI(baseURL),
 
@@ -27,12 +28,14 @@ var LEAFRequestPortalAPI = function () {
         setBaseURL = function (urlBase) {
             baseURL = urlBase;
             Forms.setBaseAPIURL(baseURL);
+            FormEditor.setBaseAPIURL(baseURL);
             Signature.setBaseAPIURL(baseURL);
             Workflow.setBaseAPIURL(baseURL);
         },
 
         setCSRFToken = function (token) {
             csrfToken = token;
+            FormEditor.setCSRFToken(token);
             Signature.setCSRFToken(token);
             Workflow.setCSRFToken(token);
         };
@@ -43,6 +46,7 @@ var LEAFRequestPortalAPI = function () {
         setCSRFToken: setCSRFToken,
 
         Forms: Forms,
+        FormEditor: FormEditor,
         Signature: Signature,
         Workflow: Workflow
     };
@@ -137,6 +141,108 @@ var PortalFormsAPI = function (baseAPIURL) {
         getJSONForSigning: getJSONForSigning,
         setBaseAPIURL: setBaseAPIURL,
         query: query
+    };
+};
+
+var PortalFormEditorAPI = function (baseAPIURL) {
+    var apiBaseURL = baseAPIURL,
+        apiURL = baseAPIURL + 'formEditor',
+
+        // used for POST requests
+        csrfToken = '',
+
+        /**
+         * Get the URL for the LEAF Portal FormEditor API
+         */
+        getAPIURL = function () {
+            return apiURL;
+        },
+
+        /**
+         * Get the base URL for the LEAF Portal API
+         * 
+         * @return string   the base LEAF Portal API URL used in this FormEditor API
+         */
+        getBaseAPIURL = function () {
+            return apiBaseURL;
+        },
+
+        /**
+         * Set the base URL for the LEAF Portal API
+         * 
+         * @param baseAPIURL string the base URL for the Portal API
+         */
+        setBaseAPIURL = function (baseAPIURL) {
+            apiBaseURL = baseAPIURL;
+            apiURL = baseAPIURL + 'formEditor';
+        },
+
+        /**
+         * Set the CSRFToken for POST requests
+         */
+        setCSRFToken = function (token) {
+            csrfToken = token;
+        },
+
+        /**
+         * Get the access privileges for the given indicator
+         * 
+         * @param indicatorID   int                     the id of the indicator to retrieve privileges for
+         * @param onSuccess     function(array[int])    callback containing an array of group IDs
+         * @param onFail        function(err)           callback when action fails
+         */
+        getIndicatorPrivileges = function (indicatorID, onSuccess, onFail) {
+            var fetchURL = apiURL + '/indicator/' + indicatorID + '/privileges';
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: 'json'
+            })
+                .done(function (msg) {
+                    onSuccess(msg);
+                })
+                .fail(function (err) {
+                    onFail(err);
+                });
+            // .always(function() {});
+
+        },
+
+        /**
+         * Set the access privileges for the given indicator
+         * 
+         * @param indicatorID   int                 the id of the indicator to set privileges for
+         * @param groupIDs      array[int]          an array containing the IDs of the groups that should have access
+         * @param onSuccess     function(success)   callback containing true/false if action succeeded
+         * @param onFail        function(err)       callback when action fails
+         */
+        setIndicatorPrivileges = function (indicatorID, groupIDs, onSuccess, onFail) {
+
+            $.ajax({
+                method: 'POST',
+                url: apiURL + '/indicator/' + indicatorID + '/privileges',
+                dataType: "text",
+                data: {
+                    "groupIDs": groupIDs,
+                    CSRFToken: csrfToken
+                }
+            })
+                .done(function (msg) {
+                    onSuccess(msg);
+                })
+                .fail(function (err) {
+                    onFail(err);
+                });
+        };
+
+    return {
+        getAPIURL: getAPIURL,
+        getBaseAPIURL: getBaseAPIURL,
+        setBaseAPIURL: setBaseAPIURL,
+        setCSRFToken: setCSRFToken,
+        getIndicatorPrivileges: getIndicatorPrivileges,
+        setIndicatorPrivileges: setIndicatorPrivileges
     };
 };
 
