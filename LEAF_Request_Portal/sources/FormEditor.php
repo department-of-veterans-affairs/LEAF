@@ -367,5 +367,70 @@ class FormEditor
     									WHERE categoryID=:categoryID
     										AND stapledCategoryID=:stapledCategoryID', $vars);
     	return 1;
+	}
+
+    /**
+     * Get the access privileges for a given indicator.
+     * 
+     * @param int $indcatorID	the id of the indicator to retrieve privileges for
+     * 
+     * @return array an array containing the ids of groups that have access to the indicator
+     */
+    public function getIndicatorPrivileges($indicatorID)
+    {
+        $res = $this->db->prepared_query(
+            'SELECT groupID FROM indicator_mask WHERE indicatorID = :indicatorID ORDER BY groupID ASC', 
+            array(':indicatorID' => $indicatorID)
+        );
+
+        $groups = array();
+
+        foreach ($res as $group)
+        {
+            array_push($groups, (int) $group["groupID"]);
+        }
+
+        return $groups;
+    }
+
+	/**
+	 * Set the access privileges for a given indicator
+	 * 
+	 * @param int	$indicatorID	the id of the indicator to set privileges for
+	 * @param array	$groupIDs		an array of integer group ids to allow access
+	 * 
+	 * @return bool if setting privileges was successful
+	 */
+    public function setIndicatorPrivileges($indicatorID, $groupIDs)
+    { 
+        if (!is_array($groupIDs))
+        {
+            return false;
+        }
+        else
+        {
+            $res = $this->db->prepared_query(
+                'DELETE FROM indicator_mask WHERE indicatorID = :indicatorID',
+                array(':indicatorID' => $indicatorID)
+            );
+
+            $q = 'INSERT INTO indicator_mask (indicatorID, groupID) VALUES ';
+            $vars = array(":indicatorID" => (int) $indicatorID);
+            foreach ($groupIDs as $key=>$val)
+            {
+                if ($key !== 0) { $q = $q . ","; }
+
+                $var = ":group".$key;
+                $vars[$var] = $val;
+                $q = $q . "(:indicatorID, " . $var . ")";
+            }
+
+			$q = $q . ";";
+			
+			$res = $this->db->prepared_query($q, $vars);
+
+			// return if any errors occurred
+			return is_array($res) && count($res) == 0;
+        }
     }
 }
