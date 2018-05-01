@@ -54,7 +54,7 @@ class FormStack
 
     	$vars = array(':categoryID' => $categoryID);
     	$this->db->prepared_query('UPDATE categories
-		    							SET disabled=1
+		    							SET disabled=1, needToKnow=1
 		    							WHERE categoryID=:categoryID', $vars);
 
     	// "delete" internal use forms
