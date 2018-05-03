@@ -282,7 +282,8 @@ class Form
         {
             return 'Error: Invalid token.';
         }
-        $_POST['title'] = $this->sanitizeInput($_POST['title']);
+        $title = $this->sanitizeInput($_POST['title']);
+        $_POST['title'] = $title == '' ? '[blank]' : $title;
         $_POST['service'] = !isset($_POST['service']) || $_POST['service'] == '' ? 0 : (int)$_POST['service'];
         $_POST['priority'] = !isset($_POST['priority']) || $_POST['priority'] == '' ? 0 : (int)$_POST['priority'];
 
