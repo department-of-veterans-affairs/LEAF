@@ -379,7 +379,10 @@ class FormEditor
     public function getIndicatorPrivileges($indicatorID)
     {
         $res = $this->db->prepared_query(
-            'SELECT groupID FROM indicator_mask WHERE indicatorID = :indicatorID ORDER BY groupID ASC', 
+            'SELECT indicator_mask.groupID, groups.name AS groupName
+				FROM indicator_mask 
+				LEFT JOIN groups ON (groups.groupID = indicator_mask.groupID)
+				WHERE indicator_mask.indicatorID = :indicatorID ORDER BY indicator_mask.groupID ASC', 
             array(':indicatorID' => $indicatorID)
         );
 
@@ -387,7 +390,10 @@ class FormEditor
 
         foreach ($res as $group)
         {
-            array_push($groups, (int) $group["groupID"]);
+            array_push($groups, array(
+				"id" => (int) $group["groupID"],
+				"name" => $group["groupName"]
+			));
         }
 
         return $groups;
@@ -409,12 +415,7 @@ class FormEditor
         }
         else
         {
-            $res = $this->db->prepared_query(
-                'DELETE FROM indicator_mask WHERE indicatorID = :indicatorID',
-                array(':indicatorID' => $indicatorID)
-            );
-
-            $q = 'INSERT INTO indicator_mask (indicatorID, groupID) VALUES ';
+            $q = 'REPLACE INTO indicator_mask (indicatorID, groupID) VALUES ';
             $vars = array(":indicatorID" => (int) $indicatorID);
             foreach ($groupIDs as $key=>$val)
             {
@@ -432,5 +433,28 @@ class FormEditor
 			// return if any errors occurred
 			return is_array($res) && count($res) == 0;
         }
-    }
+	}
+	
+	/**
+	 * Remove an access privilege for the given indicator and group ID
+	 * 
+	 * @param int $indicatorID 	the id of the indicator to remove access for
+	 * @param int $groupID 		the id of the group to remove access for
+	 * 
+	 * @return bool if removal was successful
+	 */
+	public function removeIndicatorPrivilege($indicatorID, $groupID)
+	{
+		$q = 'DELETE FROM indicator_mask WHERE indicatorID = :indicatorID AND groupID = :groupID';
+		$res = $this->db->prepared_query(
+			$q, 
+			array(
+				":indicatorID" => (int) $indicatorID,
+				":groupID" => (int) $groupID
+			)
+		);
+
+		// return if row was deleted
+		return is_int($res) && (int) $res == 1;
+	}
 }

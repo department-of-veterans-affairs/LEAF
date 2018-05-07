@@ -148,6 +148,29 @@ var PortalFormEditorAPI = function (baseAPIURL) {
         },
 
         /**
+         * Get information about the given indicator
+         * 
+         * @param indicatorID   int                 the id of the indicator
+         * @param onSuccess     function(result)    callback containing indicator info
+         * @param onFail        function(error)     callback when action fails
+         */
+        getIndicator = function (indicatorID, onSuccess, onFail) {
+            var fetchURL = apiURL + '/indicator/' + indicatorID;
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: 'json'
+            })
+                .done(function (msg) {
+                    onSuccess(msg);
+                })
+                .fail(function (err) {
+                    onFail(err);
+                });
+        },
+
+        /**
          * Get the access privileges for the given indicator
          * 
          * @param indicatorID   int                     the id of the indicator to retrieve privileges for
@@ -169,7 +192,34 @@ var PortalFormEditorAPI = function (baseAPIURL) {
                     onFail(err);
                 });
             // .always(function() {});
+        },
 
+        /**
+         * Remove access privilege for the given indicator and group
+         * 
+         * @param indicatorID   int                 the id of the indicator to remove access for
+         * @param groupID       int                 the id of the group to remove access for
+         * @param onSuccess     function(success)   callback containing true/false if action succeeded
+         * @param onFail        function(err)       callback when action contains an error
+         */
+        removeIndicatorPrivilege = function (indicatorID, groupID, onSuccess, onFail) {
+            var postURL = apiURL + '/indicator/' + indicatorID + '/privileges/remove';
+
+            $.ajax({
+                method: 'POST',
+                url: postURL,
+                dataType: "text",
+                data: {
+                    "groupID": groupID,
+                    CSRFToken: csrfToken
+                }
+            })
+                .done(function (msg) {
+                    onSuccess(msg);
+                })
+                .fail(function (err) {
+                    onFail(err);
+                });
         },
 
         /**
@@ -204,7 +254,9 @@ var PortalFormEditorAPI = function (baseAPIURL) {
         getBaseAPIURL: getBaseAPIURL,
         setBaseAPIURL: setBaseAPIURL,
         setCSRFToken: setCSRFToken,
+        getIndicator: getIndicator,
         getIndicatorPrivileges: getIndicatorPrivileges,
+        removeIndicatorPrivilege: removeIndicatorPrivilege,
         setIndicatorPrivileges: setIndicatorPrivileges
     };
 };

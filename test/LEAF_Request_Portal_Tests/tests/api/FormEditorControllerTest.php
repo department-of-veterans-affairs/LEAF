@@ -679,7 +679,7 @@ final class FormEditorControllerTest extends DatabaseTest
     }
 
     /**
-     * Tests the `form/indicator/<indicatorID>/groups` endpoint
+     * Tests the `form/indicator/<indicatorID>/privileges` endpoint
      *
      * Tests getting the privileges of an indicator
      */
@@ -689,11 +689,11 @@ final class FormEditorControllerTest extends DatabaseTest
 
         $this->assertNotNull($privs);
         $this->assertEquals(1, count($privs));
-        $this->assertEquals(1, $privs[0]);
+        $this->assertEquals(1, $privs[0]["id"]);
     }
 
     /**
-     * Tests the `form/indicator/<indicatorID>/groups` endpoint
+     * Tests the `form/indicator/<indicatorID>/privileges` endpoint
      *
      * Tests setting the privileges of an indicator with invalid input
      */
@@ -712,9 +712,35 @@ final class FormEditorControllerTest extends DatabaseTest
         $privs = self::$client->get('?a=formEditor/indicator/7/privileges');
 
         $this->assertNotNull($privs);
-        $this->assertEquals(2, count($privs));
-        $this->assertEquals(2, $privs[0]);
-        $this->assertEquals(3, $privs[1]);
+        $this->assertEquals(3, count($privs));
+        $this->assertEquals(1, $privs[0]["id"]);
+        $this->assertEquals(2, $privs[1]["id"]);
+        $this->assertEquals(3, $privs[2]["id"]);
+    }
+
+    /**
+     * Tests the `form/indicator/<indicatorID>privileges` endpoint
+     * 
+     * Tests removing an indicator privilege.
+     */
+    public function testIndicatorPrivileges_removePrivilege() : void
+    {
+        $privs = self::$client->get('?a=formEditor/indicator/7/privileges');
+
+        $this->assertNotNull($privs);
+        $this->assertEquals(1, count($privs));
+
+        $res = self::$client->postEncodedForm(
+            '?a=formEditor/indicator/7/privileges/remove',
+            array(
+                "groupID" => 1
+            )
+        );
+
+        $privs = self::$client->get('?a=formEditor/indicator/7/privileges');
+
+        $this->assertNotNull($privs);
+        $this->assertEquals(0, count($privs));
     }
 
     /**
