@@ -31,13 +31,14 @@
             <span class="buttonNorm" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Add Sub-question" title="Add Sub-question"/> Add Sub-question</span>
 
             </div>
-            <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)">
+            <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->" >
             <!--{if trim($indicator.name) != ''}-->
                 <!--{$indicator.name|sanitizeRichtext|strip_tags}-->
             <!--{else}-->
                 [ blank ]
             <!--{/if}-->
-            &nbsp;<img src="../../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" alt="Edit this field" title="Edit this field" style="cursor: pointer" />&nbsp;
+            &nbsp;<img src="../../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" alt="Edit this field" title="Edit this field" style="cursor: pointer" />&nbsp;
+            &nbsp;<img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=16" onclick="editIndicatorPrivileges(<!--{$indicator.indicatorID}-->, '<!--{$indicator.name}-->')" alt="Edit indicator privileges" title="Edit indicator privileges" style="cursor: pointer" />&nbsp;
             </span>
         <!--{else}-->
       <div class="printsubblock" id="subIndicator_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">

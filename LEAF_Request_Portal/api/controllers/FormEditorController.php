@@ -175,6 +175,10 @@ class FormEditorController extends RESTfulResponse
    			return $formEditor->addStapledCategory($args[0], $_POST['stapledCategoryID']);
 		});
 		   
+		$this->index['POST']->register('formEditor/indicator/[digit]/privileges/remove', function ($args) use ($formEditor) {
+			return $formEditor->removeIndicatorPrivilege((int)$args[0], (int)$_POST['groupID']);
+		});
+
 		$this->index['POST']->register('formEditor/indicator/[digit]/privileges', function ($args) use ($formEditor) {
 			return $formEditor->setIndicatorPrivileges((int)$args[0], $_POST['groupIDs']);
 		});
