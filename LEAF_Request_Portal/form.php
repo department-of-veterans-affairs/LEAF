@@ -547,10 +547,15 @@ class Form
             if (isset($line['groupID']))
             {
                 $groups = $this->login->getMembership();
-                // the user does not not permission to view the indicator data, so the data
-                // must be masked
-                if (!isset($groups['groupID'][$line['groupID']])) {
-                    $line['data'] = "[protected data]";
+
+                // check if logged in user is request initiator
+                if($this->login->getUserID() != $line['userID'])
+                {
+                    // the user does not not permission to view the indicator data, so the data
+                    // must be masked
+                    if (!isset($groups['groupID'][$line['groupID']])) {
+                        $line['data'] = "[protected data]";
+                    }
                 }
             }
 
