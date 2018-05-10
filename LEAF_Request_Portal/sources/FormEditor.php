@@ -8,7 +8,8 @@
 class FormEditor
 {
     private $db;
-    private $login;
+	private $login;
+	private $cache = array();
 
     function __construct($db, $login)
     {
@@ -378,6 +379,11 @@ class FormEditor
      */
     public function getIndicatorPrivileges($indicatorID)
     {
+		if (isset($this->cache["indicatorPrivileges_{$indicatorID}"]))
+		{
+			return $this->cache["indicatorPrivileges_{$indicatorID}"];
+		}
+
         $res = $this->db->prepared_query(
             'SELECT indicator_mask.groupID, groups.name AS groupName
 				FROM indicator_mask 
@@ -394,7 +400,9 @@ class FormEditor
 				"id" => (int) $group["groupID"],
 				"name" => $group["groupName"]
 			));
-        }
+		}
+		
+		$this->cache["indicatorPrivileges_{$indicatorID}"] = $groups;
 
         return $groups;
     }
@@ -430,6 +438,8 @@ class FormEditor
 			
 			$res = $this->db->prepared_query($q, $vars);
 
+			unset($this->cache["indicatorPrivileges_{$indicatorID}"]);
+
 			// return if any errors occurred
 			return is_array($res) && count($res) == 0;
         }
@@ -453,6 +463,8 @@ class FormEditor
 				":groupID" => (int) $groupID
 			)
 		);
+
+		unset($this->cache["indicatorPrivileges_{$indicatorID}"]);
 
 		// return if row was deleted
 		return is_int($res) && (int) $res == 1;
