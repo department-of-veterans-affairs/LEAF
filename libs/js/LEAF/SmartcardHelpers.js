@@ -1,8 +1,9 @@
 var Signer = function() {
 
     sign = function(dataToSign, resultsHandler, errorHandler) {
-        showLoader();
-        var wsEndpoint = 'ws://127.0.0.1:8765/websockets/sign';
+        // showLoader();
+        var wsEndpoint = 'wss://localhost/websockets/sign';
+        // var wsEndpoint = 'ws://127.0.0.1:8765/websockets/sign';
         // var wsEndpoint = 'ws://10.0.2.2:8765/websockets/sign';
         if (!(resultsHandler instanceof Function))
             throw 'The sign parameter must be a function';

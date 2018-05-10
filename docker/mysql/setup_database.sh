@@ -7,9 +7,11 @@ mysql -uroot -p$MYSQL_ROOT_PASSWORD <<CREATE_DATABASE
 CREATE DATABASE leaf_users;
 CREATE DATABASE leaf_portal;
 CREATE_DATABASE
+
 mysql -uroot -p$MYSQL_ROOT_PASSWORD <<GRANT_PRIVILEGES
 GRANT ALL PRIVILEGES ON *.* TO 'tester'@'%' IDENTIFIED BY 'tester';
 GRANT_PRIVILEGES
+
 mysql -utester -p$MYSQL_ROOT_PASSWORD leaf_users < /orgchart_boilerplate_empty.sql;
 mysql -utester -p$MYSQL_ROOT_PASSWORD leaf_portal < /resource_database_boilerplate.sql;
 
@@ -19,3 +21,6 @@ INSERT INTO leaf_users.employee (empUID, userName, lastName, firstName, middleNa
 INSERT INTO leaf_users.relation_group_employee (groupID, empUID) VALUES ('1', '1');
 INSERT INTO leaf_portal.users (userID, groupID) VALUES ('tester', '1');
 INSERT_DATA
+
+mysql -utester -p$MYSQL_ROOT_PASSWORD leaf_users < /leaf_users_test_data.sql;
+mysql -utester -p$MYSQL_ROOT_PASSWORD leaf_portal < /leaf_portal_test_data.sql;
