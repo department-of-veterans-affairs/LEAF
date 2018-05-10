@@ -1,0 +1,13 @@
+FROM ubuntu:16.04
+#FROM java:8
+MAINTAINER Nick Ciardiello <nick.ciardiello@ablevets.com>
+
+ADD docker/java/Websocket-Digital-Signature-1.0-SNAPSHOT.jar /
+ADD docker/java/sc.key /
+ADD docker/java/sc.pem /
+
+RUN apt-get update
+RUN yes | apt-get install default-jre
+RUN yes | apt-get install opensc
+
+ENTRYPOINT [ "java", "-jar", "-Djava.awt.headless=false", "/Websocket-Digital-Signature-1.0-SNAPSHOT.jar" ]

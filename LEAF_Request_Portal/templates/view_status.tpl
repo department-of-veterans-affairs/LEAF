@@ -26,10 +26,13 @@ Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID|strip_tags|e
         <!--{$indicator.time|date_format:"%B %e, %Y. %l:%M %p"}-->
     </td>
     <td>
-        <span><b><!--{$indicator.description|sanitize}-->: <!--{$indicator.actionText|sanitize}--></b> by <!--{$indicator.userName|sanitize}-->
-        <!--{if $indicator.comment != ''}-->
-        <br />Comment: <!--{$indicator.comment|sanitize}--></span>
-        <!--{/if}-->
+        <span>
+            <img src="../libs/dynicons/?img=<!--{$indicator.actionIcon}-->&w=25" alt="<!--{$indicator.actionText|sanitize}-->">
+            <b><!--{$indicator.description|sanitize}-->: <!--{$indicator.actionTextPasttense|sanitize}--></b> by <!--{$indicator.userName|sanitize}-->
+            <!--{if $indicator.comment != ''}-->
+            <br />Comment: <!--{$indicator.comment|sanitize}-->
+            <!--{/if}-->
+        </span>
     </td>
 </tr>
 

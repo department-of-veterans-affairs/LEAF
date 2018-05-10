@@ -119,9 +119,11 @@ switch($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
-										   '../' . Config::$orgchartPath . '/js/groupSelector.js',
-										   '../../libs/js/LEAF/XSSHelpers.js'
+        $main->assign('javascripts', array(
+			'../../libs/js/jsPlumb/dom.jsPlumb-min.js',
+			'../' . Config::$orgchartPath . '/js/groupSelector.js',
+			'../../libs/jsapi/portal/LEAFPortalAPI.js',
+			'../../libs/js/LEAF/XSSHelpers.js'
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
         			 					   '../' . Config::$orgchartPath . '/css/groupSelector.css'
@@ -148,7 +150,8 @@ switch($action) {
 							        		'../../libs/js/codemirror/mode/css/css.js',
 							        		'../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
 											'../../libs/js/codemirror/addon/display/fullscreen.js',
-											'../../libs/js/LEAF/XSSHelpers.js'
+											'../../libs/js/LEAF/XSSHelpers.js',
+											'../../libs/jsapi/portal/LEAFPortalAPI.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
 							        		'../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',

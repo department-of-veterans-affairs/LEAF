@@ -106,6 +106,13 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		                'padding': '4px',
 		                'resize': 'vertical'});
 
+		if (step.requiresDigitalSignature == true) {
+			$(document.createElement('div'))
+				.css({'margin': 'auto', 'width': '95%', 'padding': '8px'})
+				.html("<img src='../libs/dynicons/?img=application-certificate.svg&w=32' alt='Digital Signature Required' title='Digital Signature Required'> Digital Signature Required")
+				.appendTo('#form_dep' + step.dependencyID);
+		}
+
 		// draw buttons
 		for(var i in step.dependencyActions) {
 			var icon = '';
@@ -122,24 +129,75 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
 		    $('#button_step'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType).on('click', { step: step, idx: i },
 		    	function(e) {
+
 		        var data = new Object();
 		        data['comment'] = $('#comment_dep'+ e.data.step.dependencyID).val();
 		        data['actionType'] = e.data.step.dependencyActions[e.data.idx].actionType;
-		        data['dependencyID'] = e.data.step.dependencyID;
-		        data['CSRFToken'] = CSRFToken;
+				data['dependencyID'] = e.data.step.dependencyID;
 
-		        if (e.data.step.dependencyActions[e.data.idx].fillDependency > 0)
-			        if(typeof workflowModule[e.data.step.dependencyID] !== 'undefined') {
-			            workflowModule[e.data.step.dependencyID].trigger(function() {
-			                applyAction(data);
-			            });
-			        }
-			        else {
-			            applyAction(data);
-			        }
-		        else {
-		        	applyAction(data);
-		        }
+				var completeAction = function() {
+					data['CSRFToken'] = CSRFToken;
+
+					if (e.data.step.dependencyActions[e.data.idx].fillDependency > 0)
+						if(typeof workflowModule[e.data.step.dependencyID] !== 'undefined') {
+							workflowModule[e.data.step.dependencyID].trigger(function() {
+								applyAction(data);
+							});
+						}
+						else {
+							applyAction(data);
+						}
+					else {
+						applyAction(data);
+					}
+				};
+
+				// TODO: eventually this will be handled by Workflow extension
+				if (step.requiresDigitalSignature == true) {
+					if (LEAFRequestPortalAPI !== undefined) {
+
+						var portalAPI = LEAFRequestPortalAPI();
+						portalAPI.setCSRFToken(CSRFToken);
+
+						portalAPI.Forms.getJSONForSigning(
+							currRecordID,
+							function (json) {
+								var jsonStr = JSON.stringify(json);
+								Signer.sign(jsonStr, function (signedDataList) {
+									var sigData = JSON.stringify(signedDataList);
+
+									portalAPI.Signature.create(
+										sigData,
+										currRecordID,
+										jsonStr,
+										function (id) {
+											data['signature'] = id.replace('"', "");
+											console.log("IDDDDD: " + id.replace('"', ""));
+
+											completeAction();
+										},
+										function (err) {
+											console.log(err);
+										}
+									);
+
+								}, function (err) {
+									// TODO: display error message to user
+									console.log(err);
+								});
+
+							},
+							function (err) {
+								console.log(err);
+							}
+						);
+
+					}
+					// TODO: handle getting signature here
+					// data['signature'] = "TEMPORARY SIGNATURE";
+				} else {
+					completeAction();
+				}
 		    });
 		}
 
