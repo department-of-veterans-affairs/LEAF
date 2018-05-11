@@ -43,6 +43,7 @@ var LEAFRequestPortalAPI = function () {
     return {
         getBaseURL: getBaseURL,
         setBaseURL: setBaseURL,
+        setCSRFToken: setCSRFToken,
 
         Forms: Forms,
         FormEditor: FormEditor,
@@ -77,6 +78,16 @@ var PortalFormsAPI = function (baseAPIURL) {
         },
 
         /**
+         * Set the base URL for the LEAF Portal API
+         * 
+         * @param baseAPIURL string the base URL for the Portal API
+         */
+        setBaseAPIURL = function (baseAPIURL) {
+            apiBaseURL = baseAPIURL;
+            apiURL = baseAPIURL + 'form';
+        },
+
+        /**
          * Query a form using the Report Builder JSON syntax
          *
          * @param query     object              the JSON query object
@@ -103,6 +114,7 @@ var PortalFormsAPI = function (baseAPIURL) {
     return {
         getAPIURL: getAPIURL,
         getBaseAPIURL: getBaseAPIURL,
+        setBaseAPIURL: setBaseAPIURL,
         query: query
     };
 };
