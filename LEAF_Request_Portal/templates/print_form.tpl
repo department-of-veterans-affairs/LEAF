@@ -447,9 +447,12 @@ function admin_changeStep() {
                     var steps2 = '';
                     var stepCounter = 0;
                 	for(var i in res) {
-               			steps += '<option value="'+ res[i].stepID +'">' + res[i].description + ': ' + res[i].stepTitle +'</option>';
-               			stepCounter++;
-                		steps2 += '<option value="'+ res[i].stepID +'">' + res[i].description + ' - ' + res[i].stepTitle +'</option>';
+                		if(Object.keys(workflows).length == 0
+                			|| workflows[res[i].workflowID] != undefined) {
+                            steps += '<option value="'+ res[i].stepID +'">' + res[i].description + ': ' + res[i].stepTitle +'</option>';
+                            stepCounter++;
+                            steps2 += '<option value="'+ res[i].stepID +'">' + res[i].description + ' - ' + res[i].stepTitle +'</option>';
+                		}
                 	}
                 	if(stepCounter == 0) {
                 		steps += steps2;
@@ -629,6 +632,10 @@ function sideBar() {
         }
     }
 }
+
+this.portalAPI = LEAFRequestPortalAPI();
+this.portalAPI.setBaseURL('api/?a=');
+this.portalAPI.setCSRFToken('<!--{$CSRFToken}-->');
 
 $(function() {
     $('#progressBar').progressbar({max: 100});

@@ -11,7 +11,7 @@
             <div id="fileList"></div>
         </div>
     </div>
-    <div class="col span_4_of_6">
+    <div id="codeArea" class="col span_4_of_6">
         <div id="codeContainer" class="card" style="float: left; padding: 8px; width: 90%; display: none">
             <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
             <div id="reportURL" style="padding-left: 8px;"></div><br />
@@ -92,7 +92,11 @@ function newReport() {
         });
         dialog.hide();
     });
-    
+
+    $('#newFilename').on('keyup change', function(e) {
+        $('#newFilename').val($('#newFilename').val().replace(/[^a-z0-9\.\/]/gi, '_'));
+    });
+
     dialog.show();
 }
 
@@ -145,6 +149,12 @@ function loadContent(file) {
 	$('#saveStatus').html('');
 }
 
+function updateEditorSize() {
+    codeWidth = $('#codeArea').width() - 30;
+    $('#codeContainer').css('width', codeWidth + 'px');
+    $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
+}
+
 var codeEditor = null;
 var dialog, dialog_confirm;
 $(function() {
@@ -156,7 +166,6 @@ $(function() {
 	codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
 		mode: "htmlmixed",
 	    lineNumbers: true,
-	    scrollbarStyle: "simple",
 	    indentUnit: 4,
 	    extraKeys: {
 	        "F11": function(cm) {
@@ -170,7 +179,10 @@ $(function() {
 	        }
 	      }
 	  });
-	codeEditor.setSize(codeWidth - 2 + 'px', $(document).height() - 80);
+	updateEditorSize();
+    $(window).on('resize', function() {
+        updateEditorSize();
+    });
 	
 	$.ajax({
 		type: 'GET',

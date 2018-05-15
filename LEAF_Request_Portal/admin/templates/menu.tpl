@@ -1,6 +1,6 @@
 <a href="../" class="buttonNorm"><img src="../../libs/dynicons/?img=go-home.svg&amp;w=16" alt="Main Page" title="Main Page" />Main Page</a>
 <div id="headerMenu_container" style="display: inline-block">
-    <a id="button_showLinks" href="#" class="buttonNorm" alt="Links Dropdown" title="Links">Links</a>
+    <a id="button_showLinks" tabindex="0" class="buttonNorm" alt="Links Dropdown" title="Links">Links</a>
     <div id="headerMenu_links">
     {include file="menu_links.tpl"}
     </div>
@@ -18,5 +18,13 @@
         <span class="menuDescSmall">Update/Review Org. Charts and Employee Information</span>
     </span>
 </a>
+
+<script>
+    $('#button_showLinks').keypress(function(e) {
+        if (e.keyCode === 13) {
+            $('#headerMenu_links').css("display", "block");
+        }
+    });
+</script>
 
 </div>

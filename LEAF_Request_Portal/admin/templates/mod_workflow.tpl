@@ -40,6 +40,7 @@ function deleteWorkflow() {
         return;
     }
 
+
     dialog_confirm.setTitle('Confirmation required');
     dialog_confirm.setContent('Are you sure you want to delete this workflow?');
     dialog_confirm.setSaveHandler(function() {

@@ -29,7 +29,7 @@ var LeafFormSearch = function(containerID) {
 			    <button class="buttonNorm" id="'+prefixID+'advancedSearchButton">Advanced Options</button>\
 			    <fieldset id="'+prefixID+'advancedOptions" style="position: relative; display: none; margin: 0px; border: 1px solid black; background-color: white">\
 		        <legend>Advanced Search Options</legend>\
-		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer" alt="Close advanced search"/>\
+		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" tabindex="0" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer" alt="Close advanced search"/>\
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="'+prefixID+'searchTerms"></table>\
 		        <button class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</button>\
@@ -52,6 +52,22 @@ var LeafFormSearch = function(containerID) {
 	            $('#' + prefixID + 'searchtxt').animate({'width': searchOrigWidth}, 400, 'swing');
 	            $('#' + prefixID + 'searchtxt').focus();
 	        });
+	    });
+			//added for keyboard navigation and accessibility to close advanced search options
+			var searchOrigWidth = 0;
+	    $('#' + prefixID + 'advancedOptionsClose').on('keydown', function(e) {
+				if(e.keyCode == 13){
+	    	localStorage.setItem(localStorageNamespace + '.search', '');
+	    	$('#' + prefixID + 'searchtxt').val('');
+	    	search('');
+	    	$('#' + prefixID + 'advancedOptionsClose').css('display', 'none');
+	        $('#' + prefixID + 'advancedOptions').slideUp(function() {
+	        	$('#' + prefixID + 'advancedSearchButton').fadeIn();
+	        	$('#' + prefixID + 'searchtxt').css('display', 'inline');
+	            $('#' + prefixID + 'searchtxt').animate({'width': searchOrigWidth}, 400, 'swing');
+	            $('#' + prefixID + 'searchtxt').focus();
+	        });
+				}
 	    });
 
 	    $('#' + prefixID + 'advancedSearchButton').on('click', function() {
@@ -179,7 +195,7 @@ var LeafFormSearch = function(containerID) {
         			$('#' + prefixID + 'widgetMat_' + i).val(advSearch[i].match.replace(/\*/g, ''));
 
         		}
-						
+
         	}
         }
 	}
@@ -441,7 +457,10 @@ var LeafFormSearch = function(containerID) {
 				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 250px" />');
 				break;
 			case 'serviceID':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+                $('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen"  aria-label="title" style="width: 120px">\
+                        <option value="=">IS</option>\
+                        <option value="!=">IS NOT</option>\
+                    </select>');
 				$.ajax({
 					type: 'GET',
 					url: './api/?a=system/services',
@@ -461,6 +480,8 @@ var LeafFormSearch = function(containerID) {
 				});
 				break;
 			case 'date':
+			case 'dateInitiated':
+			case 'dateSubmitted':
 				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen" aria-label="date">\
 	            		<option value="=">ON</option>\
 	            		<option value=">=">ON AND AFTER</option>\
@@ -723,7 +744,7 @@ var LeafFormSearch = function(containerID) {
 						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen" aria-label="condition">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
-            				<option value="date">Date Initiated</option>\
+            				<option value="dateSubmitted">Date Submitted</option>\
             				<option value="categoryID">Type</option>\
             				<option value="userID">Initiator</option>\
             				<option value="dependencyID">Requirement</option>\

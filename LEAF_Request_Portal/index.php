@@ -150,13 +150,13 @@ switch ($action) {
     case 'printview':
         $main->assign('useUI', true);
         $main->assign('javascripts', array(
-            'js/form.js', 
-            '../libs/js/LEAF/SmartcardHelpers.js',
-            'js/workflow.js', 
-            'js/formGrid.js', 
-            'js/formQuery.js', 
-            'js/jsdiff.js', 
+            'js/form.js',
+            'js/workflow.js',
+            'js/formGrid.js',
+            'js/formQuery.js',
+            'js/jsdiff.js',
             '../libs/js/LEAF/XSSHelpers.js',
+            '../libs/js/LEAF/SmartcardHelpers.js',
             '../libs/jsapi/portal/LEAFPortalAPI.js'
         ));
 

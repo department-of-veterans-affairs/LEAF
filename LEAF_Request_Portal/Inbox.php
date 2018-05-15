@@ -149,6 +149,7 @@ class Inbox
                     if($res[$i]['dependencyID'] == -2) {
                     	if($res[$i]['userID'] == $this->login->getUserID()) {
                     		$res[$i]['hasAccess'] = true;
+                    		$out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
                     	}
                     }
                     
@@ -161,10 +162,19 @@ class Inbox
                     	if($this->login->checkGroup($groupID)) {
                     		$res[$i]['hasAccess'] = true;
                     	}
-                    
+
                     	if($res[$i]['hasAccess']) {
                     		// populate relevant info
-                    		$out[$res[$i]['dependencyID']]['approverName'] = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
+                    	    $vars = array(':groupID' => $groupID);
+                    		$resDepGroup = $this->db->prepared_query('SELECT name FROM groups WHERE groupID=:groupID', $vars);
+                    		$approverName = '';
+                    		if(isset($resDepGroup[0]['name'])) {
+                    		    $approverName = $resDepGroup[0]['name'];
+                    		}
+                    		else {
+                    		    $approverName = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
+                    		}
+                    		$out[$res[$i]['dependencyID']]['approverName'] = $approverName;
                     	}
                     }
 

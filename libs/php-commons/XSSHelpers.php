@@ -9,13 +9,15 @@ class XSSHelpers {
         '/\b\d{3}-\d{2}-\d{4}\b/', // mask SSN
         '/(\<\/p\>\<\/p\>){2,}/', // flatten extra <p>
         '/(\<p\>\<\/p\>){2,}/', // flatten extra <p>
-        '/\<\/p\>(\s+)?\<br\>(\s+)?\<p\>/U' // scrub line breaks between paragraphs
+        '/\<\/p\>(\s+)?\<br\>(\s+)?\<p\>/U', // scrub line breaks between paragraphs
+        '/(<br \/?><br \/?><br \/?>)+/' // scrub excess linebreaks
     ];
     static private $specialReplace = [
         '###-##-####',
         '',
         '',
-        "</p>\n<p>"
+        "</p>\n<p>",
+        '<br />'
     ];
 
     /**
@@ -65,7 +67,8 @@ class XSSHelpers {
         
         // strip excess tags if we detect copy/paste from MS Office
         if(strpos($in, '<meta name="Generator"') !== false
-            || strpos($in, '<w:WordDocument>') !== false) {
+            || strpos($in, '<w:WordDocument>') !== false
+            || strpos($in, '<font face') !== false) {
             $in = strip_tags($in, '<br>');
         }
 
@@ -73,6 +76,10 @@ class XSSHelpers {
         $replace = [];
         foreach($allowedTags as $tag) {
             switch($tag) {
+                case 'br':
+                    $pattern[] = '/&lt;(\/)?br(\s.+)?(\/)?&gt;/U';
+                    $replace[] = '<br />';
+                    break;
                 case 'table':
                     $pattern[] = '/&lt;table(\s.+)?&gt;/Ui';
                     $replace[] = '<table class="table">';
@@ -80,7 +87,7 @@ class XSSHelpers {
                     $replace[] = '</table>';
                     break;
                 case 'a':
-                    $pattern[] = '/&lt;a href=&(quot|#039);(?!javascript)(\S+)&(quot|#039);(\s.+)?&gt;/Ui';
+                    $pattern[] = '/&lt;a href=&(quot|#039);(?!javascript)(.+)&(quot|#039);(\s.+)?&gt;/Ui';
                     $replace[] = '<a href="\2" target="_blank">';
                     $pattern[] = '/&lt;\/a&gt;/Ui';
                     $replace[] = '</a>';
@@ -92,6 +99,10 @@ class XSSHelpers {
                     $replace[] = '<p>';
                     $pattern[] = '/&lt;\/p&gt;/Ui';
                     $replace[] = '</p>';
+                    
+                    // IE 11 workarounds
+                    $pattern[] = '/&lt;p align=&quot;(\S.+)&quot;(\s.+)?&gt;/Ui';
+                    $replace[] = '<p align="\1">';
                     break;
                 case 'span':
                     $pattern[] = '/&lt;span style=&(quot|#039);(\S.+)&(quot|#039);(\s.+)?&gt;/Ui';
@@ -100,11 +111,19 @@ class XSSHelpers {
                     $replace[] = '</span>';
                     break;
                 case 'img':
-                    $pattern[] = '/&lt;img src=&(quot|#039);(?!javascript)(\S+)&(quot|#039);(\s.+)?&gt;/Ui';
-                    $replace[] = '<img src="\2">';
-                    $pattern[] = '/&lt;\/img&gt;/Ui';
-                    $replace[] = '</img>';
+                    $pattern[] = '/&lt;img src=&(?:quot|#039);(?!javascript)(.+)&(?:quot|#039); alt=&(?:quot|#039);(.+)&(?:quot|#039);(\s.*)?\/?&gt;/Ui';
+                    $replace[] = '<img src="\1" alt="\2" />';
+                    $pattern[] = '/&lt;img src=&(?:quot|#039);(?!javascript)(.+)&(?:quot|#039);(\s.+)?\/?&gt;/Ui';
+                    $replace[] = '<img src="\1" alt="" />';
                     break;
+                // Start IE 11 workarounds
+                case 'font':
+                    $pattern[] = '/&lt;font color=&(quot|#039);(\S.+)&(quot|#039);(\s.+)?&gt;/Ui';
+                    $replace[] = '<font color="\2">';
+                    $pattern[] = '/&lt;\/font&gt;/Ui';
+                    $replace[] = '</font>';
+                    break;
+                // End IE 11 workarounds
                 default:
                     $pattern[] = '/&lt;(\/)?'. $tag .'(\s.+)?&gt;/U';
                     $replace[] = '<\1'. $tag .'>';
@@ -124,7 +143,8 @@ class XSSHelpers {
         $openTags = array();
         $numTags = count($matches[2]);
         for($i = 0; $i < $numTags; $i++) {
-            if($matches[2][$i] != 'br') {
+            if($matches[2][$i] != 'br'
+                && $matches[2][$i] != 'img') {
                 //echo "examining: {$matches[1][$i]}{$matches[2][$i]}\n";
                 // proper closure
                 if($matches[1][$i] == '/' && isset($openTags[$matches[2][$i]]) && $openTags[$matches[2][$i]] > 0) {
@@ -164,7 +184,7 @@ class XSSHelpers {
     /**
     * Sanitize a HTML string, allows some tags for use in rich text editors.
     * 
-    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr><thead><tbody>
+    * Allowed tags: <b><i><u><ol><ul><li><br><p><table><td><tr><thead><tbody>
     *
     * @param    string  $in the string to be sanitized
     *
@@ -172,7 +192,7 @@ class XSSHelpers {
     */
     static public function sanitizeHTML($in)
     {
-        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody'];
+        $allowedTags = ['b', 'i', 'u', 'strong', 'em', 'ol', 'ul', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody'];
 
         return XSSHelpers::sanitizer($in, $allowedTags);
     }
@@ -181,7 +201,7 @@ class XSSHelpers {
     * Sanitize a HTML string, allows some tags for use in rich text editors.
     * Used in form field headings, which include some links and formatted text
     * 
-    * Allowed tags: <b><i><u><ol><li><br><p><table><td><tr><thead><tbody><a><span><strong><em><h1><h2><img>
+    * Allowed tags: <b><i><u><ol><ul><li><br><p><table><td><tr><thead><tbody><a><span><strong><em><h1><h2><h3><h4><img><font>
     *
     * @param    string  $in the string to be sanitized
     *
@@ -189,8 +209,14 @@ class XSSHelpers {
     */
     static public function sanitizeHTMLRich($in)
     {
-        $allowedTags = ['b', 'i', 'u', 'ol', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody', 'a', 'span', 'strong', 'em', 'h1', 'h2', 'img'];
+        $allowedTags = ['b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table',
+                        'td', 'tr', 'thead', 'tbody', 'a', 'span', 'strong',
+                        'em', 'h1', 'h2', 'h3', 'h4', 'img'];
 
+        // IE 11 workarounds
+        $allowedTags[] = 'font';
+        $allowedTags[] = 'center';
+        
         return XSSHelpers::sanitizer($in, $allowedTags);
     }
 }

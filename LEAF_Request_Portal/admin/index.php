@@ -150,7 +150,8 @@ switch($action) {
 							        		'../../libs/js/codemirror/mode/css/css.js',
 							        		'../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
 											'../../libs/js/codemirror/addon/display/fullscreen.js',
-											'../../libs/js/LEAF/XSSHelpers.js'
+											'../../libs/js/LEAF/XSSHelpers.js',
+											'../../libs/jsapi/portal/LEAFPortalAPI.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
 							        		'../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
@@ -189,7 +190,6 @@ switch($action) {
        									   '../../libs/js/codemirror/addon/search/search.js',
        			                           '../../libs/js/codemirror/addon/search/searchcursor.js',
        			                           '../../libs/js/codemirror/addon/dialog/dialog.js',
-       			                           '../../libs/js/codemirror/addon/scroll/simplescrollbars.js',
        			                           '../../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
        			                           '../../libs/js/codemirror/addon/search/matchesonscrollbar.js',
        			                           '../../libs/js/codemirror/addon/display/fullscreen.js'
@@ -207,15 +207,16 @@ switch($action) {
        	switch($action) {
        		case 'mod_templates':
        			$main->assign('body', $t_form->fetch('mod_templates.tpl'));
+       			$tabText = 'Template Editor';
        			break;
        		case 'mod_templates_reports':
        			$main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
+       			$tabText = 'Editor';
        			break;
        		default:
        			break;
        	}
 
-        $tabText = 'Template Editor';
         break;
     case 'admin_update_database':
         $t_form = new Smarty;

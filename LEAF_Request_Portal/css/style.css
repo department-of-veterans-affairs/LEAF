@@ -18,7 +18,6 @@ body a:hover {
 span {
     color: black;
     font-family: verdana;
-    font-size: 12px;
 }
 
 button {
@@ -412,6 +411,14 @@ table.table {
     color: white;
 }
 
+.table_editable:hover a {
+    color: white;
+}
+
+.table_editable:hover>.browsetypes {
+    color: white;
+}
+
 .table_priority {
     cursor: pointer;
 }
@@ -591,6 +598,10 @@ span.approval_disapproved {
     float: left;
     font-size: 22px;
     padding: 8px;
+}
+
+#requestTitle>span {
+    font-size: 12px;
 }
 
 #requestInfo {

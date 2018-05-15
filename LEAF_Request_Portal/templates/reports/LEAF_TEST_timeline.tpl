@@ -1,77 +1,10 @@
 <script src="../libs/js/moment/moment.min.js"></script>
 <script src="../libs/js/moment/moment-timezone-with-data.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 
 <script>
 var CSRFToken = '<!--{$CSRFToken}-->';
-
-function getCompletedStepTime(record, stepID, timeline, routes) {
-    if(routes[stepID] == undefined
-        || record.stepFulfillment == undefined) {
-//        return -1;
-        lastTime = -1;
-    }
-    var lastTime = 0;
-
-    if(stepID == 0
-        && record.submitted > 0) {
-        return record.submitted;
-    }
-
-    if(record.stepFulfillment == undefined || record.stepFulfillment[stepID] == undefined) {
-        //return -1;
-        lastTime = -1;
-    }
-    else if(lastTime < record.stepFulfillment[stepID].time) {
-        lastTime = record.stepFulfillment[stepID].time;
-    }
-
-//    return lastTime;
-    if(lastTime > 0) {
-        return lastTime;
-    }
-    
-    // check dependencies since stepFulfillment data doesnt exist before May 5, 2017
-    if(routes[stepID] == undefined
-        || record.recordsDependencies == undefined) {
-        return -1;
-    }
-    var lastTime = 0;
-    for(var depID in routes[stepID].dependencies) {
-        if(depID == -1) {
-            return -1;
-        }
-        if(record.recordsDependencies[depID] == undefined) {
-            return -1;
-        }
-        else if(lastTime < record.recordsDependencies[depID].time) {
-            lastTime = record.recordsDependencies[depID].time;
-        }
-    }
-    return lastTime;
-}
-
-var timelines = {}; // primary data obj
-function buildTimelineMap(stepID, routeData) {
-    if(routeData[stepID] == undefined) {
-        return 0;
-    }
-
-    for(var i in routeData[stepID].routes) {
-        if(routeData[stepID].routes[i].nextStepID != 0) {
-            var nextStepID = routeData[stepID].routes[i].nextStepID;
-            timelines[stepID + '-' + nextStepID] = timelines[stepID + '-' + nextStepID] || {};
-            timelines[stepID + '-' + nextStepID].labelUnabridged = routeData[stepID].stepTitle + ' to ' + routeData[nextStepID].stepTitle;
-            timelines[stepID + '-' + nextStepID].label = routeData[nextStepID].stepTitle;
-            timelines[stepID + '-' + nextStepID].time = 0;
-            timelines[stepID + '-' + nextStepID].count = 0;
-            timelines[stepID + '-' + nextStepID].startID = stepID;
-            timelines[stepID + '-' + nextStepID].endID = nextStepID;
-            buildTimelineMap(nextStepID, routeData);
-        }
-    }
-}
-   
+  
 // Calculates time difference during business hours
 var startBusinessHours = 8; // 8am
 var endBusinessHours = 17; // 5pm
@@ -101,23 +34,50 @@ function diffBusinessTime(startTime, endTime) {
     return timer;
 }
 
-
-function processData(initialStep, routes, queryResult) {
+var timelines = {}; // cache for timeline data
+function processData(queryResult, workflowData) {
+    var workflow = {};
+    for(var i in workflowData) {
+        workflow[workflowData[i].stepID] = workflowData[i].stepTitle;
+    }
     var res = queryResult;
     timelines = {};
-    buildTimelineMap(0, routes);
 
     for(var i in res) {
         var request = res[i];
 
-        for(var j in timelines) {
-            var startTime = getCompletedStepTime(request, timelines[j].startID, timelines, routes);
-            var endTime = getCompletedStepTime(request, timelines[j].endID, timelines, routes);
-            if(startTime >= 0
-               && endTime >= 0
-                && endTime >= startTime) {
-                timelines[j].count++
-                timelines[j].time += diffBusinessTime(startTime, endTime);
+        for(var j in request.action_history) {
+            var isCounted = false;
+            var idx = Number(j);
+            if(request.action_history[idx + 1] != undefined) {
+                var stepID = request.action_history[idx + 1].stepID;
+                var startTime = request.action_history[idx].time;
+                var endTime = request.action_history[idx + 1].time;
+
+                if(workflow[stepID] != undefined) {
+                    timelines[stepID] = timelines[stepID] || {};
+                    timelines[stepID].label = workflow[stepID];
+                }
+                else {
+                    stepID = 'Other route';
+                    timelines[stepID] = timelines[stepID] || {};
+                    timelines[stepID].label = 'Other route';
+                }
+
+                // only count the slowest approver in a multi-requirement step   
+                if(request.action_history[idx].stepID != request.action_history[idx + 1].stepID) {
+                    timelines[stepID].count = timelines[stepID].count == undefined ? 1 : timelines[stepID].count + 1;
+                    isCounted = true;
+                }
+                timelines[stepID].time = timelines[stepID].time == undefined ? diffBusinessTime(startTime, endTime) : timelines[stepID].time + diffBusinessTime(startTime, endTime);
+
+                // don't count time taken during sendbacks or other route overrides
+                if(request.action_history[idx + 1].stepID == 0) {
+                    if(isCounted) {
+                        timelines[stepID].count--;
+                    }
+                    timelines[stepID].time -= diffBusinessTime(startTime, endTime);
+                }
             }
         }
     }
@@ -135,7 +95,7 @@ function getLabelColor(label) {
     if(idx >= 0) {
         return labelColors[idx];
     }
-    
+
     var color = niceColors[labels.length % niceColors.length]; 
     labels.push(label);
     labelColors.push(color);
@@ -150,6 +110,7 @@ function renderData(categoryID, label) {
     for(var i in chartConfig.data.datasets) {
         chartConfig.data.datasets[i].data.push(null);
     }
+
     for(var i in timelines) {
         var dataSet = {
             label: timelines[i].label,
@@ -160,7 +121,7 @@ function renderData(categoryID, label) {
         }
         var time = Math.round((timelines[i].time / timelines[i].count) /60 /60 /8 *10) / 10;
         dataSet.data.push(time);
-        dataSet.backgroundColor = getLabelColor(timelines[i].label);
+        dataSet.backgroundColor = getLabelColor(i);
         dataSet.borderColor = 'black';
         dataSet.borderWidth = 1;
         chartConfig.data.datasets.push(dataSet);
@@ -175,12 +136,11 @@ var numCategories = 0;
 function renderCategory(categoryID) {
     var query = new LeafFormQuery();
 
-    query.addTerm('date', '>=', '3 months ago');
+    query.addTerm('dateSubmitted', '>=', '3 months ago');
     query.addTerm('deleted', '=', 0);
     query.addTerm('categoryID', '=', categoryID);
-    query.addTerm('stepID', '=', 'submitted');
-    query.join('recordsDependencies');
-    query.join('stepFulfillment');
+    query.addTerm('stepID', '=', 'resolved');
+    query.join('action_history');
 
     var data = {};
     query.onSuccess(function(res) {
@@ -189,25 +149,18 @@ function renderCategory(categoryID) {
         }
         numCategories++;
         var categoryID = res[Object.keys(res)[0]].categoryID;
+
         $.ajax({
             type: 'GET',
             url: './api/form/_' + categoryID + '/workflow'
         })
         .then(function(workflow) {
             $.ajax({
-                tyle: 'GET',
-                url: './api/workflow/' + workflow[0].workflowID + '/map/summary'
+                type: 'GET',
+                url: './api/workflow/' + workflow[0].workflowID
             })
-            .then(function(routes) {
-                var initialStep = 0;
-                for(var i in routes) {
-                    if(routes[i].isInitialStep != undefined) {
-                        initialStep = i;
-                        break;
-                    }
-                }
-
-                processData(initialStep, routes, res);
+            .then(function(workflowData) {
+                processData(res, workflowData);
                 renderData(categoryID, workflow[0].categoryName);
             });
         });
@@ -254,6 +207,7 @@ function newChartConfig() {
                     }
                 }],
                 yAxes: [{
+                    stacked: true,
                     ticks: {
                         beginAtZero:true
                     },
@@ -295,13 +249,16 @@ $(function() {
 
     $.ajax({
         type: 'GET',
-        url: './api/workflow/categories'
+        url: './api/formStack/categoryList/all'
     })
     .then(function(categories) {
         for(var i in categories) {
-            renderCategory(categories[i].categoryID);
-            
-            $('#categories').append('<div style="float: left; padding: 8px; white-space: nowrap"><input type="checkbox" id="category_'+ categories[i].categoryID +'" name="categoryID" value="'+ categories[i].categoryID +'" checked="checked" /><label class="checkable" for="category_'+ categories[i].categoryID +'">' + categories[i].categoryName + '</label></div>');
+            if(categories[i].workflowID > 0
+                && categories[i].parentID == '') {
+                renderCategory(categories[i].categoryID);
+                
+                $('#categories').append('<div style="float: left; padding: 8px; white-space: nowrap"><input type="checkbox" id="category_'+ categories[i].categoryID +'" name="categoryID" value="'+ categories[i].categoryID +'" checked="checked" /><label class="checkable" for="category_'+ categories[i].categoryID +'">' + categories[i].categoryName + '</label></div>');
+            }
         }
         $('#categories input').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
     });
@@ -315,8 +272,8 @@ $(function() {
 </div>
 
 <div id="chartBody" style="display: none">
-
-    <h2 style="text-align: center">Average Business days to fulfill requests (last 3 months)</h2>
+    <h1 style="color: red">TEST - In development</h1>
+    <h2 style="text-align: center">Average Business days to resolve requests (past 3 months)</h2>
     
     <div id="chartContainer" style="background-color: white; width: 800px; height: 400px; margin: auto; border: 1px solid black">
         <canvas id="chart" width="800" height="400"></canvas>

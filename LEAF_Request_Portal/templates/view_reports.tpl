@@ -25,7 +25,7 @@
 
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%"></div>
-    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" value="Untitled Report"></input>
+    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" value="Untitled Report" />
 </div>
 <div id="results" style="display: none">Loading...</div>
 
@@ -301,7 +301,7 @@ function loadSearchPrereqs() {
                     buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
                     for(var i in res) {
                         buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />';
-                        buffer += '<label class="checkable" style="width: 100px" for="indicators_stepID_'+ res[i].stepID +'"> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
+                        buffer += '<label class="checkable" style="width: 100px" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'"> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
                     }
                     buffer += '<div id="legacyDependencies"></div>'; // backwards compat
                     buffer += '</div>';
@@ -668,8 +668,12 @@ $(function() {
         $('#reportTitle').css('display', 'none');
         try {
         	if(<!--{$version}--> >= 2) {
-                inQuery = JSON.parse(LZString.decompressFromBase64('<!--{$query|escape:"html"}-->'));
-                t_inIndicators = JSON.parse(LZString.decompressFromBase64('<!--{$indicators|escape:"html"}-->'));
+        	    var query = '<!--{$query|escape:"html"}-->';
+        	    var indicators = '<!--{$indicators|escape:"html"}-->';
+                query = query.replace(/ /g, '+');
+                indicators = indicators.replace(/ /g, '+');
+                inQuery = JSON.parse(LZString.decompressFromBase64(query));
+                t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
         	}
         	else {
                 inQuery = JSON.parse(atob('<!--{$query|escape:"html"}-->'));
