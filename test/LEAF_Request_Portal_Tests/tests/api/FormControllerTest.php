@@ -38,7 +38,7 @@ final class FormTest extends DatabaseTest
         $this->assertEquals('', $results['limit_category']);
 
         $indicators = $results['indicators'];
-        $this->assertEquals(6, sizeof($indicators));
+        $this->assertEquals(7, sizeof($indicators));
 
         // Spot check a few indicators of different formats
 

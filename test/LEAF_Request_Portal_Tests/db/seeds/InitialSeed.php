@@ -57,7 +57,13 @@ class InitialSeed extends AbstractSeed
         $this->execute($settingsData);
 
         $dependenciesData = "
-            INSERT INTO `dependencies` (`dependencyID`, `description`) VALUES ('1', 'Service Chief'), ('8', 'Quadrad');
+            INSERT INTO `dependencies` (`dependencyID`, `description`) VALUES 
+            ('-3', 'Group Designated by the Requestor'),
+            ('-2', 'Requestor Followup'),
+            ('-1', 'Person Designated by the Requestor'),
+            ('1', 'Service Chief'), 
+            ('5', 'Request Submitted'),
+            ('8', 'Quadrad');
         ";
         $this->execute($dependenciesData);
     }
