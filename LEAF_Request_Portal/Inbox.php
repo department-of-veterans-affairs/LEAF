@@ -59,6 +59,7 @@ class Inbox
         }
 
         // build inbox data
+        $groupDesignatedRecords = []; // array[indicatorID][] = recordID
         $numRes = count($res);
         if ($numRes > 0) {
             for($i = 0; $i < $numRes; $i++) {
@@ -155,29 +156,66 @@ class Inbox
                     
                     // dependencyID -3 is for a group designated by the requestor
                     if($res[$i]['dependencyID'] == -3) {
-                    	$resGroupID = $this->form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID']);
-                    	$groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
-                    	$res[$i]['dependencyID'] = '-3_' . $groupID;
-                    
-                    	if($this->login->checkGroup($groupID)) {
-                    		$res[$i]['hasAccess'] = true;
-                    	}
-
-                    	if($res[$i]['hasAccess']) {
-                    		// populate relevant info
-                    	    $vars = array(':groupID' => $groupID);
-                    		$resDepGroup = $this->db->prepared_query('SELECT name FROM groups WHERE groupID=:groupID', $vars);
-                    		$approverName = '';
-                    		if(isset($resDepGroup[0]['name'])) {
-                    		    $approverName = $resDepGroup[0]['name'];
-                    		}
-                    		else {
-                    		    $approverName = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
-                    		}
-                    		$out[$res[$i]['dependencyID']]['approverName'] = $approverName;
-                    	}
+                        $groupDesignatedRecords[$res[$i]['indicatorID_for_assigned_groupID']][] = $res[$i]['recordID'];
                     }
 
+                }//if
+            }
+
+            // pull data for requestor designated approvers
+            $resGroupDesignatedRecords = []; // array[indicatorID] of DB results
+            foreach($groupDesignatedRecords as $indicatorID => $recordIDList) {
+                $recordIDs = implode(',', $recordIDList);
+                $vars = array(':indicatorID' => $indicatorID);
+                $resGroupDesignatedRecords[$indicatorID] = $this->db->prepared_query("SELECT * FROM data
+                                                                    LEFT JOIN indicators USING (indicatorID)
+                                                                    WHERE recordID IN ({$recordIDs})
+                                                                        AND indicatorID=:indicatorID
+                                                                        AND series=1", $vars);
+            }
+
+            for($i = 0; $i < $numRes; $i++) {
+                if(!isset($out[$res[$i]['dependencyID']]['records'][$res[$i]['recordID']])) {
+                    
+                    // dependencyID -3 is for a group designated by the requestor
+                    if($res[$i]['dependencyID'] == -3) {
+                        foreach($resGroupDesignatedRecords[$res[$i]['indicatorID_for_assigned_groupID']] as $record) {
+                            if($res[$i]['recordID'] == $record['recordID']) {
+                                $resGroupID = $record;
+                                break;
+                            }
+                        }
+
+                        $groupID = $resGroupID['data'];
+                        $res[$i]['dependencyID'] = '-3_' . $groupID;
+                        
+                        if($this->login->checkGroup($groupID)) {
+                            $res[$i]['hasAccess'] = true;
+                        }
+                        
+                        if($res[$i]['hasAccess']) {
+                            // populate relevant info
+                            $resDepGroup = null;
+                            if(isset($this->cache["getInbox_resDepGroup_{$groupID}"])) {
+                                $resDepGroup = $this->cache["getInbox_resDepGroup_{$groupID}"];
+                            }
+                            else {
+                                $vars = array(':groupID' => $groupID);
+                                $resDepGroup = $this->db->prepared_query('SELECT name FROM groups WHERE groupID=:groupID', $vars);
+                                $this->cache["getInbox_resDepGroup_{$groupID}"] = $resDepGroup;
+                            }
+                            $approverName = '';
+                            if(isset($resDepGroup[0]['name'])) {
+                                $approverName = $resDepGroup[0]['name'];
+                            }
+                            else {
+                                $approverName = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
+                            }
+                            $out[$res[$i]['dependencyID']]['approverName'] = $approverName;
+                        }
+                    }
+                    
+                    
                     foreach($res2 as $group) {
                         if($this->login->checkGroup($group['groupID'])) {
                             $res[$i]['hasAccess'] = true;
@@ -190,15 +228,15 @@ class Inbox
                         $out[$res[$i]['dependencyID']]['dependencyID'] = $res[$i]['dependencyID'];
                         $out[$res[$i]['dependencyID']]['dependencyDesc'] = $res[$i]['description'];
                         $out[$res[$i]['dependencyID']]['count'] = count($out[$res[$i]['dependencyID']]['records']);
-    
+                        
                         /*
-                        if($field['workflowID'] != 0) {
-                            $index[$idx]['categories'] = $field['categoryName'];
-                        }*/
-
+                         if($field['workflowID'] != 0) {
+                         $index[$idx]['categories'] = $field['categoryName'];
+                         }*/
+                        
                         // darken header color
                         if(isset($this->cache[$res[$i]['stepBgColor']])) {
-                            $out[$res[$i]['dependencyID']]['dependencyBgColor'] = $this->cache[$res[$i]['stepBgColor']]; 
+                            $out[$res[$i]['dependencyID']]['dependencyBgColor'] = $this->cache[$res[$i]['stepBgColor']];
                         }
                         else {
                             $tmp = ltrim($res[$i]['stepBgColor'], '#');
@@ -210,7 +248,7 @@ class Inbox
                             $this->cache[$res[$i]['stepBgColor']] = $out[$res[$i]['dependencyID']]['dependencyBgColor'];
                         }
                     }
-                }//if
+                }
             }
         }
 
