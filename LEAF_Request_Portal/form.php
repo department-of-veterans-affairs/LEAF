@@ -523,11 +523,16 @@ class Form
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $indicatorID,
                       ':series' => $series, );
-        $res = $this->db->prepared_query('SELECT * FROM data_history
-                                            WHERE recordID=:recordID
-                                                AND indicatorID=:indicatorID
-                                                AND series=:series
-                                            ORDER BY timestamp DESC', $vars);
+
+        $res = $this->db->prepared_query(
+            'SELECT * FROM data_history
+                LEFT JOIN indicator_mask USING (indicatorID)
+                WHERE recordID=:recordID
+                AND indicatorID=:indicatorID
+                AND series=:series
+                ORDER BY timestamp DESC', 
+            $vars
+        );
 
         require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
@@ -536,6 +541,24 @@ class Form
         foreach ($res as $line)
         {
             $user = $dir->lookupLogin($line['userID']);
+
+            // if 'groupID' is set, this means there is an entry for it in the `indicator_mask`
+            // database table and the access permissions for that indicator needs to be checked
+            if (isset($line['groupID']))
+            {
+                $groups = $this->login->getMembership();
+
+                // check if logged in user is request initiator
+                if($this->login->getUserID() != $line['userID'])
+                {
+                    // the user does not need permission to view the indicator data, so the data
+                    // must be masked
+                    if (!isset($groups['groupID'][$line['groupID']])) {
+                        $line['data'] = "[protected data]";
+                    }
+                }
+            }
+
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
             $line['name'] = $name;
             $res2[] = $line;
@@ -1555,17 +1578,48 @@ class Form
         }
         else
         {
+            // check category_privs for group access
+            $groups = $this->login->getMembership();
+            $userGroupIDs = '';
+            foreach (array_keys($groups['groupID']) as $group)
+            {
+                $userGroupIDs .= $group . ',';
+            }
+            $userGroupIDs = trim($userGroupIDs, ',');
+
+            // get all category ids that have read access privileges set for the groups in $userGroupIDs
+            $catsInGroups = $this->db->prepared_query(
+                "SELECT categoryID FROM category_privs WHERE groupID IN ({$userGroupIDs}) AND readable = 1",
+                array()
+            );
+
+            $catIDs = '';
+            foreach ($catsInGroups as $cat)
+            {
+                $catIDs .= $cat['categoryID'] . ',';
+            }
+            $catIDs = trim($catIDs, ',');
+
+            // build additional query if there are any category IDs
+            $qAnd = $catIDs != null && strlen($catIDs) > 0 ? " OR categoryID IN ({$catIDs})" : '';
+
             $vars = array();
-            $res = $this->db->prepared_query("SELECT recordID, dependencyID, groupID, serviceID, userID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID FROM records
-							    				LEFT JOIN category_count USING (recordID)
-							    				LEFT JOIN categories USING (categoryID)
-							    				LEFT JOIN workflows USING (workflowID)
-							    				LEFT JOIN workflow_steps USING (workflowID)
-							    				LEFT JOIN step_dependencies USING (stepID)
-							    				LEFT JOIN dependency_privs USING (dependencyID)
-							    				WHERE recordID IN ({$recordIDs})
-							    					AND needToKnow = 1
-							    					AND count > 0", $vars);
+            $query = "
+                SELECT recordID, categoryID, dependencyID, groupID, serviceID, userID, 
+                        indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID 
+                    FROM records
+                    LEFT JOIN category_count USING (recordID)
+                    LEFT JOIN categories USING (categoryID)
+                    LEFT JOIN workflows USING (workflowID)
+                    LEFT JOIN workflow_steps USING (workflowID)
+                    LEFT JOIN step_dependencies USING (stepID)
+                    LEFT JOIN dependency_privs USING (dependencyID)
+                    WHERE recordID IN ({$recordIDs})"
+                        . $qAnd .
+                        " AND needToKnow = 1
+                        AND count > 0";
+
+            $res = $this->db->prepared_query($query, $vars);
 
             // if a needToKnow form doesn't have a workflow (eg: general info), pull in approval chain for associated forms
             $t_needToKnowRecords = '';
@@ -1641,7 +1695,7 @@ class Form
      * Check if field is masked/protected
      * @param int $indicatorID
      * @param int $recordID
-     * @return 0 = not masked, 1 = masked
+     * @return int (0 = not masked, 1 = masked)
      */
     public function isMasked($indicatorID, $recordID = null)
     {

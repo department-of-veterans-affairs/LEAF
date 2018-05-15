@@ -37,7 +37,8 @@ class BaseTestSeed extends AbstractSeed
             (1, 3, 1, 'Wayne', 1520268875, 'tester'),
             (1, 4, 1, 'Vigilante Crime Fighter', 1520268925, 'tester'),
             (1, 5, 1, '<li>Fighting Crime</li><li>Wearing Capes</li><li>Ninja Stuff<br></li>', 1520268912, 'tester'),
-            (1, 6, 1, '05/23/1934', 1520268896, 'tester');
+            (1, 6, 1, '05/23/1934', 1520268896, 'tester'),
+            (1, 7, 1, 'Cant see me', 1520268896, 'tester');
 
             INSERT INTO `data_history` 
             (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `userID`) VALUES
@@ -59,7 +60,12 @@ class BaseTestSeed extends AbstractSeed
             (3, 'Last Name', 'text', 'Last Name', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:52:54', 0),
             (4, 'Occupation', 'text', 'Occupation', '', NULL, 'form_f4687', NULL, NULL, NULL, 0, 1, '2018-03-05 16:53:06', 0),
             (5, 'Hobbies', 'textarea', 'Hobbies', '', NULL, 'form_f4687', NULL, NULL, NULL, 0, 1, '2018-03-05 16:53:30', 0),
-            (6, 'Favorite Day', 'date', 'favorite day', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:53:52', 0);
+            (6, 'Favorite Day', 'date', 'favorite day', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:53:52', 0),
+            (7, 'Masked', 'text', 'Masked', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:53:52', 0);
+
+            INSERT INTO `indicator_mask`
+            (`indicatorID`, `groupID`) VALUES
+            (7, 1);
 
             INSERT INTO `records` 
             (`recordID`, `date`, `serviceID`, `userID`, `title`, `priority`, `lastStatus`, `submitted`, `deleted`, `isWritableUser`, `isWritableGroup`) VALUES
@@ -67,7 +73,8 @@ class BaseTestSeed extends AbstractSeed
 
             INSERT INTO `users` 
             (`userID`, `groupID`) VALUES
-            ('tester', 1);
+            ('tester', 1),
+            ('ninja', 2);
 
             INSERT INTO `workflows` 
             (`workflowID`, `initialStepID`, `description`) VALUES
