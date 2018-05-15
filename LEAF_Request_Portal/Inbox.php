@@ -12,6 +12,7 @@ class Inbox
     private $db;
     private $login;
     private $cache = array();
+    private $dir;
     public $form;
 
     function __construct($db, $login)
@@ -59,6 +60,7 @@ class Inbox
         }
 
         // build inbox data
+        $personDesignatedRecords = []; // array[indicatorID][] = recordID
         $groupDesignatedRecords = []; // array[indicatorID][] = recordID
         $numRes = count($res);
         if ($numRes > 0) {
@@ -114,36 +116,7 @@ class Inbox
 
                     // dependencyID -1 is for a person designated by the requestor
                     if($res[$i]['dependencyID'] == -1) {
-		                $resEmpUID = $this->form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
-		                $empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
-                        $res[$i]['dependencyID'] = '-1_' . $empUID;
-
-                        //check if the requester has any backups
-                        $nexusDB = $this->login->getNexusDB();
-                        $vars4 = array(':empId' => $empUID);
-                        $backupIds =  $nexusDB->prepared_query("SELECT * FROM relation_employee_backup WHERE empUID =:empId", $vars4);
-                        
-                    	if($empUID == $this->login->getEmpUID()) {
-                    		$res[$i]['hasAccess'] = true;
-                    	}else{
-                            //check and provide access to backups
-                            foreach($backupIds as $row) {
-                                if($row['backupEmpUID'] == $this->login->getEmpUID()) {
-                                    $res[$i]['hasAccess'] = true;
-                                } 
-                            }
-                        }
-
-
-                        if($res[$i]['hasAccess']) {
-                        	// populate relevant info
-                        	require_once 'VAMC_Directory.php';
-                        	$dir = new VAMC_Directory;
-                        	$user = $dir->lookupEmpUID($empUID);
-    
-                        	$approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
-                        	$out[$res[$i]['dependencyID']]['approverName'] = $approverName;
-                        }
+                        $personDesignatedRecords[$res[$i]['indicatorID_for_assigned_empUID']][] = $res[$i]['recordID'];
                     }
 
                     // dependencyID -2 is for requestor followup
@@ -163,7 +136,17 @@ class Inbox
             }
 
             // pull data for requestor designated approvers
+            $resPersonDesignatedRecords = []; // array[indicatorID] of DB results
             $resGroupDesignatedRecords = []; // array[indicatorID] of DB results
+            foreach($personDesignatedRecords as $indicatorID => $recordIDList) {
+                $recordIDs = implode(',', $recordIDList);
+                $vars = array(':indicatorID' => $indicatorID);
+                $resPersonDesignatedRecords[$indicatorID] = $this->db->prepared_query("SELECT * FROM data
+                                                                    LEFT JOIN indicators USING (indicatorID)
+                                                                    WHERE recordID IN ({$recordIDs})
+                                                                        AND indicatorID=:indicatorID
+                                                                        AND series=1", $vars);
+            }
             foreach($groupDesignatedRecords as $indicatorID => $recordIDList) {
                 $recordIDs = implode(',', $recordIDList);
                 $vars = array(':indicatorID' => $indicatorID);
@@ -174,11 +157,63 @@ class Inbox
                                                                         AND series=1", $vars);
             }
 
+            // apply access rules
             for($i = 0; $i < $numRes; $i++) {
                 if(!isset($out[$res[$i]['dependencyID']]['records'][$res[$i]['recordID']])) {
-                    
+
+                    // dependencyID -1 is for a person designated by the requestor
+                    if($res[$i]['dependencyID'] == -1) {
+                        $resEmpUID = null;
+                        foreach($resPersonDesignatedRecords[$res[$i]['indicatorID_for_assigned_empUID']] as $record) {
+                            if($res[$i]['recordID'] == $record['recordID']) {
+                                $resEmpUID = $record;
+                                break;
+                            }
+                        }
+                        $empUID = $resEmpUID['data'];
+                        $res[$i]['dependencyID'] = '-1_' . $empUID;
+                        
+                        //check if the requester has any backups
+                        $backupIds = null;
+                        if(isset($this->cache["getInbox_employeeBackups_{$empUID}"])) {
+                            $backupIds = $this->cache["getInbox_employeeBackups_{$empUID}"];
+                        }
+                        else {
+                            $nexusDB = $this->login->getNexusDB();
+                            $vars4 = array(':empId' => $empUID);
+                            $backupIds =  $nexusDB->prepared_query("SELECT * FROM relation_employee_backup WHERE empUID =:empId", $vars4);
+                            $this->cache["getInbox_employeeBackups_{$empUID}"] = $backupIds;
+                        }
+
+                        if($empUID == $this->login->getEmpUID()) {
+                            $res[$i]['hasAccess'] = true;
+                        }else{
+                            //check and provide access to backups
+                            foreach($backupIds as $row) {
+                                if($row['backupEmpUID'] == $this->login->getEmpUID()) {
+                                    $res[$i]['hasAccess'] = true;
+                                }
+                            }
+                        }
+                        
+                        
+                        if($res[$i]['hasAccess']) {
+                            // populate relevant info
+                            if(!isset($this->dir)) {
+                                require_once 'VAMC_Directory.php';
+                                $this->dir = new VAMC_Directory;
+                            }
+
+                            $user = $this->dir->lookupEmpUID($empUID);
+                            
+                            $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
+                            $out[$res[$i]['dependencyID']]['approverName'] = $approverName;
+                        }
+                    }
+
                     // dependencyID -3 is for a group designated by the requestor
                     if($res[$i]['dependencyID'] == -3) {
+                        $resGroupID = null;
                         foreach($resGroupDesignatedRecords[$res[$i]['indicatorID_for_assigned_groupID']] as $record) {
                             if($res[$i]['recordID'] == $record['recordID']) {
                                 $resGroupID = $record;
@@ -257,6 +292,7 @@ class Inbox
 
     /**
      * Find out if there are any items in the current user's inbox
+     * TODO: improve performance of this
      * @return int approximate number of items in inbox
      */
     public function getInboxStatus()
