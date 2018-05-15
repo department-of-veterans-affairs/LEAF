@@ -29,9 +29,7 @@ public class SignEngine {
                 ByteArrayInputStream config = new ByteArrayInputStream(providerConfig);
                 provider = new SunPKCS11(config);
                 Security.addProvider(provider);
-                System.out.println("instance created");
             } catch (Exception e) {
-                System.out.println("In the catch");
                 e.printStackTrace();
             }
         }
@@ -41,7 +39,8 @@ public class SignEngine {
     public String getSignature(String data) {
         try {
             KeyStore.CallbackHandlerProtection callbackHandlerProtection = new KeyStore.CallbackHandlerProtection(new PinInputHandler());
-            KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11", provider, new File("sc.key"),  callbackHandlerProtection);
+            KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11", provider,  callbackHandlerProtection);
+//            KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11", provider, new File("sc.key"),  callbackHandlerProtection);
             KeyStore keyStore = builder.getKeyStore();
             String alias = "Certificate for Digital Signature";
             KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(alias, null);
