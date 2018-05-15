@@ -551,7 +551,7 @@ class Form
                 // check if logged in user is request initiator
                 if($this->login->getUserID() != $line['userID'])
                 {
-                    // the user does not not permission to view the indicator data, so the data
+                    // the user does not need permission to view the indicator data, so the data
                     // must be masked
                     if (!isset($groups['groupID'][$line['groupID']])) {
                         $line['data'] = "[protected data]";
@@ -1664,7 +1664,7 @@ class Form
      * Check if field is masked/protected
      * @param int $indicatorID
      * @param int $recordID
-     * @return 0 = not masked, 1 = masked
+     * @return int (0 = not masked, 1 = masked)
      */
     public function isMasked($indicatorID, $recordID = null)
     {
