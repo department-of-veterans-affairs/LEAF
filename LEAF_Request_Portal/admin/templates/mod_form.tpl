@@ -296,6 +296,7 @@ function addIndicatorPrivilege(indicatorID) {
         url: '../api/?a=system/groups',
         success: function(res) {
             var buffer = '<select id="groupID">';
+            buffer += '<option value="1">System Administrators</option>';
             for(var i in res) {
                 buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
             }
