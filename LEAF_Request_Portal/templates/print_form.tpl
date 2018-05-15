@@ -633,6 +633,10 @@ function sideBar() {
     }
 }
 
+this.portalAPI = LEAFRequestPortalAPI();
+this.portalAPI.setBaseURL('api/?a=');
+this.portalAPI.setCSRFToken('<!--{$CSRFToken}-->');
+
 $(function() {
     $('#progressBar').progressbar({max: 100});
 

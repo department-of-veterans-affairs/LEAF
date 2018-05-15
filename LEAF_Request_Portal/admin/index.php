@@ -148,7 +148,8 @@ switch($action) {
 							        		'../../libs/js/codemirror/mode/css/css.js',
 							        		'../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
 											'../../libs/js/codemirror/addon/display/fullscreen.js',
-											'../../libs/js/LEAF/XSSHelpers.js'
+											'../../libs/js/LEAF/XSSHelpers.js',
+											'../../libs/jsapi/portal/LEAFPortalAPI.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
 							        		'../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',

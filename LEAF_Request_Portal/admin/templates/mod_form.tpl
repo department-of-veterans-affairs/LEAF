@@ -271,6 +271,107 @@ function editPermissions() {
 	dialog_simple.show();
 }
 
+
+function removeIndicatorPrivilege(indicatorID, groupID) {
+    portalAPI.FormEditor.removeIndicatorPrivilege(
+        indicatorID,
+        groupID,
+        function (success) {
+            editIndicatorPrivileges(indicatorID);
+        },
+        function (error) {
+            editIndicatorPrivileges(indicatorID);
+            console.log(error);
+        }
+    );
+}
+
+function addIndicatorPrivilege(indicatorID) {
+    dialog.setTitle('Edit Privileges');
+    dialog.setContent('Add privileges to the <b>'+ currentIndicator.name +'</b> form:<div id="groups"></div>');
+    dialog.indicateBusy();
+
+    $.ajax({
+        type: 'GET',
+        url: '../api/?a=system/groups',
+        success: function(res) {
+            var buffer = '<select id="groupID">';
+            for(var i in res) {
+                buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
+            }
+            buffer += '</select>';
+            $('#groups').html(buffer);
+            dialog.indicateIdle();
+        },
+        cache: false
+    });
+
+    dialog.setSaveHandler(function() {
+        portalAPI.FormEditor.setIndicatorPrivileges(
+            indicatorID,
+            [$('#groupID').val()],
+            function(results) {
+                console.log(results);
+                if (results == true) {
+
+                    console.log('it worked!');
+                } else {
+                    console.log('it NO work: ' + results);
+                }
+                dialog.hide();
+                editIndicatorPrivileges(indicatorID);
+            },
+            function (error) {
+                console.log('it no work!: ' + error);
+                dialog.hide();
+                editIndicatorPrivileges(indicatorID);
+            }
+        );
+    });
+    
+    dialog.show();
+}
+
+var currentIndicator = {};
+function editIndicatorPrivileges(indicatorID) {
+    dialog_simple.setContent('<h2>Only those Groups with Read Privileges will be able to view the data contained by the indicator</h2><br />'
+                            + 'All others will see "[protected data]".<br /><div id="indicatorPrivs"></div>');
+
+    dialog_simple.indicateBusy();
+
+    portalAPI.FormEditor.getIndicator(
+        indicatorID,
+        function(indicator) {
+            currentIndicator = indicator[indicatorID];
+
+            dialog_simple.setTitle('Edit Indicator Read Privileges - ' + indicator[indicatorID].name);
+
+            portalAPI.FormEditor.getIndicatorPrivileges(indicatorID,
+                function (groups) {
+                    var buffer = '<ul>';
+                    for (var group in groups) {
+                        if (groups[group].id !== undefined) {
+                            buffer += '<li>' + groups[group].name + ' [ <a href="#" onclick="removeIndicatorPrivilege(' + indicatorID + ',' + groups[group].id + ');">Remove</a> ]</li>';
+                        }
+                    }
+                    buffer += '</ul>';
+                    buffer += '<span class="buttonNorm" onclick="addIndicatorPrivilege(' + indicatorID + ');">Add Group</span>';
+                    $('#indicatorPrivs').html(buffer);
+                    dialog_simple.indicateIdle();
+                    dialog_simple.show();
+                },
+                function (error) {
+                    $('#indicatorPrivs').html("There was an error retrieving the Indicator Privileges. Please try again.");
+                    console.log(error);
+                }
+            );
+        },
+        function(err) {
+
+        }
+    );
+}
+
 function newQuestion(parentIndicatorID) {
 	var title = '';
 	if(parentIndicatorID == null) {
@@ -1147,10 +1248,15 @@ function formLibrary() {
 }
 
 var dialog, dialog_confirm, dialog_simple;
+var portalAPI;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
+
+    portalAPI = LEAFRequestPortalAPI();
+    portalAPI.setBaseURL('../api/');
+    portalAPI.setCSRFToken('<!--{$CSRFToken}-->');
 	
     showFormBrowser();
     <!--{if $form != ''}-->
