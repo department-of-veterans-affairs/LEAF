@@ -293,12 +293,17 @@ class Employee extends Data
 
     public function lookupEmpUID($empUID)
     {
+        if(isset($this->cache["lookupEmpUID_{$empUID}"])) {
+            return $this->cache["lookupEmpUID_{$empUID}"];
+        }
+
         $sql = "SELECT * FROM {$this->tableName}
                     WHERE empUID = :empUID
                     	AND deleted = 0";
         
         $vars = array(':empUID' => $empUID);
         $result = $this->db->prepared_query($sql, $vars);
+        $this->cache["lookupEmpUID_{$empUID}"] = $result;
         return $result;
     }
 
