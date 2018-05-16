@@ -64,75 +64,20 @@ class Inbox
         $groupDesignatedRecords = []; // array[indicatorID][] = recordID
         $numRes = count($res);
         if ($numRes > 0) {
+            
+            // bundle requests that use dynamically assigned approvers 
             for($i = 0; $i < $numRes; $i++) {
                 if(!isset($out[$res[$i]['dependencyID']]['records'][$res[$i]['recordID']])) {
-					// populate request type
-					if(is_array($formCategories[$res[$i]['recordID']])) {
-    					foreach($formCategories[$res[$i]['recordID']] as $categoryName) {
-    						$res[$i]['categoryNames'] = isset($res[$i]['categoryNames']) ? $res[$i]['categoryNames'] . $categoryName . ' | ' : $categoryName . ' | ';
-    					}
-    					$res[$i]['categoryNames'] = trim($res[$i]['categoryNames'], ' | ');
-                    }
-
-                    // override access if user is in the admin group
-                    $res[$i]['hasAccess'] = $this->login->checkGroup(1); // initialize hasAccess 
-    
-                    // check permissions
-                    $res2 = null;
-                    if(isset($this->cache["dependency_privs_{$res[$i]['dependencyID']}"])) {
-                        $res2 = $this->cache["dependency_privs_{$res[$i]['dependencyID']}"];
-                    }
-                    else {
-                        $vars = array(':dependencyID' => $res[$i]['dependencyID']);
-                        $res2 = $this->db->prepared_query("SELECT * FROM dependency_privs
-                    									WHERE dependencyID=:dependencyID", $vars);
-                        $this->cache["dependency_privs_{$res[$i]['dependencyID']}"] = $res2;
-                    }
-    
-                    // dependencyID 1 is for a special service chief group
-                    if($res[$i]['dependencyID'] == 1) {
-                        if($this->login->checkService($res[$i]['serviceID'])) {
-                            $res[$i]['hasAccess'] = true;
-                        }
-                    }
-    
-                    // dependencyID 8 is for a special quadrad group
-                    if($res[$i]['dependencyID'] == 8) {
-                        if(!isset($this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']])) {
-                            $quadGroupIDs = $this->login->getQuadradGroupID();
-                            $vars3 = array(':serviceID' => $res[$i]['serviceID']);
-
-                            $res3 = $this->db->prepared_query("SELECT * FROM services
-                            									WHERE groupID IN ({$quadGroupIDs})
-                            										AND serviceID=:serviceID", $vars3);
-
-                            $this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']] = $res3;
-                        }
-
-                        if(isset($this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']][0])) {
-                            $res[$i]['hasAccess'] = true;
-                        }
-                    }
-
                     // dependencyID -1 is for a person designated by the requestor
                     if($res[$i]['dependencyID'] == -1) {
                         $personDesignatedRecords[$res[$i]['indicatorID_for_assigned_empUID']][] = $res[$i]['recordID'];
-                    }
-
-                    // dependencyID -2 is for requestor followup
-                    if($res[$i]['dependencyID'] == -2) {
-                    	if($res[$i]['userID'] == $this->login->getUserID()) {
-                    		$res[$i]['hasAccess'] = true;
-                    		$out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
-                    	}
                     }
                     
                     // dependencyID -3 is for a group designated by the requestor
                     if($res[$i]['dependencyID'] == -3) {
                         $groupDesignatedRecords[$res[$i]['indicatorID_for_assigned_groupID']][] = $res[$i]['recordID'];
                     }
-
-                }//if
+                }
             }
 
             // pull data for requestor designated approvers
@@ -160,6 +105,53 @@ class Inbox
             // apply access rules
             for($i = 0; $i < $numRes; $i++) {
                 if(!isset($out[$res[$i]['dependencyID']]['records'][$res[$i]['recordID']])) {
+                    // populate request type
+                    if(is_array($formCategories[$res[$i]['recordID']])) {
+                        foreach($formCategories[$res[$i]['recordID']] as $categoryName) {
+                            $res[$i]['categoryNames'] = isset($res[$i]['categoryNames']) ? $res[$i]['categoryNames'] . $categoryName . ' | ' : $categoryName . ' | ';
+                        }
+                        $res[$i]['categoryNames'] = trim($res[$i]['categoryNames'], ' | ');
+                    }
+                    
+                    // override access if user is in the admin group
+                    $res[$i]['hasAccess'] = $this->login->checkGroup(1); // initialize hasAccess
+                    
+                    // check permissions
+                    $res2 = null;
+                    if(isset($this->cache["dependency_privs_{$res[$i]['dependencyID']}"])) {
+                        $res2 = $this->cache["dependency_privs_{$res[$i]['dependencyID']}"];
+                    }
+                    else {
+                        $vars = array(':dependencyID' => $res[$i]['dependencyID']);
+                        $res2 = $this->db->prepared_query("SELECT * FROM dependency_privs
+                    									WHERE dependencyID=:dependencyID", $vars);
+                        $this->cache["dependency_privs_{$res[$i]['dependencyID']}"] = $res2;
+                    }
+                    
+                    // dependencyID 1 is for a special service chief group
+                    if($res[$i]['dependencyID'] == 1) {
+                        if($this->login->checkService($res[$i]['serviceID'])) {
+                            $res[$i]['hasAccess'] = true;
+                        }
+                    }
+                    
+                    // dependencyID 8 is for a special quadrad group
+                    if($res[$i]['dependencyID'] == 8) {
+                        if(!isset($this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']])) {
+                            $quadGroupIDs = $this->login->getQuadradGroupID();
+                            $vars3 = array(':serviceID' => $res[$i]['serviceID']);
+                            
+                            $res3 = $this->db->prepared_query("SELECT * FROM services
+                            									WHERE groupID IN ({$quadGroupIDs})
+                            										AND serviceID=:serviceID", $vars3);
+                            
+                            $this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']] = $res3;
+                        }
+                        
+                        if(isset($this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']][0])) {
+                            $res[$i]['hasAccess'] = true;
+                        }
+                    }
 
                     // dependencyID -1 is for a person designated by the requestor
                     if($res[$i]['dependencyID'] == -1) {
@@ -208,6 +200,14 @@ class Inbox
                             
                             $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
                             $out[$res[$i]['dependencyID']]['approverName'] = $approverName;
+                        }
+                    }
+
+                    // dependencyID -2 is for requestor followup
+                    if($res[$i]['dependencyID'] == -2) {
+                        if($res[$i]['userID'] == $this->login->getUserID()) {
+                            $res[$i]['hasAccess'] = true;
+                            $out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
                         }
                     }
 
