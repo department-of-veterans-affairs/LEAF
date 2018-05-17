@@ -1578,48 +1578,17 @@ class Form
         }
         else
         {
-            // check category_privs for group access
-            $groups = $this->login->getMembership();
-            $userGroupIDs = '';
-            foreach (array_keys($groups['groupID']) as $group)
-            {
-                $userGroupIDs .= $group . ',';
-            }
-            $userGroupIDs = trim($userGroupIDs, ',');
-
-            // get all category ids that have read access privileges set for the groups in $userGroupIDs
-            $catsInGroups = $this->db->prepared_query(
-                "SELECT categoryID FROM category_privs WHERE groupID IN ({$userGroupIDs}) AND readable = 1",
-                array()
-            );
-
-            $catIDs = '';
-            foreach ($catsInGroups as $cat)
-            {
-                $catIDs .= $cat['categoryID'] . ',';
-            }
-            $catIDs = trim($catIDs, ',');
-
-            // build additional query if there are any category IDs
-            $qAnd = $catIDs != null && strlen($catIDs) > 0 ? " OR categoryID IN ({$catIDs})" : '';
-
             $vars = array();
-            $query = "
-                SELECT recordID, categoryID, dependencyID, groupID, serviceID, userID, 
-                        indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID 
-                    FROM records
-                    LEFT JOIN category_count USING (recordID)
-                    LEFT JOIN categories USING (categoryID)
-                    LEFT JOIN workflows USING (workflowID)
-                    LEFT JOIN workflow_steps USING (workflowID)
-                    LEFT JOIN step_dependencies USING (stepID)
-                    LEFT JOIN dependency_privs USING (dependencyID)
-                    WHERE recordID IN ({$recordIDs})"
-                        . $qAnd .
-                        " AND needToKnow = 1
-                        AND count > 0";
-
-            $res = $this->db->prepared_query($query, $vars);
+            $res = $this->db->prepared_query("SELECT recordID, dependencyID, groupID, serviceID, userID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID FROM records
+							    				LEFT JOIN category_count USING (recordID)
+							    				LEFT JOIN categories USING (categoryID)
+							    				LEFT JOIN workflows USING (workflowID)
+							    				LEFT JOIN workflow_steps USING (workflowID)
+							    				LEFT JOIN step_dependencies USING (stepID)
+							    				LEFT JOIN dependency_privs USING (dependencyID)
+							    				WHERE recordID IN ({$recordIDs})
+							    					AND needToKnow = 1
+							    					AND count > 0", $vars);
 
             // if a needToKnow form doesn't have a workflow (eg: general info), pull in approval chain for associated forms
             $t_needToKnowRecords = '';
