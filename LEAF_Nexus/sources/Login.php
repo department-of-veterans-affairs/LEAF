@@ -165,14 +165,14 @@ class Login
 
     public function generateCSRFToken()
     {
-    	$_SESSION['CSRFToken'] = sha256($this->userID . random_int(1, 9999999));
+    	$_SESSION['CSRFToken'] = hash('sha256', $this->userID);
     }
 
     private function setSession()
     {
         $_SESSION['name'] = $this->name;
         $_SESSION['userID'] = $this->userID;
-        $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : sha1($this->userID . random_int(1, 9999999));
+        $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : hash('sha256', $this->userID); 
     }
 
     public function loginUser()
