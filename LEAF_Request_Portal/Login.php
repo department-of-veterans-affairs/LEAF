@@ -162,7 +162,7 @@ class Login
     {
         $_SESSION['name'] = $this->name;
         $_SESSION['userID'] = $this->userID;
-        $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : hash('sha256', $this->userID);
+        $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : bin2hex(random_bytes(32));
     }
 
     public function loginUser()
