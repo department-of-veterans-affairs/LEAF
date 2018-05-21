@@ -345,7 +345,7 @@ function editIndicatorPrivileges(indicatorID) {
         function(indicator) {
             currentIndicator = indicator[indicatorID];
 
-            dialog_simple.setTitle('Edit Indicator Read Privileges - ' + indicator[indicatorID].name);
+            dialog_simple.setTitle('Edit Indicator Read Privileges - ' + indicatorID);
 
             portalAPI.FormEditor.getIndicatorPrivileges(indicatorID,
                 function (groups) {
