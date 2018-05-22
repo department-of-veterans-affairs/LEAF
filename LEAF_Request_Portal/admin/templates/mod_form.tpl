@@ -435,7 +435,11 @@ function newQuestion(parentIndicatorID) {
         $('#advNameEditor').css('display', 'none');
         $('#name').trumbowyg({
             resetCss: true,
-            btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'link', '|', 'foreColor', '|', 'viewHTML']
+            btns: ['formatting', 'bold', 'italic', 'underline', '|',
+                'unorderedList', 'orderedList', '|',
+                'link', '|',
+                'foreColor', '|',
+                'justifyLeft', 'justifyCenter', 'justifyRight']
         });
         
         $('.trumbowyg-box').css({
