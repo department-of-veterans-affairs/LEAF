@@ -53,6 +53,12 @@ $dbUser = 'dbnexususer'
 $dbPass = 'dbnexuspass'
 ```
 
+In config.php add the line below the line to display errors:
+
+```php
+$_SERVER['REMOTE_USER'] = "\\tester";
+```
+
 #### LEAF_Request_Portal 
 
 Copy `globals.php.example` to `globals.php` and change the following variables to reflect your setup:
