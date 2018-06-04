@@ -38,21 +38,21 @@
     <div class="toolbar_security"><h1>Security Permissions</h1>
         <div>
         <!--{if $positionPrivileges[$positionID].read == 1}-->
-            <img src="../libs/dynicons/?img=edit-find.svg&amp;w=32" alt="Yes" style="vertical-align: middle" /> You have read access
+            <img src="../libs/dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" /> You have read access
         <!--{else}-->
-            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No" style="vertical-align: middle" /> You do not have read access
+            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Read Access" style="vertical-align: middle" /> You do not have read access
         <!--{/if}-->
         </div>
         <div>
         <!--{if $positionPrivileges[$positionID].write == 1}-->
-            <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Yes" style="vertical-align: middle" /> You have write access
+            <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Write Access" style="vertical-align: middle" /> You have write access
         <!--{else}-->
-            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No" style="vertical-align: middle" /> You do not have write access
+            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Write Access" style="vertical-align: middle" /> You do not have write access
         <!--{/if}-->
         </div>
         <!--{if $positionPrivileges[$positionID].grant != 0}-->
         <div class="buttonNorm" onclick="window.open('index.php?a=view_position_permissions&amp;positionID=<!--{$positionID}-->','OrgChart','width=840,resizable=yes,scrollbars=yes,menubar=yes').focus();">
-            <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Yes" style="vertical-align: middle" /> Change Permissions
+            <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Change Permissions" style="vertical-align: middle" /> Change Permissions
         </div>
         <!--{/if}-->
     </div>
@@ -96,7 +96,7 @@
                   <span id="employeeName_<!--{$counter}-->" class="employeeName" style="cursor: pointer" onclick="window.location='?a=view_employee&amp;empUID=<!--{$employee.empUID|strip_tags}-->'"><!--{$employee.lastName|sanitize}-->, <!--{$employee.firstName|sanitize}--><!--{if $employee.isActing == 1}--> <span style="font-weight: bold; color: blue">(Acting)</span><!--{/if}--></span>
               </div>
               <div id="employeeBody_<!--{$counter}-->" class="employeeBody">
-                  <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>  
+                  <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
               </div>
           </div>
           <!--{/foreach}-->
@@ -169,7 +169,7 @@ function addEmployee() {
     empSel.initialize();
 //    empSel.setDomain('<!--{$userDomain}-->');
     empSel.clearSearch();
-    
+
     dialog.setSaveHandler(function() {
     	if(empSel.selection != '') {
             dialog.indicateBusy();
@@ -202,12 +202,12 @@ function startFTE() {
 
     start_request_dialog.setContent('Description for this request (optional): <input class="dialogInput" id="description" type="text"></input>');
     start_request_dialog.show(); // need to show early because of ie6
-    
+
     start_request_dialog.setSaveHandler(function() {
     	start_request_dialog.indicateBusy();
     	description = '';
     	if($('#description').val() != '') {
-    		description = ' - ' + $('#description').val(); 
+    		description = ' - ' + $('#description').val();
     	}
         $.ajax({
         	type: 'POST',
@@ -232,7 +232,7 @@ function startFTE() {
             				CSRFToken: '<!--{$CSRFToken}-->'
             			},
             			success: function() {
-                            window.location = '<!--{$ERM_site_resource_management}-->?a=view&recordID=' + recordID;            				
+                            window.location = '<!--{$ERM_site_resource_management}-->?a=view&recordID=' + recordID;
             			},
             			cache: false
             		});
@@ -251,7 +251,7 @@ function startFTE() {
 function editTitle() {
     dialog.setContent('Position Title: <input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$positionSummary.employeeList[0].positionTitle}-->"></input>');
     dialog.show(); // need to show early because of ie6
-    
+
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
         $.ajax({
@@ -274,7 +274,7 @@ function addGroup() {
     grpSel = new groupSelector('groupSelector');
     grpSel.initialize();
     //grpSel.searchTag('service');
-    
+
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
 
@@ -298,7 +298,7 @@ function changeSupervisor() {
     posSel = new positionSelector('positionSelector');
     posSel.initialize();
     posSel.enableEmployeeSearch();
-    
+
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
         $.ajax({
@@ -358,7 +358,7 @@ var dialog;
 $(function() {
     //empSel = new employeeSelector('test');
     //empSel.initialize();
-    
+
     orgchartForm = new orgchartForm('orgchartForm');
     orgchartForm.initialize();
     orgchartForm.addUpdateEvent(19, function(response) {
@@ -410,7 +410,7 @@ $(function() {
     // find FTE requests, if available
     <!--{if $ERM_site_resource_management != ''}-->
     //$.ajax({
-    	
+
     //});
     <!--{/if}-->
 
