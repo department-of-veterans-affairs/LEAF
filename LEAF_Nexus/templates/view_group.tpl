@@ -65,21 +65,21 @@
     <div class="toolbar_security"><h1>Security Permissions</h1>
         <div>
         <!--{if $groupPrivileges[$groupID].read != 0}-->
-            <img src="../libs/dynicons/?img=edit-find.svg&amp;w=32" alt="Yes" style="vertical-align: middle" /> You have read access
+            <img src="../libs/dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" /> You have read access
         <!--{else}-->
-            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No" style="vertical-align: middle" /> You do not have read access
+            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Read Access" style="vertical-align: middle" /> You do not have read access
         <!--{/if}-->
         </div>
         <div>
         <!--{if $groupPrivileges[$groupID].write != 0}-->
-            <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Yes" style="vertical-align: middle" /> You have write access
+            <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Write Access" style="vertical-align: middle" /> You have write access
         <!--{else}-->
-            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No" style="vertical-align: middle" /> You do not have write access
+            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Write Access" style="vertical-align: middle" /> You do not have write access
         <!--{/if}-->
         </div>
         <!--{if $groupPrivileges[$groupID].grant != 0}-->
         <button class="buttonPermission"  style="width: 100%" onclick="window.open('index.php?a=view_group_permissions&amp;groupID=<!--{$groupID}-->','OrgChart','width=840,resizable=yes,scrollbars=yes,menubar=yes');">
-            <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Yes" style="vertical-align: middle" tabindex="0" /> Change Permissions
+            <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Change Permissions" style="vertical-align: middle" tabindex="0" /> Change Permissions
         </button>
         <!--{/if}-->
     </div>
