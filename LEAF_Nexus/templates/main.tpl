@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     {if $tabText != ''}
-    <title>{$tabText} - {$title} | {$city}</title>
+    <title>{$tabText|sanitize} - {$title|sanitize} | {$city|sanitize}</title>
     {else}
-    <title>{$title} | {$city}</title>
+    <title>{$title|sanitize} | {$city|sanitize}</title>
     {/if}
     <style type="text/css" media="screen">
         {if $useDojo == true && $useDojoUI == true}
@@ -40,10 +40,10 @@
     {/if}
     <div style="cursor: pointer" onclick="window.location='./'">
       <span style="position: absolute">{$logo}</span>
-      <span id="headerLabel">{$city}</span>
-      <span id="headerDescription">{$title}</span>
+      <span id="headerLabel">{$city|sanitize}</span>
+      <span id="headerDescription">{$title|sanitize}</span>
     </div>
-    <span id="headerHelp">{$login}</span>
+    <span id="headerHelp">{$login|sanitize}</span>
     <span id="headerLogin"></span>
     <span id="headerTab">{$emergency}{$tabText|sanitize}</span>
     <span id="headerTabImg"><img src="images/tab.png" alt="tab" /></span>

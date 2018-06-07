@@ -30,8 +30,8 @@ function getBaseDir() {
 <div id="header">
     <div>
       <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
-      <span id="headerLabel"><?php echo $settings['subheading']; ?></span>
-      <span id="headerDescription"><?php echo $settings['heading']; ?></span>
+      <span id="headerLabel"><?php echo htmlentities($settings['subheading']); ?></span>
+      <span id="headerDescription"><?php echo htmlentities($settings['heading']); ?></span>
     </div>
     <span id="headerTab">Secure Login</span>
     <span id="headerTabImg"><img src="../images/tab.png" alt="tab" /></span>
