@@ -106,6 +106,7 @@ function CoachQuery(searchTerm) {
     this.formQuery = FormQuery();
     this.formQuery.addTerm("categoryID", "=", this.categoryID);
     this.formQuery.addTerm("deleted", "=", 0);
+    this.formQuery.addTerm("stepID", "=", 15);
     this.formQuery.addDataTerm("data", "0", "LIKE", searchTerm);
 
     this.indicatorMap = {
