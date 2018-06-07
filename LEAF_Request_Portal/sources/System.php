@@ -446,7 +446,7 @@ class System
     	if($fileName != $in
     			|| $fileName == 'index.html'
     			|| $fileName == '') {
-    				echo $fileName . ' - ';
+    				echo $fileName ;
     				return 'Invalid filename. Must only contain alphanumeric characters.';
     	}
 
