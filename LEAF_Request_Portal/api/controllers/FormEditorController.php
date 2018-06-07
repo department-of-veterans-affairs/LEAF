@@ -79,6 +79,7 @@ class FormEditorController extends RESTfulResponse
         	$package['html'] = $_POST['html'];
         	$package['htmlPrint'] = $_POST['htmlPrint'];
         	$package['required'] = $_POST['required'];
+            $package['is_sensitive'] = $_POST['is_sensitive'];
         	$package['sort'] = $_POST['sort'];
         	return $formEditor->addIndicator($package);
 		});
@@ -110,8 +111,12 @@ class FormEditorController extends RESTfulResponse
         $this->index['POST']->register('formEditor/[digit]/required', function($args) use ($formEditor) {
         	return $formEditor->setRequired($args[0], $_POST['required']);
         });
-        
-       	$this->index['POST']->register('formEditor/[digit]/disabled', function($args) use ($formEditor) {
+
+        $this->index['POST']->register('formEditor/[digit]/sensitive', function($args) use ($formEditor) {
+            return $formEditor->setSensitive($args[0], $_POST['is_sensitive']);
+        });
+
+        $this->index['POST']->register('formEditor/[digit]/disabled', function($args) use ($formEditor) {
        		return $formEditor->setDisabled($args[0], $_POST['disabled']);
        	});
 

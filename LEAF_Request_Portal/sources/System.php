@@ -192,7 +192,21 @@ class System
         							abbreviatedService as groupAbbreviation
         							FROM services
         							ORDER BY groupTitle ASC');
-    }
+	}
+	
+	/**
+	 * Get the current database version
+	 * 
+	 * @return string the current database version
+	 */
+	public function getDatabaseVersion() {
+		$version = $this->db->query('SELECT data FROM settings WHERE setting = "dbVersion"');
+		if (count($version) > 0 && $version[0]['data'] !== null) {
+			return $version[0]['data'];
+		} else {
+			return "unknown";
+		}
+	}
     
     public function getGroups() {
     	return $this->db->query('SELECT * FROM groups
