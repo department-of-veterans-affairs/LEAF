@@ -40,10 +40,11 @@ class FormEditor
     	        ':html' => $package['html'],
     	        ':htmlPrint' => $package['htmlPrint'],
     	        ':required' => $package['required'],
+                ':is_sensitive' => $package['is_sensitive'], //new stuff
     	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, sort, timeAdded, disabled)
-            								VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :sort, CURRENT_TIMESTAMP, 0)', $vars);
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive /* new stuff */, sort, timeAdded, disabled)
+            								VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :is_sensitive /* new stuff */, :sort, CURRENT_TIMESTAMP, 0)', $vars);
     	}
     	else {
     	    $vars = array(':indicatorID' => $package['indicatorID'],
@@ -56,11 +57,12 @@ class FormEditor
     	        ':html' => $package['html'],
     	        ':htmlPrint' => $package['htmlPrint'],
     	        ':required' => $package['required'],
+    	        ':is_sensitive' => $package['is_sensitive'], //
     	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, sort, timeAdded, disabled)
-            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :sort, CURRENT_TIMESTAMP, 0)
-                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, required=:required, sort=:sort', $vars);
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive /* new stuff */, sort, timeAdded, disabled)
+            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :iis_sensitive /* new stuff */,:sort, CURRENT_TIMESTAMP, 0)
+                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, required=:required, is_sensitive=:is_sensitive /* new stuff */,sort=:sort', $vars);
     	}
 
     	return $this->db->getLastInsertID();
@@ -150,6 +152,14 @@ class FormEditor
     				  ':input' => $input);
     	return $this->db->prepared_query('UPDATE indicators
     								SET required=:input
+    								WHERE indicatorID=:indicatorID', $vars);
+    }
+
+    function setSensitive($indicatorID, $input) {
+        $vars = array(':indicatorID' => $indicatorID,
+            ':input' => $input);
+        return $this->db->prepared_query('UPDATE indicators
+    								SET is_sensitive=:input
     								WHERE indicatorID=:indicatorID', $vars);
     }
     
