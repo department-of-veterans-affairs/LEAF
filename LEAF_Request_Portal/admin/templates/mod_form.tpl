@@ -382,7 +382,10 @@ function newQuestion(parentIndicatorID) {
 		title = 'Adding Question to ' + parentIndicatorID;
 	}
     dialog.setTitle(title);
-    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button><div style="float: right">Describe field in 1-2 words<br /><input type="text" id="description" maxlength="50"></input></div></fieldset> \
+    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button></fieldset> \
+            <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>\
+                <input type="text" id="description" maxlength="50"></input>\
+            </fieldset>\
             <fieldset><legend>Input Format</legend>\
                 <select id="indicatorType">\
                     <option value="">None</option>\
@@ -435,7 +438,11 @@ function newQuestion(parentIndicatorID) {
         $('#advNameEditor').css('display', 'none');
         $('#name').trumbowyg({
             resetCss: true,
-            btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'link', '|', 'foreColor', '|', 'viewHTML']
+            btns: ['formatting', 'bold', 'italic', 'underline', '|',
+                'unorderedList', 'orderedList', '|',
+                'link', '|',
+                'foreColor', '|',
+                'justifyLeft', 'justifyCenter', 'justifyRight']
         });
         
         $('.trumbowyg-box').css({
@@ -502,7 +509,10 @@ function newQuestion(parentIndicatorID) {
 // edit question
 function getForm(indicatorID, series) {
 	dialog.setTitle('Editing indicatorID: ' + indicatorID);
-    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button><div style="float: right">Describe field in 1-2 words<br /><input type="text" id="description" maxlength="50"></input></div></fieldset> \
+    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button></fieldset> \
+            <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>\
+                <input type="text" id="description" maxlength="50"></input>\
+            </fieldset>\
             <fieldset><legend>Input Format</legend>\
                 <select id="indicatorType">\
                     <option value="">None</option>\
