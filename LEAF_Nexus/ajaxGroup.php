@@ -50,7 +50,7 @@ switch($action) {
             $t_form->right_delimiter= '}-->';
     
             if(is_numeric($_GET['indicatorID']) && is_numeric($_GET['groupID'])) {
-                $t_form->assign('uid', $_GET['groupID']);
+                $t_form->assign('uid', (int)$_GET['groupID']);
                 $t_form->assign('categoryID', $group->getDataTableCategoryID());
                 $indicator = $group->getAllData($_GET['groupID'], $_GET['indicatorID']);
                 $t_form->assign('indicator', $indicator[$_GET['indicatorID']]);
@@ -138,5 +138,3 @@ switch($action) {
         */
         break;
 }
-
-?>
