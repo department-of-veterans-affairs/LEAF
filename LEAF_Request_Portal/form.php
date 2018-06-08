@@ -520,6 +520,14 @@ class Form
             return array();
         }
 
+        // get request initiator
+        $vars = array(':recordID' => $recordID);
+        $resInitiator = $this->db->prepared_query(
+            'SELECT userID FROM records
+                WHERE recordID=:recordID',
+            $vars
+        );
+        
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $indicatorID,
                       ':series' => $series, );
@@ -549,7 +557,7 @@ class Form
                 $groups = $this->login->getMembership();
 
                 // check if logged in user is request initiator
-                if($this->login->getUserID() != $line['userID'])
+                if($this->login->getUserID() != $resInitiator[0]['userID'])
                 {
                     // the user does not need permission to view the indicator data, so the data
                     // must be masked
@@ -1572,33 +1580,47 @@ class Form
         $recordIDsHash = sha1($recordIDs);
 
         $res = array();
+        $hasCategoryAccess = []; // the keys will be categoryIDs that the current user has access to
         if (isset($this->cache["checkReadAccess_{$recordIDsHash}"]))
         {
             $res = $this->cache["checkReadAccess_{$recordIDsHash}"];
         }
         else
         {
+            // get a list of records which have categories marked as need-to-know
             $vars = array();
-            $res = $this->db->prepared_query("SELECT recordID, dependencyID, groupID, serviceID, userID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID FROM records
-							    				LEFT JOIN category_count USING (recordID)
-							    				LEFT JOIN categories USING (categoryID)
-							    				LEFT JOIN workflows USING (workflowID)
-							    				LEFT JOIN workflow_steps USING (workflowID)
-							    				LEFT JOIN step_dependencies USING (stepID)
-							    				LEFT JOIN dependency_privs USING (dependencyID)
-							    				WHERE recordID IN ({$recordIDs})
-							    					AND needToKnow = 1
-							    					AND count > 0", $vars);
+            $query = "
+                SELECT recordID, categoryID, dependencyID, groupID, serviceID, userID, 
+                        indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID 
+                    FROM records
+                    LEFT JOIN category_count USING (recordID)
+                    LEFT JOIN categories USING (categoryID)
+                    LEFT JOIN workflows USING (workflowID)
+                    LEFT JOIN workflow_steps USING (workflowID)
+                    LEFT JOIN step_dependencies USING (stepID)
+                    LEFT JOIN dependency_privs USING (dependencyID)
+                    WHERE recordID IN ({$recordIDs})
+                        AND needToKnow = 1
+                        AND count > 0";
+
+            $res = $this->db->prepared_query($query, $vars);
 
             // if a needToKnow form doesn't have a workflow (eg: general info), pull in approval chain for associated forms
             $t_needToKnowRecords = '';
+            $t_uniqueCategories = [];
             foreach ($res as $dep)
             {
                 if ($dep['dependencyID'] == null)
                 {
                     $t_needToKnowRecords .= $dep['recordID'] . ',';
                 }
+                
+                // keep track of unique categories
+                if(!isset($t_uniqueCategories[$dep['categoryID']])) {
+                    $t_uniqueCategories[$dep['categoryID']] = 1;
+                }
             }
+           
             $t_needToKnowRecords = trim($t_needToKnowRecords, ',');
             if ($t_needToKnowRecords != '')
             {
@@ -1617,9 +1639,32 @@ class Form
                 $res = array_merge($res, $res2);
             }
 
+            // find out if "collaborator access" is being used for any categoryID in the set
+            // and whether the current user has access
+            $uniqueCategoryIDs = '';
+            foreach($t_uniqueCategories as $key => $value) {
+                $uniqueCategoryIDs .= "'{$key}',";
+            }
+            $uniqueCategoryIDs = trim($uniqueCategoryIDs, ',');
+            
+            $catsInGroups = $this->db->prepared_query(
+                "SELECT * FROM category_privs WHERE categoryID IN ({$uniqueCategoryIDs}) AND readable = 1",
+                array()
+            );
+            if(count($catsInGroups) > 0) {
+                $groups = $this->login->getMembership();
+                foreach($catsInGroups as $cat) {
+                    if(isset($groups['groupID'][$cat['groupID']])
+                        && $groups['groupID'][$cat['groupID']] == 1) {
+                            $hasCategoryAccess[$cat['categoryID']] = 1;
+                        }
+                }
+            }
+
             $this->cache["checkReadAccess_{$recordIDsHash}"] = $res;
         }
 
+        // don't scrub anything if no limits are in place
         if (count($res) == 0)
         {
             return $records;
@@ -1632,6 +1677,8 @@ class Form
         }
 
         $temp = isset($this->cache['checkReadAccess_tempArray']) ? $this->cache['checkReadAccess_tempArray'] : array();
+
+        // grant access
         foreach ($res as $dep)
         {
             if (!isset($temp[$dep['recordID']]) || $temp[$dep['recordID']] == 0)
@@ -1643,6 +1690,11 @@ class Form
                 // request initiator
                 if ($dep['userID'] == $this->login->getUserID())
                 {
+                    $temp[$dep['recordID']] = 1;
+                }
+                
+                // collaborator access
+                if (isset($hasCategoryAccess[$dep['categoryID']])) {
                     $temp[$dep['recordID']] = 1;
                 }
             }
