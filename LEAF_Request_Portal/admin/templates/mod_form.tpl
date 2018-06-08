@@ -743,7 +743,7 @@ function getForm(indicatorID, series) {
                 if(res[indicatorID].required == 1) {
                     $('#required').prop('checked', true);
                 }
-                if(res[indicatorID].sensitive == 1) {
+                if(res[indicatorID].is_sensitive == 1) {
                     $('#sensitive').prop('checked', true);
                 }
                 $('#parentID').val(res[indicatorID].parentID);
