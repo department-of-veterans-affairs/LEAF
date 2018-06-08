@@ -28,7 +28,11 @@ class SystemController extends RESTfulResponse
         $cm = $this->index['GET'];
         $this->index['GET']->register('system/version', function() {
             return $this->API_VERSION;
-        });
+		});
+
+		$this->index['GET']->register('system/dbversion', function() use ($system) {
+			return $system->getDatabaseVersion();
+		});
 
        	$this->index['GET']->register('system/templates', function($args) use ($system) {
        		return $system->getTemplateList();

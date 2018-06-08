@@ -523,11 +523,16 @@ class Form
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $indicatorID,
                       ':series' => $series, );
-        $res = $this->db->prepared_query('SELECT * FROM data_history
-                                            WHERE recordID=:recordID
-                                                AND indicatorID=:indicatorID
-                                                AND series=:series
-                                            ORDER BY timestamp DESC', $vars);
+
+        $res = $this->db->prepared_query(
+            'SELECT * FROM data_history
+                LEFT JOIN indicator_mask USING (indicatorID)
+                WHERE recordID=:recordID
+                AND indicatorID=:indicatorID
+                AND series=:series
+                ORDER BY timestamp DESC', 
+            $vars
+        );
 
         require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
@@ -536,6 +541,24 @@ class Form
         foreach ($res as $line)
         {
             $user = $dir->lookupLogin($line['userID']);
+
+            // if 'groupID' is set, this means there is an entry for it in the `indicator_mask`
+            // database table and the access permissions for that indicator needs to be checked
+            if (isset($line['groupID']))
+            {
+                $groups = $this->login->getMembership();
+
+                // check if logged in user is request initiator
+                if($this->login->getUserID() != $line['userID'])
+                {
+                    // the user does not need permission to view the indicator data, so the data
+                    // must be masked
+                    if (!isset($groups['groupID'][$line['groupID']])) {
+                        $line['data'] = "[protected data]";
+                    }
+                }
+            }
+
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
             $line['name'] = $name;
             $res2[] = $line;
@@ -1687,7 +1710,7 @@ class Form
      * Check if field is masked/protected
      * @param int $indicatorID
      * @param int $recordID
-     * @return 0 = not masked, 1 = masked
+     * @return int (0 = not masked, 1 = masked)
      */
     public function isMasked($indicatorID, $recordID = null)
     {

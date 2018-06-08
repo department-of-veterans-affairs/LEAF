@@ -149,8 +149,15 @@ switch ($action) {
         break;
     case 'printview':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 
-            'js/formQuery.js', 'js/jsdiff.js', '../libs/js/LEAF/XSSHelpers.js'));
+        $main->assign('javascripts', array(
+            'js/form.js', 
+            'js/workflow.js', 
+            'js/formGrid.js', 
+            'js/formQuery.js', 
+            'js/jsdiff.js', 
+            '../libs/js/LEAF/XSSHelpers.js',
+            '../libs/jsapi/portal/LEAFPortalAPI.js'
+        ));
 
         $recordIDToPrint = (int)$_GET['recordID'];
 
@@ -466,7 +473,8 @@ switch ($action) {
 
         require_once 'Inbox.php';
         $inbox = new Inbox($db, $login);
-        $t_form->assign('inbox_status', $inbox->getInboxStatus());
+        //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
+        $t_form->assign('inbox_status', 1);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
 

@@ -8,7 +8,8 @@
 class FormEditor
 {
     private $db;
-    private $login;
+	private $login;
+	private $cache = array();
 
     function __construct($db, $login)
     {
@@ -367,5 +368,105 @@ class FormEditor
     									WHERE categoryID=:categoryID
     										AND stapledCategoryID=:stapledCategoryID', $vars);
     	return 1;
+	}
+
+    /**
+     * Get the access privileges for a given indicator.
+     * 
+     * @param int $indcatorID	the id of the indicator to retrieve privileges for
+     * 
+     * @return array an array containing the ids of groups that have access to the indicator
+     */
+    public function getIndicatorPrivileges($indicatorID)
+    {
+		if (isset($this->cache["indicatorPrivileges_{$indicatorID}"]))
+		{
+			return $this->cache["indicatorPrivileges_{$indicatorID}"];
+		}
+
+        $res = $this->db->prepared_query(
+            'SELECT indicator_mask.groupID, groups.name AS groupName
+				FROM indicator_mask 
+				LEFT JOIN groups ON (groups.groupID = indicator_mask.groupID)
+				WHERE indicator_mask.indicatorID = :indicatorID ORDER BY indicator_mask.groupID ASC', 
+            array(':indicatorID' => $indicatorID)
+        );
+
+        $groups = array();
+
+        foreach ($res as $group)
+        {
+            array_push($groups, array(
+				"id" => (int) $group["groupID"],
+				"name" => $group["groupName"]
+			));
+		}
+		
+		$this->cache["indicatorPrivileges_{$indicatorID}"] = $groups;
+
+        return $groups;
     }
+
+	/**
+	 * Set the access privileges for a given indicator
+	 * 
+	 * @param int	$indicatorID	the id of the indicator to set privileges for
+	 * @param array	$groupIDs		an array of integer group ids to allow access
+	 * 
+	 * @return bool if setting privileges was successful
+	 */
+    public function setIndicatorPrivileges($indicatorID, $groupIDs)
+    { 
+        if (!is_array($groupIDs))
+        {
+            return false;
+        }
+        else
+        {
+            $q = 'REPLACE INTO indicator_mask (indicatorID, groupID) VALUES ';
+            $vars = array(":indicatorID" => (int) $indicatorID);
+            foreach ($groupIDs as $key=>$val)
+            {
+                if ($key !== 0) { $q = $q . ","; }
+
+                $var = ":group".$key;
+                $vars[$var] = $val;
+                $q = $q . "(:indicatorID, " . $var . ")";
+            }
+
+			$q = $q . ";";
+			
+			$res = $this->db->prepared_query($q, $vars);
+
+			unset($this->cache["indicatorPrivileges_{$indicatorID}"]);
+
+			// return if any errors occurred
+			return is_array($res) && count($res) == 0;
+        }
+	}
+	
+	/**
+	 * Remove an access privilege for the given indicator and group ID
+	 * 
+	 * @param int $indicatorID 	the id of the indicator to remove access for
+	 * @param int $groupID 		the id of the group to remove access for
+	 * 
+	 * @return bool if removal was successful
+	 */
+	public function removeIndicatorPrivilege($indicatorID, $groupID)
+	{
+		$q = 'DELETE FROM indicator_mask WHERE indicatorID = :indicatorID AND groupID = :groupID';
+		$res = $this->db->prepared_query(
+			$q, 
+			array(
+				":indicatorID" => (int) $indicatorID,
+				":groupID" => (int) $groupID
+			)
+		);
+
+		unset($this->cache["indicatorPrivileges_{$indicatorID}"]);
+
+		// return if row was deleted
+		return is_int($res) && (int) $res == 1;
+	}
 }
