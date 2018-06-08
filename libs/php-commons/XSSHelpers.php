@@ -58,10 +58,7 @@ class XSSHelpers {
             && strpos($in, '<table') === false) {
             $in = nl2br($in, true);
         }
-        
-        // strip out uncommon characters
-        $in = preg_replace('/[^\040-\176]/', '', $in);
-        
+
         // hard character limit of 65535
         $in = strlen($in) > 65535 ? substr($in, 0, 65535) : $in;
         
