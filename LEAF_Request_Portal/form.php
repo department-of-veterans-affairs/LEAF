@@ -1652,9 +1652,6 @@ class Form
                         }
                 }
             }
-            else {
-                $hasCategoryAccess = $t_uniqueCategories;
-            }
 
             $this->cache["checkReadAccess_{$recordIDsHash}"] = $res;
         }
