@@ -520,6 +520,14 @@ class Form
             return array();
         }
 
+        // get request initiator
+        $vars = array(':recordID' => $recordID);
+        $resInitiator = $this->db->prepared_query(
+            'SELECT userID FROM records
+                WHERE recordID=:recordID',
+            $vars
+        );
+        
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $indicatorID,
                       ':series' => $series, );
@@ -549,7 +557,7 @@ class Form
                 $groups = $this->login->getMembership();
 
                 // check if logged in user is request initiator
-                if($this->login->getUserID() != $line['userID'])
+                if($this->login->getUserID() != $resInitiator[0]['userID'])
                 {
                     // the user does not need permission to view the indicator data, so the data
                     // must be masked
