@@ -220,16 +220,7 @@ class Group extends Data
      */
     public function getTitle($groupID)
     {
-        $res = null;
-        if(isset($this->cache["res_select_group_{$groupID}"])) {
-            $res = $this->cache["res_select_group_{$groupID}"];
-        }
-        else {
-            $vars = array(':groupID' => $groupID);
-            $res = $this->db->prepared_query('SELECT * FROM groups
-                                                WHERE groupID=:groupID', $vars);
-            $this->cache["res_select_group_{$groupID}"] = $res;
-        }
+        $res = $this->getGroup($groupID);
 
         return isset($res[0]['groupTitle']) ? $res[0]['groupTitle'] : false;
     }
@@ -290,9 +281,7 @@ class Group extends Data
      */
     public function getParentID($groupID)
     {
-        $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM groups
-                                    WHERE groupID=:groupID', $vars);
+        $res = $this->getGroup($groupID);
         return $res[0]['parentID'];
     }
 
@@ -623,9 +612,8 @@ class Group extends Data
         // search by ID number
         if(substr(strtolower($origInput), 0, 6) == 'group#') {
         	if(is_numeric(substr($origInput, 6))) {
-        		$vars = array(':GID' => substr($origInput, 6));
-        		$result = $this->db->prepared_query("SELECT * FROM groups
-															WHERE groupID = :GID", $vars);
+        		$gID = substr($origInput, 6);
+        		$result = $this->getGroup($gID);
         	}
         }
 
@@ -653,10 +641,7 @@ class Group extends Data
                                             LEFT JOIN positions USING (positionID)
                                             WHERE groupID=:groupID', $vars);*/
 
-        $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM groups
-                                            WHERE groupID=:groupID', $vars);
-        $data['group'] = $res;
+        $data['group'] = $this->getGroup($groupID);
 
         // group data
         $data['groupData'] = $this->getAllData($groupID);
@@ -668,9 +653,13 @@ class Group extends Data
 
     function getGroup($groupID)
     {
+        if(isset($this->cache["getGroup_{$groupID}"])) {
+            return $this->cache["getGroup_{$groupID}"];
+        }
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('SELECT * FROM groups
                                             WHERE groupID=:groupID', $vars);
+        $this->cache["getGroup_{$groupID}"] = $res;
         return $res;
     }
 

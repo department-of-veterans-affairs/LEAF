@@ -58,6 +58,18 @@ function processData(queryResult, workflowData) {
                     timelines[stepID] = timelines[stepID] || {};
                     timelines[stepID].label = workflow[stepID];
                 }
+                else if (stepID == 0) {
+                    // only track "Send Back" separately from "Other route" when checkbox is enabled
+                    if ($('#showSendBackData').is(':checked')) {
+                        timelines[stepID] = timelines[stepID] || {};
+                        timelines[stepID].label = "Send Back";
+                    }
+                    else {
+                        stepID = 'Other route';
+                        timelines[stepID] = timelines[stepID] || {};
+                        timelines[stepID].label = 'Other route';
+                    }
+                }
                 else {
                     stepID = 'Other route';
                     timelines[stepID] = timelines[stepID] || {};
@@ -72,11 +84,13 @@ function processData(queryResult, workflowData) {
                 timelines[stepID].time = timelines[stepID].time == undefined ? diffBusinessTime(startTime, endTime) : timelines[stepID].time + diffBusinessTime(startTime, endTime);
 
                 // don't count time taken during sendbacks or other route overrides
-                if(request.action_history[idx + 1].stepID == 0) {
-                    if(isCounted) {
-                        timelines[stepID].count--;
+                if (!$('#showSendBackData').is(':checked')) {
+                    if(request.action_history[idx + 1].stepID == 0) {
+                        if(isCounted) {
+                            timelines[stepID].count--;
+                        }
+                        timelines[stepID].time -= diffBusinessTime(startTime, endTime);
                     }
-                    timelines[stepID].time -= diffBusinessTime(startTime, endTime);
                 }
             }
         }
@@ -261,6 +275,7 @@ $(function() {
             }
         }
         $('#categories input').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
+        $('#sendBackOptions input').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
     });
     $('#progressContainer').slideUp();
     $('#chartBody').fadeIn();
@@ -280,6 +295,13 @@ $(function() {
     </div>
     <br />
     <div class="card" style="padding: 8px; text-align: center">
+        <div id="sendBackOptions">
+            <div style="float: left; padding: 8px; white-space: nowrap">
+                <input type="checkbox" id="showSendBackData" name="showSendBack" />
+                <label class="checkable" for="showSendBack_1">Include Send Back times in averages</label>
+            </div>
+        </div>
+        <br style="clear: both" />
         <div id="categories"></div>
         <br style="clear: both" />
         <button class="buttonNorm" onclick="applyFilters();">Apply filters</button>

@@ -12,6 +12,7 @@ class Inbox
     private $db;
     private $login;
     private $cache = array();
+    private $dir;
     public $form;
 
     function __construct($db, $login)
@@ -59,21 +60,62 @@ class Inbox
         }
 
         // build inbox data
+        $personDesignatedRecords = []; // array[indicatorID][] = recordID
+        $groupDesignatedRecords = []; // array[indicatorID][] = recordID
         $numRes = count($res);
         if ($numRes > 0) {
+            
+            // bundle requests that use dynamically assigned approvers 
             for($i = 0; $i < $numRes; $i++) {
                 if(!isset($out[$res[$i]['dependencyID']]['records'][$res[$i]['recordID']])) {
-					// populate request type
-					if(is_array($formCategories[$res[$i]['recordID']])) {
-    					foreach($formCategories[$res[$i]['recordID']] as $categoryName) {
-    						$res[$i]['categoryNames'] = isset($res[$i]['categoryNames']) ? $res[$i]['categoryNames'] . $categoryName . ' | ' : $categoryName . ' | ';
-    					}
-    					$res[$i]['categoryNames'] = trim($res[$i]['categoryNames'], ' | ');
+                    // dependencyID -1 is for a person designated by the requestor
+                    if($res[$i]['dependencyID'] == -1) {
+                        $personDesignatedRecords[$res[$i]['indicatorID_for_assigned_empUID']][] = $res[$i]['recordID'];
                     }
+                    
+                    // dependencyID -3 is for a group designated by the requestor
+                    if($res[$i]['dependencyID'] == -3) {
+                        $groupDesignatedRecords[$res[$i]['indicatorID_for_assigned_groupID']][] = $res[$i]['recordID'];
+                    }
+                }
+            }
 
+            // pull data for requestor designated approvers
+            $resPersonDesignatedRecords = []; // array[indicatorID] of DB results
+            $resGroupDesignatedRecords = []; // array[indicatorID] of DB results
+            foreach($personDesignatedRecords as $indicatorID => $recordIDList) {
+                $recordIDs = implode(',', $recordIDList);
+                $vars = array(':indicatorID' => $indicatorID);
+                $resPersonDesignatedRecords[$indicatorID] = $this->db->prepared_query("SELECT * FROM data
+                                                                    LEFT JOIN indicators USING (indicatorID)
+                                                                    WHERE recordID IN ({$recordIDs})
+                                                                        AND indicatorID=:indicatorID
+                                                                        AND series=1", $vars);
+            }
+            foreach($groupDesignatedRecords as $indicatorID => $recordIDList) {
+                $recordIDs = implode(',', $recordIDList);
+                $vars = array(':indicatorID' => $indicatorID);
+                $resGroupDesignatedRecords[$indicatorID] = $this->db->prepared_query("SELECT * FROM data
+                                                                    LEFT JOIN indicators USING (indicatorID)
+                                                                    WHERE recordID IN ({$recordIDs})
+                                                                        AND indicatorID=:indicatorID
+                                                                        AND series=1", $vars);
+            }
+
+            // apply access rules
+            for($i = 0; $i < $numRes; $i++) {
+                if(!isset($out[$res[$i]['dependencyID']]['records'][$res[$i]['recordID']])) {
+                    // populate request type
+                    if(is_array($formCategories[$res[$i]['recordID']])) {
+                        foreach($formCategories[$res[$i]['recordID']] as $categoryName) {
+                            $res[$i]['categoryNames'] = isset($res[$i]['categoryNames']) ? $res[$i]['categoryNames'] . $categoryName . ' | ' : $categoryName . ' | ';
+                        }
+                        $res[$i]['categoryNames'] = trim($res[$i]['categoryNames'], ' | ');
+                    }
+                    
                     // override access if user is in the admin group
-                    $res[$i]['hasAccess'] = $this->login->checkGroup(1); // initialize hasAccess 
-    
+                    $res[$i]['hasAccess'] = $this->login->checkGroup(1); // initialize hasAccess
+                    
                     // check permissions
                     $res2 = null;
                     if(isset($this->cache["dependency_privs_{$res[$i]['dependencyID']}"])) {
@@ -85,27 +127,27 @@ class Inbox
                     									WHERE dependencyID=:dependencyID", $vars);
                         $this->cache["dependency_privs_{$res[$i]['dependencyID']}"] = $res2;
                     }
-    
+                    
                     // dependencyID 1 is for a special service chief group
                     if($res[$i]['dependencyID'] == 1) {
                         if($this->login->checkService($res[$i]['serviceID'])) {
                             $res[$i]['hasAccess'] = true;
                         }
                     }
-    
+                    
                     // dependencyID 8 is for a special quadrad group
                     if($res[$i]['dependencyID'] == 8) {
                         if(!isset($this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']])) {
                             $quadGroupIDs = $this->login->getQuadradGroupID();
                             $vars3 = array(':serviceID' => $res[$i]['serviceID']);
-
+                            
                             $res3 = $this->db->prepared_query("SELECT * FROM services
                             									WHERE groupID IN ({$quadGroupIDs})
                             										AND serviceID=:serviceID", $vars3);
-
+                            
                             $this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']] = $res3;
                         }
-
+                        
                         if(isset($this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']][0])) {
                             $res[$i]['hasAccess'] = true;
                         }
@@ -113,71 +155,102 @@ class Inbox
 
                     // dependencyID -1 is for a person designated by the requestor
                     if($res[$i]['dependencyID'] == -1) {
-		                $resEmpUID = $this->form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
-		                $empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
+                        $resEmpUID = null;
+                        foreach($resPersonDesignatedRecords[$res[$i]['indicatorID_for_assigned_empUID']] as $record) {
+                            if($res[$i]['recordID'] == $record['recordID']) {
+                                $resEmpUID = $record;
+                                break;
+                            }
+                        }
+                        $empUID = $resEmpUID['data'];
                         $res[$i]['dependencyID'] = '-1_' . $empUID;
-
-                        //check if the requester has any backups
-                        $nexusDB = $this->login->getNexusDB();
-                        $vars4 = array(':empId' => $empUID);
-                        $backupIds =  $nexusDB->prepared_query("SELECT * FROM relation_employee_backup WHERE empUID =:empId", $vars4);
                         
-                    	if($empUID == $this->login->getEmpUID()) {
-                    		$res[$i]['hasAccess'] = true;
-                    	}else{
+                        //check if the requester has any backups
+                        $backupIds = null;
+                        if(isset($this->cache["getInbox_employeeBackups_{$empUID}"])) {
+                            $backupIds = $this->cache["getInbox_employeeBackups_{$empUID}"];
+                        }
+                        else {
+                            $nexusDB = $this->login->getNexusDB();
+                            $vars4 = array(':empId' => $empUID);
+                            $backupIds =  $nexusDB->prepared_query("SELECT * FROM relation_employee_backup WHERE empUID =:empId", $vars4);
+                            $this->cache["getInbox_employeeBackups_{$empUID}"] = $backupIds;
+                        }
+
+                        if($empUID == $this->login->getEmpUID()) {
+                            $res[$i]['hasAccess'] = true;
+                        }else{
                             //check and provide access to backups
                             foreach($backupIds as $row) {
                                 if($row['backupEmpUID'] == $this->login->getEmpUID()) {
                                     $res[$i]['hasAccess'] = true;
-                                } 
+                                }
                             }
                         }
-
-
+                        
+                        
                         if($res[$i]['hasAccess']) {
-                        	// populate relevant info
-                        	require_once 'VAMC_Directory.php';
-                        	$dir = new VAMC_Directory;
-                        	$user = $dir->lookupEmpUID($empUID);
-    
-                        	$approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
-                        	$out[$res[$i]['dependencyID']]['approverName'] = $approverName;
+                            // populate relevant info
+                            if(!isset($this->dir)) {
+                                require_once 'VAMC_Directory.php';
+                                $this->dir = new VAMC_Directory;
+                            }
+
+                            $user = $this->dir->lookupEmpUID($empUID);
+                            
+                            $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
+                            $out[$res[$i]['dependencyID']]['approverName'] = $approverName;
                         }
                     }
 
                     // dependencyID -2 is for requestor followup
                     if($res[$i]['dependencyID'] == -2) {
-                    	if($res[$i]['userID'] == $this->login->getUserID()) {
-                    		$res[$i]['hasAccess'] = true;
-                    		$out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
-                    	}
+                        if($res[$i]['userID'] == $this->login->getUserID()) {
+                            $res[$i]['hasAccess'] = true;
+                            $out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
+                        }
                     }
-                    
+
                     // dependencyID -3 is for a group designated by the requestor
                     if($res[$i]['dependencyID'] == -3) {
-                    	$resGroupID = $this->form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID']);
-                    	$groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
-                    	$res[$i]['dependencyID'] = '-3_' . $groupID;
-                    
-                    	if($this->login->checkGroup($groupID)) {
-                    		$res[$i]['hasAccess'] = true;
-                    	}
+                        $resGroupID = null;
+                        foreach($resGroupDesignatedRecords[$res[$i]['indicatorID_for_assigned_groupID']] as $record) {
+                            if($res[$i]['recordID'] == $record['recordID']) {
+                                $resGroupID = $record;
+                                break;
+                            }
+                        }
 
-                    	if($res[$i]['hasAccess']) {
-                    		// populate relevant info
-                    	    $vars = array(':groupID' => $groupID);
-                    		$resDepGroup = $this->db->prepared_query('SELECT name FROM groups WHERE groupID=:groupID', $vars);
-                    		$approverName = '';
-                    		if(isset($resDepGroup[0]['name'])) {
-                    		    $approverName = $resDepGroup[0]['name'];
-                    		}
-                    		else {
-                    		    $approverName = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
-                    		}
-                    		$out[$res[$i]['dependencyID']]['approverName'] = $approverName;
-                    	}
+                        $groupID = $resGroupID['data'];
+                        $res[$i]['dependencyID'] = '-3_' . $groupID;
+                        
+                        if($this->login->checkGroup($groupID)) {
+                            $res[$i]['hasAccess'] = true;
+                        }
+                        
+                        if($res[$i]['hasAccess']) {
+                            // populate relevant info
+                            $resDepGroup = null;
+                            if(isset($this->cache["getInbox_resDepGroup_{$groupID}"])) {
+                                $resDepGroup = $this->cache["getInbox_resDepGroup_{$groupID}"];
+                            }
+                            else {
+                                $vars = array(':groupID' => $groupID);
+                                $resDepGroup = $this->db->prepared_query('SELECT name FROM groups WHERE groupID=:groupID', $vars);
+                                $this->cache["getInbox_resDepGroup_{$groupID}"] = $resDepGroup;
+                            }
+                            $approverName = '';
+                            if(isset($resDepGroup[0]['name'])) {
+                                $approverName = $resDepGroup[0]['name'];
+                            }
+                            else {
+                                $approverName = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
+                            }
+                            $out[$res[$i]['dependencyID']]['approverName'] = $approverName;
+                        }
                     }
-
+                    
+                    
                     foreach($res2 as $group) {
                         if($this->login->checkGroup($group['groupID'])) {
                             $res[$i]['hasAccess'] = true;
@@ -190,15 +263,15 @@ class Inbox
                         $out[$res[$i]['dependencyID']]['dependencyID'] = $res[$i]['dependencyID'];
                         $out[$res[$i]['dependencyID']]['dependencyDesc'] = $res[$i]['description'];
                         $out[$res[$i]['dependencyID']]['count'] = count($out[$res[$i]['dependencyID']]['records']);
-    
+                        
                         /*
-                        if($field['workflowID'] != 0) {
-                            $index[$idx]['categories'] = $field['categoryName'];
-                        }*/
-
+                         if($field['workflowID'] != 0) {
+                         $index[$idx]['categories'] = $field['categoryName'];
+                         }*/
+                        
                         // darken header color
                         if(isset($this->cache[$res[$i]['stepBgColor']])) {
-                            $out[$res[$i]['dependencyID']]['dependencyBgColor'] = $this->cache[$res[$i]['stepBgColor']]; 
+                            $out[$res[$i]['dependencyID']]['dependencyBgColor'] = $this->cache[$res[$i]['stepBgColor']];
                         }
                         else {
                             $tmp = ltrim($res[$i]['stepBgColor'], '#');
@@ -210,7 +283,7 @@ class Inbox
                             $this->cache[$res[$i]['stepBgColor']] = $out[$res[$i]['dependencyID']]['dependencyBgColor'];
                         }
                     }
-                }//if
+                }
             }
         }
 
@@ -219,6 +292,7 @@ class Inbox
 
     /**
      * Find out if there are any items in the current user's inbox
+     * TODO: improve performance of this
      * @return int approximate number of items in inbox
      */
     public function getInboxStatus()
