@@ -1549,37 +1549,14 @@ class Form
         $recordIDsHash = sha1($recordIDs);
 
         $res = array();
+        $hasCategoryAccess = []; // the keys will be categoryIDs that the current user has access to
         if (isset($this->cache["checkReadAccess_{$recordIDsHash}"]))
         {
             $res = $this->cache["checkReadAccess_{$recordIDsHash}"];
         }
         else
         {
-            // check category_privs for group access
-            $groups = $this->login->getMembership();
-            $userGroupIDs = '';
-            foreach (array_keys($groups['groupID']) as $group)
-            {
-                $userGroupIDs .= $group . ',';
-            }
-            $userGroupIDs = trim($userGroupIDs, ',');
-
-            // get all category ids that have read access privileges set for the groups in $userGroupIDs
-            $catsInGroups = $this->db->prepared_query(
-                "SELECT categoryID FROM category_privs WHERE groupID IN ({$userGroupIDs}) AND readable = 1",
-                array()
-            );
-
-            $catIDs = '';
-            foreach ($catsInGroups as $cat)
-            {
-                $catIDs .= $cat['categoryID'] . ',';
-            }
-            $catIDs = trim($catIDs, ',');
-
-            // build additional query if there are any category IDs
-            $qAnd = $catIDs != null && strlen($catIDs) > 0 ? " OR categoryID IN ({$catIDs})" : '';
-
+            // get a list of records which have categories marked as need-to-know
             $vars = array();
             $query = "
                 SELECT recordID, categoryID, dependencyID, groupID, serviceID, userID, 
@@ -1591,22 +1568,28 @@ class Form
                     LEFT JOIN workflow_steps USING (workflowID)
                     LEFT JOIN step_dependencies USING (stepID)
                     LEFT JOIN dependency_privs USING (dependencyID)
-                    WHERE recordID IN ({$recordIDs})"
-                        . $qAnd .
-                        " AND needToKnow = 1
+                    WHERE recordID IN ({$recordIDs})
+                        AND needToKnow = 1
                         AND count > 0";
 
             $res = $this->db->prepared_query($query, $vars);
 
             // if a needToKnow form doesn't have a workflow (eg: general info), pull in approval chain for associated forms
             $t_needToKnowRecords = '';
+            $t_uniqueCategories = [];
             foreach ($res as $dep)
             {
                 if ($dep['dependencyID'] == null)
                 {
                     $t_needToKnowRecords .= $dep['recordID'] . ',';
                 }
+                
+                // keep track of unique categories
+                if(!isset($t_uniqueCategories[$dep['categoryID']])) {
+                    $t_uniqueCategories[$dep['categoryID']] = 1;
+                }
             }
+           
             $t_needToKnowRecords = trim($t_needToKnowRecords, ',');
             if ($t_needToKnowRecords != '')
             {
@@ -1625,6 +1608,31 @@ class Form
                 $res = array_merge($res, $res2);
             }
 
+            // find out if "collaborator access" is being used for any categoryID in the set
+            // and whether the current user has access
+            $uniqueCategoryIDs = '';
+            foreach($t_uniqueCategories as $key => $value) {
+                $uniqueCategoryIDs .= "'{$key}',";
+            }
+            $uniqueCategoryIDs = trim($uniqueCategoryIDs, ',');
+            
+            $catsInGroups = $this->db->prepared_query(
+                "SELECT * FROM category_privs WHERE categoryID IN ({$uniqueCategoryIDs}) AND readable = 1",
+                array()
+            );
+            if(count($catsInGroups) > 0) {
+                $groups = $this->login->getMembership();
+                foreach($catsInGroups as $cat) {
+                    if(isset($groups['groupID'][$cat['groupID']])
+                        && $groups['groupID'][$cat['groupID']] == 1) {
+                            $hasCategoryAccess[$cat['categoryID']] = 1;
+                        }
+                }
+            }
+            else {
+                $hasCategoryAccess = $t_uniqueCategories;
+            }
+
             $this->cache["checkReadAccess_{$recordIDsHash}"] = $res;
         }
 
@@ -1640,6 +1648,8 @@ class Form
         }
 
         $temp = isset($this->cache['checkReadAccess_tempArray']) ? $this->cache['checkReadAccess_tempArray'] : array();
+
+        // grant access
         foreach ($res as $dep)
         {
             if (!isset($temp[$dep['recordID']]) || $temp[$dep['recordID']] == 0)
@@ -1651,6 +1661,11 @@ class Form
                 // request initiator
                 if ($dep['userID'] == $this->login->getUserID())
                 {
+                    $temp[$dep['recordID']] = 1;
+                }
+                
+                // collaborator access
+                if (isset($hasCategoryAccess[$dep['categoryID']])) {
                     $temp[$dep['recordID']] = 1;
                 }
             }
