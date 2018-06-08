@@ -1628,6 +1628,7 @@ class Form
             $this->cache["checkReadAccess_{$recordIDsHash}"] = $res;
         }
 
+        // don't scrub anything if no limits are in place
         if (count($res) == 0)
         {
             return $records;
