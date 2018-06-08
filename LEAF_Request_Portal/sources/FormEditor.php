@@ -31,10 +31,10 @@ class FormEditor
     	$package['parentID'] = $package['parentID'] == '' ? null : $package['parentID'];
 
     	if(!$overwriteExisting) {
-    	    $vars = array(':name' => $package['name'],
+    	    $vars = array(':name' => trim($package['name']),
     	        ':format' => $package['format'],
-    	        ':description' => $package['description'],
-    	        ':default' => $package['default'],
+    	        ':description' => trim($package['description']),
+    	        ':default' => trim($package['default']),
     	        ':parentID' => $package['parentID'],
     	        ':categoryID' => $package['categoryID'],
     	        ':html' => $package['html'],
@@ -69,7 +69,7 @@ class FormEditor
 
     function setName($indicatorID, $name) {
     	$vars = array(':indicatorID' => $indicatorID,
-    				  ':name' => $name);
+    				  ':name' => trim($name));
     	return $this->db->prepared_query('UPDATE indicators
     								SET name=:name
     								WHERE indicatorID=:indicatorID', $vars);
@@ -85,7 +85,7 @@ class FormEditor
 
     function setDescription($indicatorID, $input) {
     	$vars = array(':indicatorID' => $indicatorID,
-    				  ':input' => $input);
+    				  ':input' => trim($input));
     	return $this->db->prepared_query('UPDATE indicators
     								SET description=:input
     								WHERE indicatorID=:indicatorID', $vars);
