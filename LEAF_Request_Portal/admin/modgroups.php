@@ -21,7 +21,8 @@ foreach($groups as $group) {
     foreach($users as $user) {
         $dirdata = $dir->lookupLogin($user['userID']);
         if(!isset($dirdata[0])) {
-            echo "<li style='color: red; font-weight: bold'>NOT FOUND: {$user['userID']}</li>";          
+          $sanitizeUser = htmlentities($user['userID']);
+            echo "<li style='color: red; font-weight: bold'>NOT FOUND: {$sanitizeUser}</li>";          
         }
         else {
             echo "<li>{$dirdata[0]['Lname']}, {$dirdata[0]['Fname']}</li>";

@@ -30,37 +30,37 @@ class Session implements \SessionHandlerInterface
     {
         return true;
     }
-    
+
     public function destroy($sessionID)
     {
         $vars = array(':sessionID' => $sessionID);
         $this->db->prepared_query('DELETE FROM sessions
                                             WHERE sessionKey=:sessionID', $vars);
-        return true;        
+        return true;
     }
-    
+
     public function gc($maxLifetime)
     {
         $vars = array(':time' => time() - $maxLifetime);
         $this->db->prepared_query('DELETE FROM sessions
                                             WHERE lastModified < :time', $vars);
-        return true;        
+        return true;
     }
-    
+
     public function open($savePath, $sessionID)
     {
         return true;
     }
-    
+
     public function read($sessionID)
     {
         $vars = array(':sessionID' => $sessionID);
         $res = $this->db->prepared_query('SELECT * FROM sessions
                                             WHERE sessionKey=:sessionID', $vars);
-        
-        return isset($res[0]['data']) ? $res[0]['data'] : '';  
+
+        return isset($res[0]['data']) ? $res[0]['data'] : '';
     }
-    
+
     public function write($sessionID, $data)
     {
         $vars = array(':sessionID' => $sessionID,
@@ -101,7 +101,7 @@ class Login
             session_start();
             $cookie = session_get_cookie_params();
             $id = session_id();
-            
+
             $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
             setcookie('PHPSESSID', $id, time()+2592000, $cookie['path'], $cookie['domain'], $https, true);
         }
@@ -145,7 +145,7 @@ class Login
     public function parseURL($in) {
         $paths = explode('/', $in);
         $out = array();
-    
+
         foreach($paths as $path) {
             if($path != '') {
                 if($path == '..') {
@@ -165,14 +165,14 @@ class Login
 
     public function generateCSRFToken()
     {
-    	$_SESSION['CSRFToken'] = sha1($this->userID . random_int(1, 9999999));
+        $_SESSION['CSRFToken'] = bin2hex(random_bytes(32));
     }
 
     private function setSession()
     {
         $_SESSION['name'] = $this->name;
         $_SESSION['userID'] = $this->userID;
-        $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : sha1($this->userID . random_int(1, 9999999));
+        $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : bin2hex(random_bytes(32)); 
     }
 
     public function loginUser()
@@ -183,7 +183,7 @@ class Login
                 if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
                     $protocol = 'https://';
                 }
-                
+
                 // try to browser detect, since SSO implementation varies
                 if(strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
                 	|| strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0) {
@@ -258,7 +258,7 @@ class Login
         $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
                                             WHERE backupEmpUID=:empUID
         										AND approved=1', $vars);
-        $temp = (int)$empUID;		
+        $temp = (int)$empUID;
 		if(count($res) > 0) {
 			foreach($res as $item) {
 				$temp .= ",{$item['empUID']}";
@@ -267,8 +267,8 @@ class Login
 			$vars = array(':empUID' => $temp);
 		}
 
-        $res = $this->db->query("SELECT positionID, empUID, 
-                                                relation_group_employee.groupID as employee_groupID, 
+        $res = $this->db->query("SELECT positionID, empUID,
+                                                relation_group_employee.groupID as employee_groupID,
                                                 relation_group_position.groupID as position_groupID FROM employee
                                             LEFT JOIN relation_position_employee USING (empUID)
                                             LEFT JOIN relation_group_employee USING (empUID)
@@ -277,7 +277,7 @@ class Login
 		if(count($res) > 0) {
 	        foreach($res as $item) {
 	            if(isset($item['positionID'])) {
-	                $membership['positionID'][$item['positionID']] = 1; 
+	                $membership['positionID'][$item['positionID']] = 1;
 	            }
 	            if(isset($item['employee_groupID'])) {
 	                $membership['groupID'][$item['employee_groupID']] = 1;
@@ -298,14 +298,14 @@ class Login
         return $this->cache['getMembership_'.$empUID];
     }
 
-    
+
     /**
      * Retrieves current user's privileges for the specified indicatorIDs
      * The default behavior is to grant full access if the user "owns" the data
      * eg: Users have access to their own employee information by default
      * Non-owners by default only have read access
      * Any privilege setting will override all default behaviors
-     * 
+     *
      * @param array $indicatorIDs
      * @param string $dataTableUID is either 'empUID', 'positionID', 'groupID', 'employee', 'position', or 'group'
      * @param int $UID. This could be a empUID, positionID, or groupID.
@@ -320,7 +320,7 @@ class Login
 
         switch($dataTableUID) {
             case 'employee';
-                $dataTableUID = 'empUID'; 
+                $dataTableUID = 'empUID';
                 break;
             case 'position';
                 $dataTableUID = 'positionID';
@@ -369,7 +369,7 @@ class Login
             // grant highest available access
             if(isset($memberships[$item['categoryID'].'ID'][$item['UID']])) {
                 if(isset($data[$item['indicatorID']]['read']) && $data[$item['indicatorID']]['read'] != 1) {
-                    $data[$item['indicatorID']]['read'] = $item['read'];                    
+                    $data[$item['indicatorID']]['read'] = $item['read'];
                 }
                 if(isset($data[$item['indicatorID']]['write']) && $data[$item['indicatorID']]['write'] != 1) {
                     $data[$item['indicatorID']]['write'] = $item['write'];
