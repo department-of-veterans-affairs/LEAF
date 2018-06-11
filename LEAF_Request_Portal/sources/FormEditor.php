@@ -40,7 +40,7 @@ class FormEditor
     	        ':html' => $package['html'],
     	        ':htmlPrint' => $package['htmlPrint'],
     	        ':required' => $package['required'],
-                ':is_sensitive' => $package['is_sensitive'], //new stuff
+                ':is_sensitive' => $package['is_sensitive'],
     	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
     	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive /* new stuff */, sort, timeAdded, disabled)
