@@ -43,8 +43,8 @@ class FormEditor
                 ':is_sensitive' => $package['is_sensitive'],
     	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive /* new stuff */, sort, timeAdded, disabled)
-            								VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :is_sensitive /* new stuff */, :sort, CURRENT_TIMESTAMP, 0)', $vars);
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive, sort, timeAdded, disabled)
+            								VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)', $vars);
     	}
     	else {
     	    $vars = array(':indicatorID' => $package['indicatorID'],
@@ -60,9 +60,9 @@ class FormEditor
     	        ':is_sensitive' => $package['is_sensitive'], //
     	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive /* new stuff */, sort, timeAdded, disabled)
-            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :is_sensitive /* new stuff */,:sort, CURRENT_TIMESTAMP, 0)
-                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, required=:required, is_sensitive=:is_sensitive /* new stuff */,sort=:sort', $vars);
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive, sort, timeAdded, disabled)
+            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)
+                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
     	}
 
     	return $this->db->getLastInsertID();
