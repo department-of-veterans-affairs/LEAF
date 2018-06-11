@@ -412,7 +412,13 @@ function newQuestion(parentIndicatorID) {
                         <td><input id="required" name="required" type="checkbox" /></td>\
                     </tr>\
                 </table>\
-        </fieldset>');
+                <table>\
+                    <tr>\
+                        <td>Sensitive</td>\
+                        <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
+                    </tr>\
+                </table>\
+            </fieldset>');
     $('#indicatorType').on('change', function() {
         switch($('#indicatorType').val()) {
             case 'radio':
@@ -437,7 +443,7 @@ function newQuestion(parentIndicatorID) {
             resetCss: true,
             btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'link', '|', 'foreColor', '|', 'viewHTML']
         });
-        
+
         $('.trumbowyg-box').css({
             'min-height': '130px'
         });
@@ -452,12 +458,18 @@ function newQuestion(parentIndicatorID) {
     		alert('You can\'t mark a field as required if the Input Format is "None".');
     	}
     });
+    $('#sensitive').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#sensitive').prop('checked', false);
+            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
+        }
+    });
 
     dialog.show();
 
     dialog.setSaveHandler(function() {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
-
+        var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
         switch($('#indicatorType').val()) {
             case 'radio':
             case 'checkboxes':
@@ -476,7 +488,7 @@ function newQuestion(parentIndicatorID) {
                 $('#format').val($('#indicatorType').val());
                 break;
         }
-    	
+
         $.ajax({
             type: 'POST',
             url: '../api/?a=formEditor/newIndicator',
@@ -487,6 +499,7 @@ function newQuestion(parentIndicatorID) {
             	parentID: parentIndicatorID,
             	categoryID: currCategoryID,
             	required: isRequired,
+                is_sensitive: isSensitive,
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
                 if(res != null) {
@@ -530,6 +543,10 @@ function getForm(indicatorID, series) {
                     <tr>\
                         <td>Required</td>\
                         <td><input id="required" name="required" type="checkbox" /></td>\
+                    </tr>\
+                    </tr>\
+                        <td>Sensitive</td>\
+                        <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
                     </tr>\
                     <tr>\
                         <td>Sort Priority</td>\
@@ -577,6 +594,12 @@ function getForm(indicatorID, series) {
             alert('You can\'t mark a field as required if the Input Format is "None".');
         }
     });
+    $('#sensitive').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#sensitive').prop('checked', false);
+            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
+        }
+    });
     $('#rawNameEditor').on('click', function() {
         $('#advNameEditor').css('display', 'inline');
         $('#rawNameEditor').css('display', 'none');
@@ -593,7 +616,7 @@ function getForm(indicatorID, series) {
             	'foreColor', '|',
             	'justifyLeft', 'justifyCenter', 'justifyRight']
         });
-        
+
         $('.trumbowyg-box').css({
             'min-height': '130px'
         });
@@ -673,7 +696,7 @@ function getForm(indicatorID, series) {
           }
     });
     $('.CodeMirror').css('border', '1px solid black');
-    
+
     dialog.show();
     dialog.indicateBusy();
 
@@ -720,6 +743,9 @@ function getForm(indicatorID, series) {
                 if(res[indicatorID].required == 1) {
                     $('#required').prop('checked', true);
                 }
+                if(res[indicatorID].is_sensitive == 1) {
+                    $('#sensitive').prop('checked', true);
+                }
                 $('#parentID').val(res[indicatorID].parentID);
                 $('#sort').val(res[indicatorID].sort);
                 codeEditorHtml.setValue((res[indicatorID].html == null ? '' : res[indicatorID].html));
@@ -750,9 +776,10 @@ function getForm(indicatorID, series) {
             cache: false
         });
     });
-    
+
     dialog.setSaveHandler(function() {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
+        var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
     	var isDisabled = $('#disabled').is(':checked') ? 1 : 0;
 
         switch($('#indicatorType').val()) {
@@ -835,6 +862,16 @@ function getForm(indicatorID, series) {
    	                }
    	            }
    	        }),
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/' + indicatorID + '/sensitive',
+                data: {is_sensitive: isSensitive,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
+                    }
+                }
+            }),
    	        $.ajax({
    	            type: 'POST',
    	            url: '../api/?a=formEditor/' + indicatorID + '/disabled',
