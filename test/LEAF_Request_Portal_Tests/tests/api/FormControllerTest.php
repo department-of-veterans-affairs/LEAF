@@ -48,6 +48,7 @@ final class FormTest extends DatabaseTest
         $this->assertEquals('A Very Simple Form', $ind1['name']);
         $this->assertNull($ind1['parentID']);
         $this->assertEquals('0', $ind1['required']);
+        $this->assertEquals('0', $ind1['is_sensitive']);
         $this->assertTrue($ind1['isEmpty']);
         $this->assertEquals('', $ind1['format']);
 
@@ -58,6 +59,7 @@ final class FormTest extends DatabaseTest
         $this->assertEquals('First Name', $ind2['description']);
         $this->assertNull($ind2['parentID']);
         $this->assertEquals('1', $ind2['required']);
+        $this->assertEquals('1', $ind2['is_sensitive']);
         $this->assertFalse($ind2['isEmpty']);
         $this->assertEquals('text', $ind2['format']);
         $this->assertEquals('1520268869', $ind2['timestamp']);
@@ -70,6 +72,7 @@ final class FormTest extends DatabaseTest
         $this->assertEquals('Hobbies', $ind5['description']);
         $this->assertNull($ind5['parentID']);
         $this->assertEquals('0', $ind5['required']);
+        $this->assertEquals('1', $ind5['is_sensitive']);
         $this->assertFalse($ind5['isEmpty']);
         $this->assertEquals('textarea', $ind5['format']);
         $this->assertEquals('1520268912', $ind5['timestamp']);
@@ -82,6 +85,7 @@ final class FormTest extends DatabaseTest
         $this->assertEquals('favorite day', $ind6['description']);
         $this->assertNull($ind6['parentID']);
         $this->assertEquals('1', $ind6['required']);
+        $this->assertEquals('0', $ind6['is_sensitive']);
         $this->assertFalse($ind6['isEmpty']);
         $this->assertEquals('date', $ind6['format']);
         $this->assertEquals('1520268896', $ind6['timestamp']);

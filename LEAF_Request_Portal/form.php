@@ -432,6 +432,7 @@ class Form
 
         $required = isset($data[0]['required']) && $data[0]['required'] == 1 ? ' required="true" ' : '';
 
+
         $idx = $data[0]['indicatorID'];
         $form[$idx]['indicatorID'] = $data[0]['indicatorID'];
         $form[$idx]['series'] = $series;
@@ -444,6 +445,7 @@ class Form
         $form[$idx]['htmlPrint'] = $parseTemplate ? str_replace('{{ iID }}', $idx, $data[0]['htmlPrint'])
                                 : $data[0]['htmlPrint'];
         $form[$idx]['required'] = $data[0]['required'];
+        $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
         $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
         $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
         $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
@@ -3000,6 +3002,7 @@ class Form
                 $child[$idx]['htmlPrint'] = $parseTemplate ? str_replace('{{ iID }}', $idx, $field['htmlPrint'])
                                                 : $field['htmlPrint'];
                 $child[$idx]['required'] = $field['required'];
+                $child[$idx]['is_sensitive'] = $field['is_sensitive'];
                 $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;
                 $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '') ? $data[$idx]['data'] : $child[$idx]['default'];
                 $child[$idx]['value'] = @unserialize($data[$idx]['data']) === false ? $child[$idx]['value'] : unserialize($data[$idx]['data']);
