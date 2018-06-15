@@ -526,13 +526,16 @@ class Form
                       ':indicatorID' => $indicatorID,
                       ':series' => $series, );
 
+
         $res = $this->db->prepared_query(
-            'SELECT * FROM data_history
-                LEFT JOIN indicator_mask USING (indicatorID)
-                WHERE recordID=:recordID
-                AND indicatorID=:indicatorID
-                AND series=:series
-                ORDER BY timestamp DESC', 
+            'SELECT h.recordID, h.indicatorID, h.series, h.data, h.timestamp, h.userID, i.is_sensitive 
+                FROM data_history h
+                    LEFT JOIN indicator_mask USING (indicatorID)
+                    LEFT JOIN indicators i USING (indicatorID)
+                    WHERE h.recordID=:recordID
+                    AND h.indicatorID=:indicatorID
+                    AND h.series=:series
+                    ORDER BY timestamp DESC',
             $vars
         );
 
@@ -560,7 +563,6 @@ class Form
                     }
                 }
             }
-
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
             $line['name'] = $name;
             $res2[] = $line;
