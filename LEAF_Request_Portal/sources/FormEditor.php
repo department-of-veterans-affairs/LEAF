@@ -156,11 +156,9 @@ class FormEditor
     }
 
     function setSensitive($indicatorID, $input) {
-	      if(is_int($input) == false){
-            return 'Not an integer';
-        }
         $vars = array(':indicatorID' => $indicatorID,
-            ':input' => $input);
+			':input' => (int) $input);
+
         return $this->db->prepared_query('UPDATE indicators
     								SET is_sensitive=:input
     								WHERE indicatorID=:indicatorID', $vars);
