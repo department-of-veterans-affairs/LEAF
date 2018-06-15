@@ -156,7 +156,7 @@ class FormEditor
     }
 
     function setSensitive($indicatorID, $input) {
-	if(is_int($input) == false){
+	      if(is_int($input) == false){
             return 'Not an integer';
         }
         $vars = array(':indicatorID' => $indicatorID,
