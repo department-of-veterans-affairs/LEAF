@@ -529,8 +529,9 @@ class Form
 
         $res = $this->db->prepared_query(
             'SELECT h.recordID, h.indicatorID, h.series, h.data, h.timestamp, h.userID, i.is_sensitive 
-                FROM data_history h, indicators i 
+                FROM data_history h
                     LEFT JOIN indicator_mask USING (indicatorID)
+                    LEFT JOIN indicators i USING (indicatorID)
                     WHERE h.recordID=:recordID
                     AND h.indicatorID=:indicatorID
                     AND h.series=:series
