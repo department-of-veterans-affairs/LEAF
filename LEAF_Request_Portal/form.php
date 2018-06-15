@@ -528,12 +528,13 @@ class Form
 
 
         $res = $this->db->prepared_query(
-            'SELECT * FROM data_history
-                LEFT JOIN indicator_mask USING (indicatorID)
-                WHERE recordID=:recordID
-                AND indicatorID=:indicatorID
-                AND series=:series
-                ORDER BY timestamp DESC',
+            'SELECT h.recordID, h.indicatorID, h.series, h.data, h.timestamp, h.userID, i.is_sensitive 
+                FROM data_history h, indicators i 
+                    LEFT JOIN indicator_mask USING (indicatorID)
+                    WHERE h.recordID=:recordID
+                    AND h.indicatorID=:indicatorID
+                    AND h.series=:series
+                    ORDER BY timestamp DESC',
             $vars
         );
 
@@ -561,18 +562,8 @@ class Form
                     }
                 }
             }
-
-            $is_sensitiveVar = array(
-                ':indicatorID' => $indicatorID,
-            );
-
-            $is_sensitive = $this->db->prepared_query(
-                'SELECT is_sensitive FROM indicators
-                WHERE indicatorID=:indicatorID', $is_sensitiveVar
-            );
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
             $line['name'] = $name;
-            $line['is_sensitive'] = $is_sensitive[0]['is_sensitive'];
             $res2[] = $line;
         }
 
