@@ -22,6 +22,20 @@ class System
         include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
     }
 
+	/**
+	 * Get the current database version
+	 * 
+	 * @return string the current database version
+	 */
+	public function getDatabaseVersion() {
+		$version = $this->db->query('SELECT data FROM settings WHERE setting = "dbVersion"');
+		if (count($version) > 0 && $version[0]['data'] !== null) {
+			return $version[0]['data'];
+		} else {
+			return "unknown";
+		}
+	}
+
     public function setHeading($heading) {
     	$memberships = $this->login->getMembership();
     	if(!isset($memberships['groupID'][1])) {

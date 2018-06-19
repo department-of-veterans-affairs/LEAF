@@ -474,7 +474,8 @@ switch ($action) {
 
         require_once 'Inbox.php';
         $inbox = new Inbox($db, $login);
-        $t_form->assign('inbox_status', $inbox->getInboxStatus());
+        //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
+        $t_form->assign('inbox_status', 1);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
 
