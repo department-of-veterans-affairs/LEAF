@@ -1,6 +1,7 @@
 package leaf.server;
 
 import leaf.SignEngine;
+import leaf.SignUI;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -27,6 +28,7 @@ public class WebSocketService {
 
     @OnMessage
     public String startSignProcess(String message, Session session) {
+        SignUI.showErrorMessage("@OnMessage");
         return SignEngine.getInstance().getSignature(message);
     }
 

@@ -16,6 +16,7 @@ public class PinInputHandler implements CallbackHandler {
             if (cb instanceof PasswordCallback) {
                 PasswordCallback pcb = (PasswordCallback) cb;
                 try {
+                    SignUI.showErrorMessage("About to ask for PIN");
                     pin = SignUI.askForPin();
                 } catch (Exception e) {
                     e.printStackTrace();

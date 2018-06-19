@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="http://r01dvrappleaf01.r01.med.va.gov/" href="websocket_digital_signature.jnlp">
+
+    <information>
+        <title>Websocket Digital Signature</title>
+    </information>
+    <security>
+        <all-permissions/>
+    </security>
+    <resources>
+        <jar href="Websocket-Digital-Signature-1.0-SNAPSHOT.jar"/>
+    </resources>
+
+    <application-desc main-class="leaf.Main"/>
+    <update check="background"/>
+</jnlp>
