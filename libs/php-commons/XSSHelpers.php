@@ -58,10 +58,7 @@ class XSSHelpers {
             && strpos($in, '<table') === false) {
             $in = nl2br($in, true);
         }
-        
-        // strip out uncommon characters
-        $in = preg_replace('/[^\040-\176]/', '', $in);
-        
+
         // hard character limit of 65535
         $in = strlen($in) > 65535 ? substr($in, 0, 65535) : $in;
         
@@ -95,7 +92,7 @@ class XSSHelpers {
                 case 'p':
                     $pattern[] = '/&lt;p style=&(quot|#039);(\S.+)&(quot|#039);(\s.+)?&gt;/Ui';
                     $replace[] = '<p style="\2">';
-                    $pattern[] = '/&lt;p&gt;/Ui';
+                    $pattern[] = '/&lt;p(\s.+)?&gt;/Ui';
                     $replace[] = '<p>';
                     $pattern[] = '/&lt;\/p&gt;/Ui';
                     $replace[] = '</p>';
@@ -107,6 +104,8 @@ class XSSHelpers {
                 case 'span':
                     $pattern[] = '/&lt;span style=&(quot|#039);(\S.+)&(quot|#039);(\s.+)?&gt;/Ui';
                     $replace[] = '<span style="\2">';
+                    $pattern[] = '/&lt;span(\s.+)?&gt;/Ui';
+                    $replace[] = '<span>';
                     $pattern[] = '/&lt;\/span&gt;/Ui';
                     $replace[] = '</span>';
                     break;
@@ -160,7 +159,7 @@ class XSSHelpers {
                     // echo "open\n";
                 }
                 // improper closure
-                else if($matches[1][$i] == '/' && isset($openTags[$matches[2][$i]]) && $openTags[$matches[2][$i]] <= 0) {
+                else if($matches[1][$i] == '/' && isset($openTags[$matches[2][$i]]) || $openTags[$matches[2][$i]] <= 0) {
                     $in = '<' . $matches[2][$i] . '>' . $in;
                     $openTags[$matches[2][$i]]--;
                     // echo "improper\n";
