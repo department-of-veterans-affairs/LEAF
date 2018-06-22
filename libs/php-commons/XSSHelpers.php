@@ -49,10 +49,11 @@ class XSSHelpers {
      *
      * @param    string  $in the string to be sanitized
      * @param    string  $allowedTags list of allowed tags in strip_tags format
+     * @param    string  $encoding define the character encoding
      *
      * @return   string  the sanitized string
      */
-    static public function sanitizer($in, $allowedTags, $encoding = 'UTF-8') {
+    static public function sanitizer($in, $allowedTags = [], $encoding = 'UTF-8') {
         // replace linebreaks with <br /> if there's no html <p>'s
         if(strpos($in, '<p>') === false
             && strpos($in, '<table') === false) {
