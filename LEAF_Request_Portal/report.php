@@ -27,7 +27,7 @@ header('X-UA-Compatible: IE=edge');
 // Enforce HTTPS
 if(isset($config->enforceHTTPS) && $config->enforceHTTPS == true) {
     if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') {
-        header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        header('Location: https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']);
         exit();
     }
 }
@@ -102,7 +102,7 @@ switch($action) {
 
 				$form = new Form($db, $login);
 				$o_login = $t_login->fetch('login.tpl');
-			
+
 				$t_form = new Smarty;
 				$t_form->left_delimiter = '<!--{';
 				$t_form->right_delimiter= '}-->';
@@ -113,12 +113,12 @@ switch($action) {
 				$t_form->assign('orgchartPath', Config::$orgchartPath);
 				$t_form->assign('systemSettings', $settings);
 				$t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
-			
+
 				//url
 				$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 				$qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
 				$main->assign('qrcodeURL', urlencode($qrcodeURL));
-			
+
 				$main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
 				$tabText = '';
     	}
