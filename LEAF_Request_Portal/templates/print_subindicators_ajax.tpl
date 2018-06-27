@@ -1,7 +1,7 @@
 <!--{**}-->
         <!--{if $indicator.format == 'textarea'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'|sanitizeRichtext}-->
+                <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'|sanitize}-->
             </span>
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
