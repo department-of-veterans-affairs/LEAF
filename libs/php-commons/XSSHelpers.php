@@ -210,8 +210,12 @@ class XSSHelpers {
     static public function sanitizeHTML($in)
     {
         $allowedTags = ['b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table',
-                        'td', 'tr', 'thead', 'tbody', 'strong', 'em',
+                        'td', 'tr', 'thead', 'tbody', 'span', 'strong', 'em',
                         'colgroup', 'col'];
+
+        // IE 11 workarounds
+        $allowedTags[] = 'font';
+        $allowedTags[] = 'center';
 
         return XSSHelpers::sanitizer($in, $allowedTags);
     }
