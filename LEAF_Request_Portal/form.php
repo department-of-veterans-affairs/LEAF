@@ -1949,6 +1949,7 @@ class Form
                                 if ($tItem != 'no')
                                 {
                                     $item['data'] .= "{$tItem}, ";
+                                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_array'][] = $tItem;
                                 }
                             }
                         }
@@ -2372,7 +2373,7 @@ class Form
                     $vars[':dateInitiated' . $count] = strtotime($vars[':dateInitiated' . $count]);
                     switch ($operator) {
                         case '=':
-                            $vars[':date' . $count . 'b'] = $vars[':date' . $count] + 86400;
+                            $vars[':dateInitiated' . $count . 'b'] = $vars[':dateInitiated' . $count] + 86400;
                             $conditions .= "date >= :dateInitiated{$count} AND date <= :dateInitiated{$count}b AND ";
                             
                             break;
@@ -2395,7 +2396,7 @@ class Form
                             
                             break;
                         case '<=':
-                            $vars[':date' . $count] += 86400; // set to end of day
+                            $vars[':dateSubmitted' . $count] += 86400; // set to end of day
                             // no break
                         default:
                             $conditions .= "submitted {$operator} :dateSubmitted{$count} AND ";
