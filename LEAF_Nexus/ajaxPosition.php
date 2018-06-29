@@ -19,7 +19,7 @@ $config = new Orgchart\Config();
 // Enforce HTTPS
 if(isset($config->enforceHTTPS) && $config->enforceHTTPS == true) {
 	if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') {
-		header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+		header('Location: https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']);
 		exit();
 	}
 }
@@ -41,7 +41,7 @@ switch($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
-        
+
         $t_form->assign('form', $position->getAllData((int)$_GET['pID']));
         $t_form->assign('uid', (int)$_GET['pID']);
         $t_form->assign('categoryID', $position->getDataTableCategoryID());
@@ -53,7 +53,7 @@ switch($action) {
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter= '}-->';
-    
+
             if(is_numeric($_GET['indicatorID']) && is_numeric($_GET['pID'])) {
                 $t_form->assign('uid', (int)$_GET['pID']);
                 $t_form->assign('categoryID', $position->getDataTableCategoryID());
@@ -74,7 +74,7 @@ switch($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $t_form->display('ajaxForm.tpl');
-        break;        
+        break;
     default:
         /*
         echo "Action: $action<br /><br />Catchall...<br /><br />POST: <pre>";

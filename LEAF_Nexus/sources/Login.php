@@ -172,7 +172,7 @@ class Login
     {
         $_SESSION['name'] = $this->name;
         $_SESSION['userID'] = $this->userID;
-        $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : bin2hex(random_bytes(32)); 
+        $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : bin2hex(random_bytes(32));
     }
 
     public function loginUser()
@@ -187,11 +187,11 @@ class Login
                 // try to browser detect, since SSO implementation varies
                 if(strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
                 	|| strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0) {
-                	header('Location: ' . $protocol . $_SERVER['HTTP_HOST'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/auth_domain/?r=' . base64_encode($_SERVER['REQUEST_URI']));
+                	header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/auth_domain/?r=' . base64_encode($_SERVER['REQUEST_URI']));
                 	exit();
                 }
 
-                header('Location: ' . $protocol . $_SERVER['HTTP_HOST'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/login/?r=' . base64_encode($_SERVER['REQUEST_URI']));
+                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/login/?r=' . base64_encode($_SERVER['REQUEST_URI']));
                 exit();
             }
             else {
