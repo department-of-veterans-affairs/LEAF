@@ -85,7 +85,7 @@ public class SignUI {
         refreshCertificateButton.setBorderPainted(false);
         refreshCertificateButton.setFocusPainted(true);
         refreshCertificateButton.setContentAreaFilled(false);
-        refreshCertificateButton.setPreferredSize(new java.awt.Dimension(20,20));
+        refreshCertificateButton.setPreferredSize(new Dimension(20,20));
         JPanel panel = new JPanel();
         panel.add(certificateComboBox);
         panel.add(refreshCertificateButton);

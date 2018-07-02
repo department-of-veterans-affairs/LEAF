@@ -1,50 +1,46 @@
 var Signer = function() {
 
-    sign = function(dataToSign, resultsHandler, errorHandler) {
-        // showLoader();
-        window.open("../../websocket_digital_signature.jnlp");
-        var wsEndpoint = 'ws://localhost:8765/websockets/sign';
-        if (!(resultsHandler instanceof Function))
-            throw 'The sign parameter must be a function';
-        var signService = new WebSocket(wsEndpoint);
-        signService.onmessage = function(event) {
-            var dataJson = event.data.toString();
-            if (dataJson.error != null && dataJson.match('^ERROR'))
-                errorHandler(dataJson.error);
-            else {
-                resultsHandler(dataJson);
-            }
-            signService.close();
-        }.bind(this);
-        signService.onopen = function() {
-            signService.send(dataToSign);
-        }.bind(this);
-        signService.onclose = function() {
-            console.log('Connection closed');
-        }.bind(this);
-        signService.onerror = function() {
-            var errorMessage = 'Connection error: the digital signing service can not be reached.';
-            alert(errorMessage);
-            throw errorMessage;
-        }.bind(this);
-        return this;
+    var stompClient = null;
+
+    function connect() {
+        var url = "https://localhost:8443/websocket";
+        var socket = new SockJS(url);
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/greetings', function (response) {
+                showMessage(JSON.parse(response.body).content);
+            });
+        });
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+        console.log("Disconnected");
+    }
+
+    function sendName(dataToSign) {
+        stompClient.send("/app/sign", {}, JSON.stringify({'content': dataToSign}));
+    }
+
+    function showMessage(message) {
+        alert(message);
+    }
+
+    var sign = function (dataToSign) {
+        sendName(dataToSign);
+        return dataToSign;
     };
 
-    showLoader = function() {
-        var overlay = document.createElement("div");
-        var loaderDiv = document.createElement("div");
-        var loader = document.createAttribute("class");
-        loader.value = "loader";
-        loaderDiv.setAttributeNode(loader);
-        overlay.appendChild(loaderDiv);
-        document.body.appendChild(overlay);
-    };
-
-    hideLoader = function() {
-        document.getElementById("overlay").style.display = "none";
+    var connection = function () {
+        connect();
     };
 
     return {
-        sign: sign
+        sign: sign,
+        connection: connection
     };
+
 } ();
