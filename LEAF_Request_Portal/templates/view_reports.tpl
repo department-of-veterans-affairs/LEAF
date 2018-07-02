@@ -85,7 +85,7 @@ function addHeader(column) {
 	    case 'status':
 	    	leafSearch.getLeafFormQuery().join('status');
             headers.push({name: 'Current Status', indicatorID: 'status', editable: false, callback: function(data, blob) {
-                             status = blob[data.recordID].stepTitle == null ? blob[data.recordID].lastStatus : 'Pending ' + blob[data.recordID].stepTitle;
+                             var status = blob[data.recordID].stepTitle == null ? blob[data.recordID].lastStatus : 'Pending ' + blob[data.recordID].stepTitle;
                              status = status == 'null' ? 'Not Submitted' : status;
                              if(blob[data.recordID].deleted > 0) {
                             	 status += ', Cancelled';
