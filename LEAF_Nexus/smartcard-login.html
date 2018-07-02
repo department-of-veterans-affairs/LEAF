@@ -8,10 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
     <script type="text/javascript">
 
-        window.open('sign.jnlp');
-
-        function connect() {
-            Signer.connection();
+        function start() {
+            window.open('sign.jnlp');
         }
 
         function signTest() {
@@ -19,12 +17,17 @@
             Signer.sign(data);
         }
 
+        function disconnect() {
+            Signer.disconnection();
+        }
+
     </script>
 </head>
 <body>
 <p>Websocket Smartcard Signer Test Page</p>
-<div><input type="button" value="Connect" onclick="connect()"/></div>
+<div><input type="button" value="Run JNLP" onclick="start()"/></div>
 <div><input type="button" value="Sign" onclick="signTest()"/></div>
+<div><input type="button" value="Close" onclick="disconnect()"/></div>
 
 </body>
 </html>

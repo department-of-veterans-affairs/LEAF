@@ -25,4 +25,18 @@ public class SignController {
         this.content = content;
     }
 
+    @MessageMapping("/close")
+    @SendTo("/wsbroker/controller")
+    public void close() {
+        System.exit(0);
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
 }

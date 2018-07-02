@@ -2,23 +2,21 @@ var Signer = function() {
 
     var stompClient = null;
 
-    function connect() {
+    function connect(_callback) {
         var url = "https://localhost:8443/websocket";
         var socket = new SockJS(url);
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/topic/greetings', function (response) {
+            stompClient.subscribe('/wsbroker/controller', function (response) {
                 showMessage(JSON.parse(response.body).content);
             });
+            _callback();
         });
     }
 
     function disconnect() {
-        if (stompClient !== null) {
-            stompClient.disconnect();
-        }
-        console.log("Disconnected");
+        stompClient.send("/app/close", {}, "");
     }
 
     function sendName(dataToSign) {
@@ -30,17 +28,24 @@ var Signer = function() {
     }
 
     var sign = function (dataToSign) {
-        sendName(dataToSign);
-        return dataToSign;
+        connect(function() {
+            sendName(dataToSign);
+            return dataToSign;
+        });
     };
 
     var connection = function () {
         connect();
     };
 
+    var disconnection = function () {
+        disconnect();
+    };
+
     return {
         sign: sign,
-        connection: connection
+        connection: connection,
+        disconnection: disconnection
     };
 
 } ();
