@@ -23,13 +23,13 @@ public class SignEngine {
             try {
 
                 // Jar
-                String pkcs11Config = "name=OpenSC\nlibrary=" + ResourceManager.extract("opensc-pkcs11.so");
+//                String pkcs11Config = "name=OpenSC\nlibrary=" + ResourceManager.extract("opensc-pkcs11.so");
 
                 // Mac
 //                String pkcs11Config = "name=OpenSC\nlibrary=/usr/local/lib/opensc-pkcs11.so";
 
                 // Windows
-//                String pkcs11Config = "name=OpenSC\nlibrary=C:\\Program Files\\OpenSC Project\\OpenSC\\pkcs11\\opensc-pkcs11.dll";
+                String pkcs11Config = "name=OpenSC\nlibrary=" + ResourceManager.extract("opensc-pkcs11.dll");
 
                 // Linux
 //                String pkcs11Config = "name=OpenSC\nlibrary=/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so";
@@ -39,6 +39,7 @@ public class SignEngine {
                 provider = new SunPKCS11(config);
                 Security.addProvider(provider);
             } catch (Exception e) {
+                SignUI.showErrorMessage(e.getMessage());
                 e.printStackTrace();
             }
         }
