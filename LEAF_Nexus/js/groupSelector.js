@@ -70,7 +70,7 @@ groupSelector.prototype.showBusy = function() {
 groupSelector.prototype.select = function(id) {
 	this.selection = id;
 
-	nodes = $('.groupSelected');
+	nodes = $('#'+ this.containerID +' .groupSelected');
 	for(var i in nodes) {
 		if(nodes[i].id != undefined) {
 			$('#' + nodes[i].id).removeClass('groupSelected');
