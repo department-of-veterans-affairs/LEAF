@@ -66,7 +66,7 @@ employeeSelector.prototype.showBusy = function() {
 employeeSelector.prototype.select = function(id) {
 	this.selection = id;
 
-	$.each($('.employeeSelected'), function(key, item) {
+	$.each($('#'+ this.containerID +' .employeeSelected'), function(key, item) {
 		$('#' + item.id).removeClass('employeeSelected');
 		$('#' + item.id).addClass('employeeSelector');
 	});
