@@ -42,6 +42,11 @@ composer install
 Composer will install `PHPUnit` and `Phinx`, so they do not need to installed separately. Both `PHPUnit` and `Phinx` can be installed globally to avoid the `./vendor/bin/` prefix when running commands, just make sure the versions installed globally match the versions listed in [composer.json](composer.json).  -->
 
 ### Configuring Phinx
+Each testing project has it's own Phinx configuration since the two databases are independent of each other.
+
+Create two database tables for testing Nexus and Portal: `nexus_testing` and `portal_testing`.
+
+Copy [LEAF_Nexus_Tests/phinx.yml.example](LEAF_Nexus_Tests/phinx.yml.example) and [LEAF_Request_Portal_Tests/phinx.yml.example](LEAF_Request_Portal_Tests/phinx.yml.example) and rename them to `phinx.yml` in their respective directories. `phinx.yml` should not be committed to the repository.
 
 In test/LEAF_Request_Portal_Tests/phinx.yml, change the following.
 ```bash
@@ -65,13 +70,6 @@ environments:
         user: tester
         pass: 'tester'
 ```
-Each testing project has it's own Phinx configuration since the two databases are independent of each other.
-
-Create two database tables for testing Nexus and Portal: `nexus_testing` and `portal_testing`.
-
-Copy [LEAF_Nexus_Tests/phinx.yml.example](LEAF_Nexus_Tests/phinx.yml.example) and [LEAF_Request_Portal_Tests/phinx.yml.example](LEAF_Request_Portal_Tests/phinx.yml.example) and rename them to `phinx.yml` in their respective directories. `phinx.yml` should not be committed to the repository.
-
-Edit `LEAF_Nexus_Tests/phinx.yml` and `LEAF_Request_Portal_Tests/phinx.yml` and set your system specific variables.
 
 Within each test project directory, run the migrations:
 
