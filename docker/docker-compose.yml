@@ -5,6 +5,8 @@ services:
       build:
         context: ../
         dockerfile: docker/php/Dockerfile
+      expose:
+        - '80'
       ports:
         - 80:80
         - 443:443
@@ -33,6 +35,46 @@ services:
       code-network:
         aliases:
           - mysql
+
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_ROOT_HOST=${MYSQL_ROOT_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=${MYSQL_ALLOW_EMPTY_PASSWORD}
+
+  phpunit:
+    build:
+      context: ../
+      dockerfile: docker/unit-testing/php-unit/Dockerfile
+    depends_on:
+      - phpunit-db
+    links:
+      - phpunit-db
+      - php
+    volumes:
+      - ../test:/app/test
+      - ../libs:/app/libs
+      - ../LEAF_Nexus:/app/LEAF_Nexus
+      - ../LEAF_Request_Portal:/app/LEAF_Request_Portal
+    networks:
+      code-network:
+        aliases:
+          - phpunit
+
+  phpunit-db:
+    build:
+      context: ../
+      dockerfile: docker/unit-testing/phpunit-db/Dockerfile
+    expose:
+      - '3308'
+    ports:
+      - "3308:3306"
+    restart: 'always'
+    networks:
+      code-network:
+        aliases:
+          - phpunit-db
 
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
