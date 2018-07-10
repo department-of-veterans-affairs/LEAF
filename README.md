@@ -77,6 +77,10 @@ Within each test project directory, run the migrations:
 ```bash
 phinx migrate
 ```
+Then
+```bash
+phinx seed:run -s BaseTestSeed
+```
 
 #### Creating Migrations
 
