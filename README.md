@@ -109,7 +109,7 @@ phinx migrate
 ```
 Then
 ```bash
-phinx seed:run -s BaseTestSee
+phinx seed:run -s BaseTestSeed
 ```
 
 #### Creating Migrations
