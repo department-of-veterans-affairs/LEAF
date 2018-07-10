@@ -7,7 +7,62 @@ LEAF uses:
 
 ## Setup
 
-Checkout branch origin/feature/docker-unit-testing/test and do follow steps on the normal setup readme, with db_user and db_pass as tester, tester.
+Checkout branch origin/feature/docker-unit-testing and do follow steps on the normal setup readme, but with some changes:
+
+#### Dockerfile
+Make the following change to LEAF/docker/mysql/Dockerfile
+```bash
+FROM mysql/mysql-server:5.7
+```
+#### LEAF_Nexus
+
+Copy `globals.php.example` to `globals.php` and change the following variables to reflect your setup:
+
+```php
+const DIRECTORY_HOST = 'mysql_host';
+const DIRECTORY_DB = 'leaf_users';
+const DIRECTORY_USER = 'tester';
+const DIRECTORY_PASS = 'tester';
+```
+	
+Copy `config-example.php` to `config.php` and change the following variables to reflect your setup:
+
+```php
+$dbHost = 'mysql'
+$dbName = 'leaf_users'
+$dbUser = 'tester'
+$dbPass = 'dbnexuspass'
+```
+
+#### LEAF_Request_Portal 
+
+Copy `globals.php.example` to `globals.php` and change the following variables to reflect your setup:
+
+```php
+const DIRECTORY_HOST = 'mysql_host';
+const DIRECTORY_DB = 'leaf_portal';
+const DIRECTORY_USER = 'tester';
+const DIRECTORY_PASS = 'tester';
+const LEAF_NEXUS_URL = 'https://Localhost/LEAF_NEXUS';
+```
+
+Copy `db_config-example.php` to `db_config.php` and change the following variables to reflect your setup:
+
+```php
+$dbHost = 'phpunit-db'
+$dbName = 'portal_testing'
+$dbUser = 'tester'
+$dbPass = 'tester'
+
+$phonedbHost = 'mysql'
+$phonedbName = 'leaf_users'
+$phonedbUser = 'tester'
+$phonedbPass = 'tester'	
+
+# this should point to the LEAF Nexus base path 
+$orgchartPath = '../LEAF_Nexus'
+```
+
 <!-- Install [composer](https://getcomposer.org/).
 
 Composer handles any PHP dependencies for the testing project. Initialize composer dependencies with:
@@ -21,8 +76,6 @@ Composer will install `PHPUnit` and `Phinx`, so they do not need to installed se
 ### Configuring Phinx
 
 Each testing project has it's own Phinx configuration since the two databases are independent of each other.
-
-Create two database tables for testing Nexus and Portal: `nexus_testing` and `portal_testing`.
 
 Copy [LEAF_Nexus_Tests/phinx.yml.example](LEAF_Nexus_Tests/phinx.yml.example) and [LEAF_Request_Portal_Tests/phinx.yml.example](LEAF_Request_Portal_Tests/phinx.yml.example) and rename them to `phinx.yml` in their respective directories. `phinx.yml` should not be committed to the repository.
 
@@ -53,6 +106,10 @@ Within each test project directory, run the migrations:
 
 ```bash
 phinx migrate
+```
+Then
+```bash
+phinx seed:run -s BaseTestSee
 ```
 
 #### Creating Migrations
