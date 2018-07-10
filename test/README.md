@@ -54,7 +54,7 @@ environments:
     default_database: portal_testing
 
     portal_testing:
-        host: phpunit-database
+        host: phpunit-db
         name: portal_testing
         user: tester
         pass: 'tester'
@@ -65,7 +65,7 @@ environments:
     default_database: nexus_testing
 
     nexus_testing:
-        host: phpunit-database
+        host: phpunit-db
         name: nexus_testing
         user: tester
         pass: 'tester'
