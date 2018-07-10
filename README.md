@@ -7,30 +7,7 @@ LEAF uses:
 
 ## Setup
 
-Checkout branch origin/feature/docker-unit-testing/test and edit the following:
-
-Comment out in LEAF_Request_Portal/api/RESTfulResponse.php and LEAF_Nexus/api/RESTfulResponse.php the conditionals for POST and DELETE cases in the handler method like so.
-
-```bash
-case 'POST':
-//   if($_POST['CSRFToken'] == $_SESSION['CSRFToken']) {
-        $this->output($this->post($action));
-//   }
-//   else {
-//       $this->output('Invalid Token.');
-//   }
-    break;
-case 'DELETE':
-//   if($_GET['CSRFToken'] == $_SESSION['CSRFToken']) {
-        $this->output($this->delete($action));
-//   }
-//   else {
-//       $this->output('Invalid Token.');
-//   }
-    break;
-```
-
-
+Checkout branch origin/feature/docker-unit-testing/test and do follow steps on the normal setup readme, with db_user and db_pass as tester, tester.
 <!-- Install [composer](https://getcomposer.org/).
 
 Composer handles any PHP dependencies for the testing project. Initialize composer dependencies with:
@@ -215,3 +192,24 @@ TruncateTables  // clears all data from all tables
 ## TODO
 
 * Enable `POST` requests against the API, needs `CSRF` token
+### Workaround
+Comment out in LEAF_Request_Portal/api/RESTfulResponse.php and LEAF_Nexus/api/RESTfulResponse.php the conditionals for POST and DELETE cases in the handler method like so.
+
+```bash
+case 'POST':
+//   if($_POST['CSRFToken'] == $_SESSION['CSRFToken']) {
+        $this->output($this->post($action));
+//   }
+//   else {
+//       $this->output('Invalid Token.');
+//   }
+    break;
+case 'DELETE':
+//   if($_GET['CSRFToken'] == $_SESSION['CSRFToken']) {
+        $this->output($this->delete($action));
+//   }
+//   else {
+//       $this->output('Invalid Token.');
+//   }
+    break;
+```
