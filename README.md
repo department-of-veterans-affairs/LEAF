@@ -31,7 +31,7 @@ Copy `config-example.php` to `config.php` and change the following variables to 
 $dbHost = 'mysql'
 $dbName = 'leaf_users'
 $dbUser = 'tester'
-$dbPass = 'dbnexuspass'
+$dbPass = 'tester'
 ```
 
 #### LEAF_Request_Portal 
