@@ -627,6 +627,8 @@
                             	$('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
                             }
                         });
+                    } else {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
                     }
                 }
 
