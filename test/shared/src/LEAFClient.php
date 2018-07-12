@@ -49,6 +49,19 @@ class LEAFClient
 
         return $leafClient;
     }
+    /**
+     * DELETE request.
+     *
+     * @param string            $url the URL to request
+     * @param LEAFResponseType  $returnType the LEAFTest\\LEAFResponseType to format the response as (default: JSON)
+     *
+     * @return object           the formatted response
+     */
+    public function delete($url, $returnType = LEAFResponseType::JSON)
+    {
+        $response = $this->client->delete($url);
+        return ResponseFormatter::format($response->getBody(), $returnType);
+    }
 
     /**
      * GET request.
