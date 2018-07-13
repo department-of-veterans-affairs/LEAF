@@ -209,7 +209,3 @@ InitialSeed     // populates with the data was supplied when the
 
 TruncateTables  // clears all data from all tables
 ```
-
-## TODO
-
-* Enable `POST` requests against the API, needs `CSRF` token
