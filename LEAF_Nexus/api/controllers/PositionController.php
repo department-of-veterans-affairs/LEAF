@@ -37,7 +37,7 @@ class PositionController extends RESTfulResponse
             if(isset($_GET['noLimit']) && $_GET['noLimit'] == 1) {
                 $position->setNoLimit();
             }
-            return $position->search($_GET['q'], $position->sanitizeInput($_GET['tag']), $_GET['employeeSearch']);
+            return $position->search($_GET['q'], $_GET['tag'], $_GET['employeeSearch']);
         });
         $this->index['GET']->register('position/[digit]/employees', function($args) use ($position) {
             return $position->getEmployees($args[0]);
@@ -55,7 +55,7 @@ class PositionController extends RESTfulResponse
             return $position->getQuadrad($args[0]);
         });
         $this->index['GET']->register('position/[digit]/search/parentTag/[text]', function($args) use ($position) {
-        	return $position->findRootPositionByGroupTag($args[0], $position->sanitizeInput($args[1]));
+        	return $position->findRootPositionByGroupTag($args[0], $args[1]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -107,7 +107,7 @@ class PositionController extends RESTfulResponse
         });
         $this->index['POST']->register('position/[digit]/permission/[text]/[digit]/[text]/toggle', function($args) use ($position) {
             //$positionID, $categoryID, $UID, $permissionType
-            return $position->togglePermission($args[0], $position->sanitizeInput($args[1]), $args[2], $args[3]);
+            return $position->togglePermission($args[0], $args[1], $args[2], $args[3]);
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
