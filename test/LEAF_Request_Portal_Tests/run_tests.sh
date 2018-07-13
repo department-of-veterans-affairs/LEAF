@@ -1,1 +1,1 @@
-../vendor/bin/phpunit --bootstrap ../bootstrap.php tests
+../vendor/bin/phpunit --colors --bootstrap ../bootstrap.php tests
