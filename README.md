@@ -244,28 +244,3 @@ InitialSeed     // populates with the data was supplied when the
 
 TruncateTables  // clears all data from all tables
 ```
-
-## TODO
-
-* Enable `POST` requests against the API, needs `CSRF` token
-### Workaround
-Comment out in LEAF_Request_Portal/api/RESTfulResponse.php and LEAF_Nexus/api/RESTfulResponse.php the conditionals for POST and DELETE cases in the handler method like so.
-
-```bash
-case 'POST':
-//   if($_POST['CSRFToken'] == $_SESSION['CSRFToken']) {
-        $this->output($this->post($action));
-//   }
-//   else {
-//       $this->output('Invalid Token.');
-//   }
-    break;
-case 'DELETE':
-//   if($_GET['CSRFToken'] == $_SESSION['CSRFToken']) {
-        $this->output($this->delete($action));
-//   }
-//   else {
-//       $this->output('Invalid Token.');
-//   }
-    break;
-```
