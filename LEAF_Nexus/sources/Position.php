@@ -103,6 +103,10 @@ class Position extends Data
     {
     	$memberships = $this->login->getMembership();
 
+    	if(!is_numeric($parentID) || !is_numeric($groupID)) {
+    	    throw new Exception('invalid input');
+    	    return 0;
+        }
     	if($parentID == 0
     		&& $memberships['groupID'] != 1) {
     		throw new Exception('Admin access required to add a position without a supervisor.');
@@ -146,6 +150,9 @@ class Position extends Data
     */
     public function editTitle($positionID, $newTitle)
     {
+        if(!is_numeric($positionID)) {
+            return 0;
+        }
         $privs = $this->getUserPrivileges($positionID);
         if($privs[$positionID]['write'] == 0) {
             return 0;
@@ -174,6 +181,7 @@ class Position extends Data
     public function editNumFTE($positionID, $numFTE)
     {
         $numFTE = (int)$numFTE;
+        $positionID = (int)$positionID;
     
         $vars = array(':positionID' => $positionID,
                       ':numFTE' => $numFTE);
@@ -189,6 +197,9 @@ class Position extends Data
      */
     public function getTitle($positionID)
     {
+        if(!is_numeric($positionID)) {
+            return false;
+        }
         $res = null;
         if(isset($this->cache["res_select_position_{$positionID}"])) {
             $res = $this->cache["res_select_position_{$positionID}"];
@@ -263,12 +274,13 @@ class Position extends Data
      */
     public function addEmployee($positionID, $empUID, $isActing = 0)
     {
-        $privs = $this->getUserPrivileges($positionID);
-        if($privs[$positionID]['write'] == 0) {
+
+        if(!is_numeric($positionID) || !is_numeric($empUID)) {
             return 0;
         }
 
-        if(!is_numeric($positionID) || !is_numeric($empUID)) {
+        $privs = $this->getUserPrivileges($positionID);
+        if($privs[$positionID]['write'] == 0) {
             return 0;
         }
 
@@ -290,6 +302,9 @@ class Position extends Data
      */
     public function removeEmployee($positionID, $empUID)
     {
+        if(!is_numeric($positionID) || !is_numeric($empUID)) {
+            return 0;
+        }
         $privs = $this->getUserPrivileges($positionID);
         if($privs[$positionID]['write'] == 0) {
             return 0;
@@ -325,6 +340,9 @@ class Position extends Data
      */
     public function getSubordinates($positionID, $skipData = false)
     {
+        if(!is_numeric($positionID)) {
+            return array();
+        }
         $vars = array(':positionID' => $positionID);
         $res = $this->db->prepared_query('SELECT a.*, b.positionID as subPositionID FROM positions a
                                             LEFT JOIN (positions b) ON (a.positionID = b.parentID)
@@ -414,6 +432,9 @@ class Position extends Data
      */
     public function getSupervisor($positionID)
     {
+        if(!is_numeric($positionID)) {
+            return array();
+        }
         $res = null;
         $cacheHash = "position_getSupervisor_{$positionID}";
         if(!isset($this->cache[$cacheHash])) {
@@ -442,6 +463,10 @@ class Position extends Data
      */
     public function setSupervisor($positionID, $parentID)
     {
+        if(!is_numeric($positionID) || !is_numeric($parentID)) {
+            throw new Exception('Invalid input');
+            return 0;
+        }
     	$privs = $this->getUserPrivileges($parentID);
     	if($privs[$parentID]['write'] == 0) {
     		throw new Exception('No write access for the supervisor');
@@ -707,6 +732,9 @@ class Position extends Data
      */
     public function togglePermission($positionID, $categoryID, $UID, $permissionType)
     {
+        if(!is_numeric($positionID) || !is_numeric($UID)) {
+            return null;
+        }
         $priv = $this->getUserPrivileges($positionID);
         if($priv[$positionID]['grant'] != 0) {
             $vars = array(':positionID' => $positionID,
@@ -736,6 +764,9 @@ class Position extends Data
      */
     public function addPermission($positionID, $categoryID, $UID, $permissionType)
     {
+        if(!is_numeric($positionID) || !is_numeric($UID)) {
+            return null;
+        }
         $priv = $this->getUserPrivileges($positionID);
         if($priv[$positionID]['grant'] == 0) {
             return null;
@@ -845,6 +876,10 @@ class Position extends Data
      */
     public function deletePosition($positionID)
     {
+        if(!is_numeric($positionID)) {
+            throw new Exception('invalid input');
+            return 0;
+        }
         // don't delete if there are subordinates
         if(count($this->getSubordinates($positionID, true)) > 0) {
             throw new Exception('You must delete subordinate positions first.');
