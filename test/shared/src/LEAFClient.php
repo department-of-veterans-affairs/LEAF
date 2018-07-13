@@ -4,8 +4,9 @@
  */
 
 namespace LEAFTest;
-
 use GuzzleHttp\Client;
+require 'db/db_session.php';
+use Session;
 
 /**
  * Simple HTTP client that wraps GuzzleHttp\Client.
@@ -18,6 +19,7 @@ class LEAFClient
 
     private function __construct($client)
     {
+        $this->session = new Session();
         $this->client = $client;
     }
 
@@ -76,10 +78,25 @@ class LEAFClient
      */
     public function postEncodedForm($url, $formParams, $returnType = LEAFResponseType::JSON)
     {
+      $token = $this->getToken();
+      $formParams['CSRFToken'] = $token['CSRFToken'];
         $response = $this->client->post($url, array(
           'form_params' => $formParams,
         ));
+        return ResponseFormatter::format($response->getBody(), $returnType);
+    }
 
+    /**
+     * DELETE request.
+     *
+     * @param string            $url the URL to request
+     * @param LEAFResponseType  $returnType the LEAFTest\\LEAFResponseType to format the response as (default: JSON)
+     *
+     * @return object           the formatted response
+     */
+    public function delete($url, $returnType = LEAFResponseType::JSON)
+    {
+        $response = $this->client->delete($url);
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
 
@@ -104,5 +121,14 @@ class LEAFClient
         }
 
         return $guzzle;
+    }
+
+    private function getToken(){
+      $cookieJar = $this->client->getConfig('cookies');
+      $cookieJar->toArray();
+
+      foreach($cookieJar as $cookie){
+        return $this->session->getSessionData($cookie->getValue());
+      }
     }
 }
