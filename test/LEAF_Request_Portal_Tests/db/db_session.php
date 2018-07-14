@@ -1,7 +1,5 @@
 <?php
 
-ini_set('session.gc_maxlifetime', 2592000);
-
 include '../../LEAF_Request_Portal/db_mysql.php';
 include '../../LEAF_Request_Portal/db_config.php';
 
