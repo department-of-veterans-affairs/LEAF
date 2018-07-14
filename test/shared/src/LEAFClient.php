@@ -96,7 +96,10 @@ class LEAFClient
      */
     public function delete($url, $returnType = LEAFResponseType::JSON)
     {
-        $response = $this->client->delete($url);
+        $token = $this->getToken();
+
+        $response = $this->client->delete($url . '&CSRFToken=' . $token['CSRFToken']);
+
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
 
