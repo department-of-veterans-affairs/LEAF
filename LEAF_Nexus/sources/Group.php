@@ -105,7 +105,6 @@ class Group extends Data
         }
         if(!is_numeric($parentGroupID)){
             throw new Exception('invalid parent group');
-            return 0;
         }
         $groupTitle = $this->sanitizeInput($groupTitle);
 
@@ -167,7 +166,6 @@ class Group extends Data
     {
         if(!is_numeric($groupID)){
             throw new Exception('invalid group');
-            return 1;
         }
       	if($groupID <= 10) {
       		throw new Exception('Cannot delete system groups.');
@@ -413,7 +411,7 @@ class Group extends Data
     public function listGroupPositions($groupID)
     {
         if(!is_numeric($groupID)){
-            return array();
+            return new Exception('invalid group');
         }
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('SELECT * FROM relation_group_position
@@ -431,7 +429,7 @@ class Group extends Data
     public function listGroupEmployees($groupID)
     {
         if(!is_numeric($groupID)){
-            return array();
+            return new Exception('invalid group');
         }
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('SELECT * FROM relation_group_employee
@@ -456,7 +454,7 @@ class Group extends Data
         // Cannot use $this->listGroupEmployees() since that query does not
         // include Employee position data
         if(!is_numeric($groupID)) {
-            return array();
+            return new Exception('invalid group');
         }
         $vars = array(
             ':groupID' => $groupID
@@ -802,7 +800,7 @@ class Group extends Data
      */
     public function togglePermission($groupID, $categoryID, $UID, $permissionType)
     {
-        if(!is_numeric($groupID)||!is_numeric($UID)){
+        if(!is_numeric($groupID)){
             return null;
         }
         $priv = $this->getUserPrivileges($groupID);
