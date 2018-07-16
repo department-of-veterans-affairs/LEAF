@@ -105,7 +105,6 @@ class Position extends Data
 
     	if(!is_numeric($parentID) || !is_numeric($groupID)) {
     	    throw new Exception('invalid input');
-    	    return 0;
         }
     	if($parentID == 0
     		&& $memberships['groupID'] != 1) {
@@ -465,7 +464,6 @@ class Position extends Data
     {
         if(!is_numeric($positionID) || !is_numeric($parentID)) {
             throw new Exception('Invalid input');
-            return 0;
         }
     	$privs = $this->getUserPrivileges($parentID);
     	if($privs[$parentID]['write'] == 0) {
@@ -877,7 +875,6 @@ class Position extends Data
     public function deletePosition($positionID)
     {
         if(!is_numeric($positionID)) {
-            throw new Exception('invalid input');
             return 0;
         }
         // don't delete if there are subordinates
