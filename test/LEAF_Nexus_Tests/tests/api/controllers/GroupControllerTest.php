@@ -84,7 +84,7 @@ class GroupControllerTest extends DatabaseTest
     public function testEditTag() : void
     {
         $group = self::$client->get('?a=group/tag&tag=TESTTAG');
-        $this->assertNull($group[0]['tag']);
+        $this->assertEquals(0, count($group));
 
         self::$client->postEncodedForm('?a=group/13/tag', array('tag' => "TESTTAG"));
 
@@ -125,9 +125,10 @@ class GroupControllerTest extends DatabaseTest
         $this->assertEquals('NEWTESTGROUPTITLEalert(&#039;hi&#039;)', $group['title']);
 
         self::$client->delete('?a=group/14');
+        
+        // group with id 14 has been deleted, so it's title will be false
         $group = self::$client->get('?a=group/14');
         $this->assertFalse($group['title']);
-        // group with id 14 has been deleted, so it's title will be false
     }
 
     /**
@@ -135,16 +136,17 @@ class GroupControllerTest extends DatabaseTest
      */
     public function testRemoveEmployee() : void
     {
+        //Checks to make sure employee exists
         $results = self::$client->get('?a=group/1/employees/detailed');
         $users = $results['users'];
         $this->assertNotNull($users[0]);
-        //Checks to make sure employee exists
+        
         self::$client->delete('group/1/employee/1');
 
+        //Checks to make sure employee is deleted
         $results = self::$client->get('?a=group/1/employees/detailed');
         $users = $results['users'];
-        $this->assertNull($users[0]);
-        //Checks to make sure employee is deleted
+        $this->assertEquals(0, count($users));
     }
 
     /**
