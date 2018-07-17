@@ -332,13 +332,13 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertEquals('favorite day', $indicator['6']['description']);
 
         self::$client->postEncodedForm('?a=formEditor/6/description', array(
-            'description' => "<script lang='javascript'>alert('hi')</script><b>stuff</b>",
+            'description' => "<script lang='javascript'>",
         ));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals('&lt;script lang=&#039;javascript&#039;&gt;alert(&#039;hi&#039;)&lt;/script&gt;<b>stuff</b>', $indicator['6']['description']);
+        $this->assertEquals('&lt;script lang=&#039;javascript&#039;&gt;', $indicator['6']['description']);
     }
 
     /**
