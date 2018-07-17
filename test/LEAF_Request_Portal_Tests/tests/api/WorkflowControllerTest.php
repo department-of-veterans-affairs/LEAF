@@ -195,7 +195,7 @@ final class WorkflowControllerTest extends DatabaseTest
 
       $event_id = self::$client->get('?a=workflow/1/step/1/_approve/events');
 
-      $delResponse = self::$client->Delete('?a=workflow/1/step/1/_approve/events&eventID=' . $event_id['eventID']);
+      $delResponse = self::$client->Delete('?a=workflow/1/step/1/_approve/events&eventID=' . $event_id[0]['eventID']);
       $this->assertNotNull($delResponse);
       $this->assertEquals(true, $response);
     }
