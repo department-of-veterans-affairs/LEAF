@@ -7,30 +7,6 @@ LEAF uses:
 
 ## Setup
 
-Checkout branch origin/feature/docker-unit-testing/test and edit the following:
-
-Comment out in LEAF_Request_Portal/api/RESTfulResponse.php and LEAF_Nexus/api/RESTfulResponse.php the conditionals for POST and DELETE cases in the handler method like so.
-
-```bash
-case 'POST':
-//   if($_POST['CSRFToken'] == $_SESSION['CSRFToken']) {
-        $this->output($this->post($action));
-//   }
-//   else {
-//       $this->output('Invalid Token.');
-//   }
-    break;
-case 'DELETE':
-//   if($_GET['CSRFToken'] == $_SESSION['CSRFToken']) {
-        $this->output($this->delete($action));
-//   }
-//   else {
-//       $this->output('Invalid Token.');
-//   }
-    break;
-```
-
-
 <!-- Install [composer](https://getcomposer.org/).
 
 Composer handles any PHP dependencies for the testing project. Initialize composer dependencies with:
