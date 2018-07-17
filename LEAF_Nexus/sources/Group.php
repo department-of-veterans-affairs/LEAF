@@ -832,7 +832,7 @@ class Group extends Data
      */
     public function addPermission($groupID, $categoryID, $UID, $permissionType)
     {
-        if(!is_numeric($groupID) || !is_numeric($UID)){
+        if(!is_numeric($groupID))){
             return null;
         }
         $priv = $this->getUserPrivileges($groupID);
