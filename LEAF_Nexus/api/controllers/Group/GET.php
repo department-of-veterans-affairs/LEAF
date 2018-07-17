@@ -18,21 +18,13 @@ $this->index['GET']->register('group/[digit]/list', function($args) use ($group)
     return $group->listGroups($args[0], $_GET['offset'], $_GET['quantity']);
 });
 $this->index['GET']->register('group/[digit]/positions', function($args) use ($group) {
-	try {
     		return $group->listGroupPositions($args[0]);
-	} catch (Exception $e) {
-        	return $e->getMessage();
-    	}
 });
 $this->index['GET']->register('group/[digit]/leader', function($args) use ($group) {
 	return $group->getGroupLeader($args[0]);
 });
 $this->index['GET']->register('group/[digit]/employees', function($args) use ($group) {
-	try {
-    		return $group->listGroupEmployees($args[0]);
-	} catch (Exception $e) {
-        	return $e->getMessage();
-    	}
+    	return $group->listGroupEmployees($args[0]);
 });
 $this->index['GET']->register('group/[digit]/employees/all', function($args) use ($group) {
 	return $group->listGroupEmployeesAll($args[0]);
@@ -48,11 +40,7 @@ $this->index['GET']->register('group/[digit]/employees/detailed', function($args
         $offset = (int)$_GET['offset'];
     }
 	
-    try {
     	return $group->listGroupEmployeesDetailed($args[0], $searchText, $offset, $limit);
-    } catch (Exception $e) {
-        return $e->getMessage();
-    }
 });
 $this->index['GET']->register('group/search', function($args) use ($group) {
 	if(isset($_GET['noLimit']) && $_GET['noLimit'] == 1) {
