@@ -332,13 +332,13 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertEquals('favorite day', $indicator['6']['description']);
 
         self::$client->postEncodedForm('?a=formEditor/6/description', array(
-            'description' => "<script lang='javascript'>alert('hi')</script><b>stuff</b>",
+            'description' => "<script lang='javascript'>",
         ));
 
         $indicator = self::$client->get('?a=formEditor/indicator/6');
 
         $this->assertNotNull($indicator);
-        $this->assertEquals('&lt;script lang=&#039;javascript&#039;&gt;alert(&#', $indicator['6']['description']);
+        $this->assertEquals('&lt;script lang=&#039;javascript&#039;&gt;', $indicator['6']['description']);
     }
 
     /**
@@ -588,7 +588,7 @@ final class FormEditorControllerTest extends DatabaseTest
             'sort' => '1',
         ));
 
-        $category = self::$client->get('?a=formStack/categoryList/all')[1];
+        $category = self::$client->get('?a=formStack/categoryList/all')[2];
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
         $this->assertEquals('1', $category['sort']);
@@ -647,6 +647,87 @@ final class FormEditorControllerTest extends DatabaseTest
 
         $this->assertEquals('3', $priv['groupID']);
         $this->assertEquals('form_f4687', $priv['categoryID']);
+    }
+
+
+    /**
+     * Tests the `formEditor/[text]/stapled` endpoint.
+     *
+     * Tests add  stapled category
+     */
+    public function testAddStapledCategory() : void
+    {
+      $category = self::$client->get('?a=formStack/categoryList/all')[1];
+      $this->assertNotNull($category);
+      $this->assertEquals('form_f4687', $category['categoryID']);
+      $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
+
+      $category = self::$client->get('?a=formStack/categoryList/all')[2];
+      $this->assertNotNull($category);
+      $this->assertEquals('form_f4689', $category['categoryID']);
+      $this->assertEquals('A Staple form', $category['categoryDescription']);
+
+      self::$client->postEncodedForm('?a=formEditor/_form_f4687/stapled', array(
+          'stapledCategoryID' => $category['categoryID'],
+      ));
+
+      $category = self::$client->get('?a=formEditor/_form_f4687/stapled')[0];
+      $this->assertNotNull($category);
+      $this->assertEquals('form_f4689', $category['categoryID']);
+    }
+
+
+    /**
+     * Tests the GET `formEditor/[text]/stapled` endpoint.
+     */
+    public function testGetStapledCategories() : void
+    {
+      $category = self::$client->get('?a=formStack/categoryList/all')[1];
+      $this->assertNotNull($category);
+      $this->assertEquals('form_f4687', $category['categoryID']);
+      $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
+
+      $category = self::$client->get('?a=formStack/categoryList/all')[2];
+      $this->assertNotNull($category);
+      $this->assertEquals('form_f4689', $category['categoryID']);
+      $this->assertEquals('A Staple form', $category['categoryDescription']);
+
+      self::$client->postEncodedForm('?a=formEditor/_form_f4687/stapled', array(
+          'stapledCategoryID' => $category['categoryID'],
+      ));
+
+      $category = self::$client->get('?a=formEditor/_form_f4687/stapled')[0];
+      $this->assertNotNull($category);
+      $this->assertEquals('form_f4689', $category['categoryID']);
+    }
+
+    /**
+     * Tests the DELETE `formEditor/[text]/stapled/[text]` endpoint.
+     */
+    public function testRemoveStapledCategory() : void
+    {
+      $category = self::$client->get('?a=formStack/categoryList/all')[1];
+      $this->assertNotNull($category);
+      $this->assertEquals('form_f4687', $category['categoryID']);
+      $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
+
+      $category = self::$client->get('?a=formStack/categoryList/all')[2];
+      $this->assertNotNull($category);
+      $this->assertEquals('form_f4689', $category['categoryID']);
+      $this->assertEquals('A Staple form', $category['categoryDescription']);
+
+      self::$client->postEncodedForm('?a=formEditor/_form_f4687/stapled', array(
+          'stapledCategoryID' => $category['categoryID'],
+      ));
+
+      $category = self::$client->get('?a=formEditor/_form_f4687/stapled')[0];
+      $this->assertNotNull($category);
+      $this->assertEquals('form_f4689', $category['categoryID']);
+
+
+      $delResponse = self::$client->delete('?a=formEditor/_form_f4687/stapled/_form_f4689/');
+      $this->assertNotNull($delResponse);
+      $this->assertEquals(1, $delResponse);
     }
 
     /**
@@ -720,7 +801,7 @@ final class FormEditorControllerTest extends DatabaseTest
 
     /**
      * Tests the `form/indicator/<indicatorID>privileges` endpoint
-     * 
+     *
      * Tests removing an indicator privilege.
      */
     public function testIndicatorPrivileges_removePrivilege() : void
