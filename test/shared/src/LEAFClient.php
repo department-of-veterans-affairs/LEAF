@@ -5,7 +5,7 @@
 
 namespace LEAFTest;
 use GuzzleHttp\Client;
-require 'db_session.php';
+require 'DatabaseSession.php';
 use Session;
 
 /**
