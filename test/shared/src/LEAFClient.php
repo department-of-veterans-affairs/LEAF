@@ -82,7 +82,8 @@ class LEAFClient
       $formParams['CSRFToken'] = $token['CSRFToken'];
         $response = $this->client->post($url, array(
           'form_params' => $formParams,
-        ));
+            'curl' => [CURLOPT_REFERER => 'http://php/LEAF_Request_Portal/admin']
+          ));
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
 
@@ -98,7 +99,8 @@ class LEAFClient
     {
         $token = $this->getToken();
 
-        $response = $this->client->delete($url . '&CSRFToken=' . $token['CSRFToken']);
+        $response = $this->client->delete($url . '&CSRFToken=' . $token['CSRFToken'],
+        ['curl' => [CURLOPT_REFERER => 'http://php/LEAF_Request_Portal/admin']]);
 
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
