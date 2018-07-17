@@ -125,7 +125,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['GET']->register('form/[text]/workflow', function ($args) use ($form) {
-            return $form->getWorkflow($args[0]);
+            return $form->getWorkflow(XSSHelpers::xscrub($args[0]));
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
