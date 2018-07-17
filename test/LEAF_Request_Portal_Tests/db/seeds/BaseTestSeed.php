@@ -81,9 +81,9 @@ class BaseTestSeed extends AbstractSeed
             (1, 0, 'Sample Workflow'),
             (2, 0, 'Another Workflow');
 
-            INSERT INTO `workflow_steps` (`workflowID`, `stepID`, `stepTitle`, `stepBgColor`, `stepFontColor`, `stepBorder`, `jsSrc`, `posX`, `posY`, `indicatorID_for_assigned_empUID`, `indicatorID_for_assigned_groupID`, `iframeSrc`)
+            INSERT INTO `workflow_steps` (`workflowID`, `stepID`, `stepTitle`, `stepBgColor`, `stepFontColor`, `stepBorder`, `jsSrc`, `posX`, `posY`, `indicatorID_for_assigned_empUID`, `indicatorID_for_assigned_groupID`)
             VALUES
-	          (1, 1, 'A simple step', '#fffdcd', 'black', '1px solid black', '', NULL, NULL, NULL, NULL, '');
+	          (1, 1, 'A simple step', '#fffdcd', 'black', '1px solid black', '', NULL, NULL, NULL, NULL);
 
 
             INSERT INTO `workflow_routes` (`workflowID`, `stepID`, `nextStepID`, `actionType`, `displayConditional`) VALUES

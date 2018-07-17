@@ -150,7 +150,7 @@ class WorkflowController extends RESTfulResponse
 		});
 
 		$this->index['POST']->register('workflow/dependency/[digit]/privileges', function($args) use ($workflow) {
-			return $workflow->grantDependencyPrivs((int)$args[0], XSSHelpers::xscrub($_POST['groupID']));
+			return $workflow->grantDependencyPrivs((int)$args[0], (int)$_POST['groupID']);
 		});
 
 		$this->index['POST']->register('workflow/[digit]/step/[digit]/[text]/events', function($args) use ($workflow) {
