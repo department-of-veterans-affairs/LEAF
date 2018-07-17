@@ -65,7 +65,7 @@ class Session implements SessionHandlerInterface
     }
 
     private function unserialize_session_data( $serialized_string )
-  {
+    {
       $variables = array();
       $a = preg_split( "/(\w+)\|/", $serialized_string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
 
