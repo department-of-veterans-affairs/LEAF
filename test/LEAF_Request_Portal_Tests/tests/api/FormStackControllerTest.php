@@ -28,7 +28,7 @@ final class FormStackControllerTest extends DatabaseTest
      }
 
      /**
-      * Tests the GET `formStack/[text]` endpoint.
+      * Tests the DELETE `formStack/[text]` endpoint.
       */
       public function testDeleteForm() : void
       {
