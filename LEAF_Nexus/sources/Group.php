@@ -103,7 +103,9 @@ class Group extends Data
         if(!isset($groupTitle) || strlen($groupTitle) == 0) {
             throw new Exception('Group title must not be blank');
         }
-
+        if(!is_numeric($parentGroupID)){
+            throw new Exception('invalid parent group');
+        }
         $groupTitle = $this->sanitizeInput($groupTitle);
 
         $vars = array(':groupTitle' => $groupTitle);
@@ -162,9 +164,12 @@ class Group extends Data
      */
     public function deleteGroup($groupID)
     {
-    	if($groupID <= 10) {
-    		throw new Exception('Cannot delete system groups.');
-    	}
+        if(!is_numeric($groupID)){
+            throw new Exception('invalid group');
+        }
+      	if($groupID <= 10) {
+      		throw new Exception('Cannot delete system groups.');
+      	}
 
         $privs = $this->getUserPrivileges($groupID);
         if($privs[$groupID]['write'] == 0) {
@@ -233,6 +238,9 @@ class Group extends Data
      */
     public function editTitle($groupID, $newTitle, $abbrTitle = null)
     {
+        if(!is_numeric($groupID)){
+            throw new Exception('invalid group');
+        }
         $privs = $this->getUserPrivileges($groupID);
         // Don't allow special reserved groups (1-10) to be edited
         if($privs[$groupID]['write'] == 0
@@ -402,6 +410,9 @@ class Group extends Data
 
     public function listGroupPositions($groupID)
     {
+        if(!is_numeric($groupID)){
+            return new Exception('invalid group');
+        }
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('SELECT * FROM relation_group_position
         									LEFT JOIN positions USING (positionID)
@@ -417,6 +428,9 @@ class Group extends Data
      */
     public function listGroupEmployees($groupID)
     {
+        if(!is_numeric($groupID)){
+            return new Exception('invalid group');
+        }
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('SELECT * FROM relation_group_employee
                                             LEFT JOIN employee USING (empUID)
@@ -439,6 +453,9 @@ class Group extends Data
     {
         // Cannot use $this->listGroupEmployees() since that query does not
         // include Employee position data
+        if(!is_numeric($groupID)) {
+            return new Exception('invalid group');
+        }
         $vars = array(
             ':groupID' => $groupID
         );
@@ -456,14 +473,14 @@ class Group extends Data
         $countQuery = 'SELECT COUNT(*) AS totalUsers'.$query;
 
         // TODO: replace this with keyset pagination. Using LIMIT/OFFSET can be slow on large data sets.
-        if ($limit !== -1) { 
+        if ($limit !== -1) {
             $this->db->limit($offset, $limit);
         }
 
         $res = $this->db->prepared_query($detailQuery, $vars);
         $countRes = $this->db->prepared_query($countQuery, $vars);
 
-        // Employee->getAllData() relies on lots of variables defined in that class, 
+        // Employee->getAllData() relies on lots of variables defined in that class,
         // so let it do the hard work
         require_once 'Employee.php';
         $employee = new Employee($this->db, $this->login);
@@ -634,6 +651,7 @@ class Group extends Data
      */
     public function getSummary($groupID)
     {
+
         $data = array();
         $vars = array(':groupID' => $groupID);
         /*$res = $this->db->prepared_query('SELECT * FROM groups
@@ -671,11 +689,13 @@ class Group extends Data
      */
     public function addPosition($groupID, $positionID)
     {
-        $privs = $this->getUserPrivileges($groupID);
-        if($privs[$groupID]['write'] == 0) {
+
+        if(!is_numeric($positionID) || !is_numeric($groupID)) {
             return 0;
         }
-        if(!is_numeric($positionID) || !is_numeric($groupID)) {
+
+        $privs = $this->getUserPrivileges($groupID);
+        if($privs[$groupID]['write'] == 0) {
             return 0;
         }
 
@@ -695,6 +715,9 @@ class Group extends Data
      */
     public function removePosition($groupID, $positionID)
     {
+        if(!is_numeric($groupID) || !is_numeric($positionID)) {
+            return 0;
+        }
         $privs = $this->getUserPrivileges($groupID);
         if($privs[$groupID]['write'] == 0) {
             return 0;
@@ -715,14 +738,13 @@ class Group extends Data
      */
     public function addEmployee($groupID, $employeeID)
     {
+        if(!is_numeric($employeeID) || !is_numeric($groupID)) {
+            return 0;
+        }
         $privs = $this->getUserPrivileges($groupID);
         if($privs[$groupID]['write'] == 0) {
             return 0;
         }
-        if(!is_numeric($employeeID) || !is_numeric($groupID)) {
-            return 0;
-        }
-
         $this->updateLastModified();
 
         $vars = array(':groupID' => $groupID,
@@ -739,6 +761,9 @@ class Group extends Data
      */
     public function removeEmployee($groupID, $empUID)
     {
+        if(!is_numeric($groupID)||!is_numeric($empUID)) {
+            return 0;
+        }
         $privs = $this->getUserPrivileges($groupID);
         if($privs[$groupID]['write'] == 0) {
             return 0;
@@ -775,6 +800,9 @@ class Group extends Data
      */
     public function togglePermission($groupID, $categoryID, $UID, $permissionType)
     {
+        if(!is_numeric($groupID)){
+            return null;
+        }
         $priv = $this->getUserPrivileges($groupID);
         if($priv[$groupID]['grant'] != 0) {
             $vars = array(':groupID' => $groupID,
@@ -804,6 +832,9 @@ class Group extends Data
      */
     public function addPermission($groupID, $categoryID, $UID, $permissionType)
     {
+        if(!is_numeric($groupID))){
+            return null;
+        }
         $priv = $this->getUserPrivileges($groupID);
         if($priv[$groupID]['grant'] == 0) {
             return null;
