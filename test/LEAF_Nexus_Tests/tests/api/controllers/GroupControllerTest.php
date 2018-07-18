@@ -105,6 +105,23 @@ class GroupControllerTest extends DatabaseTest
     }
 
     /**
+     * Tests the `group/[digit]/tag` endpoint for deletion.
+     */
+    public function testDeleteTag() : void
+    {
+        //create a tag and check to make sure the it was successfully made
+        self::$client->postEncodedForm('?a=group/13/tag', array('tag' => "TESTTAG"));
+        $group = self::$client->get('?a=group/tag&tag=TESTTAG');
+        $this->assertEquals('TESTTAG', $group[0]['tag']);
+
+        //delete tag
+        self::$client->delete('group/13/tag&tag=TESTTAG');
+
+        $group = self::$client->get('?a=group/tag&tag=TESTTAG');
+        $this->assertEquals(0, count($group));
+    }
+
+    /**
      * Tests the `group/[digit]` endpoint for deletion.
      */
     public function testDeleteGroup() : void
