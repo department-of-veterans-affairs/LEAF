@@ -2,6 +2,8 @@
 
 require '../sources/FormStack.php';
 
+include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+
 class FormStackController extends RESTfulResponse
 {
     private $API_VERSION = 1;    // Integer
@@ -48,7 +50,7 @@ class FormStackController extends RESTfulResponse
         $this->index['POST']->register('formStack', function($args) {
 
         });
-        
+
         $this->index['POST']->register('formStack/import', function($args) use ($formStack) {
         	$formStack->import();
         });
@@ -69,12 +71,11 @@ class FormStackController extends RESTfulResponse
     	$this->index['DELETE'] = new ControllerMap();
     	$this->index['DELETE']->register('workflow', function($args) {
     	});
-    		 
+
     	$this->index['DELETE']->register('formStack/[text]', function($args) use ($formStack) {
-    		return $formStack->deleteForm($args[0]);
+    		return $formStack->deleteForm(XSSHelpers::xscrub($args[0]));
     	});
-    
+
     	return $this->index['DELETE']->runControl($act['key'], $act['args']);
     }
 }
-
