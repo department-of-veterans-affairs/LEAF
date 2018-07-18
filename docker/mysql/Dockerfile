@@ -1,4 +1,4 @@
-FROM mysql/mysql-server
+FROM mysql/mysql-server:5.7
 MAINTAINER Nick Ciardiello <nick.ciardiello@ablevets.com>
 
 ENV MYSQL_ROOT_PASSWORD tester

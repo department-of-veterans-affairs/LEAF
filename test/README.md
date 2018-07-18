@@ -7,7 +7,7 @@ LEAF uses:
 
 ## Setup
 
-Install [composer](https://getcomposer.org/).
+<!-- Install [composer](https://getcomposer.org/).
 
 Composer handles any PHP dependencies for the testing project. Initialize composer dependencies with:
 
@@ -15,22 +15,42 @@ Composer handles any PHP dependencies for the testing project. Initialize compos
 composer install
 ```
 
-Composer will install `PHPUnit` and `Phinx`, so they do not need to installed separately. Both `PHPUnit` and `Phinx` can be installed globally to avoid the `./vendor/bin/` prefix when running commands, just make sure the versions installed globally match the versions listed in [composer.json](composer.json). 
+Composer will install `PHPUnit` and `Phinx`, so they do not need to installed separately. Both `PHPUnit` and `Phinx` can be installed globally to avoid the `./vendor/bin/` prefix when running commands, just make sure the versions installed globally match the versions listed in [composer.json](composer.json).  -->
 
 ### Configuring Phinx
-
 Each testing project has it's own Phinx configuration since the two databases are independent of each other.
 
 Create two database tables for testing Nexus and Portal: `nexus_testing` and `portal_testing`.
 
-Copy [LEAF_Nexus_Tests/phinx.yml.example](LEAF_Nexus_Tests/phinx.yml.example) and [LEAF_Request_Portal_Tests/phinx.yml.example](LEAF_Request_Portal_Tests/phinx.yml.example) and rename them to `phinx.yml` in their respective directories. `phinx.yml` should not be committed to the repository. 
+Copy [LEAF_Nexus_Tests/phinx.yml.example](LEAF_Nexus_Tests/phinx.yml.example) and [LEAF_Request_Portal_Tests/phinx.yml.example](LEAF_Request_Portal_Tests/phinx.yml.example) and rename them to `phinx.yml` in their respective directories. `phinx.yml` should not be committed to the repository.
 
-Edit `LEAF_Nexus_Tests/phinx.yml` and `LEAF_Request_Portal_Tests/phinx.yml` and set your system specific variables.
+In test/LEAF_Request_Portal_Tests/phinx.yml, change the following.
+```bash
+environments:
+    default_database: portal_testing
+
+    portal_testing:
+        host: phpunit-db
+        name: portal_testing
+        user: tester
+        pass: 'tester'
+```
+In test/LEAF_Nexus_Tests/phinx.yml, change the following.
+```bash
+environments:
+    default_database: nexus_testing
+
+    nexus_testing:
+        host: phpunit-db
+        name: nexus_testing
+        user: tester
+        pass: 'tester'
+```
 
 Within each test project directory, run the migrations:
 
 ```bash
-phinx migrate 
+phinx migrate
 ```
 
 #### Creating Migrations
@@ -41,7 +61,7 @@ To create a new database migration, within that test project directory:
 phinx create TheNewMigration
 ```
 
-This creates a basic time-stamped template within the projects `db/migrations` directory for executing a database migration. 
+This creates a basic time-stamped template within the projects `db/migrations` directory for executing a database migration.
 
 LEAF relies on pure SQL files for migrations, so the `up()` function for each migration should read in the appropriate SQL file and execute its contents. See [this migration](LEAF_Request_Portal_Tests/db/migrations/20180301164659_init_portal.php) for an example of this.
 
@@ -68,16 +88,23 @@ Reading and executing a pure SQL file is not required for seeding purposes (unli
 
 All tests should be run from the project specific test directory (`LEAF_Nexus_Tests` or `LEAF_Request_Portal_Tests`), the `include` paths and `PHPUnit/Phinx` configs depend on it.
 
-The following will run all tests in the [LEAF_Nexus_Tests/tests](LEAF_Nexus_Tests) directory if run from the `LEAF_Nexus_Tests` directory:
-
+Navigate to these inside the docker containers by doing
 ```bash
-phpunit --bootstrap ../bootstrap.php tests
+docker-compose exec phpunit bash
+```
+Then enter the directories through
+```bash
+cd /app/test/LEAF_Request_Portal_Tests or /app/test/LEAF_Nexus_Tests
+```
+Finally, run the test with
+```bash
+./run_tests.sh
 ```
 
 To run tests in a subdirectory (in this example `utils`):
 
 ```bash
-phpunit --bootstrap ../bootstrap.php tests/utils 
+phpunit --bootstrap ../bootstrap.php tests/utils
 ```
 
 To run a single test method from a test class (in this example, from [CryptoHelpersTest](LEAF_Request_Portal_Tests/tests/helpers/CryptoHelpersTest.php)):
@@ -97,7 +124,7 @@ LEAF_Request_Portal/globals.php
 LEAF_Request_Portal/db_config.php
 ```
 
-need to be updated to the same database name/user/pass that was used when configuring the test databases (`nexus_testing`, `portal_testing`). In other words, make sure the LEAF application isn't configured to use the production/dev databases or any database tests will fail. 
+need to be updated to the same database name/user/pass that was used when configuring the test databases (`nexus_testing`, `portal_testing`). In other words, make sure the LEAF application isn't configured to use the production/dev databases or any database tests will fail.
 
 The `bootstrap.php` file autoloads the classes/files in the `shared/src` directory. If
 a new source file is added in the `shared/src` directory, add the file in the
@@ -150,15 +177,11 @@ To write a test against the database, extend the [DatabaseTest](shared/src/Datab
 `DatabaseTest` makes use of a few "shared" seeds. These are seeds that have the same name, but are implemented for the project they reside in. This allows the test superclass to work across all test projects in a predictable way.
 
 ```php
-BaseTestSeed    // populates with the bare minimum amount of data to 
+BaseTestSeed    // populates with the bare minimum amount of data to
                 // successfully run unit tests
 
-InitialSeed     // populates with the data was supplied when the 
+InitialSeed     // populates with the data was supplied when the
                 // database is created from scratch
 
 TruncateTables  // clears all data from all tables
 ```
-
-## TODO
-
-* Enable `POST` requests against the API, needs `CSRF` token
