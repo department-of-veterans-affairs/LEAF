@@ -7,29 +7,61 @@ LEAF uses:
 
 ## Setup
 
-Checkout branch origin/feature/docker-unit-testing/test and edit the following:
+Checkout branch origin/feature/docker-unit-testing and do follow steps on the normal setup readme, but with some changes:
 
-Comment out in LEAF_Request_Portal/api/RESTfulResponse.php and LEAF_Nexus/api/RESTfulResponse.php the conditionals for POST and DELETE cases in the handler method like so.
-
+#### Dockerfile
+Make the following change to LEAF/docker/mysql/Dockerfile
 ```bash
-case 'POST':
-//   if($_POST['CSRFToken'] == $_SESSION['CSRFToken']) {
-        $this->output($this->post($action));
-//   }
-//   else {
-//       $this->output('Invalid Token.');
-//   }
-    break;
-case 'DELETE':
-//   if($_GET['CSRFToken'] == $_SESSION['CSRFToken']) {
-        $this->output($this->delete($action));
-//   }
-//   else {
-//       $this->output('Invalid Token.');
-//   }
-    break;
+FROM mysql/mysql-server:5.7
+```
+#### LEAF_Nexus
+
+Copy `globals.php.example` to `globals.php` and change the following variables to reflect your setup:
+
+```php
+const DIRECTORY_HOST = 'mysql_host';
+const DIRECTORY_DB = 'leaf_users';
+const DIRECTORY_USER = 'tester';
+const DIRECTORY_PASS = 'tester';
 ```
 
+Copy `config-example.php` to `config.php` and change the following variables to reflect your setup:
+
+```php
+$dbHost = 'mysql'
+$dbName = 'leaf_users'
+$dbUser = 'tester'
+$dbPass = 'tester'
+```
+
+#### LEAF_Request_Portal
+
+Copy `globals.php.example` to `globals.php` and change the following variables to reflect your setup:
+
+```php
+const DIRECTORY_HOST = 'mysql_host';
+const DIRECTORY_DB = 'leaf_portal';
+const DIRECTORY_USER = 'tester';
+const DIRECTORY_PASS = 'tester';
+const LEAF_NEXUS_URL = 'https://Localhost/LEAF_NEXUS';
+```
+
+Copy `db_config-example.php` to `db_config.php` and change the following variables to reflect your setup:
+
+```php
+$dbHost = 'phpunit-db'
+$dbName = 'portal_testing'
+$dbUser = 'tester'
+$dbPass = 'tester'
+
+$phonedbHost = 'mysql'
+$phonedbName = 'leaf_users'
+$phonedbUser = 'tester'
+$phonedbPass = 'tester'
+
+# this should point to the LEAF Nexus base path
+$orgchartPath = '../LEAF_Nexus'
+```
 
 <!-- Install [composer](https://getcomposer.org/).
 
@@ -44,8 +76,6 @@ Composer will install `PHPUnit` and `Phinx`, so they do not need to installed se
 ### Configuring Phinx
 
 Each testing project has it's own Phinx configuration since the two databases are independent of each other.
-
-Create two database tables for testing Nexus and Portal: `nexus_testing` and `portal_testing`.
 
 Copy [LEAF_Nexus_Tests/phinx.yml.example](LEAF_Nexus_Tests/phinx.yml.example) and [LEAF_Request_Portal_Tests/phinx.yml.example](LEAF_Request_Portal_Tests/phinx.yml.example) and rename them to `phinx.yml` in their respective directories. `phinx.yml` should not be committed to the repository.
 
