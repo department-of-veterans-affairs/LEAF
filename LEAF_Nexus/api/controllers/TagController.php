@@ -39,7 +39,7 @@ class TagController extends RESTfulResponse
     	$this->index['POST'] = new ControllerMap();
     
     	$this->index['POST']->register('tag/[text]/parent', function($args) use ($tag) {
-    		return $tag->setParent($tag->sanitizeInput($args[0]), $tag->sanitizeInput($_POST['parentTag']));
+    		return $tag->setParent($args[0], $tag->sanitizeInput($_POST['parentTag']));
     	});
 
     	return $this->index['POST']->runControl($act['key'], $act['args']);
