@@ -5,7 +5,7 @@ declare(strict_types = 1);
 use LEAFTest\LEAFClient;
 
 /**
- * Tests the LEAF_Nexus/api/?a=group API
+ * Tests the LEAF_Nexus/api/indicator API
  */
 class IndicatorControllerTest extends DatabaseTest
 {
