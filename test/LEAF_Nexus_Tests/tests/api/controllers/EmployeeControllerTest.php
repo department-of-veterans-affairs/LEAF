@@ -16,7 +16,10 @@ class EmployeeControllerTest extends DatabaseTest
         $this->resetDatabase();
         self::$client = LEAFClient::createNexusClient();
     }
-
+    /**
+     * Tests the 'employee/new' endpoint, the 'employee/[digit]' endpoint,
+     * and the 'employee/[digit]' endpoint for deletion
+     */
     public function testCreateAndDeleteEmployee() : void
     {
         //create new employee
@@ -41,7 +44,10 @@ class EmployeeControllerTest extends DatabaseTest
         $employee = self::$client->get('employee/2');
         $this->assertEquals('0', $employee['employee']['deleted']);
     }
-
+    /**
+     * Tests the 'employee/[digit]/backup' endpoint, the 'employee/[digit]/backupFor' endpoint,
+     * the 'employee/[digit]/backup/[digit]' endpoint for deletion
+     */
     public function testEmployeeBackup() : void
     {
         //create backup of tester
@@ -52,7 +58,7 @@ class EmployeeControllerTest extends DatabaseTest
         $this->assertEquals('1', $backup[0]['empUID']);
         $this->assertEquals('1', $backup[0]['backupEmpUID']);
 
-        //checks other get backup endpoint
+        //checks other GET backup endpoint
         $backup = self::$client->get('employee/1/backupFor');
         $this->assertEquals('1', $backup[0]['empUID']);
         $this->assertEquals('1', $backup[0]['backupEmpUID']);
