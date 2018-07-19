@@ -16,7 +16,10 @@ class IndicatorControllerTest extends DatabaseTest
         $this->resetDatabase();
         self::$client = LEAFClient::createNexusClient();
     }
-
+    /**
+     * Tests the `indicator/[digit]/permissions` endpoint and the
+     * 'indicator/[digit]/permission/[text]/[digit]/[text]/toggle' endpoint
+     */
     public function testAddAndTogglePermission() : void
     {
         //create a new group with groupID 14
