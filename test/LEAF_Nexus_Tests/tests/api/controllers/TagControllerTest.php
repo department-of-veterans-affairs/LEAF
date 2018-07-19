@@ -17,7 +17,7 @@ class TagControllerTest extends DatabaseTest
         self::$client = LEAFClient::createNexusClient();
     }
     /**
-    * Tests the 'tag/[text]/parent' enpoint
+    * Tests the 'tag/[text]/parent' endpoint
     */
     public function testAddParentTag() : void
     {
