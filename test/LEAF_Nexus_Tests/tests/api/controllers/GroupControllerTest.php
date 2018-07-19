@@ -44,7 +44,7 @@ class GroupControllerTest extends DatabaseTest
     }
 
     /**
-     * Tests the `group` endpoint.
+     * Tests the `group/[digit]` endpoint.
      */
     public function testNewGroup() : void
     {
