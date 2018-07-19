@@ -23,7 +23,10 @@ class EmployeeControllerTest extends DatabaseTest
     public function testCreateAndDeleteEmployee() : void
     {
         //create new employee
-        $newEmployee = array('firstName' => 'new', 'lastName' => 'guy', 'middleName' => '', 'userName' => 'newguy123');
+        $newEmployee = array('firstName' => 'new', 
+                             'lastName' => 'guy', 
+                             'middleName' => '', 
+                             'userName' => 'newguy123');
         self::$client->postEncodedForm('employee/new', $newEmployee);
 
         //initial value
