@@ -82,7 +82,7 @@ class LEAFClient
 
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
-    /**
+
     /**
      * DELETE request.
      *
@@ -97,7 +97,6 @@ class LEAFClient
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
 
-    /**
      * Get a GuzzleHttp\Client configured for LEAF.
      *
      * @param string    $baseURI    The base URI of the API
@@ -112,8 +111,7 @@ class LEAFClient
             'cookies' => true,
         ));
 
-        if ($authURL != null)
-        {
+        if ($authURL != null) {
             $guzzle->get($authURL);
         }
 

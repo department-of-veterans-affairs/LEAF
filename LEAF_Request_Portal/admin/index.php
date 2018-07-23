@@ -18,6 +18,7 @@ include '../Login.php';
 include '../db_mysql.php';
 include '../db_config.php';
 include '../form.php';
+include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 
 // Enforce HTTPS
 include_once '../enforceHTTPS.php';
@@ -84,12 +85,12 @@ switch($action) {
         $t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
 
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('css/mod_groups.css', 
+        $main->assign('stylesheets', array('css/mod_groups.css',
         								   '../' . Config::$orgchartPath . '/css/employeeSelector.css',
         								   '../' . Config::$orgchartPath . '/css/groupSelector.css'
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl')));
-        
+
         $tabText = 'User Access Groups';
         break;
     case 'mod_svcChief':
@@ -129,9 +130,9 @@ switch($action) {
         $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('orgchartImportTags', Config::$orgchartImportTags);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        
+
         $main->assign('body', $t_form->fetch('mod_workflow.tpl'));
-    
+
         $tabText = 'Workflow Editor';
         break;
     case 'form':
@@ -156,21 +157,21 @@ switch($action) {
 							        		'../../libs/js/codemirror/lib/codemirror.css',
 							        		'../../libs/js/codemirror/addon/display/fullscreen.css'
         ));
-        
+
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
-        
+
         if(isset($_GET['form'])) {
-        	$vars = array(':categoryID' => $_GET['form']);
+        	$vars = array(':categoryID' => XSSHelpers::xscrub($_GET['form']));
         	$res = $db->prepared_query('SELECT * FROM categories WHERE categoryID=:categoryID', $vars);
         	if(count($res) > 0) {
         		$t_form->assign('form', $res[0]['categoryID']);
         	}
         }
-        
+
         $main->assign('body', $t_form->fetch('mod_form.tpl'));
-        
+
         $tabText = 'Form Editor';
         break;
     case 'mod_templates':
@@ -178,7 +179,7 @@ switch($action) {
       	$t_form = new Smarty;
        	$t_form->left_delimiter = '<!--{';
        	$t_form->right_delimiter= '}-->';
-       
+
        	$main->assign('useUI', true);
        	$main->assign('javascripts', array('../../libs/js/codemirror/lib/codemirror.js',
        									   '../../libs/js/codemirror/mode/xml/xml.js',
@@ -198,10 +199,10 @@ switch($action) {
        									   '../../libs/js/codemirror/addon/search/matchesonscrollbar.css',
        			                           '../../libs/js/codemirror/addon/display/fullscreen.css'
        	));
-       
+
        	$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
        	$t_form->assign('APIroot', '../api/');
-       
+
        	switch($action) {
        		case 'mod_templates':
        			$main->assign('body', $t_form->fetch('mod_templates.tpl'));
@@ -220,28 +221,28 @@ switch($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
-    
+
         if($login->checkGroup(1)) {
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
         }
         else {
             $main->assign('body', 'You require System Administrator level access to view this section.');
         }
-    
+
         $tabText = 'System Administration';
         break;
     case 'admin_sync_services':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
-    
+
         if($login->checkGroup(1)) {
             $main->assign('body', $t_form->fetch('admin_sync_services.tpl'));
         }
         else {
             $main->assign('body', 'You require System Administrator level access to view this section.');
         }
-    
+
         $tabText = 'System Administration';
         break;
     case 'formLibrary':
@@ -259,21 +260,21 @@ switch($action) {
        	else {
        		$main->assign('body', 'You require System Administrator level access to view this section.');
        	}
-       	 
+
        	$tabText = 'Form Library';
        	break;
     case 'importForm':
     	$t_form = new Smarty;
     	$t_form->left_delimiter = '<!--{';
     	$t_form->right_delimiter= '}-->';
-    	
+
     	if($login->checkGroup(1)) {
     		$main->assign('body', $t_form->fetch('admin_import_form.tpl'));
     	}
     	else {
     		$main->assign('body', 'You require System Administrator level access to view this section.');
     	}
-    	
+
     	$tabText = 'Import Form';
     	break;
     case 'uploadFile':
@@ -305,9 +306,9 @@ switch($action) {
    		$t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
    		$t_form->assign('requestLabel', $settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel']);
    		$t_form->assign('timeZone', $settings['timeZone'] == '' ? 'America/New_York' : $settings['timeZone']);
-   		
+
    		$t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
-   		
+
    		$t_form->assign('importTags', $config::$orgchartImportTags);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));
    		$main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl')));
@@ -318,11 +319,11 @@ switch($action) {
    			$t_form = new Smarty;
    			$t_form->left_delimiter = '<!--{';
    			$t_form->right_delimiter= '}-->';
-   		
+
    			$main->assign('useUI', true);
    			//   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
    			$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-   		
+
    			$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
    			$t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);
    			$t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
@@ -330,19 +331,19 @@ switch($action) {
    			$t_form->assign('importTags', $config::$orgchartImportTags);
    			//   		$main->assign('stylesheets', array('css/mod_groups.css'));
    			$main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl')));
-   		
+
    			$tabText = 'File Manager';
    			break;
    	case 'disabled_fields':
    		$t_form = new Smarty;
    		$t_form->left_delimiter = '<!--{';
    		$t_form->right_delimiter= '}-->';
-   		 
+
    		$main->assign('useUI', true);
    		$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-   		 
+
    		$main->assign('body', $t_form->fetch(customTemplate('view_disabled_fields.tpl')));
-   		 
+
    		$tabText = 'Recover disabled fields';
    		break;
     default:

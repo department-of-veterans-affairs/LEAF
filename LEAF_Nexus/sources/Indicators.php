@@ -28,6 +28,9 @@ class Indicators
 
     public function getPrivileges($indicatorID)
     {
+        if(!is_numeric($indicatorID)) {
+            return array();
+        }
         $vars = array(':indicatorID' => $indicatorID);
         $res = $this->db->prepared_query('SELECT * FROM indicator_privileges
                                             WHERE indicatorID=:indicatorID', $vars);
@@ -43,6 +46,9 @@ class Indicators
      */
     public function togglePermission($indicatorID, $categoryID, $UID, $permissionType)
     {
+        if(!is_numeric($indicatorID) || !is_numeric($UID)) {
+            return null;
+        }
         $priv = $this->login->getIndicatorPrivileges(array($indicatorID), $categoryID, $UID);
         if($priv[$indicatorID]['grant'] != 0) {
             $vars = array(':indicatorID' => $indicatorID,
@@ -72,6 +78,9 @@ class Indicators
      */
     public function addPermission($indicatorID, $categoryID, $UID, $permissionType)
     {
+        if(!is_numeric($indicatorID) || !is_numeric($UID)) {
+            return null;
+        }
         $priv = $this->login->getIndicatorPrivileges(array($indicatorID), $categoryID, $UID);
         if($priv[$indicatorID]['grant'] == 0) {
             return null;

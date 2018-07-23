@@ -22,9 +22,9 @@ class Telemetry
 
     public function getRequestsSimple($from = 0, $to = 0) {
         $to = $to == 0 ? time() : $to;
-    	$vars = array(':from' => $from,
-    			      ':to' => $to
-    	);
+    	$vars = array(':from' => (int)$from,
+                      ':to' => (int)$to
+        );
     	$res = $this->db->prepared_query('SELECT recordID, categoryName, submitted FROM records
 											LEFT JOIN category_count USING (recordID)
 											LEFT JOIN categories USING (categoryID)

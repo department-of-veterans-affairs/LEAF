@@ -24,7 +24,7 @@ class EmployeeController extends RESTfulResponse
         });
 
         $this->index['GET']->register('employee/[digit]', function($args) use ($employee) {
-            return $employee->getSummary($args[0]);
+            return $employee->getSummary((int)$args[0]);
         });
 
        	$this->index['GET']->register('employee/[digit]/backup', function($args) use ($employee) {
