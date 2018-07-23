@@ -74,7 +74,7 @@ abstract class Data
      */
     public function getAllData($UID, $indicatorID = 0)
     {
-        if(!is_numeric($UID) || !is_numeric($indicatorID)) {
+        if(!is_numeric($indicatorID)) {
             return array();
         }
 
@@ -423,10 +423,6 @@ abstract class Data
 
     public function getAllTags($uid)
     {
-        if(!is_numeric($uid)) {
-            return array();
-        }
-
         $vars = array(':UID' => $uid);
 
         $tags = array();
@@ -439,10 +435,6 @@ abstract class Data
 
     public function addTag($uid, $tag)
     {
-        if(!is_numeric($uid)) {
-            return false;
-        }
-
         $memberships = $this->login->getMembership();
         if(!isset($memberships['groupID'][1])) {
         	require_once 'Tag.php';
@@ -476,10 +468,6 @@ abstract class Data
 
     public function deleteTag($uid, $tag)
     {
-        if(!is_numeric($uid)) {
-            return false;
-        }
-
         $memberships = $this->login->getMembership();
         if(!isset($memberships['groupID'][1])) {
             throw new Exception('Administrator access required to delete tags');
