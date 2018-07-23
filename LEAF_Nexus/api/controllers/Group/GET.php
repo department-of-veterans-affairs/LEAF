@@ -7,8 +7,9 @@ $this->index['GET']->register('group/list', function($args) use ($group) {
     return $group->listGroups(0, $_GET['offset'], $_GET['quantity']);
 });
 $this->index['GET']->register('group/[digit]', function($args) use ($group) {
-    $ret = $group->getAllData($args[0]);
-    $ret['title'] = $group->getTitle($args[0]);
+    $groupID = (int)$args[0];
+    $ret = $group->getAllData($groupID);
+    $ret['title'] = $group->getTitle($groupID);
     return $ret;
 });
 $this->index['GET']->register('group/[digit]/summary', function($args) use ($group) {
