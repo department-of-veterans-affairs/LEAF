@@ -32,7 +32,7 @@ switch($_GET['categoryID']) {
         break;
 }
 
-$data = $type->getAllData($_GET['UID'], $_GET['indicatorID']);
+$data = $type->getAllData((int)$_GET['UID'], $_GET['indicatorID']);
 
 $value = $data[$_GET['indicatorID']]['data'];
 
