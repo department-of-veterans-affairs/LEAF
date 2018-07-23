@@ -93,6 +93,20 @@ class GroupControllerTest extends DatabaseTest
     }
 
     /**
+    * Tests the Data.php::sanitizeInput method
+    */
+    public function testAddTag_invalidInput() : void
+    {
+        //create a bad tag
+        $badTag = "123-45-6789";
+        self::$client->postEncodedForm('?a=group/13/tag', array('tag' => $badTag));
+        $group = self::$client->get('?a=group/tag&tag='.$badTag);
+        
+        //test to make sure it is masked
+        $this->assertEquals('###-##-####', $group[0]['tag']);
+    }
+    
+    /**
      * Tests the `group/search` endpoint.
      */
     public function testSearchTag() : void
@@ -112,6 +126,7 @@ class GroupControllerTest extends DatabaseTest
         //create a tag and check to make sure the it was successfully made
         self::$client->postEncodedForm('?a=group/13/tag', array('tag' => "TESTTAG"));
         $group = self::$client->get('?a=group/tag&tag=TESTTAG');
+        $this->assert
         $this->assertEquals('TESTTAG', $group[0]['tag']);
 
         //delete tag
