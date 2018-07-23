@@ -53,24 +53,32 @@ class EmployeeControllerTest extends DatabaseTest
      */
     public function testEmployeeBackup() : void
     {
+        //create new employee
+        $newEmployee = array('firstName' => 'new', 'lastName' => 'guy', 'middleName' => '', 'userName' => 'newguy123');
+        self::$client->postEncodedForm('employee/new', $newEmployee);
+
+        //initial value
+        $employee = self::$client->get('employee/2');
+        $this->assertNotNull($employee);
+
         //create backup of tester
-        self::$client->postEncodedForm('employee/1/backup', array('backupEmpUID' => '1'));
+        self::$client->postEncodedForm('employee/2/backup', array('backupEmpUID' => '2'));
 
         //checks if backup successful
-        $backup = self::$client->get('employee/1/backup');
-        $this->assertEquals('1', $backup[0]['empUID']);
-        $this->assertEquals('1', $backup[0]['backupEmpUID']);
+        $backup = self::$client->get('employee/2/backup');
+        $this->assertEquals('2', $backup[0]['empUID']);
+        $this->assertEquals('2', $backup[0]['backupEmpUID']);
 
-        //checks other GET backup endpoint
-        $backup = self::$client->get('employee/1/backupFor');
-        $this->assertEquals('1', $backup[0]['empUID']);
-        $this->assertEquals('1', $backup[0]['backupEmpUID']);
+        //checks other get backup endpoint
+        $backup = self::$client->get('employee/2/backupFor');
+        $this->assertEquals('2', $backup[0]['empUID']);
+        $this->assertEquals('2', $backup[0]['backupEmpUID']);
 
         //deletes backup
-        self::$client->delete('employee/1/backup/1');
+        self::$client->delete('employee/2/backup/2');
 
         //checks if backup removal successful
-        $backup = self::$client->get('employee/1/backup');
+        $backup = self::$client->get('employee/2/backup');
         $this->assertEquals(0, count($backup));
     }
 }
