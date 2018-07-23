@@ -4,7 +4,7 @@
     Date Created: May 25, 2011
 */
 
-require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 
 class FormWorkflow
 {
@@ -372,6 +372,10 @@ class FormWorkflow
      */
     public function handleAction($dependencyID, $actionType, $comment)
     {
+        if(!is_numeric($dependencyID)) {
+            return array('status' => 0, 'errors' => ['invalid ID']);
+        }
+
     	$errors = [];
 
         if($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
@@ -927,6 +931,9 @@ class FormWorkflow
 	 */
 	public function setStep($stepID, $bypassAdmin = false, $comment = "")
 	{
+        if(!is_numeric($stepID)) {
+            return false;
+        }
 		$comment = XSSHelpers::sanitizeHTML($comment);
 
 		if($this->recordID == 0
