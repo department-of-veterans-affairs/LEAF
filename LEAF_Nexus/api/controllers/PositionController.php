@@ -92,7 +92,7 @@ class PositionController extends RESTfulResponse
             return $position->setSupervisor($args[0], $_POST['positionID']);
         });
         $this->index['POST']->register('position/[digit]/setLeader', function($args) use ($position) {
-            return $position->addTag($args[0], 'group_leader');
+            return $position->addTag((int)$args[0], 'group_leader');
         });
         $this->index['POST']->register('position/[digit]/permissions/addEmployee', function($args) use ($position) {
             $type = isset($_POST['permission']) ? $_POST['permission'] : 'read';
