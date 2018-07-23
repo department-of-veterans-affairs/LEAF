@@ -2,6 +2,8 @@
 
 require '../sources/System.php';
 
+include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+
 class SystemController extends RESTfulResponse
 {
     private $API_VERSION = 1;    // Integer
@@ -106,10 +108,12 @@ class SystemController extends RESTfulResponse
       	});
 
        	$this->index['POST']->register('system/settings/heading', function($args) use ($system) {
+			$_POST['heading'] = XSSHelpers::sanitizeHTML($_POST['heading']);
        		return $system->setHeading();
        	});
 
        	$this->index['POST']->register('system/settings/subHeading', function($args) use ($system) {
+			$_POST['subHeading'] = XSSHelpers::sanitizeHTML($_POST['subHeading']);
        		return $system->setSubHeading();
        	});
        	
