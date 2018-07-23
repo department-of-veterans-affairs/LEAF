@@ -90,6 +90,10 @@ class BaseTestSeed extends AbstractSeed
             INSERT INTO `workflow_routes` (`workflowID`, `stepID`, `nextStepID`, `actionType`, `displayConditional`) VALUES
             (1, -1, 0, 'submit', '');
 
+            INSERT INTO `settings` (`setting`, `data`) VALUES
+            ('heading', ''),
+            ('subheading', '');
+
             SET FOREIGN_KEY_CHECKS = 1;
             COMMIT;
         ");
