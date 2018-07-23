@@ -56,5 +56,5 @@ $this->index['GET']->register('group/tag/[text]', function($args) use ($group) {
 	return $group->listGroupsByTag($group->sanitizeInput($args[0]));
 });
 $this->index['GET']->register('group/[digit]/data/[digit]', function($args) use ($group) {
-    return $group->getAllData($args[0], $args[1]);
+    return $group->getAllData((int)$args[0], (int)$args[1]);
 });
