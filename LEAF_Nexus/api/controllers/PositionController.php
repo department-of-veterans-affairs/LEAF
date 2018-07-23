@@ -30,7 +30,7 @@ class PositionController extends RESTfulResponse
             $ret = $position->getAllData($args[0]);
             $ret['title'] = $position->getTitle($args[0]);
             $ret['subordinates'] = $position->getSubordinates($args[0]);
-            $ret['tags'] = $position->getAllTags($args[0]);
+            $ret['tags'] = $position->getAllTags((int)$args[0]);
             return $ret;
         });
         $this->index['GET']->register('position/search', function($args) use ($position) {
