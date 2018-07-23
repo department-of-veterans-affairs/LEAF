@@ -126,7 +126,7 @@ class GroupControllerTest extends DatabaseTest
         //create a tag and check to make sure the it was successfully made
         self::$client->postEncodedForm('?a=group/13/tag', array('tag' => "TESTTAG"));
         $group = self::$client->get('?a=group/tag&tag=TESTTAG');
-        $this->assert
+        $this->assertNotEquals(0, count($group));
         $this->assertEquals('TESTTAG', $group[0]['tag']);
 
         //delete tag
