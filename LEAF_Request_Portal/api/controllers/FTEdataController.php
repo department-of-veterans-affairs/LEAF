@@ -83,7 +83,6 @@ class FTEdataController extends RESTfulResponse
 
           if(!$this->isDate($_GET['startDate']) && !$this->isDate($_GET['endDate'])) {
       			return 'Invalid Date';
-            exit();
       		}
 
         	$startDate = (int)strtotime($_GET['startDate']);
