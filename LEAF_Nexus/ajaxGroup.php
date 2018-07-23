@@ -119,7 +119,7 @@ switch($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter= '}-->';
     
-        $t_form->assign('form', $group->getAllData((int)$_GET['groupID'], $_GET['indicatorID']));
+        $t_form->assign('form', $group->getAllData((int)$_GET['groupID'], (int)$_GET['indicatorID']));
         $t_form->assign('UID', (int)$_GET['groupID']);
         $t_form->assign('categoryID', $group->getDataTableCategoryID());
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
