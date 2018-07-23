@@ -82,7 +82,7 @@ class LEAFClient
 
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
-    /**
+
     /**
      * DELETE request.
      *
@@ -97,23 +97,7 @@ class LEAFClient
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
 
-    /**
-     * DELETE request.
-     *
-     * @param string            $url the URL to request
-     * @param LEAFResponseType  $returnType the LEAFTest\\LEAFResponseType to format the response as (default: JSON)
-     *
-     * @return object           the formatted response
-     */
-    public function delete($url, $returnType = LEAFResponseType::JSON)
-    {
-        $response = $this->client->delete($url);
-
-        return ResponseFormatter::format($response->getBody(), $returnType);
-    }
-
-    /**
-     * Get a GuzzleHttp\Client configured for LEAF.
+    /** Get a GuzzleHttp\Client configured for LEAF.
      *
      * @param string    $baseURI    The base URI of the API
      * @param string    $authURL    URL to authenticate against
