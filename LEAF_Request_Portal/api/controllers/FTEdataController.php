@@ -76,12 +76,17 @@ class FTEdataController extends RESTfulResponse
 				}
 			}
 
-        	return $formattedData; 
+        	return $formattedData;
         });
 
         $this->index['GET']->register('FTEdata/selecteeSheetDateRange', function() {
-        	$startDate = strtotime($_GET['startDate']);
-        	$endDate = strtotime($_GET['endDate']);
+
+          if(!$this->isDate($_GET['startDate']) && !$this->isDate($_GET['endDate'])) {
+      			return 'Invalid Date';
+      		}
+
+        	$startDate = (int)strtotime($_GET['startDate']);
+        	$endDate =   (int)strtotime($_GET['endDate']);
         	$res = $this->db->query("SELECT * FROM records
                                		RIGHT JOIN (SELECT * FROM category_count
                                                     WHERE categoryID='fte'
@@ -123,7 +128,7 @@ class FTEdataController extends RESTfulResponse
 				}
 			}
 
-        	return $formattedData; 
+        	return $formattedData;
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -133,5 +138,18 @@ class FTEdataController extends RESTfulResponse
     {
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
-}
 
+    private function isDate($value)
+    {
+        if (!$value) {
+            return false;
+        }
+
+        try {
+            new \DateTime($value);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+}

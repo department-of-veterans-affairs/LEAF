@@ -27,10 +27,11 @@ class PositionController extends RESTfulResponse
             return print_r($args, true) . print_r($_GET, true);
         });
         $this->index['GET']->register('position/[digit]', function($args) use ($position) {
-            $ret = $position->getAllData($args[0]);
-            $ret['title'] = $position->getTitle($args[0]);
-            $ret['subordinates'] = $position->getSubordinates($args[0]);
-            $ret['tags'] = $position->getAllTags($args[0]);
+            $positionID = (int)$args[0];
+            $ret = $position->getAllData($positionID);
+            $ret['title'] = $position->getTitle($positionID);
+            $ret['subordinates'] = $position->getSubordinates($positionID);
+            $ret['tags'] = $position->getAllTags($positionID);
             return $ret;
         });
         $this->index['GET']->register('position/search', function($args) use ($position) {
@@ -91,7 +92,7 @@ class PositionController extends RESTfulResponse
             return $position->setSupervisor($args[0], $_POST['positionID']);
         });
         $this->index['POST']->register('position/[digit]/setLeader', function($args) use ($position) {
-            return $position->addTag($args[0], 'group_leader');
+            return $position->addTag((int)$args[0], 'group_leader');
         });
         $this->index['POST']->register('position/[digit]/permissions/addEmployee', function($args) use ($position) {
             $type = isset($_POST['permission']) ? $_POST['permission'] : 'read';
