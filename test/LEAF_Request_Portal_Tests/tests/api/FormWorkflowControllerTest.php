@@ -31,6 +31,8 @@ final class FormWorkflowControllerTest extends DatabaseTest
         $forms = self::$client->get('formStack/categoryList/all');
         $newCategoryID = $forms[0]['categoryID'];
         $this->assertNotNull($newCategoryID);
+
+        //fill values
         $vars = array('name' => 'test', 'categoryID' => $newCategoryID);
         self::$client->postEncodedForm('formEditor/formName', $vars);
 
