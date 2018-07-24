@@ -42,7 +42,11 @@ class Service
 			$newID = -1;
 		}
 
-    	$vars = array(':serviceID' => $newID,
+		if(!is_null($parentGroupID))
+		{
+			$parentGroupID = (int)$parentGroupID;
+		}
+    	$vars = array(':serviceID' => (int)$newID,
     				  ':service' => $groupName,
     				  ':groupID' => $parentGroupID);
     	$res = $this->db->prepared_query("INSERT INTO services (serviceID, service, abbreviatedService, groupID)

@@ -27,17 +27,18 @@ class PositionController extends RESTfulResponse
             return print_r($args, true) . print_r($_GET, true);
         });
         $this->index['GET']->register('position/[digit]', function($args) use ($position) {
-            $ret = $position->getAllData($args[0]);
-            $ret['title'] = $position->getTitle($args[0]);
-            $ret['subordinates'] = $position->getSubordinates($args[0]);
-            $ret['tags'] = $position->getAllTags($args[0]);
+            $positionID = (int)$args[0];
+            $ret = $position->getAllData($positionID);
+            $ret['title'] = $position->getTitle($positionID);
+            $ret['subordinates'] = $position->getSubordinates($positionID);
+            $ret['tags'] = $position->getAllTags($positionID);
             return $ret;
         });
         $this->index['GET']->register('position/search', function($args) use ($position) {
             if(isset($_GET['noLimit']) && $_GET['noLimit'] == 1) {
                 $position->setNoLimit();
             }
-            return $position->search($_GET['q'], $_GET['tag'], $_GET['employeeSearch']);
+            return $position->search($_GET['q'], $position->sanitizeInput($_GET['tag']), $_GET['employeeSearch']);
         });
         $this->index['GET']->register('position/[digit]/employees', function($args) use ($position) {
             return $position->getEmployees($args[0]);
@@ -55,7 +56,7 @@ class PositionController extends RESTfulResponse
             return $position->getQuadrad($args[0]);
         });
         $this->index['GET']->register('position/[digit]/search/parentTag/[text]', function($args) use ($position) {
-        	return $position->findRootPositionByGroupTag($args[0], $args[1]);
+        	return $position->findRootPositionByGroupTag($args[0], $position->sanitizeInput($args[1]));
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -91,7 +92,7 @@ class PositionController extends RESTfulResponse
             return $position->setSupervisor($args[0], $_POST['positionID']);
         });
         $this->index['POST']->register('position/[digit]/setLeader', function($args) use ($position) {
-            return $position->addTag($args[0], 'group_leader');
+            return $position->addTag((int)$args[0], 'group_leader');
         });
         $this->index['POST']->register('position/[digit]/permissions/addEmployee', function($args) use ($position) {
             $type = isset($_POST['permission']) ? $_POST['permission'] : 'read';
@@ -107,7 +108,7 @@ class PositionController extends RESTfulResponse
         });
         $this->index['POST']->register('position/[digit]/permission/[text]/[digit]/[text]/toggle', function($args) use ($position) {
             //$positionID, $categoryID, $UID, $permissionType
-            return $position->togglePermission($args[0], $args[1], $args[2], $args[3]);
+            return $position->togglePermission($args[0], $position->sanitizeInput($args[1]), $args[2], $args[3]);
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

@@ -66,7 +66,7 @@ class FormStack
 
     	return true;
     }
-    
+
     private function importIndicator($indicatorPackage, $categoryID, $parentID = null, $overwriteExisting = false) {
     	$indicatorPackage['categoryID'] = $categoryID;
     	$indicatorPackage['parentID'] = $parentID;
@@ -76,7 +76,7 @@ class FormStack
     			$indicatorPackage['format'] .= "\r\n" . $option;
     		}
     	}
-    	
+
     	$indicatorID = $this->formEditor->addIndicator($indicatorPackage, $overwriteExisting);
     	if(is_array($indicatorPackage['child'])) {
     		foreach($indicatorPackage['child'] as $child) {
@@ -84,7 +84,7 @@ class FormStack
     		}
     	}
     }
-    
+
     public function initFormEditor() {
     	if(!isset($this->formEditor)) {
     		require_once 'FormEditor.php';
@@ -94,7 +94,7 @@ class FormStack
 
     /**
      * @param string $overwiteExisting - If specified, matching IDs will be overwritten.
-     *                             This should only be used with centrally standardized forms 
+     *                             This should only be used with centrally standardized forms
      * @return string/bool
      */
     public function importForm($overwiteExisting = false) {
@@ -130,9 +130,9 @@ class FormStack
     	if($formPacket['version'] != 1) {
     		return 'File format or version not supported.';
     	}
-    	
+
     	$formName = mb_strimwidth($formPacket['name'], 0, 50, '...');
-    	$formCategoryID = $this->formEditor->createForm($formName, $formPacket['description'], '', $_POST['formLibraryID'], $categoryID, $workflowID);
+    	$formCategoryID = $this->formEditor->createForm($formName, $formPacket['description'], '', (int)$_POST['formLibraryID'], $categoryID, $workflowID);
 
     	foreach($formPacket['packet']['form'] as $indicator) {
     	    $this->importIndicator($indicator, $formCategoryID, null, $overwiteExisting);
@@ -144,12 +144,12 @@ class FormStack
     	        $subformCategoryID = $key;
     	    }
     	    $subformCategoryID = $this->formEditor->createForm($subform['name'], $subform['description'], $formCategoryID, null, $subformCategoryID);
-    		
+
     		foreach($subform['packet'] as $indicator) {
     		    $this->importIndicator($indicator, $subformCategoryID, null, $overwiteExisting);
     		}
     	}
-    	
+
     	return true;
     }
 }
