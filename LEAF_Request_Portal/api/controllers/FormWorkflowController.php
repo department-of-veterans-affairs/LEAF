@@ -2,7 +2,7 @@
 
 require '../FormWorkflow.php';
 
-require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+require_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 
 class FormWorkflowController extends RESTfulResponse
 {
@@ -57,7 +57,7 @@ class FormWorkflowController extends RESTfulResponse
         $this->index['POST']->register('formWorkflow/[digit]/apply', function($args) use ($formWorkflow) {
         	$formWorkflow->initRecordID($args[0]);
 
-        	return $formWorkflow->handleAction($_POST['dependencyID'], XSSHelpers::sanitizeHTML($_POST['actionType']), $_POST['comment']);
+        	return $formWorkflow->handleAction($_POST['dependencyID'], XSSHelpers::xscrub($_POST['actionType']), $_POST['comment']);
         });
 
        	$this->index['POST']->register('formWorkflow/[digit]/step', function($args) use ($formWorkflow) {
