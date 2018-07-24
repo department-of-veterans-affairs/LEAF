@@ -4,9 +4,8 @@
  */
 
 namespace LEAFTest;
+
 use GuzzleHttp\Client;
-require 'DatabaseSession.php';
-use Session;
 
 /**
  * Simple HTTP client that wraps GuzzleHttp\Client.
@@ -19,7 +18,6 @@ class LEAFClient
 
     private function __construct($client)
     {
-        $this->session = new Session();
         $this->client = $client;
     }
 
@@ -31,7 +29,7 @@ class LEAFClient
      *
      * @return LEAFClient   a HTTP Client configured for LEAF
      */
-    public static function createNexusClient($baseURI = 'http://php/LEAF_Nexus/api/') : self
+    public static function createNexusClient($baseURI = 'http://localhost/LEAF_Nexus/api/') : self
     {
         $leafClient = new self(self::getBaseClient($baseURI, '../auth_domain/?'));
 
@@ -45,7 +43,7 @@ class LEAFClient
      * @param string    $baseURI    The base URI for the Request Portal API (default: "http://localhost/LEAF_Request_Portal/api/")
      * @return LEAFClient   a HTTP Client configured for LEAF
      */
-    public static function createRequestPortalClient($baseURI = 'http://php/LEAF_Request_Portal/api/') : self
+    public static function createRequestPortalClient($baseURI = 'http://localhost/LEAF_Request_Portal/api/') : self
     {
         $leafClient = new self(self::getBaseClient($baseURI, '../auth_domain/?'));
 
@@ -78,29 +76,9 @@ class LEAFClient
      */
     public function postEncodedForm($url, $formParams, $returnType = LEAFResponseType::JSON)
     {
-      $token = $this->getToken();
-      $formParams['CSRFToken'] = $token['CSRFToken'];
         $response = $this->client->post($url, array(
           'form_params' => $formParams,
-            'curl' => [CURLOPT_REFERER => 'http://php/LEAF_Request_Portal/admin']
-          ));
-        return ResponseFormatter::format($response->getBody(), $returnType);
-    }
-
-    /**
-     * DELETE request.
-     *
-     * @param string            $url the URL to request
-     * @param LEAFResponseType  $returnType the LEAFTest\\LEAFResponseType to format the response as (default: JSON)
-     *
-     * @return object           the formatted response
-     */
-    public function delete($url, $returnType = LEAFResponseType::JSON)
-    {
-        $token = $this->getToken();
-
-        $response = $this->client->delete($url . '&CSRFToken=' . $token['CSRFToken'],
-        ['curl' => [CURLOPT_REFERER => 'http://php/LEAF_Request_Portal/admin']]);
+        ));
 
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
@@ -138,14 +116,5 @@ class LEAFClient
         }
 
         return $guzzle;
-    }
-
-    private function getToken(){
-      $cookieJar = $this->client->getConfig('cookies');
-      $cookieJar->toArray();
-
-      foreach($cookieJar as $cookie){
-        return $this->session->getSessionData($cookie->getValue());
-      }
     }
 }
