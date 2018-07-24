@@ -74,6 +74,10 @@ abstract class Data
      */
     public function getAllData($UID, $indicatorID = 0)
     {
+        if(!is_numeric($indicatorID)) {
+            return array();
+        }
+
         $vars = array();
         $res = array();
 

@@ -24,7 +24,7 @@ $this->index['POST']->register('group/[digit]/employee', function($args) use ($g
 });
 $this->index['POST']->register('group/[digit]/tag', function($args) use ($group) {
     try {
-        return $group->addTag($args[0], $_POST['tag']);
+        return $group->addTag((int)$args[0], $_POST['tag']);
     } catch (Exception $e) {
         return $e->getMessage();
     }
@@ -53,5 +53,5 @@ $this->index['POST']->register('group/[digit]/permissions/addGroup', function($a
 });
 $this->index['POST']->register('group/[digit]/permission/[text]/[digit]/[text]/toggle', function($args) use ($group) {
 	//$groupID, $categoryID, $UID, $permissionType
-	return $group->togglePermission($args[0], $args[1], $args[2], $args[3]);
+	return $group->togglePermission($args[0], $group->sanitizeInput($args[1]), $args[2], $args[3]);
 });

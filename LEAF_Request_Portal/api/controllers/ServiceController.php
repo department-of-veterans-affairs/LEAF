@@ -2,6 +2,8 @@
 
 require '../sources/Service.php';
 
+include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+
 class ServiceController extends RESTfulResponse
 {
     private $API_VERSION = 1;    // Integer
@@ -55,7 +57,7 @@ class ServiceController extends RESTfulResponse
 
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('service', function($args) use ($db, $login, $service) {
-        	return $service->addService($_POST['service'], $_POST['groupID']);
+        	return $service->addService(XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
         });
 
        	$this->index['POST']->register('service/[digit]/members', function($args) use ($db, $login, $service) {

@@ -203,6 +203,9 @@ class Employee extends Data
      */
     public function disableAccount($empUID)
     {
+        if(!is_numeric($empUID)) {
+            return false;
+        }
     	$memberships = $this->login->getMembership();
     	if(!isset($memberships['groupID'][1])) {
     		throw new Exception('Administrator access required to disable accounts');
@@ -224,6 +227,9 @@ class Employee extends Data
      */
     public function enableAccount($empUID)
     {
+        if(!is_numeric($empUID)) {
+            return false;
+        }
     	$memberships = $this->login->getMembership();
     	if(!isset($memberships['groupID'][1])) {
     		throw new Exception('Administrator access required to enable accounts');
@@ -293,6 +299,9 @@ class Employee extends Data
 
     public function lookupEmpUID($empUID)
     {
+        if(!is_numeric($empUID)) {
+            return array();
+        }
         if(isset($this->cache["lookupEmpUID_{$empUID}"])) {
             return $this->cache["lookupEmpUID_{$empUID}"];
         }
@@ -479,6 +488,9 @@ class Employee extends Data
      */
     public function getBackupsFor($empUID)
     {
+        if(!is_numeric($empUID)) {
+            return array();
+        }
         if(isset($this->cache["getBackupsFor_{$empUID}"])) {
             return $this->cache["getBackupsFor_{$empUID}"];
         }
@@ -498,6 +510,9 @@ class Employee extends Data
 	 */
 	public function setBackup($primaryEmpUID, $backupEmpUID)
 	{
+	    if(!is_numeric($primaryEmpUID) || !is_numeric($backupEmpUID)) {
+	        return false;
+        }
 		$memberships = $this->login->getMembership();
 		if(!isset($memberships['groupID'][1])
 			&& !isset($memberships['employeeID'][$primaryEmpUID])) {
@@ -519,6 +534,9 @@ class Employee extends Data
 	 */
 	public function removeBackup($primaryEmpUID, $backupEmpUID)
 	{
+        if(!is_numeric($primaryEmpUID) || !is_numeric($backupEmpUID)) {
+            return false;
+        }
 		$memberships = $this->login->getMembership();
 		if(!isset($memberships['groupID'][1])
 			&& !isset($memberships['employeeID'][$primaryEmpUID])) {

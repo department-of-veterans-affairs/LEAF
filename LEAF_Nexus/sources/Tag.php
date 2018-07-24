@@ -7,8 +7,16 @@
 
 namespace Orgchart;
 
-class Tag
+require_once 'Data.php';
+
+class Tag extends Data
 {
+    protected $dataTable = 'tag_hierarchy';
+    protected $dataHistoryTable = '';
+    protected $dataTableUID = '';
+    protected $dataTableDescription = '';
+    protected $dataTableCategoryID = 0;
+
     protected $db;
     protected $login;
 
@@ -18,6 +26,15 @@ class Tag
     {
     	$this->db = $db;
     	$this->login = $login;
+    }
+
+    public function initialize()
+    {
+        $this->setDataTable($this->dataTable);
+        $this->setDataHistoryTable($this->dataHistoryTable);
+        $this->setDataTableUID($this->dataTableUID);
+        $this->setDataTableDescription($this->dataTableDescription);
+        $this->setDataTableCategoryID($this->dataTableCategoryID);
     }
 
     /**
