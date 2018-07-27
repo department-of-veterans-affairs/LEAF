@@ -24,7 +24,7 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools" class="tools"><h1>Tools</h1>
         <!--{if $submitted == 0}-->
-        <button class="tools"  onclick="window.location='?a=view&amp;recordID=<!--{$recordID|strip_tags}-->'" ><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="Guided editor" title="Guided editor" style="vertical-align: middle" /> Edit this form</button>
+        <button class="tools"  onclick="window.location='?a=view&amp;recordID=<!--{$recordID|strip_tags}-->'" alt="Guided editor" title="Guided editor" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=edit-find-replace.svg&amp;w=32); background-repeat: no-repeat; height: 38px; background-position: left; text-align: center"> Edit this form</button>
         <br />
         <br />
         <!--{/if}-->
