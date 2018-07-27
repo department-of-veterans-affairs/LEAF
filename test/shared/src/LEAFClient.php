@@ -15,10 +15,12 @@ use GuzzleHttp\Client;
 class LEAFClient
 {
     private $client;
+    private $CSRFToken;
 
     private function __construct($client)
     {
         $this->client = $client;
+        $this->CSRFToken = self::getCSRFToken();
     }
 
     /**
@@ -76,6 +78,9 @@ class LEAFClient
      */
     public function postEncodedForm($url, $formParams, $returnType = LEAFResponseType::JSON)
     {
+        //add CSRFToken to POST
+        $formParams['CSRFToken'] = $this->CSRFToken;
+
         $response = $this->client->post($url, array(
           'form_params' => $formParams,
         ));
@@ -93,6 +98,10 @@ class LEAFClient
      */
     public function delete($url, $returnType = LEAFResponseType::JSON)
     {
+        //add CSRFToken to request
+        $url .= strpos($url,"?") === FALSE ? "?" : "&";
+        $url = $url."CSRFToken=".$this->CSRFToken;
+
         $response = $this->client->delete($url);
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
@@ -116,5 +125,39 @@ class LEAFClient
         }
 
         return $guzzle;
+    }
+
+    /**
+     * Return CSRFToken associated with this client
+     *
+     * @return string           the CSRFToken string
+     */
+    public function getCSRFToken()
+    {
+        $config = new \Config();
+        $db_phonebook = new \DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $cookieJar = $this->client->getConfig("cookies");
+        $cookie = $cookieJar->getCookieByName("PHPSESSID");
+        if(is_null($cookie))
+        {
+            trigger_error('PHPSESSID cookie not set', E_USER_WARNING);
+        }
+        $sessionID = $cookie->getValue();
+
+        $vars = array(":sessionID" => $sessionID);
+        $res = $db_phonebook->prepared_query("SELECT * FROM sessions WHERE sessionKey=:sessionID", $vars);
+
+        $CSRFToken = "";
+        if(array_key_exists(0,$res) && array_key_exists("data",$res[0])){
+            $sessionStr = $res[0]["data"];
+            $data = SessionDecoder::decode($sessionStr);
+            $CSRFToken = array_key_exists("CSRFToken",$data) ? $data["CSRFToken"] : "";
+        }
+        else
+        {
+            trigger_error('Session data not found', E_USER_WARNING);
+        }
+
+        return $CSRFToken;
     }
 }
