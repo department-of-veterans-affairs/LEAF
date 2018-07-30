@@ -20,7 +20,7 @@
                     </div>
                     <input type="submit" value="Submit" aria-disabled="true" aria-label="Previous" hidden>
                 </form>
-            <</div>
+            </div>
             <div id="progressArea2" style="height: 34px; background-color: #feffd2; padding: 4px; border-top: 1px solid black">
                 <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion"><img src="../libs/dynicons/?img=go-previous.svg&amp;w=22" alt="Previous" aria-label="Previous"/> Previous Question</button></div>
                 <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion"><img src="../libs/dynicons/?img=go-next.svg&amp;w=22" alt="Next" aria-label="Next"/> Next Question</button></div>
