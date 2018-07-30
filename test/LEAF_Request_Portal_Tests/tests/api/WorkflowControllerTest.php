@@ -23,16 +23,16 @@ final class WorkflowControllerTest extends DatabaseTest
      */
     public function testGetVersion() : void
     {
-        $version = self::$client->get('?a=workflow/version');
+        $version = self::$client->get(array('a'=>'workflow/version'));
         $this->assertEquals(1, $version);
     }
-
+    
     /**
      * Tests the POST `workflow/new` endpoint.
      */
     public function testNewWorkflow() : void
     {
-      $response = self::$client->postEncodedForm('?a=workflow/new', array('description' => 'A test Workflow'));
+      $response = self::$client->post(array('a'=>'workflow/new'), array('description' => 'A test Workflow'),'');
       $this->assertNotNull($response);
       $this->assertEquals('3', $response);
     }
@@ -47,7 +47,7 @@ final class WorkflowControllerTest extends DatabaseTest
         'x' => 270,
         'y' => 301
       );
-      $response = self::$client->postEncodedForm('?a=workflow/1/editorPosition', $data);
+      $response = self::$client->post(array('a'=>'workflow/1/editorPosition'), $data);
       $this->assertNotNull($response);
       $this->assertEquals(true, $response);
     }
@@ -62,7 +62,7 @@ final class WorkflowControllerTest extends DatabaseTest
         'stepBgColor' => '#fffdcd',
         'stepFontColor' => '1px solid black'
       );
-      $response = self::$client->postEncodedForm('?a=workflow/1/step', $data);
+      $response = self::$client->post(array('a'=>'workflow/1/step/'), $data);
       $this->assertNotNull($response);
       $this->assertEquals(2, $response);
     }
@@ -75,7 +75,7 @@ final class WorkflowControllerTest extends DatabaseTest
       $data = array(
         'initialStepID' => 2
       );
-      $response = self::$client->postEncodedForm('?a=workflow/1/initialStep', $data);
+      $response = self::$client->post(array('a'=>'workflow/1/initialStep'), $data);
       $this->assertNotNull($response);
       $this->assertEquals(true, $response);
     }
@@ -88,7 +88,7 @@ final class WorkflowControllerTest extends DatabaseTest
       $data = array(
         'title' => 'Updated title'
       );
-      $response = self::$client->postEncodedForm('?a=workflow/step/1', $data);
+      $response = self::$client->post(array('a'=>'workflow/step/1'), $data);
       $this->assertNotNull($response);
       $this->assertEquals(true, $response);
     }
@@ -101,7 +101,7 @@ final class WorkflowControllerTest extends DatabaseTest
       $data = array(
         'dependencyID' => 8
       );
-      $response = self::$client->postEncodedForm('?a=workflow/step/1/dependencies', $data);
+      $response = self::$client->post(array('a'=>'workflow/step/1/dependencies'), $data);
       $this->assertNotNull($response);
       $this->assertEquals(true, $response);
     }
@@ -114,7 +114,7 @@ final class WorkflowControllerTest extends DatabaseTest
       $data = array(
         'description' => 'Updated Dependency Title'
       );
-      $response = self::$client->postEncodedForm('?a=workflow/dependency/8', $data);
+      $response = self::$client->post(array('a'=>'workflow/dependency/8'), $data);
       $this->assertNotNull($response);
       $this->assertEquals(true, $response);
     }
@@ -128,7 +128,7 @@ final class WorkflowControllerTest extends DatabaseTest
         'groupID' => 3
       );
 
-      $response = self::$client->postEncodedForm('?a=workflow/dependency/8/privileges', $data);
+      $response = self::$client->post(array('a'=>'workflow/dependency/8/privileges'), $data);
       $this->assertNotNull($response);
       $this->assertEquals(true, $response);
     }
@@ -142,7 +142,7 @@ final class WorkflowControllerTest extends DatabaseTest
         'eventID' => 'std_email_notify_completed'
       );
 
-      $response = self::$client->postEncodedForm('?a=workflow/1/step/1/_approve/events', $data);
+      $response = self::$client->post(array('a'=>'workflow/1/step/1/_approve/events'), $data);
       $this->assertNotNull($response);
       $this->assertEquals(true, $response);
     }
@@ -156,7 +156,7 @@ final class WorkflowControllerTest extends DatabaseTest
       $data = array(
         'description' => 'Test Dependency'
       );
-      $response = self::$client->postEncodedForm('?a=workflow/dependencies', $data);
+      $response = self::$client->post(array('a'=>'workflow/dependencies'), $data);
       $this->assertNotNull($response);
       $this->assertEquals(9, $response);
     }
@@ -170,11 +170,11 @@ final class WorkflowControllerTest extends DatabaseTest
       $data = array(
         'dependencyID' => 8
       );
-      $response = self::$client->postEncodedForm('?a=workflow/step/1/dependencies', $data);
+      $response = self::$client->post(array('a'=>'workflow/step/1/dependencies'), $data);
       $this->assertNotNull($response);
       $this->assertEquals(true, $response);
 
-      $delResponse = self::$client->Delete('?a=workflow/step/1/dependencies&dependencyID=8');
+      $delResponse = self::$client->Delete(array('a'=>'workflow/step/1/dependencies', 'dependencyID'=>'8'));
       $this->assertNotNull($delResponse);
       $this->assertEquals(true, $response);
     }
@@ -189,13 +189,13 @@ final class WorkflowControllerTest extends DatabaseTest
         'eventID' => 'std_email_notify_completed'
       );
 
-      $response = self::$client->postEncodedForm('?a=workflow/1/step/1/_approve/events', $data);
+      $response = self::$client->post(array('a'=>'workflow/1/step/1/_approve/events'), $data);
       $this->assertNotNull($response);
       $this->assertEquals(true, $response);
 
-      $event_id = self::$client->get('?a=workflow/1/step/1/_approve/events');
+      $event_id = self::$client->get(array('a'=>'workflow/1/step/1/_approve/events'));
 
-      $delResponse = self::$client->Delete('?a=workflow/1/step/1/_approve/events&eventID=' . $event_id[0]['eventID']);
+      $delResponse = self::$client->Delete(array('a'=>'workflow/1/step/1/_approve/events', 'eventID'=>$event_id[0]['eventID']));
       $this->assertNotNull($delResponse);
       $this->assertEquals(true, $response);
     }

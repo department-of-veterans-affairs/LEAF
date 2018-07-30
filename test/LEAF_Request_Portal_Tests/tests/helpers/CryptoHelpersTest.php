@@ -46,7 +46,7 @@ final class CryptoHelpersTest extends DatabaseTest
     {
         $hexHash = "71c7e92d4527c9172078c7ce8709d46c4156787a9dbda2e79ff4014988776393";
 
-        $formToSign = self::$portalClient->get('?a=form/1/dataforsigning');
+        $formToSign = self::$portalClient->get(array('a'=>'form/1/dataforsigning'));
         $formObj = json_encode($formToSign, JSON_FORCE_OBJECT);
 
         $hashed = CryptoHelpers::hashObject($formObj);
@@ -59,13 +59,13 @@ final class CryptoHelpersTest extends DatabaseTest
      */
     public function testSignJSONObject() : void
     {
-        $formToSign = self::$portalClient->get('?a=form/1/dataforsigning');
+        $formToSign = self::$portalClient->get(array('a'=>'form/1/dataforsigning'));
         $formObj = json_encode($formToSign, JSON_FORCE_OBJECT);
         $sig = CryptoHelpers::signJSONObject($formObj, self::$secretSignKey);
 
         $this->assertEquals(self::$signature, $sig);
 
-        $anotherFormToSign = self::$portalClient->get('?a=form/2/dataforsigning');
+        $anotherFormToSign = self::$portalClient->get(array('a'=>'form/2/dataforsigning'));
         $anotherFormObj = json_encode($anotherFormToSign, JSON_FORCE_OBJECT);
         $anotherSig = CryptoHelpers::signJSONObject($anotherFormObj, self::$secretSignKey);
 
@@ -79,7 +79,7 @@ final class CryptoHelpersTest extends DatabaseTest
      */
     public function testVerifySignature_authentic() : void
     {
-        $formToSign = self::$portalClient->get('?a=form/1/dataforsigning');
+        $formToSign = self::$portalClient->get(array('a'=>'form/1/dataforsigning'));
         $formObj = json_encode($formToSign, JSON_FORCE_OBJECT);
 
         $verified = CryptoHelpers::verifySignature(
@@ -103,7 +103,7 @@ final class CryptoHelpersTest extends DatabaseTest
             self::$secretSignKey
         );
 
-        $formToSign = self::$portalClient->get('?a=form/1/dataforsigning');
+        $formToSign = self::$portalClient->get(array('a'=>'form/1/dataforsigning'));
         $formObj = json_encode($formToSign, JSON_FORCE_OBJECT);
         $verified = CryptoHelpers::verifySignature(
             $differentSignature,
@@ -122,7 +122,7 @@ final class CryptoHelpersTest extends DatabaseTest
      */
     public function testVerifySignature_incorrectMessage(): void
     {
-        $formToSign = self::$portalClient->get('?a=form/2/dataforsigning');
+        $formToSign = self::$portalClient->get(array('a'=>'form/2/dataforsigning'));
         $formObj = json_encode($formToSign, JSON_FORCE_OBJECT);
 
         $verified = CryptoHelpers::verifySignature(
