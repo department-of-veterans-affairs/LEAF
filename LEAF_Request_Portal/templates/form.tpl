@@ -31,9 +31,9 @@
     </div>
     <div id = "tools" class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <button class="tools" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=edit-find-replace.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: center; height: 45px; white-space: initial" alt="View full form" title="View full form"> Show single <br>page</br></button>
+            <div tabindex="0" aria-label="View full form" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32"/> Show single page</div>
             <br /><br />
-            <button class="tools" onclick="cancelRequest()" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=process-stop.svg&amp;w=16); background-repeat: no-repeat; background-position: left; text-align: center"> Cancel Request</button>
+            <div tabindex="0" aria-label="Cancel request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" /> Cancel Request</div>
         </div>
     </div>
 </div>
