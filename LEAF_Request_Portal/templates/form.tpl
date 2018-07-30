@@ -31,9 +31,9 @@
     </div>
     <div id = "tools" class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <div tabindex="0" aria-label="View full form" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32"/> Show single page</div>
+            <button class="tools" tabindex="0" aria-label="Show single page" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32"/> Show single page</button>
             <br /><br />
-            <div tabindex="0" aria-label="Cancel request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" /> Cancel Request</div>
+            <button class="tools" tabindex="0" aria-label="Cancel request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" /> Cancel Request</button>
         </div>
     </div>
 </div>
