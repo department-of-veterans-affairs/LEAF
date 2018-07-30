@@ -118,29 +118,29 @@ span#headerLogin {
 
 span#headerMenu {
     position: relative;
-    top: 55px;
+    top: 48px;
     float: right;
     font-size: 12px;
     font-weight: normal;
 }
 
-#headerMenu > a, #headerMenu_container > a {
+#headerMenu > button, #headerMenu_container > button {
     text-decoration: none;
     margin-left: 8px;
     color: black;
 }
 
-#headerMenu > a > img {
+#headerMenu > button > img {
     padding-bottom: 2px;
     padding-right: 4px;
 }
 
-#headerMenu > a:hover, #headerMenu_container > a:hover{
+#headerMenu > button:hover, #headerMenu_container > button:hover{
     text-decoration: underline;
     color: white;
 }
 
-#headerMenu > a:focus, #headerMenu_container > a:focus{
+#headerMenu > button:focus, #headerMenu_container > button:focus{
     text-decoration: underline;
     color: white;
 }
@@ -160,7 +160,7 @@ span#headerMenu {
     display: block;
 }
 
-#headerMenu_container > a::after {
+#headerMenu_container > button::after {
     content:'\25BC';
 }
 
@@ -1013,7 +1013,7 @@ button.buttonNorm {
         text-align: right;
     }
 
-    #headerMenu > a {
+    #headerMenu > button {
         text-decoration: none;
         margin-left: 2px;
         color: black;
