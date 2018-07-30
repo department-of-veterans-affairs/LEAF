@@ -31,9 +31,9 @@ class LEAFClient
      *
      * @return LEAFClient   a HTTP Client configured for LEAF
      */
-    public static function createNexusClient($baseURI = 'http://localhost/LEAF_Nexus/api/') : self
+    public static function createNexusClient($baseURI = 'http://localhost/LEAF_Nexus/api/', $authURL = '../auth_domain/') : self
     {
-        $leafClient = new self(self::getBaseClient($baseURI, '../auth_domain/?'));
+        $leafClient = new self(self::getBaseClient($baseURI, $authURL));
 
         return $leafClient;
     }
@@ -45,9 +45,9 @@ class LEAFClient
      * @param string    $baseURI    The base URI for the Request Portal API (default: "http://localhost/LEAF_Request_Portal/api/")
      * @return LEAFClient   a HTTP Client configured for LEAF
      */
-    public static function createRequestPortalClient($baseURI = 'http://localhost/LEAF_Request_Portal/api/') : self
+    public static function createRequestPortalClient($baseURI = 'http://localhost/LEAF_Request_Portal/api/', $authURL = '../auth_domain/') : self
     {
-        $leafClient = new self(self::getBaseClient($baseURI, '../auth_domain/?'));
+        $leafClient = new self(self::getBaseClient($baseURI, $authURL));
 
         return $leafClient;
     }
@@ -55,14 +55,20 @@ class LEAFClient
     /**
      * GET request.
      *
-     * @param string            $url the URL to request
+     * @param array             $queryParams an array that contains key=>values of the query data.
+     * @param array             $formParams an array that contains key=>values of the form data.
+     * @param string            $url the URL to request with trailing slash, relative to the $baseURI passed to getBaseClient
      * @param LEAFResponseType  $returnType the LEAFTest\\LEAFResponseType to format the response as (default: JSON)
      *
      * @return object           the formatted response
      */
-    public function get($url, $returnType = LEAFResponseType::JSON)
+    public function get($queryParams = array(), $formParams = array(), $url = '', $returnType = LEAFResponseType::JSON)
     {
-        $response = $this->client->get($url);
+        $response = $this->client->get($url, array(
+            'query' => $queryParams,
+            'form_params' => $formParams
+
+        ));
 
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
@@ -70,19 +76,22 @@ class LEAFClient
     /**
      * POST request. Handles `application/x-www-form-urlencoded` requests.
      *
-     * @param string            $url the URL to request
+     * @param array             $queryParams an array that contains key=>values of the query data.
      * @param array             $formParams an array that contains key=>values of the form data.
+     * @param string            $url the URL to request with trailing slash, relative to the $baseURI passed to getBaseClient
      * @param LEAFResponseType  $returnType the LEAFTest\\LEAFResponseType to format the response as (default: JSON)
      *
      * @return object           the formatted response
      */
-    public function postEncodedForm($url, $formParams, $returnType = LEAFResponseType::JSON)
+    public function post($queryParams = array(), $formParams = array(), $url = '', $returnType = LEAFResponseType::JSON)
     {
         //add CSRFToken to POST
         $formParams['CSRFToken'] = $this->CSRFToken;
 
         $response = $this->client->post($url, array(
-          'form_params' => $formParams,
+            'query' => $queryParams,
+            'form_params' => $formParams
+            
         ));
 
         return ResponseFormatter::format($response->getBody(), $returnType);
@@ -91,18 +100,23 @@ class LEAFClient
     /**
      * DELETE request.
      *
-     * @param string            $url the URL to request
+     * @param array             $queryParams an array that contains key=>values of the query data.
+     * @param array             $formParams an array that contains key=>values of the form data.
+     * @param string            $url the URL to request with trailing slash, relative to the $baseURI passed to getBaseClient
      * @param LEAFResponseType  $returnType the LEAFTest\\LEAFResponseType to format the response as (default: JSON)
      *
      * @return object           the formatted response
      */
-    public function delete($url, $returnType = LEAFResponseType::JSON)
+    public function delete($queryParams = array(), $formParams = array(), $url = '', $returnType = LEAFResponseType::JSON)
     {
-        //add CSRFToken to request
-        $url .= strpos($url,"?") === FALSE ? "?" : "&";
-        $url = $url."CSRFToken=".$this->CSRFToken;
+        //add CSRFToken to query parameters
+        $queryParams['CSRFToken'] = $this->CSRFToken;
 
-        $response = $this->client->delete($url);
+        $response = $this->client->delete($url, array(
+            'query' => $queryParams,
+            'form_params' => $formParams
+
+        ));
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
 
