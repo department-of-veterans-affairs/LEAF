@@ -22,20 +22,20 @@ class TagControllerTest extends DatabaseTest
     public function testAddParentTag() : void
     {
         //initial value
-        $parentTag = self::$client->get('tag/_service/parent');
+        $parentTag = self::$client->get(array('a'=>'tag/_service/parent'));
         $this->assertEquals('quadrad', $parentTag);
 
         //create a tag
-        self::$client->postEncodedForm('?a=group/13/tag', array('tag' => "TESTTAG"));
+        self::$client->post(array('a'=>'group/13/tag'), array('tag' => "TESTTAG"));
 
-        $group = self::$client->get('?a=group/tag&tag=TESTTAG');
+        $group = self::$client->get(array('a'=>'group/tag','tag'=>'TESTTAG'));
         $this->assertEquals('TESTTAG', $group[0]['tag']);
 
         //set service to have the created tag as a parent
-        self::$client->postEncodedForm('tag/_service/parent', array('parentTag' => 'TESTTAG'));
+        self::$client->post(array('a'=>'tag/_service/parent'), array('parentTag' => 'TESTTAG'));
 
         //checks to make sure the change was successful
-        $parentTag = self::$client->get('tag/_service/parent');
+        $parentTag = self::$client->get(array('a'=>'tag/_service/parent'));
         $this->assertEquals('TESTTAG', $parentTag);
     }
 }
