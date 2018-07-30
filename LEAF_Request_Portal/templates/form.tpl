@@ -3,11 +3,11 @@
         <div id="navtree" style="border: 1px solid black"></div>
     </div>
     <div class="col span_3_of_5">
-        <div style="background-color: white; border: 1px solid black; box-shadow: 0 2px 4px #8e8e8e">
-            <div id="progressArea" style="height: 40px; background-color: #feffd2; padding: 4px; border-bottom: 1px solid black">
+       <div style="background-color: white; border: 1px solid black; box-shadow: 0 2px 4px #8e8e8e">
+            <div id="progressArea" style="height: 34px; background-color: #feffd2; padding: 4px; border-bottom: 1px solid black">
                 <div id="progressControl" style="float: left">Form completion progress: <div id="progressBar" style="height: 14px; margin: 2px; border: 1px solid black; text-align: center"><div style="width: 300px; line-height: 120%; float: left; font-size: 12px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div>
                 </div>
-                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion" alt="Next" aria-label="Next"style = "background-image: url(../libs/dynicons/?img=go-next.svg&amp;w=22); background-repeat: no-repeat; background-position: left; text-align: center; display:inline-block; width: 100px; display:inline-block; height: 38px; background-position: left;"> Next <br>Question</br></button></div>
+                <div style="float: right"><button id="nextQuestion" type="button" class="buttonNorm nextQuestion"><img src="../libs/dynicons/?img=go-next.svg&amp;w=22" alt="Next" /> Next Question</button></div>
                 <br style="clear: both" />
             </div>
             <div>
@@ -20,10 +20,10 @@
                     </div>
                     <input type="submit" value="Submit" aria-disabled="true" aria-label="Previous" hidden>
                 </form>
-            </div>
-            <div id="progressArea2" style="height: 40px; background-color: #feffd2; padding: 4px; border-top: 1px solid black">
-                <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion" alt="Previous" aria-label="Previous" style = "background-image: url(../libs/dynicons/?img=go-previous.svg&amp;w=22); background-repeat: no-repeat; background-position: left; text-align: center; display:inline-block; width: 100px; display:inline-block; height: 38px; background-position: left;"> Previous <br>Question</br></button></div>
-                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion" alt="Next" aria-label="Next"style = "background-image: url(../libs/dynicons/?img=go-next.svg&amp;w=22); background-repeat: no-repeat; background-position: left; text-align: center; display:inline-block; width: 100px; display:inline-block; height: 38px; background-position: left;"> Next <br>Question</br></button></div>
+            <</div>
+            <div id="progressArea2" style="height: 34px; background-color: #feffd2; padding: 4px; border-top: 1px solid black">
+                <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion"><img src="../libs/dynicons/?img=go-previous.svg&amp;w=22" alt="Previous" aria-label="Previous"/> Previous Question</button></div>
+                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion"><img src="../libs/dynicons/?img=go-next.svg&amp;w=22" alt="Next" aria-label="Next"/> Next Question</button></div>
             </div>
         </div>
         <br />
