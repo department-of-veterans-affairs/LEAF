@@ -31,7 +31,7 @@
     </div>
     <div class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <button tabindex="0" aria-label="Show Single Page" class="tools" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" alt="View full form" title="Show Single Page" style="height: 38px; text-align: left; margin-bottom: 15px; font-size: 120%"/> <img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" style="position: absolute; margin-top: -6px; vertical-align: middle"/>&nbsp &nbsp &nbsp &nbsp Show Single Page</button>
+            <button tabindex="0" aria-label="Show Single Page" class="tools" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" alt="View full form" title="Show Single Page" style="height: 38px; text-align: left; margin-bottom: 15px; font-size: 120%"/> <img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" style="position: absolute; margin-top: -6px; vertical-align: middle"/>&nbsp &nbsp &nbsp &nbsp Show single page</button>
             <br /><br />
             <button tabindex="0" class="tools" aria-label="Cancel request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
         </div>
