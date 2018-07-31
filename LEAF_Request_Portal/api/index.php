@@ -1,4 +1,8 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
 /************************
     Index for services
 
@@ -27,110 +31,113 @@ unset($db_config);
 $login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
-$action = isset($_GET['a']) ? $_GET['a'] : ''; 
+$action = isset($_GET['a']) ? $_GET['a'] : '';
 $keyIndex = strpos($action, '/');
 $key = null;
-if($keyIndex === false) {
+if ($keyIndex === false)
+{
     $key = $action;
 }
-else {
+else
+{
     $key = substr($action, 0, $keyIndex);
 }
 
 // exclude some controllers from login requirement
-if($key != 'classicphonebook'
-	&& $key != 'telemetry') {
+if ($key != 'classicphonebook'
+    && $key != 'telemetry')
+{
     $login->loginUser();
 }
 
 $controllerMap = new ControllerMap();
 
-$controllerMap->register('classicphonebook', function() use ($db, $login, $action) {
+$controllerMap->register('classicphonebook', function () use ($db, $login, $action) {
     require 'controllers/ClassicPhonebookController.php';
     $controller = new ClassicPhonebookController($db, $login);
     $controller->handler($action);
 });
 
 // admin only
-if($login->checkGroup(1))
+if ($login->checkGroup(1))
 {
-    $controllerMap->register('simpledata', function() use ($db, $login, $action) {
+    $controllerMap->register('simpledata', function () use ($db, $login, $action) {
         require 'controllers/SimpleDataController.php';
         $controller = new SimpleDataController($db, $login);
         $controller->handler($action);
     });
 
-    $controllerMap->register('formEditor', function() use ($db, $login, $action) {
-    	require 'controllers/FormEditorController.php';
-    	$formEditorController = new FormEditorController($db, $login);
-    	$formEditorController->handler($action);
+    $controllerMap->register('formEditor', function () use ($db, $login, $action) {
+        require 'controllers/FormEditorController.php';
+        $formEditorController = new FormEditorController($db, $login);
+        $formEditorController->handler($action);
     });
 
-   	$controllerMap->register('service', function() use ($db, $login, $action) {
-   		require 'controllers/ServiceController.php';
-   		$serviceController = new ServiceController($db, $login);
-   		$serviceController->handler($action);
-   	});
+    $controllerMap->register('service', function () use ($db, $login, $action) {
+        require 'controllers/ServiceController.php';
+        $serviceController = new ServiceController($db, $login);
+        $serviceController->handler($action);
+    });
 
-   	$controllerMap->register('group', function() use ($db, $login, $action) {
-   		require 'controllers/GroupController.php';
-   		$serviceController = new GroupController($db, $login);
-   		$serviceController->handler($action);
-   	});
+    $controllerMap->register('group', function () use ($db, $login, $action) {
+        require 'controllers/GroupController.php';
+        $serviceController = new GroupController($db, $login);
+        $serviceController->handler($action);
+    });
 }
 
-$controllerMap->register('form', function() use ($db, $login, $action) {
+$controllerMap->register('form', function () use ($db, $login, $action) {
     require 'controllers/FormController.php';
     $formController = new FormController($db, $login);
     $formController->handler($action);
 });
 
-$controllerMap->register('formStack', function() use ($db, $login, $action) {
+$controllerMap->register('formStack', function () use ($db, $login, $action) {
     require 'controllers/FormStackController.php';
     $formStackController = new FormStackController($db, $login);
     $formStackController->handler($action);
 });
 
-$controllerMap->register('formWorkflow', function() use ($db, $login, $action) {
-	require 'controllers/FormWorkflowController.php';
-	$formWorkflowController = new FormWorkflowController($db, $login);
-	$formWorkflowController->handler($action);
+$controllerMap->register('formWorkflow', function () use ($db, $login, $action) {
+    require 'controllers/FormWorkflowController.php';
+    $formWorkflowController = new FormWorkflowController($db, $login);
+    $formWorkflowController->handler($action);
 });
 
-$controllerMap->register('workflow', function() use ($db, $login, $action) {
-	require 'controllers/WorkflowController.php';
-	$workflowController = new WorkflowController($db, $login);
-	$workflowController->handler($action);
+$controllerMap->register('workflow', function () use ($db, $login, $action) {
+    require 'controllers/WorkflowController.php';
+    $workflowController = new WorkflowController($db, $login);
+    $workflowController->handler($action);
 });
 
-$controllerMap->register('FTEdata', function() use ($db, $login, $action) {
-	require 'controllers/FTEdataController.php';
-	$FTEdataController = new FTEdataController($db, $login);
-	$FTEdataController->handler($action);
+$controllerMap->register('FTEdata', function () use ($db, $login, $action) {
+    require 'controllers/FTEdataController.php';
+    $FTEdataController = new FTEdataController($db, $login);
+    $FTEdataController->handler($action);
 });
 
-$controllerMap->register('inbox', function() use ($db, $login, $action) {
-	require 'controllers/InboxController.php';
-	$InboxController = new InboxController($db, $login);
-	$InboxController->handler($action);
+$controllerMap->register('inbox', function () use ($db, $login, $action) {
+    require 'controllers/InboxController.php';
+    $InboxController = new InboxController($db, $login);
+    $InboxController->handler($action);
 });
 
-$controllerMap->register('system', function() use ($db, $login, $action) {
-	require 'controllers/SystemController.php';
-	$SystemController = new SystemController($db, $login);
-	$SystemController->handler($action);
+$controllerMap->register('system', function () use ($db, $login, $action) {
+    require 'controllers/SystemController.php';
+    $SystemController = new SystemController($db, $login);
+    $SystemController->handler($action);
 });
 
-$controllerMap->register('converter', function() use ($db, $login, $action) {
-	require 'controllers/ConverterController.php';
-	$ConverterController = new ConverterController($db, $login);
-	$ConverterController->handler($action);
+$controllerMap->register('converter', function () use ($db, $login, $action) {
+    require 'controllers/ConverterController.php';
+    $ConverterController = new ConverterController($db, $login);
+    $ConverterController->handler($action);
 });
 
-$controllerMap->register('telemetry', function() use ($db, $login, $action) {
-	require 'controllers/TelemetryController.php';
-	$TelemetryController = new TelemetryController($db, $login);
-	$TelemetryController->handler($action);
+$controllerMap->register('telemetry', function () use ($db, $login, $action) {
+    require 'controllers/TelemetryController.php';
+    $TelemetryController = new TelemetryController($db, $login);
+    $TelemetryController->handler($action);
 });
 
 $controllerMap->runControl($key);

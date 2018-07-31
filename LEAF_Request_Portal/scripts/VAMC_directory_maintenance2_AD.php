@@ -1,4 +1,7 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 /************************
     VAMC_directory_maintenance
@@ -8,45 +11,56 @@
     + Multiple data sources
     + Buffered inserts for low memory usage
 */
-class VAMC_Directory_maintenance_AD {
+
+class VAMC_Directory_maintenance_AD
+{
     private $sortBy = 'Lname';          // Sort by... ?
+
     private $sortDir = 'ASC';           // Sort ascending/descending?
+
     private $debug = true;             // Are we debugging?
 
     private $db;                        // The database object
+
     private $tableName = 'Employee';    // Table of employee contact info
+
     private $log = array('Debug Log is ON');          // error log for debugging
+
     private $time;
 
     private $users = array();
 
     // Connect to the database
-    function __construct()
+    public function __construct()
     {
         $this->time = time();
         $currDir = dirname(__FILE__);
         require_once $currDir . '/../db_config.php';
         $config = new Config();
-        try {
-            $this->db = new PDO("mysql:host={$config->phonedbHost};dbname={$config->phonedbName}",
-                            $config->phonedbUser, $config->phonedbPass, array(PDO::ATTR_PERSISTENT => true));
+
+        try
+        {
+            $this->db = new PDO(
+                "mysql:host={$config->phonedbHost};dbname={$config->phonedbName}",
+                            $config->phonedbUser,
+                $config->phonedbPass,
+                array(PDO::ATTR_PERSISTENT => true)
+            );
             unset($config);
-        } catch (PDOException $e) {
+        }
+        catch (PDOException $e)
+        {
             echo 'Database Error: ' . $e->getMessage();
             exit();
         }
     }
 
-    function __destruct()
+    public function __destruct()
     {
-        if($this->debug)
-            echo print_r($this->log);     // debugging
-    }
-
-    // Log errors from the database
-    private function logError($error)
-    {
-        $this->log[] = $error;
+        if ($this->debug)
+        {
+            echo print_r($this->log);
+        }     // debugging
     }
 
     public function setSort($sortBy, $sortDir)
@@ -59,52 +73,16 @@ class VAMC_Directory_maintenance_AD {
     // For debugging only
     public function query($sql)
     {
-        if($this->debug) {
+        if ($this->debug)
+        {
             $res = $this->db->query($sql);
-            if(is_object($res)) {
+            if (is_object($res))
+            {
                 return $res->fetchAll(PDO::FETCH_ASSOC);
             }
             $err = $this->db->errorInfo();
             $this->logError($err[2]);
         }
-        return null;
-    }
-
-    // Translates the * wildcard to SQL % wildcard
-    private function parseWildcard($query)
-    {
-        return str_replace('*', '%', $query . '*');
-    }
-
-    // Trims input
-    private function trimField(&$value, &$key)
-    {
-        $value = trim($value);
-        $value = trim($value, '.');
-    }
-
-    // Trims input
-    private function trimField2(&$value, &$key)
-    {
-        $value = trim($value);
-        $value = trim($value, '.');
-    }
-
-    private function ucwordss($str) {
-        $lowerCase = array('OF');
-        $out = "";
-        foreach (explode(" ", $str) as $word) {
-            if(in_array($word, $lowerCase)) {
-                $out .= strtolower($word) . ' ';
-            }
-            else if(strlen($word) > 4 || metaphone($word) != $word) {
-                $out .= strtoupper($word[0]) . substr(strtolower($word), 1) . " ";
-            }
-            else {
-                $out .= $word . " ";
-            }
-        }
-        return rtrim($out);
     }
 
     // Imports data from ^ and \n delimited file of format:
@@ -113,8 +91,9 @@ class VAMC_Directory_maintenance_AD {
         $rawdata = file($file);
         $count = 0;
 
-        foreach($rawdata as $line) {
-            $t = explode("^", $line);
+        foreach ($rawdata as $line)
+        {
+            $t = explode('^', $line);
             array_walk($t, array($this, 'trimField'));
 
 //            $tmpName = explode(',', $t[0]);
@@ -133,7 +112,7 @@ class VAMC_Directory_maintenance_AD {
             $mailcode = isset($t[98]) ? $t[98] : null;
             $loginName = isset($t[97]) ? $t[97] : null;
 
-            $id = md5(strtoupper($lname).strtoupper($fname).strtoupper($midIni));
+            $id = md5(strtoupper($lname) . strtoupper($fname) . strtoupper($midIni));
             $this->users[$id]['lname'] = isset($this->users[$id]['lname']) ? $this->users[$id]['lname'] : $lname;
             $this->users[$id]['fname'] = isset($this->users[$id]['fname']) ? $this->users[$id]['fname'] : $fname;
             $this->users[$id]['midIni'] = $midIni;
@@ -148,13 +127,14 @@ class VAMC_Directory_maintenance_AD {
             $this->users[$id]['source'] = 'vista';
             echo "Grabbing data for $lname, $fname\n";
             $count++;
-            
-            if($count > 100) {
+
+            if ($count > 100)
+            {
                 $this->importData();
                 $count = 0;
             }
         }
-        $this->importData(); // import any remaining entries        
+        $this->importData(); // import any remaining entries
     }
 
     // Imports data from \t and \n delimited file of format:
@@ -167,19 +147,22 @@ class VAMC_Directory_maintenance_AD {
         $headers = explode(',', $rawheaders);
         $idx = 0;
         $csvdeIdx = array();
-        foreach($headers as $header) {
+        foreach ($headers as $header)
+        {
             $csvdeIdx[$header] = $idx;
-            $idx++;            
+            $idx++;
         }
 
-        if($idx != 10) {
+        if ($idx != 10)
+        {
 //            file_put_contents('Z:\phonebook\error.txt', 'Error: AD export');
             return 0;
         }
 
         $count = 0;
 
-        foreach($rawdata as $line) {
+        foreach ($rawdata as $line)
+        {
             $t = $this->splitWithEscape($line);
 //            print_r($t);
 //            $t = explode("\t", $line);
@@ -199,7 +182,7 @@ class VAMC_Directory_maintenance_AD {
             $mailcode = isset($t[98]) ? $t[98] : null;
             $loginName = $t[$csvdeIdx['sAMAccountName']] ? $t[$csvdeIdx['sAMAccountName']] : null;
 
-            $id = md5(strtoupper($lname).strtoupper($fname).strtoupper($midIni));
+            $id = md5(strtoupper($lname) . strtoupper($fname) . strtoupper($midIni));
             $this->users[$id]['lname'] = $lname;
             $this->users[$id]['fname'] = $fname;
             $this->users[$id]['midIni'] = $midIni;
@@ -214,8 +197,9 @@ class VAMC_Directory_maintenance_AD {
             $this->users[$id]['source'] = 'ad';
             echo "Grabbing data for $lname, $fname\n";
             $count++;
-            
-            if($count > 100) {
+
+            if ($count > 100)
+            {
                 $this->importData();
                 $count = 0;
             }
@@ -229,22 +213,23 @@ class VAMC_Directory_maintenance_AD {
     {
         $time = $this->time;
 
-        $sql = "INSERT INTO Employee (Lname, Fname, Mid_Initial, Email, Phone, Pager, RoomNumber,
+        $sql = 'INSERT INTO Employee (Lname, Fname, Mid_Initial, Email, Phone, Pager, RoomNumber,
                             Title, Service, MailCode, PhoneticFname, PhoneticLname, LoginName, source, lastUpdated)
                             VALUES (:lname, :fname, :midIni, :email, :phone, :pager, :roomNum,
                             :title, :service, :mailcode, :phoneticFname, :phoneticLname, :loginName, :source, :lastUpdated)
                             ON DUPLICATE KEY UPDATE Lname=:lname, Fname=:fname, Mid_Initial=:midIni, Email=:email, Phone=:phone, Pager=:pager,
-                                RoomNumber=:roomNum, Title=:title, Service=:service, lastUpdated=:lastUpdated";
+                                RoomNumber=:roomNum, Title=:title, Service=:service, lastUpdated=:lastUpdated';
         $pq = $this->db->prepare($sql);
         $count = 0;
-        
+
         $userKeys = array_keys($this->users);
 
-        foreach($userKeys as $key) {
+        foreach ($userKeys as $key)
+        {
             $phoneticFname = metaphone($this->users[$key]['fname']);
             $phoneticLname = metaphone($this->users[$key]['lname']);
 
-            $sql = "SELECT * FROM Employee WHERE loginName = :loginName";
+            $sql = 'SELECT * FROM Employee WHERE loginName = :loginName';
             $pq2 = $this->db->prepare($sql);
             $pq2->bindParam(':loginName', $this->users[$key]['loginName']);
             $pq2->execute();
@@ -269,16 +254,17 @@ class VAMC_Directory_maintenance_AD {
             $pq->execute();
             echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
 
-            if($pq->errorCode() != '00000') {
+            if ($pq->errorCode() != '00000')
+            {
                 print_r($pq->errorInfo());
             }
             $count++;
 
             unset($this->users[$key]);
         }
-        
-        echo "Cleanup... ";
-// TODO: do some clean up
+
+        echo 'Cleanup... ';
+        // TODO: do some clean up
         echo "... Done.\n";
 
         echo "Total: $count";
@@ -286,30 +272,32 @@ class VAMC_Directory_maintenance_AD {
 
     public function deleteOld()
     {
-        $sql = "DELETE FROM Employee WHERE lastUpdated < :time";
+        $sql = 'DELETE FROM Employee WHERE lastUpdated < :time';
         $pq = $this->db->prepare($sql);
         $pq->bindParam(':time', $this->time);
         $pq->execute();
     }
-    
+
     // custom
     public function importExtra($lname, $fname, $midIni, $email, $phone, $pager, $roomNum, $title, $service, $mailcode, $loginName)
     {
-        $sql = "SELECT * FROM Employee WHERE loginName = :loginName";
+        $sql = 'SELECT * FROM Employee WHERE loginName = :loginName';
         $pq2 = $this->db->prepare($sql);
         $pq2->bindParam(':loginName', $loginName);
         $pq2->execute();
         $res = $pq2->fetchAll();
 
-        if(count($res) > 0) {
+        if (count($res) > 0)
+        {
             echo "Ignoring data for {$lname}, {$fname} : Already in database. \n";
+
             return true;
         }
 
-        $sql = "INSERT INTO Employee (Lname, Fname, Mid_Initial, Email, Phone, Pager, RoomNumber,
+        $sql = 'INSERT INTO Employee (Lname, Fname, Mid_Initial, Email, Phone, Pager, RoomNumber,
                             Title, Service, MailCode, PhoneticFname, PhoneticLname, LoginName, source, lastUpdated)
                             VALUES (:lname, :fname, :midIni, :email, :phone, :pager, :roomNum,
-                            :title, :service, :mailcode, :phoneticFname, :phoneticLname, :loginName, :source, :lastUpdated)";
+                            :title, :service, :mailcode, :phoneticFname, :phoneticLname, :loginName, :source, :lastUpdated)';
         $pq = $this->db->prepare($sql);
         $count = 0;
 
@@ -334,7 +322,8 @@ class VAMC_Directory_maintenance_AD {
 
         $pq->execute();
         //echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
-        if($pq->errorCode() != '00000') {
+        if ($pq->errorCode() != '00000')
+        {
             print_r($pq->errorInfo());
         }
 
@@ -349,7 +338,8 @@ class VAMC_Directory_maintenance_AD {
         $res = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
         echo 'Generating phonetic cache...';
 
-        foreach($res as $emp) {
+        foreach ($res as $emp)
+        {
             $pFirst = metaphone($emp['Fname']);
             $pLast = metaphone($emp['Lname']);
             $sql = "UPDATE {$this->tableName} SET PhoneticFname = '$pFirst' WHERE EmpID = {$emp['EmpID']}";
@@ -362,57 +352,135 @@ class VAMC_Directory_maintenance_AD {
         }
     }
 
+    // Log errors from the database
+    private function logError($error)
+    {
+        $this->log[] = $error;
+    }
+
+    // Translates the * wildcard to SQL % wildcard
+    private function parseWildcard($query)
+    {
+        return str_replace('*', '%', $query . '*');
+    }
+
+    // Trims input
+    private function trimField(&$value, &$key)
+    {
+        $value = trim($value);
+        $value = trim($value, '.');
+    }
+
+    // Trims input
+    private function trimField2(&$value, &$key)
+    {
+        $value = trim($value);
+        $value = trim($value, '.');
+    }
+
+    private function ucwordss($str)
+    {
+        $lowerCase = array('OF');
+        $out = '';
+        foreach (explode(' ', $str) as $word)
+        {
+            if (in_array($word, $lowerCase))
+            {
+                $out .= strtolower($word) . ' ';
+            }
+            else
+            {
+                if (strlen($word) > 4 || metaphone($word) != $word)
+                {
+                    $out .= strtoupper($word[0]) . substr(strtolower($word), 1) . ' ';
+                }
+                else
+                {
+                    $out .= $word . ' ';
+                }
+            }
+        }
+
+        return rtrim($out);
+    }
+
     // Clean up all wildcards
-    private function cleanWildcards($input) {
+    private function cleanWildcards($input)
+    {
         $input = preg_replace('/\*+/i', '*', $input);
         $input = preg_replace('/(\*\s\*)+/i', '', $input);
+
         return $input;
     }
 
     // workaround for excel
     // author: tajhlande at gmail dot com
-    private function splitWithEscape ($str, $delimiterChar = ',', $escapeChar = '"') {
+    private function splitWithEscape($str, $delimiterChar = ',', $escapeChar = '"')
+    {
         $len = strlen($str);
         $tokens = array();
         $i = 0;
         $inEscapeSeq = false;
         $currToken = '';
-        while ($i < $len) {
+        while ($i < $len)
+        {
             $c = substr($str, $i, 1);
-            if ($inEscapeSeq) {
-                if ($c == $escapeChar) {
+            if ($inEscapeSeq)
+            {
+                if ($c == $escapeChar)
+                {
                     // lookahead to see if next character is also an escape char
-                    if ($i == ($len - 1)) {
+                    if ($i == ($len - 1))
+                    {
                         // c is last char, so must be end of escape sequence
                         $inEscapeSeq = false;
-                    } else if (substr($str, $i + 1, 1) == $escapeChar) {
-                        // append literal escape char
-                        $currToken .= $escapeChar;
-                        $i++;
-                    } else {
-                        // end of escape sequence
-                        $inEscapeSeq = false;
                     }
-                } else {
+                    else
+                    {
+                        if (substr($str, $i + 1, 1) == $escapeChar)
+                        {
+                            // append literal escape char
+                            $currToken .= $escapeChar;
+                            $i++;
+                        }
+                        else
+                        {
+                            // end of escape sequence
+                            $inEscapeSeq = false;
+                        }
+                    }
+                }
+                else
+                {
                     $currToken .= $c;
                 }
-            } else {
-                if ($c == $delimiterChar) {
+            }
+            else
+            {
+                if ($c == $delimiterChar)
+                {
                     // end of token, flush it
                     array_push($tokens, $currToken);
                     $currToken = '';
-                } else if ($c == $escapeChar) {
-                    // begin escape sequence
-                    $inEscapeSeq = true;
-                } else {
-                    $currToken .= $c;
+                }
+                else
+                {
+                    if ($c == $escapeChar)
+                    {
+                        // begin escape sequence
+                        $inEscapeSeq = true;
+                    }
+                    else
+                    {
+                        $currToken .= $c;
+                    }
                 }
             }
             $i++;
         }
         // flush the last token
         array_push($tokens, $currToken);
+
         return $tokens;
     }
-
 }
