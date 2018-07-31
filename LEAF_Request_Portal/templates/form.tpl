@@ -31,9 +31,9 @@
     </div>
     <div class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <div tabindex="0" aria-label="View full form" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form" title="View full form" /> Show single page</div>
+            <button tabindex="0" aria-label="View single page" class="tools" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" title="View Single Page" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=edit-find-replace.svg&amp;w=32); background-repeat: no-repeat; height: 38px; background-position: left; text-align: center"/> View Single Page</button>
             <br /><br />
-            <div tabindex="0" aria-label="Cancel request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" /> Cancel Request</div>
+            <button tabindex ="0" aria-label="Cancel request" class="tools" id="btn_cancelRequest" onclick="cancelRequest()" title="Cancel Request" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=process-stop.svg&amp;w=16); background-repeat: no-repeat; background-position: left; text-align: center"/> Cancel Request</button>
         </div>
     </div>
 </div>
