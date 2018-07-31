@@ -10,9 +10,11 @@ $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $settings['heading'] = $settings['heading'] == '' ? $config->title : $settings['heading'];
 $settings['subheading'] = $settings['subheading'] == '' ? $config->city : $settings['subheading'];
 
-function getBaseDir() {
-	$dir = dirname($_SERVER['PHP_SELF']);
-	return str_replace('login', '', $dir);
+function getBaseDir()
+{
+    $dir = dirname($_SERVER['PHP_SELF']);
+
+    return str_replace('login', '', $dir);
 }
 
 ?>

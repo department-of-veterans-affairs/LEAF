@@ -1,4 +1,7 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 require '../VAMC_Directory.php';
 
@@ -13,24 +16,27 @@ $dir = new VAMC_Directory();
 $groups = $db->query('SELECT * FROM groups ORDER BY name ASC');
 echo 'Access Groups:';
 echo '<ul>';
-foreach($groups as $group) {
+foreach ($groups as $group)
+{
     echo "<li>{$group['name']} (groupID#: {$group['groupID']})";
 
     $users = $db->query("SELECT * FROM users WHERE groupID={$group['groupID']} ORDER BY userID");
     echo '<ul>';
-    foreach($users as $user) {
+    foreach ($users as $user)
+    {
         $dirdata = $dir->lookupLogin($user['userID']);
-        if(!isset($dirdata[0])) {
-          $sanitizeUser = htmlentities($user['userID']);
-            echo "<li style='color: red; font-weight: bold'>NOT FOUND: {$sanitizeUser}</li>";          
+        if (!isset($dirdata[0]))
+        {
+            $sanitizeUser = htmlentities($user['userID']);
+            echo "<li style='color: red; font-weight: bold'>NOT FOUND: {$sanitizeUser}</li>";
         }
-        else {
+        else
+        {
             echo "<li>{$dirdata[0]['Lname']}, {$dirdata[0]['Fname']}</li>";
         }
     }
     echo '</ul>';
 
-
-    echo "</li>";
+    echo '</li>';
 }
 echo '</ul>';
