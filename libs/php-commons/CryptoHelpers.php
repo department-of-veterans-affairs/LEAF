@@ -1,4 +1,7 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 /**
  * Suite of helper functions to assist in encrypting and signing data.
@@ -6,6 +9,7 @@
  * In general, all input and output strings should be in hexadecimal
  * format, unless otherwise noted.
  */
+
 class CryptoHelpers
 {
     /**

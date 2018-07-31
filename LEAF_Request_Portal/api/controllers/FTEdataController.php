@@ -1,16 +1,21 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 require '../form.php';
 
 class FTEdataController extends RESTfulResponse
 {
-    private $API_VERSION = 1;    // Integer
     public $index = array();
 
+    private $API_VERSION = 1;    // Integer
+
     private $form;
+
     private $db;
 
-    function __construct($db, $login)
+    public function __construct($db, $login)
     {
         $this->form = new Form($db, $login);
         $this->db = $db;
@@ -22,21 +27,23 @@ class FTEdataController extends RESTfulResponse
 
         $this->index['GET'] = new ControllerMap();
         $cm = $this->index['GET'];
-        $this->index['GET']->register('FTEdata/version', function() {
+        $this->index['GET']->register('FTEdata/version', function () {
             return $this->API_VERSION;
         });
 
-        $this->index['GET']->register('FTEdata/selecteeSheet', function() {
-			$list = explode(',', $_GET['recordIDs']);
-			$recordIDs = '';
-			foreach($list as $id) {
-				if(is_numeric($id)) {
-					$recordIDs .= "{$id},";
-				}
-			}
-			$recordIDs = trim($recordIDs, ',');
+        $this->index['GET']->register('FTEdata/selecteeSheet', function () {
+            $list = explode(',', $_GET['recordIDs']);
+            $recordIDs = '';
+            foreach ($list as $id)
+            {
+                if (is_numeric($id))
+                {
+                    $recordIDs .= "{$id},";
+                }
+            }
+            $recordIDs = trim($recordIDs, ',');
 
-        	$res = $this->db->query("SELECT * FROM records
+            $res = $this->db->query("SELECT * FROM records
                                		RIGHT JOIN (SELECT * FROM category_count
                                                     WHERE categoryID='fte'
                                                 AND count > 0) j4 USING (recordID)
@@ -50,44 +57,47 @@ class FTEdataController extends RESTfulResponse
                                         AND records.submitted != 0
         								AND recordID in ({$recordIDs})");
 
-        	$data = array();
-        	foreach($res as $result) {
-        		$data[$result['recordID']] = $result;
-        	}
+            $data = array();
+            foreach ($res as $result)
+            {
+                $data[$result['recordID']] = $result;
+            }
 
-        	$raw = $this->form->getCustomData($data, '5,6,7,230,250,251,252,253,254,255,256,257,157,293,294,299,300,320,328,263,335,354,355,356,360,364,365,366,367');
+            $raw = $this->form->getCustomData($data, '5,6,7,230,250,251,252,253,254,255,256,257,157,293,294,299,300,320,328,263,335,354,355,356,360,364,365,366,367');
 
-        	$formattedData = array();
-			foreach($raw as $item) {
-				$numberOfPeople = isset($item['s1']['id356']) ? $item['s1']['id356'] : 1;
-				for($i = 0; $i < $numberOfPeople; $i++) {
-					$j = $i+1;
-					$temp = $item;
-					$temp['displayedRecordID'] = "{$item['recordID']}.{$j}";
-					$temp = array_merge($temp, $item["s$j"]);
-					$temp['id7'] = $item['s1']['id7'];	// position title
-					$temp['id5'] = $item['s1']['id5'];	// vice
-					$temp['id6'] = $item['s1']['id6'];	// status
-					$temp['id300'] = $item['s1']['id300'];	// internal/external
-					$temp['id335'] = $item['s1']['id335'];	// non-mc funded
-					$temp['id256'] = $item['s1']['id256'];	// hr specialist
-					$temp['calculatedNumFTE'] = $numberOfPeople >= 1 ? $temp['s1']['id230'] / $numberOfPeople : $temp['s1']['id230'];
-					$formattedData[] = $temp;
-				}
-			}
+            $formattedData = array();
+            foreach ($raw as $item)
+            {
+                $numberOfPeople = isset($item['s1']['id356']) ? $item['s1']['id356'] : 1;
+                for ($i = 0; $i < $numberOfPeople; $i++)
+                {
+                    $j = $i + 1;
+                    $temp = $item;
+                    $temp['displayedRecordID'] = "{$item['recordID']}.{$j}";
+                    $temp = array_merge($temp, $item["s$j"]);
+                    $temp['id7'] = $item['s1']['id7'];	// position title
+                    $temp['id5'] = $item['s1']['id5'];	// vice
+                    $temp['id6'] = $item['s1']['id6'];	// status
+                    $temp['id300'] = $item['s1']['id300'];	// internal/external
+                    $temp['id335'] = $item['s1']['id335'];	// non-mc funded
+                    $temp['id256'] = $item['s1']['id256'];	// hr specialist
+                    $temp['calculatedNumFTE'] = $numberOfPeople >= 1 ? $temp['s1']['id230'] / $numberOfPeople : $temp['s1']['id230'];
+                    $formattedData[] = $temp;
+                }
+            }
 
-        	return $formattedData;
+            return $formattedData;
         });
 
-        $this->index['GET']->register('FTEdata/selecteeSheetDateRange', function() {
+        $this->index['GET']->register('FTEdata/selecteeSheetDateRange', function () {
+            if (!$this->isDate($_GET['startDate']) && !$this->isDate($_GET['endDate']))
+            {
+                return 'Invalid Date';
+            }
 
-          if(!$this->isDate($_GET['startDate']) && !$this->isDate($_GET['endDate'])) {
-      			return 'Invalid Date';
-      		}
-
-        	$startDate = (int)strtotime($_GET['startDate']);
-        	$endDate =   (int)strtotime($_GET['endDate']);
-        	$res = $this->db->query("SELECT * FROM records
+            $startDate = (int)strtotime($_GET['startDate']);
+            $endDate = (int)strtotime($_GET['endDate']);
+            $res = $this->db->query("SELECT * FROM records
                                		RIGHT JOIN (SELECT * FROM category_count
                                                     WHERE categoryID='fte'
                                                 AND count > 0) j4 USING (recordID)
@@ -102,33 +112,36 @@ class FTEdataController extends RESTfulResponse
                                     WHERE records.deleted = 0
                                         AND records.submitted != 0");
 
-        	$data = array();
-        	foreach($res as $result) {
-        		$data[$result['recordID']] = $result;
-        	}
+            $data = array();
+            foreach ($res as $result)
+            {
+                $data[$result['recordID']] = $result;
+            }
 
-        	$raw = $this->form->getCustomData($data, '5,6,7,230,250,251,252,253,254,255,256,257,157,293,294,299,300,320,328,263,335,354,355,356,360,364,365,366,367');
+            $raw = $this->form->getCustomData($data, '5,6,7,230,250,251,252,253,254,255,256,257,157,293,294,299,300,320,328,263,335,354,355,356,360,364,365,366,367');
 
-        	$formattedData = array();
-			foreach($raw as $item) {
-				$numberOfPeople = isset($item['s1']['id356']) ? $item['s1']['id356'] : 1;
-				for($i = 0; $i < $numberOfPeople; $i++) {
-					$j = $i+1;
-					$temp = $item;
-					$temp['displayedRecordID'] = "{$item['recordID']}.{$j}";
-					$temp = isset($item["s$j"]) ? array_merge($temp, $item["s$j"]) : $temp;
-					$temp['id7'] = $item['s1']['id7'];	// position title
-					$temp['id5'] = $item['s1']['id5'];	// vice
-					$temp['id6'] = $item['s1']['id6'];	// status
-					$temp['id300'] = $item['s1']['id300'];	// internal/external
-					$temp['id335'] = $item['s1']['id335'];	// non-mc funded
-					$temp['id256'] = $item['s1']['id256'];	// hr specialist
-					$temp['calculatedNumFTE'] = $numberOfPeople >= 1 ? $item['s1']['id230'] / $numberOfPeople : $temp['s1']['id230'];
-					$formattedData[] = $temp;
-				}
-			}
+            $formattedData = array();
+            foreach ($raw as $item)
+            {
+                $numberOfPeople = isset($item['s1']['id356']) ? $item['s1']['id356'] : 1;
+                for ($i = 0; $i < $numberOfPeople; $i++)
+                {
+                    $j = $i + 1;
+                    $temp = $item;
+                    $temp['displayedRecordID'] = "{$item['recordID']}.{$j}";
+                    $temp = isset($item["s$j"]) ? array_merge($temp, $item["s$j"]) : $temp;
+                    $temp['id7'] = $item['s1']['id7'];	// position title
+                    $temp['id5'] = $item['s1']['id5'];	// vice
+                    $temp['id6'] = $item['s1']['id6'];	// status
+                    $temp['id300'] = $item['s1']['id300'];	// internal/external
+                    $temp['id335'] = $item['s1']['id335'];	// non-mc funded
+                    $temp['id256'] = $item['s1']['id256'];	// hr specialist
+                    $temp['calculatedNumFTE'] = $numberOfPeople >= 1 ? $item['s1']['id230'] / $numberOfPeople : $temp['s1']['id230'];
+                    $formattedData[] = $temp;
+                }
+            }
 
-        	return $formattedData;
+            return $formattedData;
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -141,14 +154,19 @@ class FTEdataController extends RESTfulResponse
 
     private function isDate($value)
     {
-        if (!$value) {
+        if (!$value)
+        {
             return false;
         }
 
-        try {
+        try
+        {
             new \DateTime($value);
+
             return true;
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             return false;
         }
     }

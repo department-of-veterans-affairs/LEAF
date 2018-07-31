@@ -1,4 +1,8 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
 /************************
     Index for everything
     Date: September 11, 2007
@@ -11,7 +15,8 @@
 */
 error_reporting(E_ALL & ~E_NOTICE);
 
-if(false) {
+if (false)
+{
     echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
     exit();
 }
@@ -35,7 +40,8 @@ $login = new Orgchart\Login($db, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
-if(!$login->isLogin() || !$login->isInDB()) {
+if (!$login->isLogin() || !$login->isInDB())
+{
     echo 'Your login is not recognized.';
     exit;
 }
@@ -64,163 +70,181 @@ $t_login->assign('name', $login->getName());
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
 
-switch($action) {
+switch ($action) {
     case 'admin_refresh_directory':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
+        $t_form->right_delimiter = '}-->';
 
         $memberships = $login->getMembership();
-        if(isset($memberships['groupID'][1])) {
+        if (isset($memberships['groupID'][1]))
+        {
             $main->assign('body', $t_form->fetch('admin_refresh_directory.tpl'));
         }
-        else {
+        else
+        {
             $main->assign('body', 'You require System Administrator level access to view this section.');
         }
-        
+
         $tabText = 'System Administration';
+
         break;
     case 'admin_update_database':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
-    
+        $t_form->right_delimiter = '}-->';
+
         $memberships = $login->getMembership();
-        if(isset($memberships['groupID'][1])) {
+        if (isset($memberships['groupID'][1]))
+        {
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
         }
-        else {
+        else
+        {
             $main->assign('body', 'You require System Administrator level access to view this section.');
         }
-    
+
         $tabText = 'System Administration';
+
         break;
     case 'mod_system':
-       	$t_form = new Smarty;
-       	$t_form->left_delimiter = '<!--{';
-       	$t_form->right_delimiter= '}-->';
+           $t_form = new Smarty;
+           $t_form->left_delimiter = '<!--{';
+           $t_form->right_delimiter = '}-->';
 
-       	//$main->assign('useUI', true);
-       	$main->assign('javascripts', array('js/dialogController.js'));
+           //$main->assign('useUI', true);
+           $main->assign('javascripts', array('js/dialogController.js'));
 
-       	$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+           $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-       	$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-       	$t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);
-       	$t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
+           $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+           $t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);
+           $t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
 
-       	require_once '../sources/Tag.php';
-       	$tagObj = new Orgchart\Tag($db, $login);
-       	$t_form->assign('serviceParent', $tagObj->getParent('service'));
+           require_once '../sources/Tag.php';
+           $tagObj = new Orgchart\Tag($db, $login);
+           $t_form->assign('serviceParent', $tagObj->getParent('service'));
 
-       	$memberships = $login->getMembership();
-       	if(isset($memberships['groupID'][1])) {
-       		$main->assign('body', $t_form->fetch('mod_system.tpl'));
-       	}
-       	else {
-       		$main->assign('body', 'You require System Administrator level access to view this section.');
-       	}
+           $memberships = $login->getMembership();
+           if (isset($memberships['groupID'][1]))
+           {
+               $main->assign('body', $t_form->fetch('mod_system.tpl'));
+           }
+           else
+           {
+               $main->assign('body', 'You require System Administrator level access to view this section.');
+           }
 
-       	$tabText = 'System Administration';
-       	break;
+           $tabText = 'System Administration';
+
+           break;
     case 'setup_medical_center':
         $t_form = new Smarty;
-       	$t_form->left_delimiter = '<!--{';
-       	$t_form->right_delimiter= '}-->';
+           $t_form->left_delimiter = '<!--{';
+           $t_form->right_delimiter = '}-->';
 
-       	//$main->assign('useUI', true);
-       	$main->assign('stylesheets', array('admin/css/mod_groups.css', 'css/employeeSelector.css'));
-       	$main->assign('javascripts', array('js/dialogController.js', 'js/nationalEmployeeSelector.js'));
+           //$main->assign('useUI', true);
+           $main->assign('stylesheets', array('admin/css/mod_groups.css', 'css/employeeSelector.css'));
+           $main->assign('javascripts', array('js/dialogController.js', 'js/nationalEmployeeSelector.js'));
 
-       	$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+           $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-       	$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-       	$t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);
-       	$t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
+           $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+           $t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);
+           $t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
 
-       	$memberships = $login->getMembership();
-       	if(isset($memberships['groupID'][1])) {
-       		$main->assign('body', $t_form->fetch('setup_medical_center.tpl'));
-       	}
-       	else {
-       		$main->assign('body', 'You require System Administrator level access to view this section.');
-       	}
+           $memberships = $login->getMembership();
+           if (isset($memberships['groupID'][1]))
+           {
+               $main->assign('body', $t_form->fetch('setup_medical_center.tpl'));
+           }
+           else
+           {
+               $main->assign('body', 'You require System Administrator level access to view this section.');
+           }
 
-       	$tabText = 'Setup Medical Center';
-       	break;
+           $tabText = 'Setup Medical Center';
+
+           break;
     case 'mod_templates':
     case 'mod_templates_reports':
-       	$t_form = new Smarty;
-       	$t_form->left_delimiter = '<!--{';
-       	$t_form->right_delimiter= '}-->';
-       		 
-       	$main->assign('useUI', true);
-       	$main->assign('javascripts', array('js/dialogController.js',
-       			'../libs/js/codemirror/lib/codemirror.js',
-       			'../libs/js/codemirror/mode/xml/xml.js',
-       			'../libs/js/codemirror/mode/javascript/javascript.js',
-       			'../libs/js/codemirror/mode/css/css.js',
-       			'../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-       			'../libs/js/codemirror/addon/search/search.js',
-       			'../libs/js/codemirror/addon/search/searchcursor.js',
-       			'../libs/js/codemirror/addon/dialog/dialog.js',
-       			'../libs/js/codemirror/addon/scroll/simplescrollbars.js',
-       			'../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
-       			'../libs/js/codemirror/addon/search/matchesonscrollbar.js',
-       			'../libs/js/codemirror/addon/display/fullscreen.js'
-       	));
-       	$main->assign('stylesheets', array('../libs/js/codemirror/lib/codemirror.css',
-       			'../libs/js/codemirror/addon/dialog/dialog.css',
-       			'../libs/js/codemirror/addon/scroll/simplescrollbars.css',
-       			'../libs/js/codemirror/addon/search/matchesonscrollbar.css',
-       			'../libs/js/codemirror/addon/display/fullscreen.css'
-       	));
-       		 
-       	$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-       	$t_form->assign('APIroot', '../api/');
-       		 
-       	switch($action) {
-       		case 'mod_templates':
-       			$main->assign('body', $t_form->fetch('mod_templates.tpl'));
-       			break;
-       		case 'mod_templates_reports':
-       			$main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
-       			break;
-       		default:
-       			break;
-       	}
-       	
-       	$tabText = 'Template Editor';
-       	break;
+           $t_form = new Smarty;
+           $t_form->left_delimiter = '<!--{';
+           $t_form->right_delimiter = '}-->';
+
+           $main->assign('useUI', true);
+           $main->assign('javascripts', array('js/dialogController.js',
+                   '../libs/js/codemirror/lib/codemirror.js',
+                   '../libs/js/codemirror/mode/xml/xml.js',
+                   '../libs/js/codemirror/mode/javascript/javascript.js',
+                   '../libs/js/codemirror/mode/css/css.js',
+                   '../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
+                   '../libs/js/codemirror/addon/search/search.js',
+                   '../libs/js/codemirror/addon/search/searchcursor.js',
+                   '../libs/js/codemirror/addon/dialog/dialog.js',
+                   '../libs/js/codemirror/addon/scroll/simplescrollbars.js',
+                   '../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
+                   '../libs/js/codemirror/addon/search/matchesonscrollbar.js',
+                   '../libs/js/codemirror/addon/display/fullscreen.js',
+           ));
+           $main->assign('stylesheets', array('../libs/js/codemirror/lib/codemirror.css',
+                   '../libs/js/codemirror/addon/dialog/dialog.css',
+                   '../libs/js/codemirror/addon/scroll/simplescrollbars.css',
+                   '../libs/js/codemirror/addon/search/matchesonscrollbar.css',
+                   '../libs/js/codemirror/addon/display/fullscreen.css',
+           ));
+
+           $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+           $t_form->assign('APIroot', '../api/');
+
+           switch ($action) {
+               case 'mod_templates':
+                   $main->assign('body', $t_form->fetch('mod_templates.tpl'));
+
+                   break;
+               case 'mod_templates_reports':
+                   $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
+
+                   break;
+               default:
+                   break;
+           }
+
+           $tabText = 'Template Editor';
+
+           break;
     default:
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
+        $t_form->right_delimiter = '}-->';
 
         $main->assign('javascripts', array('js/nationalEmployeeSelector.js',
                                            'js/positionSelector.js',
                                            'js/groupSelector.js',
                                            'js/dialogController.js',
-                                           'js/orgchartForm.js'));
+                                           'js/orgchartForm.js', ));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                                            'css/view_employee.css',
                                            'css/positionSelector.css',
                                            'css/view_position.css',
                                            'css/groupSelector.css',
-                                           'css/view_group.css'));
+                                           'css/view_group.css', ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('userDomain', $login->getDomain());
 
         $memberships = $login->getMembership();
-        if(isset($memberships['groupID'][1])) {
-            $main->assign('body', $t_form->fetch('view_admin.tpl'));            
+        if (isset($memberships['groupID'][1]))
+        {
+            $main->assign('body', $t_form->fetch('view_admin.tpl'));
         }
-        else {
+        else
+        {
             $main->assign('body', 'You require System Administrator level access to view this section.');
         }
 
         $tabText = 'System Administration';
+
         break;
 }
 
@@ -237,9 +261,11 @@ $main->assign('title', $settings['heading'] == '' ? $config->title : $settings['
 $main->assign('city', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
 $main->assign('revision', $settings['version']);
 
-if(!isset($_GET['iframe'])) {
-	$main->display('main.tpl');
+if (!isset($_GET['iframe']))
+{
+    $main->display('main.tpl');
 }
-else {
-	$main->display('main_iframe.tpl');
+else
+{
+    $main->display('main_iframe.tpl');
 }

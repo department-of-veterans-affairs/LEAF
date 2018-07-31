@@ -1,4 +1,7 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 /************************
     VAMC_directory_maintenance
@@ -8,43 +11,53 @@
     + Multiple data sources
     + Buffered inserts for low memory usage
 */
-class VAMC_Directory_maintenance_AD {
+
+class VAMC_Directory_maintenance_AD
+{
     private $sortBy = 'Lname';          // Sort by... ?
+
     private $sortDir = 'ASC';           // Sort ascending/descending?
+
     private $debug = true;             // Are we debugging?
 
     private $db;                        // The database object
+
     private $tableName = 'Employee';    // Table of employee contact info
+
     private $log = array('Debug Log is ON');          // error log for debugging
 
     private $users = array();
 
     // Connect to the database
-    function __construct()
+    public function __construct()
     {
-    	$currDir = dirname(__FILE__);
+        $currDir = dirname(__FILE__);
         require_once $currDir . '/../config.php';
         $config = new Orgchart\Config();
-        try {
-            $this->db = new PDO("mysql:host={$config->dbHost};dbname={$config->dbName}",
-                            $config->dbUser, $config->dbPass, array(PDO::ATTR_PERSISTENT => true));
+
+        try
+        {
+            $this->db = new PDO(
+                "mysql:host={$config->dbHost};dbname={$config->dbName}",
+                            $config->dbUser,
+                $config->dbPass,
+                array(PDO::ATTR_PERSISTENT => true)
+            );
             unset($config);
-        } catch (PDOException $e) {
+        }
+        catch (PDOException $e)
+        {
             echo 'Database Error: ' . $e->getMessage();
             exit();
         }
     }
 
-    function __destruct()
+    public function __destruct()
     {
-        if($this->debug)
-            echo print_r($this->log);     // debugging
-    }
-
-    // Log errors from the database
-    private function logError($error)
-    {
-        $this->log[] = $error;
+        if ($this->debug)
+        {
+            echo print_r($this->log);
+        }     // debugging
     }
 
     public function setSort($sortBy, $sortDir)
@@ -57,52 +70,16 @@ class VAMC_Directory_maintenance_AD {
     // For debugging only
     public function query($sql)
     {
-        if($this->debug) {
+        if ($this->debug)
+        {
             $res = $this->db->query($sql);
-            if(is_object($res)) {
+            if (is_object($res))
+            {
                 return $res->fetchAll(PDO::FETCH_ASSOC);
             }
             $err = $this->db->errorInfo();
             $this->logError($err[2]);
         }
-        return null;
-    }
-
-    // Translates the * wildcard to SQL % wildcard
-    private function parseWildcard($query)
-    {
-        return str_replace('*', '%', $query . '*');
-    }
-
-    // Trims input
-    private function trimField(&$value, &$key)
-    {
-        $value = trim($value);
-        $value = trim($value, '.');
-    }
-
-    // Trims input
-    private function trimField2(&$value, &$key)
-    {
-        $value = trim($value);
-        $value = trim($value, '.');
-    }
-
-    private function ucwordss($str) {
-        $lowerCase = array('OF');
-        $out = "";
-        foreach (explode(" ", $str) as $word) {
-            if(in_array($word, $lowerCase)) {
-                $out .= strtolower($word) . ' ';
-            }
-            else if(strlen($word) > 4 || metaphone($word) != $word) {
-                $out .= strtoupper($word[0]) . substr(strtolower($word), 1) . " ";
-            }
-            else {
-                $out .= $word . " ";
-            }
-        }
-        return rtrim($out);
     }
 
     // Imports data from ^ and \n delimited file of format:
@@ -111,8 +88,9 @@ class VAMC_Directory_maintenance_AD {
         $rawdata = file($file);
         $count = 0;
 
-        foreach($rawdata as $line) {
-            $t = explode("^", $line);
+        foreach ($rawdata as $line)
+        {
+            $t = explode('^', $line);
             array_walk($t, array($this, 'trimField'));
 
 //            $tmpName = explode(',', $t[0]);
@@ -131,7 +109,7 @@ class VAMC_Directory_maintenance_AD {
             $mailcode = isset($t[98]) ? $t[98] : null;
             $loginName = isset($t[97]) ? $t[97] : null;
 
-            $id = md5(strtoupper($lname).strtoupper($fname).strtoupper($midIni));
+            $id = md5(strtoupper($lname) . strtoupper($fname) . strtoupper($midIni));
             $this->users[$id]['lname'] = isset($this->users[$id]['lname']) ? $this->users[$id]['lname'] : $lname;
             $this->users[$id]['fname'] = isset($this->users[$id]['fname']) ? $this->users[$id]['fname'] : $fname;
             $this->users[$id]['midIni'] = $midIni;
@@ -146,13 +124,14 @@ class VAMC_Directory_maintenance_AD {
             $this->users[$id]['source'] = 'vista';
             echo "Grabbing data for $lname, $fname\n";
             $count++;
-            
-            if($count > 100) {
+
+            if ($count > 100)
+            {
                 $this->importData();
                 $count = 0;
             }
         }
-        $this->importData(); // import any remaining entries        
+        $this->importData(); // import any remaining entries
     }
 
     // Imports data from \t and \n delimited file of format:
@@ -165,19 +144,21 @@ class VAMC_Directory_maintenance_AD {
         $headers = explode(',', $rawheaders);
         $idx = 0;
         $csvdeIdx = array();
-        foreach($headers as $header) {
+        foreach ($headers as $header)
+        {
             $csvdeIdx[$header] = $idx;
-            $idx++;            
+            $idx++;
         }
-/*
-        if($idx != 9) {
-//            file_put_contents('Z:\phonebook\error.txt', 'Error: AD export');
-            return 0;
-        }*/
+        /*
+                if($idx != 9) {
+        //            file_put_contents('Z:\phonebook\error.txt', 'Error: AD export');
+                    return 0;
+                }*/
 
         $count = 0;
 
-        foreach($rawdata as $line) {
+        foreach ($rawdata as $line)
+        {
             $t = $this->splitWithEscape($line);
 //            print_r($t);
 //            $t = explode("\t", $line);
@@ -202,8 +183,9 @@ class VAMC_Directory_maintenance_AD {
             $domain = $t[$csvdeIdx['DN']] ? $t[$csvdeIdx['DN']] : null;
             $domain = $this->parseVAdomain($domain);
 
-            $id = md5(strtoupper($lname).strtoupper($fname).strtoupper($midIni));
-            if($lname != '') {
+            $id = md5(strtoupper($lname) . strtoupper($fname) . strtoupper($midIni));
+            if ($lname != '')
+            {
                 $this->users[$id]['lname'] = $lname;
                 $this->users[$id]['fname'] = $fname;
                 $this->users[$id]['midIni'] = $midIni;
@@ -222,11 +204,13 @@ class VAMC_Directory_maintenance_AD {
                 echo "Grabbing data for $lname, $fname\n";
                 $count++;
             }
-            else {
+            else
+            {
                 echo "{$loginName} probably not a user, skipping.\n";
             }
-            
-            if($count > 100) {
+
+            if ($count > 100)
+            {
                 $this->importData();
                 $count = 0;
             }
@@ -238,7 +222,7 @@ class VAMC_Directory_maintenance_AD {
         $sql = "UPDATE employee SET deleted=1
                         WHERE lastUpdated < :timeLimit
         					AND lastUpdated > 0";
-        
+
         $pq3 = $this->db->prepare($sql);
         $pq3->bindParam(':timeLimit', $timeLimit);
         $pq3->execute();*/
@@ -249,38 +233,40 @@ class VAMC_Directory_maintenance_AD {
     public function importData()
     {
         $time = time();
-        $sql = "INSERT INTO employee (userName, lastName, firstName, middleName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
-                    VALUES (:loginName, :lname, :fname, :midIni, :phoneticFname, :phoneticLname, :domain, :lastUpdated)";
+        $sql = 'INSERT INTO employee (userName, lastName, firstName, middleName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
+                    VALUES (:loginName, :lname, :fname, :midIni, :phoneticFname, :phoneticLname, :domain, :lastUpdated)';
 
         $pq = $this->db->prepare($sql);
         $count = 0;
-        
+
         $userKeys = array_keys($this->users);
 
-        foreach($userKeys as $key) {
+        foreach ($userKeys as $key)
+        {
             $phoneticFname = metaphone($this->users[$key]['fname']);
             $phoneticLname = metaphone($this->users[$key]['lname']);
 
-            $sql = "SELECT SQL_NO_CACHE * FROM employee WHERE username = :loginName";
+            $sql = 'SELECT SQL_NO_CACHE * FROM employee WHERE username = :loginName';
             $pq2 = $this->db->prepare($sql);
             $pq2->bindParam(':loginName', $this->users[$key]['loginName']);
             $pq2->execute();
             $res = $pq2->fetchAll();
 
-            if(count($res) > 0) {
+            if (count($res) > 0)
+            {
                 echo "Updating data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} \n";
 
                 $sql = "INSERT INTO employee_data (empUID, indicatorID, data, author)
                             VALUES (:empUID, :indicatorID, :data, 'system')
                             ON DUPLICATE KEY UPDATE data=:data";
-                
+
                 $pq3 = $this->db->prepare($sql);
                 $pq3->bindParam(':empUID', $res[0]['empUID']);
                 $id = 6;
                 $pq3->bindParam(':indicatorID', $id);
                 $pq3->bindParam(':data', $this->users[$key]['email']);
                 $pq3->execute();
-                
+
                 $pq3 = $this->db->prepare($sql);
                 $pq3->bindParam(':empUID', $res[0]['empUID']);
                 $id = 5;
@@ -303,16 +289,17 @@ class VAMC_Directory_maintenance_AD {
                 $pq3->execute();
 
                 // don't store mobile # if it's the same as the primary phone #
-                if($this->users[$key]['phone'] != $this->users[$key]['mobile']) {
-                	$pq3 = $this->db->prepare($sql);
-                	$pq3->bindParam(':empUID', $res[0]['empUID']);
-                	$id = 16;
-                	$pq3->bindParam(':indicatorID', $id);
-                	$pq3->bindParam(':data', $this->users[$key]['mobile']);
-                	$pq3->execute();
+                if ($this->users[$key]['phone'] != $this->users[$key]['mobile'])
+                {
+                    $pq3 = $this->db->prepare($sql);
+                    $pq3->bindParam(':empUID', $res[0]['empUID']);
+                    $id = 16;
+                    $pq3->bindParam(':indicatorID', $id);
+                    $pq3->bindParam(':data', $this->users[$key]['mobile']);
+                    $pq3->execute();
                 }
 
-                $sql = "UPDATE employee SET lastName=:lname,
+                $sql = 'UPDATE employee SET lastName=:lname,
                                 firstName=:fname,
                                 middleName=:midIni,
                                 phoneticFirstName=:phoneticFname,
@@ -320,7 +307,7 @@ class VAMC_Directory_maintenance_AD {
                 				domain=:domain,
                                 lastUpdated=:lastUpdated,
                 				deleted = 0
-                            WHERE username=:userName";
+                            WHERE username=:userName';
 
                 $pq3 = $this->db->prepare($sql);
                 $pq3->bindParam(':userName', $this->users[$key]['loginName']);
@@ -333,8 +320,9 @@ class VAMC_Directory_maintenance_AD {
                 $pq3->bindParam(':lastUpdated', $time);
                 $pq3->execute();
             }
-            else {
-                $pq->bindParam(':loginName', $this->users[$key]['loginName']); 
+            else
+            {
+                $pq->bindParam(':loginName', $this->users[$key]['loginName']);
                 $pq->bindParam(':lname', $this->users[$key]['lname']);
                 $pq->bindParam(':fname', $this->users[$key]['fname']);
                 $pq->bindParam(':midIni', $this->users[$key]['midIni']);
@@ -350,12 +338,13 @@ class VAMC_Directory_maintenance_AD {
                 //$pq->bindParam(':source', $this->users[$key]['source']);
                 $pq->bindParam(':domain', $this->users[$key]['domain']);
                 $pq->bindParam(':lastUpdated', $time);
-    
+
                 $pq->execute();
                 echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
-    
+
                 $lastEmpUID = $this->db->lastInsertId();
-                if($pq->errorCode() != '00000') {
+                if ($pq->errorCode() != '00000')
+                {
                     print_r($pq->errorInfo());
                 }
 
@@ -363,7 +352,7 @@ class VAMC_Directory_maintenance_AD {
                 $sql = "INSERT INTO employee_data (empUID, indicatorID, data, author)
                             VALUES (:empUID, :indicatorID, :data, 'system')
                             ON DUPLICATE KEY UPDATE data=:data";
-                
+
                 $pq3 = $this->db->prepare($sql);
                 $pq3->bindParam(':empUID', $lastEmpUID);
                 $id = 6;
@@ -374,9 +363,9 @@ class VAMC_Directory_maintenance_AD {
             }
             unset($this->users[$key]);
         }
-        
-        echo "Cleanup... ";
-// TODO: do some clean up
+
+        echo 'Cleanup... ';
+        // TODO: do some clean up
         echo "... Done.\n";
 
         echo "Total: $count";
@@ -385,21 +374,23 @@ class VAMC_Directory_maintenance_AD {
     // custom
     public function importExtra($lname, $fname, $midIni, $email, $phone, $pager, $roomNum, $title, $service, $mailcode, $loginName)
     {
-        $sql = "SELECT SQL_NO_CACHE * FROM Employee WHERE loginName = :loginName";
+        $sql = 'SELECT SQL_NO_CACHE * FROM Employee WHERE loginName = :loginName';
         $pq2 = $this->db->prepare($sql);
         $pq2->bindParam(':loginName', $loginName);
         $pq2->execute();
         $res = $pq2->fetchAll();
 
-        if(count($res) > 0) {
+        if (count($res) > 0)
+        {
             echo "Ignoring data for {$lname}, {$fname} : Already in database. \n";
+
             return true;
         }
 
-        $sql = "INSERT INTO Employee (Lname, Fname, Mid_Initial, Email, Phone, Pager, RoomNumber,
+        $sql = 'INSERT INTO Employee (Lname, Fname, Mid_Initial, Email, Phone, Pager, RoomNumber,
                             Title, Service, MailCode, PhoneticFname, PhoneticLname, LoginName, source)
                             VALUES (:lname, :fname, :midIni, :email, :phone, :pager, :roomNum,
-                            :title, :service, :mailcode, :phoneticFname, :phoneticLname, :loginName, :source)";
+                            :title, :service, :mailcode, :phoneticFname, :phoneticLname, :loginName, :source)';
         $pq = $this->db->prepare($sql);
         $count = 0;
 
@@ -423,7 +414,8 @@ class VAMC_Directory_maintenance_AD {
 
         $pq->execute();
         echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
-        if($pq->errorCode() != '00000') {
+        if ($pq->errorCode() != '00000')
+        {
             print_r($pq->errorInfo());
         }
 
@@ -438,7 +430,8 @@ class VAMC_Directory_maintenance_AD {
         $res = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
         echo 'Generating phonetic cache...';
 
-        foreach($res as $emp) {
+        foreach ($res as $emp)
+        {
             $pFirst = metaphone($emp['Fname']);
             $pLast = metaphone($emp['Lname']);
             $sql = "UPDATE {$this->tableName} SET PhoneticFname = '$pFirst' WHERE EmpID = {$emp['EmpID']}";
@@ -451,118 +444,200 @@ class VAMC_Directory_maintenance_AD {
         }
     }
 
+    // Log errors from the database
+    private function logError($error)
+    {
+        $this->log[] = $error;
+    }
+
+    // Translates the * wildcard to SQL % wildcard
+    private function parseWildcard($query)
+    {
+        return str_replace('*', '%', $query . '*');
+    }
+
+    // Trims input
+    private function trimField(&$value, &$key)
+    {
+        $value = trim($value);
+        $value = trim($value, '.');
+    }
+
+    // Trims input
+    private function trimField2(&$value, &$key)
+    {
+        $value = trim($value);
+        $value = trim($value, '.');
+    }
+
+    private function ucwordss($str)
+    {
+        $lowerCase = array('OF');
+        $out = '';
+        foreach (explode(' ', $str) as $word)
+        {
+            if (in_array($word, $lowerCase))
+            {
+                $out .= strtolower($word) . ' ';
+            }
+            else
+            {
+                if (strlen($word) > 4 || metaphone($word) != $word)
+                {
+                    $out .= strtoupper($word[0]) . substr(strtolower($word), 1) . ' ';
+                }
+                else
+                {
+                    $out .= $word . ' ';
+                }
+            }
+        }
+
+        return rtrim($out);
+    }
+
     // Clean up all wildcards
-    private function cleanWildcards($input) {
+    private function cleanWildcards($input)
+    {
         $input = preg_replace('/\*+/i', '*', $input);
         $input = preg_replace('/(\*\s\*)+/i', '', $input);
+
         return $input;
     }
 
     // workaround for excel
     // author: tajhlande at gmail dot com
-    private function splitWithEscape ($str, $delimiterChar = ',', $escapeChar = '"') {
+    private function splitWithEscape($str, $delimiterChar = ',', $escapeChar = '"')
+    {
         $len = strlen($str);
         $tokens = array();
         $i = 0;
         $inEscapeSeq = false;
         $currToken = '';
-        while ($i < $len) {
+        while ($i < $len)
+        {
             $c = substr($str, $i, 1);
-            if ($inEscapeSeq) {
-                if ($c == $escapeChar) {
+            if ($inEscapeSeq)
+            {
+                if ($c == $escapeChar)
+                {
                     // lookahead to see if next character is also an escape char
-                    if ($i == ($len - 1)) {
+                    if ($i == ($len - 1))
+                    {
                         // c is last char, so must be end of escape sequence
                         $inEscapeSeq = false;
-                    } else if (substr($str, $i + 1, 1) == $escapeChar) {
-                        // append literal escape char
-                        $currToken .= $escapeChar;
-                        $i++;
-                    } else {
-                        // end of escape sequence
-                        $inEscapeSeq = false;
                     }
-                } else {
+                    else
+                    {
+                        if (substr($str, $i + 1, 1) == $escapeChar)
+                        {
+                            // append literal escape char
+                            $currToken .= $escapeChar;
+                            $i++;
+                        }
+                        else
+                        {
+                            // end of escape sequence
+                            $inEscapeSeq = false;
+                        }
+                    }
+                }
+                else
+                {
                     $currToken .= $c;
                 }
-            } else {
-                if ($c == $delimiterChar) {
+            }
+            else
+            {
+                if ($c == $delimiterChar)
+                {
                     // end of token, flush it
                     array_push($tokens, $currToken);
                     $currToken = '';
-                } else if ($c == $escapeChar) {
-                    // begin escape sequence
-                    $inEscapeSeq = true;
-                } else {
-                    $currToken .= $c;
+                }
+                else
+                {
+                    if ($c == $escapeChar)
+                    {
+                        // begin escape sequence
+                        $inEscapeSeq = true;
+                    }
+                    else
+                    {
+                        $currToken .= $c;
+                    }
                 }
             }
             $i++;
         }
         // flush the last token
         array_push($tokens, $currToken);
+
         return $tokens;
     }
 
-    private function parseVAdomain($adPath) {
-    	$dc = '';
-    	$dcSrc = explode(',', $adPath);
-    	foreach($dcSrc as $adElement) {
-    		if(strpos($adElement, 'DC=') !== false) {
-    			$dc .= substr($adElement, 3) . '.';
-    		}
-    	}
-    	$dc = trim($dc, '.');
-    
-    	switch($dc) {
-    		case 'v01.med.va.gov':
-    			return 'VHA01';
-    		case 'v02.med.va.gov':
-    			return 'VHA02';
-    		case 'v03.med.va.gov':
-    			return 'VHA03';
-    		case 'v04.med.va.gov':
-    			return 'VHA04';
-    		case 'v05.med.va.gov':
-    			return 'VHA05';
-    		case 'v06.med.va.gov':
-    			return 'VHA06';
-    		case 'v07.med.va.gov':
-    			return 'VHA07';
-    		case 'v08.med.va.gov':
-    			return 'VHA08';
-    		case 'v09.med.va.gov':
-    			return 'VHA09';
-    		case 'v10.med.va.gov':
-    			return 'VHA10';
-    		case 'v11.med.va.gov':
-    			return 'VHA11';
-    		case 'v12.med.va.gov':
-    			return 'VHA12';
-    		case 'v13.med.va.gov':
-    			return 'VHA13';
-    		case 'v14.med.va.gov':
-    			return 'VHA14';
-    		case 'v15.med.va.gov':
-    			return 'VHA15';
-    		case 'v16.med.va.gov':
-    			return 'VHA16';
-    		case 'v17.med.va.gov':
-    			return 'VHA17';
-    		case 'v18.med.va.gov':
-    			return 'VHA18';
-    		case 'v19.med.va.gov':
-    			return 'VHA19';
-    		case 'v20.med.va.gov':
-    			return 'VHA20';
-    		case 'v21.med.va.gov':
-    			return 'VHA21';
-    		case 'v22.med.va.gov':
-    			return 'VHA22';
-    		case 'v23.med.va.gov':
-    			return 'VHA23';
-    		default:
-    			return $dc;
-    	}
+    private function parseVAdomain($adPath)
+    {
+        $dc = '';
+        $dcSrc = explode(',', $adPath);
+        foreach ($dcSrc as $adElement)
+        {
+            if (strpos($adElement, 'DC=') !== false)
+            {
+                $dc .= substr($adElement, 3) . '.';
+            }
+        }
+        $dc = trim($dc, '.');
+
+        switch ($dc) {
+            case 'v01.med.va.gov':
+                return 'VHA01';
+            case 'v02.med.va.gov':
+                return 'VHA02';
+            case 'v03.med.va.gov':
+                return 'VHA03';
+            case 'v04.med.va.gov':
+                return 'VHA04';
+            case 'v05.med.va.gov':
+                return 'VHA05';
+            case 'v06.med.va.gov':
+                return 'VHA06';
+            case 'v07.med.va.gov':
+                return 'VHA07';
+            case 'v08.med.va.gov':
+                return 'VHA08';
+            case 'v09.med.va.gov':
+                return 'VHA09';
+            case 'v10.med.va.gov':
+                return 'VHA10';
+            case 'v11.med.va.gov':
+                return 'VHA11';
+            case 'v12.med.va.gov':
+                return 'VHA12';
+            case 'v13.med.va.gov':
+                return 'VHA13';
+            case 'v14.med.va.gov':
+                return 'VHA14';
+            case 'v15.med.va.gov':
+                return 'VHA15';
+            case 'v16.med.va.gov':
+                return 'VHA16';
+            case 'v17.med.va.gov':
+                return 'VHA17';
+            case 'v18.med.va.gov':
+                return 'VHA18';
+            case 'v19.med.va.gov':
+                return 'VHA19';
+            case 'v20.med.va.gov':
+                return 'VHA20';
+            case 'v21.med.va.gov':
+                return 'VHA21';
+            case 'v22.med.va.gov':
+                return 'VHA22';
+            case 'v23.med.va.gov':
+                return 'VHA23';
+            default:
+                return $dc;
+        }
     }
 }

@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types = 1);
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use LEAFTest\LEAFClient;
 
@@ -21,17 +24,17 @@ final class FormStackControllerTest extends DatabaseTest
     /**
      * Tests the GET `formStack/version` endpoint.
      */
-     public function testGetVersion() : void
-     {
-         $version = self::$client->get('?a=formStack/version');
-         $this->assertEquals(1, $version);
-     }
+    public function testGetVersion() : void
+    {
+        $version = self::$client->get('?a=formStack/version');
+        $this->assertEquals(1, $version);
+    }
 
-     /**
-      * Tests the DELETE `formStack/[text]` endpoint.
-      */
-      public function testDeleteForm() : void
-      {
+    /**
+     * Tests the DELETE `formStack/[text]` endpoint.
+     */
+    public function testDeleteForm() : void
+    {
         $categories = self::$client->get('?a=formStack/categoryList/all');
         $this->assertNotNull($categories);
         $this->assertEquals(3, count($categories));
@@ -47,8 +50,8 @@ final class FormStackControllerTest extends DatabaseTest
         foreach ($categories as $category)
         {
             $this->assertNotNull($category);
-            $this->assertNotNull($category["categoryID"]);
-            $this->assertTrue("form_f4687" != $category["categoryID"]);
+            $this->assertNotNull($category['categoryID']);
+            $this->assertTrue('form_f4687' != $category['categoryID']);
         }
-      }
+    }
 }

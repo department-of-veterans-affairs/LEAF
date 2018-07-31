@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types = 1);
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use LEAFTest\LEAFClient;
 
@@ -135,7 +138,7 @@ final class FormControllerTest extends DatabaseTest
 
     /**
      * Tests the `form/[text]/workflow` endpoint.
-     * 
+     *
      * Tests with invalid category ID
      */
     public function testGetWorkflow_invalidCategory() : void
@@ -152,8 +155,8 @@ final class FormControllerTest extends DatabaseTest
     public function testNewForm() : void
     {
         $results = self::$reqClient->postEncodedForm('?a=form/new', array(
-            'title' => "Junk Title",
-            'numform_f4687' => 1
+            'title' => 'Junk Title',
+            'numform_f4687' => 1,
         ));
 
         $this->assertNotNull($results);

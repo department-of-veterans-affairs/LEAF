@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types = 1);
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use LEAFTest\LEAFClient;
 
@@ -24,25 +27,25 @@ class PositionControllerTest extends DatabaseTest
     {
         //checks initial value
         $results = self::$client->get('position/3/supervisor');
-        $this->assertEquals("Medical Center Director", $results[0]["positionTitle"]);
+        $this->assertEquals('Medical Center Director', $results[0]['positionTitle']);
 
         //changes supervisor from med center director to test position super
-        $newSupervisor = array("positionID" => "2");
+        $newSupervisor = array('positionID' => '2');
         self::$client->postEncodedForm('position/3/supervisor', $newSupervisor);
 
         //checks that the change was successful
         $results = self::$client->get('position/3/supervisor');
-        $this->assertEquals("Test Position Title Super", $results[0]["positionTitle"]);
+        $this->assertEquals('Test Position Title Super', $results[0]['positionTitle']);
     }
 
     /**
      * Tests the `position/<id>` endpoint
      */
-    public function testDeletePosition(): void
+    public function testDeletePosition() : void
     {
         //checks initial value
         $results = self::$client->get('position/3');
-        $this->assertEquals("Test Subordinate Position", $results['title']);
+        $this->assertEquals('Test Subordinate Position', $results['title']);
 
         //deletes position
         self::$client->delete('position/3');
@@ -60,7 +63,7 @@ class PositionControllerTest extends DatabaseTest
     {
         //checks initial value
         $results = self::$client->get('position/3');
-        $this->assertEquals("Test Subordinate Position", $results['title']);
+        $this->assertEquals('Test Subordinate Position', $results['title']);
 
         //changes position title
         $newPositionTitle = array('title' => 'anotherNewTitle');
@@ -68,7 +71,7 @@ class PositionControllerTest extends DatabaseTest
 
         //checks to make sure the change was successful
         $results = self::$client->get('position/3');
-        $this->assertEquals("anotherNewTitle", $results['title']);
+        $this->assertEquals('anotherNewTitle', $results['title']);
     }
 
     /**
@@ -81,7 +84,7 @@ class PositionControllerTest extends DatabaseTest
         $this->assertEquals(0, count($results));
 
         //adds tester employee to test position sub
-        $employee = array('empUID' => '1', "isActing" => '0');
+        $employee = array('empUID' => '1', 'isActing' => '0');
         self::$client->postEncodedForm('position/3/employee', $employee);
 
         //checks to make sure the change was successful and tester is in the position

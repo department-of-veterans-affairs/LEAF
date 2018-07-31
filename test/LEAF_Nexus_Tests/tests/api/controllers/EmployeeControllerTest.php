@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types = 1);
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use LEAFTest\LEAFClient;
 
@@ -16,6 +19,7 @@ class EmployeeControllerTest extends DatabaseTest
         $this->resetDatabase();
         self::$client = LEAFClient::createNexusClient();
     }
+
     /**
      * Tests the 'employee/new' endpoint, the 'employee/[digit]' endpoint,
      * and the 'employee/[digit]' endpoint for deletion
@@ -23,10 +27,10 @@ class EmployeeControllerTest extends DatabaseTest
     public function testCreateAndDeleteEmployee() : void
     {
         //create new employee
-        $newEmployee = array('firstName' => 'new', 
-                             'lastName' => 'guy', 
-                             'middleName' => '', 
-                             'userName' => 'newguy123');
+        $newEmployee = array('firstName' => 'new',
+                             'lastName' => 'guy',
+                             'middleName' => '',
+                             'userName' => 'newguy123', );
         self::$client->postEncodedForm('employee/new', $newEmployee);
 
         //initial value
@@ -47,6 +51,7 @@ class EmployeeControllerTest extends DatabaseTest
         $employee = self::$client->get('employee/2');
         $this->assertEquals('0', $employee['employee']['deleted']);
     }
+
     /**
      * Tests the 'employee/[digit]/backup' endpoint, the 'employee/[digit]/backupFor' endpoint,
      * the 'employee/[digit]/backup/[digit]' endpoint for deletion
