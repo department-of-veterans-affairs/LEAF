@@ -3,7 +3,7 @@
         <div id="navtree" style="border: 1px solid black"></div>
     </div>
     <div class="col span_3_of_5">
-        <div style="background-color: white; border: 1px solid black; box-shadow: 0 2px 4px #8e8e8e">
+       <div style="background-color: white; border: 1px solid black; box-shadow: 0 2px 4px #8e8e8e">
             <div id="progressArea" style="height: 34px; background-color: #feffd2; padding: 4px; border-bottom: 1px solid black">
                 <div id="progressControl" style="float: left">Form completion progress: <div id="progressBar" style="height: 14px; margin: 2px; border: 1px solid black; text-align: center"><div style="width: 300px; line-height: 120%; float: left; font-size: 12px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div>
                 </div>
@@ -29,11 +29,11 @@
         <br />
         <div id="container_center"></div>
     </div>
-    <div class="col span_1_of_5" style="float: left">
+    <div id = "tools" class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <div onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form" title="View full form" /> Show single page</div>
+            <button class="tools" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=edit-find-replace.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: center; height: 40px" alt="View full form" title="View full form"> Show single page</button>
             <br /><br />
-            <div onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" /> Cancel Request</div>
+            <button class="tools" onclick="cancelRequest()" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=process-stop.svg&amp;w=16); background-repeat: no-repeat; background-position: left; text-align: center"> Cancel Request</button>
         </div>
     </div>
 </div>
@@ -206,7 +206,7 @@ $(function() {
                 else {
                     description = formStructure[i].desc;
                 }
-                buffer += '<div id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');">' + counter + '. ' + description + '</div>';
+                buffer += '<div tabindex="0" aria-label=description id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');">' + counter + '. ' + description + '</div>';
                 counter++;
             }
             $('#navtree').html(buffer);
