@@ -3,10 +3,10 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     Indicator and privilege model for employee/position/group access
     Date: December 14, 2012
-    
+
 */
 
 namespace Orgchart;

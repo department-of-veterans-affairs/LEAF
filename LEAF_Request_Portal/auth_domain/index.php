@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     Authenticator for domain accounts
     Date Created: March 8, 2013
 
