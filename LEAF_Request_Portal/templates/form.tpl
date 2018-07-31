@@ -31,9 +31,9 @@
     </div>
     <div class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <button tabindex="0" aria-label="View single page" class="tools" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" title="View Single Page" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=edit-find-replace.svg&amp;w=32); background-repeat: no-repeat; height: 38px; background-position: left; text-align: center"/> View Single Page</button>
+            <button tabindex="0" aria-label="Show single page" class="tools" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" alt="View full form" title="Show Single Page" style="height: 38px; text-align: left"/> <img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" style="position: absolute; margin-top: -6px""/>&nbsp &nbsp &nbsp &nbsp Show Single Page</button>
             <br /><br />
-            <button tabindex ="0" aria-label="Cancel request" class="tools" id="btn_cancelRequest" onclick="cancelRequest()" title="Cancel Request" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=process-stop.svg&amp;w=16); background-repeat: no-repeat; background-position: left; text-align: center"/> Cancel Request</button>
+            <button tabindex="0" aria-label="Cancel request" class="tools" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" /> Cancel Request</button>
         </div>
     </div>
 </div>
