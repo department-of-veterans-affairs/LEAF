@@ -709,7 +709,7 @@ return PhpCsFixer\Config::create()
          *
          * (true/false)
          */
-        'self_accessor' => true,
+        'self_accessor' => false,
 
         /**
          * Instructions must be terminated with a semicolon.

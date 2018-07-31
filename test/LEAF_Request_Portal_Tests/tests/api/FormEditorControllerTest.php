@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types = 1);
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use LEAFTest\LEAFClient;
 
@@ -649,7 +652,6 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertEquals('form_f4687', $priv['categoryID']);
     }
 
-
     /**
      * Tests the `formEditor/[text]/stapled` endpoint.
      *
@@ -657,48 +659,47 @@ final class FormEditorControllerTest extends DatabaseTest
      */
     public function testAddStapledCategory() : void
     {
-      $category = self::$client->get('?a=formStack/categoryList/all')[1];
-      $this->assertNotNull($category);
-      $this->assertEquals('form_f4687', $category['categoryID']);
-      $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
+        $category = self::$client->get('?a=formStack/categoryList/all')[1];
+        $this->assertNotNull($category);
+        $this->assertEquals('form_f4687', $category['categoryID']);
+        $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
 
-      $category = self::$client->get('?a=formStack/categoryList/all')[2];
-      $this->assertNotNull($category);
-      $this->assertEquals('form_f4689', $category['categoryID']);
-      $this->assertEquals('A Staple form', $category['categoryDescription']);
+        $category = self::$client->get('?a=formStack/categoryList/all')[2];
+        $this->assertNotNull($category);
+        $this->assertEquals('form_f4689', $category['categoryID']);
+        $this->assertEquals('A Staple form', $category['categoryDescription']);
 
-      self::$client->postEncodedForm('?a=formEditor/_form_f4687/stapled', array(
+        self::$client->postEncodedForm('?a=formEditor/_form_f4687/stapled', array(
           'stapledCategoryID' => $category['categoryID'],
       ));
 
-      $category = self::$client->get('?a=formEditor/_form_f4687/stapled')[0];
-      $this->assertNotNull($category);
-      $this->assertEquals('form_f4689', $category['categoryID']);
+        $category = self::$client->get('?a=formEditor/_form_f4687/stapled')[0];
+        $this->assertNotNull($category);
+        $this->assertEquals('form_f4689', $category['categoryID']);
     }
-
 
     /**
      * Tests the GET `formEditor/[text]/stapled` endpoint.
      */
     public function testGetStapledCategories() : void
     {
-      $category = self::$client->get('?a=formStack/categoryList/all')[1];
-      $this->assertNotNull($category);
-      $this->assertEquals('form_f4687', $category['categoryID']);
-      $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
+        $category = self::$client->get('?a=formStack/categoryList/all')[1];
+        $this->assertNotNull($category);
+        $this->assertEquals('form_f4687', $category['categoryID']);
+        $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
 
-      $category = self::$client->get('?a=formStack/categoryList/all')[2];
-      $this->assertNotNull($category);
-      $this->assertEquals('form_f4689', $category['categoryID']);
-      $this->assertEquals('A Staple form', $category['categoryDescription']);
+        $category = self::$client->get('?a=formStack/categoryList/all')[2];
+        $this->assertNotNull($category);
+        $this->assertEquals('form_f4689', $category['categoryID']);
+        $this->assertEquals('A Staple form', $category['categoryDescription']);
 
-      self::$client->postEncodedForm('?a=formEditor/_form_f4687/stapled', array(
+        self::$client->postEncodedForm('?a=formEditor/_form_f4687/stapled', array(
           'stapledCategoryID' => $category['categoryID'],
       ));
 
-      $category = self::$client->get('?a=formEditor/_form_f4687/stapled')[0];
-      $this->assertNotNull($category);
-      $this->assertEquals('form_f4689', $category['categoryID']);
+        $category = self::$client->get('?a=formEditor/_form_f4687/stapled')[0];
+        $this->assertNotNull($category);
+        $this->assertEquals('form_f4689', $category['categoryID']);
     }
 
     /**
@@ -706,28 +707,27 @@ final class FormEditorControllerTest extends DatabaseTest
      */
     public function testRemoveStapledCategory() : void
     {
-      $category = self::$client->get('?a=formStack/categoryList/all')[1];
-      $this->assertNotNull($category);
-      $this->assertEquals('form_f4687', $category['categoryID']);
-      $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
+        $category = self::$client->get('?a=formStack/categoryList/all')[1];
+        $this->assertNotNull($category);
+        $this->assertEquals('form_f4687', $category['categoryID']);
+        $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
 
-      $category = self::$client->get('?a=formStack/categoryList/all')[2];
-      $this->assertNotNull($category);
-      $this->assertEquals('form_f4689', $category['categoryID']);
-      $this->assertEquals('A Staple form', $category['categoryDescription']);
+        $category = self::$client->get('?a=formStack/categoryList/all')[2];
+        $this->assertNotNull($category);
+        $this->assertEquals('form_f4689', $category['categoryID']);
+        $this->assertEquals('A Staple form', $category['categoryDescription']);
 
-      self::$client->postEncodedForm('?a=formEditor/_form_f4687/stapled', array(
+        self::$client->postEncodedForm('?a=formEditor/_form_f4687/stapled', array(
           'stapledCategoryID' => $category['categoryID'],
       ));
 
-      $category = self::$client->get('?a=formEditor/_form_f4687/stapled')[0];
-      $this->assertNotNull($category);
-      $this->assertEquals('form_f4689', $category['categoryID']);
+        $category = self::$client->get('?a=formEditor/_form_f4687/stapled')[0];
+        $this->assertNotNull($category);
+        $this->assertEquals('form_f4689', $category['categoryID']);
 
-
-      $delResponse = self::$client->delete('?a=formEditor/_form_f4687/stapled/_form_f4689/');
-      $this->assertNotNull($delResponse);
-      $this->assertEquals(1, $delResponse);
+        $delResponse = self::$client->delete('?a=formEditor/_form_f4687/stapled/_form_f4689/');
+        $this->assertNotNull($delResponse);
+        $this->assertEquals(1, $delResponse);
     }
 
     /**
@@ -770,7 +770,7 @@ final class FormEditorControllerTest extends DatabaseTest
 
         $this->assertNotNull($privs);
         $this->assertEquals(1, count($privs));
-        $this->assertEquals(1, $privs[0]["id"]);
+        $this->assertEquals(1, $privs[0]['id']);
     }
 
     /**
@@ -783,7 +783,7 @@ final class FormEditorControllerTest extends DatabaseTest
         $res = self::$client->postEncodedForm(
             '?a=formEditor/indicator/7/privileges',
             array(
-                'groupIDs' => [2, 3]
+                'groupIDs' => array(2, 3),
             )
         );
 
@@ -794,9 +794,9 @@ final class FormEditorControllerTest extends DatabaseTest
 
         $this->assertNotNull($privs);
         $this->assertEquals(3, count($privs));
-        $this->assertEquals(1, $privs[0]["id"]);
-        $this->assertEquals(2, $privs[1]["id"]);
-        $this->assertEquals(3, $privs[2]["id"]);
+        $this->assertEquals(1, $privs[0]['id']);
+        $this->assertEquals(2, $privs[1]['id']);
+        $this->assertEquals(3, $privs[2]['id']);
     }
 
     /**
@@ -814,7 +814,7 @@ final class FormEditorControllerTest extends DatabaseTest
         $res = self::$client->postEncodedForm(
             '?a=formEditor/indicator/7/privileges/remove',
             array(
-                "groupID" => 1
+                'groupID' => 1,
             )
         );
 

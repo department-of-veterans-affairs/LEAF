@@ -1,4 +1,8 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
 error_reporting(E_ALL & ~E_NOTICE);
 
 if (false)
@@ -150,13 +154,13 @@ switch ($action) {
     case 'printview':
         $main->assign('useUI', true);
         $main->assign('javascripts', array(
-            'js/form.js', 
-            'js/workflow.js', 
-            'js/formGrid.js', 
-            'js/formQuery.js', 
-            'js/jsdiff.js', 
+            'js/form.js',
+            'js/workflow.js',
+            'js/formGrid.js',
+            'js/formQuery.js',
+            'js/jsdiff.js',
             '../libs/js/LEAF/XSSHelpers.js',
-            '../libs/jsapi/portal/LEAFPortalAPI.js'
+            '../libs/jsapi/portal/LEAFPortalAPI.js',
         ));
 
         $recordIDToPrint = (int)$_GET['recordID'];
@@ -417,7 +421,7 @@ switch ($action) {
                'js/formSearch.js',
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
-               '../libs/js/LEAF/XSSHelpers.js'
+               '../libs/js/LEAF/XSSHelpers.js',
            ));
            $main->assign('useUI', true);
 
