@@ -6,7 +6,6 @@
 /**
  * Suite of helper functions to assist in mitigating XSS vulnerabilities.
  */
-
 class XSSHelpers
 {
     private static $specialPattern = array(
@@ -48,7 +47,7 @@ class XSSHelpers
      */
     public static function xscrub($data)
     {
-        return XSSHelpers::xssafe($data);
+        return self::xssafe($data);
     }
 
     /**
@@ -171,7 +170,7 @@ class XSSHelpers
         {
             $in = html_entity_decode($in, ENT_QUOTES | ENT_HTML5, $encoding);
         }
-        $in = preg_replace(XSSHelpers::$specialPattern, XSSHelpers::$specialReplace, $in); // modifiers to support features
+        $in = preg_replace(self::$specialPattern, self::$specialReplace, $in); // modifiers to support features
 
         $in = preg_replace($pattern, $replace, htmlspecialchars($in, ENT_QUOTES, $encoding));
 
@@ -253,7 +252,7 @@ class XSSHelpers
         $allowedTags[] = 'font';
         $allowedTags[] = 'center';
 
-        return XSSHelpers::sanitizer($in, $allowedTags);
+        return self::sanitizer($in, $allowedTags);
     }
 
     /**
@@ -277,6 +276,6 @@ class XSSHelpers
         $allowedTags[] = 'font';
         $allowedTags[] = 'center';
 
-        return XSSHelpers::sanitizer($in, $allowedTags);
+        return self::sanitizer($in, $allowedTags);
     }
 }

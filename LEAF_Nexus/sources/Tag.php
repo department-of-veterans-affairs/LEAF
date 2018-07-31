@@ -3,10 +3,10 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     Tag (small helper function to help map relationships between tags)
     Date: April 17, 2015
-    
+
 */
 
 namespace Orgchart;

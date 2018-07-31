@@ -4,6 +4,7 @@
  */
 
 return PhpCsFixer\Config::create()
+    ->setRiskyAllowed(true)
     ->setRules(array(
         '@PSR2' => true,
 
@@ -709,7 +710,7 @@ return PhpCsFixer\Config::create()
          *
          * (true/false)
          */
-        'self_accessor' => false,
+        'self_accessor' => true,
 
         /**
          * Instructions must be terminated with a semicolon.
