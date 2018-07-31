@@ -1080,3 +1080,8 @@ button.AdminButton:hover, button.AdminButton:focus {
   background-color: #b02323;
   color: white;
 }
+
+.tools>div:focus {
+  background-color: #2372b0;
+  color: white;
+}
