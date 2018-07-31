@@ -9,7 +9,6 @@
  * In general, all input and output strings should be in hexadecimal
  * format, unless otherwise noted.
  */
-
 class CryptoHelpers
 {
     /**

@@ -3,10 +3,10 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     Position
     Date: August 30, 2011
-    
+
 */
 
 namespace Orgchart;
@@ -38,6 +38,7 @@ class Position extends Data
     private $maxStringDiff = 3;         // Max number of letter differences for a name (# of typos allowed)
 
     private $deepSearch = 10;
+
     // Threshold for deeper search (min # of results
     //     from main search triggers deep search)
 

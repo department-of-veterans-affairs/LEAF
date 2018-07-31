@@ -3,10 +3,10 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     Employee
     Date: August 15, 2011
-    
+
 */
 
 namespace Orgchart;

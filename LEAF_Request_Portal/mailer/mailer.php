@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     Mailer process for asynchronous email
     Date Created: February 15, 2012
 

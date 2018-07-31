@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     Index for simple, non-security sensitive responses
     Date Created: June 6, 2011
 
