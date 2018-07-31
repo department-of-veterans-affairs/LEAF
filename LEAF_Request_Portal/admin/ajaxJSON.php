@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     JSON index for legacy ajax endpoints
     Date Created: August 13, 2009
 

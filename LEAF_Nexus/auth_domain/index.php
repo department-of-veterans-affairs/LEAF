@@ -3,11 +3,11 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     Authenticator
     Date: March 8, 2013
 
-*/ 
+*/
 
 include '../globals.php';
 include '../sources/Login.php';

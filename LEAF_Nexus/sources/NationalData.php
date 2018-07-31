@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     Generic Data (mirror of Data without write functions)
     Date: September 23, 2016
 

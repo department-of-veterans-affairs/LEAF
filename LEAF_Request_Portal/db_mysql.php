@@ -3,9 +3,9 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
-	db_mysql is a convienience layer
-	Date Created: September 4, 2007
+/*
+    db_mysql is a convienience layer
+    Date Created: September 4, 2007
  */
 
 class DB

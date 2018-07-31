@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     VAMC_directory_maintenance
     Date Created: June 13, 2007
 

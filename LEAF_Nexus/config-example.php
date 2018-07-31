@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     General configuration
     Date: August 9, 2011
 
@@ -28,6 +28,7 @@ class Config
     public $adPath = array('OU=Users,DC=va,DC=gov'); // Active directory paths
 
     public static $uploadDir = './UPLOADS/';
+
     // Directory for user uploads
     // using backslashes (/), with trailing slash
 

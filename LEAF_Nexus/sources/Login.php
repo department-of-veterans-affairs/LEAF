@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-/************************
+/*
     Login and session handler
     Date: September 11, 2007
 
