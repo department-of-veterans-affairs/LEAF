@@ -20,9 +20,12 @@ class LEAFClient
 {
     private $client;
 
+    private $CSRFToken;
+
     private function __construct($client)
     {
         $this->client = $client;
+        $this->CSRFToken = self::getCSRFToken();
     }
 
     /**
@@ -33,9 +36,9 @@ class LEAFClient
      *
      * @return LEAFClient   a HTTP Client configured for LEAF
      */
-    public static function createNexusClient($baseURI = 'http://localhost/LEAF_Nexus/api/') : self
+    public static function createNexusClient($baseURI = 'http://localhost/LEAF_Nexus/api/', $authURL = '../auth_domain/') : self
     {
-        $leafClient = new self(self::getBaseClient($baseURI, '../auth_domain/?'));
+        $leafClient = new self(self::getBaseClient($baseURI, $authURL));
 
         return $leafClient;
     }
@@ -47,9 +50,9 @@ class LEAFClient
      * @param string    $baseURI    The base URI for the Request Portal API (default: "http://localhost/LEAF_Request_Portal/api/")
      * @return LEAFClient   a HTTP Client configured for LEAF
      */
-    public static function createRequestPortalClient($baseURI = 'http://localhost/LEAF_Request_Portal/api/') : self
+    public static function createRequestPortalClient($baseURI = 'http://localhost/LEAF_Request_Portal/api/', $authURL = '../auth_domain/') : self
     {
-        $leafClient = new self(self::getBaseClient($baseURI, '../auth_domain/?'));
+        $leafClient = new self(self::getBaseClient($baseURI, $authURL));
 
         return $leafClient;
     }
@@ -57,14 +60,19 @@ class LEAFClient
     /**
      * GET request.
      *
-     * @param string            $url the URL to request
+     * @param array             $queryParams an array that contains key=>values of the query data.
+     * @param array             $formParams an array that contains key=>values of the form data.
+     * @param string            $url the URL to request with trailing slash, relative to the $baseURI passed to getBaseClient
      * @param LEAFResponseType  $returnType the LEAFTest\\LEAFResponseType to format the response as (default: JSON)
      *
      * @return object           the formatted response
      */
-    public function get($url, $returnType = LEAFResponseType::JSON)
+    public function get($queryParams = array(), $formParams = array(), $url = '', $returnType = LEAFResponseType::JSON)
     {
-        $response = $this->client->get($url);
+        $response = $this->client->get($url, array(
+            'query' => $queryParams,
+            'form_params' => $formParams,
+        ));
 
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
@@ -72,16 +80,21 @@ class LEAFClient
     /**
      * POST request. Handles `application/x-www-form-urlencoded` requests.
      *
-     * @param string            $url the URL to request
+     * @param array             $queryParams an array that contains key=>values of the query data.
      * @param array             $formParams an array that contains key=>values of the form data.
+     * @param string            $url the URL to request with trailing slash, relative to the $baseURI passed to getBaseClient
      * @param LEAFResponseType  $returnType the LEAFTest\\LEAFResponseType to format the response as (default: JSON)
      *
      * @return object           the formatted response
      */
-    public function postEncodedForm($url, $formParams, $returnType = LEAFResponseType::JSON)
+    public function post($queryParams = array(), $formParams = array(), $url = '', $returnType = LEAFResponseType::JSON)
     {
+        //add CSRFToken to POST
+        $formParams['CSRFToken'] = $this->CSRFToken;
+
         $response = $this->client->post($url, array(
-          'form_params' => $formParams,
+            'query' => $queryParams,
+            'form_params' => $formParams,
         ));
 
         return ResponseFormatter::format($response->getBody(), $returnType);
@@ -90,16 +103,59 @@ class LEAFClient
     /**
      * DELETE request.
      *
-     * @param string            $url the URL to request
+     * @param array             $queryParams an array that contains key=>values of the query data.
+     * @param array             $formParams an array that contains key=>values of the form data.
+     * @param string            $url the URL to request with trailing slash, relative to the $baseURI passed to getBaseClient
      * @param LEAFResponseType  $returnType the LEAFTest\\LEAFResponseType to format the response as (default: JSON)
      *
      * @return object           the formatted response
      */
-    public function delete($url, $returnType = LEAFResponseType::JSON)
+    public function delete($queryParams = array(), $formParams = array(), $url = '', $returnType = LEAFResponseType::JSON)
     {
-        $response = $this->client->delete($url);
+        //add CSRFToken to query parameters
+        $queryParams['CSRFToken'] = $this->CSRFToken;
+
+        $response = $this->client->delete($url, array(
+            'query' => $queryParams,
+            'form_params' => $formParams,
+        ));
 
         return ResponseFormatter::format($response->getBody(), $returnType);
+    }
+
+    /**
+     * Return CSRFToken associated with this client
+     *
+     * @return string           the CSRFToken string
+     */
+    public function getCSRFToken()
+    {
+        $config = new \Config();
+        $db_phonebook = new \DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $cookieJar = $this->client->getConfig('cookies');
+        $cookie = $cookieJar->getCookieByName('PHPSESSID');
+        if (is_null($cookie))
+        {
+            trigger_error('PHPSESSID cookie not set', E_USER_WARNING);
+        }
+        $sessionID = $cookie->getValue();
+
+        $vars = array(':sessionID' => $sessionID);
+        $res = $db_phonebook->prepared_query('SELECT * FROM sessions WHERE sessionKey=:sessionID', $vars);
+
+        $CSRFToken = '';
+        if (array_key_exists(0, $res) && array_key_exists('data', $res[0]))
+        {
+            $sessionStr = $res[0]['data'];
+            $data = SessionDecoder::decode($sessionStr);
+            $CSRFToken = array_key_exists('CSRFToken', $data) ? $data['CSRFToken'] : '';
+        }
+        else
+        {
+            trigger_error('Session data not found', E_USER_WARNING);
+        }
+
+        return $CSRFToken;
     }
 
     /** Get a GuzzleHttp\Client configured for LEAF.

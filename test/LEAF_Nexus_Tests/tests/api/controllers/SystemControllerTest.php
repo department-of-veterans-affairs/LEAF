@@ -14,14 +14,10 @@ final class SystemControllerTest extends DatabaseTest
 {
     private static $reqClient = null;
 
-    public static function setUpBeforeClass()
-    {
-        self::$reqClient = LEAFClient::createNexusClient();
-    }
-
     protected function setUp()
     {
         $this->resetDatabase();
+        self::$reqClient = LEAFClient::createNexusClient();
     }
 
     /**
@@ -29,9 +25,8 @@ final class SystemControllerTest extends DatabaseTest
      */
     public function testGetDatabaseVersion() : void
     {
-        $version = self::$reqClient->get('?a=system/dbversion');
-
+        $version = self::$reqClient->get(array('a' => 'system/dbversion'));
         $this->assertNotNull($version);
-        $this->assertEquals('4232', $version);
+        $this->assertEquals('4030', $version);
     }
 }

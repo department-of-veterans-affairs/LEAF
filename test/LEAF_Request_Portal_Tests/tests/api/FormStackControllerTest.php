@@ -26,7 +26,7 @@ final class FormStackControllerTest extends DatabaseTest
      */
     public function testGetVersion() : void
     {
-        $version = self::$client->get('?a=formStack/version');
+        $version = self::$client->get(array('a' => 'formStack/version'));
         $this->assertEquals(1, $version);
     }
 
@@ -35,15 +35,16 @@ final class FormStackControllerTest extends DatabaseTest
      */
     public function testDeleteForm() : void
     {
-        $categories = self::$client->get('?a=formStack/categoryList/all');
+        $categories = self::$client->get(array('a' => 'formStack/categoryList/all'));
+
         $this->assertNotNull($categories);
         $this->assertEquals(3, count($categories));
 
-        $delResponse = self::$client->Delete('?a=formStack/_form_f4687');
+        $delResponse = self::$client->Delete(array('a' => 'formStack/_form_f4687'));
         $this->assertNotNull($delResponse);
         $this->assertEquals(true, $delResponse);
 
-        $categories = self::$client->get('?a=formStack/categoryList/all');
+        $categories = self::$client->get(array('a' => 'formStack/categoryList/all'));
         $this->assertEquals(2, count($categories));
 
         // ensure form was actually deleted
