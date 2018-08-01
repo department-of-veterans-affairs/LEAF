@@ -76,13 +76,13 @@ final class ServiceControllerTest extends DatabaseTest
         );
 
         //assert empty
-        $service = self::$client->get(array('a'=>'service'));
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEmpty($service);
 
         //add 1st service, groupID==1
-        self::$client->post(array('a'=>'service'), $newService1);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService1);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(1, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -93,8 +93,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[0]['members']);
 
         //add 2nd service, groupID==1
-        self::$client->post(array('a'=>'service'), $newService2);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService2);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(2, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -111,8 +111,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[1]['members']);
 
         //add 3rd service, groupID==-1
-        self::$client->post(array('a'=>'service'), $newService3);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService3);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(3, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -135,8 +135,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[2]['members']);
 
         //add 4th service, groupID==2
-        self::$client->post(array('a'=>'service'), $newService5);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService5);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(4, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -165,8 +165,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[3]['members']);
 
         //add 5th service, groupID==-1, out of order
-        self::$client->post(array('a'=>'service'), $newService4);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService4);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(5, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -201,8 +201,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[4]['members']);
 
         //add 6th service, groupID==2
-        self::$client->post(array('a'=>'service'), $newService6);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService6);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(6, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -243,8 +243,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[5]['members']);
 
         //add 7th service, groupID==0(no matching group in database)
-        self::$client->post(array('a'=>'service'), $newService7);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService7);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(7, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -291,8 +291,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[5]['members']);
 
         //add 8th service, groupID==0(no matching group in database)
-        self::$client->post(array('a'=>'service'), $newService8);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService8);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(8, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -345,8 +345,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[7]['members']);
 
         //add 9th service, empty string for service (won't add)
-        self::$client->post(array('a'=>'service'), $newService9);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService9);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(8, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -399,8 +399,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[7]['members']);
 
         //add 10th service, NULL for service (won't add)
-        self::$client->post(array('a'=>'service'), $newService10);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService10);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(8, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -453,8 +453,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[7]['members']);
 
         //add 11th service, NULL for groupID
-        self::$client->post(array('a'=>'service'), $newService11);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService11);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(9, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -513,8 +513,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[8]['members']);
 
         //add 12th service, empty string for groupID (casts to 0)
-        self::$client->post(array('a'=>'service'), $newService12);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService12);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(10, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -593,13 +593,13 @@ final class ServiceControllerTest extends DatabaseTest
             'groupID' => 3,
         );
 
-        $service = self::$client->get(array('a'=>'service'));
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEmpty($service);
 
         //with <script></script> tag, encodes
-        self::$client->post(array('a'=>'service'), $newService1);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService1);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(1, count($service));
         $this->assertArrayHasKey(0, $service);
@@ -610,8 +610,8 @@ final class ServiceControllerTest extends DatabaseTest
         $this->assertEmpty($service[0]['members']);
 
         //with <b></b> tag, doesn't encode
-        self::$client->post(array('a'=>'service'), $newService2);
-        $service = self::$client->get(array('a'=>'service'));
+        self::$client->post(array('a' => 'service'), $newService2);
+        $service = self::$client->get(array('a' => 'service'));
         $this->assertNotNull($service);
         $this->assertEquals(2, count($service));
         $this->assertArrayHasKey(0, $service);

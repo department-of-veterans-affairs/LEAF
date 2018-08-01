@@ -27,9 +27,11 @@ class SessionDecoder
         switch ($method) {
             case 'php':
                 return self::decode_php($session_data);
+
                 break;
             case 'php_binary':
                 return self::decode_phpbinary($session_data);
+
                 break;
             case 'php_serialize':
                 return self::decode_phpserialize($session_data);
