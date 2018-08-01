@@ -1,18 +1,21 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 require '../sources/Indicators.php';
 
 class IndicatorController extends RESTfulResponse
 {
-    private $API_VERSION = 1;    // Integer
     public $index = array();
+
+    private $API_VERSION = 1;    // Integer
 
     private $indicators;
 
-    function __construct($db, $login)
+    public function __construct($db, $login)
     {
         $this->indicators = new OrgChart\Indicators($db, $login);
-
     }
 
     public function get($act)
@@ -20,11 +23,11 @@ class IndicatorController extends RESTfulResponse
         $indicators = $this->indicators;
 
         $this->index['GET'] = new ControllerMap();
-        $this->index['GET']->register('indicator/version', function() {
+        $this->index['GET']->register('indicator/version', function () {
             return $this->API_VERSION;
         });
 
-        $this->index['GET']->register('indicator/[digit]/permissions', function($args) use ($indicators) {
+        $this->index['GET']->register('indicator/[digit]/permissions', function ($args) use ($indicators) {
             return $indicators->getPrivileges($args[0]);
         });
 
@@ -37,16 +40,16 @@ class IndicatorController extends RESTfulResponse
 
         $this->index['POST'] = new ControllerMap();
 
-        $this->index['POST']->register('indicator/[digit]/permissions/addEmployee', function($args) use ($indicators) {
+        $this->index['POST']->register('indicator/[digit]/permissions/addEmployee', function ($args) use ($indicators) {
             return $indicators->addPermission($args[0], 'employee', $_POST['empUID'], 'read');
         });
-        $this->index['POST']->register('indicator/[digit]/permissions/addPosition', function($args) use ($indicators) {
+        $this->index['POST']->register('indicator/[digit]/permissions/addPosition', function ($args) use ($indicators) {
             return $indicators->addPermission($args[0], 'position', $_POST['positionID'], 'read');
         });
-        $this->index['POST']->register('indicator/[digit]/permissions/addGroup', function($args) use ($indicators) {
+        $this->index['POST']->register('indicator/[digit]/permissions/addGroup', function ($args) use ($indicators) {
             return $indicators->addPermission($args[0], 'group', $_POST['groupID'], 'read');
         });
-        $this->index['POST']->register('indicator/[digit]/permission/[text]/[digit]/[text]/toggle', function($args) use ($indicators) {
+        $this->index['POST']->register('indicator/[digit]/permission/[text]/[digit]/[text]/toggle', function ($args) use ($indicators) {
             //$indicatorID, $categoryID, $UID, $permissionType
             return $indicators->togglePermission($args[0], $args[1], $args[2], $args[3]);
         });

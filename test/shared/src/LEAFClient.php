@@ -1,4 +1,8 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
 /**
  * @package LEAFTest
  */
@@ -94,6 +98,7 @@ class LEAFClient
     public function delete($url, $returnType = LEAFResponseType::JSON)
     {
         $response = $this->client->delete($url);
+
         return ResponseFormatter::format($response->getBody(), $returnType);
     }
 
@@ -111,7 +116,8 @@ class LEAFClient
             'cookies' => true,
         ));
 
-        if ($authURL != null) {
+        if ($authURL != null)
+        {
             $guzzle->get($authURL);
         }
 

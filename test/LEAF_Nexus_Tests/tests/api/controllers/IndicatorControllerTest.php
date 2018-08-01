@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types = 1);
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use LEAFTest\LEAFClient;
 
@@ -16,6 +19,7 @@ class IndicatorControllerTest extends DatabaseTest
         $this->resetDatabase();
         self::$client = LEAFClient::createNexusClient();
     }
+
     /**
      * Tests the `indicator/[digit]/permissions` endpoint and the
      * 'indicator/[digit]/permission/[text]/[digit]/[text]/toggle' endpoint
@@ -34,7 +38,7 @@ class IndicatorControllerTest extends DatabaseTest
         $this->assertEquals('NEWTESTGROUPTITLEalert(&#039;hi&#039;)', $group['title']);
 
         //add email permissions to group
-        self::$client->postEncodedForm('indicator/6/permissions/addGroup', array('groupID' => '14',));
+        self::$client->postEncodedForm('indicator/6/permissions/addGroup', array('groupID' => '14'));
         $indicator = self::$client->get('indicator/6/permissions');
 
         //new groupID is 14, so if true, change was successful

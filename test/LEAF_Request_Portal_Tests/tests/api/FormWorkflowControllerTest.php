@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types = 1);
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use LEAFTest\LEAFClient;
 
@@ -57,13 +60,13 @@ final class FormWorkflowControllerTest extends DatabaseTest
             'default' => '',
             'parentID' => '',
             'required' => '0',
-            'categoryID' => $newCategoryID);
+            'categoryID' => $newCategoryID, );
 
         self::$client->postEncodedForm('formEditor/newIndicator', $vars);
 
         //create a new request with the generated indicator
-        $vars = array('title' => "test",
-                        'num'.$newCategoryID => 1);
+        $vars = array('title' => 'test',
+                        'num' . $newCategoryID => 1, );
         $result = self::$client->postEncodedForm('form/new', $vars);
 
         //checks to make sure the request creation was successful
@@ -76,18 +79,18 @@ final class FormWorkflowControllerTest extends DatabaseTest
         //applies action type
         $vars = array('dependencyID' => '5',
             'actionType' => '6',
-            'comment' => 'test');
+            'comment' => 'test', );
         $result = self::$client->postEncodedForm('formWorkflow/2/apply', $vars);
 
         //process finished with no errors
         $this->assertEquals('1', $result['status']);
-        $this->assertEquals(0 , count($result['errors']));
+        $this->assertEquals(0, count($result['errors']));
     }
 
     public function testSetStep() : void
     {
         $vars = array('stepID' => 1,
-                    'comment' => 'TESTSTEP');
+                    'comment' => 'TESTSTEP', );
         $result = self::$client->postEncodedForm('formWorkflow/1/step', $vars);
 
         //if true, setStep method executed successfully

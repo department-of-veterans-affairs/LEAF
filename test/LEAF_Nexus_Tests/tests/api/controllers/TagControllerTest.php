@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types = 1);
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use LEAFTest\LEAFClient;
 
@@ -16,9 +19,10 @@ class TagControllerTest extends DatabaseTest
         $this->resetDatabase();
         self::$client = LEAFClient::createNexusClient();
     }
+
     /**
-    * Tests the 'tag/[text]/parent' endpoint
-    */
+     * Tests the 'tag/[text]/parent' endpoint
+     */
     public function testAddParentTag() : void
     {
         //initial value
@@ -26,7 +30,7 @@ class TagControllerTest extends DatabaseTest
         $this->assertEquals('quadrad', $parentTag);
 
         //create a tag
-        self::$client->postEncodedForm('?a=group/13/tag', array('tag' => "TESTTAG"));
+        self::$client->postEncodedForm('?a=group/13/tag', array('tag' => 'TESTTAG'));
 
         $group = self::$client->get('?a=group/tag&tag=TESTTAG');
         $this->assertEquals('TESTTAG', $group[0]['tag']);

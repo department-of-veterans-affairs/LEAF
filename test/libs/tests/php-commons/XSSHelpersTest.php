@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types = 1);
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 include '../../libs/php-commons/XSSHelpers.php';
 
@@ -11,10 +14,9 @@ use PHPUnit\Framework\TestCase;
  */
 final class XSSHelpersTest extends TestCase
 {
-
     /**
      * Tests XSSHelpers::sanitizer($in, $allowedTags)
-     * 
+     *
      * Tests sanitizing HTML with anchor elements.
      */
     public function testSanitizer_links() : void
@@ -24,20 +26,20 @@ final class XSSHelpersTest extends TestCase
 
         $this->assertEquals(
             '&lt;a href=&#039;http://google.com&#039;&gt;Google</a>',
-            XSSHelpers::sanitizer($in1, ['a'])
+            XSSHelpers::sanitizer($in1, array('a'))
         );
         $this->assertEquals(
             '&lt;a href=&#039;#&#039; onclick=&#039;alert(&quot;gotcha&quot;)&#039;&gt;Hello</a>',
-            XSSHelpers::sanitizer($in2, ['a'])
+            XSSHelpers::sanitizer($in2, array('a'))
         );
 
         $this->assertEquals(
             '&lt;a href=&#039;#&#039; onclick=&#039;alert(&quot;gotcha&quot;)&#039;&gt;Hello&lt;/a&gt;',
-            XSSHelpers::sanitizer($in2, [])
+            XSSHelpers::sanitizer($in2, array())
         );
         $this->assertEquals(
             '&lt;a href=&#039;http://google.com&#039;&gt;Google&lt;/a&gt;',
-            XSSHelpers::sanitizer($in1, [''])
+            XSSHelpers::sanitizer($in1, array(''))
         );
     }
 
@@ -204,22 +206,21 @@ final class XSSHelpersTest extends TestCase
         $img5 = '<img src="hello.jpg" alt="world"/>';
         $img6 = '<img src="hello.jpg" alt="world" />';
         $img7 = '<img src="javascript:alert(\'hello.jpg\')">';
-        
+
         $expectedOutput = '<img src="hello.jpg" alt="" />"';
         $expectedOutput2 = '<img src="hello.jpg" alt="world" />"';
         $expectedOutput3 = '&lt;img src=&quot;javascript:alert(&#039;hello.jpg&#039;)&quot;&gt;';
-        
+
         $this->assertEquals($expectedOutput, XSSHelpers::sanitizeHTML($img));
         $this->assertEquals($expectedOutput, XSSHelpers::sanitizeHTML($img2));
         $this->assertEquals($expectedOutput, XSSHelpers::sanitizeHTML($img3));
-        
+
         $this->assertEquals($expectedOutput2, XSSHelpers::sanitizeHTML($img4));
         $this->assertEquals($expectedOutput2, XSSHelpers::sanitizeHTML($img5));
         $this->assertEquals($expectedOutput2, XSSHelpers::sanitizeHTML($img6));
-        
+
         $this->assertEquals($expectedOutput3, XSSHelpers::sanitizeHTML($img7));
     }
-    
 
     /**
      * Tests XSSHelpers::xscrub()
