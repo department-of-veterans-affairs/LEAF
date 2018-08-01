@@ -506,6 +506,20 @@ var LeafFormGrid = function(containerID, options) {
     	renderVirtualHeader();
     }
 
+		/**
+     * @memberOf LeafFormGrid
+     */
+		 function announceResults(){
+			 var term = $('[name="searchtxt"]').val();
+
+			 if(currentData.length == 0) {
+				 $('.status').text('No results found for term ' + term);
+     	}else{
+				 $('.status').text('Search results found for term ' + term + ' listed below');
+			}
+
+		}
+
     /**
      * @memberOf LeafFormGrid
      */
@@ -707,6 +721,7 @@ var LeafFormGrid = function(containerID, options) {
 		sort: sort,
 		renderVirtualHeader: renderVirtualHeader,
 		renderBody: renderBody,
+		announceResults: announceResults,
 		loadData: loadData,
 		setData: setData,
 		setDataBlob: setDataBlob,
