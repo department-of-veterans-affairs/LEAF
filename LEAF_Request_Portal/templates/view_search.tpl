@@ -109,11 +109,12 @@ $(function() {
         grid.setData(tGridData);
         grid.sort('recordID', 'desc');
         grid.renderBody();
+        grid.announceResults();
 
         $('#header_date').css('width', '60px');
         $('#header_service').css('width', '150px');
         $('#header_currentStatus').css('width', '100px');
-        
+
         // UI for "show more results". After 150 results, "show all results"
         if(Object.keys(res).length % 50 == 0) {
             $('#searchContainer_getMoreResults').css('display', 'inline');
@@ -152,7 +153,7 @@ $(function() {
             for(var i in advSearch) {
                 if(advSearch[i].id != 'data'
                     && advSearch[i].id != 'dependencyID') {
-                    query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);                  
+                    query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);
                 }
                 else {
                     query.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match);
@@ -160,7 +161,7 @@ $(function() {
 
                 if(advSearch[i].id == 'title'
                         && advSearch[i].match == '**') {
-                    query.setLimit(queryLimit);                 
+                    query.setLimit(queryLimit);
                 }
             }
         }
@@ -189,7 +190,7 @@ $(function() {
         return query.execute();
     });
     leafSearch.init();
-    
+
     $('#searchContainer_getMoreResults').on('click', function() {
         if(queryLimit <= 100) {
             queryLimit += 50;
