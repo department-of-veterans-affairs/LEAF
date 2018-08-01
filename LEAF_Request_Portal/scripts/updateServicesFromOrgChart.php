@@ -2,7 +2,6 @@
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
-
 $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../db_mysql.php';
@@ -34,7 +33,7 @@ $tag = new Orgchart\Tag($db_phonebook, $login);
 $res = $group->listGroupsByTag('service');
 
 // update quadrad/pentad/elt nomenclature
-$vars = array(':leadershipType' => ucfirst($tag->getParent('service')) . ' Review');
+$vars = array(':leadershipType' => ucfirst($tag->getParent('service')) . ' Review' );
 $db->prepared_query('UPDATE dependencies
 						SET description = :leadershipType
 						WHERE dependencyID = 8', $vars);
@@ -49,17 +48,16 @@ $resquadrad = $group->listGroupsByTag($tag->getParent('service'));
 
 $db->beginTransaction();
 
-echo 'Clearing out existing users/groups.<br />';
+echo "Clearing out existing users/groups.<br />";
 $db->query('DELETE FROM users WHERE groupID > 1');
 $db->query('DELETE FROM groups WHERE groupID > 1');
 
 // import quadrads
-foreach ($resquadrad as $quadrad)
-{
+foreach ($resquadrad as $quadrad) {
     echo "Synching Quadrad: {$quadrad['groupTitle']}<br />";
 
     $vars = array(':groupID' => $quadrad['groupID'],
-            ':quadrad' => $quadrad['groupTitle'], );
+            ':quadrad' => $quadrad['groupTitle']);
 
     $db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name)
                             VALUES (:groupID, -1, :quadrad)
@@ -69,23 +67,20 @@ foreach ($resquadrad as $quadrad)
 
     $resEmp = $position->getEmployees($leaderGroupID);
     $resEmp = array_merge($resEmp, $group->listGroupEmployees($quadrad['groupID']));
-    foreach ($resEmp as $emp)
-    {
-        if ($emp['userName'] != '')
-        {
+    foreach ($resEmp as $emp) {
+        if ($emp['userName'] != '') {
             $vars = array(':userID' => $emp['userName'],
-                          ':groupID' => $quadrad['groupID'], );
+                          ':groupID' => $quadrad['groupID']);
 
             $db->prepared_query('INSERT INTO users (userID, groupID)
                                     VALUES (:userID, :groupID)', $vars);
 
             // include the backups of employees
             $backups = $employee->getBackups($emp['empUID']);
-            foreach ($backups as $backup)
-            {
+            foreach ($backups as $backup) {
                 $vars = array(':userID' => $backup['userName'],
-                              ':groupID' => $quadrad['groupID'], );
-
+                              ':groupID' => $quadrad['groupID']);
+                
                 $db->prepared_query('INSERT INTO users (userID, groupID)
                                    		 VALUES (:userID, :groupID)', $vars);
             }
@@ -97,10 +92,12 @@ $vars = array();
 $db->query('DELETE FROM services WHERE serviceID > 0');
 $db->query('DELETE FROM service_chiefs WHERE serviceID > 0 AND locallyManaged != 1');
 // import services
-foreach ($res as $service)
-{
+foreach ($res as $service) {
     $quadID = null;
     $leader = $position->findRootPositionByGroupTag($group->getGroupLeader($service['groupID']), $tag->getParent('service'));
+    if (!is_array($leader)) {
+        return "invalid service";
+    }
     $quadID = $leader[0]['groupID'];
 
     echo "Synching Service: {$service['groupTitle']}<br />";
@@ -108,7 +105,7 @@ foreach ($res as $service)
     $vars = array(':serviceID' => $service['groupID'],
                   ':service' => $service['groupTitle'],
                   ':abbrService' => $abbrService,
-                  ':groupID' => $quadID, );
+                  ':groupID' => $quadID);
 
     $db->prepared_query('INSERT INTO services (serviceID, service, abbreviatedService, groupID)
                             VALUES (:serviceID, :service, :abbrService, :groupID)
@@ -117,44 +114,39 @@ foreach ($res as $service)
     $leaderGroupID = $group->getGroupLeader($service['groupID']);
     $resEmp = $position->getEmployees($leaderGroupID);
 //    $resEmp = array_merge($resEmp, $group->listGroupEmployees($service['groupID']));
-    foreach ($resEmp as $emp)
-    {
-        if ($emp['userName'] != '')
-        {
+    foreach ($resEmp as $emp) {
+        if ($emp['userName'] != '') {
             $vars = array(':userID' => $emp['userName'],
-                          ':serviceID' => $service['groupID'], );
+                          ':serviceID' => $service['groupID']);
 
             $db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
                                     VALUES (:serviceID, :userID)', $vars);
 
             // include the backups of employees
             $backups = $employee->getBackups($emp['empUID']);
-            foreach ($backups as $backup)
-            {
+            foreach ($backups as $backup) {
                 $vars = array(':userID' => $backup['userName'],
-                              ':serviceID' => $service['groupID'], );
+                              ':serviceID' => $service['groupID']);
 
                 $db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
                                     VALUES (:serviceID, :userID)', $vars);
             }
         }
     }
-
+    
     // check if this service is also an ELT
     // if so, update groups table
-    if ($service['groupID'] == $quadID)
-    {
+    if ($service['groupID'] == $quadID) {
         $vars = array(':groupID' => $service['groupID']);
 
         $db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
 
-        $resChief = $db->prepared_query('SELECT * FROM service_chiefs
+        $resChief = $db->prepared_query("SELECT * FROM service_chiefs
     											WHERE serviceID=:groupID
-    												AND active=1', $vars);
-        foreach ($resChief as $chief)
-        {
+    												AND active=1", $vars);
+        foreach ($resChief as $chief) {
             $vars = array(':userID' => $chief['userID'],
-                          ':groupID' => $quadID, );
+                          ':groupID' => $quadID);
             $db->prepared_query('INSERT INTO users (userID, groupID)
                                    		 VALUES (:userID, :groupID)', $vars);
         }
@@ -162,43 +154,37 @@ foreach ($res as $service)
 }
 
 // import other groups
-foreach (Config::$orgchartImportTags as $tag)
-{
+foreach (Config::$orgchartImportTags as $tag) {
     $res = $group->listGroupsByTag($tag);
-
-    foreach ($res as $tgroup)
-    {
+    
+    foreach ($res as $tgroup) {
         echo "Synching Group: {$tgroup['groupTitle']}<br />";
-
+    
         $vars = array(':groupID' => $tgroup['groupID'],
-                ':title' => $tgroup['groupTitle'], );
-
+                ':title' => $tgroup['groupTitle']);
+    
         $db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name)
                             VALUES (:groupID, NULL, :title)
                             ON DUPLICATE KEY UPDATE name=:title', $vars);
-
+    
         $positions = $group->listGroupPositions($tgroup['groupID']);
         $resEmp = $group->listGroupEmployees($tgroup['groupID']);
-        foreach ($positions as $tposition)
-        {
+        foreach ($positions as $tposition) {
             $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
         }
-        foreach ($resEmp as $emp)
-        {
-            if ($emp['userName'] != '')
-            {
+        foreach ($resEmp as $emp) {
+            if ($emp['userName'] != '') {
                 $vars = array(':userID' => $emp['userName'],
-                              ':groupID' => $tgroup['groupID'], );
+                              ':groupID' => $tgroup['groupID']);
 
                 $db->prepared_query('INSERT INTO users (userID, groupID)
 										VALUES (:userID, :groupID)', $vars);
 
                 // include the backups of employees
                 $backups = $employee->getBackups($emp['empUID']);
-                foreach ($backups as $backup)
-                {
+                foreach ($backups as $backup) {
                     $vars = array(':userID' => $backup['userName'],
-                                  ':groupID' => $tgroup['groupID'], );
+                                  ':groupID' => $tgroup['groupID']);
 
                     $db->prepared_query('INSERT INTO users (userID, groupID)
 										VALUES (:userID, :groupID)', $vars);
