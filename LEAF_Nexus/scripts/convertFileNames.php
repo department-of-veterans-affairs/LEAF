@@ -1,16 +1,19 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 exit();
 function oldFileHash($categoryID, $uid, $indicatorID, $fileName)
 {
     // pre r2917 file hash function
     //$fileName = md5($fileName);
-    
+
     // pre r2930
     $fileName = md5(sha1($fileName) . $categoryID . $uid . $indicatorID);
+
     return "{$categoryID}_{$uid}_{$indicatorID}_{$fileName}";
 }
-
 
 include '../sources/Login.php';
 include '../db_mysql.php';
@@ -26,18 +29,22 @@ $login->loginUser();
 $uploadPath = '';
 $queue = array();
 clearstatcache();
-if(strpos(Orgchart\Config::$uploadDir, '.') !== 0) {
+if (strpos(Orgchart\Config::$uploadDir, '.') !== 0)
+{
     $uploadPath = Orgchart\Config::$uploadDir;
     $queue = scandir(Orgchart\Config::$uploadDir);
 }
-else {
-    $uploadPath = '../'. Orgchart\Config::$uploadDir;
-    $queue = scandir('../'. Orgchart\Config::$uploadDir);
+else
+{
+    $uploadPath = '../' . Orgchart\Config::$uploadDir;
+    $queue = scandir('../' . Orgchart\Config::$uploadDir);
 }
 
-foreach($queue as $file) {
+foreach ($queue as $file)
+{
     $exploded = explode('_', $file);
-    if(is_numeric($exploded[0])) {
+    if (is_numeric($exploded[0]))
+    {
         $categoryID = $exploded[0];
         $uid = $exploded[1];
         $indicatorID = $exploded[2];
@@ -45,28 +52,34 @@ foreach($queue as $file) {
         //echo $file . '<br />';
         $type = null;
         $res = null;
-        switch($categoryID) {
+        switch ($categoryID) {
             case 1:
                 include_once '../sources/Employee.php';
                 $type = new OrgChart\Employee($db, $login);
+
                 break;
             case 2:
                 include_once '../sources/Position.php';
                 $type = new OrgChart\Position($db, $login);
+
                 break;
             case 3:
                 include_once '../sources/Group.php';
                 $type = new OrgChart\Group($db, $login);
+
                 break;
             default:
                 break;
         }
-        
+
         $res = $type->getAllData($uid, $indicatorID);
 
-        if(is_array($res[$indicatorID]['data'])) {
-            foreach($res[$indicatorID]['data'] as $dbFile) {
-                if($file == oldFileHash($categoryID, $uid, $indicatorID, $dbFile)) {
+        if (is_array($res[$indicatorID]['data']))
+        {
+            foreach ($res[$indicatorID]['data'] as $dbFile)
+            {
+                if ($file == oldFileHash($categoryID, $uid, $indicatorID, $dbFile))
+                {
                     $oldName = $uploadPath . $file;
                     $newName = $uploadPath . $type->getFileHash($categoryID, $uid, $indicatorID, $dbFile);
                     echo 'Renaming: ' . $oldName . ' to ' . $newName . '... ';
@@ -76,9 +89,11 @@ foreach($queue as $file) {
                 }
             }
         }
-        else {
+        else
+        {
             $dbFile = $res[$indicatorID]['data'];
-            if($file == oldFileHash($categoryID, $uid, $indicatorID, $dbFile)) {
+            if ($file == oldFileHash($categoryID, $uid, $indicatorID, $dbFile))
+            {
                 $oldName = $uploadPath . $file;
                 $newName = $uploadPath . $type->getFileHash($categoryID, $uid, $indicatorID, $dbFile);
                 echo 'Renaming: ' . $oldName . ' to ' . $newName . '... ';

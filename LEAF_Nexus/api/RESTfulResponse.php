@@ -1,13 +1,17 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 abstract class RESTfulResponse
-{   
+{
     /**
      * Returns result for HTTP GET requests
      * @param array $actionList
      * @return mixed
      */
-    public function get($actionList) {
+    public function get($actionList)
+    {
         return 'Method not implemented';
     }
 
@@ -16,7 +20,8 @@ abstract class RESTfulResponse
      * @param array $actionList
      * @return mixed
      */
-    public function post($actionList) {
+    public function post($actionList)
+    {
         return 'Method not implemented';
     }
 
@@ -25,7 +30,8 @@ abstract class RESTfulResponse
      * @param array $actionList
      * @return mixed
      */
-    public function delete($actionList) {
+    public function delete($actionList)
+    {
         return 'Method not implemented';
     }
 
@@ -36,28 +42,36 @@ abstract class RESTfulResponse
     public function handler($action)
     {
         $action = $this->parseAction($action);
-        switch($_SERVER['REQUEST_METHOD']) {
+        switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
                 $this->output($this->get($action));
+
                 break;
             case 'POST':
-                if($_POST['CSRFToken'] == $_SESSION['CSRFToken']) {
+                if ($_POST['CSRFToken'] == $_SESSION['CSRFToken'])
+                {
                     $this->output($this->post($action));
                 }
-                else {
+                else
+                {
                     $this->output('Invalid Token.');
                 }
+
                 break;
             case 'DELETE':
-                if($_GET['CSRFToken'] == $_SESSION['CSRFToken']) {
+                if ($_GET['CSRFToken'] == $_SESSION['CSRFToken'])
+                {
                     $this->output($this->delete($action));
                 }
-                else {
+                else
+                {
                     $this->output('Invalid Token.');
                 }
+
                 break;
             default:
                 $this->output('unhandled method');
+
                 break;
         }
     }
@@ -71,27 +85,28 @@ abstract class RESTfulResponse
     {
         header('Access-Control-Allow-Origin: *');
         $format = isset($_GET['format']) ? $_GET['format'] : '';
-        switch($format) {
+        switch ($format) {
             case 'json':
             default:
                 header('Content-type: application/json');
                 $jsonOut = json_encode($out);
 
-                if($_SERVER['REQUEST_METHOD'] === 'GET') {
-                	$etag = md5($jsonOut);
-                	header_remove('Pragma');
-                	header_remove('Cache-Control');
-                	header_remove('Expires');
-                	if(isset($_SERVER['HTTP_IF_NONE_MATCH'])
-               			&& $_SERVER['HTTP_IF_NONE_MATCH'] === $etag) {
-               			header("ETag: {$etag}", true, 304);
-               			header('Cache-Control: must-revalidate, private');
-               			exit;
-               		}
-               		else {
-               			header("ETag: {$etag}");
-               			header('Cache-Control: must-revalidate, private');
-               		}
+                if ($_SERVER['REQUEST_METHOD'] === 'GET')
+                {
+                    $etag = md5($jsonOut);
+                    header_remove('Pragma');
+                    header_remove('Cache-Control');
+                    header_remove('Expires');
+                    if (isset($_SERVER['HTTP_IF_NONE_MATCH'])
+                           && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
+                    {
+                        header("ETag: {$etag}", true, 304);
+                        header('Cache-Control: must-revalidate, private');
+                        exit;
+                    }
+
+                    header("ETag: {$etag}");
+                    header('Cache-Control: must-revalidate, private');
                 }
 
                 echo $jsonOut;
@@ -99,69 +114,89 @@ abstract class RESTfulResponse
                 break;
             case 'php':
                 echo serialize($out);
+
                 break;
             case 'string':
                 echo $out;
+
                 break;
             case 'json-js-assoc':
                 header('Content-type: application/json');
                 $out2 = array();
-                foreach($out as $item) {
+                foreach ($out as $item)
+                {
                     $out2[] = $item;
                 }
                 echo json_encode($out2);
+
                 break;
             case 'jsonp':
-            	$callBackName = '';
-            	if(isset($_GET['callback'])) {
-            		$callBackName = htmlentities($_GET['callback']);
-            	}
-            	else if(isset($_GET['jsonpCallback'])) {
-            		$callBackName = htmlentities($_GET['jsonpCallback']);
-            	}
-            	else {
-            		$callBackName = 'jsonpCallback';
-            	}
+                $callBackName = '';
+                if (isset($_GET['callback']))
+                {
+                    $callBackName = htmlentities($_GET['callback']);
+                }
+                else
+                {
+                    if (isset($_GET['jsonpCallback']))
+                    {
+                        $callBackName = htmlentities($_GET['jsonpCallback']);
+                    }
+                    else
+                    {
+                        $callBackName = 'jsonpCallback';
+                    }
+                }
                 echo "{$callBackName}(" . json_encode($out) . ')';
+
                 break;
             case 'xml':
                 header('Content-type: text/xml');
-                $xml = new SimpleXMLElement("<?xml version=\"1.0\"?><output></output>");
+                $xml = new SimpleXMLElement('<?xml version="1.0"?><output></output>');
                 $this->buildXML($out, $xml);
                 echo $xml->asXML();
+
                 break;
             case 'csv':
-            	$items = array_keys($out);
-            	$columns = array_keys($out[$items[0]]);
+                $items = array_keys($out);
+                $columns = array_keys($out[$items[0]]);
 
-            	header('Content-type: text/csv');
-            	header('Content-Disposition: attachment; filename="Exported_'.time().'.csv"');
-            	$header = '';
-            	foreach($columns as $column) {
-            		$header .= '"' . $column . '",';
-            	}
-            	$header = trim($header, ',');
-            	echo "{$header}\r\n";
-            	foreach($out as $line) {
-            		foreach($columns as $column) {
-            			if(is_array($line[$column])) {
-            				echo '"';
-            				foreach($line[$column] as $tItem) {
-            					echo $tItem . ' ';
-            				}
-            				echo '",';
-            			}
-            			else {
+                header('Content-type: text/csv');
+                header('Content-Disposition: attachment; filename="Exported_' . time() . '.csv"');
+                $header = '';
+                foreach ($columns as $column)
+                {
+                    $header .= '"' . $column . '",';
+                }
+                $header = trim($header, ',');
+                echo "{$header}\r\n";
+                foreach ($out as $line)
+                {
+                    foreach ($columns as $column)
+                    {
+                        if (is_array($line[$column]))
+                        {
+                            echo '"';
+                            foreach ($line[$column] as $tItem)
+                            {
+                                echo $tItem . ' ';
+                            }
+                            echo '",';
+                        }
+                        else
+                        {
                             $temp = strip_tags($line[$column]);
                             $temp = str_replace('"', '""', $temp);
-            				echo '"' . $temp . '",';
-            			}
-            		}
-            		echo "\r\n";
-            	}
-            	break;
+                            echo '"' . $temp . '",';
+                        }
+                    }
+                    echo "\r\n";
+                }
+
+                break;
             case 'debug':
-                echo '<pre>'. print_r($out, true) . '</pre>';
+                echo '<pre>' . print_r($out, true) . '</pre>';
+
                 break;
         }
     }
@@ -169,7 +204,7 @@ abstract class RESTfulResponse
     /**
      * Parses url input into generic format
      * @param string api path
-     * @return string parsed path 
+     * @return string parsed path
      */
     public function parseAction($action)
     {
@@ -177,17 +212,24 @@ abstract class RESTfulResponse
 
         $key = '';
         $args = array();
-        foreach($actionList as $type) {
-            if(is_numeric($type)) {
+        foreach ($actionList as $type)
+        {
+            if (is_numeric($type))
+            {
                 $key .= '[digit]/';
                 $args[] = $type;
             }
-            else if(substr($type, 0, 1) == '_') {
-                $key .= '[text]/';
-                $args[] = substr($type, 1);
-            }
-            else {
-                $key .= "{$type}/";
+            else
+            {
+                if (substr($type, 0, 1) == '_')
+                {
+                    $key .= '[text]/';
+                    $args[] = substr($type, 1);
+                }
+                else
+                {
+                    $key .= "{$type}/";
+                }
             }
         }
         $key = rtrim($key, '/');
@@ -213,20 +255,25 @@ abstract class RESTfulResponse
      */
     private function buildXML($out, $xml)
     {
-        if(is_array($out)) {
+        if (is_array($out))
+        {
             $keys = array_keys($out);
-            foreach($keys as $key) {
+            foreach ($keys as $key)
+            {
                 $tkey = is_numeric($key) ? "id_{$key}" : $key;
-                if(is_array($out[$key])) {
+                if (is_array($out[$key]))
+                {
                     $subXML = $xml->addChild($tkey);
                     $this->buildXML($out[$key], $subXML);
                 }
-                else {
-                    $xml->addChild($tkey, $out[$key]);                    
+                else
+                {
+                    $xml->addChild($tkey, $out[$key]);
                 }
             }
         }
-        else {
+        else
+        {
             $xml->addChild('text', $out);
         }
     }

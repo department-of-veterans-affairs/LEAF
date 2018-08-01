@@ -1,4 +1,7 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 include './sources/Login.php';
 include 'db_mysql.php';
@@ -18,9 +21,6 @@ $login->loginUser();
 
 include './sources/Employee.php';
 
-
 $emp = new OrgChart\Employee($db, $login);
 
 print_r($emp->search('gao'));
-
-?>

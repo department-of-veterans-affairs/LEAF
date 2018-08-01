@@ -102,6 +102,7 @@ class GroupControllerTest extends DatabaseTest
     {
         //create a bad tag
         $badTag = '123-45-6789';
+
         self::$client->post(array('a' => 'group/13/tag'), array('tag' => $badTag));
         $group = self::$client->get(array('a' => 'group/tag', 'tag' => $badTag));
 
@@ -129,6 +130,7 @@ class GroupControllerTest extends DatabaseTest
         //create a tag and check to make sure the it was successfully made
         self::$client->post(array('a' => 'group/13/tag'), array('tag' => 'TESTTAG'));
         $group = self::$client->get(array('a' => 'group/tag', 'tag' => 'TESTTAG'));
+
         $this->assertNotEquals(0, count($group));
         $this->assertEquals('TESTTAG', $group[0]['tag']);
 
@@ -200,6 +202,7 @@ class GroupControllerTest extends DatabaseTest
         self::$client->delete(array('a' => 'group/1/position/1'));
 
         $results = self::$client->get(array('a' => 'group/1/positions'));
+
         $this->assertEquals($nextPosition['positionID'], $results[0]['positionID']);
         $this->assertEquals($nextPosition['groupID'], $results[0]['groupID']);
         $this->assertEquals($nextPosition['parentID'], $results[0]['parentID']);

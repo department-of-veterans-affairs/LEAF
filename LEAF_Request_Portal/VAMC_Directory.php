@@ -1,6 +1,9 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
-/************************
+/*
     VAMC_Directory
     Date Created: June 13, 2007
 
@@ -10,24 +13,37 @@
     + Automatic supplemental and prepared queries
     + Sorts results
 */
-class VAMC_Directory {
+
+class VAMC_Directory
+{
     private $limit = 'LIMIT 100';         // Limit number of returned results "TOP 100"
+
     private $sortBy = 'Lname';          // Sort by... ?
+
     private $sortDir = 'ASC';           // Sort ascending/descending?
-    private $deepSearch = 10;           // Threshold for deeper search (min # of results
+
+    private $deepSearch = 10;
+
+    // Threshold for deeper search (min # of results
                                         //     from main search triggers deep search)
     private $maxStringDiff = 3;         // Max number of letter differences for a name (# of typos allowed)
+
     private $debug = false;             // Are we debugging?
 
     private $db;                        // The database object
+
     private $Employee;
+
     private $Group;
+
     private $tableName = 'Employee';    // Table of employee contact info
+
     private $tableDept = 'departments'; // Table of departments
+
     private $log = array('<span style="color: red">Debug Log is ON</span>');    // error log for debugging
 
     // Connect to the database
-    function __construct()
+    public function __construct()
     {
         $currDir = dirname(__FILE__);
         require_once $currDir . '/' . Config::$orgchartPath . '/config.php';
@@ -45,21 +61,17 @@ class VAMC_Directory {
         $this->Employee->setNoLimit();
     }
 
-    function __destruct()
+    public function __destruct()
     {
-        if($this->debug)
-            echo print_r($this->log) . '<br /><br />';     // debugging
+        if ($this->debug)
+        {
+            echo print_r($this->log) . '<br /><br />';
+        }     // debugging
     }
 
     public function setDebugMode($switch)
     {
         $this->debug = $switch;
-    }
-
-    // Log errors from the database
-    private function logError($error)
-    {
-        $this->log[] = $error;
     }
 
     public function setSort($sortBy, $sortDir)
@@ -68,26 +80,210 @@ class VAMC_Directory {
         $this->sortDir = $sortDir;
     }
 
-    private function replaceAbbreviations($input)
-    {
-        $abbr = array('irm', 'mh', 'sw', 'pm&r');
-        $full = array('information resource', 'mental health', 'social work', 'physical med');
-        return str_replace($abbr, $full, $input);
-    }
-
     // Raw Queries the database and returns an associative array
     // For debugging only
     public function query($sql)
     {
-        if($this->debug) {
+        if ($this->debug)
+        {
             $res = $this->db->query($sql);
-            if(is_object($res)) {
+            if (is_object($res))
+            {
                 return $res->fetchAll(PDO::FETCH_ASSOC);
             }
             $err = $this->db->errorInfo();
             $this->logError($err[2]);
         }
-        return null;
+    }
+
+    public function lookupEmpUID($empUID)
+    {
+        $res = $this->Employee->lookupEmpUID($empUID);
+        $data = array();
+        foreach ($res as $result)
+        {
+            $tdata = array();
+            $tdata = $result;
+            $tdata['Lname'] = $result['lastName'];
+            $tdata['Fname'] = $result['firstName'];
+
+            // orgchart data
+            $ocData = $this->Employee->getAllData($result['empUID']);
+            $tdata['Email'] = $ocData[6]['data'];
+            $data[] = $tdata;
+        }
+
+        return $data;
+    }
+
+    public function lookupLogin($login, $onlyGetName = false)
+    {
+        $res = $this->Employee->lookupLogin($login);
+        $data = array();
+        foreach ($res as $result)
+        {
+            $tdata = array();
+            $tdata = $result;
+            $tdata['Lname'] = $result['lastName'];
+            $tdata['Fname'] = $result['firstName'];
+
+            if (!$onlyGetName)
+            {
+                // orgchart data
+                $ocData = $this->Employee->getAllData($result['empUID']);
+                $tdata['Email'] = $ocData[6]['data'];
+            }
+            $data[] = $tdata;
+        }
+
+        return $data;
+    }
+
+    public function fuzzySearch($results)
+    {
+        if (count($results) > 30)
+        {
+            return $results;
+        }
+
+        $cache = array();
+        $i = 0;
+
+        foreach ($results as $result)
+        {
+            $keys = array_keys($result);
+            foreach ($keys as $key)
+            {
+                $cache[$i][$key] = $result[$key];
+            }
+            $i++;
+        }
+
+        $count = $i;
+        for ($i = 0; $i < $count; $i++)
+        {
+            if (isset($results[$i]))
+            {
+                $keys = array_keys($results[$i]);
+                for ($j = $i; $j < $count; $j++)
+                {
+                    if ($j != $i)
+                    {
+                        $numFuzzyFind = 0;
+                        foreach ($keys as $key)
+                        {
+                            if ($key == 'Phone' || $key == 'Pager')
+                            {
+                                if ($cache[$j][$key] != '')
+                                {
+                                    if (strpos(strtoupper($results[$i][$key]), strtoupper($cache[$j][$key])) !== false)
+                                    {
+//                                        echo $results[$i][$key] . ':: ' . $cache[$j][$key] . '***';
+                                        $numFuzzyFind += $this->getUniqueness($key);
+                                    }
+                                }
+                                if ($results[$i][$key] != '')
+                                {
+                                    if (strpos(strtoupper($cache[$j][$key]), strtoupper($results[$i][$key])) !== false)
+                                    {
+//                                        echo $results[$i][$key] . ':: ' . $cache[$j][$key] . '***';
+                                        $numFuzzyFind += $this->getUniqueness($key);
+                                    }
+                                }
+                            }
+                        }
+                        //echo $numFuzzyFind . '<br />';
+                        if ($numFuzzyFind >= 2 && isset($results[$i]) && isset($results[$j]))
+                        {
+                            foreach ($keys as $key)
+                            {
+                                switch ($key) {
+                                        case 'Fname':
+                                            break;
+                                        case 'Lname':
+                                            break;
+                                        case 'Mid_Initial':
+                                            break;
+                                        case 'Phone':
+                                            $results[$i][$key] .= '<br /><b>Phone:</b> ' . $results[$j][$key];
+
+                                            break;
+                                        case 'Lname':
+                                            break;
+                                        default:
+                                            $results[$i][$key] .= '<br />' . $results[$j][$key];
+
+                                            break;
+                                    }
+                                $results[$i][$key] = trim($results[$i][$key], '<br />');
+                            }
+                            unset($results[$j]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return $results;
+    }
+
+    // All-in-one search function, returns array
+    public function search($input)
+    {
+        $result = array();
+        $orgChartResult = $this->Employee->search($input);
+
+        $res_group = $this->Group->search(html_entity_decode($input));
+        foreach ($res_group as $ocRes)
+        {
+            $tRes = array();
+            $tRes = $ocRes;
+            $tRes['Lname'] = $ocRes['groupTitle'];
+            $tRes['Fname'] = '';
+            $tRes['Email'] = '';
+            $tRes['Phone'] = $ocRes['data'][24]['data'];
+            $tRes['Mobile'] = '';
+            $tRes['Title'] = '';
+            $tRes['RoomNumber'] = $ocRes['data'][25]['data'];
+            $tRes['Service'] = '';
+            if ($tRes['Phone'] != ''
+                || $tRes['RoomNumber'] != '')
+            {
+                $result[] = $tRes;
+            }
+        }
+
+        // backwards compatible format
+        foreach ($orgChartResult as $ocRes)
+        {
+            $tRes = array();
+            $tRes = $ocRes;
+            $tRes['Lname'] = $ocRes['lastName'];
+            $tRes['Fname'] = $ocRes['firstName'];
+            $tRes['Email'] = $ocRes['data'][6]['data'];
+            $tRes['Phone'] = $ocRes['data'][5]['data'];
+            $tRes['Mobile'] = $ocRes['data'][16]['data'];
+            $tRes['Title'] = isset($ocRes['positionData']['positionTitle']) ? $ocRes['positionData']['positionTitle'] : $ocRes['data'][23]['data'];
+            $tRes['RoomNumber'] = $ocRes['data'][8]['data'];
+            $tRes['Service'] = isset($ocRes['serviceData'][0]) ? $ocRes['serviceData'][0]['groupTitle'] : '';
+            $result[] = $tRes;
+        }
+
+        return $result;
+    }
+
+    // Log errors from the database
+    private function logError($error)
+    {
+        $this->log[] = $error;
+    }
+
+    private function replaceAbbreviations($input)
+    {
+        $abbr = array('irm', 'mh', 'sw', 'pm&r');
+        $full = array('information resource', 'mental health', 'social work', 'physical med');
+
+        return str_replace($abbr, $full, $input);
     }
 
     // Translates the * wildcard to SQL % wildcard
@@ -95,7 +291,7 @@ class VAMC_Directory {
     {
         return str_replace('*', '%', $query . '*');
     }
-    
+
     private function metaphone_query($in)
     {
         return metaphone($in) . '%';
@@ -116,7 +312,7 @@ class VAMC_Directory {
                     AND Mid_Initial LIKE :middleName
                  ORDER BY {$this->sortBy} {$this->sortDir}
                  {$this->limit}"
-                 : 
+                 :
                 "SELECT * FROM {$this->tableName}
                  WHERE Fname LIKE :firstName
                     AND Lname LIKE :lastName
@@ -124,15 +320,18 @@ class VAMC_Directory {
                  {$this->limit}";
 
         $query = $this->db->prepare($sql);
-        if(strlen($middleName) > 1) {
+        if (strlen($middleName) > 1)
+        {
             $query->execute(array(':firstName' => $firstName, ':lastName' => $lastName, ':middleName' => $middleName));
         }
-        else {
+        else
+        {
             $query->execute(array(':firstName' => $firstName, ':lastName' => $lastName));
         }
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
 
-        if(count($result) == 0) {
+        if (count($result) == 0)
+        {
             $sql = "SELECT * FROM {$this->tableName}
                     WHERE PhoneticFname LIKE :firstName
                         AND PhoneticLname LIKE :lastName
@@ -153,7 +352,8 @@ class VAMC_Directory {
         $firstName = $this->parseWildcard($firstName);
         $lastName = $this->parseWildcard($lastName);
 
-        if($lastName == '%') {
+        if ($lastName == '%')
+        {
             $sql = "SELECT * FROM {$this->tableName}
                     WHERE Fname LIKE :firstName
                         AND Service LIKE :service
@@ -163,13 +363,14 @@ class VAMC_Directory {
             $query = $this->db->prepare($sql);
             $query->execute(array(':firstName' => $firstName, ':service' => $service));
             $result = $query->fetchAll(PDO::FETCH_ASSOC);
-            if(count($result) == 0) {
+            if (count($result) == 0)
+            {
                 $sql = "SELECT * FROM {$this->tableName}
                         WHERE Lname LIKE :firstName
                             AND Service LIKE :service
                         ORDER BY {$this->sortBy} {$this->sortDir}
                         {$this->limit}";
-        
+
                 $query = $this->db->prepare($sql);
                 $query->execute(array(':firstName' => $firstName, ':service' => $service));
                 $result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -186,7 +387,7 @@ class VAMC_Directory {
 
             $query = $this->db->prepare($sql);
             $query->execute(array(':firstName' => $this->metaphone_query($firstName),
-                                  ':lastName' => $this->metaphone_query($lastName), ':service' => $service));
+                                  ':lastName' => $this->metaphone_query($lastName), ':service' => $service, ));
             $result = $query->fetchAll(PDO::FETCH_ASSOC);
         }
 
@@ -256,7 +457,7 @@ class VAMC_Directory {
 
         return $result;
     }
-    
+
     private function lookupEmail($email)
     {
         $email = $this->parseWildcard($email);
@@ -273,44 +474,6 @@ class VAMC_Directory {
         return $result;
     }
 
-    public function lookupEmpUID($empUID)
-    {
-    	$res = $this->Employee->lookupEmpUID($empUID);
-    	$data = array();
-    	foreach($res as $result) {
-    		$tdata = array();
-    		$tdata = $result;
-    		$tdata['Lname'] = $result['lastName'];
-    		$tdata['Fname'] = $result['firstName'];
-    
-    		// orgchart data
-    		$ocData = $this->Employee->getAllData($result['empUID']);
-    		$tdata['Email'] = $ocData[6]['data'];
-    		$data[] = $tdata;
-    	}
-    	return $data;
-    }
-
-    public function lookupLogin($login, $onlyGetName = false)
-    {
-        $res = $this->Employee->lookupLogin($login);
-        $data = array();
-        foreach($res as $result) {
-            $tdata = array();
-            $tdata = $result;
-            $tdata['Lname'] = $result['lastName'];
-            $tdata['Fname'] = $result['firstName'];
-
-            if(!$onlyGetName) {
-                // orgchart data
-                $ocData = $this->Employee->getAllData($result['empUID']);
-                $tdata['Email'] = $ocData[6]['data'];
-            }
-            $data[] = $tdata; 
-        }
-        return $data;
-    }
-
     private function lookupService($service)
     {
         $service = $this->parseWildcard($service);
@@ -323,7 +486,8 @@ class VAMC_Directory {
         $query = $this->db->prepare($sql);
         $query->bindParam(':service', $service);
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
-        if(count($result) == 0) {
+        if (count($result) == 0)
+        {
             $service = strtolower($service);
             // Check abbreviations
 
@@ -351,7 +515,8 @@ class VAMC_Directory {
 
         $words = explode(' ', $searchQuery);
         $phonetic = '';
-        foreach($words as $word) {
+        foreach ($words as $word)
+        {
             $word = trim($word);
             $phonetic .= metaphone($word) . ' ';
         }
@@ -361,18 +526,21 @@ class VAMC_Directory {
         $query->execute(array(':query' => $searchQuery));
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
 
-        if(count($result) == 0) {
+        if (count($result) == 0)
+        {
             $this->log[] = 'Phonetic check on departments';
             $query = $this->db->prepare($phoneticSql);
             $query->execute(array(':phoneticQuery' => $phonetic));
             $result = $query->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        if(count($result) > 0) {
+        if (count($result) > 0)
+        {
             $i = 0;
             $res = array();
 
-            foreach($result as $iResult) {
+            foreach ($result as $iResult)
+            {
                 $res[$i]['Lname'] = 'DEPARTMENT';
                 $res[$i]['Fname'] = $iResult['dept'];
                 $res[$i]['Phone'] = $iResult['ext'];
@@ -383,24 +551,25 @@ class VAMC_Directory {
 
             return $res;
         }
-        else {
-            return array();
-        }
+
+        return array();
     }
 
     // Clean up all wildcards
-    private function cleanWildcards($input) {
+    private function cleanWildcards($input)
+    {
         $input = str_replace('%', '*', $input);
         $input = str_replace('?', '*', $input);
         $input = preg_replace('/\*+/i', '*', $input);
         $input = preg_replace('/(\s)+/i', ' ', $input);
         $input = preg_replace('/(\*\s\*)+/i', '', $input);
+
         return $input;
     }
 
     private function getUniqueness($key)
     {
-        switch($key) {
+        switch ($key) {
             case 'Phone':
                 return 2;
             case 'Title':
@@ -412,119 +581,5 @@ class VAMC_Directory {
             default:
                 return 1;
         }
-    }
-
-    public function fuzzySearch($results)
-    {
-        if(count($results) > 30) {
-            return $results;
-        }
-        else {
-            $cache = array();
-            $i = 0;
-
-            foreach($results as $result) {
-                $keys = array_keys($result);
-                foreach($keys as $key) {
-                    $cache[$i][$key] = $result[$key];
-                }
-                $i++;
-            }
-
-            $count = $i;
-            for($i = 0; $i < $count; $i++) {
-                if(isset($results[$i])) {
-                    $keys = array_keys($results[$i]);
-                    for($j = $i; $j < $count; $j++) {
-                        if($j != $i) {
-                            $numFuzzyFind = 0;
-                            foreach($keys as $key) {
-                                if($key == 'Phone' || $key == 'Pager') {
-                                    if($cache[$j][$key] != '') {
-                                        if(strpos(strtoupper($results[$i][$key]), strtoupper($cache[$j][$key])) !== false) {
-//                                        echo $results[$i][$key] . ':: ' . $cache[$j][$key] . '***';
-                                            $numFuzzyFind += $this->getUniqueness($key);
-                                        }
-                                    }
-                                    if($results[$i][$key] != '') {
-                                        if(strpos(strtoupper($cache[$j][$key]), strtoupper($results[$i][$key])) !== false) {
-//                                        echo $results[$i][$key] . ':: ' . $cache[$j][$key] . '***';
-                                            $numFuzzyFind += $this->getUniqueness($key);
-                                        }
-                                    }
-                                }
-                            }
-//echo $numFuzzyFind . '<br />';
-                            if($numFuzzyFind >= 2 && isset($results[$i]) && isset($results[$j])) {
-                                foreach($keys as $key) {
-                                    switch($key) {
-                                        case 'Fname':
-                                            break;
-                                        case 'Lname':
-                                            break;
-                                        case 'Mid_Initial':
-                                            break;
-                                        case 'Phone':
-                                            $results[$i][$key] .= "<br /><b>Phone:</b> " . $results[$j][$key];
-                                            break;
-                                        case 'Lname':
-                                            break;
-                                        default:
-                                            $results[$i][$key] .= "<br />" . $results[$j][$key];
-                                            break;
-                                    }
-                                    $results[$i][$key] = trim($results[$i][$key], '<br />');
-                                }
-                                unset($results[$j]);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return $results;
-        }
-    }
-
-    // All-in-one search function, returns array
-    public function search($input)
-    {
-    	$result = array();
-    	$orgChartResult = $this->Employee->search($input);
-    	
-    	$res_group = $this->Group->search(html_entity_decode($input));
-    	foreach($res_group as $ocRes) {
-    		$tRes = array();
-    		$tRes = $ocRes;
-    		$tRes['Lname'] = $ocRes['groupTitle'];
-    		$tRes['Fname'] = '';
-    		$tRes['Email'] = '';
-    		$tRes['Phone'] = $ocRes['data'][24]['data'];
-    		$tRes['Mobile'] = '';
-    		$tRes['Title'] = '';
-    		$tRes['RoomNumber'] = $ocRes['data'][25]['data'];
-    		$tRes['Service'] = '';
-    		if($tRes['Phone'] != ''
-    			|| $tRes['RoomNumber'] != '') {
-    			$result[] = $tRes;
-    		}
-    	}
-    	
-    	// backwards compatible format
-    	foreach($orgChartResult as $ocRes) {
-    		$tRes = array();
-    		$tRes = $ocRes;
-    		$tRes['Lname'] = $ocRes['lastName'];
-    		$tRes['Fname'] = $ocRes['firstName'];
-    		$tRes['Email'] = $ocRes['data'][6]['data'];
-    		$tRes['Phone'] = $ocRes['data'][5]['data'];
-    		$tRes['Mobile'] = $ocRes['data'][16]['data'];
-    		$tRes['Title'] = isset($ocRes['positionData']['positionTitle']) ? $ocRes['positionData']['positionTitle'] : $ocRes['data'][23]['data'];
-    		$tRes['RoomNumber'] = $ocRes['data'][8]['data'];
-    		$tRes['Service'] = isset($ocRes['serviceData'][0]) ? $ocRes['serviceData'][0]['groupTitle'] : '';
-    		$result[] = $tRes;
-    	}
-
-    	return $result;
     }
 }
