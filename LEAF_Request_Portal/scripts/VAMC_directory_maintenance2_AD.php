@@ -95,6 +95,9 @@ class VAMC_Directory_maintenance_AD
         {
             $t = explode('^', $line);
             array_walk($t, array($this, 'trimField'));
+            if(!is_array($t)) {
+                return "invalid file";
+            }
 
 //            $tmpName = explode(',', $t[0]);
             $lname = isset($t[0]) ? $t[0] : null;
@@ -167,6 +170,9 @@ class VAMC_Directory_maintenance_AD
 //            print_r($t);
 //            $t = explode("\t", $line);
             array_walk($t, array($this, 'trimField2'));
+            if(!is_array($t)) {
+                return "invalid file";
+            }
 
 //            $tmp = explode(',', $t[0]);
             $lname = trim($t[$csvdeIdx['sn']]);
