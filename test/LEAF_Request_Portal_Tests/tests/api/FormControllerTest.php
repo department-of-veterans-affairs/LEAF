@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types = 1);
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use LEAFTest\LEAFClient;
 
@@ -26,7 +29,7 @@ final class FormControllerTest extends DatabaseTest
      */
     public function testDataForSigning() : void
     {
-        $results = self::$reqClient->get(array('a'=>'form/1/dataforsigning'));
+        $results = self::$reqClient->get(array('a' => 'form/1/dataforsigning'));
 
         $this->assertNotNull($results);
         $this->assertTrue(isset($results['form_id']));
@@ -93,7 +96,7 @@ final class FormControllerTest extends DatabaseTest
      */
     public function testGetForm() : void
     {
-        $results = self::$reqClient->get(array('a'=>'form/1'));
+        $results = self::$reqClient->get(array('a' => 'form/1'));
 
         $this->assertNotNull($results);
         $this->assertNotNull($results['items']);
@@ -113,7 +116,7 @@ final class FormControllerTest extends DatabaseTest
      */
     public function testGetIndicatorLog() : void
     {
-        $results = self::$reqClient->get(array('a'=>'form/1/2/1/history'));
+        $results = self::$reqClient->get(array('a' => 'form/1/2/1/history'));
 
         $this->assertNotNull($results);
         $this->assertEquals(1, count($results));
@@ -125,7 +128,7 @@ final class FormControllerTest extends DatabaseTest
      */
     public function testGetWorkflow() : void
     {
-        $results = self::$reqClient->get(array('a'=>'form/_form_f4687/workflow'));
+        $results = self::$reqClient->get(array('a' => 'form/_form_f4687/workflow'));
 
         $this->assertNotNull($results);
         $this->assertEquals(1, count($results));
@@ -135,12 +138,12 @@ final class FormControllerTest extends DatabaseTest
 
     /**
      * Tests the `form/[text]/workflow` endpoint.
-     * 
+     *
      * Tests with invalid category ID
      */
     public function testGetWorkflow_invalidCategory() : void
     {
-        $results = self::$reqClient->get(array('a'=>'form/_form_junk/workflow'));
+        $results = self::$reqClient->get(array('a' => 'form/_form_junk/workflow'));
 
         $this->assertNotNull($results);
         $this->assertEquals(0, count($results));
@@ -151,9 +154,9 @@ final class FormControllerTest extends DatabaseTest
      */
     public function testNewForm() : void
     {
-        $results = self::$reqClient->post(array('a'=>'form/new'), array(
-            'title' => "Junk Title",
-            'numform_f4687' => 1
+        $results = self::$reqClient->post(array('a' => 'form/new'), array(
+            'title' => 'Junk Title',
+            'numform_f4687' => 1,
         ));
 
         $this->assertNotNull($results);

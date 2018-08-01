@@ -1,6 +1,6 @@
 <?php
-/**
- * @package LEAFTest
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
  */
 
 namespace LEAFTest;
@@ -15,6 +15,7 @@ use GuzzleHttp\Client;
 class LEAFClient
 {
     private $client;
+
     private $CSRFToken;
 
     private function __construct($client)
@@ -66,8 +67,7 @@ class LEAFClient
     {
         $response = $this->client->get($url, array(
             'query' => $queryParams,
-            'form_params' => $formParams
-
+            'form_params' => $formParams,
         ));
 
         return ResponseFormatter::format($response->getBody(), $returnType);
@@ -90,8 +90,7 @@ class LEAFClient
 
         $response = $this->client->post($url, array(
             'query' => $queryParams,
-            'form_params' => $formParams
-            
+            'form_params' => $formParams,
         ));
 
         return ResponseFormatter::format($response->getBody(), $returnType);
@@ -114,10 +113,45 @@ class LEAFClient
 
         $response = $this->client->delete($url, array(
             'query' => $queryParams,
-            'form_params' => $formParams
-
+            'form_params' => $formParams,
         ));
+
         return ResponseFormatter::format($response->getBody(), $returnType);
+    }
+
+    /**
+     * Return CSRFToken associated with this client
+     *
+     * @return string           the CSRFToken string
+     */
+    public function getCSRFToken()
+    {
+        $config = new \Config();
+        $db_phonebook = new \DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $cookieJar = $this->client->getConfig('cookies');
+        $cookie = $cookieJar->getCookieByName('PHPSESSID');
+        if (is_null($cookie))
+        {
+            trigger_error('PHPSESSID cookie not set', E_USER_WARNING);
+        }
+        $sessionID = $cookie->getValue();
+
+        $vars = array(':sessionID' => $sessionID);
+        $res = $db_phonebook->prepared_query('SELECT * FROM sessions WHERE sessionKey=:sessionID', $vars);
+
+        $CSRFToken = '';
+        if (array_key_exists(0, $res) && array_key_exists('data', $res[0]))
+        {
+            $sessionStr = $res[0]['data'];
+            $data = SessionDecoder::decode($sessionStr);
+            $CSRFToken = array_key_exists('CSRFToken', $data) ? $data['CSRFToken'] : '';
+        }
+        else
+        {
+            trigger_error('Session data not found', E_USER_WARNING);
+        }
+
+        return $CSRFToken;
     }
 
     /** Get a GuzzleHttp\Client configured for LEAF.
@@ -134,44 +168,11 @@ class LEAFClient
             'cookies' => true,
         ));
 
-        if ($authURL != null) {
+        if ($authURL != null)
+        {
             $guzzle->get($authURL);
         }
 
         return $guzzle;
-    }
-
-    /**
-     * Return CSRFToken associated with this client
-     *
-     * @return string           the CSRFToken string
-     */
-    public function getCSRFToken()
-    {
-        $config = new \Config();
-        $db_phonebook = new \DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $cookieJar = $this->client->getConfig("cookies");
-        $cookie = $cookieJar->getCookieByName("PHPSESSID");
-        if(is_null($cookie))
-        {
-            trigger_error('PHPSESSID cookie not set', E_USER_WARNING);
-        }
-        $sessionID = $cookie->getValue();
-
-        $vars = array(":sessionID" => $sessionID);
-        $res = $db_phonebook->prepared_query("SELECT * FROM sessions WHERE sessionKey=:sessionID", $vars);
-
-        $CSRFToken = "";
-        if(array_key_exists(0,$res) && array_key_exists("data",$res[0])){
-            $sessionStr = $res[0]["data"];
-            $data = SessionDecoder::decode($sessionStr);
-            $CSRFToken = array_key_exists("CSRFToken",$data) ? $data["CSRFToken"] : "";
-        }
-        else
-        {
-            trigger_error('Session data not found', E_USER_WARNING);
-        }
-
-        return $CSRFToken;
     }
 }
