@@ -4,6 +4,7 @@ declare(strict_types = 1);
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
+
 use LEAFTest\LEAFClient;
 
 include '../../LEAF_Request_Portal/db_mysql.php';
@@ -57,7 +58,7 @@ final class SystemControllerTest extends DatabaseTest
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('Heading that is too long for the field and this is', $fromDB);
-      
+
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "LEAF's Header"));
 
         $fromDB = $this->getSetting('heading');
@@ -251,7 +252,7 @@ final class SystemControllerTest extends DatabaseTest
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('', $fromDB);
-      
+
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 'Header "Header" Header'));
 
         $fromDB = $this->getSetting('subheading');
