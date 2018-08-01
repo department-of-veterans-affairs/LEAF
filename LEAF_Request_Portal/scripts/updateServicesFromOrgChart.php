@@ -93,6 +93,9 @@ $db->query('DELETE FROM service_chiefs WHERE serviceID > 0 AND locallyManaged !=
 foreach($res as $service) {
     $quadID = null;
     $leader = $position->findRootPositionByGroupTag($group->getGroupLeader($service['groupID']), $tag->getParent('service'));
+    if(!is_array($leader)) {
+        return "invalid service";
+    }
     $quadID = $leader[0]['groupID'];
 
     echo "Synching Service: {$service['groupTitle']}<br />";
