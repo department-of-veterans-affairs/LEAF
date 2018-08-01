@@ -25,7 +25,7 @@ class GroupControllerTest extends DatabaseTest
      */
     public function testListGroupEmployees() : void
     {
-        $results = self::$client->get('?a=group/1/employees/detailed');
+        $results = self::$client->get(array('a' => 'group/1/employees/detailed'));
 
         $users = $results['users'];
         $meta = $results['querymeta'];
@@ -51,7 +51,7 @@ class GroupControllerTest extends DatabaseTest
      */
     public function testNewGroup() : void
     {
-        $group = self::$client->get('?a=group/14');
+        $group = self::$client->get(array('a' => 'group/14'));
         // group with id 14 does not exist, so it's title will be false
         $this->assertFalse($group['title']);
 
@@ -59,9 +59,9 @@ class GroupControllerTest extends DatabaseTest
             'title' => "NEWTESTGROUPTITLE<script lang='javascript'>alert('hi')</script>",
         );
 
-        self::$client->postEncodedForm('?a=group', $newGroup);
+        self::$client->post(array('a' => 'group'), $newGroup);
 
-        $group = self::$client->get('group/14');
+        $group = self::$client->get(array('a' => 'group/14'));
 
         $this->assertNotNull($group['title']);
         $this->assertEquals('NEWTESTGROUPTITLEalert(&#039;hi&#039;)', $group['title']);
@@ -72,12 +72,12 @@ class GroupControllerTest extends DatabaseTest
      */
     public function testEditTitle() : void
     {
-        $group = self::$client->get('group/13');
+        $group = self::$client->get(array('a' => 'group/13'));
         $this->assertEquals('Test Group Title 2', $group['title']);
 
-        self::$client->postEncodedForm('?a=group/13/title', array('title' => "NEWTITLE<script lang='javascript'>alert('hi')</script>"));
+        self::$client->post(array('a' => 'group/13/title'), array('title' => "NEWTITLE<script lang='javascript'>alert('hi')</script>"));
 
-        $group = self::$client->get('group/13');
+        $group = self::$client->get(array('a' => 'group/13'));
         $this->assertEquals('NEWTITLEalert(&#039;hi&#039;)', $group['title']);
     }
 
@@ -86,12 +86,12 @@ class GroupControllerTest extends DatabaseTest
      */
     public function testEditTag() : void
     {
-        $group = self::$client->get('?a=group/tag&tag=TESTTAG');
+        $group = self::$client->get(array('a' => 'group/tag', 'tag' => 'TESTTAG'));
         $this->assertEquals(0, count($group));
 
-        self::$client->postEncodedForm('?a=group/13/tag', array('tag' => 'TESTTAG'));
+        self::$client->post(array('a' => 'group/13/tag'), array('tag' => 'TESTTAG'));
 
-        $group = self::$client->get('?a=group/tag&tag=TESTTAG');
+        $group = self::$client->get(array('a' => 'group/tag', 'tag' => 'TESTTAG'));
         $this->assertEquals('TESTTAG', $group[0]['tag']);
     }
 
@@ -102,8 +102,9 @@ class GroupControllerTest extends DatabaseTest
     {
         //create a bad tag
         $badTag = '123-45-6789';
-        self::$client->postEncodedForm('?a=group/13/tag', array('tag' => $badTag));
-        $group = self::$client->get('?a=group/tag&tag=' . $badTag);
+
+        self::$client->post(array('a' => 'group/13/tag'), array('tag' => $badTag));
+        $group = self::$client->get(array('a' => 'group/tag', 'tag' => $badTag));
 
         //test to make sure it is masked
         $this->assertEquals('###-##-####', $group[0]['tag']);
@@ -114,9 +115,9 @@ class GroupControllerTest extends DatabaseTest
      */
     public function testSearchTag() : void
     {
-        self::$client->postEncodedForm('?a=group/13/tag', array('tag' => 'TESTTAG'));
+        self::$client->post(array('a' => 'group/13/tag'), array('tag' => 'TESTTAG'));
 
-        $group = self::$client->get('?a=group/search&tag=TESTTAG');
+        $group = self::$client->get(array('a' => 'group/search', 'tag' => 'TESTTAG'));
 
         $this->assertEquals('13', $group[0]['groupID']);
     }
@@ -127,15 +128,16 @@ class GroupControllerTest extends DatabaseTest
     public function testDeleteTag() : void
     {
         //create a tag and check to make sure the it was successfully made
-        self::$client->postEncodedForm('?a=group/13/tag', array('tag' => 'TESTTAG'));
-        $group = self::$client->get('?a=group/tag&tag=TESTTAG');
+        self::$client->post(array('a' => 'group/13/tag'), array('tag' => 'TESTTAG'));
+        $group = self::$client->get(array('a' => 'group/tag', 'tag' => 'TESTTAG'));
+
         $this->assertNotEquals(0, count($group));
         $this->assertEquals('TESTTAG', $group[0]['tag']);
 
         //delete tag
-        self::$client->delete('group/13/tag&tag=TESTTAG');
+        self::$client->delete(array('a' => 'group/13/tag', 'tag' => 'TESTTAG'));
 
-        $group = self::$client->get('?a=group/tag&tag=TESTTAG');
+        $group = self::$client->get(array('a' => 'group/tag', 'tag' => 'TESTTAG'));
         $this->assertEquals(0, count($group));
     }
 
@@ -144,7 +146,7 @@ class GroupControllerTest extends DatabaseTest
      */
     public function testDeleteGroup() : void
     {
-        $group = self::$client->get('?a=group/14');
+        $group = self::$client->get(array('a' => 'group/14'));
         // group with id 14 does not exist, so it's title will be false
         $this->assertFalse($group['title']);
 
@@ -152,17 +154,17 @@ class GroupControllerTest extends DatabaseTest
             'title' => "NEWTESTGROUPTITLE<script lang='javascript'>alert('hi')</script>",
         );
 
-        self::$client->postEncodedForm('?a=group', $newGroup);
+        self::$client->post(array('a' => 'group'), $newGroup);
 
-        $group = self::$client->get('group/14');
+        $group = self::$client->get(array('a' => 'group/14'));
 
         $this->assertNotNull($group['title']);
         $this->assertEquals('NEWTESTGROUPTITLEalert(&#039;hi&#039;)', $group['title']);
 
-        self::$client->delete('?a=group/14');
+        self::$client->delete(array('a' => 'group/14'));
 
         // group with id 14 has been deleted, so it's title will be false
-        $group = self::$client->get('?a=group/14');
+        $group = self::$client->get(array('a' => 'group/14'));
         $this->assertFalse($group['title']);
     }
 
@@ -172,14 +174,14 @@ class GroupControllerTest extends DatabaseTest
     public function testRemoveEmployee() : void
     {
         //Checks to make sure employee exists
-        $results = self::$client->get('?a=group/1/employees/detailed');
+        $results = self::$client->get(array('a' => 'group/1/employees/detailed'));
         $users = $results['users'];
         $this->assertNotNull($users[0]);
 
-        self::$client->delete('group/1/employee/1');
+        self::$client->delete(array('a' => 'group/1/employee/1'));
 
         //Checks to make sure employee is deleted
-        $results = self::$client->get('?a=group/1/employees/detailed');
+        $results = self::$client->get(array('a' => 'group/1/employees/detailed'));
         $users = $results['users'];
         $this->assertEquals(0, count($users));
     }
@@ -189,7 +191,7 @@ class GroupControllerTest extends DatabaseTest
      */
     public function testRemovePosition() : void
     {
-        $results = self::$client->get('group/1/positions');
+        $results = self::$client->get(array('a' => 'group/1/positions'));
         $this->assertNotNull($results[0]);
         $this->assertNotNull($results[1]);
         //Checks to make sure positions exist
@@ -197,9 +199,10 @@ class GroupControllerTest extends DatabaseTest
         $this->assertNotNull($nextPosition);
         //Stores what was in the next position and makes sure it exists
 
-        self::$client->delete('group/1/position/1');
+        self::$client->delete(array('a' => 'group/1/position/1'));
 
-        $results = self::$client->get('group/1/positions');
+        $results = self::$client->get(array('a' => 'group/1/positions'));
+
         $this->assertEquals($nextPosition['positionID'], $results[0]['positionID']);
         $this->assertEquals($nextPosition['groupID'], $results[0]['groupID']);
         $this->assertEquals($nextPosition['parentID'], $results[0]['parentID']);
@@ -214,7 +217,7 @@ class GroupControllerTest extends DatabaseTest
      */
     public function testListGroupsPositions() : void
     {
-        $results = self::$client->get('group/1/positions');
+        $results = self::$client->get(array('a' => 'group/1/positions'));
         $this->assertNotNull($results[0]);
         $this->assertEquals('1', $results[0]['positionID']);
         $this->assertEquals('1', $results[0]['groupID']);
@@ -236,7 +239,7 @@ class GroupControllerTest extends DatabaseTest
      */
     public function testListGroupsEmployees() : void
     {
-        $results = self::$client->get('group/1/employees');
+        $results = self::$client->get(array('a' => 'group/1/employees'));
         $this->assertNotNull($results[0]);
         $this->assertEquals('1', $results[0]['empUID']);
         $this->assertEquals('tester', $results[0]['userName']);
@@ -255,7 +258,7 @@ class GroupControllerTest extends DatabaseTest
      */
     public function testListGroupEmployeesDetailed() : void
     {
-        $results = self::$client->get('?a=group/1/employees/detailed');
+        $results = self::$client->get(array('a' => 'group/1/employees/detailed'));
         $this->assertNotNull($results['users']);
         $this->assertEquals('1', $results['users'][0]['empUID']);
         $this->assertEquals('1', $results['users'][0]['groupID']);

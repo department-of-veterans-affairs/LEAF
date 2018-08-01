@@ -30,29 +30,29 @@ final class FormWorkflowControllerTest extends DatabaseTest
     public function testFormWorkflow() : void
     {
         //create a form with no user input needed
-        self::$client->postEncodedForm('formEditor/new', array());
-        $forms = self::$client->get('formStack/categoryList/all');
+        self::$client->post(array('a' => 'formEditor/new'));
+        $forms = self::$client->get(array('a' => 'formStack/categoryList/all'));
         $newCategoryID = $forms[0]['categoryID'];
         $this->assertNotNull($newCategoryID);
 
         //fill values
         $vars = array('name' => 'test', 'categoryID' => $newCategoryID);
-        self::$client->postEncodedForm('formEditor/formName', $vars);
+        self::$client->post(array('a' => 'formEditor/formName'), $vars);
 
         $vars = array('description' => '', 'categoryID' => $newCategoryID);
-        self::$client->postEncodedForm('formEditor/formDescription', $vars);
+        self::$client->post(array('a' => 'formEditor/formDescription'), $vars);
 
         $vars = array('workflowID' => '1', 'categoryID' => $newCategoryID);
-        self::$client->postEncodedForm('formEditor/formWorkflow', $vars);
+        self::$client->post(array('a' => 'formEditor/formWorkflow'), $vars);
 
         $vars = array('needToKnow' => '0', 'categoryID' => $newCategoryID);
-        self::$client->postEncodedForm('formEditor/formNeedToKnow', $vars);
+        self::$client->post(array('a' => 'formEditor/formNeedToKnow'), $vars);
 
         $vars = array('sort' => '0', 'categoryID' => $newCategoryID);
-        self::$client->postEncodedForm('formEditor/formSort', $vars);
+        self::$client->post(array('a' => 'formEditor/formSort'), $vars);
 
         $vars = array('visible' => '1', 'categoryID' => $newCategoryID);
-        self::$client->postEncodedForm('formEditor/formVisible', $vars);
+        self::$client->post(array('a' => 'formEditor/formVisible'), $vars);
 
         $vars = array('name' => '',
             'format' => '',
@@ -62,25 +62,27 @@ final class FormWorkflowControllerTest extends DatabaseTest
             'required' => '0',
             'categoryID' => $newCategoryID, );
 
-        self::$client->postEncodedForm('formEditor/newIndicator', $vars);
+        self::$client->post(array('a' => 'formEditor/newIndicator'), $vars);
 
         //create a new request with the generated indicator
         $vars = array('title' => 'test',
                         'num' . $newCategoryID => 1, );
-        $result = self::$client->postEncodedForm('form/new', $vars);
+
+        $result = self::$client->post(array('a' => 'form/new'), $vars);
 
         //checks to make sure the request creation was successful
         $this->assertNotNull($result);
         $this->assertEquals(2, $result);
 
         //submits the form
-        self::$client->postEncodedForm('form/2/submit', array());
+        self::$client->post(array('a' => 'form/2/submit'), array());
 
         //applies action type
         $vars = array('dependencyID' => '5',
             'actionType' => '6',
             'comment' => 'test', );
-        $result = self::$client->postEncodedForm('formWorkflow/2/apply', $vars);
+
+        $result = self::$client->post(array('a' => 'formWorkflow/2/apply'), $vars);
 
         //process finished with no errors
         $this->assertEquals('1', $result['status']);
@@ -91,7 +93,8 @@ final class FormWorkflowControllerTest extends DatabaseTest
     {
         $vars = array('stepID' => 1,
                     'comment' => 'TESTSTEP', );
-        $result = self::$client->postEncodedForm('formWorkflow/1/step', $vars);
+
+        $result = self::$client->post(array('a' => 'formWorkflow/1/step'), $vars, '');
 
         //if true, setStep method executed successfully
         $this->assertTrue($result);
