@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types = 1);
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use LEAFTest\LEAFClient;
 
@@ -23,33 +26,33 @@ class PositionControllerTest extends DatabaseTest
     public function testSetSupervisor() : void
     {
         //checks initial value
-        $results = self::$client->get(array('a'=>'position/3/supervisor'));
-        $this->assertEquals("Medical Center Director", $results[0]["positionTitle"]);
+        $results = self::$client->get(array('a' => 'position/3/supervisor'));
+        $this->assertEquals('Medical Center Director', $results[0]['positionTitle']);
 
         //changes supervisor from med center director to test position super
-        $newSupervisor = array("positionID" => "2");
-        self::$client->post(array('a'=>'position/3/supervisor'), $newSupervisor);
+        $newSupervisor = array('positionID' => '2');
+        self::$client->post(array('a' => 'position/3/supervisor'), $newSupervisor);
 
         //checks that the change was successful
-        $results = self::$client->get(array('a'=>'position/3/supervisor'));
-        $this->assertEquals("Test Position Title Super", $results[0]["positionTitle"]);
+        $results = self::$client->get(array('a' => 'position/3/supervisor'));
+        $this->assertEquals('Test Position Title Super', $results[0]['positionTitle']);
     }
 
     /**
      * Tests the `position/<id>` endpoint
      */
-    public function testDeletePosition(): void
+    public function testDeletePosition() : void
     {
         //checks initial value
-        $results = self::$client->get(array('a'=>'position/3'));
-        $this->assertEquals("Test Subordinate Position", $results['title']);
+        $results = self::$client->get(array('a' => 'position/3'));
+        $this->assertEquals('Test Subordinate Position', $results['title']);
 
         //deletes position
-        self::$client->delete(array('a'=>'position/3'));
+        self::$client->delete(array('a' => 'position/3'));
 
         //checks to make sure position has been deleted
         //will be false if deleted
-        $results = self::$client->get(array('a'=>'position/3'));
+        $results = self::$client->get(array('a' => 'position/3'));
         $this->assertFalse($results['title']);
     }
 
@@ -59,16 +62,16 @@ class PositionControllerTest extends DatabaseTest
     public function testPositionEditTitle() : void
     {
         //checks initial value
-        $results = self::$client->get(array('a'=>'position/3'));
-        $this->assertEquals("Test Subordinate Position", $results['title']);
+        $results = self::$client->get(array('a' => 'position/3'));
+        $this->assertEquals('Test Subordinate Position', $results['title']);
 
         //changes position title
         $newPositionTitle = array('title' => 'anotherNewTitle');
-        self::$client->post(array('a'=>'position/3/title'), $newPositionTitle);
+        self::$client->post(array('a' => 'position/3/title'), $newPositionTitle);
 
         //checks to make sure the change was successful
-        $results = self::$client->get(array('a'=>'position/3'));
-        $this->assertEquals("anotherNewTitle", $results['title']);
+        $results = self::$client->get(array('a' => 'position/3'));
+        $this->assertEquals('anotherNewTitle', $results['title']);
     }
 
     /**
@@ -77,22 +80,22 @@ class PositionControllerTest extends DatabaseTest
     public function testAddAndRemoveEmployee() : void
     {
         //checks initial value
-        $results = self::$client->get(array('a'=>'position/3/employees'));
+        $results = self::$client->get(array('a' => 'position/3/employees'));
         $this->assertEquals(0, count($results));
 
         //adds tester employee to test position sub
-        $employee = array('empUID' => '1', "isActing" => '0');
-        self::$client->post(array('a'=>'position/3/employee'), $employee);
+        $employee = array('empUID' => '1', 'isActing' => '0');
+        self::$client->post(array('a' => 'position/3/employee'), $employee);
 
         //checks to make sure the change was successful and tester is in the position
-        $results = self::$client->get(array('a'=>'position/3/employees'));
+        $results = self::$client->get(array('a' => 'position/3/employees'));
         $this->assertEquals('1', $results[0]['empUID']);
 
         //deletes tester from position
-        self::$client->delete(array('a'=>'position/3/employee/1'));
+        self::$client->delete(array('a' => 'position/3/employee/1'));
 
         //checks to make sure change was successful
-        $results = self::$client->get(array('a'=>'position/3/employees'));
+        $results = self::$client->get(array('a' => 'position/3/employees'));
         $this->assertEquals(0, count($results));
     }
 }
