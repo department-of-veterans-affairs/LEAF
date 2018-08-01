@@ -31,10 +31,12 @@ class PositionControllerTest extends DatabaseTest
 
         //changes supervisor from med center director to test position super
         $newSupervisor = array('positionID' => '2');
+
         self::$client->post(array('a' => 'position/3/supervisor'), $newSupervisor);
 
         //checks that the change was successful
         $results = self::$client->get(array('a' => 'position/3/supervisor'));
+
         $this->assertEquals('Test Position Title Super', $results[0]['positionTitle']);
     }
 
@@ -45,6 +47,7 @@ class PositionControllerTest extends DatabaseTest
     {
         //checks initial value
         $results = self::$client->get(array('a' => 'position/3'));
+
         $this->assertEquals('Test Subordinate Position', $results['title']);
 
         //deletes position
@@ -63,6 +66,7 @@ class PositionControllerTest extends DatabaseTest
     {
         //checks initial value
         $results = self::$client->get(array('a' => 'position/3'));
+
         $this->assertEquals('Test Subordinate Position', $results['title']);
 
         //changes position title
@@ -71,6 +75,7 @@ class PositionControllerTest extends DatabaseTest
 
         //checks to make sure the change was successful
         $results = self::$client->get(array('a' => 'position/3'));
+
         $this->assertEquals('anotherNewTitle', $results['title']);
     }
 
@@ -85,6 +90,7 @@ class PositionControllerTest extends DatabaseTest
 
         //adds tester employee to test position sub
         $employee = array('empUID' => '1', 'isActing' => '0');
+
         self::$client->post(array('a' => 'position/3/employee'), $employee);
 
         //checks to make sure the change was successful and tester is in the position

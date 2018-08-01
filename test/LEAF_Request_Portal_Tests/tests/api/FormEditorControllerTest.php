@@ -660,11 +660,13 @@ final class FormEditorControllerTest extends DatabaseTest
     public function testAddStapledCategory() : void
     {
         $category = self::$client->get(array('a' => 'formStack/categoryList/all'))[1];
+
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
         $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
 
         $category = self::$client->get(array('a' => 'formStack/categoryList/all'))[2];
+
         $this->assertNotNull($category);
         $this->assertEquals('form_f4689', $category['categoryID']);
         $this->assertEquals('A Staple form', $category['categoryDescription']);
@@ -674,6 +676,7 @@ final class FormEditorControllerTest extends DatabaseTest
       ));
 
         $category = self::$client->get(array('a' => 'formEditor/_form_f4687/stapled'))[0];
+
         $this->assertNotNull($category);
         $this->assertEquals('form_f4689', $category['categoryID']);
     }
@@ -684,11 +687,13 @@ final class FormEditorControllerTest extends DatabaseTest
     public function testGetStapledCategories() : void
     {
         $category = self::$client->get(array('a' => 'formStack/categoryList/all'))[1];
+
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
         $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
 
         $category = self::$client->get(array('a' => 'formStack/categoryList/all'))[2];
+
         $this->assertNotNull($category);
         $this->assertEquals('form_f4689', $category['categoryID']);
         $this->assertEquals('A Staple form', $category['categoryDescription']);
@@ -698,6 +703,7 @@ final class FormEditorControllerTest extends DatabaseTest
       ));
 
         $category = self::$client->get(array('a' => 'formEditor/_form_f4687/stapled'))[0];
+
         $this->assertNotNull($category);
         $this->assertEquals('form_f4689', $category['categoryID']);
     }
@@ -708,11 +714,13 @@ final class FormEditorControllerTest extends DatabaseTest
     public function testRemoveStapledCategory() : void
     {
         $category = self::$client->get(array('a' => 'formStack/categoryList/all'))[1];
+
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
         $this->assertEquals('A Simple Sample Form', $category['categoryDescription']);
 
         $category = self::$client->get(array('a' => 'formStack/categoryList/all'))[2];
+
         $this->assertNotNull($category);
         $this->assertEquals('form_f4689', $category['categoryID']);
         $this->assertEquals('A Staple form', $category['categoryDescription']);
@@ -726,6 +734,7 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertEquals('form_f4689', $category['categoryID']);
 
         $delResponse = self::$client->delete(array('a' => 'formEditor/_form_f4687/stapled/_form_f4689/'));
+
         $this->assertNotNull($delResponse);
         $this->assertEquals(1, $delResponse);
     }

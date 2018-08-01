@@ -31,6 +31,7 @@ class EmployeeControllerTest extends DatabaseTest
                              'lastName' => 'guy',
                              'middleName' => '',
                              'userName' => 'newguy123', );
+
         self::$client->post(array('a' => 'employee/new'), $newEmployee);
 
         //initial value

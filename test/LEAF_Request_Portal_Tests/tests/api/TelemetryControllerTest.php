@@ -48,6 +48,7 @@ final class TelemetryControllerTest extends DatabaseTest
         ));
 
         $result = self::$reqClient->get(array('a' => 'telemetry/simple/requests', 'startTime' => '1520268852', 'endTime' => '1520268853'));
+
         $this->assertNotNull($result);
         $res = $result[0];
         $this->assertEquals($res, array(
@@ -57,6 +58,7 @@ final class TelemetryControllerTest extends DatabaseTest
         ));
 
         $result = self::$reqClient->get(array('a' => 'telemetry/simple/requests', 'startTime' => '1520268853', 'endTime' => '1520268854'));
+
         $this->assertNotNull($result);
         $res = $result[0];
         $this->assertEquals($res, array(
@@ -66,6 +68,7 @@ final class TelemetryControllerTest extends DatabaseTest
         ));
 
         $result = self::$reqClient->get(array('a' => 'telemetry/simple/requests', 'startTime' => '1520268852', 'endTime' => '1520268854'));
+
         $this->assertNotNull($result);
         $res = $result[0];
         $this->assertEquals($res, array(
@@ -84,6 +87,7 @@ final class TelemetryControllerTest extends DatabaseTest
         ));
 
         $result = self::$reqClient->get(array('a' => 'telemetry/simple/requests', 'startTime' => '1520268852', 'endTime' => '0'));
+
         $this->assertNotNull($result);
         $res = $result[0];
         $this->assertEquals($res, array(
@@ -115,6 +119,7 @@ final class TelemetryControllerTest extends DatabaseTest
         $this->assertEquals($result, array());
 
         $result = self::$reqClient->get(array('a' => 'telemetry/simple/requests', 'startTime' => '1520268854', 'endTime' => '1520268854'));
+
         $this->assertNotNull($result);
         $this->assertEquals($result, array());
 
