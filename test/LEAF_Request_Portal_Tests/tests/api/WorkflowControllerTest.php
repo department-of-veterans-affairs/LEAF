@@ -82,7 +82,7 @@ final class WorkflowControllerTest extends DatabaseTest
         $data = array(
         'initialStepID' => 2,
       );
-      
+
         $response = self::$client->post(array('a' => 'workflow/1/initialStep'), $data);
 
         $this->assertNotNull($response);
@@ -142,7 +142,6 @@ final class WorkflowControllerTest extends DatabaseTest
         $data = array(
         'groupID' => 3,
       );
-
 
         $response = self::$client->post(array('a' => 'workflow/dependency/8/privileges'), $data);
 

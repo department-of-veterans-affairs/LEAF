@@ -95,7 +95,7 @@ final class FormWorkflowControllerTest extends DatabaseTest
                     'comment' => 'TESTSTEP', );
 
         $result = self::$client->post(array('a' => 'formWorkflow/1/step'), $vars, '');
-      
+
         //if true, setStep method executed successfully
         $this->assertTrue($result);
     }
