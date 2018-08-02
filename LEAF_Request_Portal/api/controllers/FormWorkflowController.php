@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../FormWorkflow.php';
+require '../../FormWorkflow.php';
 
 require_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 
