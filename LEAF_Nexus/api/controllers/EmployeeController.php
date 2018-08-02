@@ -1,6 +1,6 @@
 <?php
 
-require '../sources/Employee.php';
+require '../../sources/Employee.php';
 
 class EmployeeController extends RESTfulResponse
 {

@@ -1,6 +1,6 @@
 <?php
 
-require '../sources/Position.php';
+require '../../sources/Position.php';
 
 class PositionController extends RESTfulResponse
 {

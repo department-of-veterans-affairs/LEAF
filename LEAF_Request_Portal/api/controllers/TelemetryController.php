@@ -1,6 +1,6 @@
 <?php
 
-require '../sources/Telemetry.php';
+require '../../sources/Telemetry.php';
 
 class TelemetryController extends RESTfulResponse
 {

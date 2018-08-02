@@ -1,6 +1,6 @@
 <?php
 
-require '../sources/Indicators.php';
+require '../../sources/Indicators.php';
 
 class IndicatorController extends RESTfulResponse
 {

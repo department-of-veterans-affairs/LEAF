@@ -1,6 +1,6 @@
 <?php
 
-require '../sources/Service.php';
+require '../../sources/Service.php';
 
 include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 

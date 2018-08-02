@@ -1,6 +1,6 @@
 <?php
 
-require '../Inbox.php';
+require '../../Inbox.php';
 
 class InboxController extends RESTfulResponse
 {

@@ -2,7 +2,7 @@
 // Since Groups are primarily controlled via the Org. Chart, this provides read access to the local group database.
 
 
-require '../admin/Group.php';
+require '../../admin/Group.php';
 
 include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 

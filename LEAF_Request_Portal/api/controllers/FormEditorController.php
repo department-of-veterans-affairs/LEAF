@@ -1,7 +1,7 @@
 <?php
 
 require '../form.php';
-require '../sources/FormEditor.php';
+require '../../sources/FormEditor.php';
 
 include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 

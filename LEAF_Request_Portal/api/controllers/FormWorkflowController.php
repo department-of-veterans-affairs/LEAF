@@ -1,6 +1,6 @@
 <?php
 
-require '../FormWorkflow.php';
+require '../../FormWorkflow.php';
 
 require_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 

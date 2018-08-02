@@ -1,6 +1,6 @@
 <?php
 
-require '../sources/System.php';
+require '../../sources/System.php';
 
 class SystemController extends RESTfulResponse
 {

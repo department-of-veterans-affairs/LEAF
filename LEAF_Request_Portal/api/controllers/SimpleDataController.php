@@ -1,6 +1,6 @@
 <?php
 
-require '../form.php';
+require '../../form.php';
 
 class SimpleDataController extends RESTfulResponse
 {

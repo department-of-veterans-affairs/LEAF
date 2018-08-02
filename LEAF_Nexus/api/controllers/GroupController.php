@@ -1,6 +1,6 @@
 <?php
 
-require '../sources/Group.php';
+require '../../sources/Group.php';
 
 class GroupController extends RESTfulResponse
 {

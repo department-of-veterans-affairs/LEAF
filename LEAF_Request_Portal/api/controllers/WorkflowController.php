@@ -1,6 +1,6 @@
 <?php
 
-require '../sources/Workflow.php';
+require '../../sources/Workflow.php';
 
 include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 

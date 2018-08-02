@@ -1,6 +1,6 @@
 <?php
 
-require_once '../VAMC_Directory.php';
+require_once '../../VAMC_Directory.php';
 
 class ClassicPhonebookController extends RESTfulResponse
 {

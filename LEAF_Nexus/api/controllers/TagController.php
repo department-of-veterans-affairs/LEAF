@@ -1,6 +1,6 @@
 <?php
 
-require '../sources/Tag.php';
+require '../../sources/Tag.php';
 
 include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 
