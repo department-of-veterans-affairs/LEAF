@@ -1052,6 +1052,8 @@ class Form
                     $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
                                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
                 }
+
+                $this->invalidatePastSignatures($recordID);
             }
         }
 
@@ -3153,5 +3155,72 @@ class Form
         }
 
         return 0;
+    }
+
+
+    public function invalidatePastSignatures($recordID)
+    {
+        //get most recent `signature invalidated` action, if any
+        $var = array(':recordID' => (int)$recordID,);
+        $res = $this->db->prepared_query('SELECT actionID 
+                                            FROM action_history
+                                            WHERE actionTypeID = 10 
+                                            AND recordID = :recordID 
+                                            ORDER BY actionID DESC LIMIT 1', $var);
+
+        $lastEditActionID = 0;
+        if(array_key_exists(0, $res) && array_key_exists('actionID', $res[0]))
+        {
+            $lastEditActionID =  $res[0]['actionID'];
+        }
+
+        //get any signatures made after last `signature invalidated` or beginning of time, for this recordID
+        $var = array(
+                        ':recordID' => (int)$recordID,
+                        ':actionID' => (int)$lastEditActionID,
+                    );
+        $res = $this->db->query_kv('SELECT * 
+                                    FROM action_history
+                                    WHERE actionTypeID = 9 
+                                    AND recordID = :recordID 
+                                    AND signature_id IS NOT NULL 
+                                    AND actionID > :actionID', 'actionID', 'signature_id', $var);
+
+        //if any signatures are found, add a `signature invalidated` to action_history and remove 
+        if(count($res) > 0)
+        {
+            $actionIDArray = array_keys($res);
+            $actionIDs = implode(',', $actionIDArray);
+            $signatureIDArray = array_values($res);
+
+            $this->db->beginTransaction();
+
+            $comment = 'actionID(s) of invalidated signatures: '.$actionIDs;
+            $insertVars = array(':recordID' => (int)$recordID,
+                                ':userID' => $this->login->getUserID(),
+                                ':dependencyID' => 0,
+                                ':actionType' => 'signature invalidated',
+                                ':actionTypeID' => 10,
+                                ':time' => time(),
+                                ':comment' =>  $comment,
+                                ':signature_id' => NULL,
+                                );
+            $this->db->prepared_query("INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, signature_id)
+                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :signature_id)", $insertVars);
+
+            //set invalidating signatureID's to null
+            $questionMarkString = str_repeat('?,',count($actionIDArray) - 1).'?';
+            $this->db->prepared_query("UPDATE action_history 
+                                        SET signature_id = NULL 
+                                        WHERE actionID IN ($questionMarkString)", $actionIDArray);
+
+            //delete invalidated signatures
+            $questionMarkString = str_repeat('?,',count($signatureIDArray) - 1).'?';
+            $this->db->prepared_query("DELETE FROM signatures 
+                                        WHERE id IN ($questionMarkString)", $signatureIDArray);
+
+            $this->db->commitTransaction();
+        }
+        
     }
 }
