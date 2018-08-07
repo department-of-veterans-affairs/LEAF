@@ -1,11 +1,9 @@
-<div aria-hidden=true class="printmainform" tabindex="0" title="stamp">
-        <span><table aria-hidden=true style="border-collapse: collapse; width: 100%; font-weight: normal; font-family: monospace; font-size: 20px; letter-spacing: 0.01rem; color: rgba(0,0,0,0.8);" id="sigtable"></table></span>
-</div>
+<div class="printmainblock" id="sigstamp"></div>
 
 <script type="text/javascript">
     const monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "June",
         "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
-    var sigTable = document.getElementById('sigtable')
+    var sigStamp = document.getElementById('sigstamp')
     $.ajax({
         type: 'GET',
         url: "./api/?a=signature/" + <!--{$recordID}--> +"/history",
@@ -13,6 +11,7 @@
             var sigInfo = []
             for(var i = 0; i < res.length; i++) {
                 if (res[i]['signature_id'] !== undefined) {
+
                     sigInfo[i] = new Object()
                     sigInfo[i]['signUserID'] = res[i]["userID"]
                     var signDate = new Date(res[i]["time"] * 1000)
@@ -28,39 +27,39 @@
         }
     })
 
-    function employeeSearch(i, sigInfo, signDate)
-    {
+    function employeeSearch(i, sigInfo, signDate) {
         $.ajax({
             type: 'GET',
             url: "<!--{$orgchartPath}-->/api/employee/search/userName/_" + JSON.stringify(sigInfo[i]['signUserID']).replace(/"/g, ""),
             success: function (res2) {
+                sigStamp.innerHTML =
+                    '' +
+                    '<div class="printmainlabel">\n' +
+                    '                <div class="printcounter" style="cursor: pointer"><span style="font-size: 14px">Signatures</span>\n' +
+                    '                        <div class="printheading" style="height: 15px"></div>\n' +
+                    '                        <div class="printResponse" aria-hidden=true style="margin-left: -16px; display: flex; flex-direction: row; flex-basis: 45%; flex-wrap: wrap; border-collapse: collapse; width: 100%; font-weight: normal; font-family: monospace; font-size: 17px; letter-spacing: 0.01rem; color: rgba(0,0,0,0.8);" id="sigtable"></div>\n' +
+                    '                </div>\n' +
+                    '        </div>'
                 getEmployeeEmail(i, sigInfo, res2, signDate)
             }
         })
     }
 
-    function getEmployeeEmail(i, sigInfo, res2, signDate)
-    {
+    function getEmployeeEmail(i, sigInfo, res2, signDate) {
         $.ajax({
             type: 'GET',
             url: "<!--{$orgchartPath}-->/api/employee/" + JSON.stringify(res2[0]["empUID"]).replace(/"/g, ""),
             success: function (res3) {
                 var sigEmail = ''
-                if (res3['employee']['data']['6']['data'] !== undefined)
-                {
+                if (res3['employee']['data']['6']['data'] !== undefined) {
                     sigEmail = JSON.stringify(res3['employee']['data']['6']['data']).replace(/"/g, "")
                 }
+                var sigTable = document.getElementById('sigtable')
                 sigTable.innerHTML +=
-                    '<div class="printheading" style="background-color: transparent"><tr>\n' +
-                    '       <img aria-hidden=true style="vertical-align: top; text-align: left; display:inline; margin-top: -55px; margin-left: 15px" src="../libs/dynicons/svg/application-certificate.svg">' +
-                    '       <td aria-hidden=false aria-label="Signed by ' + JSON.stringify(res2[0]["firstName"]).replace(/"/g, "") + JSON.stringify(res2[0]["firstName"]).replace(/"/g, "") + ' ' + sigEmail + ' at ' + signDate +'" style="text-align: center" title="stamp" tabindex="0" id="sigdate_' + i + '"></td>\n' +
-                    '        </tr>\n' +
-                    '        <tr>\n' +
-                    '            <td aria-hidden=true style="text-align: center" title="stamp" id="sigemail_' + i + '"></td>\n' +
-                    '        </tr><br /></div>'
+                    '       <div aria-hidden=false aria-label="Signed by ' + JSON.stringify(res2[0]["firstName"]).replace(/"/g, "") + JSON.stringify(res2[0]["firstName"]).replace(/"/g, "") + ' ' + sigEmail + ' at ' + signDate +'" style="text-align: left; background-image: url(../libs/dynicons/svg/application-certificate.svg); background-repeat: no-repeat; position: relative; border: 1px solid; padding-left: 61px; background-position-y: 8px; background-position-x: 8px;" title="stamp" tabindex="0" id="sigdate_' + i + '"></div>\n' +
+                    ''
 
-                if(sigEmail !== '')
-                {
+                if(sigEmail !== '') {
                     document.getElementById('sigdate_' + i).innerHTML =
                         JSON.stringify(res2[0]["firstName"]).replace(/"/g, "") + ' '
                         + JSON.stringify(res2[0]["lastName"]).replace(/"/g, "")
@@ -70,9 +69,7 @@
                         + ' ' + JSON.stringify(sigInfo[i]['signHour']).replace(/"/g, "")
                         + ":" + JSON.stringify(sigInfo[i]['signMinute']).replace(/"/g, "")
                         + ":" + JSON.stringify(sigInfo[i]['signSecond']).replace(/"/g, "")
-                }
-                else
-                {
+                } else {
                     document.getElementById('sigdate_' + i).innerHTML =
                         JSON.stringify(JSON.stringify(res2[0]["firstName"]).replace(/"/g, "") + ' '
                         + JSON.stringify(res2[0]["lastName"]).replace(/"/g, "")).replace(/"/g, "")
