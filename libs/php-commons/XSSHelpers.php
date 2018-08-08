@@ -278,4 +278,18 @@ class XSSHelpers
 
         return self::sanitizer($in, $allowedTags);
     }
+
+    /**
+     * Sanitize a URL string, removing new lines
+     *
+     * @param    string  $stringToScrub the string to be sanitized
+     *
+     * @return   string  the sanitized string
+     */
+    public static function scrubNewLinesFromURL($stringToSanitize)
+    {
+        $toRemove = ['%0a','%0A'];
+
+        return str_replace($toRemove, '', $stringToSanitize);
+    }
 }

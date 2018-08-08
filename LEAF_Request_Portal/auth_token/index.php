@@ -104,7 +104,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
         }
         else
         {
-            echo 'Unable to log in: ' . $_SERVER['SSL_CLIENT_S_DN_UID'] . ' not found in database.';
+            echo 'Unable to log in: SSL_CLIENT_S_DN_UID not found in database.';
         }
     }
 }
