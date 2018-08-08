@@ -60,48 +60,85 @@ var LeafForm = function(containerID) {
 	    });
 	}
 
+	function checkSignature() {
+		$.ajax({
+			type: 'GET',
+			url: "./api/?a=signature/" + recordID,
+			success: function(res) {
+				if(res.length > 0) {
+					return 1
+				}
+				else
+				{
+					return 0
+				}
+			}
+		})
+	}
+
+	function getEditWindow(indicatorID, series) {
+        dialog.show()
+
+        dialog.indicateBusy();
+
+        dialog.setSaveHandler(function() {
+            doModify();
+        });
+
+        formValidator = new Object();
+        formRequired = new Object();
+        $.ajax({
+            type: 'GET',
+            url: "ajaxIndex.php?a=getindicator&recordID=" + recordID + "&indicatorID=" + indicatorID + "&series=" + series,
+            dataType: 'text',
+            success: function(response) {
+                dialog.setTitle('Editing #' + recordID);
+                dialog.setContent(response);
+
+                for(var i in formValidator) {
+                    var tID = i.slice(2);
+                    dialog.setValidator(tID, formValidator[i].setValidator);
+                    dialog.setValidatorError(tID, formValidator[i].setValidatorError);
+                    dialog.setValidatorOk(tID, formValidator[i].setValidatorOk);
+                }
+
+                for(var i in formRequired) {
+                    var tID = i.slice(2);
+                    dialog.setRequired(tID, formRequired[i].setRequired);
+                    dialog.setRequiredError(tID, formRequired[i].setRequiredError);
+                    dialog.setRequiredOk(tID, formRequired[i].setRequiredOk);
+                }
+
+                dialog.enableLiveValidation();
+            },
+            error: function(response) {
+                dialog.setContent("Error: " + response);
+            },
+            cache: false
+        });
+	}
+
 	function getForm(indicatorID, series) {
 		if(recordID == 0) {
 			console.log('recordID not set');
 			return 0;
 		}
-	    dialog.indicateBusy();
 
-	    dialog.setSaveHandler(function() {
-	    	doModify();
-	    });
-
-	    formValidator = new Object();
-	    formRequired = new Object();
-	    $.ajax({
-	        type: 'GET',
-	        url: "ajaxIndex.php?a=getindicator&recordID=" + recordID + "&indicatorID=" + indicatorID + "&series=" + series,
-	        dataType: 'text',
-	        success: function(response) {
-	        	dialog.setTitle('Editing #' + recordID);
-	            dialog.setContent(response);
-
-	            for(var i in formValidator) {
-	            	var tID = i.slice(2);
-	            	dialog.setValidator(tID, formValidator[i].setValidator);
-	                dialog.setValidatorError(tID, formValidator[i].setValidatorError);
-	                dialog.setValidatorOk(tID, formValidator[i].setValidatorOk);
-	            }
-
-	            for(var i in formRequired) {
-	            	var tID = i.slice(2);
-	            	dialog.setRequired(tID, formRequired[i].setRequired);
-	            	dialog.setRequiredError(tID, formRequired[i].setRequiredError);
-	            	dialog.setRequiredOk(tID, formRequired[i].setRequiredOk);
-	            }
-
-	            dialog.enableLiveValidation();
-	        },
-	        error: function(response) {
-	        	dialog.setContent("Error: " + response);
-	        },
-	        cache: false
-	    });
+		var sigStatus = checkSignature()
+		if(sigStatus = 1) {
+			var dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+            dialog.hide()
+            dialog_confirm.setTitle('Warning');
+            dialog_confirm.setContent('Editing this form will invalidate all signatures associated with it.  Are you sure you want to edit it?');
+            dialog_confirm.setSaveHandler(function() {
+                dialog_confirm.hide()
+                getEditWindow(indicatorID, series)
+            });
+            dialog_confirm.show();
+        }
+		else if(sigStatus = 0) {
+			getEditWindow(indicatorID, series)
+		}
 	}
 
 	function initCustom(containerID, contentID, indicatorID, btnSaveID, btnCancelID) {

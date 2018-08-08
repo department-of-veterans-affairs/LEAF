@@ -1,4 +1,7 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 require '../sources/Signature.php';
 
@@ -20,10 +23,20 @@ class SignaturesController extends RESTfulResponse
 
     public function get($action)
     {
+        $signature = $this->signature;
+
         $this->index['GET'] = new ControllerMap();
 
         $this->index['GET']->register('signature/version', function () {
             return $this->API_VERSION;
+        });
+
+        $this->index['GET']->register('signature/[digit]', function ($args) use ($signature) {
+            return $signature->getSignature((int)$args[0]);
+        });
+
+        $this->index['GET']->register('signature/[digit]/history', function ($args) use ($signature) {
+            return $signature->getSignatureHistory((int)$args[0]);
         });
 
         return $this->index['GET']->runControl($action['key'], $action['args']);
