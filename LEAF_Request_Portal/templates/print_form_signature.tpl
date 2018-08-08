@@ -34,11 +34,11 @@
             success: function (res2) {
                 sigStamp.innerHTML =
                     '<div class="printmainlabel">\n' +
-                    '                <div class="printcounter" style="cursor: pointer"><span tabindex=0 style="font-size: 14px">Signatures</span>\n' +
-                    '                        <div aria-hidden="true" class="printheading" style="height: 15px"></div>\n' +
-                    '                        <div class="printResponse" aria-hidden=false style="margin-left: -16px; display: flex; flex-direction: row; flex-basis: 45%; flex-wrap: wrap; border-collapse: collapse; width: 100%; font-weight: normal; font-family: monospace; font-size: 17px; letter-spacing: 0.01rem; color: rgba(0,0,0,0.8);" id="sigtable"></div>\n' +
-                    '                </div>\n' +
-                    '        </div>'
+                    '        <div class="printcounter" style="cursor: pointer"><span tabindex=0 style="font-size: 14px">Signatures</span>\n' +
+                    '                <div aria-hidden="true" class="printheading" style="height: 15px"></div>\n' +
+                    '                <div class="printResponse" aria-hidden=false style="margin-left: -16px; display: flex; flex-direction: row; flex-basis: 45%; flex-wrap: wrap; border-collapse: collapse; width: 100%; font-weight: normal; font-family: monospace; font-size: 17px; letter-spacing: 0.01rem; color: rgba(0,0,0,0.8);" id="sigtable"></div>\n' +
+                    '         </div>\n' +
+                    '</div>'
                 getEmployeeEmail(i, sigInfo, res2, signDate)
             }
         })
