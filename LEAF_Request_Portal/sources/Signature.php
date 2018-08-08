@@ -58,20 +58,27 @@ class Signature
 
     public function getSignatureHistory($recordID)
     {
-        $vars = array(
-            ':recordID' => $recordID,
-            ':actionType' => 'sign',
-        );
+        $signatures = $this->getSignature($recordID);
+        $returnArray = array();
+        for ($i = 0; $i < (count($signatures) - 1); $i++)
+        {
+            $vars = array(
+                ':recordID' => $recordID,
+                ':actionType' => 'sign',
+                ':signature_id' => $signatures[$i]['id'],
+            );
 
-        $res = $this->db->prepared_query(
-            'SELECT * FROM
+            $res = $this->db->prepared_query(
+                'SELECT * FROM
                 action_history
                 WHERE recordID=:recordID AND 
-                  actionType=:actionType
-                  ORDER BY signature_id;',
-            $vars
-        );
+                  actionType=:actionType AND 
+                  signature_id=:signature_id;',
+                $vars
+            );
+            array_push($returnArray, $res[0]);
+        }
 
-        return $res;
+        return $returnArray;
     }
 }
