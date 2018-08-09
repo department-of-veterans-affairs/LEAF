@@ -60,27 +60,35 @@ var LeafForm = function(containerID) {
 	    });
 	}
 
-	function checkSignature() {
+	function checkSignature(indicatorID, series) {
 		$.ajax({
 			type: 'GET',
 			url: "./api/?a=signature/" + recordID,
 			success: function(res) {
 				if(res.length > 0) {
-					return 1
+					{
+                        var dialog_confirm_sig = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+                        dialog.hide();
+                        dialog_confirm_sig.setTitle('Warning');
+                        dialog_confirm_sig.setContent('Editing this form will invalidate all signatures associated with it.  Are you sure you want to edit it?');
+                        dialog_confirm_sig.setSaveHandler(function() {
+                            dialog_confirm_sig.hide();
+                            dialog.show();
+                            dialog.indicateBusy();
+                            getEditWindow(indicatorID, series)
+                        });
+                        dialog_confirm_sig.show();
+                    }
 				}
 				else
 				{
-					return 0
+                    getEditWindow(indicatorID, series);
 				}
 			}
 		})
 	}
 
 	function getEditWindow(indicatorID, series) {
-        dialog.show()
-
-        dialog.indicateBusy();
-
         dialog.setSaveHandler(function() {
             doModify();
         });
@@ -123,22 +131,7 @@ var LeafForm = function(containerID) {
 			console.log('recordID not set');
 			return 0;
 		}
-
-		var sigStatus = checkSignature()
-		if(sigStatus = 1) {
-			var dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
-            dialog.hide()
-            dialog_confirm.setTitle('Warning');
-            dialog_confirm.setContent('Editing this form will invalidate all signatures associated with it.  Are you sure you want to edit it?');
-            dialog_confirm.setSaveHandler(function() {
-                dialog_confirm.hide()
-                getEditWindow(indicatorID, series)
-            });
-            dialog_confirm.show();
-        }
-		else if(sigStatus = 0) {
-			getEditWindow(indicatorID, series)
-		}
+		checkSignature(indicatorID, series);
 	}
 
 	function initCustom(containerID, contentID, indicatorID, btnSaveID, btnCancelID) {
