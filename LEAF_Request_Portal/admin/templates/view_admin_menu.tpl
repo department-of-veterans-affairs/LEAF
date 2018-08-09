@@ -129,6 +129,7 @@ $(function() {
   var subMenuButton = $('#programmerMode').find('.menuButton');
 
 	$('#btn_programmerMode').on('click', function(e) {
+    $(menuButton).attr('aria-expanded', 'true');
 		$('#programmerMode').toggle();
 	});
 
@@ -143,7 +144,7 @@ $(function() {
         if (e.keyCode === 13) {
             $(subMenu).css("display", "block");
             $(menuButton).attr('aria-expanded', 'true');
-            subMenuButton.focus();
+            $('h3').focus();
         }
     });
     $(subMenuButton[2]).focusout(function() {
