@@ -54,7 +54,7 @@
                     sigEmail = JSON.stringify(res3['employee']['data']['6']['data']).replace(/"/g, "")
                 }
                 var sigTable = document.getElementById('sigtable')
-                sigTable.innerHTML += '<div aria-hidden="false" style="text-align: left; background-image: url(../libs/dynicons/svg/application-certificate.svg); background-repeat: no-repeat; position: relative; border: 1px solid; padding-left: 61px; background-position-y: 8px; background-position-x: 8px;" title="stamp" tabindex="0" id="sigdate_' + i + '"></div>\n'
+                sigTable.innerHTML += '<div style="border: 1px solid;"><img src="../libs/dynicons/svg/LEAF-thumbprint.svg" style="position: absolute; height: 90px; padding-top: 5px; padding-left: 65px; opacity: .25;"><div aria-hidden="false" style="text-align: left; background-repeat: no-repeat; position: relative; padding: 20px; background-position-y: 5px; background-position-x: 72px; background-size: 92px;" title="stamp" tabindex="0" id="sigdate_' + i + '"></div></div>\n'
 
                 if(sigEmail !== '') {
                     document.getElementById('sigdate_' + i).innerHTML =
