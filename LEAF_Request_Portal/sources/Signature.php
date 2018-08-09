@@ -60,7 +60,7 @@ class Signature
     {
         $signatures = $this->getSignature($recordID);
         $returnArray = array();
-        for($i = 0; $i < (count($signatures) - 1); $i++) {
+        for($i = 0; $i < count($signatures); $i++) {
             $vars = array(
                 ':recordID' => $recordID,
                 ':actionType' => 'sign',
