@@ -988,4 +988,79 @@ class FormWorkflow
     {
         $this->eventFolder = $folder;
     }
+
+    /**
+     * For the given recordID, this function adds 
+     * an action_history entry for signature invalidation, 
+     * removes invalidated signatures, and sets the current 
+     * step back to the first of the now invalid signatures
+     * 
+     * @param int $recordID the recordID to 
+     */
+    public function invalidatePastSignatures()
+    {
+        //get any signatures made for this recordID
+        $var = array(':recordID' => $this->recordID);
+        $res = $this->db->prepared_query('SELECT actionID, signature_id, stepID
+                                    FROM action_history
+                                    WHERE actionTypeID = 9 
+                                    AND recordID = :recordID 
+                                            AND signature_id IS NOT NULL
+                                            ORDER BY actionID ASC', $var);
+
+        //if any signatures are found, continue
+        if(count($res) > 0)
+        {
+            $actionIDArray = array();
+            $signatureIDArray = array();
+            $earliestSignatureStepID = null;
+            foreach($res as $columns)
+            {
+                $actionIDArray[] = $columns['actionID'];
+                $signatureIDArray[] = $columns['signature_id'];
+                if(is_null($earliestSignatureStepID))
+                {
+                    $earliestSignatureStepID = $columns['stepID'];
+                }
+            }
+
+            $this->db->beginTransaction();
+
+            //add a `signature invalidated` to action_history
+            $comment = 'actionID(s) of invalidated signatures: '.implode(',', $actionIDArray);
+            $insertVars = array(':recordID' => $this->recordID,
+                                ':userID' => (int)$this->login->getUserID(),
+                                ':dependencyID' => 0,
+                                ':actionType' => 'signature invalidated',
+                                ':actionTypeID' => 10,
+                                ':time' => time(),
+                                ':comment' =>  XSSHelpers::xscrub($comment),
+                                ':signature_id' => NULL,
+                                );
+            $this->db->prepared_query("INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, signature_id)
+                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :signature_id)", $insertVars);
+
+            //set invalidating signatureID's to null
+            $questionMarkString = str_repeat('?,',count($actionIDArray) - 1).'?';
+            $this->db->prepared_query("UPDATE action_history 
+                                        SET signature_id = NULL 
+                                        WHERE actionID IN ($questionMarkString)", array_map('intval', $actionIDArray));
+
+            //delete invalidated signatures
+            $questionMarkString = str_repeat('?,',count($signatureIDArray) - 1).'?';
+            $this->db->prepared_query("DELETE FROM signatures 
+                                        WHERE id IN ($questionMarkString)", array_map('intval', $signatureIDArray));
+
+            
+
+            //move workflow back to the first step requiring a signature
+            if(!is_null($earliestSignatureStepID))
+            {
+                $this->setStep($earliestSignatureStepID, true, 'Signatures invalidated');
+            }
+
+            $this->db->commitTransaction();
+        }
+        
+    }
 }
