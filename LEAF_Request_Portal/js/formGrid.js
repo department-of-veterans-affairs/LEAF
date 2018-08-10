@@ -213,14 +213,18 @@ var LeafFormGrid = function(containerID, options) {
         }
 
     	$('.' + prefixID + 'sort').css('display', 'none');
-    	if(order.toLowerCase() == 'asc') {
-    		$('#'+ prefixID +'header_' + key + '_sort').html(' &#9650;');
-    		$('#'+ prefixID +'header_' + key + '_sort').css('vertical-align', 'super');
-    	}
-    	else {
-    		$('#'+ prefixID +'header_' + key + '_sort').html(' &#9660;');
-    		$('#'+ prefixID +'header_' + key + '_sort').css('vertical-align', 'sub');
-    	}
+        if(order.toLowerCase() == 'asc') {
+            $('#'+ prefixID +'header_' + key).attr('aria-live', 'assertive');
+            $('#'+ prefixID +'header_' + key).attr('aria-label', 'Sorting by ascending '+key);
+            $('#'+ prefixID +'header_' + key + '_sort').html('<div style="position: absolute" aria-label="Sorting by ascending '+key+'"></div>'+' &#9650;');
+            $('#'+ prefixID +'header_' + key + '_sort').css('vertical-align', 'super');
+        }
+        else {
+            $('#'+ prefixID +'header_' + key).attr('aria-live', 'assertive');
+            $('#'+ prefixID +'header_' + key).attr('aria-label', 'Sorting by descending '+key);
+            $('#'+ prefixID +'header_' + key + '_sort').html('<div style="position: absolute" aria-label="Sorting by descending '+key+'"></div>'+' &#9660;');
+            $('#'+ prefixID +'header_' + key + '_sort').css('vertical-align', 'sub');
+        }
     	$('#'+ prefixID +'header_' + key + '_sort').css('display', 'inline');
     	var array = [];
     	var isIndicatorID = $.isNumeric(key);
