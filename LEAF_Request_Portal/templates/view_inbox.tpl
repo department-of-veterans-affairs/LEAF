@@ -157,6 +157,7 @@ function loadInboxData(depID) {
 
 function ariaSubIndicators(i) {
     if(document.getElementById('PHindicator_' + i + '_1') !== null) {
+        $('#PHindicator_' + i + '_1').append('<div aria-label="' +i +'"></div>');
         $('#PHindicator_' + i + '_1').attr('tabindex', '0');
         $('#xhrIndicator_' + i + '_1').attr('tabindex', '0');
         ariaIndicatorSeries(i, 1);
