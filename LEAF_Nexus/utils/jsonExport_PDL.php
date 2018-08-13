@@ -66,7 +66,10 @@ foreach ($res as $pos)
             if (isset($super[0]))
             {
                 $superService = $position->getService($super[0]['positionID']);
-                $output[$pos['positionID']]['service'] = $superService[0]['groupTitle'];
+                if(isset($superService[0]))
+                {
+                    $output[$pos['positionID']]['service'] = $superService[0]['groupTitle'];
+                }
             }
         }
     }
