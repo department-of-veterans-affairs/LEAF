@@ -9,7 +9,10 @@
     "files": [
       "shared/src/DatabaseTest.php",
       "shared/src/LEAFClient.php",
-      "shared/src/ResponseFormatter.php"
+      "shared/src/ResponseFormatter.php",
+      "shared/src/SessionDecoder.php",
+      "../LEAF_Request_Portal/db_config.php",
+      "../LEAF_Request_Portal/db_mysql.php"
     ]
   }
 }

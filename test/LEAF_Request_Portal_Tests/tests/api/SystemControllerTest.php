@@ -1,10 +1,14 @@
 <?php
 
 declare(strict_types = 1);
-include '../../LEAF_Request_Portal/db_mysql.php';
-include '../../LEAF_Request_Portal/db_config.php';
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
 use LEAFTest\LEAFClient;
 
+include '../../LEAF_Request_Portal/db_mysql.php';
+include '../../LEAF_Request_Portal/db_config.php';
 
 /**
  * Tests LEAF_Request_Portal/api/?a=system API
@@ -12,6 +16,7 @@ use LEAFTest\LEAFClient;
 final class SystemControllerTest extends DatabaseTest
 {
     private static $reqClient = null;
+
     private static $db;
 
     public static function setUpBeforeClass()
@@ -31,10 +36,10 @@ final class SystemControllerTest extends DatabaseTest
      */
     public function testGetDatabaseVersion() : void
     {
-        $version = self::$reqClient->get('?a=system/dbversion');
+        $version = self::$reqClient->get(array('a' => 'system/dbversion'));
 
         $this->assertNotNull($version);
-        $this->assertEquals("3848", $version);
+        $this->assertEquals('3848', $version);
     }
 
     /**
@@ -42,68 +47,81 @@ final class SystemControllerTest extends DatabaseTest
      */
     public function testHeading() : void
     {
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => "New Heading"));
-        $fromDB = $this->getSetting("heading");
-        $this->assertNotNull($fromDB);
-        $this->assertEquals("New Heading", $fromDB);
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 'New Heading'));
 
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => "Heading that is too long for the field and this is very long"));
-        $fromDB = $this->getSetting("heading");
+        $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
-        $this->assertEquals("Heading that is too long for the field and this is", $fromDB);
+        $this->assertEquals('New Heading', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => "LEAF's Header"));
-        $fromDB = $this->getSetting("heading");
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 'Heading that is too long for the field and this is very long'));
+
+        $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
-        $this->assertEquals("LEAF&#039;s Header", $fromDB);
+        $this->assertEquals('Heading that is too long for the field and this is', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => NULL));
-        $fromDB = $this->getSetting("heading");
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "LEAF's Header"));
+
+        $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
-        $this->assertEquals("", $fromDB);
+        $this->assertEquals('LEAF&#039;s Header', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => 'Header "Header" Header'));
-        $fromDB = $this->getSetting("heading");
-        $this->assertNotNull($fromDB);
-        $this->assertEquals('Header &quot;Header&quot; Header', $fromDB);
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => null));
 
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => 'HEADER > header'));
-        $fromDB = $this->getSetting("heading");
-        $this->assertNotNull($fromDB);
-        $this->assertEquals('HEADER &gt; header', $fromDB);
-
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => 'HEADER < header'));
-        $fromDB = $this->getSetting("heading");
-        $this->assertNotNull($fromDB);
-        $this->assertEquals('HEADER &lt; header', $fromDB);
-
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => ''));
-        $fromDB = $this->getSetting("heading");
+        $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => ' '));
-        $fromDB = $this->getSetting("heading");
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 'Header "Header" Header'));
+
+        $fromDB = $this->getSetting('heading');
+        $this->assertNotNull($fromDB);
+        $this->assertEquals('Header &quot;Header&quot; Header', $fromDB);
+
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 'HEADER > header'));
+
+        $fromDB = $this->getSetting('heading');
+        $this->assertNotNull($fromDB);
+        $this->assertEquals('HEADER &gt; header', $fromDB);
+
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 'HEADER < header'));
+
+        $fromDB = $this->getSetting('heading');
+        $this->assertNotNull($fromDB);
+        $this->assertEquals('HEADER &lt; header', $fromDB);
+
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => ''));
+
+        $fromDB = $this->getSetting('heading');
+        $this->assertNotNull($fromDB);
+        $this->assertEquals('', $fromDB);
+
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => ' '));
+
+        $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals(' ', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => '  '));
-        $fromDB = $this->getSetting("heading");
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => '  '));
+
+        $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('  ', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => '    '));
-        $fromDB = $this->getSetting("heading");
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => '    '));
+
+        $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('    ', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => 0));
-        $fromDB = $this->getSetting("heading");
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 0));
+
+        $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('0', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => 123456789));
-        $fromDB = $this->getSetting("heading");
+        self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 123456789));
+
+        $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('123456789', $fromDB);
     }
@@ -115,7 +133,6 @@ final class SystemControllerTest extends DatabaseTest
     {
         //tags that are sanitized or otherwise more complex than <TAG></TAG>
         $complexTags = array(
-
             '<script>Heading</script>' => '&lt;script&gt;Heading&lt;/script&gt;',
             "<a href='google.com'>H</a>" => '&lt;a href=&#039;google.com&#039;&gt;H&lt;/a&gt;',
             '<h1>Heading</h1>' => '&lt;h1&gt;Heading&lt;/h1&gt;',
@@ -126,77 +143,82 @@ final class SystemControllerTest extends DatabaseTest
             '<col>Heading</col>' => '&lt;col&gt;Heading&lt;/col&gt;',
             'Over<br />Under' => 'Over<br />Under',
             '<font color="red">Heading</font>' => '<font color="red">Heading</font>',
-            '<table>Head</table>' => '<table class="table">Head</table>'
-
+            '<table>Head</table>' => '<table class="table">Head</table>',
         );
 
         //tags that conform to <TAG></TAG>
         $simpleTags = array(
-            'b', 
-            'i', 
-            'u', 
-            'ol', 
-            'ul', 
-            'li', 
+            'b',
+            'i',
+            'u',
+            'ol',
+            'ul',
+            'li',
             'p',
-            'span', 
+            'span',
             'strong',
-            'em', 
-            'center',
-            'td', 
-            'tr', 
-            'thead', 
-            'tbody', 
-            'span', 
-            'strong', 
             'em',
-            'colgroup', 
+            'center',
+            'td',
+            'tr',
+            'thead',
+            'tbody',
+            'span',
+            'strong',
+            'em',
+            'colgroup',
         );
 
-        foreach($complexTags as $unsanitized => $sanitized)
+        foreach ($complexTags as $unsanitized => $sanitized)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => $unsanitized));
-            $fromDB = $this->getSetting("heading");
+            self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => $unsanitized));
+
+            $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals($sanitized, $fromDB);
         }
-        
-        foreach($simpleTags as $tag)
+
+        foreach ($simpleTags as $tag)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => "<$tag>Heading</$tag>"));
-            $fromDB = $this->getSetting("heading");
+            self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "<$tag>Heading</$tag>"));
+
+            $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
         }
 
-        foreach($simpleTags as $tag)
+        foreach ($simpleTags as $tag)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => "<$tag>Heading"));
-            $fromDB = $this->getSetting("heading");
+            self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "<$tag>Heading"));
+
+            $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
         }
 
-        foreach($simpleTags as $tag)
+        foreach ($simpleTags as $tag)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => "Heading</$tag>"));
-            $fromDB = $this->getSetting("heading");
+            self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "Heading</$tag>"));
+
+            $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
         }
 
-        foreach($simpleTags as $tag)
+        foreach ($simpleTags as $tag)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => "<$tag>New Heading"));
-            $fromDB = $this->getSetting("heading");
+            self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "<$tag>New Heading"));
+
+            $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>New Heading</$tag>", $fromDB);
         }
 
-        foreach($simpleTags as $tag)
+        foreach ($simpleTags as $tag)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/heading', array('heading' => "New Heading</$tag>"));
-            $fromDB = $this->getSetting("heading");
+            self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "New Heading</$tag>"));
+
+            $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>New Heading</$tag>", $fromDB);
         }
@@ -207,68 +229,81 @@ final class SystemControllerTest extends DatabaseTest
      */
     public function testSubHeading() : void
     {
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => "New Heading"));
-        $fromDB = $this->getSetting("subheading");
-        $this->assertNotNull($fromDB);
-        $this->assertEquals("New Heading", $fromDB);
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 'New Heading'));
 
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => "Heading that is too long for the field and this is very long"));
-        $fromDB = $this->getSetting("subheading");
+        $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
-        $this->assertEquals("Heading that is too long for the field and this is", $fromDB);
+        $this->assertEquals('New Heading', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => "LEAF's Header"));
-        $fromDB = $this->getSetting("subheading");
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 'Heading that is too long for the field and this is very long'));
+
+        $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
-        $this->assertEquals("LEAF&#039;s Header", $fromDB);
+        $this->assertEquals('Heading that is too long for the field and this is', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => NULL));
-        $fromDB = $this->getSetting("subheading");
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "LEAF's Header"));
+
+        $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
-        $this->assertEquals("", $fromDB);
+        $this->assertEquals('LEAF&#039;s Header', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => 'Header "Header" Header'));
-        $fromDB = $this->getSetting("subheading");
-        $this->assertNotNull($fromDB);
-        $this->assertEquals('Header &quot;Header&quot; Header', $fromDB);
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => null));
 
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => 'HEADER > header'));
-        $fromDB = $this->getSetting("subheading");
-        $this->assertNotNull($fromDB);
-        $this->assertEquals('HEADER &gt; header', $fromDB);
-
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => 'HEADER < header'));
-        $fromDB = $this->getSetting("subheading");
-        $this->assertNotNull($fromDB);
-        $this->assertEquals('HEADER &lt; header', $fromDB);
-
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => ''));
-        $fromDB = $this->getSetting("subheading");
+        $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => ' '));
-        $fromDB = $this->getSetting("subheading");
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 'Header "Header" Header'));
+
+        $fromDB = $this->getSetting('subheading');
+        $this->assertNotNull($fromDB);
+        $this->assertEquals('Header &quot;Header&quot; Header', $fromDB);
+
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 'HEADER > header'));
+
+        $fromDB = $this->getSetting('subheading');
+        $this->assertNotNull($fromDB);
+        $this->assertEquals('HEADER &gt; header', $fromDB);
+
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 'HEADER < header'));
+
+        $fromDB = $this->getSetting('subheading');
+        $this->assertNotNull($fromDB);
+        $this->assertEquals('HEADER &lt; header', $fromDB);
+
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => ''));
+
+        $fromDB = $this->getSetting('subheading');
+        $this->assertNotNull($fromDB);
+        $this->assertEquals('', $fromDB);
+
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => ' '));
+
+        $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals(' ', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => '  '));
-        $fromDB = $this->getSetting("subheading");
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => '  '));
+
+        $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('  ', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => '    '));
-        $fromDB = $this->getSetting("subheading");
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => '    '));
+
+        $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('    ', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => 0));
-        $fromDB = $this->getSetting("subheading");
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 0));
+
+        $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('0', $fromDB);
 
-        self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => 123456789));
-        $fromDB = $this->getSetting("subheading");
+        self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 123456789));
+
+        $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('123456789', $fromDB);
     }
@@ -280,7 +315,6 @@ final class SystemControllerTest extends DatabaseTest
     {
         //tags that are sanitized or otherwise more complex than <TAG></TAG>
         $complexTags = array(
-
             '<script>Heading</script>' => '&lt;script&gt;Heading&lt;/script&gt;',
             "<a href='google.com'>H</a>" => '&lt;a href=&#039;google.com&#039;&gt;H&lt;/a&gt;',
             '<h1>Heading</h1>' => '&lt;h1&gt;Heading&lt;/h1&gt;',
@@ -291,83 +325,89 @@ final class SystemControllerTest extends DatabaseTest
             '<col>Heading</col>' => '&lt;col&gt;Heading&lt;/col&gt;',
             'Over<br />Under' => 'Over<br />Under',
             '<font color="red">Heading</font>' => '<font color="red">Heading</font>',
-            '<table>Head</table>' => '<table class="table">Head</table>'
-
+            '<table>Head</table>' => '<table class="table">Head</table>',
         );
 
         //tags that conform to <TAG></TAG>
         $simpleTags = array(
-            'b', 
-            'i', 
-            'u', 
-            'ol', 
-            'ul', 
-            'li', 
+            'b',
+            'i',
+            'u',
+            'ol',
+            'ul',
+            'li',
             'p',
-            'span', 
+            'span',
             'strong',
-            'em', 
-            'center',
-            'td', 
-            'tr', 
-            'thead', 
-            'tbody', 
-            'span', 
-            'strong', 
             'em',
-            'colgroup', 
+            'center',
+            'td',
+            'tr',
+            'thead',
+            'tbody',
+            'span',
+            'strong',
+            'em',
+            'colgroup',
         );
 
-        foreach($complexTags as $unsanitized => $sanitized)
+        foreach ($complexTags as $unsanitized => $sanitized)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => $unsanitized));
-            $fromDB = $this->getSetting("subheading");
+            self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => $unsanitized));
+
+            $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals($sanitized, $fromDB);
         }
-        
-        foreach($simpleTags as $tag)
+
+        foreach ($simpleTags as $tag)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => "<$tag>Heading</$tag>"));
-            $fromDB = $this->getSetting("subheading");
+            self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "<$tag>Heading</$tag>"));
+
+            $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
         }
 
-        foreach($simpleTags as $tag)
+        foreach ($simpleTags as $tag)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => "<$tag>Heading"));
-            $fromDB = $this->getSetting("subheading");
+            self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "<$tag>Heading"));
+
+            $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
         }
 
-        foreach($simpleTags as $tag)
+        foreach ($simpleTags as $tag)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => "Heading</$tag>"));
-            $fromDB = $this->getSetting("subheading");
+            self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "Heading</$tag>"));
+
+            $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
         }
 
-        foreach($simpleTags as $tag)
+        foreach ($simpleTags as $tag)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => "<$tag>New Heading"));
-            $fromDB = $this->getSetting("subheading");
+            self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "<$tag>New Heading"));
+
+            $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>New Heading</$tag>", $fromDB);
         }
 
-        foreach($simpleTags as $tag)
+        foreach ($simpleTags as $tag)
         {
-            self::$reqClient->postEncodedForm('?a=system/settings/subHeading', array('subHeading' => "New Heading</$tag>"));
-            $fromDB = $this->getSetting("subheading");
+            self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "New Heading</$tag>"));
+
+            $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>New Heading</$tag>", $fromDB);
         }
     }
 
-    public function getSetting($settingName){
+    public function getSetting($settingName)
+    {
         $settings = self::$db->query_kv("SELECT * FROM settings WHERE setting = '$settingName'", 'setting', 'data');
 
         return $settings[$settingName];
