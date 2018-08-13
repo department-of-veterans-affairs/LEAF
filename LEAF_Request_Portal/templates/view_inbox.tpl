@@ -10,7 +10,7 @@ The following is a list of requests that are pending your action:
 <!--{foreach from=$inbox item=dep}-->
 <br /><br />
 <table onKeypress="toggleDepVisibilityKeypress(event, '<!--{$dep.dependencyID|strip_tags}-->')" tabindex="0" id="depTitle_<!--{$dep.dependencyID}-->" class="agenda" style="width: 100%; margin: 0px auto">
-    <div aria-live="assertive" aria-atomic="true" role="alert" id="depTitle_<!--{$dep.dependencyID}-->_announce"></div>
+    <div aria-live="assertive" id="depTitle_<!--{$dep.dependencyID}-->_announce"></div>
     <tr style="background-color: <!--{$dep.dependencyBgColor|strip_tags}-->; cursor: pointer"  onclick="toggleDepVisibility('<!--{$dep.dependencyID|strip_tags}-->')">
       <th colspan="3">
       <span style="float: left; font-size: 120%; font-weight: bold">
