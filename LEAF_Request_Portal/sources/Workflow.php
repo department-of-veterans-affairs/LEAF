@@ -590,9 +590,9 @@ class Workflow
         $routeData = $this->pruneRoutes($initialStepID, $routeData);
         $stepIDs = implode(',', array_keys($routeData));
 
-        $resStepDependencies = $this->db->query("SELECT * FROM step_dependencies
+        $resStepDependencies = $this->db->prepared_query("SELECT * FROM step_dependencies
     												LEFT JOIN dependencies USING (dependencyID)
-    												WHERE stepID IN ({$stepIDs})");
+    												WHERE stepID IN ({$stepIDs})", array());
 
         if ($resStepDependencies != null)
         {

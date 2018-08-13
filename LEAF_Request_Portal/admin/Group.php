@@ -113,7 +113,7 @@ class Group
     // exclude: 0 (no group), 24, (everyone), 16 (service chief)
     public function getGroups()
     {
-        $res = $this->db->query('SELECT * FROM groups WHERE groupID != 0 ORDER BY name ASC');
+        $res = $this->db->prepared_query('SELECT * FROM groups WHERE groupID != 0 ORDER BY name ASC', array());
 
         return $res;
     }

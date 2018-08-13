@@ -211,12 +211,12 @@ class System
 
     public function getServices()
     {
-        return $this->db->query('SELECT groupID as parentID,
+        return $this->db->prepared_query('SELECT groupID as parentID,
         							serviceID as groupID,
         							service as groupTitle,
         							abbreviatedService as groupAbbreviation
         							FROM services
-        							ORDER BY groupTitle ASC');
+        							ORDER BY groupTitle ASC', array());
     }
 
     /**
@@ -226,7 +226,7 @@ class System
      */
     public function getDatabaseVersion()
     {
-        $version = $this->db->query('SELECT data FROM settings WHERE setting = "dbVersion"');
+        $version = $this->db->prepared_query('SELECT data FROM settings WHERE setting = "dbVersion"', array());
         if (count($version) > 0 && $version[0]['data'] !== null)
         {
             return $version[0]['data'];
@@ -237,9 +237,9 @@ class System
 
     public function getGroups()
     {
-        return $this->db->query('SELECT * FROM groups
+        return $this->db->prepared_query('SELECT * FROM groups
     								WHERE groupID > 1
-        							ORDER BY name ASC');
+        							ORDER BY name ASC', array());
     }
 
     public function addAction()

@@ -22,7 +22,7 @@ $config = new Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 
-$res = $db->query('SELECT * FROM settings WHERE setting="dbversion"');
+$res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
 if (!isset($res[0]) || !is_numeric($res[0]['data']))
 {
     exit();
@@ -61,9 +61,9 @@ function updateDB($thisVer, $updateList, $folder, $db)
         echo 'Update found: ' . $updateList[$thisVer] . BR;
         $update = file_get_contents($folder . $updateList[$thisVer]);
         echo 'Processing update... ';
-        $db->query($update);
+        $db->prepared_query($update, array());
         echo ' ... Complete.' . BR;
-        $res = $db->query('SELECT * FROM settings WHERE setting="dbversion"');
+        $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
         if ($res[0]['data'] == $thisVer)
         {
             echo 'Update failed.' . BR;

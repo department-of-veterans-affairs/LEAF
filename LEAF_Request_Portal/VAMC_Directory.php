@@ -86,7 +86,7 @@ class VAMC_Directory
     {
         if ($this->debug)
         {
-            $res = $this->db->query($sql);
+            $res = $this->db->prepared_query($sql, array());
             if (is_object($res))
             {
                 return $res->fetchAll(PDO::FETCH_ASSOC);
