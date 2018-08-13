@@ -9,8 +9,8 @@ The following is a list of requests that are pending your action:
 <div id="inbox">
 <!--{foreach from=$inbox item=dep}-->
 <br /><br />
-<table id="depTitle_<!--{$dep.dependencyID}-->" class="agenda" style="width: 100%; margin: 0px auto">
-    <tr style="background-color: <!--{$dep.dependencyBgColor|strip_tags}-->; cursor: pointer" onclick="toggleDepVisibility('<!--{$dep.dependencyID|strip_tags}-->')">
+<table onKeypress="toggleDepVisibilityKeypress(event, '<!--{$dep.dependencyID|strip_tags}-->')" tabindex="0" id="depTitle_<!--{$dep.dependencyID}-->" class="agenda" style="width: 100%; margin: 0px auto">
+    <tr style="background-color: <!--{$dep.dependencyBgColor|strip_tags}-->; cursor: pointer"  onclick="toggleDepVisibility('<!--{$dep.dependencyID|strip_tags}-->')">
       <th colspan="3">
       <span style="float: left; font-size: 120%; font-weight: bold">
           <!--{if $dep.dependencyID > 0}-->
@@ -37,7 +37,11 @@ The following is a list of requests that are pending your action:
 <script type="text/javascript" src="js/functions/toggleZoom.js"></script>
 <script type="text/javascript">
 /* <![CDATA[ */
-
+function toggleDepVisibilityKeypress(evt, depID) {
+    if(evt.keyCode === 13) {
+        toggleDepVisibility(depID);
+    }
+}
 var depVisibility = [];
 function toggleDepVisibility(depID, isDefault) {
     if(depVisibility[depID] == undefined
@@ -98,11 +102,15 @@ function loadInboxData(depID) {
                 		 categoryNames = '<span style="color: red">Warning: This request is based on an old or deleted form.</span>';
                 	 }
                 	 $('#'+data.cellContainerID).html(categoryNames);
+                     $('#'+data.cellContainerID).attr('tabindex', '0');
                  }},
                  {name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
                 	 $('#'+data.cellContainerID).html(blob[depID]['records'][data.recordID].service);
+                     $('#'+data.cellContainerID).attr('tabindex', '0');
                  }},
                  {name: 'Title', indicatorID: 'title', editable: false, callback: function(data, blob) {
+                     $('#'+data.cellContainerID).attr('tabindex', '0');
+                     $('#'+data.cellContainerID).attr('aria-label', blob[depID]['records'][data.recordID].title);
                      $('#'+data.cellContainerID).html(blob[depID]['records'][data.recordID].title + ' <button id="'+ data.cellContainerID +'_preview" class="buttonNorm">View Request</button><div id="inboxForm_' + depID + '_' + data.recordID +'" style="background-color: white; display: none; height: 300px; overflow: scroll"></div>');
                      $('#'+data.cellContainerID + '_preview').on('click', function() {
                     	 $('#'+data.cellContainerID + '_preview').hide();
@@ -115,6 +123,9 @@ function loadInboxData(depID) {
                                  success: function(res) {
                                      $('#inboxForm_'+depID+'_'+data.recordID).html(res);
                                      $('#inboxForm_'+depID+'_'+data.recordID).slideDown();
+                                     $('#requestTitle').attr('tabindex', '0');
+                                     $('#requestInfo').attr('tabindex', '0');
+                                    ariaSubIndicators();
                                  }
                              });
                     	 }
@@ -135,6 +146,25 @@ function loadInboxData(depID) {
         cache: false,
         timeout: 5000
     });
+}
+
+function ariaSubIndicators(i = 1) {
+    if(document.getElementById('PHindicator_' + i + '_1') !== null) {
+        $('#PHindicator_' + i + '_1').attr('tabindex', '0');
+        $('#xhrIndicator_' + i + '_1').attr('tabindex', '0');
+        ariaIndicatorSeries(i, 1);
+        i = i + 1;
+        ariaSubIndicators(i);
+    }
+}
+
+function ariaIndicatorSeries(i, j) {
+    if(document.getElementById('PHindicator_' + i + '_' + j) !== null) {
+        $('#PHindicator_' + i + '_' + j).attr('tabindex', '0');
+        $('#xhrIndicator_' + i + '_' + j).attr('tabindex', '0');
+        j = j + 1;
+        ariaIndicatorSeries(i, j);
+    }
 }
 
 // empty handles
