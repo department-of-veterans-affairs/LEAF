@@ -89,16 +89,16 @@ var LeafFormGrid = function(containerID, options) {
     	if(showIndex) {
 		$('#'+ prefixID +'header_UID').css('cursor', 'pointer');
 		$('#'+ prefixID +'header_UID').on('click', null, null, function(data) {
-                if (headerToggle == 0) {
-                    sort('recordID', 'asc');
-                    headerToggle = 1;
-                }
-                else {
-                    sort('recordID', 'desc');
-                    headerToggle = 0;
-                }
-                renderBody(0, Infinity);
-		});
+                if(headerToggle == 0) {
+					sort('recordID', 'asc');
+					headerToggle = 1;
+				}
+				else {
+					sort('recordID', 'desc');
+					headerToggle = 0;
+				}
+				renderBody(0, Infinity);
+			});
     		// todo: move this into a stylesheet
     		$('#'+ prefixID +'header_UID').on('mouseover', null, null, function(data) {
     			$('#'+ prefixID +'header_UID').css('background-color', '#79a2ff');
