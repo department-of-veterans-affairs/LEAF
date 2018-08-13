@@ -172,18 +172,18 @@ class DB
         $query = null;
 
         $time1 = microtime(true);
-        if ($this->debug)
-        {
-            $q['sql'] = $sql;
-            $q['vars'] = $vars;
-            $this->log[] = $q;
-            if ($this->debug >= 2)
-            {
-                $query = $this->db->prepare('EXPLAIN ' . $sql);
-                $query->execute($vars);
-                $this->log[] = $query->fetchAll(PDO::FETCH_ASSOC);
-            }
-        }
+        // if ($this->debug)
+        // {
+        //     $q['sql'] = $sql;
+        //     $q['vars'] = $vars;
+        //     $this->log[] = $q;
+        //     if ($this->debug >= 2)
+        //     {
+        //         $query = $this->db->prepare('EXPLAIN ' . $sql);
+        //         $query->execute($vars);
+        //         $this->log[] = $query->fetchAll(PDO::FETCH_ASSOC);
+        //     }
+        // }
 
         if ($dry_run == false && $this->dryRun == false)
         {
