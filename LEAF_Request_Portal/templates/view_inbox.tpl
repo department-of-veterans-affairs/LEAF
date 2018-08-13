@@ -125,7 +125,7 @@ function loadInboxData(depID) {
                                      $('#inboxForm_'+depID+'_'+data.recordID).slideDown();
                                      $('#requestTitle').attr('tabindex', '0');
                                      $('#requestInfo').attr('tabindex', '0');
-                                    ariaSubIndicators();
+                                    ariaSubIndicators(1);
                                  }
                              });
                     	 }
@@ -148,7 +148,7 @@ function loadInboxData(depID) {
     });
 }
 
-function ariaSubIndicators(i = 1) {
+function ariaSubIndicators(i) {
     if(document.getElementById('PHindicator_' + i + '_1') !== null) {
         $('#PHindicator_' + i + '_1').attr('tabindex', '0');
         $('#xhrIndicator_' + i + '_1').attr('tabindex', '0');
