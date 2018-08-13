@@ -1631,7 +1631,7 @@ class Form
                 }
 
                 // keep track of unique categories
-                if (!isset($t_uniqueCategories[$dep['categoryID']]))
+                if (isset($dep['categoryID']) && !isset($t_uniqueCategories[$dep['categoryID']]))
                 {
                     $t_uniqueCategories[$dep['categoryID']] = 1;
                 }
