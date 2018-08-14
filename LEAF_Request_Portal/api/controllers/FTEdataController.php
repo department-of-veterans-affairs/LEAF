@@ -43,7 +43,7 @@ class FTEdataController extends RESTfulResponse
             }
             $recordIDs = trim($recordIDs, ',');
 
-            $res = $this->db->query("SELECT * FROM records
+            $res = $this->db->prepared_query("SELECT * FROM records
                                		RIGHT JOIN (SELECT * FROM category_count
                                                     WHERE categoryID='fte'
                                                 AND count > 0) j4 USING (recordID)
@@ -55,7 +55,7 @@ class FTEdataController extends RESTfulResponse
                                     LEFT JOIN services USING (serviceID)
                                     WHERE records.deleted = 0
                                         AND records.submitted != 0
-        								AND recordID in ({$recordIDs})");
+        								AND recordID in ({$recordIDs})", array());
 
             $data = array();
             foreach ($res as $result)
@@ -97,20 +97,21 @@ class FTEdataController extends RESTfulResponse
 
             $startDate = (int)strtotime($_GET['startDate']);
             $endDate = (int)strtotime($_GET['endDate']);
-            $res = $this->db->query("SELECT * FROM records
+            $vars = array("startDate" => $startDate, "endDate" => $endDate);
+            $res = $this->db->prepared_query("SELECT * FROM records
                                		RIGHT JOIN (SELECT * FROM category_count
                                                     WHERE categoryID='fte'
                                                 AND count > 0) j4 USING (recordID)
                                     RIGHT JOIN (SELECT *, time as dirApprovalTime FROM records_dependencies
                                                     WHERE dependencyID = 3
                                                         AND filled = 1
-        												AND time >= {$startDate}
-        												AND time <= {$endDate}
+        												AND time >= :startDate
+        												AND time <= :endDate
                                                 ) rj1
                                                 USING (recordID)
                                     LEFT JOIN services USING (serviceID)
                                     WHERE records.deleted = 0
-                                        AND records.submitted != 0");
+                                        AND records.submitted != 0", $vars);
 
             $data = array();
             foreach ($res as $result)
