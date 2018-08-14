@@ -935,6 +935,7 @@ class Form
                         }
 
                         $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
+                        $sanitizedFileName = stripslashes($sanitizedFileName);
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
                     }
                     else
