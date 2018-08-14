@@ -476,7 +476,7 @@ switch ($action) {
 
         $tagMembers = $form->getTagMembers(XSSHelpers::xscrub($_GET['tag']));
 
-        $t_form->assign('tag', strip_tags($_GET['tag']));
+        $t_form->assign('tag', XSSHelpers::xscrub($_GET['tag']));
         $t_form->assign('totalNum', count($tagMembers));
         $t_form->assign('requests', $tagMembers);
         $t_form->display('tag_show_members.tpl');
