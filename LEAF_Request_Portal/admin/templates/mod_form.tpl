@@ -5,34 +5,19 @@
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <script>
-
-var currCategoryID = '';
-function openContent(url) {
-	var isSubForm = categories[currCategoryID].parentID == '' ? false : true;
-	var formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
-	var workflow = '';
-	if(categories[currCategoryID].workflowID != 0) {
-		workflow = categories[currCategoryID].description + ' (ID #' + categories[currCategoryID].workflowID + ')';
-	}
-	else {
-		workflow = '<span style="color: red">No workflow. Users will not be able to select this form.</span>';
-	}
-    $("#formEditor_content").html('<div style="padding: 8px; border: 1px solid black; background-color: white">' +
-    		                      '<div style="float: right"><div id="editFormData" class="buttonNorm">Edit Properties</div><br /><div id="editFormPermissions" onclick="editPermissions();" class="buttonNorm">Edit Collaborators</div></div>' +
-    		                      '<div style="padding: 8px">' +
-    		                          '<b title="categoryID: '+ currCategoryID +'">' + formTitle + '</b><br />' +
-    		                          categories[currCategoryID].categoryDescription +
-    		                          '<br /><span class="isSubForm">Workflow: ' + workflow + '</span>' +
-    		                          '<br /><span class="isSubForm">Need to Know mode: ' + (categories[currCategoryID].needToKnow == 1 ? 'On' : 'Off') + '</span>' +
-    		                      '</div>' +
-                                  '</div><br /><div id="formEditor_form" style="background-color: white"><div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div></div>');
-    if(isSubForm) {
-        $('.isSubForm').css('display', 'none');
+function keyPressEditPermissions(evt) {
+    if(evt.keyCode === 13) {
+        editPermissions();
     }
-
-    $('#editFormData').on('click', function() {
-        dialog.setTitle('Edit Properties');
-        dialog.setContent('<table>\
+}
+function keyPressEditProperties(evt, isSubForm) {
+    if(evt.keyCode === 13){
+        editProperties(isSubForm);
+    }
+}
+function editProperties(isSubForm) {
+    dialog.setTitle('Edit Properties');
+    dialog.setContent('<table>\
                              <tr>\
                                  <td>Name</td>\
                                  <td><input id="name" type="text" maxlength="50"></input></td>\
@@ -58,122 +43,153 @@ function openContent(url) {
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
                            </table>');
-        $('#name').val(categories[currCategoryID].categoryName);
-        $('#description').val(categories[currCategoryID].categoryDescription);
-        $('#workflowID').val(categories[currCategoryID].workflowID);
-        $('#needToKnow').val(categories[currCategoryID].needToKnow);
-        $('#visible').val(categories[currCategoryID].visible);
-        $('#sort').val(categories[currCategoryID].sort);
-        if(isSubForm) {
-        	$('.isSubForm').css('display', 'none');
-        }
-        dialog.show();
+    $('#name').val(categories[currCategoryID].categoryName);
+    $('#description').val(categories[currCategoryID].categoryDescription);
+    $('#workflowID').val(categories[currCategoryID].workflowID);
+    $('#needToKnow').val(categories[currCategoryID].needToKnow);
+    $('#visible').val(categories[currCategoryID].visible);
+    $('#sort').val(categories[currCategoryID].sort);
+    if(isSubForm) {
+        $('.isSubForm').css('display', 'none');
+    }
+    dialog.show();
 
-        // load workflow data
-        dialog.indicateBusy();
-        $.ajax({
-        	type: 'GET',
-        	url: '../api/?a=workflow',
-        	success: function(res) {
-        		if(res.length > 0) {
-                    var buffer = '<select id="workflowID">';
-                    buffer += '<option value="0">No Workflow</option>';
-                    for(var i in res) {
-                        buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
-                    }
-                    buffer += '</select>';
-                    $('#container_workflowID').html(buffer);
-                    $('#workflowID').val(categories[currCategoryID].workflowID);
-        		}
-        		else {
-        			$('#container_workflowID').html('<span style="color: red">A workflow must be set up first</span>');
-        		}
-        		dialog.indicateIdle();
-        	},
-        	cache: false
-        });
+    // load workflow data
+    dialog.indicateBusy();
+    $.ajax({
+        type: 'GET',
+        url: '../api/?a=workflow',
+        success: function(res) {
+            if(res.length > 0) {
+                var buffer = '<select id="workflowID">';
+                buffer += '<option value="0">No Workflow</option>';
+                for(var i in res) {
+                    buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
+                }
+                buffer += '</select>';
+                $('#container_workflowID').html(buffer);
+                $('#workflowID').val(categories[currCategoryID].workflowID);
+            }
+            else {
+                $('#container_workflowID').html('<span style="color: red">A workflow must be set up first</span>');
+            }
+            dialog.indicateIdle();
+        },
+        cache: false
+    });
 
-        dialog.setSaveHandler(function() {
-            $.when(
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formName',
-                    data: {name: $('#name').val(),
-                    	categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        if(res != null) {
-                        }
+    dialog.setSaveHandler(function() {
+        $.when(
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formName',
+                data: {name: $('#name').val(),
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
                     }
-                }),
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formDescription',
-                    data: {description: $('#description').val(),
-                    	categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        if(res != null) {
-                        }
+                }
+            }),
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formDescription',
+                data: {description: $('#description').val(),
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
                     }
-                }),
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formWorkflow',
-                    data: {workflowID: $('#workflowID').val(),
-                    	categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        if(res == false) {
-                        	alert('Workflow cannot be set because this form has been merged into another form');
-                        }
+                }
+            }),
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formWorkflow',
+                data: {workflowID: $('#workflowID').val(),
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res == false) {
+                        alert('Workflow cannot be set because this form has been merged into another form');
                     }
-                }),
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formNeedToKnow',
-                    data: {needToKnow: $('#needToKnow').val(),
-                        categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        if(res != null) {
-                        }
+                }
+            }),
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formNeedToKnow',
+                data: {needToKnow: $('#needToKnow').val(),
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
                     }
-                }),
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formSort',
-                    data: {sort: $('#sort').val(),
-                        categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        if(res != null) {
-                        }
+                }
+            }),
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formSort',
+                data: {sort: $('#sort').val(),
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
                     }
-                }),
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formVisible',
-                    data: {visible: $('#visible').val(),
-                        categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        if(res != null) {
-                        }
+                }
+            }),
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formVisible',
+                data: {visible: $('#visible').val(),
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
                     }
-                })
-             ).then(function() {
-                categories[currCategoryID].categoryName = $('#name').val();
-                categories[currCategoryID].categoryDescription = $('#description').val();
-                categories[currCategoryID].description = '';
-                categories[currCategoryID].workflowID = $('#workflowID').val();
-                categories[currCategoryID].needToKnow = $('#needToKnow').val();
-                categories[currCategoryID].visible = $('#visible').val();
-                categories[currCategoryID].sort = $('#sort').val();
-                openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
-                dialog.hide();
-             });
+                }
+            })
+        ).then(function() {
+            categories[currCategoryID].categoryName = $('#name').val();
+            categories[currCategoryID].categoryDescription = $('#description').val();
+            categories[currCategoryID].description = '';
+            categories[currCategoryID].workflowID = $('#workflowID').val();
+            categories[currCategoryID].needToKnow = $('#needToKnow').val();
+            categories[currCategoryID].visible = $('#visible').val();
+            categories[currCategoryID].sort = $('#sort').val();
+            openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
+            dialog.hide();
         });
+    });
+}
+var currCategoryID = '';
+function openContent(url) {
+	var isSubForm = categories[currCategoryID].parentID == '' ? false : true;
+	var formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
+	var workflow = '';
+	if(categories[currCategoryID].workflowID != 0) {
+		workflow = categories[currCategoryID].description + ' (ID #' + categories[currCategoryID].workflowID + ')';
+	}
+	else {
+		workflow = '<span style="color: red">No workflow. Users will not be able to select this form.</span>';
+	}
+    $("#formEditor_content").html('<div style="padding: 8px; border: 1px solid black; background-color: white">' +
+    		                      '<div style="float: right"><div id="editFormData" tabindex="0" onkeypress="keyPressEditProperties(event)" class="buttonNorm">Edit Properties</div><br /><div tabindex="0" id="editFormPermissions" onkeypress="keyPressEditPermissions(event)" onclick="editPermissions();" class="buttonNorm">Edit Collaborators</div></div>' +
+    		                      '<div style="padding: 8px">' +
+    		                          '<b aria-label="'+ formTitle +'" tabindex="0" title="categoryID: '+ currCategoryID +'">' + formTitle + '</b><br /><span tabindex="0">' +
+    		                          categories[currCategoryID].categoryDescription +
+    		                          '</span><br /><span tabindex="0" class="isSubForm">Workflow: ' + workflow + '</span>' +
+    		                          '<br /><span tabindex="0"class="isSubForm">Need to Know mode: ' + (categories[currCategoryID].needToKnow == 1 ? 'On' : 'Off') + '</span>' +
+    		                      '</div>' +
+                                  '</div><br /><div tabindex="0"id="formEditor_form" style="background-color: white"><div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div></div>');
+    if(isSubForm) {
+        $('.isSubForm').css('display', 'none');
+    }
+
+    $('#editFormData').on('click', function() {
+        editProperties(isSubForm);
+    });
+
+    $('#editFormData').on('keyPress', function(event) {
+        editProperties(event, isSubForm);
     });
 
     $.ajax({
@@ -258,10 +274,10 @@ function editPermissions() {
 		success: function(res) {
 			var buffer = '<ul>';
 			for(var i in res) {
-				buffer += '<li>' + res[i].name + ' [ <a href="#" onclick="removePermission(\''+ res[i].groupID +'\');">Remove</a> ]</li>';
+				buffer += '<li>' + res[i].name + ' [ <a href="#" tabindex="0" onkeypress="keyPressRemovePermission(event, \'' + res[i].groupID + '\');" onclick="removePermission(\''+ res[i].groupID +'\');">Remove</a> ]</li>';
 			}
 			buffer += '</ul>';
-			buffer += '<span class="buttonNorm" onclick="addPermission();">Add Group</span>';
+			buffer += '<span tabindex="0" class="buttonNorm" onkeypress="keyPressAddPermission(event)" onclick="addPermission();">Add Group</span>';
 			$('#formPrivs').html(buffer);
 			dialog_simple.indicateIdle();
 		},
@@ -270,8 +286,16 @@ function editPermissions() {
 
 	dialog_simple.show();
 }
-
-
+function keyPressAddPermission(evt) {
+    if(evt.keyCode === 13) {
+        addPermission();
+    }
+}
+function keyPressRemovePermission(evt, groupID){
+    if (evt.keyCode === 13) {
+        removePermission(groupID);
+    }
+}
 function removeIndicatorPrivilege(indicatorID, groupID) {
     portalAPI.FormEditor.removeIndicatorPrivilege(
         indicatorID,
@@ -352,11 +376,11 @@ function editIndicatorPrivileges(indicatorID) {
                     var buffer = '<ul>';
                     for (var group in groups) {
                         if (groups[group].id !== undefined) {
-                            buffer += '<li>' + groups[group].name + ' [ <a href="#" onclick="removeIndicatorPrivilege(' + indicatorID + ',' + groups[group].id + ');">Remove</a> ]</li>';
+                            buffer += '<li>' + groups[group].name + ' [ <a href="#" tabindex="0" onkeypress="keyPressRemoveIndicatorPrivilege(event, ' + indicatorID + ', ' + groups[group].id + ');" onclick="removeIndicatorPrivilege(' + indicatorID + ',' + groups[group].id + ');">Remove</a> ]</li>';
                         }
                     }
                     buffer += '</ul>';
-                    buffer += '<span class="buttonNorm" onclick="addIndicatorPrivilege(' + indicatorID + ');">Add Group</span>';
+                    buffer += '<span tabindex="0" class="buttonNorm" onkeypress="keyPressAddIndicatorPrivilege(event, '+indicatorID+')" onclick="addIndicatorPrivilege(' + indicatorID + ');">Add Group</span>';
                     $('#indicatorPrivs').html(buffer);
                     dialog_simple.indicateIdle();
                     dialog_simple.show();
@@ -372,7 +396,21 @@ function editIndicatorPrivileges(indicatorID) {
         }
     );
 }
-
+function keyPressAddIndicatorPrivilege(evt, indicatorID) {
+    if(evt.keyCode === 13) {
+        removeIndicatorPrivilege(indicatorID);
+    }
+}
+function keyPressRemoveIndicatorPrivilege(evt, indicatorID, groupID) {
+    if(evt.keyCode === 13) {
+        removeIndicatorPrivilege(indicatorID, groupID);
+    }
+}
+function keyPressNewQuestion(evt, parentIndicatorID) {
+    if(evt.keyCode === 13) {
+        newQuestion(parentIndicatorID);
+    }
+}
 function newQuestion(parentIndicatorID) {
 	var title = '';
 	if(parentIndicatorID == null) {
@@ -921,7 +959,11 @@ function formatIndicatorMultiAnswer(multiAnswerValue){
     multiAnswerValue = uniqueNames.join("\n");
     return multiAnswerValue;
 }
-
+function keyPressMergeForm(evt, categoryID) {
+    if(evt.keyCode === 13) {
+        mergeForm(categoryID);
+    }
+}
 function mergeForm(categoryID) {
     dialog.setTitle('Staple other form');
     dialog.setContent('Select a form to staple: <div id="formOptions"></div>');
@@ -966,7 +1008,11 @@ function mergeForm(categoryID) {
     });
     dialog.show();
 }
-
+function keyPressUnmergedForm(evt, categoryID, stapledCategoryID) {
+    if(evt.keyCode === 13) {
+        unmergeForm(categoryID, stapledCategoryID);
+    }
+}
 function unmergeForm(categoryID, stapledCategoryID) {
     $.ajax({
         type: 'DELETE',
@@ -988,10 +1034,10 @@ function mergeFormDialog(categoryID) {
         success: function(res) {
             var buffer = '<ul>';
             for(var i in res) {
-                buffer += '<li>' + res[i].categoryName + ' [ <a href="#" onclick="unmergeForm(\''+ categoryID +'\', \''+ res[i].stapledCategoryID +'\');">Remove</a> ]</li>';
+                buffer += '<li>' + res[i].categoryName + ' [ <a href="#" onkeypress="keyPressUnmergedForm(event, '+ categoryID +', '+ res[i].stapledCategoryID +'" onclick="unmergeForm(\''+ categoryID +'\', \''+ res[i].stapledCategoryID +'\');">Remove</a> ]</li>';
             }
             buffer += '</ul>';
-            buffer += '<span class="buttonNorm" onclick="mergeForm(\''+ categoryID +'\');">Select a form to merge</span>';
+            buffer += '<span class="buttonNorm" onkeypress="keyPressMergeForm(event, '+ categoryID +')" onclick="mergeForm(\''+ categoryID +'\');">Select a form to merge</span>';
             $('#mergedForms').html(buffer);
             dialog_simple.indicateIdle();
         },
@@ -1080,9 +1126,24 @@ function deleteForm() {
 	});
 	dialog_confirm.show();
 }
-
+function keyPressShowFormBrowser(evt) {
+    if(evt.keyCode === 13) {
+        postRenderFormBrowser = null;
+        showFormBrowser();
+    }
+}
+function keyPressCreateForm(evt, categoryID) {
+    if(evt.keyCode === 13) {
+        createForm(categoryID);
+    }
+}
+function keyPressMergeFormDialog(evt, categoryID) {
+    if(evt.keyCode === 13) {
+        mergeFormDialog(categoryID);
+    }
+}
 function buildMenu(categoryID) {
-	$('#menu').html('<div tabindex="0" class="buttonNorm" onclick="postRenderFormBrowser = null; showFormBrowser();" style="font-size: 120%"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
+	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="keyPressShowFormBrowser(event)" onclick="postRenderFormBrowser = null; showFormBrowser();" style="font-size: 120%"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
 	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" style="font-size: 120%"><img src="../../libs/dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
     $('#' + categoryID).on('click', function(categoryID) {
         return function() {
@@ -1094,7 +1155,7 @@ function buildMenu(categoryID) {
     }(categoryID));
 	for(var i in categories) {
 		if(categories[i].parentID == categoryID) {
-			$('#menu').append('<div tabindex="0" id="'+ categories[i].categoryID +'" class="buttonNorm" style="font-size: 120%"><img src="../../libs/dynicons/?img=text-x-generic.svg&w=32" alt="Open Form" /> '+ categories[i].categoryName +'</div>');
+			$('#menu').append('<div tabindex="0" id="'+ categories[i].categoryID +'" onkeypress="keyPressOpenContent(event, categoryID)" class="buttonNorm" style="font-size: 120%"><img src="../../libs/dynicons/?img=text-x-generic.svg&w=32" alt="Open Form" /> '+ categories[i].categoryName +'</div>');
             $('#' + categories[i].categoryID).on('click', function(categoryID) {
                 return function() {
                     $('#menu>div').removeClass('buttonNormSelected');
@@ -1106,9 +1167,9 @@ function buildMenu(categoryID) {
 		}
 	}
 	
-	$('#menu').append('<div tabindex="0" class="buttonNorm" onclick="createForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Form" /> Add Internal-Use</div><br />');
+	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="keyPressCreateForm(event, \''+ categoryID +'\');" onclick="createForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Form" /> Add Internal-Use</div><br />');
 	
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onclick="mergeFormDialog(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=tab-new.svg&w=32" alt="Staple Form" /> Staple other form</div>\
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="keyPressMergeFormDialog(event, \'' + categoryID + '\');" onclick="mergeFormDialog(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=tab-new.svg&w=32" alt="Staple Form" /> Staple other form</div>\
                           <div id="stapledArea"></div><br />');
 
     // show stapled forms in the menu area
@@ -1128,13 +1189,37 @@ function buildMenu(categoryID) {
     });
     
     
-	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onclick="exportForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
+	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="keyPressExportForm(event, \''+ categoryID +'\')" onclick="exportForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
 
-	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onclick="deleteForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div><br />');
+	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="keyPressDeleteForm(event)" onclick="deleteForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div><br />');
 	
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
-
+function keyPressExportForm(evt, categoryID) {
+    if(evt.keyCode === 13) {
+        exportForm(categoryID);
+    }
+}
+function keyPressDeleteForm(evt) {
+    if(evt.keyCode === 13) {
+        deleteForm();
+    }
+}
+function keyPressFormLibrary(evt) {
+    if(evt.keyCode === 13) {
+        formLibrary();
+    }
+}
+function keyPressImportForm(evt) {
+    if(evt.keyCode === 13) {
+        importForm();
+    }
+}
+function keyPressRestoreFieldsMenu(evt) {
+    if (evt.keyCode === 13) {
+        window.location = '?a=disabled_fields';
+    }
+}
 function selectForm(categoryID) {
     currCategoryID = categoryID;
     buildMenu(categoryID);
@@ -1146,10 +1231,10 @@ var postRenderFormBrowser;
 var categories = {};
 function showFormBrowser() {
     window.location = '#';
-	$('#menu').html('<div tabindex="0" class="buttonNorm" onclick="createForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
-	$('#menu').append('<div tabindex="0" class="buttonNorm" onclick="formLibrary();" style="font-size: 120%"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
-	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onclick="importForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
-	$('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onclick="window.location = \'?a=disabled_fields\';" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="keyPressCreateForm(event)" onclick="createForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
+	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="keyPressFormLibrary(event)" onclick="formLibrary();" style="font-size: 120%"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
+	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="keyPressImportForm(event)" onclick="importForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
+	$('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="keyPressRestoreFieldsMenu(event)" onclick="window.location = \'?a=disabled_fields\';" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
     $.ajax({
         type: 'GET',
         url: '<!--{$APIroot}-->?a=formStack/categoryList/all',
@@ -1173,7 +1258,7 @@ function showFormBrowser() {
             			formActiveID = '#forms_inactive';
             		}
             		var workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
-                    $(formActiveID).append('<div tabindex="0" class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
+                    $(formActiveID).append('<div tabindex="0"  onkeypress="keyPressOpenContent(event, \''+ res[i].categoryID +'\')"class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
                     		<div tabindex="0" class="formPreviewTitle">'+ formTitle + needToKnow + '</div>\
                     		<div tabindex="0" class="formPreviewDescription">'+ res[i].categoryDescription +'</div>\
                     		<div tabindex="0" class="formPreviewStatus">'+ availability +'</div>\
@@ -1195,6 +1280,14 @@ function showFormBrowser() {
         },
         cache: false
     });
+}
+function keyPressOpenContent(evt, categoryID) {
+    if(evt.keyCode === 13) {
+        currCategoryID = categoryID;
+        buildMenu(categoryID);
+        window.location = '#' + categoryID;
+        openContent('ajaxIndex.php?a=printview&categoryID=' + categoryID);
+    }
 }
 
 function createForm(parentID) {
