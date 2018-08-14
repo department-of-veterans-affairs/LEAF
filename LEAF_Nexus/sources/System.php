@@ -35,7 +35,7 @@ class System
      */
     public function getDatabaseVersion()
     {
-        $version = $this->db->query('SELECT data FROM settings WHERE setting = "dbVersion"');
+        $version = $this->db->prepared_query('SELECT data FROM settings WHERE setting = "dbVersion"', array());
         if (count($version) > 0 && $version[0]['data'] !== null)
         {
             return $version[0]['data'];

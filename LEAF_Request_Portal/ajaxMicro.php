@@ -31,9 +31,9 @@ switch ($action) {
     case 'lastaction':
         if (!isset($_GET['recordID']))
         {
-            $res = $db->query('SELECT time FROM action_history
+            $res = $db->prepared_query('SELECT time FROM action_history
         							ORDER BY time DESC
-        							LIMIT 1');
+        							LIMIT 1', array());
             echo isset($res[0]['time']) ? $res[0]['time'] : 0;
         }
         else

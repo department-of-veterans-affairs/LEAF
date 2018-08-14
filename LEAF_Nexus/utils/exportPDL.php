@@ -25,7 +25,7 @@ header('Content-Disposition: attachment; filename="Exported_' . time() . '.csv"'
 
 echo "LEAF Position ID, HR Smart Position Number, Service, Position Title, Classification Title, Employee Name, Employee Username, Supervisor Name, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
 
-$res = $db->query('SELECT * FROM positions');
+$res = $db->prepared_query('SELECT * FROM positions', array());
 
 //$pos = $res[15]; // for testing
 foreach ($res as $pos)

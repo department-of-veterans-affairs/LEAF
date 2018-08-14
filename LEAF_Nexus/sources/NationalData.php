@@ -312,7 +312,7 @@ abstract class NationalData
         {
             return '';
         }
-        $res = $this->db->query('SELECT * FROM settings WHERE setting="salt"');
+        $res = $this->db->prepared_query('SELECT * FROM settings WHERE setting="salt"', array());
         $salt = isset($res[0]['data']) ? $res[0]['data'] : '';
 
         $fileName = md5($fileName . $salt);

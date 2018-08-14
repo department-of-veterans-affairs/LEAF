@@ -36,7 +36,7 @@ if (isset($cache['jsonExport_PDL.php'])
 
 header('Content-type: application/json');
 
-$res = $db->query('SELECT * FROM positions');
+$res = $db->prepared_query('SELECT * FROM positions', array());
 
 //$pos = $res[15]; // for testing
 

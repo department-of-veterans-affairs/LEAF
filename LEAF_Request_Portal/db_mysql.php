@@ -127,38 +127,38 @@ class DB
     }
 
     // Raw Queries the database and returns an associative array
-    public function query($sql)
-    {
-        if ($this->limit != '')
-        {
-            $sql = "{$sql} {$this->limit}";
-            $this->limit = '';
-        }
+    // public function query($sql)
+    // {
+    //     if ($this->limit != '')
+    //     {
+    //         $sql = "{$sql} {$this->limit}";
+    //         $this->limit = '';
+    //     }
 
-        $time1 = microtime(true);
-        if ($this->debug)
-        {
-            $this->log[] = $sql;
-            if ($this->debug >= 2)
-            {
-                $query = $this->db->query('EXPLAIN ' . $sql);
-                $this->log[] = $query->fetchAll(PDO::FETCH_ASSOC);
-            }
-        }
+    //     $time1 = microtime(true);
+    //     if ($this->debug)
+    //     {
+    //         $this->log[] = $sql;
+    //         if ($this->debug >= 2)
+    //         {
+    //             $query = $this->db->query('EXPLAIN ' . $sql);
+    //             $this->log[] = $query->fetchAll(PDO::FETCH_ASSOC);
+    //         }
+    //     }
 
-        $res = $this->db->query($sql);
-        if ($res !== false)
-        {
-            return $res->fetchAll(PDO::FETCH_ASSOC);
-        }
-        $err = $this->db->errorInfo();
-        $this->logError($err[2]);
+    //     $res = $this->db->query($sql);
+    //     if ($res !== false)
+    //     {
+    //         return $res->fetchAll(PDO::FETCH_ASSOC);
+    //     }
+    //     $err = $this->db->errorInfo();
+    //     $this->logError($err[2]);
 
-        if ($this->debug)
-        {
-            $this->time += microtime(true) - $time1;
-        }
-    }
+    //     if ($this->debug)
+    //     {
+    //         $this->time += microtime(true) - $time1;
+    //     }
+    // }
 
     public function prepared_query($sql, $vars, $dry_run = false)
     {
@@ -171,18 +171,18 @@ class DB
         $query = null;
 
         $time1 = microtime(true);
-        if ($this->debug)
-        {
-            $q['sql'] = $sql;
-            $q['vars'] = $vars;
-            $this->log[] = $q;
-            if ($this->debug >= 2)
-            {
-                $query = $this->db->prepare('EXPLAIN ' . $sql);
-                $query->execute($vars);
-                $this->log[] = $query->fetchAll(PDO::FETCH_ASSOC);
-            }
-        }
+        // if ($this->debug)
+        // {
+        //     $q['sql'] = $sql;
+        //     $q['vars'] = $vars;
+        //     $this->log[] = $q;
+        //     if ($this->debug >= 2)
+        //     {
+        //         $query = $this->db->prepare('EXPLAIN ' . $sql);
+        //         $query->execute($vars);
+        //         $this->log[] = $query->fetchAll(PDO::FETCH_ASSOC);
+        //     }
+        // }
 
         if ($dry_run == false && $this->dryRun == false)
         {

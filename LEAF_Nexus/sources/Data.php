@@ -100,6 +100,7 @@ abstract class Data
             return $this->cache[$cacheHash];
         }
 
+
         if (!isset($this->cache["getAllData_{$indicatorID}"]))
         {
             if ($indicatorID != 0)
@@ -330,7 +331,7 @@ abstract class Data
         {
             return '';
         }
-        $res = $this->db->query('SELECT * FROM settings WHERE setting="salt"');
+        $res = $this->db->prepared_query('SELECT * FROM settings WHERE setting="salt"', array());
         $salt = isset($res[0]['data']) ? $res[0]['data'] : '';
 
         $fileName = md5($fileName . $salt);
