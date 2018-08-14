@@ -59,7 +59,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? $_GET['a'] : '';
+$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {

@@ -10,6 +10,8 @@ include './sources/Login.php';
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
+include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+
 $config = new Orgchart\Config();
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
@@ -63,6 +65,7 @@ if (is_array($value)
 
 if (file_exists($filename))
 {
+    $inputFilename = XSSHelpers::scrubNewLinesFromURL($inputFilename);
     header('Content-Disposition: attachment; filename="' . addslashes(html_entity_decode($inputFilename)) . '"');
     header('Content-Length: ' . filesize($filename));
     header('Cache-Control: maxage=1'); //In seconds
