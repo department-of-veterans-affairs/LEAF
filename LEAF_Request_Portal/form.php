@@ -73,7 +73,7 @@ class Form
      */
     public function getServices2()
     {
-        $res = $this->db->query('SELECT serviceID, service FROM services ORDER BY service ASC');
+        $res = $this->db->prepared_query('SELECT serviceID, service FROM services ORDER BY service ASC', array());
         $services = array();
 
         foreach ($res as $field)
@@ -534,7 +534,7 @@ class Form
 
         $vars = array(':recordID' => (int)$recordID,
                       ':indicatorID' => (int)$indicatorID,
-                      ':series' => (int)$series, );
+                      ':series' => (int)$series);
 
         $res = $this->db->prepared_query(
             'SELECT * FROM data_history
@@ -1248,7 +1248,7 @@ class Form
         														AND indicators.disabled = 0
                                                                 AND data != ""', $vars);
 
-        $resCount = $this->db->query('SELECT categoryID, COUNT(*) FROM indicators WHERE required=1 AND disabled = 0 GROUP BY categoryID');
+        $resCount = $this->db->prepared_query('SELECT categoryID, COUNT(*) FROM indicators WHERE required=1 AND disabled = 0 GROUP BY categoryID', array());
         $countData = array();
         $sum = 0;
         foreach ($resCount as $cat)
@@ -1912,8 +1912,8 @@ class Form
 
         $indicators = array();
         $indicatorDefaults = array();
-        $res = $this->db->query("SELECT * FROM indicators
-                                    WHERE indicatorID IN ({$indicatorID_list})");
+        $res = $this->db->prepared_query("SELECT * FROM indicators
+                                    WHERE indicatorID IN ({$indicatorID_list})", array());
         if (count($res) > 0)
         {
             foreach ($res as $item)
@@ -1927,8 +1927,8 @@ class Form
         }
 
         // already made sure that $indicatorID_list and $recordIDs are comma delimited lists of numbers
-        $res = $this->db->query("SELECT * FROM indicator_mask
-        							WHERE indicatorID IN ({$indicatorID_list})");
+        $res = $this->db->prepared_query("SELECT * FROM indicator_mask
+        							WHERE indicatorID IN ({$indicatorID_list})", array());
         $indicatorMasks = array();
         if (count($res) > 0)
         {
@@ -1949,9 +1949,10 @@ class Form
             }
         }
 
-        $res = $this->db->query("SELECT * FROM data
+        $vars2 = array("recordIDs" => $recordIDs);
+        $res = $this->db->prepared_query("SELECT * FROM data
                                     WHERE indicatorID IN ({$indicatorID_list})
-                                        AND recordID IN ({$recordIDs})");
+                                        AND recordID IN (:recordIDs)", $vars2);
 
         if (is_array($res) && count($res) > 0)
         {
@@ -2162,8 +2163,8 @@ class Form
 
     public function getUniqueTags()
     {
-        $res = $this->db->query('SELECT tag, COUNT(tag) FROM tags
-                                    GROUP BY tag');
+        $res = $this->db->prepared_query('SELECT tag, COUNT(tag) FROM tags
+                                    GROUP BY tag', array());
 
         return $res;
     }

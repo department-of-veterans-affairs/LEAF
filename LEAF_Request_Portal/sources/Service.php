@@ -177,18 +177,18 @@ class Service
 
     public function getQuadrads()
     {
-        $res = $this->db->query('SELECT groupID, name FROM services
+        $res = $this->db->prepared_query('SELECT groupID, name FROM services
     								LEFT JOIN groups USING (groupID)
     								WHERE groupID IS NOT NULL
     								GROUP BY groupID
-    								ORDER BY name');
+    								ORDER BY name', array());
 
         return $res;
     }
 
     public function getGroups()
     {
-        $res = $this->db->query('SELECT * FROM services ORDER BY service ASC');
+        $res = $this->db->prepared_query('SELECT * FROM services ORDER BY service ASC', array());
 
         return $res;
     }

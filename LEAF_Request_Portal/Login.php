@@ -414,19 +414,20 @@ class Login
         {
             foreach ($res as $item)
             {
-                $temp .= ",{$item['empUID']}";
-                $membership['inheritsFrom'][] = $item['empUID'];
+                $var = (int)$item['empUID'];
+                $temp .= ",{$var}";
+                $membership['inheritsFrom'][] = $var;
             }
             $vars = array(':empUID' => $temp);
         }
 
-        $res = $this->db->query("SELECT positionID, empUID,
+        $res = $this->db->prepared_query("SELECT positionID, empUID,
                                                 relation_group_employee.groupID as employee_groupID,
                                                 relation_group_position.groupID as position_groupID FROM employee
                                             LEFT JOIN relation_position_employee USING (empUID)
                                             LEFT JOIN relation_group_employee USING (empUID)
                                             LEFT JOIN relation_group_position USING (positionID)
-                                            WHERE empUID IN ({$temp})");
+                                            WHERE empUID IN ({$temp})", array());
         if (count($res) > 0)
         {
             foreach ($res as $item)

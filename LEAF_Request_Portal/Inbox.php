@@ -37,14 +37,15 @@ class Inbox
      */
     public function getInbox($dependencyID = 0)
     {
+        $vars = array();
         $tmpQuery = '';
         if ($dependencyID != 0 && is_numeric($dependencyID))
         {
-            $tmpQuery = " AND dependencyID = {$dependencyID}";
+            $tmpQuery = " AND dependencyID = :dependencyID";
+            $vars = array("dependencyID" => $dependencyID);
         }
 
         $out = array();
-        $vars = array();
         $res = $this->db->prepared_query("SELECT * FROM records_workflow_state
         									  LEFT JOIN records USING (recordID)
         									  LEFT JOIN workflow_steps USING (stepID)
@@ -56,12 +57,12 @@ class Inbox
         									  WHERE filled = 0 and deleted = 0{$tmpQuery}", $vars);
 
         // build temporary list for request types
-        $res2 = $this->db->query('SELECT recordID, categoryName FROM records
+        $res2 = $this->db->prepared_query('SELECT recordID, categoryName FROM records
         							LEFT JOIN category_count USING (recordID)
         							LEFT JOIN categories USING (categoryID)
         							WHERE deleted = 0
         								AND disabled = 0
-        								AND workflowID > 0');
+        								AND workflowID > 0', array());
 
         $formCategories = array();
         foreach ($res2 as $category)

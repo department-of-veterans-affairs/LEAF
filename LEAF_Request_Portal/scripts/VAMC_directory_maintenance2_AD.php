@@ -75,7 +75,7 @@ class VAMC_Directory_maintenance_AD
     {
         if ($this->debug)
         {
-            $res = $this->db->query($sql);
+            $res = $this->db->prepared_query($sql, array());
             if (is_object($res))
             {
                 return $res->fetchAll(PDO::FETCH_ASSOC);
@@ -335,20 +335,22 @@ class VAMC_Directory_maintenance_AD
     {
         $sql = "SELECT * FROM {$this->tableName}";
 
-        $res = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        $res = $this->db->prepared_query($sql, array())->fetchAll(PDO::FETCH_ASSOC);
         echo 'Generating phonetic cache...';
 
         foreach ($res as $emp)
         {
             $pFirst = metaphone($emp['Fname']);
             $pLast = metaphone($emp['Lname']);
-            $sql = "UPDATE {$this->tableName} SET PhoneticFname = '$pFirst' WHERE EmpID = {$emp['EmpID']}";
-            $query = $this->db->prepare($sql);
-            $query->execute();
+            $vars = array("first" => $pFirst, "empUID" => $emp['EmpID']);
+            $sql = "UPDATE {$this->tableName} SET PhoneticFname = ':first' WHERE EmpID = :empUID";
+            $query = $this->db->prepared_query($sql, $vars);
+            // $query->execute();
 
-            $sql = "UPDATE {$this->tableName} SET PhoneticLname = '$pLast' WHERE EmpID = {$emp['EmpID']}";
-            $query2 = $this->db->prepare($sql);
-            $query->execute();
+            $vars2 = array("last" => $pLast, "empUID" => $emp['EmpID']);
+            $sql = "UPDATE {$this->tableName} SET PhoneticLname = ':last' WHERE EmpID = :empUID";
+            $query2 = $this->db->prepared_query($sql, $vars2);
+            // $query->execute();
         }
     }
 
