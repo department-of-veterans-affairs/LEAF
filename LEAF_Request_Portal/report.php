@@ -24,6 +24,8 @@ include 'db_mysql.php';
 include 'db_config.php';
 include 'form.php';
 
+include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+
 $db_config = new DB_Config();
 $config = new Config();
 
@@ -34,7 +36,7 @@ if (isset($config->enforceHTTPS) && $config->enforceHTTPS == true)
 {
     if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on')
     {
-        header('Location: https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']);
+        header('Location: https://' . XSSHelpers::scrubNewLinesFromURL($_SERVER['SERVER_NAME']) . XSSHelpers::scrubNewLinesFromURL($_SERVER['REQUEST_URI']));
         exit();
     }
 }
@@ -59,7 +61,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? $_GET['a'] : '';
+$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 // HQ logo
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');

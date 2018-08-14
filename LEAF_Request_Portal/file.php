@@ -41,6 +41,9 @@ if (!is_numeric($_GET['file'])
     exit();
 }
 $_GET['file'] = (int)$_GET['file'];
+$_GET['form'] = (int)$_GET['form'];
+$_GET['id'] = (int)$_GET['id'];
+$_GET['series'] = (int)$_GET['series'];
 
 $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
 $filename = $uploadDir . Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
