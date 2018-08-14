@@ -13,14 +13,15 @@ $db_config = new DB_Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $dir = new VAMC_Directory();
 
-$groups = $db->query('SELECT * FROM groups ORDER BY name ASC');
+$groups = $db->prepared_query('SELECT * FROM groups ORDER BY name ASC', array());
 echo 'Access Groups:';
 echo '<ul>';
 foreach ($groups as $group)
 {
     echo "<li>{$group['name']} (groupID#: {$group['groupID']})";
 
-    $users = $db->query("SELECT * FROM users WHERE groupID={$group['groupID']} ORDER BY userID");
+    $vars = array("groupID" => $group['groupID']);
+    $users = $db->prepared_query("SELECT * FROM users WHERE groupID=:groupID ORDER BY userID", $vars);
     echo '<ul>';
     foreach ($users as $user)
     {

@@ -201,7 +201,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', $config->title);
 $main->assign('city', $config->city);
 
-$rev = $db->query("SELECT * FROM settings WHERE setting='version'");
+$rev = $db->prepared_query("SELECT * FROM settings WHERE setting='version'", array());
 $main->assign('revision', $rev[0]['data']);
 
 $main->display('main_iframe.tpl');

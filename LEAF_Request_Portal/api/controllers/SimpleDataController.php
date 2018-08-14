@@ -38,9 +38,9 @@ class SimpleDataController extends RESTfulResponse
         });
 
         $this->index['GET']->register('simpledata/equiptest', function ($args) {
-            $res = $this->db->query('SELECT SUM(data) as total FROM records_workflow_state
+            $res = $this->db->prepared_query('SELECT SUM(data) as total FROM records_workflow_state
             					LEFT JOIN (SELECT * FROM data WHERE indicatorID=76) lj1 USING (recordID)
-            					WHERE indicatorID IS NOT NULL');
+            					WHERE indicatorID IS NOT NULL', array());
 
             return $res[0];
         });

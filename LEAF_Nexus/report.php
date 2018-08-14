@@ -71,7 +71,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $rev = $db->query("SELECT * FROM settings WHERE setting='dbversion'");
+        $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
         $t_form->assign('dbversion', $rev[0]['data']);
 
         $main->assign('hideFooter', true);
