@@ -1,6 +1,10 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 require '../sources/Signature.php';
+require '../../libs/php-commons/XSSHelpers.php';
 
 /**
  * Handles API methods related to signatures.
@@ -37,9 +41,9 @@ class SignaturesController extends RESTfulResponse
 
         $this->index['POST']->register('signature/create', function () use ($signature) {
             return $signature->create(
-                $_POST['signature'],
+                XSSHelpers::sanitizeHTML($_POST['signature']),
                 (int)$_POST['recordID'],
-                $_POST['message']
+                XSSHelpers::sanitizeHTML($_POST['message'])
             );
         });
 
