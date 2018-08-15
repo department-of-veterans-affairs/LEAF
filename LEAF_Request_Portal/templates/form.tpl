@@ -55,7 +55,6 @@ var CSRFToken = '<!--{$CSRFToken}-->';
 
 $('#showSinglePage').keypress(function(event) {
     if(event.keyCode === 32) {
-        alert('#showSinglePageLink'.innerHTML);
         $('#showSinglePageLink')[0].click();
         $('#showSinglePageLink').trigger('click');
     }
