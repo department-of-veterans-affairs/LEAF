@@ -491,6 +491,16 @@ function newQuestion(parentIndicatorID) {
             'height': '100px'
         });
     });
+    $('#required').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
+    });
+    $('#disabled').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
+    });
     $('#required').on('click', function() {
     	if($('#indicatorType').val() == '') {
     		$('#required').prop('checked', false);
@@ -618,6 +628,16 @@ function getForm(indicatorID, series) {
     	        $('#container_indicatorSingleAnswer').css('display', 'none');
     	    	break;
     	}
+    });
+    $('#required').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
+    });
+    $('#disabled').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
     });
     $('#required').on('click', function() {
         if($('#indicatorType').val() == '') {
