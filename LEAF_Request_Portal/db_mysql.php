@@ -1,30 +1,51 @@
 <?php
-/************************
-	db_mysql is a convienience layer
-	Date Created: September 4, 2007
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-class DB {
+/*
+    db_mysql is a convienience layer
+    Date Created: September 4, 2007
+ */
+
+class DB
+{
     private $db;                        // The database object
+
     private $dbHost;
+
     private $dbName;
+
     private $dbUser;
+
     private $log = array('<span style="color: red">Debug Log is ON</span>');    // error log for debugging
+
     private $debug = false;             // Are we debugging?
+
     private $time = 0;
+
     private $dryRun = false;            // only applies to prepared queries
+
     private $limit = '';
 
     // Connect to the database
-    function __construct($host, $user, $pass, $database)
+    public function __construct($host, $user, $pass, $database)
     {
         $this->dbHost = $host;
         $this->dbUser = $user;
         $this->dbName = $database;
-        try {
-            $this->db = new PDO("mysql:host={$this->dbHost};dbname={$this->dbName}",
-                            $this->dbUser, $pass, array());
-        } catch (PDOException $e) {
+
+        try
+        {
+            $this->db = new PDO(
+                "mysql:host={$this->dbHost};dbname={$this->dbName}",
+                            $this->dbUser,
+                $pass,
+                array()
+            );
+        }
+        catch (PDOException $e)
+        {
             echo '<div style="background-color: white; line-height: 200%; position: absolute; top: 50%; height: 200px; width: 750px; margin-top: -100px; left: 20%; font-size: 200%"><img src="../libs/dynicons/?img=edit-clear.svg&w=96" alt="Server Maintenance" style="float: left" /> Database connection error.<br />Please try again in 15 minutes.</div>';
             echo '<!-- Database Error: ' . $e->getMessage() . ' -->';
             trigger_error('DB conn: ' . $e->getMessage());
@@ -33,24 +54,29 @@ class DB {
         unset($pass);
     }
 
-    function __destruct()
+    public function __destruct()
     {
-        if($this->debug) {
+        if ($this->debug)
+        {
             echo '<pre>';
             print_r($this->log);
             echo 'Duplicate queries:<hr />';
             $dupes = array();
-            foreach($this->log as $entry) {
-            	if(isset($entry['sql'])) {
-            		$dupes[serialize($entry)]['sql'] = $entry['sql'];
-            		$dupes[serialize($entry)]['vars'] = $entry['vars'];
-            		$dupes[serialize($entry)]['counter'] = isset($dupes[serialize($entry)]['counter']) ? $dupes[serialize($entry)]['counter'] + 1 : 1;
-            	}
+            foreach ($this->log as $entry)
+            {
+                if (isset($entry['sql']))
+                {
+                    $dupes[serialize($entry)]['sql'] = $entry['sql'];
+                    $dupes[serialize($entry)]['vars'] = $entry['vars'];
+                    $dupes[serialize($entry)]['counter'] = isset($dupes[serialize($entry)]['counter']) ? $dupes[serialize($entry)]['counter'] + 1 : 1;
+                }
             }
-            foreach($dupes as $dupe) {
-            	if($dupe['counter'] > 1) {
-            		print_r($dupe);
-            	}
+            foreach ($dupes as $dupe)
+            {
+                if ($dupe['counter'] > 1)
+                {
+                    print_r($dupe);
+                }
             }
             echo '<hr />';
             echo "</pre><br />Time: {$this->time} sec<br />";
@@ -65,17 +91,21 @@ class DB {
 
     public function beginTransaction()
     {
-        if($this->debug) {
+        if ($this->debug)
+        {
             $this->log[] = 'Beginning Transaction';
         }
+
         return $this->db->beginTransaction();
     }
 
     public function commitTransaction()
     {
-        if($this->debug) {
+        if ($this->debug)
+        {
             $this->log[] = 'Committing Transaction';
         }
+
         return $this->db->commit();
     }
 
@@ -90,7 +120,8 @@ class DB {
         $offset = (int)$offset;
         $quantity = (int)$quantity;
 
-        if($quantity > 0) {
+        if ($quantity > 0)
+        {
             $this->limit = "LIMIT {$offset},{$quantity}";
         }
     }
@@ -98,36 +129,41 @@ class DB {
     // Raw Queries the database and returns an associative array
     public function query($sql)
     {
-        if($this->limit != '') {
+        if ($this->limit != '')
+        {
             $sql = "{$sql} {$this->limit}";
             $this->limit = '';
         }
 
         $time1 = microtime(true);
-        if($this->debug) {
+        if ($this->debug)
+        {
             $this->log[] = $sql;
-            if($this->debug >= 2) {
+            if ($this->debug >= 2)
+            {
                 $query = $this->db->query('EXPLAIN ' . $sql);
                 $this->log[] = $query->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
         $res = $this->db->query($sql);
-        if($res !== false) {
+        if ($res !== false)
+        {
             return $res->fetchAll(PDO::FETCH_ASSOC);
         }
         $err = $this->db->errorInfo();
         $this->logError($err[2]);
-        
-        if($this->debug) {
+
+        if ($this->debug)
+        {
             $this->time += microtime(true) - $time1;
-        }        
-        
+        }
     }
 
     public function prepared_query($sql, $vars, $dry_run = false)
     {
-        if($this->limit != '') {
+        if ($this->limit != '')
+        {
             $sql = "{$sql} {$this->limit}";
             $this->limit = '';
         }
@@ -135,26 +171,31 @@ class DB {
         $query = null;
 
         $time1 = microtime(true);
-        if($this->debug) {
+        if ($this->debug)
+        {
             $q['sql'] = $sql;
             $q['vars'] = $vars;
             $this->log[] = $q;
-            if($this->debug >= 2) {
+            if ($this->debug >= 2)
+            {
                 $query = $this->db->prepare('EXPLAIN ' . $sql);
                 $query->execute($vars);
                 $this->log[] = $query->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
-        if($dry_run == false && $this->dryRun == false) {
+        if ($dry_run == false && $this->dryRun == false)
+        {
             $query = $this->db->prepare($sql);
             $query->execute($vars);
         }
-        else {
+        else
+        {
             $this->log[] = 'Dry run: query not executed';
         }
-        
-        if($this->debug) {
+
+        if ($this->debug)
+        {
             $this->time += microtime(true) - $time1;
         }
 
@@ -169,24 +210,30 @@ class DB {
      * @param mixed $value - Name of the column in the table as a string, or list of columns in an array
      * @param array $vars - parameratized variables
      */
-    public function query_kv($sql, $key, $value, $vars = []) {
-    	$out = [];
-    	$res = $this->prepared_query($sql, $vars);
+    public function query_kv($sql, $key, $value, $vars = array())
+    {
+        $out = array();
+        $res = $this->prepared_query($sql, $vars);
 
-    	if(!is_array($value)) {
-    		foreach($res as $result) {
-    			$out[$result[$key]] = $result[$value];
-    		}
-    	}
-    	else {
-    		foreach($res as $result) {
-    			foreach($value as $column) {
-    				$out[$result[$key]][$column] = $result[$column];
-    			}
-    		}
-    	}
+        if (!is_array($value))
+        {
+            foreach ($res as $result)
+            {
+                $out[$result[$key]] = $result[$value];
+            }
+        }
+        else
+        {
+            foreach ($res as $result)
+            {
+                foreach ($value as $column)
+                {
+                    $out[$result[$key]][$column] = $result[$column];
+                }
+            }
+        }
 
-    	return $out;
+        return $out;
     }
 
     // Translates the * wildcard to SQL % wildcard
@@ -196,32 +243,39 @@ class DB {
     }
 
     // Clean up all wildcards
-    public function cleanWildcards($input) {
+    public function cleanWildcards($input)
+    {
         $input = str_replace('%', '*', $input);
         $input = str_replace('?', '*', $input);
         $input = preg_replace('/\*+/i', '*', $input);
         $input = preg_replace('/(\s)+/i', ' ', $input);
         $input = preg_replace('/(\*\s\*)+/i', '', $input);
+
         return $input;
     }
-    
-    public function getLastInsertID() {
+
+    public function getLastInsertID()
+    {
         return $this->db->lastInsertId();
     }
-    
-    public function disableDebug() {
+
+    public function disableDebug()
+    {
         $this->debug = false;
     }
 
-    public function enableDebug() {
+    public function enableDebug()
+    {
         $this->debug = 1;
     }
 
-    public function disableDryRun() {
+    public function disableDryRun()
+    {
         $this->dryRun = false;
     }
 
-    public function enableDryRun() {
+    public function enableDryRun()
+    {
         $this->dryRun = true;
     }
 }

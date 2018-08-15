@@ -1,5 +1,9 @@
 <?php
-/************************
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
+/*
     Login class and session handler
     Date Created: September 11, 2007
 
@@ -8,12 +12,15 @@
 ini_set('session.gc_maxlifetime', 2592000);
 
 // Sanitize all $_GET input
-if(count($_GET) > 0) {
+if (count($_GET) > 0)
+{
     $keys = array_keys($_GET);
-    foreach($keys as $key) {
-    	if(is_string($_GET[$key])) {
-    		$_GET[$key] = htmlentities($_GET[$key], ENT_QUOTES);
-    	}
+    foreach ($keys as $key)
+    {
+        if (is_string($_GET[$key]))
+        {
+            $_GET[$key] = htmlentities($_GET[$key], ENT_QUOTES);
+        }
     }
 }
 
@@ -36,6 +43,7 @@ class Session implements SessionHandlerInterface
         $vars = array(':sessionID' => $sessionID);
         $this->db->prepared_query('DELETE FROM sessions
                                             WHERE sessionKey=:sessionID', $vars);
+
         return true;
     }
 
@@ -44,6 +52,7 @@ class Session implements SessionHandlerInterface
         $vars = array(':time' => time() - $maxLifetime);
         $this->db->prepared_query('DELETE FROM sessions
                                             WHERE lastModified < :time', $vars);
+
         return true;
     }
 
@@ -65,10 +74,11 @@ class Session implements SessionHandlerInterface
     {
         $vars = array(':sessionID' => $sessionID,
                       ':data' => $data,
-                      ':time' => time());
+                      ':time' => time(), );
         $this->db->prepared_query('INSERT INTO sessions (sessionKey, data, lastModified)
                                             VALUES (:sessionID, :data, :time)
                                             ON DUPLICATE KEY UPDATE data=:data, lastModified=:time', $vars);
+
         return true;
     }
 }
@@ -76,21 +86,30 @@ class Session implements SessionHandlerInterface
 class Login
 {
     private $db;
+
     private $userDB;
+
     private $isLogin = false;
+
     private $name = 'default';
+
     private $userID = 'default';
-    private $empUID = null;
+
+    private $empUID;
+
     private $isInDB = true;
+
     private $baseDir = '';
+
     private $cache = array();
 
-    function __construct($phonebookDB, $userDB)
+    public function __construct($phonebookDB, $userDB)
     {
         $this->db = $phonebookDB; //nexus DB
         $this->userDB = $userDB; // portal db
 
-        if(session_id() == '') {
+        if (session_id() == '')
+        {
             $sessionHandler = new Session($this->db);
             session_set_save_handler($sessionHandler, true);
             session_start();
@@ -98,11 +117,11 @@ class Login
             $id = session_id();
 
             $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
-            setcookie('PHPSESSID', $id, time()+2592000, $cookie['path'], $cookie['domain'], $https, true);
+            setcookie('PHPSESSID', $id, time() + 2592000, $cookie['path'], $cookie['domain'], $https, true);
         }
     }
 
-    function register()
+    public function register()
     {
         return false;
     }
@@ -129,7 +148,7 @@ class Login
 
     public function getEmpUID()
     {
-    	return $this->empUID;
+        return $this->empUID;
     }
 
     public function setBaseDir($baseDir)
@@ -137,46 +156,50 @@ class Login
         $this->baseDir = "/{$baseDir}";
     }
 
-    public function parseURL($in) {
+    public function parseURL($in)
+    {
         $paths = explode('/', $in);
         $out = array();
 
-        foreach($paths as $path) {
-            if($path != '') {
-                if($path == '..') {
+        foreach ($paths as $path)
+        {
+            if ($path != '')
+            {
+                if ($path == '..')
+                {
                     array_pop($out);
                 }
-                else {
+                else
+                {
                     $out[] = $path;
                 }
             }
         }
         $buffer = '';
-        foreach($out as $path) {
+        foreach ($out as $path)
+        {
             $buffer .= "/{$path}";
         }
-        return $buffer;
-    }
 
-    private function setSession()
-    {
-        $_SESSION['name'] = $this->name;
-        $_SESSION['userID'] = $this->userID;
-        $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : bin2hex(random_bytes(32));
+        return $buffer;
     }
 
     public function loginUser()
     {
-        if(!isset($_SESSION['userID']) || $_SESSION['userID'] == '') {
-            if(php_sapi_name() != 'cli') {
+        if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
+        {
+            if (php_sapi_name() != 'cli')
+            {
                 $protocol = 'http://';
-                if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+                if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+                {
                     $protocol = 'https://';
                 }
 
                 // try to browser detect, since SSO implementation varies
-                if(strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
-                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0) {
+                if (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
+                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0)
+                {
                     header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/auth_domain/?r=' . base64_encode($_SERVER['REQUEST_URI']));
                     exit();
                 }
@@ -184,31 +207,32 @@ class Login
                 header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/login/?r=' . base64_encode($_SERVER['REQUEST_URI']));
                 exit();
             }
-            else {
-                $_SESSION['userID'] = 'SYSTEM';
-            }
+
+            $_SESSION['userID'] = 'SYSTEM';
         }
 
         $var = array(':userID' => $_SESSION['userID']);
         $result = $this->db->prepared_query('SELECT * FROM employee WHERE userName=:userID AND deleted = 0', $var);
 
-        if(isset($result[0]['userName'])) {
+        if (isset($result[0]['userName']))
+        {
             $this->name = "{$result[0]['firstName']} {$result[0]['lastName']}";
             $this->userID = $result[0]['userName'];
             $this->empUID = $result[0]['empUID'];
             $this->setSession();
 
             $this->isLogin = true;
+
             return true;
         }
-        else {
-            $this->name = "Guest: {$_SESSION['userID']}";
-            $this->userID = $_SESSION['userID'];
-            $this->isLogin = true;
-            $this->isInDB = false;
-            $this->setSession();
-            return true;
-        }
+
+        $this->name = "Guest: {$_SESSION['userID']}";
+        $this->userID = $_SESSION['userID'];
+        $this->isLogin = true;
+        $this->isInDB = false;
+        $this->setSession();
+
+        return true;
 
         return false;
     }
@@ -216,7 +240,8 @@ class Login
     public function logout()
     {
         $keys = array_keys($_SESSION);
-        foreach($keys as $key) {
+        foreach ($keys as $key)
+        {
             unset($_SESSION[$key]);
         }
     }
@@ -233,22 +258,26 @@ class Login
      */
     public function checkGroup($groupID)
     {
-        if(!isset($this->cache['checkGroup'])) {
+        if (!isset($this->cache['checkGroup']))
+        {
             $var = array(':userID' => $this->userID);
             $result = $this->userDB->prepared_query('SELECT * FROM users WHERE userID=:userID', $var);
 
-            foreach($result as $group) {
+            foreach ($result as $group)
+            {
                 $this->cache['checkGroup'][$group['groupID']] = true;
             }
         }
 
         // special case for "Everyone" groupID 2, workaround until Orgchart is more integrated
-        if($groupID == 2) {
-        	$this->cache['checkGroup'][2] = true;
+        if ($groupID == 2)
+        {
+            $this->cache['checkGroup'][2] = true;
         }
 
-        if(!isset($this->cache['checkGroup'])) {
-        	$this->cache['checkGroup'] = array();
+        if (!isset($this->cache['checkGroup']))
+        {
+            $this->cache['checkGroup'] = array();
         }
 
         return isset($this->cache['checkGroup'][$groupID]);
@@ -261,27 +290,32 @@ class Login
      */
     public function checkService($groupID)
     {
-        if(isset($this->cache["isInService$groupID"])) {
+        if (isset($this->cache["isInService$groupID"]))
+        {
             return $this->cache["isInService$groupID"];
         }
 
         $var = array(':userID' => $this->userID,
-                     ':groupID' => $groupID);
+                     ':groupID' => $groupID, );
         $result = $this->userDB->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID
         											AND serviceID=:groupID
         											AND active=1', $var);
 
-        if(isset($result[0])) {
+        if (isset($result[0]))
+        {
             $this->cache["isInService$groupID"] = true;
+
             return true;
         }
         $this->cache["isInService$groupID"] = false;
+
         return false;
     }
 
     public function isServiceChief()
     {
-        if(isset($this->cache['isServiceChief'])) {
+        if (isset($this->cache['isServiceChief']))
+        {
             return $this->cache['isServiceChief'];
         }
 
@@ -290,17 +324,21 @@ class Login
                                             WHERE userID=:userID
         										AND active=1', $var);
 
-        if(isset($result[0])) {
+        if (isset($result[0]))
+        {
             $this->cache['isServiceChief'] = true;
+
             return true;
         }
         $this->cache['isServiceChief'] = false;
+
         return false;
     }
 
     public function getQuadradGroupID()
     {
-        if(isset($this->cache['getQuadradGroupID'])) {
+        if (isset($this->cache['getQuadradGroupID']))
+        {
             return $this->cache['getQuadradGroupID'];
         }
         $var = array(':userID' => $this->userID);
@@ -310,23 +348,28 @@ class Login
                                                 AND userID=:userID', $var);
 
         $buffer = '';
-        foreach($result as $group) {
+        foreach ($result as $group)
+        {
             $buffer .= $group['groupID'] . ',';
         }
         $buffer = trim($buffer, ',');
 
-        if(isset($result[0])) {
+        if (isset($result[0]))
+        {
             $this->cache['getQuadradGroupID'] = $buffer;
+
             return $buffer;
         }
         $this->cache['getQuadradGroupID'] = 0;
+
         return 0;
     }
 
     // quadrad groupID = -1
     public function isQuadrad()
     {
-        if(isset($this->cache['isQuadrad'])) {
+        if (isset($this->cache['isQuadrad']))
+        {
             return $this->cache['isQuadrad'];
         }
 
@@ -336,11 +379,14 @@ class Login
                                             WHERE parentGroupID=-1
                                                 AND userID=:userID', $var);
 
-        if(isset($result[0])) {
+        if (isset($result[0]))
+        {
             $this->cache['isQuadrad'] = true;
+
             return true;
         }
         $this->cache['isQuadrad'] = false;
+
         return false;
     }
 
@@ -350,26 +396,29 @@ class Login
      */
     public function getMembership()
     {
-    	$empUID = $this->empUID;
+        $empUID = $this->empUID;
 
-        if(isset($this->cache['getMembership_'.$empUID])) {
-            return $this->cache['getMembership_'.$empUID];
+        if (isset($this->cache['getMembership_' . $empUID]))
+        {
+            return $this->cache['getMembership_' . $empUID];
         }
 
         $membership = array();
-		// inherit permissions if employee is a backup for someone else
+        // inherit permissions if employee is a backup for someone else
         $vars = array(':empUID' => $empUID);
         $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
                                             WHERE backupEmpUID=:empUID
         										AND approved=1', $vars);
         $temp = (int)$empUID;
-		if(count($res) > 0) {
-			foreach($res as $item) {
-				$temp .= ",{$item['empUID']}";
-				$membership['inheritsFrom'][] = $item['empUID'];
-			}
-			$vars = array(':empUID' => $temp);
-		}
+        if (count($res) > 0)
+        {
+            foreach ($res as $item)
+            {
+                $temp .= ",{$item['empUID']}";
+                $membership['inheritsFrom'][] = $item['empUID'];
+            }
+            $vars = array(':empUID' => $temp);
+        }
 
         $res = $this->db->query("SELECT positionID, empUID,
                                                 relation_group_employee.groupID as employee_groupID,
@@ -378,46 +427,60 @@ class Login
                                             LEFT JOIN relation_group_employee USING (empUID)
                                             LEFT JOIN relation_group_position USING (positionID)
                                             WHERE empUID IN ({$temp})");
-		if(count($res) > 0) {
-	        foreach($res as $item) {
-	            if(isset($item['positionID'])) {
-	                $membership['positionID'][$item['positionID']] = 1;
-	            }
-/*	            if(isset($item['employee_groupID'])) {
-	                $membership['groupID'][$item['employee_groupID']] = 1;
-	            }
-	            if(isset($item['position_groupID'])) {
-	                $membership['groupID'][$item['position_groupID']] = 1;
-	            }*/
-	        }
-		}
+        if (count($res) > 0)
+        {
+            foreach ($res as $item)
+            {
+                if (isset($item['positionID']))
+                {
+                    $membership['positionID'][$item['positionID']] = 1;
+                }
+                /*	            if(isset($item['employee_groupID'])) {
+                                    $membership['groupID'][$item['employee_groupID']] = 1;
+                                }
+                                if(isset($item['position_groupID'])) {
+                                    $membership['groupID'][$item['position_groupID']] = 1;
+                                }*/
+            }
+        }
         $membership['employeeID'][$empUID] = 1;
         $membership['empUID'][$empUID] = 1;
 
-		// incorporate groups from local DB
-		$vars = array(':userName' => $this->userID);
-		$res = $this->userDB->prepared_query('SELECT * FROM users
+        // incorporate groups from local DB
+        $vars = array(':userName' => $this->userID);
+        $res = $this->userDB->prepared_query('SELECT * FROM users
 												WHERE userID = :userName', $vars);
-		if(count($res) > 0) {
-			foreach($res as $item) {
-				 $membership['groupID'][$item['groupID']] = 1;
-			}
-		}
-		$vars = array(':userName' => $this->userID);
-		$res = $this->userDB->prepared_query('SELECT * FROM service_chiefs
+        if (count($res) > 0)
+        {
+            foreach ($res as $item)
+            {
+                $membership['groupID'][$item['groupID']] = 1;
+            }
+        }
+        $vars = array(':userName' => $this->userID);
+        $res = $this->userDB->prepared_query('SELECT * FROM service_chiefs
 												WHERE userID = :userName
 													AND active=1', $vars);
-		if(count($res) > 0) {
-			foreach($res as $item) {
-				$membership['groupID'][$item['serviceID']] = 1;
-			}
-		}
+        if (count($res) > 0)
+        {
+            foreach ($res as $item)
+            {
+                $membership['groupID'][$item['serviceID']] = 1;
+            }
+        }
 
         // Add special membership groups
         $membership['groupID'][2] = 1;    // groupID 2 = "Everyone"
 
-        $this->cache['getMembership_'.$empUID] = $membership;
+        $this->cache['getMembership_' . $empUID] = $membership;
 
-        return $this->cache['getMembership_'.$empUID];
+        return $this->cache['getMembership_' . $empUID];
+    }
+
+    private function setSession()
+    {
+        $_SESSION['name'] = $this->name;
+        $_SESSION['userID'] = $this->userID;
+        $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : bin2hex(random_bytes(32));
     }
 }

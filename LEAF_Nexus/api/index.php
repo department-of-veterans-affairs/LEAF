@@ -1,8 +1,12 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-if(false) {
+if (false)
+{
     echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
     exit();
 }
@@ -26,7 +30,8 @@ $login = new Orgchart\Login($db, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
-if(!$login->isLogin() || !$login->isInDB()) {
+if (!$login->isLogin() || !$login->isInDB())
+{
     echo 'Your login is not recognized.';
     exit;
 }
@@ -34,70 +39,80 @@ if(!$login->isLogin() || !$login->isInDB()) {
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 $keyIndex = strpos($action, '/');
 $key = null;
-if($keyIndex === false) {
+if ($keyIndex === false)
+{
     $key = $action;
 }
-else {
+else
+{
     $key = substr($action, 0, $keyIndex);
 }
 
 $controllerMap = new ControllerMap();
 
-switch($key) {
+switch ($key) {
     case 'group':
-        $controllerMap->register('group', function() use ($db, $login, $action) {
+        $controllerMap->register('group', function () use ($db, $login, $action) {
             require 'controllers/GroupController.php';
             $groupController = new GroupController($db, $login);
             $groupController->handler($action);
         });
+
         break;
     case 'position':
-        $controllerMap->register('position', function() use ($db, $login, $action) {
+        $controllerMap->register('position', function () use ($db, $login, $action) {
             require 'controllers/PositionController.php';
             $positionController = new PositionController($db, $login);
             $positionController->handler($action);
         });
+
         break;
     case 'employee':
-        $controllerMap->register('employee', function() use ($db, $login, $action) {
+        $controllerMap->register('employee', function () use ($db, $login, $action) {
             require 'controllers/EmployeeController.php';
             $employeeController = new EmployeeController($db, $login);
             $employeeController->handler($action);
         });
+
         break;
     case 'indicator':
-        $controllerMap->register('indicator', function() use ($db, $login, $action) {
+        $controllerMap->register('indicator', function () use ($db, $login, $action) {
             require 'controllers/IndicatorController.php';
             $indicatorController = new IndicatorController($db, $login);
             $indicatorController->handler($action);
         });
+
         break;
     case 'tag':
-     	$controllerMap->register('tag', function() use ($db, $login, $action) {
-       		require 'controllers/TagController.php';
-       		$tagController = new TagController($db, $login);
-       		$tagController->handler($action);
-       	});
-       	break;
-    case 'system':
-    	$controllerMap->register('system', function() use ($db, $login, $action) {
-    		require 'controllers/SystemController.php';
-    		$systemController = new SystemController($db, $login);
-   			$systemController->handler($action);
-   		});
-		break;
-	case 'national':
-		$controllerMap->register('national', function() use ($action) {
-			$db_nat = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);			
-			$login_nat = new Orgchart\Login($db_nat, $db_nat);
+         $controllerMap->register('tag', function () use ($db, $login, $action) {
+             require 'controllers/TagController.php';
+             $tagController = new TagController($db, $login);
+             $tagController->handler($action);
+         });
 
-			require 'controllers/NationalEmployeeController.php';
-			$nationalEmployeeController = new NationalEmployeeController($db_nat, $login_nat);
-			$nationalEmployeeController->handler($action);
-		});
-		break;
+           break;
+    case 'system':
+        $controllerMap->register('system', function () use ($db, $login, $action) {
+            require 'controllers/SystemController.php';
+            $systemController = new SystemController($db, $login);
+            $systemController->handler($action);
+        });
+
+        break;
+    case 'national':
+        $controllerMap->register('national', function () use ($action) {
+            $db_nat = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+            $login_nat = new Orgchart\Login($db_nat, $db_nat);
+
+            require 'controllers/NationalEmployeeController.php';
+            $nationalEmployeeController = new NationalEmployeeController($db_nat, $login_nat);
+            $nationalEmployeeController->handler($action);
+        });
+
+        break;
     default:
         echo 'Primary Object not supported.';
+
         break;
 }
 
