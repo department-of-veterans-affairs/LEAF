@@ -5,6 +5,7 @@
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <script>
+// keypress functions for 508 compliance
 function keyPressEditPermissions(evt) {
     if(evt.keyCode === 13) {
         editPermissions();
@@ -13,6 +14,90 @@ function keyPressEditPermissions(evt) {
 function keyPressEditProperties(evt, isSubForm) {
     if(evt.keyCode === 13){
         editProperties(isSubForm);
+    }
+}
+function keyPressAddPermission(evt) {
+    if(evt.keyCode === 13) {
+        addPermission();
+    }
+}
+function keyPressRemovePermission(evt, groupID){
+    if (evt.keyCode === 13) {
+        removePermission(groupID);
+    }
+}
+function keyPressAddIndicatorPrivilege(evt, indicatorID) {
+    if(evt.keyCode === 13) {
+        removeIndicatorPrivilege(indicatorID);
+    }
+}
+function keyPressRemoveIndicatorPrivilege(evt, indicatorID, groupID) {
+    if(evt.keyCode === 13) {
+        removeIndicatorPrivilege(indicatorID, groupID);
+    }
+}
+function keyPressNewQuestion(evt, parentIndicatorID) {
+    if(evt.keyCode === 13) {
+        newQuestion(parentIndicatorID);
+    }
+}
+function keyPressMergeForm(evt, categoryID) {
+    if(evt.keyCode === 13) {
+        mergeForm(categoryID);
+    }
+}
+function keyPressUnmergedForm(evt, categoryID, stapledCategoryID) {
+    if(evt.keyCode === 13) {
+        unmergeForm(categoryID, stapledCategoryID);
+    }
+}
+function keyPressExportForm(evt, categoryID) {
+    if(evt.keyCode === 13) {
+        exportForm(categoryID);
+    }
+}
+function keyPressDeleteForm(evt) {
+    if(evt.keyCode === 13) {
+        deleteForm();
+    }
+}
+function keyPressFormLibrary(evt) {
+    if(evt.keyCode === 13) {
+        formLibrary();
+    }
+}
+function keyPressImportForm(evt) {
+    if(evt.keyCode === 13) {
+        importForm();
+    }
+}
+function keyPressRestoreFieldsMenu(evt) {
+    if (evt.keyCode === 13) {
+        window.location = '?a=disabled_fields';
+    }
+}
+function keyPressShowFormBrowser(evt) {
+    if(evt.keyCode === 13) {
+        postRenderFormBrowser = null;
+        showFormBrowser();
+    }
+}
+function keyPressCreateForm(evt, categoryID) {
+    if(evt.keyCode === 13) {
+        createForm(categoryID);
+    }
+}
+function keyPressMergeFormDialog(evt, categoryID) {
+    if(evt.keyCode === 13) {
+        mergeFormDialog(categoryID);
+    }
+}
+function keyPressOpenContent(evt, categoryID) {
+    if(evt.keyCode === 13) {
+        currCategoryID = categoryID;
+        buildMenu(categoryID);
+        window.location = '#' + categoryID;
+        openContent('ajaxIndex.php?a=printview&categoryID=' + categoryID);
     }
 }
 function editProperties(isSubForm) {
@@ -286,16 +371,7 @@ function editPermissions() {
 
 	dialog_simple.show();
 }
-function keyPressAddPermission(evt) {
-    if(evt.keyCode === 13) {
-        addPermission();
-    }
-}
-function keyPressRemovePermission(evt, groupID){
-    if (evt.keyCode === 13) {
-        removePermission(groupID);
-    }
-}
+
 function removeIndicatorPrivilege(indicatorID, groupID) {
     portalAPI.FormEditor.removeIndicatorPrivilege(
         indicatorID,
@@ -396,21 +472,7 @@ function editIndicatorPrivileges(indicatorID) {
         }
     );
 }
-function keyPressAddIndicatorPrivilege(evt, indicatorID) {
-    if(evt.keyCode === 13) {
-        removeIndicatorPrivilege(indicatorID);
-    }
-}
-function keyPressRemoveIndicatorPrivilege(evt, indicatorID, groupID) {
-    if(evt.keyCode === 13) {
-        removeIndicatorPrivilege(indicatorID, groupID);
-    }
-}
-function keyPressNewQuestion(evt, parentIndicatorID) {
-    if(evt.keyCode === 13) {
-        newQuestion(parentIndicatorID);
-    }
-}
+
 function newQuestion(parentIndicatorID) {
 	var title = '';
 	if(parentIndicatorID == null) {
@@ -490,6 +552,21 @@ function newQuestion(parentIndicatorID) {
             'min-height': '100px',
             'height': '100px'
         });
+    });
+    $('#description').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#required').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#disabled').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
     });
     $('#required').keypress(function(e){
         if((e.keyCode ? e.keyCode : e.which) === 13){
@@ -628,6 +705,21 @@ function getForm(indicatorID, series) {
     	        $('#container_indicatorSingleAnswer').css('display', 'none');
     	    	break;
     	}
+    });
+    $('#description').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#required').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#disabled').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
     });
     $('#required').keypress(function(e){
         if((e.keyCode ? e.keyCode : e.which) === 13){
@@ -979,11 +1071,7 @@ function formatIndicatorMultiAnswer(multiAnswerValue){
     multiAnswerValue = uniqueNames.join("\n");
     return multiAnswerValue;
 }
-function keyPressMergeForm(evt, categoryID) {
-    if(evt.keyCode === 13) {
-        mergeForm(categoryID);
-    }
-}
+
 function mergeForm(categoryID) {
     dialog.setTitle('Staple other form');
     dialog.setContent('Select a form to staple: <div id="formOptions"></div>');
@@ -1028,11 +1116,7 @@ function mergeForm(categoryID) {
     });
     dialog.show();
 }
-function keyPressUnmergedForm(evt, categoryID, stapledCategoryID) {
-    if(evt.keyCode === 13) {
-        unmergeForm(categoryID, stapledCategoryID);
-    }
-}
+
 function unmergeForm(categoryID, stapledCategoryID) {
     $.ajax({
         type: 'DELETE',
@@ -1146,22 +1230,7 @@ function deleteForm() {
 	});
 	dialog_confirm.show();
 }
-function keyPressShowFormBrowser(evt) {
-    if(evt.keyCode === 13) {
-        postRenderFormBrowser = null;
-        showFormBrowser();
-    }
-}
-function keyPressCreateForm(evt, categoryID) {
-    if(evt.keyCode === 13) {
-        createForm(categoryID);
-    }
-}
-function keyPressMergeFormDialog(evt, categoryID) {
-    if(evt.keyCode === 13) {
-        mergeFormDialog(categoryID);
-    }
-}
+
 function buildMenu(categoryID) {
 	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="keyPressShowFormBrowser(event)" onclick="postRenderFormBrowser = null; showFormBrowser();" style="font-size: 120%"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
 	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" style="font-size: 120%"><img src="../../libs/dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
@@ -1215,31 +1284,7 @@ function buildMenu(categoryID) {
 	
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
-function keyPressExportForm(evt, categoryID) {
-    if(evt.keyCode === 13) {
-        exportForm(categoryID);
-    }
-}
-function keyPressDeleteForm(evt) {
-    if(evt.keyCode === 13) {
-        deleteForm();
-    }
-}
-function keyPressFormLibrary(evt) {
-    if(evt.keyCode === 13) {
-        formLibrary();
-    }
-}
-function keyPressImportForm(evt) {
-    if(evt.keyCode === 13) {
-        importForm();
-    }
-}
-function keyPressRestoreFieldsMenu(evt) {
-    if (evt.keyCode === 13) {
-        window.location = '?a=disabled_fields';
-    }
-}
+
 function selectForm(categoryID) {
     currCategoryID = categoryID;
     buildMenu(categoryID);
@@ -1300,14 +1345,6 @@ function showFormBrowser() {
         },
         cache: false
     });
-}
-function keyPressOpenContent(evt, categoryID) {
-    if(evt.keyCode === 13) {
-        currCategoryID = categoryID;
-        buildMenu(categoryID);
-        window.location = '#' + categoryID;
-        openContent('ajaxIndex.php?a=printview&categoryID=' + categoryID);
-    }
 }
 
 function createForm(parentID) {
