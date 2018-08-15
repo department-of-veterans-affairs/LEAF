@@ -38,6 +38,7 @@
 <div class="printmainform">
     <!--{include file="print_subindicators.tpl" form=$form orgchartPath=$orgchartPath}-->
 </div>
+<!--{include file="print_form_signature.tpl" recordID=$recordID orgchartPath=$orgchartPath}-->
 
 
 <br /><br />
