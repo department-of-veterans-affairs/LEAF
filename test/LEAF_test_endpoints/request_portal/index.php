@@ -10,14 +10,14 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include_once __DIR__.'/../../../LEAF_Request_Portal/globals.php';
-include_once __DIR__.'/../../../LEAF_Request_Portal/Login.php';
-include_once __DIR__.'/../../../LEAF_Request_Portal/db_mysql.php';
-include_once __DIR__.'/../../../LEAF_Request_Portal/db_config.php';
-require_once __DIR__.'/../../../LEAF_Request_Portal/api/RESTfulResponse.php';
-require_once __DIR__.'/../../../LEAF_Request_Portal/sources/Exception.php';
-require_once __DIR__.'/../../../LEAF_Request_Portal/api/ControllerMap.php';
-include_once __DIR__.'/../../../LEAF_Request_Portal/enforceHTTPS.php';
+include_once __DIR__ . '/../../../LEAF_Request_Portal/globals.php';
+include_once __DIR__ . '/../../../LEAF_Request_Portal/Login.php';
+include_once __DIR__ . '/../../../LEAF_Request_Portal/db_mysql.php';
+include_once __DIR__ . '/../../../LEAF_Request_Portal/db_config.php';
+require_once __DIR__ . '/../../../LEAF_Request_Portal/api/RESTfulResponse.php';
+require_once __DIR__ . '/../../../LEAF_Request_Portal/sources/Exception.php';
+require_once __DIR__ . '/../../../LEAF_Request_Portal/api/ControllerMap.php';
+include_once __DIR__ . '/../../../LEAF_Request_Portal/enforceHTTPS.php';
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -42,7 +42,6 @@ else
 }
 
 $login->loginUser();
-
 
 $controllerMap = new ControllerMap();
 

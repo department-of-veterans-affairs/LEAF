@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require_once __DIR__.'/../../../../LEAF_Nexus/sources/Group.php';
+require_once __DIR__ . '/../../../../LEAF_Nexus/sources/Group.php';
 
 class GroupController extends RESTfulResponse
 {
@@ -23,7 +23,7 @@ class GroupController extends RESTfulResponse
         $group = $this->group;
 
         $this->index['GET'] = new ControllerMap();
-        
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
@@ -35,7 +35,8 @@ class GroupController extends RESTfulResponse
 
         $this->index['POST']->register('group/editParentID', function ($args) use ($group) {
             return $group->editParentID($_POST['groupID'], $_POST['newParentID']);
-        }); 
+        });
+
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
 }

@@ -10,7 +10,9 @@ use LEAFTest\LEAFClient;
 final class FormEditorControllerTest extends DatabaseTest
 {
     private static $client = null;
+
     private static $testEndpointClient = null;
+
     private static $db;
 
     public static function setUpBeforeClass()
@@ -34,16 +36,36 @@ final class FormEditorControllerTest extends DatabaseTest
         $action = 'formEditor/setFormat';
 
         $queryParams = array('a' => $action);
-        $formParams = array('indicatorID' => '1', 'format' => 'whatev');
+        $formParams = array('indicatorID' => '1', 'format' => 'whatever');
         self::$testEndpointClient->post($queryParams, $formParams);
-        
+
         $var = array(':indicatorID' => 1);
         $res = self::$db->prepared_query('SELECT format
                                             FROM indicators
                                             WHERE indicatorID=:indicatorID', $var);
-        
+
         $this->assertFalse(empty($res));
-        $this->assertEquals('whatev', $res[0]['format']);
+        $this->assertEquals('whatever', $res[0]['format']);
+    }
+
+    /**
+     * Tests the POST `formEditor/setFormat` endpoint.
+     */
+    public function testSetFormatGeneric() : void
+    {
+        $action = 'formEditor/genericFunctionCall/_setFormat';
+
+        $queryParams = array('a' => $action);
+        $formParams = array('indicatorID' => '1', 'format' => 'whatevero');
+        self::$testEndpointClient->post($queryParams, $formParams);
+
+        $var = array(':indicatorID' => 1);
+        $res = self::$db->prepared_query('SELECT format
+                                            FROM indicators
+                                            WHERE indicatorID=:indicatorID', $var);
+
+        $this->assertFalse(empty($res));
+        $this->assertEquals('whatevero', $res[0]['format']);
     }
 
     /**

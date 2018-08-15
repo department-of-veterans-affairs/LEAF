@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require_once __DIR__.'/../../../../LEAF_Request_Portal/sources/FormEditor.php';
+require_once __DIR__ . '/../../../../LEAF_Request_Portal/sources/FormEditor.php';
 
 class FormEditorController extends RESTfulResponse
 {
@@ -26,7 +26,7 @@ class FormEditorController extends RESTfulResponse
         $formEditor = $this->formEditor;
 
         $this->index['GET'] = new ControllerMap();
-        
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
@@ -38,7 +38,11 @@ class FormEditorController extends RESTfulResponse
 
         $this->index['POST']->register('formEditor/setFormat', function ($args) use ($formEditor) {
             return $formEditor->setFormat($_POST['indicatorID'], $_POST['format']);
-        }); 
+        });
+
+        $this->index['POST']->register('formEditor/genericFunctionCall/[text]', function ($args) use ($formEditor) {
+            return call_user_func_array(array($formEditor, $args[0]), $_POST);
+        });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }

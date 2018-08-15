@@ -13,7 +13,9 @@ use LEAFTest\LEAFClient;
 class GroupControllerTest extends DatabaseTest
 {
     private static $client = null;
+
     private static $testEndpointClient = null;
+
     private static $db;
 
     protected function setUp()
@@ -40,7 +42,7 @@ class GroupControllerTest extends DatabaseTest
         $res = self::$db->prepared_query('SELECT parentID
                                             FROM groups
                                             WHERE groupID=:groupID', $var);
-                                            
+
         $this->assertFalse(empty($res));
         $this->assertEquals(11, $res[0]['parentID']);
     }

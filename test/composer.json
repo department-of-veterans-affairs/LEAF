@@ -4,7 +4,6 @@
     "phpunit/phpunit": "^6.5",
     "robmorgan/phinx": "^0.9.2"
   },
-
   "autoload": {
     "files": [
       "test_includes.php"
