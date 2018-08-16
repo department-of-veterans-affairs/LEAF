@@ -306,6 +306,7 @@ abstract class Data
             $fileExtensionWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
                                             'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
                                             'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm', 'ppts',
+                                            'ai', 'eps',
                                             'pdf',
                                             'txt',
                                             'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif',

@@ -901,6 +901,7 @@ class Form
             $fileExtensionWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
                                             'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
                                             'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm',
+                                            'ai', 'eps',
                                             'pdf',
                                             'txt',
                                             'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif',
@@ -1849,12 +1850,14 @@ class Form
         $indicatorID_list = trim($indicatorID_list, ',');
 
         $tempIndicatorIDs = explode(',', $indicatorID_list);
+        $indicatorIdStructure = [];
         foreach ($tempIndicatorIDs as $id)
         {
             if (!is_numeric($id) && $id != '')
             {
                 return false;
             }
+            $indicatorIdStructure['id'.$id] = null;
         }
 
         $recordIDs = '';
@@ -1876,6 +1879,11 @@ class Form
                 {
                     $out[$id['recordID']][$importedKey] = $id[$importedKey];
                 }
+            }
+            
+            if ($indicatorID_list != '')
+            {
+                $out[$id['recordID']]['s1'] = $indicatorIdStructure; // initialize structure
             }
         }
         $recordIDs = trim($recordIDs, ',');
