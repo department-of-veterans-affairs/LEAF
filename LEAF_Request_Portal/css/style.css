@@ -145,7 +145,7 @@ span#headerMenu {
     color: white;
 }
 
-#headerMenu_links > a:focus, > .menuButton{
+#headerMenu_links a:focus > .menuButtonSmall{
     outline-style: dotted;
     box-shadow: 0 4px 6px 2px #8e8e8e;
 }
