@@ -1296,10 +1296,17 @@ var postRenderFormBrowser;
 var categories = {};
 function showFormBrowser() {
     window.location = '#';
-	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="keyPressCreateForm(event)" onclick="createForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
+	$('#menu').html('<div tabindex="0" type="button" class="buttonNorm" id="createFormButton" onclick="createForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
 	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="keyPressFormLibrary(event)" onclick="formLibrary();" style="font-size: 120%"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
 	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="keyPressImportForm(event)" onclick="importForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
 	$('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="keyPressRestoreFieldsMenu(event)" onclick="window.location = \'?a=disabled_fields\';" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+	$('#createFormButton').keypress(function(event) {
+        	event.preventDefault();
+        	var keycode = (event.keyCode ? event.keyCode : event.which);
+        	if(keycode == '13') {
+        	    createForm();
+        	}
+    	});
     $.ajax({
         type: 'GET',
         url: '<!--{$APIroot}-->?a=formStack/categoryList/all',
