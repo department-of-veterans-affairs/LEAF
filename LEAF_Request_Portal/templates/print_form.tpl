@@ -14,7 +14,7 @@
         <div id="progressControl" style="padding: 16px; text-align: center; background-color: #ffaeae; font-weight: bold; font-size: 120%"><div id="progressBar" style="height: 30px; border: 1px solid black; text-align: center; width: 80%; margin: auto"><div style="width: 100%; line-height: 200%; float: left; font-size: 14px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div></div>
     </div>
     <!--{/if}-->
-    <span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" class="submitStatus" role="status"></span>
+    <span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="submitStatus" role="status"></span>
     <div id="submitContent" class="noprint"></div>
     <div id="workflowcontent"></div>
 </div>
@@ -99,7 +99,7 @@ function doSubmit(recordID) {
 		data: {CSRFToken: '<!--{$CSRFToken}-->'},
 		success: function(response) {
             if(response.errors.length == 0) {
-                $('.submitStatus').text('Request submmited');
+                $('#submitStatus').text('Request submmited');
                 $('#submitControl').empty().html('Submitted');
                 $('#submitContent').hide('blind', 500);
                 workflow.getWorkflow(recordID);
@@ -110,7 +110,7 @@ function doSubmit(recordID) {
             		errors += response.errors[i] + '<br />';
             	}
                 $('#submitControl').empty().html('Error: ' + errors);
-                $('.submitStatus').text('Request can not be submmited');
+                $('#submitStatus').text('Request can not be submmited');
             }
 		}
 	});
