@@ -84,6 +84,7 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script type="text/javascript" src="js/functions/toggleZoom.js"></script>
+<script type="text/javascript" src="/libs/js/LEAF/sensitiveIndicator.js"></script>
 <script type="text/javascript">
 var currIndicatorID;
 var currSeries;

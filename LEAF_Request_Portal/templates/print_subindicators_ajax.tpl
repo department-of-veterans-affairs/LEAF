@@ -1,4 +1,13 @@
 <!--{**}-->
+        <!--{if $indicator.is_sensitive == 1}-->
+                <div class="sensitiveIndicatorMaskToggle">
+                    <input type="checkbox" id="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" onClick="toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, this.checked);">
+                    <label for="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" title="Show Sensitive Data" alt="Show Sensitive Data"></label>
+                </div>
+                <span class="sensitiveIndicator-masked">
+                    *****
+                </span>
+        <!--{/if}-->
         <!--{if $indicator.format == 'textarea'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
                 <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'|sanitize}-->
@@ -182,5 +191,8 @@
         <!--{if $indicator.format == 'raw_data'}-->
             <textarea class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="display: none"><!--{$indicator.value|sanitize}--></textarea>
             <!--{$indicator.htmlPrint}-->
+        <!--{/if}-->
+        <!--{if $indicator.is_sensitive == 1}-->
+            <div style="clear:both;"></div>
         <!--{/if}-->
         <!--{include file="print_subindicators.tpl" form=$indicator.child depth=$depth+4 recordID=$recordID}-->

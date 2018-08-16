@@ -1080,3 +1080,41 @@ button.AdminButton:hover, button.AdminButton:focus {
   background-color: #b02323;
   color: white;
 }
+
+div.sensitiveIndicator > .printResponse {
+    display: none;
+    float: left;
+}
+
+.sensitiveIndicator-masked, .sensitiveIndicatorMaskToggle {
+    display: block;
+    float: left;
+    font-family: monospace;
+    font-size: 20px;
+    letter-spacing: 0.01rem;
+    line-height: 150%;
+    color: rgba(0,0,0,0.8);
+}
+.sensitiveIndicatorMaskToggle {
+    padding-right: 5px;
+}
+
+.sensitiveIndicatorMaskToggle > input[type=checkbox] {
+    display: none;
+}
+
+.sensitiveIndicatorMaskToggle > input[type=checkbox] + label {
+    background-image: url("/libs/dynicons/?img=eye_invisible.svg&w=16");
+    height: 16px;
+    width: 16px;
+    display: inline-block;
+    padding: 0 0 0 0px;
+}
+
+.sensitiveIndicatorMaskToggle > input[type=checkbox]:checked + label {
+    background-image: url("/libs/dynicons/?img=eye_visible.svg&w=16");
+    height: 16px;
+    width: 16px;
+    display: inline-block;
+    padding: 0 0 0 0px;
+}
