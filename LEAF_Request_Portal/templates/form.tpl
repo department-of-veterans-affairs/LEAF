@@ -31,7 +31,7 @@
     </div>
     <div class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <button tabindex="0" aria-label="Show Single Page" class="tools" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" alt="View full form" title="Show Single Page" style="height: 38px; text-align: left; margin-bottom: 15px; font-size: 120%"/> <img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" style="position: absolute; margin-top: -6px; vertical-align: middle"/>&nbsp &nbsp &nbsp &nbsp Show Single Page</button>
+            <div id="showSinglePage" aria-role="button"><a aria-label="Show single page" id="showSinglePageLink" style="display: block; font-size: 120%; cursor: pointer" href='?a=printview&amp;recordID=<!--{$recordID}-->'></a><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form" title="View full form" /> Show single page</div>
             <br /><br />
             <button tabindex="0" class="tools" aria-label="Cancel request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
         </div>
@@ -52,6 +52,23 @@
 var currIndicatorID = 0;
 var currSeries = 0;
 var CSRFToken = '<!--{$CSRFToken}-->';
+
+$('#showSinglePage').keypress(function(event) {
+    if(event.keyCode === 32) {
+        $('#showSinglePageLink')[0].click();
+        $('#showSinglePageLink').trigger('click');
+    }
+});
+
+$('#showSinglePage').on('focusin', function(event) {
+    $('#showSinglePage').css('background', '#2372b0');
+    $('#showSinglePage').css('color', 'white');
+});
+
+$('#showSinglePage').on('focusout', function(event) {
+    $('#showSinglePage').css('background', '#e8f2ff');
+    $('#showSinglePage').css('color', 'black');
+});
 
 function getForm(indicatorID, series) {
     $('.question').removeClass('buttonNormSelected');
