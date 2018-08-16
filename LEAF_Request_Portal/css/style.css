@@ -118,31 +118,36 @@ span#headerLogin {
 
 span#headerMenu {
     position: relative;
-    top: 48px;
+    top: 55px;
     float: right;
     font-size: 12px;
     font-weight: normal;
 }
 
-#headerMenu > button, #headerMenu_container > button {
+#headerMenu > a, #headerMenu_container > a {
     text-decoration: none;
     margin-left: 8px;
     color: black;
 }
 
-#headerMenu > button > img {
+#headerMenu > a > img {
     padding-bottom: 2px;
     padding-right: 4px;
 }
 
-#headerMenu > button:hover, #headerMenu_container > button:hover{
+#headerMenu > a:hover, #headerMenu_container > a:hover{
     text-decoration: underline;
     color: white;
 }
 
-#headerMenu > button:focus, #headerMenu_container > button:focus{
+#headerMenu > a:focus, #headerMenu_container > a:focus{
     text-decoration: underline;
     color: white;
+}
+
+#headerMenu_links > a:focus, > .menuButton{
+    outline-style: dotted;
+    box-shadow: 0 4px 6px 2px #8e8e8e;
 }
 
 #headerMenu_links {
@@ -160,7 +165,7 @@ span#headerMenu {
     display: block;
 }
 
-#headerMenu_container > button::after {
+#headerMenu_container > a::after {
     content:'\25BC';
 }
 
@@ -518,6 +523,12 @@ span.approval_disapproved {
     color: black;
 }
 
+.menu2 a:focus > .menuButtonSmall {
+  box-shadow: 0 4px 6px 2px #8e8e8e;
+  margin: 12px;
+  outline-style: dotted;
+ }
+
 .menuButton {
     float: left;
     width: 350px;
@@ -533,6 +544,7 @@ span.approval_disapproved {
     margin: 14px;
     outline-color: 0 4px 6px 2px #5d5959;
 }
+
 
 .menuIcon {
     float: left;
@@ -1013,7 +1025,7 @@ button.buttonNorm {
         text-align: right;
     }
 
-    #headerMenu > button {
+    #headerMenu > a {
         text-decoration: none;
         margin-left: 2px;
         color: black;
