@@ -4,10 +4,10 @@
 </div>
 <br style="clear: both" />
 <div>
-    <h2>Site Administrators</h2>
+    <h2 tabindex="0">Site Administrators</h2>
     <div id="adminList"></div>
     <br style="clear: both" />
-    <h2>User Groups</h2>
+    <h2 tabindex="0">User Groups</h2>
     <div id="groupList"></div>
 </div>
 
@@ -64,6 +64,20 @@ function removeAdmin(userID) {
     });
 }
 
+function focusGroupsAndMembers(groupID) {
+    $('#' + groupID).on('focusin', function() {
+        $('#' + groupID).css('background-color', '#fffdc2');
+    });
+    $('#' + groupID).on('focusout', function() {
+        $('#' + groupID).css('background-color', 'white');
+    });
+    $('#members' + groupID).on('focusin', function() {
+        $('#' + groupID).css('background-color', '#fffdc2');
+    });
+    $('#members' + groupID).on('focusout', function() {
+        $('#' + groupID).css('background-color', 'white');
+    });
+}
 function getGroupList() {
     $('#groupList').html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
 
@@ -78,23 +92,23 @@ function getGroupList() {
             	// only show explicit groups, not ELTs
             	if(res[i].parentGroupID == null
             		&& res[i].groupID != 1) {
-                    $('#groupList').append('<div id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
+                    $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
                             <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].name +'</h2>\
-                            <div id="members'+ res[i].groupID +'"></div>\
+                            <div tabindex="0" id="members'+ res[i].groupID +'"></div>\
                             </div>');
             	}
             	else if(res[i].groupID == 1) {
-                    $('#adminList').append('<div id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
+                    $('#adminList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
                             <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].name +'</h2>\
-                            <div id="members'+ res[i].groupID +'"></div>\
+                            <div tabindex="0" id="members'+ res[i].groupID +'"></div>\
                             </div>');
             	}
 
+                focusGroupsAndMembers(res[i].groupID);
                 if(res[i].groupID != 1) { // if not admin
                     $('#' + res[i].groupID).on('click', function(groupID, parentGroupID) {
                         return function() {
-                        	dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
-
+                        	dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" tabindex="0" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
                         	dialog_simple.setCancelHandler(function() {
                                 $.ajax({
                                     type: 'GET',
@@ -108,10 +122,11 @@ function getGroupList() {
                         	dialog_simple.show();
                         };
                     }(res[i].groupID, res[i].parentGroupID));
+                    groupKeyPress(res[i].groupID);
                 }
                 else { // if is admin
                 	$('#' + res[i].groupID).on('click', function() {
-                		dialog.setContent('<h2>System Administrators</h2><div id="adminSummary"></div><br /><h3>Add Administrator:</h3><div id="employeeSelector"></div>');
+                		dialog.setContent('<h2>System Administrators</h2><div tabindex="0" id="adminSummary"></div><br /><h3>Add Administrator:</h3><div tabindex="0" id="employeeSelector"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -158,6 +173,7 @@ function getGroupList() {
                 	    });
                 		dialog.show();
                 	})
+                    groupKeyPress(res[i].groupID);
                 }
                 populateMembers(res[i].groupID, res[i].members);
             }
@@ -166,6 +182,13 @@ function getGroupList() {
     });
 }
 
+function groupKeyPress(groupID) {
+    $('#' + groupID).keypress(function(event) {
+        if(event.keyCode === 13) {
+            $('#' + groupID).trigger('click');
+        }
+    });
+}
 // used to import and add groups
 function tagAndUpdate(groupID, callback) {
     $.when(
@@ -196,8 +219,8 @@ function tagAndUpdate(groupID, callback) {
 
 function importGroup() {
     dialog.setTitle('Import Group');
-    dialog.setContent('<h2>Import a group from another LEAF site.</h2><br />Group Title: <div id="groupSel_container"></div>');
-    
+    dialog.setContent('<h2 tabindex="0">Import a group from another LEAF site.</h2><br /><div tabindex="0">Group Title: </div><div id="groupSel_container"></div>');
+
     var groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     groupSel.basePath = '../';
@@ -228,7 +251,7 @@ function importGroup() {
 
 function createGroup() {
     dialog.setTitle('Create a new group');
-    dialog.setContent('<br />Group Title: <input id="groupName"></input>');
+    dialog.setContent('<div tabindex="0"><br />Group Title: <input id="groupName"></input></div>');
 
     dialog.setSaveHandler(function() {
     	dialog.indicateBusy();

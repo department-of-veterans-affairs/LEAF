@@ -1,6 +1,6 @@
 <div id="maincontent">
     <div id="group">
-        <div id="groupHeader">
+        <div tabindex="0" id="groupHeader">
             <span id="groupTitle"><!--{$group[0].groupTitle|sanitize}-->
             <!--{if $group[0].groupAbbreviation != ''}-->
                 (<!--{$group[0].groupAbbreviation}-->)
@@ -13,27 +13,27 @@
 
 
         <div id="position" class="position">
-            <div id="positionHeader" class="positionHeader">
+            <div tabindex="0" id="positionHeader" class="positionHeader">
                 <span id="positionName" class="positionName">Positions</span><br />
             </div>
-            <div id="positionBody" class="positionBody">
-                <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
+            <div tabindex="0" id="positionBody" class="positionBody">
+                <div tabindex="0" style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
             </div>
         </div>
 
         <div id="employee" class="employee">
-            <div id="employeeHeader" class="employeeHeader">
+            <div tabindex="0" id="employeeHeader" class="employeeHeader">
                 <span id="employeeName" class="employeeName">Employees</span><br />
             </div>
-            <div id="employeeBody" class="employeeBody" style="line-height: 220%">
-                <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
+            <div tabindex="0" id="employeeBody" class="employeeBody" style="line-height: 220%">
+                <div tabindex="0" style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
             </div>
         </div>
     </div>
 </div>
 
 <div id="toolbar" class="toolbar_right toolbar noprint">
-    <div id="tools"><h1>Options</h1>
+    <div id="tools"><h1 tabindex="0">Options</h1>
         <!--{if array_search('service', $tags) !== false}-->
         <div onclick="window.location='?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->'"><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
         <br />
@@ -45,10 +45,10 @@
         <button class="options" onclick="confirmRemove()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
     </button>
 
-    <div class="toolbar_tags"><h1>Tags</h1>
+    <div class="toolbar_tags"><h1 tabindex="0">Tags</h1>
         <div class="tags">
             <!--{foreach $tags as $tag}-->
-            <span onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></span>
+            <span tabindex="0" onkeypress="triggerClick(event, confirmDeleteTag('<!--{$tag}-->'))" onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></span>
             <!--{/foreach}-->
             <!--{if $groupPrivileges[$groupID].write == 1}-->
             <br /><br />
@@ -62,15 +62,15 @@
         </div>
     </div>
 <br />
-    <div class="toolbar_security"><h1>Security Permissions</h1>
-        <div>
+    <div class="toolbar_security"><h1 tabindex="0">Security Permissions</h1>
+        <div tabindex="0">
         <!--{if $groupPrivileges[$groupID].read != 0}-->
             <img src="../libs/dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" /> You have read access
         <!--{else}-->
             <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Read Access" style="vertical-align: middle" /> You do not have read access
         <!--{/if}-->
         </div>
-        <div>
+        <div tabindex="0">
         <!--{if $groupPrivileges[$groupID].write != 0}-->
             <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Write Access" style="vertical-align: middle" /> You have write access
         <!--{else}-->
@@ -97,9 +97,15 @@ var tags = {};
 tags['<!--{$tag}-->'] = '<!--{$tag}-->';
 <!--{/foreach}-->
 
+function triggerClick(e, id) {
+    if(e.keyCode === 13) {
+        $('#' + id).trigger('click');
+    }
+}
+
 function editGroupName() {
-    dialog.setContent('Group Name: <input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
-    		Alternate Names: <input id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
+    dialog.setContent('<div tabindex="0" style="display: inline">Group Name: </div><input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
+    		<div tabindex="0" style="display: inline">Alternate Names: </div><input id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
     dialog.show(); // need to show early because of ie6
 
     dialog.setSaveHandler(function() {
@@ -119,10 +125,10 @@ function editGroupName() {
 }
 
 function addEmployeePosition() {
-    dialog.setContent('Employee/Position: <div id="positionSelector"></div><div id="employeeSelector"></div><br />\
+    dialog.setContent('<div tabindex="0" style="display: inline">Employee/Position: </div><div id="positionSelector"></div><div id="employeeSelector"></div><br />\
     		       		<fieldset><legend>Options</legend>\
-    		       		<div id="container_ignorePositions"><input id="ignorePositions" type="checkbox" value="employeeOnly" /> Search Employees Only</div>\
-    		       		<div id="container_includeSub"><input id="includeSub" type="checkbox" value="applyRecursive" disable="disabled" /> Apply to all subordinates</div>\
+    		       		<div tabindex="0" id="container_ignorePositions"><input id="ignorePositions" type="checkbox" value="employeeOnly" /> Search Employees Only</div>\
+    		       		<div tabindex="0" id="container_includeSub"><input id="includeSub" type="checkbox" value="applyRecursive" disable="disabled" /> Apply to all subordinates</div>\
     		       		</fieldset>');
     dialog.show(); // need to show early because of ie6
 
@@ -321,7 +327,7 @@ function writeTag(input) {
 }
 
 function addTag() {
-    dialog.setContent('Tag Name: <input id="inputtitle" style="width: 300px" class="dialogInput" value=""></input>');
+    dialog.setContent('Tag Name: <input tabindex="0" id="inputtitle" style="width: 300px" class="dialogInput" value=""></input>');
     dialog.show(); // need to show early because of ie6
 
     dialog.setSaveHandler(function() {

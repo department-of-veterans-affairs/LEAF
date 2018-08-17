@@ -22,7 +22,7 @@
         <div class="mainlabel">
             <div>
             <span>
-                <b><!--{$indicator.name|sanitize}--></b><br />
+                <b tabindex="0"><!--{$indicator.name|sanitize}--></b><br />
             </span>
             </div>
                 <!--{else}-->
@@ -396,8 +396,8 @@
         <!--{/if}-->
         <div>
             <br />
-            <fieldset><legend>Access Permissions</legend>
-            <iframe src="ajaxIframe.php?a=permission&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="140px"></iframe>
+            <fieldset><legend tabindex="0">Access Permissions</legend>
+            <iframe tabindex="0" src="ajaxIframe.php?a=permission&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="140px"></iframe>
             </fieldset>
         </div>
         <!--{include file="subindicators.tpl" form=$indicator.child depth=$depth+4 recordID=$recordID}-->
