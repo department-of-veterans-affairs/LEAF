@@ -60,9 +60,17 @@
         <!--{/if}-->
             </div>
             <div class="printResponse" id="xhrIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->">
-
+                <!--{if $indicator.is_sensitive == 1}-->
+                        <input type="checkbox" class="sensitiveMaskToggle" id="sensitiveMaskToggle_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" onClick="toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, this.checked);"><label for="sensitiveMaskToggle_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" title="Show Sensitive Data" alt="Show Sensitive Data"></label>
+                        <span class="sensitiveIndicator-masked printResponse" id="maskedSensitiveIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->">
+                            *****
+                        </span>
+                        <span class="sensitiveIndicator-unmasked" id="unmaskedSensitiveIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->">
+                <!--{/if}-->
                 <!--{include file="print_subindicators_ajax.tpl"}-->
-
+                <!--{if $indicator.is_sensitive == 1}-->
+                    </span>
+                <!--{/if}-->
             </div><!-- end print reponse -->
         </div><!-- end print sublabel -->
         </div><!-- end print block -->
