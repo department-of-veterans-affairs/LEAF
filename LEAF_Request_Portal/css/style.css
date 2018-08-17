@@ -164,6 +164,12 @@ span#headerMenu {
     content:'\25BC';
 }
 
+#headerMenu_links > a:focus > .menuButtonSmall{
+  box-shadow: 0 4px 6px 2px #8e8e8e;
+  margin: 12px;
+  outline-style: dotted;
+}
+
 span#headerTabImg {
     position: relative;
     top: 49px;
