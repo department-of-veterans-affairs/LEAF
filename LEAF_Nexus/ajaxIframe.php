@@ -93,7 +93,7 @@ switch ($action) {
         $t_iframe->assign('categoryID', (int)$_GET['categoryID']);
         $t_iframe->assign('UID', (int)$_GET['UID']);
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
-        $t_iframe->assign('file', strip_tags($_GET['file']));
+        $t_iframe->assign('file', XSSHelpers::xscrub(strip_tags($_GET['file'])));
         $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('body', $t_iframe->fetch('file_form_delete.tpl'));
 
@@ -202,6 +202,6 @@ $main->assign('title', $config->title);
 $main->assign('city', $config->city);
 
 $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='version'", array());
-$main->assign('revision', $rev[0]['data']);
+$main->assign('revision', XSSHelpers::xscrub($rev[0]['data']));
 
 $main->display('main_iframe.tpl');
