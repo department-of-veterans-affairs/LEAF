@@ -10,6 +10,8 @@ include '../db_mysql.php';
 include '../sources/Position.php';
 include '../sources/Tag.php';
 
+include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+
 $config = new Orgchart\Config;
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
@@ -71,7 +73,7 @@ foreach ($res as $pos)
     }
     $output[$pos['positionID']]['data']['Current FTE'] = $data[17]['data'];
     $output[$pos['positionID']]['data']['PD Number'] = $data[9]['data'];
-    $output[$pos['positionID']]['data']['HR Smart Position #'] = $data[26]['data'];
+    //$output[$pos['positionID']]['data']['HR Smart Position #'] = $data[26]['data'];
 
     foreach ($output[$pos['positionID']]['employeees'] as $emp)
     {
@@ -84,30 +86,30 @@ foreach ($res as $pos)
             $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
         }
 
-        echo "\"{$pos['positionID']}\",";
-        echo "\"{$output[$pos['positionID']]['data']['HR Smart Position #']}\",";
-        echo "\"{$output[$pos['positionID']]['service']}\",";
-        echo "\"{$output[$pos['positionID']]['positionTitle']}\",";
-        echo "\"{$output[$pos['positionID']]['data']['Classification Title']}\",";
+        echo "\"". XSSHelpers::xscrub($pos['positionID']) . "\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['service']) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Classification Title']) ."\",";
         if ($emp['lastName'] != ''
             && $emp['isActing'] == 0)
         {
-            echo "\"{$emp['lastName']}, {$emp['firstName']}\",";
+            echo "\"". XSSHelpers::xscrub($emp['lastName']) .",". XSSHelpers::xscrub($emp['firstName']) ."\",";
         }
         else
         {
             echo '"",';
         }
-        echo "\"{$emp['userName']}\",";
-        echo "\"{$supervisorName}\",";
-        echo "\"{$output[$pos['positionID']]['data']['Pay Plan']}\",";
-        echo "=\"{$output[$pos['positionID']]['data']['Series']}\",";
-        echo "=\"{$output[$pos['positionID']]['data']['Pay Grade']}\",";
+        echo "\"". XSSHelpers::xscrub($emp['userName']) ."\",";
+        echo "\"". XSSHelpers::xscrub($supervisorName) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
+        echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']) ."\",";
+        echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']) ."\",";
         //		echo "\"{$output[$pos['positionID']]['data']['FTE Ceiling']}\",";
         //		echo "\"{$output[$pos['positionID']]['data']['Current FTE']}\",";
-        echo "\"{$output[$pos['positionID']]['data']['FTE']}\",";
-        echo "\"{$output[$pos['positionID']]['data']['Current FTE']}\",";
-        echo "\"{$output[$pos['positionID']]['data']['PD Number']}\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE']) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']) ."\",";
         if ($data[19]['data'] == 0)
         {
             echo '"Missing Total Headcount",';
@@ -132,22 +134,22 @@ foreach ($res as $pos)
                 $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
             }
 
-            echo "\"{$pos['positionID']}\",";
-            echo "\"{$output[$pos['positionID']]['data']['HR Smart Position #']}\",";
-            echo "\"{$output[$pos['positionID']]['service']}\",";
-            echo "\"{$output[$pos['positionID']]['positionTitle']}\",";
-            echo "\"{$output[$pos['positionID']]['data']['Classification Title']}\",";
+            echo "\"". XSSHelpers::xscrub($pos['positionID']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['service']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Classification Title']) ."\",";
             echo '"",'; // vacant employee
             echo '"",'; // vacant employee
-            echo "\"{$supervisorName}\",";
-            echo "\"{$output[$pos['positionID']]['data']['Pay Plan']}\",";
-            echo "=\"{$output[$pos['positionID']]['data']['Series']}\",";
-            echo "=\"{$output[$pos['positionID']]['data']['Pay Grade']}\",";
+            echo "\"". XSSHelpers::xscrub($supervisorName) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
+            echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']) ."\",";
+            echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']) ."\",";
             //		echo "\"{$output[$pos['positionID']]['data']['FTE Ceiling']}\",";
             //		echo "\"{$output[$pos['positionID']]['data']['Current FTE']}\",";
-            echo "\"{$output[$pos['positionID']]['data']['FTE']}\",";
-            echo "\"{$output[$pos['positionID']]['data']['Current FTE']}\",";
-            echo "\"{$output[$pos['positionID']]['data']['PD Number']}\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']) ."\",";
             if ($data[19]['data'] == 0)
             {
                 echo '"Missing Total Headcount",';

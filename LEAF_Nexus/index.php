@@ -88,7 +88,7 @@ switch ($action) {
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : $position->getTopSupervisorID(1);
         $t_form->assign('rootID', $rootID);
         $t_form->assign('topPositionID', (int)$position->getTopSupervisorID(1));
-        $t_form->assign('header', $_GET['header']);
+        $t_form->assign('header', XSSHelpers::sanitizeHTML($_GET['header']));
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . urlencode($_SERVER['REQUEST_URI']);
@@ -486,7 +486,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', $rev[0]['data']);
+        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
