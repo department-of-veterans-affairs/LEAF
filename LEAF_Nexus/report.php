@@ -26,6 +26,8 @@ include 'config.php';
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
+include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+
 $config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
@@ -72,7 +74,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', $rev[0]['data']);
+        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
