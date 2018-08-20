@@ -76,7 +76,7 @@ $main->assign('useUI', false);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
 {
-    date_default_timezone_set($settings['timeZone']);
+    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
 }
 
 switch ($action) {
@@ -162,7 +162,7 @@ switch ($action) {
                     if ($match = 1)
                     {
                         // safe to pass in $_GET
-                        $t_form->assign('childCategoryID', $_GET['childCategoryID']);
+                        $t_form->assign('childCategoryID', XSSHelpers::xscrub($_GET['childCategoryID']));
                     }
                 }
 
