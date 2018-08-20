@@ -185,7 +185,26 @@ class FormEditorController extends RESTfulResponse
         });
 
         $this->index['POST']->register('formEditor/indicator/[digit]/privileges', function ($args) use ($formEditor) {
-            return $formEditor->setIndicatorPrivileges((int)$args[0], $_POST['groupIDs']);
+            if (!is_array($_POST['groupIDs']))
+            {
+                return false;
+            }
+
+            $groups = array();
+            foreach ($_POST['groupIDs'] as $group)
+            {
+                if (is_numeric($group))
+                {
+                    $groups[] = (int)$group;
+                }
+            }
+
+            if (count($groups) < 1)
+            {
+                return false;
+            }
+
+            return $formEditor->setIndicatorPrivileges((int)$args[0], $groups);
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

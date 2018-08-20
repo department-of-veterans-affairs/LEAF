@@ -7,6 +7,7 @@ require '../VAMC_Directory.php';
 
 include '../db_mysql.php';
 include '../db_config.php';
+include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 
 $db_config = new DB_Config();
 
@@ -18,10 +19,10 @@ echo 'Access Groups:';
 echo '<ul>';
 foreach ($groups as $group)
 {
-    echo "<li>{$group['name']} (groupID#: {$group['groupID']})";
+    echo '<li>' . XSSHelpers::xscrub($group['name']) . ' (groupID#: ' . XSSHelpers::xscrub($group['groupID']) . ')';
 
-    $vars = array("groupID" => $group['groupID']);
-    $users = $db->prepared_query("SELECT * FROM users WHERE groupID=:groupID ORDER BY userID", $vars);
+    $vars = array('groupID' => $group['groupID']);
+    $users = $db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $vars);
     echo '<ul>';
     foreach ($users as $user)
     {
@@ -33,7 +34,7 @@ foreach ($groups as $group)
         }
         else
         {
-            echo "<li>{$dirdata[0]['Lname']}, {$dirdata[0]['Fname']}</li>";
+            echo '<li>' . XSSHelpers::xscrub($dirdata[0]['Lname']) . ', ' . XSSHelpers::xscrub($dirdata[0]['Fname']) . '</li>';
         }
     }
     echo '</ul>';

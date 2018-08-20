@@ -78,6 +78,11 @@ $main->assign('useUI', false);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
+foreach (array_keys($settings) as $key)
+{
+    $settings[$key] = XSSHelpers::sanitizeHTMLRich($settings[$key]);
+}
+
 switch ($action) {
     case 'showServiceFTEstatus':
         $main->assign('useUI', true);
