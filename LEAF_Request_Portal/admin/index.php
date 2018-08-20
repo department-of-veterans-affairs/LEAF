@@ -180,7 +180,7 @@ switch ($action) {
             $res = $db->prepared_query('SELECT * FROM categories WHERE categoryID=:categoryID', $vars);
             if (count($res) > 0)
             {
-                $t_form->assign('form', $res[0]['categoryID']);
+                $t_form->assign('form', XSSHelpers::xscrub($res[0]['categoryID']));
             }
         }
 
