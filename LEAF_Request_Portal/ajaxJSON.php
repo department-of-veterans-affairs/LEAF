@@ -73,6 +73,7 @@ switch ($action) {
         {
             exit();
         }
+
         $vars = array(':recordID' => $_GET['recordID']);
         $res = $db->prepared_query('SELECT * FROM records_dependencies
     									LEFT JOIN category_count USING (recordID)
@@ -86,8 +87,15 @@ switch ($action) {
     									WHERE records_dependencies.recordID=:recordID
     										AND actionType IS NOT NULL
     									ORDER BY actionID DESC
-    									LIMIT 1', $vars);
-        echo json_encode($res[0]);
+                                        LIMIT 1', $vars);
+
+        $record = $res[0];
+        foreach (array_keys($record) as $key)
+        {
+            $record[$key] = XSSHelpers::xscrub($record[$key]);
+        }
+
+        echo json_encode($record);
 
         break;
     case 'getextrainboxdata':
@@ -96,7 +104,7 @@ switch ($action) {
         $form = new Form($db, $login);
         $inbox = new Inbox($db, $login);
 
-        $inboxData = $inbox->getInbox($_GET['depID']);
+        $inboxData = $inbox->getInbox((int)$_GET['depID']);
 
         echo json_encode($form->getCustomData($inboxData[$_GET['depID']]['records'], $config->descriptionID));
 

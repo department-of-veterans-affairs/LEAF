@@ -38,10 +38,11 @@ $login = new Login($db_phonebook, $db);
 $login->loginUser();
 if (!$login->isLogin() || !$login->isInDB())
 {
-    echo 'Session expired, please refresh the page.<br /><br />If this message persists, please include the following information to your administrator:';
-    echo '<pre>';
-    print_r($_SESSION);
-    echo '</pre>';
+    echo 'Session expired, please refresh the page.<br /><br />If this message persists, please contact your administrator.';
+    // echo 'Session expired, please refresh the page.<br /><br />If this message persists, please include the following information to your administrator:';
+    // echo '<pre>';
+    //print_r($_SESSION);
+    //echo '</pre>';
     $login->logout();
     exit;
 }
@@ -375,7 +376,7 @@ switch ($action) {
 
         $tagMembers = $form->getTagMembers($_GET['tag']);
 
-        $t_form->assign('tag', strip_tags($_GET['tag']));
+        $t_form->assign('tag', XSSHelpers::xscrub(strip_tags($_GET['tag'])));
         $t_form->assign('totalNum', count($tagMembers));
         $t_form->assign('requests', $tagMembers);
         $main->assign('body', $t_form->fetch('tag_show_members.tpl'));
@@ -389,7 +390,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', $rev[0]['data']);
+        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
