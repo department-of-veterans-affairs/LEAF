@@ -35,7 +35,7 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1 tabindex="0">Options</h1>
         <!--{if array_search('service', $tags) !== false}-->
-        <div onclick="window.location='?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->'"><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
+        <div id="view_orgchart" ><a role="button" href="?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->"></a><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
         <br />
         <!--{/if}-->
         <button class="options" onclick="editGroupName()" style="width: 100%"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</button>
@@ -102,6 +102,15 @@ function triggerClick(e, id) {
         $('#' + id).trigger('click');
     }
 }
+
+$('#view_orgchart').on('focusin', function() {
+    $('#view_orgchart').css('background-color', '#2372b0');
+    $('#view_orgchart').css('color', 'white');
+});
+$('#view_orgchart').on('focusout', function() {
+    $('#view_orgchart').css('background-color', '#e8f2ff');
+    $('#view_orgchart').css('color', 'black');
+});
 
 function editGroupName() {
     dialog.setContent('<div tabindex="0" style="display: inline">Group Name: </div><input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
