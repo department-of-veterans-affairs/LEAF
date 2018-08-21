@@ -1882,7 +1882,7 @@ class Form
         $out = array();
         foreach ($recordID_list as $id)
         {
-            if (!is_numeric($id) && id != '')
+            if (!is_numeric($id['recordID']) && $id['recordID'] != '')
             {
                 return false;
             }
