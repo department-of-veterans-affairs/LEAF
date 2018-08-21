@@ -92,13 +92,13 @@ function getGroupList() {
             	// only show explicit groups, not ELTs
             	if(res[i].parentGroupID == null
             		&& res[i].groupID != 1) {
-                    $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
+                    $('#groupList').append('<div role="button" tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
                             <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].name +'</h2>\
                             <div tabindex="0" id="members'+ res[i].groupID +'"></div>\
                             </div>');
             	}
             	else if(res[i].groupID == 1) {
-                    $('#adminList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
+                    $('#adminList').append('<div role="button" tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
                             <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].name +'</h2>\
                             <div tabindex="0" id="members'+ res[i].groupID +'"></div>\
                             </div>');
