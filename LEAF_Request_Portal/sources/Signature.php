@@ -40,6 +40,11 @@ class Signature
         return $this->db->getLastInsertID();
     }
 
+    /**
+     * Get signatures for record
+     * @param $recordID int the id of the record the signature belongs to
+     * @return array        array of all signatures and their info
+     */
     public function getSignaturesByRecord($recordID)
     {
         $vars = array(
