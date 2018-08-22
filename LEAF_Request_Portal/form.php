@@ -1849,7 +1849,6 @@ class Form
     public function getCustomData($recordID_list, $indicatorID_list)
     {
         $indicatorID_list = trim($indicatorID_list, ',');
-
         $tempIndicatorIDs = explode(',', $indicatorID_list);
         $indicatorIdStructure = [];
         foreach ($tempIndicatorIDs as $id)
@@ -1913,7 +1912,7 @@ class Form
 
         // already made sure that $indicatorID_list and $recordIDs are comma delimited lists of numbers
         $res = $this->db->prepared_query("SELECT * FROM indicator_mask
-        							WHERE indicatorID IN ({$indicatorID_list})", array());
+                                    WHERE indicatorID IN ({$indicatorID_list})", array());
         $indicatorMasks = array();
         if (count($res) > 0)
         {
@@ -1937,7 +1936,7 @@ class Form
         $vars2 = array("recordIDs" => $recordIDs);
         $res = $this->db->prepared_query("SELECT * FROM data
                                     WHERE indicatorID IN ({$indicatorID_list})
-                                        AND recordID IN (:recordIDs)", $vars2);
+                                        AND recordID IN ({$recordIDs})", $vars2);
 
         if (is_array($res) && count($res) > 0)
         {
