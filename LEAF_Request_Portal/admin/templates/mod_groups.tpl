@@ -94,33 +94,46 @@ function getGroupList() {
             	else if(res[i].groupID == 1) {
                     $('#adminList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
                             <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].name +'</h2>\
-                            <div  id="members'+ res[i].groupID +'"></div>\
+                            <div id="members'+ res[i].groupID +'"></div>\
                             </div>');
             	}
 
                 focusGroupsAndMembers(res[i].groupID);
                 if(res[i].groupID != 1) { // if not admin
+                    function openGroup(groupID, parentGroupID) {
+                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" tabindex="0" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
+                        dialog_simple.setCancelHandler(function() {
+                            $.ajax({
+                                type: 'GET',
+                                url: '../api/?a=system/updateGroup/' + groupID,
+                                success: function() {
+                                    getMembers(groupID);
+                                },
+                                cache: false
+                            });
+                        });
+                        setTimeout(function () {
+                            dialog_simple.show();
+                        }, 0);
+                    }
+
+                    //508 fix
                     $('#' + res[i].groupID).on('click', function(groupID, parentGroupID) {
                         return function() {
-                        	dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" tabindex="0" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
-                        	dialog_simple.setCancelHandler(function() {
-                                $.ajax({
-                                    type: 'GET',
-                                    url: '../api/?a=system/updateGroup/' + groupID,
-                                    success: function() {
-                                        getMembers(groupID);
-                                    },
-                                    cache: false
-                                });
-                        	});
-                        	dialog_simple.show();
+                            openGroup(groupID, parentGroupID);
                         };
                     }(res[i].groupID, res[i].parentGroupID));
-                    groupKeyPress(res[i].groupID);
+                    $('#' + res[i].groupID).on('keydown', function(groupID, parentGroupID) {
+                        return function(event) {
+                            if(event.keyCode === 13 || event.keyCode === 32) {
+                                openGroup(groupID, parentGroupID);
+                            }
+                        };
+                    }(res[i].groupID, res[i].parentGroupID));
                 }
                 else { // if is admin
-                	$('#' + res[i].groupID).on('click', function() {
-                		dialog.setContent('<h2 role="heading" tabindex="-1">System Administrators</h2><div id="adminSummary"></div><br /><h3 role="heading" tabindex="-1" >Add Administrator:</h3><div id="employeeSelector"></div>');
+                    function openAdminGroup(){
+                        dialog.setContent('<h2 role="heading" tabindex="-1">System Administrators</h2><div id="adminSummary"></div><br /><h3 role="heading" tabindex="-1" >Add Administrator:</h3><div id="employeeSelector"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -129,7 +142,7 @@ function getGroupList() {
                         empSel.initialize();
 
                         dialog.setSaveHandler(function() {
-                        	if(empSel.selection != '') {
+                            if(empSel.selection != '') {
                                 var selectedUserName = empSel.selectionData[empSel.selection].userName;
                                 $.ajax({
                                     type: 'POST',
@@ -137,37 +150,48 @@ function getGroupList() {
                                     data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                     success: function(res) {
                                         if(!isNaN(res)) {
-                                        	addAdmin(selectedUserName);
+                                            addAdmin(selectedUserName);
                                         }
                                         else {
                                             alert(res);
                                         }
                                     }
                                 });
-                        	}
-                        	dialog.hide();
+                            }
+                            dialog.hide();
                         });
-                	    $.ajax({
-                	        url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
-                	        dataType: "json",
-                	        success: function(res) {
-                	        	$('#adminSummary').html('');
-                	        	var counter = 0;
-                	            for(var i in res) {
-                	            	$('#adminSummary').append('<div>&bull; '+ res[i].Lname  + ', ' + res[i].Fname +' [ <a tabindex="0" aria-label="Remove '+ res[i].Lname  + ', ' + res[i].Fname +'" href="#" id="removeAdmin_'+ counter +'">Remove</a> ]</div>');
-                	            	$('#removeAdmin_' + counter).on('click', function(userID) {
-                	            		return function() {
+                        $.ajax({
+                            url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
+                            dataType: "json",
+                            success: function(res) {
+                                $('#adminSummary').html('');
+                                var counter = 0;
+                                for(var i in res) {
+                                    $('#adminSummary').append('<div>&bull; '+ res[i].Lname  + ', ' + res[i].Fname +' [ <a tabindex="0" aria-label="Remove '+ res[i].Lname  + ', ' + res[i].Fname +'" href="#" id="removeAdmin_'+ counter +'">Remove</a> ]</div>');
+                                    $('#removeAdmin_' + counter).on('click', function(userID) {
+                                        return function() {
                                             removeAdmin(userID);
                                             dialog.hide();
-                	            		};
-                	            	}(res[i].userName));
-                	            	counter++;
-                	            }
-                	        }
-                	    });
-                		dialog.show();
-                	})
-                    groupKeyPress(res[i].groupID);
+                                        };
+                                    }(res[i].userName));
+                                    counter++;
+                                }
+                            }
+                        });
+                        setTimeout(function () {
+                            dialog.show();
+                        }, 0);
+                    }
+                	$('#' + res[i].groupID).on('click', function() {
+                		openAdminGroup();
+                	});
+
+                    //508 fix
+                    $('#' + res[i].groupID).on('keydown', function(event) {
+                        if(event.keyCode === 13 || event.keyCode === 32) {
+                            openAdminGroup();
+                        }
+                    });
                 }
                 populateMembers(res[i].groupID, res[i].members);
             }
@@ -176,13 +200,6 @@ function getGroupList() {
     });
 }
 
-function groupKeyPress(groupID) {
-    $('#' + groupID).keypress(function(event) {
-        if(event.keyCode === 13) {
-            $('#' + groupID).trigger('click');
-        }
-    });
-}
 // used to import and add groups
 function tagAndUpdate(groupID, callback) {
     $.when(
