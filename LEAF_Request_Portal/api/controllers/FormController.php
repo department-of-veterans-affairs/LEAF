@@ -1,6 +1,7 @@
 <?php
 
 require '../form.php';
+require '../sources/signature.php';
 include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
 
 class FormController extends RESTfulResponse
@@ -13,15 +14,19 @@ class FormController extends RESTfulResponse
 
     private $login;
 
+    private $signature;
+
     public function __construct($db, $login)
     {
         $this->form = new Form($db, $login);
         $this->login = $login;
+        $this->signature = new Signature($db, $login);
     }
 
     public function get($act)
     {
         $form = $this->form;
+        $signature = $this->signature;
 
         $this->index['GET'] = new ControllerMap();
         $cm = $this->index['GET'];
@@ -125,7 +130,11 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['GET']->register('form/[text]/workflow', function ($args) use ($form) {
-            return $form->getWorkflow($args[0]);
+            return $form->getWorkflow(XSSHelpers::xscrub($args[0]));
+        });
+
+        $this->index['GET']->register('form/signatures/[digit]', function ($args) use ($signature) {
+            return $signature->getSignaturesByRecord((int)$args[0]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
