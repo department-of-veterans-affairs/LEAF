@@ -33,7 +33,7 @@ positionSelector.prototype.initialize = function() {
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="positionSelectorIcon" alt="search" />\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="positionSelectorIcon" alt="search" /></div>\
 			<input id="'+this.prefixID+'input" type="search" class="positionSelectorInput" aria-label="Search"></input></div>\
-			<div id="'+this.prefixID+'result"></div>');
+			<div tabindex="0" id="'+this.prefixID+'result"></div>');
 
 	$('#' + this.prefixID+ 'input').on('keydown', function(e) {
 		t.showBusy();
@@ -147,7 +147,7 @@ positionSelector.prototype.search = function() {
 	            	t.selection = '';
 	            	t.numResults = 0;
 	            	$('#' + t.prefixID + 'result').html('');
-	            	var buffer = '<table class="positionSelectorTable"><tr><th>Title</th><th>Incumbent(s)</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+	            	var buffer = '<table tabindex="0" class="positionSelectorTable"><tr><th>Title</th><th>Incumbent(s)</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 	            	$('#' + t.prefixID + 'result').html(buffer);
 
 	            	if(response.length == 0) {
@@ -195,9 +195,9 @@ positionSelector.prototype.search = function() {
 	                		linkText = '<a href="'+ t.selectLink +'&positionID='+ item.positionID +'">' + linkText + '</a>';
 	                	}
 
-	                	$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'pos' + item.positionID + '">\
-	                			<td class="positionSelectorTitle" title="PositionID: ' + item.positionID + '">' + linkText + '<br /><span class="positionSelectorService">'+ service +'</span></td>\
-                    			<td class="positionSelectorIncumbents">'+ employees + '</td>\</tr>');
+	                	$('#' + t.prefixID + 'result_table').append('<tr tabindex="0" id="' + t.prefixID + 'pos' + item.positionID + '">\
+	                			<td tabindex="0" class="positionSelectorTitle" title="PositionID: ' + item.positionID + '">' + linkText + '<br /><span class="positionSelectorService">'+ service +'</span></td>\
+                    			<td tabindex="0" class="positionSelectorIncumbents">'+ employees + '</td>\</tr>');
 
 	                	$('#' + t.prefixID + 'pos' + item.positionID).addClass('positionSelector');
 

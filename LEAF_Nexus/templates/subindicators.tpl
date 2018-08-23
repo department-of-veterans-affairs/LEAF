@@ -396,7 +396,7 @@
         <!--{/if}-->
         <div>
             <br />
-            <fieldset><legend tabindex="0">Access Permissions</legend>
+            <fieldset><legend>Access Permissions</legend>
             <iframe tabindex="0" src="ajaxIframe.php?a=permission&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="140px"></iframe>
             </fieldset>
         </div>
