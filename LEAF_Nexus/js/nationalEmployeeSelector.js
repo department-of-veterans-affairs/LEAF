@@ -207,10 +207,10 @@ nationalEmployeeSelector.prototype.search = function() {
 		            	$('#' + t.prefixID + 'result').html('');
 		            	var buffer = '';
 		            	if(t.outputStyle == 'micro') {
-		            		buffer = '<table class="employeeSelectorTable"><thead><tr><th>Name</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+		            		buffer = '<table tabindex="0" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 		            	}
 		            	else {
-		            		buffer = '<table class="employeeSelectorTable"><thead><tr><th>Name</th><th>Location</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+		            		buffer = '<table tabindex="0" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Location</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 		            	}
 
 		            	$('#' + t.prefixID + 'result').html(buffer);
