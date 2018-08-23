@@ -43,6 +43,7 @@ function keyPressNewQuestion(evt, parentIndicatorID) {
 }
 function keyPressMergeForm(evt, categoryID) {
     if(evt.keyCode === 13) {
+
         mergeForm(categoryID);
     }
 }
@@ -137,7 +138,12 @@ function editProperties(isSubForm) {
     if(isSubForm) {
         $('.isSubForm').css('display', 'none');
     }
-    dialog.show();
+
+		//ie11 fix
+		setTimeout(function () {
+			dialog.show();
+		}, 0);
+
 
     // load workflow data
     dialog.indicateBusy();
@@ -310,7 +316,7 @@ function addPermission(categoryID, group) {
         },
         cache: false
     });
-    
+
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
@@ -326,7 +332,12 @@ function addPermission(categoryID, group) {
             cache: false
         });
     });
-    dialog.show();
+
+		//ie11 fix
+		setTimeout(function () {
+			dialog.show();
+		}, 0);
+
 }
 
 
@@ -349,7 +360,7 @@ function editPermissions() {
 
 	dialog_simple.setTitle('Edit Collaborators - ' + formTitle);
 	dialog_simple.setContent('<h2>Collaborators have access to fill out data fields at any time in the workflow.</h2><br />'
-	                             + 'This is typically used to give groups access to fill out internal-use fields.<br />' 
+	                             + 'This is typically used to give groups access to fill out internal-use fields.<br />'
 	                             + '<div id="formPrivs"></div>');
 	dialog_simple.indicateBusy();
 
@@ -362,14 +373,17 @@ function editPermissions() {
 				buffer += '<li>' + res[i].name + ' [ <a href="#" tabindex="0" onkeypress="keyPressRemovePermission(event, \'' + res[i].groupID + '\');" onclick="removePermission(\''+ res[i].groupID +'\');">Remove</a> ]</li>';
 			}
 			buffer += '</ul>';
-			buffer += '<span tabindex="0" class="buttonNorm" onkeypress="keyPressAddPermission(event)" onclick="addPermission();">Add Group</span>';
+			buffer += '<span tabindex="0" class="buttonNorm" onkeypress="keyPressAddPermission(event)" onclick="addPermission();" role="button">Add Group</span>';
 			$('#formPrivs').html(buffer);
 			dialog_simple.indicateIdle();
 		},
 		cache: false
 	});
+	//ie11 fix
+	setTimeout(function () {
+		dialog_simple.show();
+	}, 0);
 
-	dialog_simple.show();
 }
 
 function removeIndicatorPrivilege(indicatorID, groupID) {
@@ -429,7 +443,7 @@ function addIndicatorPrivilege(indicatorID) {
             }
         );
     });
-    
+
     dialog.show();
 }
 
@@ -544,7 +558,7 @@ function newQuestion(parentIndicatorID) {
                 'foreColor', '|',
                 'justifyLeft', 'justifyCenter', 'justifyRight']
         });
-        
+
         $('.trumbowyg-box').css({
             'min-height': '130px'
         });
@@ -585,7 +599,10 @@ function newQuestion(parentIndicatorID) {
     	}
     });
 
-    dialog.show();
+		//ie11 fix
+		setTimeout(function () {
+			dialog.show();
+		}, 0);
 
     dialog.setSaveHandler(function() {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
@@ -608,7 +625,7 @@ function newQuestion(parentIndicatorID) {
                 $('#format').val($('#indicatorType').val());
                 break;
         }
-    	
+
         $.ajax({
             type: 'POST',
             url: '../api/?a=formEditor/newIndicator',
@@ -753,7 +770,7 @@ function getForm(indicatorID, series) {
             	'foreColor', '|',
             	'justifyLeft', 'justifyCenter', 'justifyRight']
         });
-        
+
         $('.trumbowyg-box').css({
             'min-height': '130px'
         });
@@ -833,7 +850,7 @@ function getForm(indicatorID, series) {
           }
     });
     $('.CodeMirror').css('border', '1px solid black');
-    
+
     dialog.show();
     dialog.indicateBusy();
 
@@ -910,7 +927,7 @@ function getForm(indicatorID, series) {
             cache: false
         });
     });
-    
+
     dialog.setSaveHandler(function() {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
     	var isDisabled = $('#disabled').is(':checked') ? 1 : 0;
@@ -1063,7 +1080,7 @@ function formatIndicatorMultiAnswer(multiAnswerValue){
     });
 
     $.each(uniqueNames, function(i, el){
-      if(el === "no") { 
+      if(el === "no") {
            uniqueNames[i] = "No";
         }
     });
@@ -1095,7 +1112,7 @@ function mergeForm(categoryID) {
         },
         cache: false
     });
-    
+
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
@@ -1114,7 +1131,12 @@ function mergeForm(categoryID) {
             cache: false
         });
     });
-    dialog.show();
+
+		//ie11 fix
+		setTimeout(function () {
+			dialog.show();
+		}, 0);
+
 }
 
 function unmergeForm(categoryID, stapledCategoryID) {
@@ -1141,14 +1163,17 @@ function mergeFormDialog(categoryID) {
                 buffer += '<li>' + res[i].categoryName + ' [ <a href="#" onkeypress="keyPressUnmergedForm(event, '+ categoryID +', '+ res[i].stapledCategoryID +'" onclick="unmergeForm(\''+ categoryID +'\', \''+ res[i].stapledCategoryID +'\');">Remove</a> ]</li>';
             }
             buffer += '</ul>';
-            buffer += '<span class="buttonNorm" onkeypress="keyPressMergeForm(event, '+ categoryID +')" onclick="mergeForm(\''+ categoryID +'\');">Select a form to merge</span>';
+            buffer += '<span class="buttonNorm" onkeypress="keyPressMergeForm(event, '+ categoryID +')" onclick="mergeForm(\''+ categoryID +'\');" tabindex="0" role="button">Select a form to merge</span>';
             $('#mergedForms').html(buffer);
             dialog_simple.indicateIdle();
         },
         cache: false
     });
+		//ie11 fix
+		setTimeout(function () {
+				dialog_simple.show();
+		}, 0);
 
-    dialog_simple.show();
 }
 
 function exportForm(categoryID) {
@@ -1215,7 +1240,7 @@ function deleteForm() {
 	var formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 	dialog_confirm.setTitle('Delete Form?');
 	dialog_confirm.setContent('Are you sure you want to delete the <b>'+ formTitle +'</b> form?');
-	
+
 	dialog_confirm.setSaveHandler(function() {
 		$.ajax({
 			type: 'DELETE',
@@ -1228,12 +1253,17 @@ function deleteForm() {
 			}
 		});
 	});
-	dialog_confirm.show();
+
+	//ie11 fix
+	setTimeout(function () {
+		dialog_confirm.show();
+	}, 0);
+
 }
 
 function buildMenu(categoryID) {
 	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="keyPressShowFormBrowser(event)" onclick="postRenderFormBrowser = null; showFormBrowser();" style="font-size: 120%"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
-	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" style="font-size: 120%"><img src="../../libs/dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
+	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" style="font-size: 120%" onkeypress="keyPressOpenContent(event, \''+ categoryID +'\')"><img src="../../libs/dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
     $('#' + categoryID).on('click', function(categoryID) {
         return function() {
             $('#menu>div').removeClass('buttonNormSelected');
@@ -1242,6 +1272,7 @@ function buildMenu(categoryID) {
             openContent('ajaxIndex.php?a=printview&categoryID='+ categoryID);
         };
     }(categoryID));
+
 	for(var i in categories) {
 		if(categories[i].parentID == categoryID) {
 			$('#menu').append('<div tabindex="0" id="'+ categories[i].categoryID +'" onkeypress="keyPressOpenContent(event, categoryID)" class="buttonNorm" style="font-size: 120%"><img src="../../libs/dynicons/?img=text-x-generic.svg&w=32" alt="Open Form" /> '+ categories[i].categoryName +'</div>');
@@ -1255,9 +1286,9 @@ function buildMenu(categoryID) {
             }(categories[i].categoryID));
 		}
 	}
-	
+
 	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="keyPressCreateForm(event, \''+ categoryID +'\');" onclick="createForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Form" /> Add Internal-Use</div><br />');
-	
+
     $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="keyPressMergeFormDialog(event, \'' + categoryID + '\');" onclick="mergeFormDialog(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=tab-new.svg&w=32" alt="Staple Form" /> Staple other form</div>\
                           <div id="stapledArea"></div><br />');
 
@@ -1276,12 +1307,12 @@ function buildMenu(categoryID) {
             }
         }
     });
-    
-    
+
+
 	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="keyPressExportForm(event, \''+ categoryID +'\')" onclick="exportForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
 
 	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="keyPressDeleteForm(event)" onclick="deleteForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div><br />');
-	
+
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 
@@ -1372,7 +1403,11 @@ function createForm(parentID) {
                              <td><textarea tabindex="0" id="description" maxlength="255"></textarea></td>\
                          </tr>\
     		           </table>');
-    dialog.show();
+			//ie11 fix
+		setTimeout(function () {
+			dialog.show();
+		}, 0);
+
 
     dialog.setSaveHandler(function() {
     	var categoryName = $('#name').val();
@@ -1425,12 +1460,12 @@ $(function() {
     portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('../api/');
     portalAPI.setCSRFToken('<!--{$CSRFToken}-->');
-	
+
     showFormBrowser();
     <!--{if $form != ''}-->
     postRenderFormBrowser = function() { selectForm('<!--{$form}-->') };
     <!--{/if}-->
-    
+
     <!--{if $referFormLibraryID != ''}-->
     postRenderFormBrowser = function() { $('.formLibraryID_<!--{$referFormLibraryID}-->')
         .animate({'background-color': 'yellow'}, 1000)
