@@ -31,6 +31,7 @@ positionSelector.prototype.initialize = function() {
     var t = this;
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="positionSelectorBorder">\
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="positionSelectorIcon" alt="search" />\
+			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="positionSelectorIcon" alt="search" /></div>\
 			<input id="'+this.prefixID+'input" type="search" class="positionSelectorInput" aria-label="Search"></input></div>\
 			<div tabindex="0" id="'+this.prefixID+'result"></div>');
@@ -58,7 +59,9 @@ positionSelector.prototype.showNotBusy = function() {
 positionSelector.prototype.showBusy = function() {
 	$('#' + this.prefixID + 'icon').css('display', 'none');
 	$('#' + this.prefixID + 'iconBusy').css('display', 'inline');
-	this.isBusy = 1;
+    $('#' + this.prefixID + 'status').text('Loading');
+
+    this.isBusy = 1;
 };
 
 positionSelector.prototype.select = function(id) {
@@ -147,12 +150,15 @@ positionSelector.prototype.search = function() {
 	            	t.selection = '';
 	            	t.numResults = 0;
 	            	$('#' + t.prefixID + 'result').html('');
-	            	var buffer = '<table tabindex="0" class="positionSelectorTable"><tr><th>Title</th><th>Incumbent(s)</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+	            	var buffer = '<table class="positionSelectorTable"><tr><th>Title</th><th>Incumbent(s)</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 	            	$('#' + t.prefixID + 'result').html(buffer);
 
 	            	if(response.length == 0) {
 	            		$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=2>No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
-	            	}
+                        $('#' + t.prefixID + 'status').text('No results found for term ' + txt);
+                    }else {
+                        $('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below');
+                    }
 
 	            	t.selectionData = new Object();
 	                $.each(response, function(key, item) {
@@ -204,6 +210,7 @@ positionSelector.prototype.search = function() {
 	                	$('#' + t.prefixID + 'pos' + item.positionID).on('click', function() {
 	                		t.select(item.positionID);
 	                	});
+                        $('#' + t.prefixID + 'status').append(' ' + linkText + ',');
 	                	t.numResults++;
 	                });
 

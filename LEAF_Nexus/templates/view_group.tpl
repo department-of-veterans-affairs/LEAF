@@ -1,6 +1,6 @@
 <div id="maincontent">
     <div id="group">
-        <div tabindex="0" id="groupHeader">
+        <div id="groupHeader">
             <span id="groupTitle"><!--{$group[0].groupTitle|sanitize}-->
             <!--{if $group[0].groupAbbreviation != ''}-->
                 (<!--{$group[0].groupAbbreviation}-->)
@@ -13,7 +13,7 @@
 
 
         <div id="position" class="position">
-            <div tabindex="-1" id="positionHeader" class="positionHeader">
+            <div id="positionHeader" class="positionHeader">
                 <span id="positionName" class="positionName">Positions</span><br />
             </div>
             <div id="positionBody" class="positionBody">
@@ -22,7 +22,7 @@
         </div>
 
         <div id="employee" class="employee">
-            <div tabindex="-1" id="employeeHeader" class="employeeHeader">
+            <div id="employeeHeader" class="employeeHeader">
                 <span id="employeeName" class="employeeName">Employees</span><br />
             </div>
             <div id="employeeBody" class="employeeBody" style="line-height: 220%">
@@ -33,7 +33,7 @@
 </div>
 
 <div id="toolbar" class="toolbar_right toolbar noprint">
-    <div id="tools"><h1 role="heading" tabindex="-1">Options</h1>
+    <div id="tools"><h1 role="heading">Options</h1>
         <!--{if array_search('service', $tags) !== false}-->
         <div onkeypress="triggerClickViewOrgChart(event)" role="button" id="view_orgchart"><a id="view_orgchart_link" href="?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->"></a><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
         <br />
@@ -45,7 +45,7 @@
         <button class="options" onclick="confirmRemove()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
     </button>
 
-    <div class="toolbar_tags"><h1 role="heading" tabindex="-1">Tags</h1>
+    <div class="toolbar_tags"><h1 role="heading">Tags</h1>
         <div class="tags">
             <!--{foreach $tags as $tag}-->
             <span role="button" tabindex="0" onkeypress="triggerClick(event, confirmDeleteTag('<!--{$tag}-->'))" onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></span>
@@ -62,15 +62,15 @@
         </div>
     </div>
 <br />
-    <div class="toolbar_security"><h1 role="heading" tabindex="-1">Security Permissions</h1>
-        <div tabindex="-1">
+    <div class="toolbar_security"><h1 role="heading">Security Permissions</h1>
+        <div>
         <!--{if $groupPrivileges[$groupID].read != 0}-->
             <img src="../libs/dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" /> You have read access
         <!--{else}-->
             <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Read Access" style="vertical-align: middle" /> You do not have read access
         <!--{/if}-->
         </div>
-        <div tabindex="-1">
+        <div>
         <!--{if $groupPrivileges[$groupID].write != 0}-->
             <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Write Access" style="vertical-align: middle" /> You have write access
         <!--{else}-->
@@ -122,8 +122,8 @@ function triggerClickViewOrgChart(e) {
 }
 
 function editGroupName() {
-    dialog.setContent('<div tabindex="0" style="display: inline">Group Name: </div><input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
-    		<div tabindex="0" style="display: inline">Alternate Names: </div><input id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
+    dialog.setContent('<div style="display: inline">Group Name: </div><input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
+    		<div style="display: inline">Alternate Names: </div><input id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
     dialog.show(); // need to show early because of ie6
 
     dialog.setSaveHandler(function() {
@@ -143,7 +143,7 @@ function editGroupName() {
 }
 
 function addEmployeePosition() {
-    dialog.setContent('<div role="heading" tabindex="-1" style="display: inline">Employee/Position: </div><div id="positionSelector"></div><div id="employeeSelector"></div><br />\
+    dialog.setContent('<div role="heading" style="display: inline">Employee/Position: </div><div id="positionSelector"></div><div id="employeeSelector"></div><br />\
     		       		<fieldset><legend role="legend">Options</legend>\
     		       		<div tabindex="0" id="container_ignorePositions"><input id="ignorePositions" type="checkbox" value="employeeOnly" /> Search Employees Only</div>\
     		       		<div tabindex="0" id="container_includeSub"><input id="includeSub" type="checkbox" value="applyRecursive" disable="disabled" /> Apply to all subordinates</div>\

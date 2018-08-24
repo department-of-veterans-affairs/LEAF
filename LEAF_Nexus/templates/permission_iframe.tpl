@@ -20,7 +20,7 @@
     <!--{/if}-->
 </div>
     <!--{if $privilege.grant == 0}-->
-<div tabindex="0" style="padding: 4px; color: red">
+<div style="padding: 4px; color: red">
         <!--{if $privilege.read == 0}-->
         <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="Icon" style="vertical-align: middle" />
         No access to edit permissions for this field.
@@ -31,7 +31,7 @@
         <!--{/if}-->
     <!--{else}-->
 <div style="padding: 4px; color: green">
-    <div onkeypress="triggerClick(event, 'editpermissions')" tabindex="0"id="editpermissions" class="buttonNorm" onclick="window.open('index.php?a=view_permissions&amp;indicatorID=<!--{$indicatorID|strip_tags|escape}-->&amp;UID=<!--{$UID|strip_tags|escape}-->','OrgChart','width=840,resizable=yes,scrollbars=yes,menubar=yes').focus();">
+    <div onkeypress="triggerClick(event, 'editpermissions')" tabindex="0" id="editpermissions" class="buttonNorm" onclick="window.open('index.php?a=view_permissions&amp;indicatorID=<!--{$indicatorID|strip_tags|escape}-->&amp;UID=<!--{$UID|strip_tags|escape}-->','OrgChart','width=840,resizable=yes,scrollbars=yes,menubar=yes').focus();">
     <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Icon" style="vertical-align: middle" />
     You have access to <u>Edit Permissions</u> for this field.</div>
     <!--{/if}-->
