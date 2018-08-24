@@ -195,6 +195,7 @@ groupSelector.prototype.search = function() {
 	                	$('#' + t.prefixID + 'grp' + item.groupID).on('click', function() {
 	                		t.select(item.groupID);
 	                	});
+                        $('#'+t.prefixID+'status').append(' ' + linkText + ',');
 	                	t.numResults++;
 	                });
 
