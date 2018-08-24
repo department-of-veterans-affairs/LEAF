@@ -602,31 +602,6 @@ function getForm(indicatorID, series) {
     	    	break;
     	}
     });
-    $('#description').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#required').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#disabled').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#required').keypress(function(e){
-        if((e.keyCode ? e.keyCode : e.which) === 13){
-            $(this).trigger('click');
-        }
-    });
-    $('#disabled').keypress(function(e){
-        if((e.keyCode ? e.keyCode : e.which) === 13){
-            $(this).trigger('click');
-        }
-    });
     $('#required').on('click', function() {
         if($('#indicatorType').val() == '') {
             $('#required').prop('checked', false);
