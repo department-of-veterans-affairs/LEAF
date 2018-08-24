@@ -22,7 +22,7 @@
         <div class="mainlabel">
             <div>
             <span>
-                <b tabindex="0"><!--{$indicator.name|sanitize}--></b><br />
+                <b><!--{$indicator.name|sanitize}--></b><br />
             </span>
             </div>
                 <!--{else}-->
