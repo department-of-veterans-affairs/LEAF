@@ -1109,12 +1109,9 @@ div.sensitiveIndicator > .printResponse {
     width: 16px;
     display: inline-block;
     padding: 0 0 0 0px;
+    cursor: pointer;
 }
 
 .sensitiveIndicatorMaskToggle > input[type=checkbox]:checked + label {
     background-image: url("/libs/dynicons/?img=eye_visible.svg&w=16");
-    height: 16px;
-    width: 16px;
-    display: inline-block;
-    padding: 0 0 0 0px;
 }
