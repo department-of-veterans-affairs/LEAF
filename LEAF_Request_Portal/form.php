@@ -7,6 +7,7 @@
 
 define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
 require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+include_once dirname(__FILE__) . '/FormWorkflow.php';
 
 class Form
 {
@@ -1052,6 +1053,8 @@ class Form
                     $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
                                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
                 }
+                $formWorkflow = new FormWorkflow($this->db,$this->login, $recordID);
+                $formWorkflow->invalidatePastSignatures();
             }
         }
 

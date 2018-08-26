@@ -71,7 +71,9 @@ INSERT INTO `action_types` (`actionTypeID`, `actionTypeDesc`) VALUES
 (5, 'undeleted'),
 (6, 'filled dependency'),
 (7, 'unfilled dependency'),
-(8, 'Generic');
+(8, 'Generic'),
+(9, 'signed'),
+(10, 'signature invalidated');
 
 -- --------------------------------------------------------
 
