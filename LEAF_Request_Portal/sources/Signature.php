@@ -1,8 +1,8 @@
 <?php
-
-/**
- * Handles functions related to signatures.
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
  */
+
 class Signature
 {
     private $db;
@@ -38,5 +38,46 @@ class Signature
         );
 
         return $this->db->getLastInsertID();
+    }
+
+    public function getSignature($recordID)
+    {
+        $vars = array(
+            ':recordID' => $recordID,
+        );
+
+        $res = $this->db->prepared_query(
+            'SELECT * FROM 
+                signatures
+                WHERE recordID=:recordID;',
+            $vars
+        );
+
+        return $res;
+    }
+
+    public function getSignatureHistory($recordID)
+    {
+        $signatures = $this->getSignature($recordID);
+        $returnArray = array();
+        for($i = 0; $i < count($signatures); $i++) {
+            $vars = array(
+                ':recordID' => $recordID,
+                ':actionType' => 'sign',
+                ':signature_id' => $signatures[$i]['id']
+            );
+
+            $res = $this->db->prepared_query(
+                'SELECT * FROM
+                action_history
+                WHERE recordID=:recordID AND 
+                  actionType=:actionType AND 
+                  signature_id=:signature_id;',
+                $vars
+            );
+            array_push($returnArray, $res[0]);
+        }
+
+        return $returnArray;
     }
 }
