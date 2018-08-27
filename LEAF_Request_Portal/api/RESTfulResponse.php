@@ -158,6 +158,15 @@ abstract class RESTfulResponse
 
                 break;
             case 'csv':
+                //if $out is not an array, create one with the appropriate structure, preserving the original value of $out
+                if (!is_array($out))
+                {
+                    $out = array(
+                                'column' => array('error'), 
+                                'row' => array('error' => $out),
+                            );
+                }
+                
                 // flatten out s1 value, which is map of data fields -> values
                 foreach ($out as $key => $item)
                 {
