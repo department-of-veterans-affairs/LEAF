@@ -14,11 +14,22 @@
 {/if}
 
 <script>
-    $('#button_showLinks').keypress(function(e) {
+    var menuButton = $('#button_showLinks');
+    var subMenu = $('#headerMenu_links');
+    var subMenuButton = $('#headerMenu_links').find('a');
+
+    $(menuButton).keypress(function(e) {
         if (e.keyCode === 13) {
-            $('#headerMenu_links').css("display", "block");
-            $('#button_showLinks').attr('aria-expanded', 'true');
+            $(subMenu).css("display", "block");
+            $(menuButton).attr('aria-expanded', 'true');
+            subMenuButton.focus();
         }
+    });
+
+    $(subMenuButton).focusout(function() {
+            $(subMenu).css("display", "none");
+            $(menuButton).attr('aria-expanded', 'false');
+            $(menuButton).focus();
     });
 </script>
 
