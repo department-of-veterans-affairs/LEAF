@@ -72,7 +72,7 @@ function editProperties(isSubForm) {
         },
         cache: false
     });
-
+    
     dialog.setSaveHandler(function() {
         $.when(
             $.ajax({
@@ -471,6 +471,31 @@ function newQuestion(parentIndicatorID) {
             'height': '100px'
         });
     });
+    $('#description').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#required').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#disabled').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#required').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
+    });
+    $('#disabled').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
+    });
     $('#required').on('click', function() {
     	if($('#indicatorType').val() == '') {
     		$('#required').prop('checked', false);
@@ -601,6 +626,31 @@ function getForm(indicatorID, series) {
     	        $('#container_indicatorSingleAnswer').css('display', 'none');
     	    	break;
     	}
+    });
+    $('#description').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#required').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#disabled').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#required').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
+    });
+    $('#disabled').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
     });
     $('#required').on('click', function() {
         if($('#indicatorType').val() == '') {
@@ -1162,7 +1212,6 @@ function buildMenu(categoryID) {
         }
     });
 
-
 	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="exportForm(\''+ categoryID +'\');" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
 
 	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="deleteForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div><br />');
@@ -1185,12 +1234,6 @@ function showFormBrowser() {
 	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="formLibrary();" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
 	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="importForm();" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
 	$('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" style="font-size: 120%" role="buttz"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
-	// $('#createFormButton').keypress(function(event) {
-  //       	var keycode = (event.keyCode ? event.keyCode : event.which);
-  //       	if(keycode == '13') {
-  //       	    createForm();
-  //       	}
-  //   	});
     $.ajax({
         type: 'GET',
         url: '<!--{$APIroot}-->?a=formStack/categoryList/all',
