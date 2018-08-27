@@ -135,7 +135,10 @@ function updateTags() {
 }
 
 function getForm(indicatorID, series) {
-	form.dialog().show();
+  //ie11 fix
+  setTimeout(function () {
+	   form.dialog().show();
+  }, 0);
 	form.setPostModifyCallback(function() {
         getIndicator(indicatorID, series);
         updateProgress();
@@ -147,7 +150,10 @@ function getForm(indicatorID, series) {
 function getIndicatorLog(indicatorID, series) {
 	dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><th>Date/Author</th><th>Data</th></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
     dialog_message.indicateBusy();
-    dialog_message.show();
+    //ie11 fix
+    setTimeout(function () {
+      dialog_message.show();
+    }, 0);
 
     $.ajax({
         type: 'GET',
@@ -368,8 +374,10 @@ function cancelRequest() {
 
 function changeTitle() {
 	dialog.setContent('Title: <input type="text" id="title" style="width: 300px" name="title" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
+  //ie11 fix
+  setTimeout(function () {
     dialog.show();
-
+  }, 0);
     dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'POST',
@@ -389,7 +397,11 @@ function changeTitle() {
 function changeService() {
     dialog.setTitle('Change Service');
     dialog.setContent('Select new service: <br /><div id="changeService"></div>');
-    dialog.show();
+    //ie11 fix
+    setTimeout(function () {
+      dialog.show();
+    }, 10);
+
     dialog.indicateBusy();
     dialog.setSaveHandler(function() {
         alert('Please wait for service list to load.');
