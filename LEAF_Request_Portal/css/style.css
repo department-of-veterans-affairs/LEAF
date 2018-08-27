@@ -145,6 +145,11 @@ span#headerMenu {
     color: white;
 }
 
+#headerMenu_links a:focus > .menuButtonSmall{
+    outline-style: dotted;
+    box-shadow: 0 4px 6px 2px #8e8e8e;
+}
+
 #headerMenu_links {
     display: none;
     position: absolute;
@@ -524,6 +529,12 @@ span.approval_disapproved {
     color: black;
 }
 
+.menu2 a:focus > .menuButtonSmall {
+  box-shadow: 0 4px 6px 2px #8e8e8e;
+  margin: 12px;
+  outline-style: dotted;
+ }
+
 .menuButton {
     float: left;
     width: 350px;
@@ -539,6 +550,7 @@ span.approval_disapproved {
     margin: 14px;
     outline-color: 0 4px 6px 2px #5d5959;
 }
+
 
 .menuIcon {
     float: left;
@@ -1084,5 +1096,10 @@ button.AdminButton{
 
 button.AdminButton:hover, button.AdminButton:focus {
   background-color: #b02323;
+  color: white;
+}
+
+.tools>div:focus {
+  background-color: #2372b0;
   color: white;
 }
