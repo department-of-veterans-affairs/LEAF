@@ -135,16 +135,17 @@ $(function() {
 </script>
 
 <div id="menu" style="float: left; width: 180px">
-    <div class="buttonNorm" onclick="window.location='?a=form'" style="width: 150px"><img src="../../libs/dynicons/?img=edit-undo.svg&amp;w=32" alt="Go back" title="Go back" /> Back to My Forms</div>
+    <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="filterStatus" role="status"></span>
+    <a role="button" class="buttonNorm" tabindex="0" href="?a=form" style="display: inherit; width: 150px; text-decoration: none; color: black" id="backToForm"><img src="../../libs/dynicons/?img=edit-undo.svg&amp;w=32" alt="Go back" title="Go back"/> Back to My Forms</a>
     <br /><br />
     Filter by Business Lines:
-    <div class="buttonNorm" onclick="applyFilter('');" style="width: 150px"><img src="../../libs/dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="Icon" title="Icon" /> All Business Lines</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter(''); announceFilter(this.id)" style="width: 150px" id="all_Business_Lines"><img aria-hidden="true" src="../../libs/dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="Icon" title="Icon"/> All Business Lines</div>
     <br />
-    <div class="buttonNorm" onclick="applyFilter('Administrative');" style="width: 150px"><img src="../../libs/dynicons/?img=applications-office.svg&amp;w=32" alt="Icon" title="Icon" /> Administrative</div>
-    <div class="buttonNorm" onclick="applyFilter('Human Resources');" style="width: 150px"><img src="../../libs/dynicons/?img=system-users.svg&amp;w=32" alt="Icon" title="Icon" /> Human Resources</div>
-    <div class="buttonNorm" onclick="applyFilter('Information Technology');" style="width: 150px"><img src="../../libs/dynicons/?img=network-idle.svg&amp;w=32" alt="Icon" title="Icon" /> Information Technology</div>
-    <div class="buttonNorm" onclick="applyFilter('Logistics');" style="width: 150px"><img src="../../libs/dynicons/?img=package-x-generic.svg&amp;w=32" alt="Icon" title="Icon" /> Logistics</div>
-    <div class="buttonNorm" onclick="applyFilter('Fiscal');" style="width: 150px"><img src="../../libs/dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="Icon" title="Icon" /> Fiscal</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Administrative'); announceFilter(this.id)" style="width: 150px" id="administrative"><img aria-hidden="true" src="../../libs/dynicons/?img=applications-office.svg&amp;w=32" alt="Icon" title="Icon" /> Administrative</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Human Resources'); announceFilter(this.id)" style="width: 150px" id="human_Resources"><img aria-hidden="true" src="../../libs/dynicons/?img=system-users.svg&amp;w=32" alt="Icon" title="Icon" /> Human Resources</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Information Technology'); announceFilter(this.id)" style="width: 150px" id="information_Technology"><img aria-hidden="true" src="../../libs/dynicons/?img=network-idle.svg&amp;w=32" alt="Icon" title="Icon" /> Information Technology</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Logistics'); announceFilter(this.id)" style="width: 150px" id="logistics"><img aria-hidden="true" src="../../libs/dynicons/?img=package-x-generic.svg&amp;w=32" alt="Icon" title="Icon" /> Logistics</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Fiscal'); announceFilter(this.id)" style="width: 150px" id="fiscal"><img aria-hidden="true" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="Icon" title="Icon" /> Fiscal</div>
 </div>
 <div id="formEditor_content" style="margin-left: 184px; padding-left: 8px">
 
@@ -154,3 +155,33 @@ $(function() {
 </div>
 
 <div id="previewShim" style="display: none"></div>
+<script>
+    $('#backToForm').focusin(function() {
+        $('#backToForm').css('color', 'white');
+    });
+    $('#backToForm').focusout(function() {
+        $('#backToForm').css('color', 'black');
+    });
+    $('#backToForm').mouseover(function() {
+        $('#backToForm').css('color', 'white');
+    });
+    $('#backToForm').mouseout(function() {
+        $('#backToForm').css('color', 'black');
+    });
+    var filter_id;
+
+    function announceFilter(id) {
+        if(filter_id !== id) {
+            $('#filterStatus').attr('aria-label', 'Filtering results by ' + id);
+            filter_id = id;
+        } else {
+            alert('Filter already active');
+        }
+    }
+
+    function triggerKeydown(e, id) {
+        if(e.keyCode === 13 || e.keyCode === 32) {
+            $('#' + id).trigger('click');
+        }
+    }
+</script>
