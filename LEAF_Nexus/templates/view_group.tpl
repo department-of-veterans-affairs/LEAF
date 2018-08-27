@@ -33,9 +33,9 @@
 </div>
 
 <div id="toolbar" class="toolbar_right toolbar noprint">
-    <div id="tools"><h1>Options</h1>
+    <div id="tools"><h1 role="heading">Options</h1>
         <!--{if array_search('service', $tags) !== false}-->
-        <div onclick="window.location='?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->'"><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
+        <div onkeypress="triggerClickViewOrgChart(event)" role="button" id="view_orgchart"><a id="view_orgchart_link" href="?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->"></a><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
         <br />
         <!--{/if}-->
         <button class="options" onclick="editGroupName()" style="width: 100%"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</button>
@@ -45,10 +45,10 @@
         <button class="options" onclick="confirmRemove()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
     </button>
 
-    <div class="toolbar_tags"><h1>Tags</h1>
+    <div class="toolbar_tags"><h1 role="heading">Tags</h1>
         <div class="tags">
             <!--{foreach $tags as $tag}-->
-            <span onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></span>
+            <span role="button" tabindex="0" onkeypress="triggerClick(event, confirmDeleteTag('<!--{$tag}-->'))" onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></span>
             <!--{/foreach}-->
             <!--{if $groupPrivileges[$groupID].write == 1}-->
             <br /><br />
@@ -62,7 +62,7 @@
         </div>
     </div>
 <br />
-    <div class="toolbar_security"><h1>Security Permissions</h1>
+    <div class="toolbar_security"><h1 role="heading">Security Permissions</h1>
         <div>
         <!--{if $groupPrivileges[$groupID].read != 0}-->
             <img src="../libs/dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" /> You have read access
@@ -79,7 +79,7 @@
         </div>
         <!--{if $groupPrivileges[$groupID].grant != 0}-->
         <button class="buttonPermission"  style="width: 100%" onclick="window.open('index.php?a=view_group_permissions&amp;groupID=<!--{$groupID}-->','OrgChart','width=840,resizable=yes,scrollbars=yes,menubar=yes');">
-            <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Change Permissions" style="vertical-align: middle" tabindex="0" /> Change Permissions
+            <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Change Permissions" style="vertical-align: middle"/> Change Permissions
         </button>
         <!--{/if}-->
     </div>
@@ -97,9 +97,33 @@ var tags = {};
 tags['<!--{$tag}-->'] = '<!--{$tag}-->';
 <!--{/foreach}-->
 
+function triggerClick(e, id) {
+    if(e.keyCode === 13) {
+        $('#' + id).trigger('click');
+    }
+}
+
+$('#view_orgchart').on('focusin', function() {
+    $('#view_orgchart').css('background-color', '#2372b0');
+    $('#view_orgchart').css('color', 'white');
+});
+$('#view_orgchart').on('focusout', function() {
+    $('#view_orgchart').css('background-color', '#e8f2ff');
+    $('#view_orgchart').css('color', 'black');
+});
+$('#view_orgchart').click(function() {
+    $('#view_orgchart_link')[0].click();
+});
+
+function triggerClickViewOrgChart(e) {
+    if(e.keyCode === 32) {
+        document.getElementById('view_orgchart_link').click();
+    }
+}
+
 function editGroupName() {
-    dialog.setContent('Group Name: <input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
-    		Alternate Names: <input id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
+    dialog.setContent('<div style="display: inline">Group Name: </div><input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
+    		<div style="display: inline">Alternate Names: </div><input id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
     dialog.show(); // need to show early because of ie6
 
     dialog.setSaveHandler(function() {
@@ -119,10 +143,10 @@ function editGroupName() {
 }
 
 function addEmployeePosition() {
-    dialog.setContent('Employee/Position: <div id="positionSelector"></div><div id="employeeSelector"></div><br />\
-    		       		<fieldset><legend>Options</legend>\
-    		       		<div id="container_ignorePositions"><input id="ignorePositions" type="checkbox" value="employeeOnly" /> Search Employees Only</div>\
-    		       		<div id="container_includeSub"><input id="includeSub" type="checkbox" value="applyRecursive" disable="disabled" /> Apply to all subordinates</div>\
+    dialog.setContent('<div role="heading" style="display: inline">Employee/Position: </div><div id="positionSelector"></div><div id="employeeSelector"></div><br />\
+    		       		<fieldset><legend role="legend">Options</legend>\
+    		       		<div tabindex="0" id="container_ignorePositions"><input id="ignorePositions" type="checkbox" value="employeeOnly" /> Search Employees Only</div>\
+    		       		<div tabindex="0" id="container_includeSub"><input id="includeSub" type="checkbox" value="applyRecursive" disable="disabled" /> Apply to all subordinates</div>\
     		       		</fieldset>');
     dialog.show(); // need to show early because of ie6
 
@@ -321,7 +345,7 @@ function writeTag(input) {
 }
 
 function addTag() {
-    dialog.setContent('Tag Name: <input id="inputtitle" style="width: 300px" class="dialogInput" value=""></input>');
+    dialog.setContent('Tag Name: <input tabindex="0" id="inputtitle" style="width: 300px" class="dialogInput" value=""></input>');
     dialog.show(); // need to show early because of ie6
 
     dialog.setSaveHandler(function() {
