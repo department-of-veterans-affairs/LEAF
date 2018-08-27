@@ -94,8 +94,6 @@
     </div>
     <br />
     <!--{/if}-->
-
-
 <!--{/strip}-->
 <script>
 function keyPressGetForm(evt, indicatorID, series) {
