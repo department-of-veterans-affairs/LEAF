@@ -28,7 +28,7 @@
             <!--{/if}-->
             <div style="float: right">
 
-            <span class="buttonNorm" tabindex="0" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Add Sub-question" title="Add Sub-question"/> Add Sub-question</span>
+            <span onkeydown="onKeyPressClick(event)" class="buttonNorm" tabindex="0" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Add Sub-question" title="Add Sub-question"/> Add Sub-question</span>
 
             </div>
             <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->" >
@@ -101,6 +101,13 @@ function keyPressGetForm(evt, indicatorID, series) {
         getForm(indicatorID, series);
     }
 }
+
+function onKeyPressClick(e){
+    if((e.keyCode ? e.keyCode : e.which) === 13){
+        $(e.target).trigger('click');
+    }
+}
+
 function keyPressEditIndicatorPrivileges(evt, indicatorID) {
     if(evt.keyCode == 13) {
         editIndicatorPrivileges(<!--{$indicator.indicatorID}-->);
