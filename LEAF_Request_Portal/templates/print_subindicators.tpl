@@ -59,10 +59,8 @@
             <!--{/if}-->
         <!--{/if}-->
             </div>
-            <div class="printResponse" id="xhrIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->">
-
+            <div class="printResponse<!--{if $indicator.is_sensitive == 1}--> sensitiveIndicator<!--{/if}-->" id="xhrIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->">
                 <!--{include file="print_subindicators_ajax.tpl"}-->
-
             </div><!-- end print reponse -->
         </div><!-- end print sublabel -->
         </div><!-- end print block -->
