@@ -48,7 +48,8 @@ class LEAFClient
      */
     public static function createRequestPortalClient($baseURI = 'http://localhost/LEAF_Request_Portal/api/', $authURL = '../auth_domain/') : self
     {
-        $leafClient = new self(self::getBaseClient($baseURI, $authURL));
+        $headers['Referer'] = 'http://localhost/LEAF_Request_Portal/admin';
+        $leafClient = new self(self::getBaseClient($baseURI, $authURL, $headers));
 
         return $leafClient;
     }
@@ -167,12 +168,19 @@ class LEAFClient
      *
      * @return Client   a GuzzleHttp\Client
      */
-    private static function getBaseClient($baseURI, $authURL = null) : Client
+    private static function getBaseClient($baseURI, $authURL = null, $headers = []) : Client
     {
-        $guzzle = new Client(array(
+        $config = array(
             'base_uri' => $baseURI,
             'cookies' => true,
-        ));
+        );
+
+        if(!empty($headers))
+        {
+            $config['headers'] = $headers;
+        }
+
+        $guzzle = new Client($config);
 
         if ($authURL != null)
         {
