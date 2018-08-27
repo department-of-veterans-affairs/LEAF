@@ -1,4 +1,7 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 require '../form.php';
 include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
@@ -125,7 +128,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['GET']->register('form/[text]/workflow', function ($args) use ($form) {
-            return $form->getWorkflow($args[0]);
+            return $form->getWorkflow(XSSHelpers::xscrub($args[0]));
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);

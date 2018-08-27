@@ -1,4 +1,8 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
 error_reporting(E_ALL & ~E_NOTICE);
 
 if (false)
@@ -34,10 +38,11 @@ $login = new Login($db_phonebook, $db);
 $login->loginUser();
 if (!$login->isLogin() || !$login->isInDB())
 {
-    echo 'Session expired, please refresh the page.<br /><br />If this message persists, please include the following information to your administrator:';
-    echo '<pre>';
-    print_r($_SESSION);
-    echo '</pre>';
+    echo 'Session expired, please refresh the page.<br /><br />If this message persists, please contact your administrator.';
+    // echo 'Session expired, please refresh the page.<br /><br />If this message persists, please include the following information to your administrator:';
+    // echo '<pre>';
+    //print_r($_SESSION);
+    //echo '</pre>';
     $login->logout();
     exit;
 }
@@ -49,7 +54,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? $_GET['a'] : '';
+$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
@@ -150,13 +155,13 @@ switch ($action) {
     case 'printview':
         $main->assign('useUI', true);
         $main->assign('javascripts', array(
-            'js/form.js', 
-            'js/workflow.js', 
-            'js/formGrid.js', 
-            'js/formQuery.js', 
-            'js/jsdiff.js', 
+            'js/form.js',
+            'js/workflow.js',
+            'js/formGrid.js',
+            'js/formQuery.js',
+            'js/jsdiff.js',
             '../libs/js/LEAF/XSSHelpers.js',
-            '../libs/jsapi/portal/LEAFPortalAPI.js'
+            '../libs/jsapi/portal/LEAFPortalAPI.js',
         ));
 
         $recordIDToPrint = (int)$_GET['recordID'];
@@ -371,7 +376,7 @@ switch ($action) {
 
         $tagMembers = $form->getTagMembers($_GET['tag']);
 
-        $t_form->assign('tag', strip_tags($_GET['tag']));
+        $t_form->assign('tag', XSSHelpers::xscrub(strip_tags($_GET['tag'])));
         $t_form->assign('totalNum', count($tagMembers));
         $t_form->assign('requests', $tagMembers);
         $main->assign('body', $t_form->fetch('tag_show_members.tpl'));
@@ -384,8 +389,8 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $rev = $db->query("SELECT * FROM settings WHERE setting='dbversion'");
-        $t_form->assign('dbversion', $rev[0]['data']);
+        $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
+        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -417,7 +422,7 @@ switch ($action) {
                'js/formSearch.js',
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
-               '../libs/js/LEAF/XSSHelpers.js'
+               '../libs/js/LEAF/XSSHelpers.js',
            ));
            $main->assign('useUI', true);
 

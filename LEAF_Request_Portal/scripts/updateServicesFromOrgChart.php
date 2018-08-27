@@ -50,8 +50,9 @@ $resquadrad = $group->listGroupsByTag($tag->getParent('service'));
 $db->beginTransaction();
 
 echo 'Clearing out existing users/groups.<br />';
-$db->query('DELETE FROM users WHERE groupID > 1');
-$db->query('DELETE FROM groups WHERE groupID > 1');
+
+$db->prepared_query('DELETE FROM users WHERE groupID > 1', array());
+$db->prepared_query('DELETE FROM groups WHERE groupID > 1', array());
 
 // import quadrads
 foreach ($resquadrad as $quadrad)
@@ -94,8 +95,8 @@ foreach ($resquadrad as $quadrad)
 }
 
 $vars = array();
-$db->query('DELETE FROM services WHERE serviceID > 0');
-$db->query('DELETE FROM service_chiefs WHERE serviceID > 0 AND locallyManaged != 1');
+$db->prepared_query('DELETE FROM services WHERE serviceID > 0', array());
+$db->prepared_query('DELETE FROM service_chiefs WHERE serviceID > 0 AND locallyManaged != 1', array());
 // import services
 foreach ($res as $service)
 {

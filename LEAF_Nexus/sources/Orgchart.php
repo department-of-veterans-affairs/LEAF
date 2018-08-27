@@ -1,22 +1,29 @@
 <?php
-/************************
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
+/*
     Orgchart
     Date: September 1, 2011
-    
+
 */
 
 namespace Orgchart;
 
 class Orgchart
 {
-    private $db;
-    private $login;
-
     public $employee;
+
     public $position;
+
     public $group;
 
-    function __construct($db, $login)
+    private $db;
+
+    private $login;
+
+    public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
@@ -26,8 +33,7 @@ class Orgchart
         $this->group = new Orgchart\Group($db, $login);
     }
 
-	public function getEmployeeDossierByLogin($userID)
-	{
-		
-	}
+    public function getEmployeeDossierByLogin($userID)
+    {
+    }
 }

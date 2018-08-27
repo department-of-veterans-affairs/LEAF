@@ -1,5 +1,9 @@
 <?php
-/************************
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
+/*
     Index for everything
     Date Created: September 11, 2007
 
@@ -7,7 +11,8 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-if(false) {
+if (false)
+{
     echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
     exit();
 }
@@ -19,15 +24,19 @@ include 'db_mysql.php';
 include 'db_config.php';
 include 'form.php';
 
+include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+
 $db_config = new DB_Config();
 $config = new Config();
 
 header('X-UA-Compatible: IE=edge');
 
 // Enforce HTTPS
-if(isset($config->enforceHTTPS) && $config->enforceHTTPS == true) {
-    if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') {
-        header('Location: https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']);
+if (isset($config->enforceHTTPS) && $config->enforceHTTPS == true)
+{
+    if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on')
+    {
+        header('Location: https://' . XSSHelpers::scrubNewLinesFromURL($_SERVER['SERVER_NAME']) . XSSHelpers::scrubNewLinesFromURL($_SERVER['REQUEST_URI']));
         exit();
     }
 }
@@ -39,7 +48,8 @@ unset($db_config);
 $login = new Login($db_phonebook, $db);
 
 $login->loginUser();
-if(!$login->isLogin() || !$login->isInDB()) {
+if (!$login->isLogin() || !$login->isInDB())
+{
     echo 'Your login is not recognized. Your server administrator may need to verify that your account is in the correct Active Directory group.<br />';
     exit;
 }
@@ -51,13 +61,14 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? $_GET['a'] : '';
+$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 // HQ logo
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
-function customTemplate($tpl) {
-	return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+function customTemplate($tpl)
+{
+    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $t_login->assign('name', $login->getName());
@@ -67,10 +78,15 @@ $main->assign('useUI', false);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
-switch($action) {
+foreach (array_keys($settings) as $key)
+{
+    $settings[$key] = XSSHelpers::sanitizeHTMLRich($settings[$key]);
+}
+
+switch ($action) {
     case 'showServiceFTEstatus':
-    	$main->assign('useUI', true);
-    	$main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js'));
+        $main->assign('useUI', true);
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js'));
 
         $form = new Form($db, $login);
         $o_login = $t_login->fetch('login.tpl');
@@ -81,7 +97,7 @@ switch($action) {
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter= '}-->';
+        $t_form->right_delimiter = '}-->';
         $t_form->assign('services', $form->getServices2());
         $t_form->assign('resolvedServiceID', $resolvedService[0]['groupID']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -93,38 +109,42 @@ switch($action) {
 
         $main->assign('body', $t_form->fetch('reports/showServiceFTEstatus.tpl'));
         $tabText = 'Service FTE Status';
+
         break;
     default:
-    	if($action != ''
-    		&& file_exists("templates/reports/{$action}.tpl")) {
-    			$main->assign('useUI', true);
-    			$main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
+        if ($action != ''
+            && file_exists("templates/reports/{$action}.tpl"))
+        {
+            $main->assign('useUI', true);
+            $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
 
-				$form = new Form($db, $login);
-				$o_login = $t_login->fetch('login.tpl');
+            $form = new Form($db, $login);
+            $o_login = $t_login->fetch('login.tpl');
 
-				$t_form = new Smarty;
-				$t_form->left_delimiter = '<!--{';
-				$t_form->right_delimiter= '}-->';
-				$t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-				$t_form->assign('userID', $login->getUserID());
-				$t_form->assign('empUID', $login->getEmpUID());
-				$t_form->assign('empMembership', $login->getMembership());
-				$t_form->assign('orgchartPath', Config::$orgchartPath);
-				$t_form->assign('systemSettings', $settings);
-				$t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
+            $t_form = new Smarty;
+            $t_form->left_delimiter = '<!--{';
+            $t_form->right_delimiter = '}-->';
+            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+            $t_form->assign('userID', $login->getUserID());
+            $t_form->assign('empUID', $login->getEmpUID());
+            $t_form->assign('empMembership', $login->getMembership());
+            $t_form->assign('orgchartPath', Config::$orgchartPath);
+            $t_form->assign('systemSettings', $settings);
+            $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
 
-				//url
-				$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-				$qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
-				$main->assign('qrcodeURL', urlencode($qrcodeURL));
+            //url
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+            $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
+            $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
-				$main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
-				$tabText = '';
-    	}
-    	else {
-    		$main->assign('body', 'Report does not exist');
-    	}
+            $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
+            $tabText = '';
+        }
+        else
+        {
+            $main->assign('body', 'Report does not exist');
+        }
+
         break;
 }
 
@@ -141,9 +161,11 @@ $main->assign('title', $settings['heading'] == '' ? $config->title : $settings['
 $main->assign('city', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
 $main->assign('revision', $settings['version']);
 
-if(!isset($_GET['iframe'])) {
-	$main->display(customTemplate('main.tpl'));
+if (!isset($_GET['iframe']))
+{
+    $main->display(customTemplate('main.tpl'));
 }
-else {
-	$main->display(customTemplate('main_iframe.tpl'));
+else
+{
+    $main->display(customTemplate('main_iframe.tpl'));
 }
