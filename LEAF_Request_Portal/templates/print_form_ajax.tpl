@@ -3,7 +3,8 @@
 <div class="printmainform" style="border-bottom: 0px; min-height: 64px">
     <div id="requestTitle"><!--{$title|sanitize}--> <!--{$subtype|sanitize}-->
     <!--{if $submitted == 0 || $is_admin}-->
-        <button style="cursor: pointer; background-image: url(../libs/dynicons/?img=accessories-text-editor.svg&w=16); border: none; background-repeat: no-repeat; display:inline-block; width: 30px; display:inline-block; height: 30px; background-position: bottom; background-color: #FEFEFE;" alt="Edit Title" title="Edit Title" onclick="changeTitle()" />
+        <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" style="cursor: pointer" alt="Edit Title" title="Edit Title" onclick="changeTitle()" tabindex="0" role="button" onkeypress="if (event.keyCode==13){ changeTitle(); }" />
+=======
     <!--{/if}-->
 
     <br /><span style="font-weight: normal; color: #686868; font-style: italic"><!--{$categoryText|sanitize}--></span>
@@ -15,7 +16,7 @@
                 </td>
                 <td><b><!--{$service|sanitize}--></b>
                     <!--{if $submitted == 0}-->
-                        <button style="cursor: pointer; background-image: url(../libs/dynicons/?img=accessories-text-editor.svg&w=16); border: none; background-repeat: no-repeat; display:inline-block; width: 30px; display:inline-block; height: 30px; background-position: bottom; background-color: #FEFEFE;" alt="Edit Service" title="Edit Service" onclick="changeService()" />
+                        <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" style="cursor: pointer" alt="Edit Service" title="Edit Service" onclick="changeService()" role="button" tabindex="0" onkeypress="if (event.keyCode==13){ changeService(); }"/>
                     <!--{/if}-->
                 </td>
             </tr>
