@@ -34,6 +34,7 @@ employeeSelector.prototype.initialize = function() {
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="employeeSelectorBorder">\
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" /></div>\
+			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
 			<input id="'+this.prefixID+'input" type="search" class="employeeSelectorInput" aria-label="search input"></input></div>\
 			<div id="'+this.prefixID+'result" aria-label="search results"></div>');
 
@@ -60,6 +61,7 @@ employeeSelector.prototype.showNotBusy = function() {
 employeeSelector.prototype.showBusy = function() {
 	$('#' + this.prefixID + 'icon').css('display', 'none');
 	$('#' + this.prefixID + 'iconBusy').css('display', 'inline');
+	$('#' + this.prefixID + 'status').text('Loading');
 	this.isBusy = 1;
 };
 
@@ -165,8 +167,11 @@ employeeSelector.prototype.search = function() {
 		            	$('#' + t.prefixID + 'result').html(buffer);
 
 		            	if(response.length == 0) {
+										$('#' + t.prefixID + 'status').text('No results for ' + txt);
 		            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
-		            	}
+		            	}else{
+										$('#' + t.prefixID + 'status').text('Search results found for term ' + txt + 'below');
+									}
 
 		            	t.selectionData = new Object();
 		            	for(var i in response) {
