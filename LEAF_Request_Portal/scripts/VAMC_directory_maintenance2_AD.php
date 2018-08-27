@@ -11,7 +11,6 @@
     + Multiple data sources
     + Buffered inserts for low memory usage
 */
-
 class VAMC_Directory_maintenance_AD
 {
     private $sortBy = 'Lname';          // Sort by... ?
@@ -95,6 +94,10 @@ class VAMC_Directory_maintenance_AD
         {
             $t = explode('^', $line);
             array_walk($t, array($this, 'trimField'));
+            if (!is_array($t))
+            {
+                return 'invalid service';
+            }
 
 //            $tmpName = explode(',', $t[0]);
             $lname = isset($t[0]) ? $t[0] : null;
@@ -167,6 +170,10 @@ class VAMC_Directory_maintenance_AD
 //            print_r($t);
 //            $t = explode("\t", $line);
             array_walk($t, array($this, 'trimField2'));
+            if (!is_array($t))
+            {
+                return 'invalid service';
+            }
 
 //            $tmp = explode(',', $t[0]);
             $lname = trim($t[$csvdeIdx['sn']]);
@@ -390,16 +397,13 @@ class VAMC_Directory_maintenance_AD
             {
                 $out .= strtolower($word) . ' ';
             }
+            elseif (strlen($word) > 4 || metaphone($word) != $word)
+            {
+                $out .= strtoupper($word[0]) . substr(strtolower($word), 1) . ' ';
+            }
             else
             {
-                if (strlen($word) > 4 || metaphone($word) != $word)
-                {
-                    $out .= strtoupper($word[0]) . substr(strtolower($word), 1) . ' ';
-                }
-                else
-                {
-                    $out .= $word . ' ';
-                }
+                $out .= $word . ' ';
             }
         }
 
@@ -437,19 +441,16 @@ class VAMC_Directory_maintenance_AD
                         // c is last char, so must be end of escape sequence
                         $inEscapeSeq = false;
                     }
+                    elseif (substr($str, $i + 1, 1) == $escapeChar)
+                    {
+                        // append literal escape char
+                        $currToken .= $escapeChar;
+                        $i++;
+                    }
                     else
                     {
-                        if (substr($str, $i + 1, 1) == $escapeChar)
-                        {
-                            // append literal escape char
-                            $currToken .= $escapeChar;
-                            $i++;
-                        }
-                        else
-                        {
-                            // end of escape sequence
-                            $inEscapeSeq = false;
-                        }
+                        // end of escape sequence
+                        $inEscapeSeq = false;
                     }
                 }
                 else
@@ -465,17 +466,14 @@ class VAMC_Directory_maintenance_AD
                     array_push($tokens, $currToken);
                     $currToken = '';
                 }
+                elseif ($c == $escapeChar)
+                {
+                    // begin escape sequence
+                    $inEscapeSeq = true;
+                }
                 else
                 {
-                    if ($c == $escapeChar)
-                    {
-                        // begin escape sequence
-                        $inEscapeSeq = true;
-                    }
-                    else
-                    {
-                        $currToken .= $c;
-                    }
+                    $currToken .= $c;
                 }
             }
             $i++;
