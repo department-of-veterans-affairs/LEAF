@@ -262,8 +262,11 @@ function importGroup() {
 }
 
 function createGroup() {
+    var timer;
+    var text;
+
     dialog.setTitle('Create a new group');
-    dialog.setContent('<div><br /><div role="heading" style="display:inline">Group Title: </div><input aria-label="Enter group name" id="groupName"></input></div>');
+    dialog.setContent('<div><span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="assertive" id="groupNameTitle" role="status"></span><br /><div role="heading" style="display:inline">Group Title: </div><input aria-label="Enter group name" id="groupName"></input></div>');
 
     dialog.setSaveHandler(function() {
     	dialog.indicateBusy();
@@ -281,6 +284,21 @@ function createGroup() {
     });
     dialog.show();
     $('input:visible:first, select:visible:first').focus();
+    timer = 0;
+
+    var interval = setInterval(function() {
+        timer += 1;
+        $('input:visible:first').on('keypress', function() {
+            timer = 0;
+        });
+        if (timer > 2 && $('input:visible:first').val() !== '') {
+            text = $('input:visible:first').val();
+            $('#groupNameTitle').html('New group name will be ' + text);
+        }
+        if (timer > 10) {
+            timer = 0;
+        }
+    }, 200);
 }
 
 var dialog;
