@@ -69,7 +69,7 @@ $main->assign('useUI', false);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
 {
-    date_default_timezone_set($settings['timeZone']);
+    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
 }
 
 switch ($action) {
@@ -86,10 +86,16 @@ switch ($action) {
         $currEmployee = $form->employee->lookupLogin($_SESSION['userID']);
         $currEmployeeData = $form->employee->getAllData($currEmployee[0]['empUID'], 5);
 
+        $categoryArray = $stack->getCategories();
+        foreach($categoryArray as $key => $cat)
+        {
+            $categoryArray[$key] = array_map('XSSHelpers::xscrub', $cat );
+        }
+        
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-        $t_form->assign('categories', $stack->getCategories());
+        $t_form->assign('categories', $categoryArray);
         $t_form->assign('recorder', XSSHelpers::sanitizeHTML($login->getName()));
         $t_form->assign('services', $form->getServices2());
         $t_form->assign('city', XSSHelpers::sanitizeHTML($config->city));
