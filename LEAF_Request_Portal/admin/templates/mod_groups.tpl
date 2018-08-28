@@ -263,7 +263,7 @@ function importGroup() {
 
 function createGroup() {
     dialog.setTitle('Create a new group');
-    dialog.setContent('<div><br /><div role="heading" tabindex="-1" style="display:inline">Group Title: </div><input id="groupName"></input></div>');
+    dialog.setContent('<div><br /><div role="heading" style="display:inline">Group Title: </div><input aria-label="Enter group name" id="groupName"></input></div>');
 
     dialog.setSaveHandler(function() {
     	dialog.indicateBusy();
@@ -280,6 +280,7 @@ function createGroup() {
         });
     });
     dialog.show();
+    $('input:visible:first, select:visible:first').focus();
 }
 
 var dialog;
