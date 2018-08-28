@@ -26,6 +26,8 @@ include 'config.php';
 // Enforce HTTPS
 include_once './enforceHTTPS.php';
 
+include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+
 $config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
@@ -72,7 +74,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', $rev[0]['data']);
+        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -123,9 +125,9 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', $settings['heading'] == '' ? $config->title : $settings['heading']);
-$main->assign('city', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
-$main->assign('revision', $settings['version']);
+$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

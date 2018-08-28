@@ -1632,7 +1632,7 @@ class Form
                 }
 
                 // keep track of unique categories
-                if (!isset($t_uniqueCategories[$dep['categoryID']]))
+                if (isset($dep['categoryID']) && !isset($t_uniqueCategories[$dep['categoryID']]))
                 {
                     $t_uniqueCategories[$dep['categoryID']] = 1;
                 }
@@ -1865,7 +1865,6 @@ class Form
     public function getCustomData($recordID_list, $indicatorID_list)
     {
         $indicatorID_list = trim($indicatorID_list, ',');
-
         $tempIndicatorIDs = explode(',', $indicatorID_list);
         $indicatorIdStructure = array();
         foreach ($tempIndicatorIDs as $id)
@@ -1882,7 +1881,7 @@ class Form
         $out = array();
         foreach ($recordID_list as $id)
         {
-            if (!is_numeric($id) && id != '')
+            if (!is_numeric($id['recordID']) && $id['recordID'] != '')
             {
                 return false;
             }
@@ -1929,7 +1928,7 @@ class Form
 
         // already made sure that $indicatorID_list and $recordIDs are comma delimited lists of numbers
         $res = $this->db->prepared_query("SELECT * FROM indicator_mask
-        							WHERE indicatorID IN ({$indicatorID_list})", array());
+                                    WHERE indicatorID IN ({$indicatorID_list})", array());
         $indicatorMasks = array();
         if (count($res) > 0)
         {
@@ -1953,7 +1952,7 @@ class Form
         $vars2 = array("recordIDs" => $recordIDs);
         $res = $this->db->prepared_query("SELECT * FROM data
                                     WHERE indicatorID IN ({$indicatorID_list})
-                                        AND recordID IN (:recordIDs)", $vars2);
+                                        AND recordID IN ({$recordIDs})", $vars2);
 
         if (is_array($res) && count($res) > 0)
         {

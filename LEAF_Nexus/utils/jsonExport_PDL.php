@@ -10,6 +10,8 @@ include '../db_mysql.php';
 include '../sources/Position.php';
 include '../sources/Tag.php';
 
+include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+
 $config = new Orgchart\Config;
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
@@ -30,7 +32,7 @@ if (isset($cache['jsonExport_PDL.php'])
     && $cache['jsonExport_PDL.php']['cacheTime'] > $cache['lastModified']['data']
     ) {
     header('Content-type: application/json');
-    echo $cache['jsonExport_PDL.php']['data'];
+    echo XSSHelpers::xscrub($cache['jsonExport_PDL.php']['data']);
     exit();
 }
 
@@ -66,7 +68,10 @@ foreach ($res as $pos)
             if (isset($super[0]))
             {
                 $superService = $position->getService($super[0]['positionID']);
-                $output[$pos['positionID']]['service'] = $superService[0]['groupTitle'];
+                if(isset($superService[0]))
+                {
+                    $output[$pos['positionID']]['service'] = $superService[0]['groupTitle'];
+                }
             }
         }
     }
@@ -109,14 +114,14 @@ foreach ($res as $pos)
             }
 
             $packet = array();
-            $packet['positionID'] = $pos['positionID'];
-            $packet['positionTitle'] = $pos['positionTitle'];
+            $packet['positionID'] = (int)$pos['positionID'];
+            $packet['positionTitle'] = XSSHelpers::xscrub($pos['positionTitle']);
 
             if ($emp['lastName'] != ''
                 && $emp['isActing'] == 0)
             {
-                $packet['employee'] = "{$emp['lastName']}, {$emp['firstName']}";
-                $packet['employeeUserName'] = $emp['userName'];
+                $packet['employee'] = XSSHelpers::xscrub("{$emp['lastName']}, {$emp['firstName']}");
+                $packet['employeeUserName'] = XSSHelpers::xscrub($emp['userName']);
             }
             else
             {
@@ -124,14 +129,14 @@ foreach ($res as $pos)
                 $packet['employeeUserName'] = '';
             }
 
-            $packet['supervisor'] = $supervisorName;
-            $packet['service'] = $output[$pos['positionID']]['service'];
-            $packet['payPlan'] = $output[$pos['positionID']]['data']['Pay Plan'];
-            $packet['series'] = $output[$pos['positionID']]['data']['Series'];
-            $packet['payGrade'] = $output[$pos['positionID']]['data']['Pay Grade'];
-            $packet['fteCeiling'] = $output[$pos['positionID']]['data']['FTE Ceiling'];
-            $packet['currentFte'] = $output[$pos['positionID']]['data']['Current FTE'];
-            $packet['pdNumber'] = $output[$pos['positionID']]['data']['PD Number'];
+            $packet['supervisor'] = XSSHelpers::xscrub($supervisorName);
+            $packet['service'] = XSSHelpers::xscrub($output[$pos['positionID']]['service']);
+            $packet['payPlan'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
+            $packet['series'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);
+            $packet['payGrade'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']);
+            $packet['fteCeiling'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
+            $packet['currentFte'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
+            $packet['pdNumber'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
             $jsonOut[] = $packet;
         }
         else
@@ -156,18 +161,18 @@ foreach ($res as $pos)
             }
 
             $packet = array();
-            $packet['positionID'] = $pos['positionID'];
-            $packet['positionTitle'] = $output[$pos['positionID']]['positionTitle'];
+            $packet['positionID'] = (int)$pos['positionID'];
+            $packet['positionTitle'] = XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']);
             $packet['employee'] = '';
             $packet['employeeUserName'] = '';
-            $packet['supervisor'] = $supervisorName;
-            $packet['service'] = $output[$pos['positionID']]['service'];
-            $packet['payPlan'] = $output[$pos['positionID']]['data']['Pay Plan'];
-            $packet['series'] = $output[$pos['positionID']]['data']['Series'];
-            $packet['payGrade'] = $output[$pos['positionID']]['data']['Pay Grade'];
-            $packet['fteCeiling'] = $output[$pos['positionID']]['data']['FTE Ceiling'];
-            $packet['currentFte'] = $output[$pos['positionID']]['data']['Current FTE'];
-            $packet['pdNumber'] = $output[$pos['positionID']]['data']['PD Number'];
+            $packet['supervisor'] = XSSHelpers::xscrub($supervisorName);
+            $packet['service'] = XSSHelpers::xscrub($output[$pos['positionID']]['service']);
+            $packet['payPlan'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
+            $packet['series'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);
+            $packet['payGrade'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']);
+            $packet['fteCeiling'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
+            $packet['currentFte'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
+            $packet['pdNumber'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
             $jsonOut[] = $packet;
         }
     }

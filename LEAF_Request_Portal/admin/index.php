@@ -180,7 +180,7 @@ switch ($action) {
             $res = $db->prepared_query('SELECT * FROM categories WHERE categoryID=:categoryID', $vars);
             if (count($res) > 0)
             {
-                $t_form->assign('form', $res[0]['categoryID']);
+                $t_form->assign('form', XSSHelpers::xscrub($res[0]['categoryID']));
             }
         }
 
@@ -334,10 +334,10 @@ switch ($action) {
         $main->assign('javascripts', array('../../libs/js/LEAF/XSSHelpers.js'));
 
         $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-        $t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);
-        $t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
-        $t_form->assign('requestLabel', $settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel']);
-        $t_form->assign('timeZone', $settings['timeZone'] == '' ? 'America/New_York' : $settings['timeZone']);
+        $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+        $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+        $t_form->assign('requestLabel', XSSHelpers::sanitizeHTMLRich($settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel']));
+        $t_form->assign('timeZone', XSSHelpers::sanitizeHTMLRich($settings['timeZone'] == '' ? 'America/New_York' : $settings['timeZone']));
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
@@ -358,9 +358,9 @@ switch ($action) {
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
             $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-            $t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);
-            $t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
-            $t_form->assign('requestLabel', $settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel']);
+            $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+            $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+            $t_form->assign('requestLabel', XSSHelpers::sanitizeHTMLRich($settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel']));
             $t_form->assign('importTags', $config::$orgchartImportTags);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
             $main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl')));
@@ -423,9 +423,9 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', $settings['heading'] == '' ? $config->title : $settings['heading']);
-$main->assign('city', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
-$main->assign('revision', $settings['version']);
+$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

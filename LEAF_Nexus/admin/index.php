@@ -30,6 +30,8 @@ include '../config.php';
 // Enforce HTTPS
 include_once '../enforceHTTPS.php';
 
+include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+
 $config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
@@ -118,8 +120,8 @@ switch ($action) {
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-           $t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);
-           $t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
+           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
            require_once '../sources/Tag.php';
            $tagObj = new Orgchart\Tag($db, $login);
@@ -150,8 +152,8 @@ switch ($action) {
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-           $t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);
-           $t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
+           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
            $memberships = $login->getMembership();
            if (isset($memberships['groupID'][1]))
@@ -257,9 +259,9 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', $settings['heading'] == '' ? $config->title : $settings['heading']);
-$main->assign('city', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
-$main->assign('revision', $settings['version']);
+$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

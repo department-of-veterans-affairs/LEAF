@@ -1,4 +1,4 @@
-FROM mysql/mysql-server
+FROM mariadb
 MAINTAINER Nick Ciardiello <nick.ciardiello@ablevets.com>
 
 ENV MYSQL_ROOT_PASSWORD tester
