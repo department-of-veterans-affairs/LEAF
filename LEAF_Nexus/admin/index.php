@@ -120,8 +120,8 @@ switch ($action) {
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-           $t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);
-           $t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
+           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
            require_once '../sources/Tag.php';
            $tagObj = new Orgchart\Tag($db, $login);
@@ -152,8 +152,8 @@ switch ($action) {
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-           $t_form->assign('heading', $settings['heading'] == '' ? $config->title : $settings['heading']);
-           $t_form->assign('subheading', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
+           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
            $memberships = $login->getMembership();
            if (isset($memberships['groupID'][1]))
