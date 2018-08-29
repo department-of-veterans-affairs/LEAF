@@ -106,7 +106,10 @@ function openContent(url) {
             success: function(res) {
                 if(res.length > 0) {
                     for(var i in res) {
-                        $('#cloneGroupID').append('<option value="'+ res[i].groupID +'">'+ res[i].name +'</input>');
+                        if (res[i].groupID !== '1')
+                        {
+                            $('#cloneGroupID').append('<option value="' + res[i].groupID + '">' + res[i].name + '</input>');
+                        }
                     }
                     if(categories[currCategoryID].cloneGroupID !== undefined) {
                         $('#cloneGroupID').val(categories[currCategoryID].cloneGroupID);
