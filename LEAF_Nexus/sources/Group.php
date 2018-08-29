@@ -1,5 +1,9 @@
 <?php
-/************************
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
+/*
     Group (aka organization, service, section, etc)
     Date: August 30, 2011
 
@@ -12,19 +16,31 @@ require_once 'Data.php';
 class Group extends Data
 {
     protected $dataTable = 'group_data';
+
     protected $dataHistoryTable = 'group_data_history';
+
     protected $dataTagTable = 'group_tags';
+
     protected $dataTableUID = 'groupID';
+
     protected $dataTableDescription = 'Group';
+
     protected $dataTableCategoryID = 3;
 
     private $tableName = 'groups';      // Table of groups
+
     private $limit = 'LIMIT 5';       // Limit number of returned results "TOP 100"
+
     private $sortBy = 'groupTitle';     // Sort by... ?
+
     private $sortDir = 'ASC';           // Sort ascending/descending?
+
     private $maxStringDiff = 3;         // Max number of letter differences for a name (# of typos allowed)
-    private $deepSearch = 10;           // Threshold for deeper search (min # of results
-                                        //     from main search triggers deep search)
+
+    private $deepSearch = 10;
+
+    // Threshold for deeper search (min # of results
+    //     from main search triggers deep search)
 
     public function initialize()
     {
@@ -37,7 +53,7 @@ class Group extends Data
 
     public function setNoLimit()
     {
-    	$this->limit = '';
+        $this->limit = '';
     }
 
     /**
@@ -48,7 +64,8 @@ class Group extends Data
     public function getUserPrivileges($groupID)
     {
         $cacheHash = 'getUserPrivileges' . $groupID;
-        if(isset($this->cache[$cacheHash])) {
+        if (isset($this->cache[$cacheHash]))
+        {
             return $this->cache[$cacheHash];
         }
 
@@ -64,30 +81,37 @@ class Group extends Data
         $res = $this->db->prepared_query('SELECT * FROM group_privileges
                                             WHERE groupID=:groupID', $var);
 
-        foreach($res as $item) {
+        foreach ($res as $item)
+        {
             // grant highest available access
-            if(isset($memberships[$item['categoryID'].'ID'][$item['UID']])) {
-                if(isset($data[$item['groupID']]['read']) && $data[$item['groupID']]['read'] != 1) {
+            if (isset($memberships[$item['categoryID'] . 'ID'][$item['UID']]))
+            {
+                if (isset($data[$item['groupID']]['read']) && $data[$item['groupID']]['read'] != 1)
+                {
                     $data[$item['groupID']]['read'] = $item['read'];
                 }
-                if(isset($data[$item['groupID']]['write']) && $data[$item['groupID']]['write'] != 1) {
+                if (isset($data[$item['groupID']]['write']) && $data[$item['groupID']]['write'] != 1)
+                {
                     $data[$item['groupID']]['write'] = $item['write'];
                 }
-                if(isset($data[$item['groupID']]['grant']) && $data[$item['groupID']]['grant'] != 1) {
+                if (isset($data[$item['groupID']]['grant']) && $data[$item['groupID']]['grant'] != 1)
+                {
                     $data[$item['groupID']]['grant'] = $item['grant'];
                 }
             }
         }
 
         // grant full access if user is part of the special group: System Administrator (groupID 1)
-        if(isset($memberships['groupID'][1])
-                && $memberships['groupID'][1] == 1) {
+        if (isset($memberships['groupID'][1])
+                && $memberships['groupID'][1] == 1)
+        {
             $data[$groupID]['read'] = 1;
             $data[$groupID]['write'] = 1;
             $data[$groupID]['grant'] = 1;
         }
 
         $this->cache[$cacheHash] = $data;
+
         return $data;
     }
 
@@ -100,50 +124,58 @@ class Group extends Data
      */
     public function addNew($groupTitle, $parentGroupID = 0)
     {
-        if(!isset($groupTitle) || strlen($groupTitle) == 0) {
+        if (!isset($groupTitle) || strlen($groupTitle) == 0)
+        {
             throw new Exception('Group title must not be blank');
         }
-
+        if (!is_numeric($parentGroupID))
+        {
+            throw new Exception('invalid parent group');
+        }
         $groupTitle = $this->sanitizeInput($groupTitle);
 
         $vars = array(':groupTitle' => $groupTitle);
         $res = $this->db->prepared_query('SELECT * FROM groups
         							WHERE groupTitle = :groupTitle', $vars);
-        if(count($res) > 0) {
-        	throw new Exception('Group title already exists');
+        if (count($res) > 0)
+        {
+            throw new Exception('Group title already exists');
         }
 
         $vars = array(':groupTitle' => $groupTitle,
-        			  ':parentID' => $parentGroupID,
-                      ':phoGroupTitle' => metaphone($groupTitle));
+                      ':parentID' => $parentGroupID,
+                      ':phoGroupTitle' => metaphone($groupTitle), );
         $this->db->prepared_query('INSERT INTO groups (groupTitle, parentID, phoneticGroupTitle)
                VALUES (:groupTitle, :parentID, :phoGroupTitle)', $vars);
-		$groupID = $this->db->getLastInsertID();
+        $groupID = $this->db->getLastInsertID();
 
-		// Give admin to the person creating the group
-		// If available, add their position instead of empUID
-		$vars = array(':empUID' => $this->login->getEmpUID());
-		$res = $this->db->prepared_query('SELECT * FROM relation_position_employee
+        // Give admin to the person creating the group
+        // If available, add their position instead of empUID
+        $vars = array(':empUID' => $this->login->getEmpUID());
+        $res = $this->db->prepared_query('SELECT * FROM relation_position_employee
                                             WHERE empUID=:empUID', $vars);
 
-		if(count($res) > 0) {
-			foreach($res as $position) {
-				$vars = array(':groupID' => $groupID,
-						      ':categoryID' => 'position',
-						      ':UID' => $position['positionID']);
-				$res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
+        if (count($res) > 0)
+        {
+            foreach ($res as $position)
+            {
+                $vars = array(':groupID' => $groupID,
+                              ':categoryID' => 'position',
+                              ':UID' => $position['positionID'], );
+                $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
                                             		VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
-			}
-		}
-		else {
-			$vars = array(':groupID' => $groupID,
-					      ':categoryID' => 'employee',
-						  ':UID' => $this->login->getEmpUID());
-			$res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
+            }
+        }
+        else
+        {
+            $vars = array(':groupID' => $groupID,
+                          ':categoryID' => 'employee',
+                          ':UID' => $this->login->getEmpUID(), );
+            $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
                                             	VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
-		}
+        }
 
-		// Give admin to admins
+        // Give admin to admins
         $this->addPermission($groupID, 'group', 1, 'read');
         $this->addPermission($groupID, 'group', 1, 'write');
         $this->addPermission($groupID, 'group', 1, 'grant');
@@ -152,6 +184,7 @@ class Group extends Data
         $this->addPermission($groupID, 'group', 2, 'read');
 
         $this->updateLastModified();
+
         return $groupID;
     }
 
@@ -162,12 +195,18 @@ class Group extends Data
      */
     public function deleteGroup($groupID)
     {
-    	if($groupID <= 10) {
-    		throw new Exception('Cannot delete system groups.');
-    	}
+        if (!is_numeric($groupID))
+        {
+            throw new Exception('invalid group');
+        }
+        if ($groupID <= 10)
+        {
+            throw new Exception('Cannot delete system groups.');
+        }
 
         $privs = $this->getUserPrivileges($groupID);
-        if($privs[$groupID]['write'] == 0) {
+        if ($privs[$groupID]['write'] == 0)
+        {
             throw new Exception('You do not have access to delete this group.');
         }
 
@@ -193,6 +232,7 @@ class Group extends Data
 
         $this->db->commitTransaction();
         $this->updateLastModified();
+
         return 1;
     }
 
@@ -202,16 +242,16 @@ class Group extends Data
      */
     public function getTags($groupID)
     {
-
-    	$vars = array(':groupID' => $groupID);
-    	$res = $this->db->prepared_query('SELECT * FROM group_tags
+        $vars = array(':groupID' => $groupID);
+        $res = $this->db->prepared_query('SELECT * FROM group_tags
                                               WHERE groupID=:groupID', $vars);
-    	$out = [];
-    	foreach($res as $item) {
-    		$out[$item['tag']] = $item['tag'];
-    	}
+        $out = array();
+        foreach ($res as $item)
+        {
+            $out[$item['tag']] = $item['tag'];
+        }
 
-    	return $out;
+        return $out;
     }
 
     /**
@@ -233,13 +273,19 @@ class Group extends Data
      */
     public function editTitle($groupID, $newTitle, $abbrTitle = null)
     {
+        if (!is_numeric($groupID))
+        {
+            throw new Exception('invalid group');
+        }
         $privs = $this->getUserPrivileges($groupID);
         // Don't allow special reserved groups (1-10) to be edited
-        if($privs[$groupID]['write'] == 0
-            && $groupID <= 3) {
+        if ($privs[$groupID]['write'] == 0
+            && $groupID <= 3)
+        {
             throw new Exception('Access denied');
         }
-        if(!isset($newTitle) || strlen($newTitle) == 0) {
+        if (!isset($newTitle) || strlen($newTitle) == 0)
+        {
             throw new Exception('Group title must not be blank');
         }
 
@@ -249,28 +295,30 @@ class Group extends Data
 
         $vars = array(':groupTitle' => $newTitle,
                       ':abbrTitle' => $abbrTitle,
-        			  ':groupID' => $groupID,
-                      ':phoTitle' => metaphone($newTitle));
+                      ':groupID' => $groupID,
+                      ':phoTitle' => metaphone($newTitle), );
         $this->db->prepared_query('UPDATE groups SET groupTitle=:groupTitle, groupAbbreviation=:abbrTitle, phoneticGroupTitle=:phoTitle
         								WHERE groupID=:groupID', $vars);
         $this->updateLastModified();
+
         return $groupID;
     }
 
     /**
-    * Edit an existing group's parentID
-    * @param int $groupID
-    * @param int $newParentID
-    */
+     * Edit an existing group's parentID
+     * @param int $groupID
+     * @param int $newParentID
+     */
     public function editParentID($groupID, $newParentID)
     {
         $newParentID = (int)$newParentID;
 
         $vars = array(':groupID' => $groupID,
-                      ':parentID' => $newParentID);
+                      ':parentID' => $newParentID, );
         $this->db->prepared_query('UPDATE groups SET parentID=:parentID
                 						WHERE groupID=:groupID', $vars);
         $this->updateLastModified();
+
         return $groupID;
     }
 
@@ -282,6 +330,7 @@ class Group extends Data
     public function getParentID($groupID)
     {
         $res = $this->getGroup($groupID);
+
         return $res[0]['parentID'];
     }
 
@@ -303,7 +352,8 @@ class Group extends Data
      */
     public function listGroups($parentID = 0, $offset = null, $quantity = null, $noData = null)
     {
-        if(!is_numeric($parentID)) {
+        if (!is_numeric($parentID))
+        {
             $parentID = 0;
         }
 
@@ -311,13 +361,16 @@ class Group extends Data
         $vars = array(':parentID' => $parentID);
         $res = $this->db->prepared_query('SELECT * FROM groups WHERE parentID=:parentID
         									ORDER BY groupTitle ASC', $vars);
-        if($noData == null) {
+        if ($noData == null)
+        {
             $numRes = count($res);
-            for($i = 0; $i < $numRes; $i++) {
+            for ($i = 0; $i < $numRes; $i++)
+            {
                 //$res[$i]['numSubgroups'] = $this->getNumberOfSubgroups($res[$i]['groupID']);
                 $res[$i]['summary'] = $this->getSummary($res[$i]['groupID']);
             }
         }
+
         return $res;
     }
 
@@ -341,13 +394,14 @@ class Group extends Data
     }
 
     /**
-    * List members of a group
-    * @param int $parentID
-    * @return array
-    */
+     * List members of a group
+     * @param int $parentID
+     * @return array
+     */
     public function listMembers($groupID = 0)
     {
-        if(!is_numeric($groupID)) {
+        if (!is_numeric($groupID))
+        {
             $parentID = 0;
         }
 
@@ -358,16 +412,17 @@ class Group extends Data
     }
 
     /**
-    * List groups and their immediate members
-    * @param int $parentID
-    * @return array
-    */
+     * List groups and their immediate members
+     * @param int $parentID
+     * @return array
+     */
     public function listGroupsAndMembers($parentID = 0)
     {
         $groups = $this->listGroups();
 
         $list = array();
-        foreach($groups as $group) {
+        foreach ($groups as $group)
+        {
             $group['members'] = $this->listMembers($group['groupID']);
             $list[] = $group;
         }
@@ -384,24 +439,31 @@ class Group extends Data
     {
         $positions = $this->listGroupPositions($groupID);
         $data = array();
-        foreach($positions as $pos) {
+        foreach ($positions as $pos)
+        {
             $data[$pos['parentID']] = $pos;
         }
-        foreach($positions as $pos) {
+        foreach ($positions as $pos)
+        {
             unset($data[$pos['positionID']]);
         }
 
-        if(count($data) >= 1) {
+        if (count($data) >= 1)
+        {
             $res = array_shift($data);
+
             return $res['positionID'];
         }
-        else {
-            return 1;
-        }
+
+        return 1;
     }
 
     public function listGroupPositions($groupID)
     {
+        if (!is_numeric($groupID))
+        {
+            return new Exception('invalid group');
+        }
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('SELECT * FROM relation_group_position
         									LEFT JOIN positions USING (positionID)
@@ -417,6 +479,10 @@ class Group extends Data
      */
     public function listGroupEmployees($groupID)
     {
+        if (!is_numeric($groupID))
+        {
+            return new Exception('invalid group');
+        }
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('SELECT * FROM relation_group_employee
                                             LEFT JOIN employee USING (empUID)
@@ -439,8 +505,12 @@ class Group extends Data
     {
         // Cannot use $this->listGroupEmployees() since that query does not
         // include Employee position data
+        if (!is_numeric($groupID))
+        {
+            return new Exception('invalid group');
+        }
         $vars = array(
-            ':groupID' => $groupID
+            ':groupID' => $groupID,
         );
 
         $query = '
@@ -450,49 +520,40 @@ class Group extends Data
             WHERE groupID=:groupID
             ORDER BY lastName ASC';
 
-        $detailQuery = 'SELECT * '.$query;
+        $detailQuery = 'SELECT * ' . $query;
 
         // used for query metadata, knowing the total number of users is useful for paging results
-        $countQuery = 'SELECT COUNT(*) AS totalUsers'.$query;
+        $countQuery = 'SELECT COUNT(*) AS totalUsers' . $query;
 
         // TODO: replace this with keyset pagination. Using LIMIT/OFFSET can be slow on large data sets.
-        if ($limit !== -1) { 
+        if ($limit !== -1)
+        {
             $this->db->limit($offset, $limit);
         }
 
         $res = $this->db->prepared_query($detailQuery, $vars);
         $countRes = $this->db->prepared_query($countQuery, $vars);
 
-        // Employee->getAllData() relies on lots of variables defined in that class, 
+        // Employee->getAllData() relies on lots of variables defined in that class,
         // so let it do the hard work
         require_once 'Employee.php';
         $employee = new Employee($this->db, $this->login);
-        foreach($res as $key=>$value) {
-          $res[$key]['data'] = $employee->getAllData($value['empUID']);
-          $res[$key]['positions'] = $employee->getPositions($value['empUID']);
+        foreach ($res as $key => $value)
+        {
+            $res[$key]['data'] = $employee->getAllData($value['empUID']);
+            $res[$key]['positions'] = $employee->getPositions($value['empUID']);
         }
 
         $result = array(
             'users' => $res,
-            'querymeta' => [
+            'querymeta' => array(
                 'totalusers' => $countRes[0]['totalUsers'],
                 'limit' => $limit,
-                'offset' => $offset
-            ]
+                'offset' => $offset,
+            ),
         );
 
         return $result;
-    }
-
-    private function sortEmployees($a, $b)
-    {
-    	$first = substr(strtolower($a['lastName']), 0, 1);
-    	$second = substr(strtolower($b['lastName']), 0, 1);
-
-    	if($first == $second) {
-    		return 0;
-    	}
-    	return ($first < $second) ? -1 : 1;
     }
 
     /**
@@ -502,24 +563,28 @@ class Group extends Data
      */
     public function listGroupEmployeesAll($groupID)
     {
-    	$output = [];
-    	require_once 'Position.php';
-    	$position = new Position($this->db, $this->login);
+        $output = array();
+        require_once 'Position.php';
+        $position = new Position($this->db, $this->login);
 
-    	$positions = $this->listGroupPositions($groupID);
-    	foreach($positions as $pos) {
-    		$resEmp = $position->getEmployees($pos['positionID']);
-    		foreach($resEmp as $employee) {
-    			$output[$employee['empUID']] = $employee;
-    		}
-    	}
+        $positions = $this->listGroupPositions($groupID);
+        foreach ($positions as $pos)
+        {
+            $resEmp = $position->getEmployees($pos['positionID']);
+            foreach ($resEmp as $employee)
+            {
+                $output[$employee['empUID']] = $employee;
+            }
+        }
 
         $res = $this->listGroupEmployees($groupID);
-        foreach($res as $employee) {
-        	$output[$employee['empUID']] = $employee;
+        foreach ($res as $employee)
+        {
+            $output[$employee['empUID']] = $employee;
         }
 
         usort($output, array($this, 'sortEmployees'));
+
         return $output;
     }
 
@@ -528,38 +593,31 @@ class Group extends Data
      * @param string $input
      * @return string
      */
-    public static function cleanWildcards($input) {
+    public static function cleanWildcards($input)
+    {
         $input = str_replace('%', '*', $input);
         $input = str_replace('?', '*', $input);
         $input = preg_replace('/\*+/i', '*', $input);
         $input = preg_replace('/(\s)+/i', ' ', $input);
         $input = preg_replace('/(\*\s\*)+/i', '', $input);
+
         return $input;
-    }
-
-    // Translates the * wildcard to SQL % wildcard
-    private function parseWildcard($query)
-    {
-        return str_replace('*', '%', '*' . $query . '*');
-    }
-
-    private function metaphone_query($in)
-    {
-        return '%' . metaphone($in) . '%';
     }
 
     public function search($input, $tag = '')
     {
-    	$origInput = $input;
+        $origInput = $input;
         $vars_tag = array();
         $sql_tag = '';
-        if($tag != '') {
+        if ($tag != '')
+        {
             $vars_tag[':tag'] = $tag;
             $sql_tag = ' RIGHT JOIN (SELECT * FROM group_tags WHERE tag = :tag) rj1 USING (groupID)';
         }
 
         $input = $this->parseWildcard(trim($this->cleanWildcards($input)));
-        if($input == '' || $input == '*') {
+        if ($input == '' || $input == '*')
+        {
             return array(); // Special case to prevent retrieving entire list in one query
         }
 
@@ -572,7 +630,8 @@ class Group extends Data
         $vars = array_merge($vars, $vars_tag);
         $result = $this->db->prepared_query($sql, $vars);
 
-        if(count($result) == 0) {
+        if (count($result) == 0)
+        {
             $sql = "SELECT * FROM {$this->tableName}{$sql_tag}
                         WHERE phoneticGroupTitle LIKE :groupTitle
                         ORDER BY {$this->sortBy} {$this->sortDir}
@@ -583,21 +642,26 @@ class Group extends Data
             $tempResult = $this->db->prepared_query($sql, $vars);
 
             $tInput = trim(strtolower($input), '*');
-            foreach($tempResult as $res) {  // Prune matches
-            	$prune = 1;
-            	$words = explode(' ', $res['groupTitle']);
-            	foreach($words as $word) {
-            		if(levenshtein(strtolower($word), $tInput) <= $this->maxStringDiff) {
-            			$prune = 0;
-            		}
-            	}
-            	if($prune == 0) {
-            		$result[] = $res;
-            	}
+            foreach ($tempResult as $res)
+            {  // Prune matches
+                $prune = 1;
+                $words = explode(' ', $res['groupTitle']);
+                foreach ($words as $word)
+                {
+                    if (levenshtein(strtolower($word), $tInput) <= $this->maxStringDiff)
+                    {
+                        $prune = 0;
+                    }
+                }
+                if ($prune == 0)
+                {
+                    $result[] = $res;
+                }
             }
         }
 
-        if(count($result) <= $this->deepSearch) {
+        if (count($result) <= $this->deepSearch)
+        {
             $sql = "SELECT * FROM {$this->tableName}{$sql_tag}
                         WHERE groupAbbreviation LIKE :grpAbbr
                         ORDER BY {$this->sortBy} {$this->sortDir}
@@ -610,16 +674,19 @@ class Group extends Data
         }
 
         // search by ID number
-        if(substr(strtolower($origInput), 0, 6) == 'group#') {
-        	if(is_numeric(substr($origInput, 6))) {
-        		$gID = substr($origInput, 6);
-        		$result = $this->getGroup($gID);
-        	}
+        if (substr(strtolower($origInput), 0, 6) == 'group#')
+        {
+            if (is_numeric(substr($origInput, 6)))
+            {
+                $gID = substr($origInput, 6);
+                $result = $this->getGroup($gID);
+            }
         }
 
         // add org chart data
         $tcount = count($result);
-        for($i = 0; $i < $tcount; $i++) {
+        for ($i = 0; $i < $tcount; $i++)
+        {
             $result[$i]['data'] = $this->getAllData($result[$i]['groupID']);
             $result[$i]['tags'] = $this->getTags($result[$i]['groupID']);
         }
@@ -651,15 +718,17 @@ class Group extends Data
         return $data;
     }
 
-    function getGroup($groupID)
+    public function getGroup($groupID)
     {
-        if(isset($this->cache["getGroup_{$groupID}"])) {
+        if (isset($this->cache["getGroup_{$groupID}"]))
+        {
             return $this->cache["getGroup_{$groupID}"];
         }
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('SELECT * FROM groups
                                             WHERE groupID=:groupID', $vars);
         $this->cache["getGroup_{$groupID}"] = $res;
+
         return $res;
     }
 
@@ -671,20 +740,24 @@ class Group extends Data
      */
     public function addPosition($groupID, $positionID)
     {
-        $privs = $this->getUserPrivileges($groupID);
-        if($privs[$groupID]['write'] == 0) {
+        if (!is_numeric($positionID) || !is_numeric($groupID))
+        {
             return 0;
         }
-        if(!is_numeric($positionID) || !is_numeric($groupID)) {
+
+        $privs = $this->getUserPrivileges($groupID);
+        if ($privs[$groupID]['write'] == 0)
+        {
             return 0;
         }
 
         $this->updateLastModified();
 
         $vars = array(':groupID' => $groupID,
-                      ':positionID' => $positionID);
+                      ':positionID' => $positionID, );
         $this->db->prepared_query('INSERT INTO relation_group_position (groupID, positionID)
                                     VALUES (:groupID, :positionID)', $vars);
+
         return $this->db->getLastInsertID();
     }
 
@@ -695,15 +768,21 @@ class Group extends Data
      */
     public function removePosition($groupID, $positionID)
     {
+        if (!is_numeric($groupID) || !is_numeric($positionID))
+        {
+            return 0;
+        }
         $privs = $this->getUserPrivileges($groupID);
-        if($privs[$groupID]['write'] == 0) {
+        if ($privs[$groupID]['write'] == 0)
+        {
             return 0;
         }
         $vars = array(':groupID' => $groupID,
-                      ':positionID' => $positionID);
+                      ':positionID' => $positionID, );
         $this->db->prepared_query('DELETE FROM relation_group_position
                                     WHERE positionID=:positionID AND groupID=:groupID', $vars);
         $this->updateLastModified();
+
         return 1;
     }
 
@@ -715,20 +794,22 @@ class Group extends Data
      */
     public function addEmployee($groupID, $employeeID)
     {
+        if (!is_numeric($employeeID) || !is_numeric($groupID))
+        {
+            return 0;
+        }
         $privs = $this->getUserPrivileges($groupID);
-        if($privs[$groupID]['write'] == 0) {
+        if ($privs[$groupID]['write'] == 0)
+        {
             return 0;
         }
-        if(!is_numeric($employeeID) || !is_numeric($groupID)) {
-            return 0;
-        }
-
         $this->updateLastModified();
 
         $vars = array(':groupID' => $groupID,
-                      ':employeeID' => $employeeID);
+                      ':employeeID' => $employeeID, );
         $this->db->prepared_query('INSERT INTO relation_group_employee (groupID, empUID)
                                     VALUES (:groupID, :employeeID)', $vars);
+
         return $this->db->getLastInsertID();
     }
 
@@ -739,22 +820,29 @@ class Group extends Data
      */
     public function removeEmployee($groupID, $empUID)
     {
+        if (!is_numeric($groupID) || !is_numeric($empUID))
+        {
+            return 0;
+        }
         $privs = $this->getUserPrivileges($groupID);
-        if($privs[$groupID]['write'] == 0) {
+        if ($privs[$groupID]['write'] == 0)
+        {
             return 0;
         }
         $vars = array(':groupID' => $groupID,
-                      ':empUID' => $empUID);
+                      ':empUID' => $empUID, );
         $this->db->prepared_query('DELETE FROM relation_group_employee
                                     WHERE empUID=:empUID AND groupID=:groupID', $vars);
         $this->updateLastModified();
+
         return 1;
     }
 
     public function getPrivileges($groupID)
     {
         $cacheHash = 'getPrivileges' . $groupID;
-        if(isset($this->cache[$cacheHash])) {
+        if (isset($this->cache[$cacheHash]))
+        {
             return $this->cache[$cacheHash];
         }
 
@@ -763,6 +851,7 @@ class Group extends Data
                 WHERE groupID=:groupID', $vars);
 
         $this->cache[$cacheHash] = $res;
+
         return $res;
     }
 
@@ -775,23 +864,27 @@ class Group extends Data
      */
     public function togglePermission($groupID, $categoryID, $UID, $permissionType)
     {
+        if (!is_numeric($groupID))
+        {
+            return;
+        }
         $priv = $this->getUserPrivileges($groupID);
-        if($priv[$groupID]['grant'] != 0) {
+        if ($priv[$groupID]['grant'] != 0)
+        {
             $vars = array(':groupID' => $groupID,
                           ':categoryID' => $categoryID,
-                          ':UID' => $UID);
+                          ':UID' => $UID, );
             $res = $this->db->prepared_query('SELECT * FROM group_privileges
                                                 WHERE groupID=:groupID
                                                     AND categoryID=:categoryID
                                                     AND UID=:UID', $vars);
-            if($res[0][$permissionType] == 1) {
+            if ($res[0][$permissionType] == 1)
+            {
                 return $this->removePermission($groupID, $categoryID, $UID, $permissionType);
             }
-            else {
-                return $this->addPermission($groupID, $categoryID, $UID, $permissionType);
-            }
+
+            return $this->addPermission($groupID, $categoryID, $UID, $permissionType);
         }
-        return null;
     }
 
     /**
@@ -804,81 +897,96 @@ class Group extends Data
      */
     public function addPermission($groupID, $categoryID, $UID, $permissionType)
     {
+        if (!is_numeric($groupID))
+        {
+            return;
+        }
         $priv = $this->getUserPrivileges($groupID);
-        if($priv[$groupID]['grant'] == 0) {
-            return null;
+        if ($priv[$groupID]['grant'] == 0)
+        {
+            return;
         }
 
-        switch($permissionType) {
+        switch ($permissionType) {
             case 'read':
                 $permissionType = '`read`';
+
                 break;
             case 'write':
                 $permissionType = '`write`';
+
                 break;
             case 'grant':
                 $permissionType = '`grant`';
+
                 break;
             default:
                 return false;
+
                 break;
         }
         $vars = array(':groupID' => $groupID,
                       ':categoryID' => $categoryID,
-                      ':UID' => $UID);
+                      ':UID' => $UID, );
         $res = $this->db->prepared_query('INSERT IGNORE INTO group_privileges (groupID, categoryID, UID)
                                             VALUES (:groupID, :categoryID, :UID)', $vars);
 
         $vars = array(':groupID' => $groupID,
                       ':categoryID' => $categoryID,
-                      ':UID' => $UID);
+                      ':UID' => $UID, );
         $res = $this->db->prepared_query("UPDATE group_privileges
                                             SET {$permissionType}=1
                                             WHERE groupID=:groupID
                                                 AND categoryID=:categoryID
                                                 AND UID=:UID", $vars);
+
         return 1;
     }
 
     /**
-    * Removes the specified permission
-    * @param int $groupID
-    * @param string $categoryID
-    * @param int $UID
-    * @param string $permissionType
-    * @return NULL|boolean|number
-    */
+     * Removes the specified permission
+     * @param int $groupID
+     * @param string $categoryID
+     * @param int $UID
+     * @param string $permissionType
+     * @return NULL|boolean|number
+     */
     public function removePermission($groupID, $categoryID, $UID, $permissionType)
     {
         $priv = $this->getUserPrivileges($groupID);
-        if($priv[$groupID]['grant'] == 0) {
-            return null;
+        if ($priv[$groupID]['grant'] == 0)
+        {
+            return;
         }
 
-        switch($permissionType) {
+        switch ($permissionType) {
             case 'read':
                 $permissionType = '`read`';
+
                 break;
             case 'write':
                 $permissionType = '`write`';
+
                 break;
             case 'grant':
                 $permissionType = '`grant`';
+
                 break;
             default:
                 return false;
+
                 break;
         }
 
         $vars = array(':groupID' => $groupID,
                       ':categoryID' => $categoryID,
-                      ':UID' => $UID);
+                      ':UID' => $UID, );
         $res = $this->db->prepared_query('INSERT IGNORE INTO group_privileges (groupID, categoryID, UID)
                                             VALUES (:groupID, :categoryID, :UID)', $vars);
 
         $vars = array(':groupID' => $groupID,
                       ':categoryID' => $categoryID,
-                      ':UID' => $UID);
+                      ':UID' => $UID, );
         $res = $this->db->prepared_query("UPDATE group_privileges
                                             SET {$permissionType}=0
                                             WHERE groupID=:groupID
@@ -888,14 +996,15 @@ class Group extends Data
         // if subject has all permissions removed, delete the row from the table
         $vars = array(':groupID' => $groupID,
                       ':categoryID' => $categoryID,
-                      ':UID' => $UID);
+                      ':UID' => $UID, );
         $res = $this->db->prepared_query('SELECT * FROM group_privileges
                                             WHERE groupID=:groupID
                                                 AND categoryID=:categoryID
                                                 AND UID=:UID', $vars);
-        if($res[0]['read'] == 0
+        if ($res[0]['read'] == 0
                 && $res[0]['write'] == 0
-                && $res[0]['grant'] == 0) {
+                && $res[0]['grant'] == 0)
+        {
             $res = $this->db->prepared_query('DELETE FROM group_privileges
                                                 WHERE groupID=:groupID
                                                     AND categoryID=:categoryID
@@ -903,5 +1012,29 @@ class Group extends Data
         }
 
         return 0;
+    }
+
+    private function sortEmployees($a, $b)
+    {
+        $first = substr(strtolower($a['lastName']), 0, 1);
+        $second = substr(strtolower($b['lastName']), 0, 1);
+
+        if ($first == $second)
+        {
+            return 0;
+        }
+
+        return ($first < $second) ? -1 : 1;
+    }
+
+    // Translates the * wildcard to SQL % wildcard
+    private function parseWildcard($query)
+    {
+        return str_replace('*', '%', '*' . $query . '*');
+    }
+
+    private function metaphone_query($in)
+    {
+        return '%' . metaphone($in) . '%';
     }
 }

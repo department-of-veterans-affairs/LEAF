@@ -64,7 +64,7 @@ positionSelector.prototype.showBusy = function() {
 positionSelector.prototype.select = function(id) {
 	this.selection = id;
 
-	$.each($('.positionSelected'), function(key, item) {
+	$.each($('#'+ this.containerID +' .positionSelected'), function(key, item) {
 		$('#' + item.id).removeClass('positionSelected');
 		$('#' + item.id).addClass('positionSelector');
 	});

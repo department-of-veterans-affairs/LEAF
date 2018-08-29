@@ -10,9 +10,11 @@ $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $settings['heading'] = $settings['heading'] == '' ? $config->title : $settings['heading'];
 $settings['subheading'] = $settings['subheading'] == '' ? $config->city : $settings['subheading'];
 
-function getBaseDir() {
-	$dir = dirname($_SERVER['PHP_SELF']);
-	return str_replace('login', '', $dir);
+function getBaseDir()
+{
+    $dir = dirname($_SERVER['PHP_SELF']);
+
+    return str_replace('login', '', $dir);
 }
 
 ?>
@@ -50,8 +52,8 @@ When logging into this system, you agree to the following:<br />
     This information system is provided for U.S. Government-authorized use only. Unauthorized or improper use of this system may result in disciplinary action, as well as civil and criminal penalties.<br /><br />
 
     <div style="font-size: 150%">
-    <a href="<?php echo 'https://' . $_SERVER['SERVER_NAME'] . ':444' . getBaseDir() . 'auth_token/?' . htmlentities($_SERVER['QUERY_STRING']); ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV card</b><img src="../../libs/dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV card" title="Icon for PIV card" /></div></a><br />
-    <a href="<?php echo 'https://' . $_SERVER['SERVER_NAME'] . getBaseDir() . 'auth_domain/?' . htmlentities($_SERVER['QUERY_STRING']); ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>Username and Password</b></div></a>
+    <a href="<?php echo 'https://' . $_SERVER['SERVER_NAME'] . ':444' . getBaseDir() . 'auth_token/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV card</b><img src="../../libs/dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV card" title="Icon for PIV card" /></div></a><br />
+    <a href="<?php echo 'https://' . $_SERVER['SERVER_NAME'] . getBaseDir() . 'auth_domain/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>Username and Password</b></div></a>
     </div>
 
 </div>

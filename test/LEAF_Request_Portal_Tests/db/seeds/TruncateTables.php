@@ -1,10 +1,12 @@
 <?php
-
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use Phinx\Seed\AbstractSeed;
 
 /**
- * Empties the Request Portal database of all data. 
+ * Empties the Request Portal database of all data.
  * To repopulate with initial data, seed with IntialSeed.
  */
 class TruncateTables extends AbstractSeed
@@ -13,7 +15,7 @@ class TruncateTables extends AbstractSeed
     {
         // Ignore any foreign key checks
         // ENSURE THIS GETS SET BACK TO 1
-        $this->execute("SET FOREIGN_KEY_CHECKS = 0");
+        $this->execute('SET FOREIGN_KEY_CHECKS = 0');
 
         $this->table('actions')->truncate();
         $this->table('action_history')->truncate();
@@ -53,6 +55,6 @@ class TruncateTables extends AbstractSeed
 
         // Stop ignoring foreign key checks
         // ENSURE THIS GETS SET BACK TO 1
-        $this->execute("SET FOREIGN_KEY_CHECKS = 1");
+        $this->execute('SET FOREIGN_KEY_CHECKS = 1');
     }
 }
