@@ -57,6 +57,10 @@ function openContent(url) {
                                  <td>Sort Priority</td>\
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
+                             <tr class="isSubForm">\
+                                 <td>Clone authority</td>\
+                                 <td><select id="cloneGroupID"><option value="0">No group</option></select></td>\
+                             </tr>\
                            </table>');
         $('#name').val(categories[currCategoryID].categoryName);
         $('#description').val(categories[currCategoryID].categoryDescription);
@@ -64,6 +68,7 @@ function openContent(url) {
         $('#needToKnow').val(categories[currCategoryID].needToKnow);
         $('#visible').val(categories[currCategoryID].visible);
         $('#sort').val(categories[currCategoryID].sort);
+        $('#cloneGroupID').val(categories[currCategoryID].cloneGroupID);
         if(isSubForm) {
         	$('.isSubForm').css('display', 'none');
         }
@@ -91,6 +96,25 @@ function openContent(url) {
         		dialog.indicateIdle();
         	},
         	cache: false
+        });
+
+        // load group data
+        dialog.indicateBusy();
+        $.ajax({
+            type: 'GET',
+            url: '../api/?a=group/members',
+            success: function(res) {
+                if(res.length > 0) {
+                    for(var i in res) {
+                        $('#cloneGroupID').append('<option value="'+ res[i].groupID +'">'+ res[i].name +'</input>');
+                    }
+                    if(categories[currCategoryID].cloneGroupID !== undefined) {
+                        $('#cloneGroupID').val(categories[currCategoryID].cloneGroupID);
+                    }
+                }
+                dialog.indicateIdle();
+            },
+            cache: false
         });
 
         dialog.setSaveHandler(function() {
@@ -161,6 +185,17 @@ function openContent(url) {
                         if(res != null) {
                         }
                     }
+                }),
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/formCloneAuthority',
+                    data: {cloneGroupID: $('#cloneGroupID').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
                 })
              ).then(function() {
                 categories[currCategoryID].categoryName = $('#name').val();
@@ -170,6 +205,7 @@ function openContent(url) {
                 categories[currCategoryID].needToKnow = $('#needToKnow').val();
                 categories[currCategoryID].visible = $('#visible').val();
                 categories[currCategoryID].sort = $('#sort').val();
+                categories[currCategoryID].cloneAuthority = $('#cloneGroupID').val();
                 openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
                 dialog.hide();
              });
