@@ -59,7 +59,7 @@ $(function() {
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
 
     query = new LeafFormQuery();
-    query.useJSONP(true);
+    query.useJSONP(false);
     query.setRootURL('<!--{$LEAF_NEXUS_URL}-->LEAF/library/');
     query.onSuccess(function(res) {
         data = res;
@@ -110,7 +110,7 @@ $(function() {
             });
         });
         grid.renderBody();
-				gird.announceResults();
+				grid.announceResults();
 
 /*        $('#forms').html('<table class="leaf_grid"><tbody id="table_forms">');
         for(var i in res) {
