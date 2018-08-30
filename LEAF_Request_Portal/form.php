@@ -113,6 +113,39 @@ class Form
         return $fullForm;
     }
 
+    public function getCloneAuthority($recordID)
+    {
+        $login = $this->login;
+
+        //admin, where groupID = 1, always has authority
+        if ($login->checkGroup(1) == true)
+        {
+            return 1;
+        }
+
+        $vars = array(
+            ':recordID' => $recordID,
+        );
+
+        $res = $this->db->prepared_query(
+            'SELECT cloneGroupID
+             FROM category_count 
+             LEFT JOIN categories
+             USING (categoryID) 
+             WHERE recordID=:recordID;',
+            $vars
+        );
+
+        //if cloneGroupID = user's groupID, can clone
+        if ($login->checkGroup((int)$res['cloneGroupID']) == true)
+        {
+            return 1;
+        }
+
+        //if cloneGroupID != user's groupID, can't clone
+        return 0;
+    }
+
     public function flattenFullFormData($data, &$output)
     {
         foreach ($data as $key => $item)
@@ -534,7 +567,7 @@ class Form
 
         $vars = array(':recordID' => (int)$recordID,
                       ':indicatorID' => (int)$indicatorID,
-                      ':series' => (int)$series);
+                      ':series' => (int)$series, );
 
         $res = $this->db->prepared_query(
             'SELECT * FROM data_history
@@ -1949,7 +1982,7 @@ class Form
             }
         }
 
-        $vars2 = array("recordIDs" => $recordIDs);
+        $vars2 = array('recordIDs' => $recordIDs);
         $res = $this->db->prepared_query("SELECT * FROM data
                                     WHERE indicatorID IN ({$indicatorID_list})
                                         AND recordID IN ({$recordIDs})", $vars2);
