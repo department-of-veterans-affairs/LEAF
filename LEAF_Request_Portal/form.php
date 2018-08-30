@@ -64,6 +64,21 @@ class Form
     }
 
     /**
+     * Get all category (Form) IDs, names, and descriptions.
+     *
+     * @return an array of all category IDs, names and descriptions
+     */
+    public function getAllCategories()
+    {
+        $res = $this->db->prepared_query(
+            'SELECT categoryID, categoryName, categoryDescription FROM categories WHERE disabled = 0',
+            array()
+        );
+
+        return $res;
+    }
+
+    /**
      * New version of getServices
      * @return array
      */
@@ -530,7 +545,7 @@ class Form
         
         $vars = array(':recordID' => (int)$recordID,
                       ':indicatorID' => (int)$indicatorID,
-                      ':series' => (int)$series);
+                      ':series' => (int)$series, );
 
         $res = $this->db->prepared_query(
             'SELECT * FROM data_history
@@ -1933,7 +1948,7 @@ class Form
             }
         }
 
-        $vars2 = array("recordIDs" => $recordIDs);
+        $vars2 = array('recordIDs' => $recordIDs);
         $res = $this->db->prepared_query("SELECT * FROM data
                                     WHERE indicatorID IN ({$indicatorID_list})
                                         AND recordID IN ({$recordIDs})", $vars2);
