@@ -523,9 +523,9 @@ var LeafFormGrid = function(containerID, options) {
 			 var term = $('[name="searchtxt"]').val();
 
 			 if(currentData.length == 0) {
-				 $('#' + prefixID + 'status').text('No results found for term ' + term);
+				 $('.status').text('No results found for term ' + term);
      	}else{
-				 $('#' + prefixID + 'status').text('Search results found for term ' + term + ' listed below');
+				 $('.status').text('Search results found for term ' + term + ' listed below');
 			}
 
 		}
