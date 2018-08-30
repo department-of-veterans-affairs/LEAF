@@ -98,17 +98,6 @@ switch ($action) {
         echo json_encode($record);
 
         break;
-    case 'getextrainboxdata':
-        require_once 'form.php';
-        require_once 'Inbox.php';
-        $form = new Form($db, $login);
-        $inbox = new Inbox($db, $login);
-
-        $inboxData = $inbox->getInbox((int)$_GET['depID']);
-
-        echo json_encode($form->getCustomData($inboxData[$_GET['depID']]['records'], $config->descriptionID));
-
-        break;
     default:
         break;
 }

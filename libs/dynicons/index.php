@@ -22,6 +22,8 @@ ini_set('display_errors', 0);
 
 */
 
+include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+
 class Dynicon
 {
     private $cacheDir = 'cache/';
@@ -38,6 +40,7 @@ class Dynicon
 
     public function __construct($file, $width)
     {
+        $file = XSSHelpers::scrubFilename($file);
         $this->file = $file;
         $this->width = $width;
         if (!is_numeric($width) || $width <= 0)

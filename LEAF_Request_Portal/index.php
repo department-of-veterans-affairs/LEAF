@@ -91,17 +91,23 @@ switch ($action) {
         {
             $categoryArray[$key] = array_map('XSSHelpers::xscrub', $cat );
         }
+
+        $servicesArray = $stack->getServices2();
+        foreach($servicesArray as $key => $service)
+        {
+            $servicesArray[$key]['service'] = XSSHelpers::xscrub($servicesArray[$key]['service']);
+        }
         
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('categories', $categoryArray);
         $t_form->assign('recorder', XSSHelpers::sanitizeHTML($login->getName()));
-        $t_form->assign('services', $form->getServices2());
+        $t_form->assign('services', $servicesArray);
         $t_form->assign('city', XSSHelpers::sanitizeHTML($config->city));
         $t_form->assign('phone', XSSHelpers::sanitizeHTML($currEmployeeData[5]['data']));
         $t_form->assign('empMembership', $login->getMembership());
-        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
 
         $main->assign('body', $t_form->fetch(customTemplate('initial_form.tpl')));
 

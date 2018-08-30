@@ -9,6 +9,8 @@
 
 */
 
+require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+
 class System
 {
     public $siteRoot = '';
@@ -549,7 +551,7 @@ class System
     public function newFile()
     {
         $in = $_FILES['file']['name'];
-        $fileName = preg_replace('/[^A-Za-z0-9_\.]/', '', $in);
+        $fileName = XSSHelpers::scrubFilename($in);
         if ($fileName != $in
                 || $fileName == 'index.html'
                 || $fileName == '')
@@ -570,7 +572,7 @@ class System
             return 'Admin access required';
         }
 
-        move_uploaded_file($_FILES['file']['tmp_name'], __DIR__ . '/../files/' . $fileName);
+        move_uploaded_file(XSSHelpers::scrubFilename($_FILES['file']['tmp_name']), __DIR__ . '/../files/' . $fileName);
 
         return true;
     }
