@@ -34,16 +34,16 @@ class SpreadsheetUtil
     /**
      * Load file into an associative array that contains the file contents.
      *
-     * The parent array has two keys: "headers" and "cells". The "headers" key is still present 
+     * The parent array has two keys: "headers" and "cells". The "headers" key is still present
      * even if $hasHeaders is false.
-     * 
+     *
      * Each key of the "headers" array is the column (e.g. "A", "B", "C")
-     * 
+     *
      * Each key of the "cells" array is the row number (e.g. 0, 1, 2). The rows are a zero-index
      * array. Each key of the array that represents a row is the column (e.g. "A", "B", "C").
-     * 
-     * To access cell "A1", where $sheetData is the result of this function: 
-     * 
+     *
+     * To access cell "A1", where $sheetData is the result of this function:
+     *
      *  $sheetData['cells'][0]['A']
      *
      * @param filename      string  path to the spreadsheet file
@@ -53,7 +53,19 @@ class SpreadsheetUtil
      */
     public static function loadFileIntoArray($filename, $hasHeaders = false) : array
     {
-        $cells = self::loadFile($filename)->getActiveSheet()->toArray(null, true, true, true);
+        $spreadsheet = self::loadFile($filename);
+        if ($spreadsheet == null)
+        {
+            return array();
+        }
+
+        $sheet = $spreadsheet->getActiveSheet();
+        if ($sheet == null)
+        {
+            return array();
+        }
+
+        $cells = $sheet->toArray(null, true, true, true);
 
         $result = array();
         $result['headers'] = $hasHeaders ? array_shift($cells) : array();
