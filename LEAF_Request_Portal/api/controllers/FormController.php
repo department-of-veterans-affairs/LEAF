@@ -35,6 +35,23 @@ class FormController extends RESTfulResponse
         $this->index['GET']->register('form', function ($args) use ($form) {
         });
 
+        $this->index['GET']->register('form/categories', function ($args) use ($form) {
+            $result = $form->getAllCategories();
+
+            for ($i = 0; $i < count($result); $i++)
+            {
+                $result[$i]['categoryID'] = XSSHelpers::xscrub($result[$i]['categoryID']);
+                $result[$i]['categoryName'] = XSSHelpers::xscrub($result[$i]['categoryName']);
+                $result[$i]['categoryDescription'] = XSSHelpers::xscrub($result[$i]['categoryDescription']);
+            }
+
+            return $result;
+        });
+
+        $this->index['GET']->register('form/category', function ($args) use ($form) {
+            return $form->getFormByCategory(XSSHelpers::xscrub($_GET['id']));
+        });
+
         // form/customData/ recordID list (csv) / indicatorID list (csv)
         $this->index['GET']->register('form/customData/[text]/[text]', function ($args) use ($form) {
             $recordIDs = array();
