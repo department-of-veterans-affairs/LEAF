@@ -92,6 +92,20 @@ final class FormControllerTest extends DatabaseTest
     }
 
     /**
+     * Tests the `form/categories` endpoint.
+     */
+    public function testGetAllCategories() : void
+    {
+        $results = self::$reqClient->get(array('a' => 'form/categories'));
+
+        $this->assertNotNull($results);
+        $this->assertEquals(3, count($results));
+        $this->assertEquals('form_f4687', $results[0]['categoryID']);
+        $this->assertEquals('form_f4688', $results[1]['categoryID']);
+        $this->assertEquals('form_f4689', $results[2]['categoryID']);
+    }
+
+    /**
      * Tests the `form/[digit]` endpoint.
      */
     public function testGetForm() : void
@@ -109,6 +123,36 @@ final class FormControllerTest extends DatabaseTest
         $this->assertNotNull($form['children']);
         $this->assertEquals(7, count($form['children']));
         $this->assertEquals('form_f4687', $form['children'][0]['type']);
+    }
+
+    /**
+     * Tests the `form/category&id=[categoryID]` endpoint.
+     */
+    public function testGetFormByCategory() : void
+    {
+        $results = self::$reqClient->get(array(
+            'a' => 'form/category',
+            'id' => 'form_f4687',
+        ));
+
+        $this->assertNotNull($results);
+        $this->assertEquals(7, count($results));
+    }
+
+    /**
+     * Tests the `form/category&id=[categoryID]` endpoint.
+     *
+     * Tests the endpoint with a nonexistent ID.
+     */
+    public function testGetFormByCategory_nonexistentID() : void
+    {
+        $results = self::$reqClient->get(array(
+            'a' => 'form/category',
+            'id' => 'I_DO_NOT_EXIST',
+        ));
+
+        $this->assertNotNull($results);
+        $this->assertEquals(0, count($results));
     }
 
     /**
