@@ -35,6 +35,9 @@
         <!--{else}-->
         <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> Delete Bookmark</button>
         <!--{/if}-->
+        <!--{if $submitted == 0 && $cloneAuthority == 1}-->
+        <button class="tools" onclick="" id="tool_cloneRequest"><img src="../libs/dynicons/?img=edit-copy.svg&amp;w=32" alt="Clone request" title="Clone request" style="vertical-align: middle"/> Clone Request</button>
+        <!--{/if}-->
         <br />
         <br />
         <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
