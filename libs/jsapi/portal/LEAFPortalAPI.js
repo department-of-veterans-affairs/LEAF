@@ -5,7 +5,9 @@ var LEAFRequestPortalAPI = function () {
     var baseURL = './api/?a=',
         Forms = PortalFormsAPI(baseURL),
         FormEditor = PortalFormEditorAPI(baseURL),
+        Import = PortalImportAPI(baseURL),
         Signature = PortalSignaturesAPI(baseURL),
+        System = PortalSystemAPI(baseURL),
         Workflow = PortalWorkflowAPI(baseURL),
 
         // used for POST requests
@@ -29,14 +31,19 @@ var LEAFRequestPortalAPI = function () {
             baseURL = urlBase;
             Forms.setBaseAPIURL(baseURL);
             FormEditor.setBaseAPIURL(baseURL);
+            Import.setBaseAPIURL(baseURL);
             Signature.setBaseAPIURL(baseURL);
+            System.setBaseAPIURL(baseURL);
             Workflow.setBaseAPIURL(baseURL);
         },
 
         setCSRFToken = function (token) {
             csrfToken = token;
+            Forms.setCSRFToken(token);
             FormEditor.setCSRFToken(token);
+            Import.setCSRFToken(token);
             Signature.setCSRFToken(token);
+            System.setCSRFToken(token);
             Workflow.setCSRFToken(token);
         };
 
@@ -47,7 +54,9 @@ var LEAFRequestPortalAPI = function () {
 
         Forms: Forms,
         FormEditor: FormEditor,
+        Import: Import,
         Signature: Signature,
+        System: System,
         Workflow: Workflow
     };
 };
@@ -60,6 +69,9 @@ var LEAFRequestPortalAPI = function () {
 var PortalFormsAPI = function (baseAPIURL) {
     var apiBaseURL = baseAPIURL,
         apiURL = baseAPIURL + 'form',
+
+        // used for POST requests
+        csrfToken = '',
 
         /**
          * Get the URL for the LEAF Portal Forms API
@@ -87,6 +99,77 @@ var PortalFormsAPI = function (baseAPIURL) {
             apiURL = baseAPIURL + 'form';
         },
 
+        getAllForms = function (onSuccess, onFail) {
+            var fetchURL = apiURL + '/categories';
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: 'json'
+            })
+                .done(onSuccess)
+                .fail(onFail);
+            // .always(function() {});
+        },
+
+        /**
+         * Get all indicators for the specifed form
+         * 
+         * @param formID    string              the form (category) ID
+         * @param onSuccess function(results)   callback containing the results object
+         * @param onFail    function(error)     callback when action fails
+         */
+        getIndicatorsForForm = function (formID, onSuccess, onFail) {
+            var fetchURL = apiURL + '/category&id=' + formID;
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: 'json'
+            })
+                .done(onSuccess)
+                .fail(onFail);
+            // .always(function() {});
+        },
+
+        modifyRequest = function (recordID, requestData, onSuccess, onFail) {
+            var postURL = apiURL + '/' + recordID;
+            requestData['CSRFToken'] = csrfToken;
+
+            $.ajax({
+                method: 'POST',
+                url: postURL,
+                data: requestData,
+                dataType: 'json'
+            })
+                .done(onSuccess)
+                .fail(onFail);
+            // .always(function() {});
+        },
+
+        newRequest = function (formID, requestData, onSuccess, onFail) {
+            var postURL = apiURL + '/new';
+
+            var postData = {};
+            postData['CSRFToken'] = csrfToken;
+            postData['num' + formID] = 1;
+            postData['title'] = requestData.title;
+
+            $.ajax({
+                method: 'POST',
+                url: postURL,
+                data: postData,
+                dataType: 'json'
+            })
+                .done(function (recordID) {
+                    // title must be removed in order to process the rest of the indicator data
+                    delete requestData.title;
+                    modifyRequest(recordID, requestData, onSuccess, onFail);
+                })
+                .fail(onFail);
+            // .always(function() {});
+        },
+
         /**
          * Query a form using the Report Builder JSON syntax
          *
@@ -109,12 +192,23 @@ var PortalFormsAPI = function (baseAPIURL) {
                     onFail(err);
                 });
             // .always(function() {});
+        },
+
+        /**
+         * Set the CSRFToken for POST requests
+         */
+        setCSRFToken = function (token) {
+            csrfToken = token;
         };
 
     return {
         getAPIURL: getAPIURL,
+        getAllForms: getAllForms,
         getBaseAPIURL: getBaseAPIURL,
+        getIndicatorsForForm: getIndicatorsForForm,
+        newRequest: newRequest,
         setBaseAPIURL: setBaseAPIURL,
+        setCSRFToken: setCSRFToken,
         query: query
     };
 };
@@ -264,12 +358,78 @@ var PortalFormEditorAPI = function (baseAPIURL) {
     return {
         getAPIURL: getAPIURL,
         getBaseAPIURL: getBaseAPIURL,
-        setBaseAPIURL: setBaseAPIURL,
-        setCSRFToken: setCSRFToken,
         getIndicator: getIndicator,
         getIndicatorPrivileges: getIndicatorPrivileges,
+        setBaseAPIURL: setBaseAPIURL,
+        setCSRFToken: setCSRFToken,
         removeIndicatorPrivilege: removeIndicatorPrivilege,
         setIndicatorPrivileges: setIndicatorPrivileges
+    };
+};
+
+var PortalImportAPI = function (baseAPIURL) {
+    var apiBaseURL = baseAPIURL,
+        apiURL = baseAPIURL + 'import',
+
+        // used for POST requests
+        csrfToken = '',
+
+        /**
+         * Get the URL for the LEAF Portal Signatures API
+         */
+        getAPIURL = function () { return apiURL; },
+
+        /**
+         * Get the base URL for the LEAF Portal API
+         * 
+         * @return string   the base LEAF Portal API URL used in this Forms API
+         */
+        getBaseAPIURL = function () { return apiBaseURL; },
+
+        /**
+         * Set the base URL for the LEAF Portal API
+         * 
+         * @param baseAPIURL string the base URL for the Portal API
+         */
+        setBaseAPIURL = function (baseAPIURL) {
+            apiBaseURL = baseAPIURL;
+            apiURL = baseAPIURL + 'import';
+        },
+
+        /**
+         * Set the CSRFToken for POST requests
+         */
+        setCSRFToken = function (token) { csrfToken = token; },
+
+        /**
+         * Get a JSON object that represents the data present in an Excel 
+         * Spreadsheet. The file must be uploaded through the Admin Panel
+         * File Manager first.
+         * 
+         * @param fileName      string              the name of the file
+         * @param hasHeaders    bool                If the first for of the xls is column headers 
+         * @param onSuccess     function(result)    callback when operation succeeds
+         * @param onFail        function(error)     callback when operation fails
+         */
+        parseXLS = function(fileName, hasHeaders, onSuccess, onFail) {
+            var fetchURL = apiURL + '/xls&importFile=' + fileName + '&hasHeaders=' + (hasHeaders === true ? 1 : 0);
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: "json"
+            })
+                .done(onSuccess)
+                .fail(onFail);
+                // .always(function () {});
+        };
+
+    return {
+        getAPIURL: getAPIURL,
+        getBaseAPIURL: getBaseAPIURL,
+        parseXLS: parseXLS,
+        setBaseAPIURL: setBaseAPIURL,
+        setCSRFToken: setCSRFToken,
     };
 };
 
@@ -349,6 +509,68 @@ var PortalSignaturesAPI = function (baseAPIURL) {
         setBaseAPIURL: setBaseAPIURL,
         setCSRFToken: setCSRFToken,
         create: create
+    };
+};
+
+/**
+ * API for working with System functions
+ * 
+ * @param baseAPIURL    string  the base URL for the LEAF Portal API (e.g. "/LEAF_Request_Portal/api/?a=")
+ */
+var PortalSystemAPI = function (baseAPIURL) {
+    var apiBaseURL = baseAPIURL,
+        apiURL = baseAPIURL + 'system',
+
+        // used for POST requests
+        csrfToken = '',
+
+        /**
+         * Get the URL for the LEAF Portal Workflow API
+         */
+        getAPIURL = function () { return apiURL; },
+
+        /**
+         * Get the base URL for the LEAF Portal API
+         * 
+         * @return string   the base LEAF Portal API URL used in this Forms API
+         */
+        getBaseAPIURL = function () { return apiBaseURL; },
+
+        /**
+         * Set the base URL for the LEAF Portal API
+         * 
+         * @param baseAPIURL string the base URL for the Portal API
+         */
+        setBaseAPIURL = function (baseAPIURL) {
+            apiBaseURL = baseAPIURL;
+            apiURL = baseAPIURL + 'system';
+        },
+
+        setCSRFToken = function (token) { csrfToken = token; },
+
+        /**
+         * Get the list of files that have been uploaded through the admin panel File Manager
+         * 
+         * @param onSuccess function(result)    callback when operation succeeds
+         * @param onFail    function(error)     callback when operation fails
+         */
+        getFileList = function (onSuccess, onFail) {
+            $.ajax({
+                method: 'GET',
+                url: apiURL + '/files',
+                dataType: "json"
+            })
+                .done(onSuccess)
+                .fail(onFail);
+                // .always(function () {});
+        };
+
+    return {
+        getAPIURL: getAPIURL,
+        getBaseAPIURL: getBaseAPIURL,
+        getFileList: getFileList,
+        setBaseAPIURL: setBaseAPIURL,
+        setCSRFToken: setCSRFToken,
     };
 };
 
