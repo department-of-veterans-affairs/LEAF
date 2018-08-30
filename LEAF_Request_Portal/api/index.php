@@ -84,6 +84,12 @@ if ($login->checkGroup(1))
         $serviceController = new GroupController($db, $login);
         $serviceController->handler($action);
     });
+
+    $controllerMap->register('import', function () use ($db, $login, $action) {
+        require 'controllers/ImportController.php';
+        $importController = new ImportController($db, $login);
+        $importController->handler($action);
+    });
 }
 
 $controllerMap->register('form', function () use ($db, $login, $action) {
