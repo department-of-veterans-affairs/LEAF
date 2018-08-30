@@ -381,6 +381,31 @@ switch ($action) {
         $tabText = 'Recover disabled fields';
 
         break;
+    case 'import_data':
+
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('orgchartPath', Config::$orgchartPath);
+
+        $main->assign('javascripts', array(
+            '../../libs/js/LEAF/XSSHelpers.js',
+            '../../libs/jsapi/nexus/LEAFNexusAPI.js',
+            '../../libs/jsapi/portal/LEAFPortalAPI.js'
+        ));
+
+        if ($login->checkGroup(1))
+        {
+            $main->assign('body', $t_form->fetch(customTemplate('import_data.tpl')));
+        }
+        else
+        {
+            $main->assign('body', 'You require System Administrator level access to view this section.');
+        }
+
+        break;
     default:
 //        $main->assign('useDojo', false);
         if ($login->isLogin())
