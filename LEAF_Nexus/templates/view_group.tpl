@@ -1,3 +1,5 @@
+<span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="buttonClick" role="status"></span>
+
 <div id="maincontent">
     <div id="group">
         <div id="groupHeader">
@@ -48,12 +50,12 @@
     <div class="toolbar_tags"><h1 role="heading">Tags</h1>
         <div class="tags">
             <!--{foreach $tags as $tag}-->
-            <span role="button" tabindex="0" onkeypress="triggerClick(event, confirmDeleteTag('<!--{$tag}-->'))" onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></span>
+            <span role="button" aria-label="<!--{$tag}-->. Click to delete tag" tabindex="0" onkeypress="triggerClick(event, this.id)" onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></span>
             <!--{/foreach}-->
             <!--{if $groupPrivileges[$groupID].write == 1}-->
             <br /><br />
             <!--{foreach $tag_hierarchy as $tag}-->
-            <button class="buttonNorm" style="width: 100%" onclick="writeTag('<!--{$tag.tag}-->');">Add '<!--{$tag.tag}-->'</button>
+            <button class="buttonNorm" style="width: 100%" onclick="writeTag('<!--{$tag.tag}-->'); announceAction('Wrote tag <!--{$tag.tag}-->');">Add '<!--{$tag.tag}-->'</button>
             <!--{/foreach}-->
             <br />
             <br />
@@ -91,7 +93,7 @@
 <div id="orgchartForm"></div>
 
 <script type="text/javascript">
-
+var groupAbbr = '<!--{$group[0].groupAbbreviation}-->';
 var tags = {};
 <!--{foreach $tags as $tag}-->
 tags['<!--{$tag}-->'] = '<!--{$tag}-->';
@@ -121,9 +123,17 @@ function triggerClickViewOrgChart(e) {
     }
 }
 
+function announceAction(actionName) {
+    $('#buttonClick').attr('aria-label', 'clicked ' + actionName);
+}
+
 function editGroupName() {
-    dialog.setContent('<div style="display: inline">Group Name: </div><input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
-    		<div style="display: inline">Alternate Names: </div><input id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
+    if(groupAbbr === '') {
+        groupAbbr = 'none';
+    }
+    dialog.setContent('<div style="display: inline">Group Name: </div><input aria-label="Group Name is <!--{$group[0].groupTitle}-->" id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
+    		<div style="display: inline">Alternate Names: </div><input aria-label="Alternate Names are '+ groupAbbr +'" id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
+
     dialog.show(); // need to show early because of ie6
 
     dialog.setSaveHandler(function() {
@@ -143,10 +153,11 @@ function editGroupName() {
 }
 
 function addEmployeePosition() {
-    dialog.setContent('<div role="heading" style="display: inline">Employee/Position: </div><div id="positionSelector"></div><div id="employeeSelector"></div><br />\
-    		       		<fieldset><legend role="legend">Options</legend>\
-    		       		<div tabindex="0" id="container_ignorePositions"><input id="ignorePositions" type="checkbox" value="employeeOnly" /> Search Employees Only</div>\
-    		       		<div tabindex="0" id="container_includeSub"><input id="includeSub" type="checkbox" value="applyRecursive" disable="disabled" /> Apply to all subordinates</div>\
+
+    dialog.setContent('<div style="display: inline">Employee/Position: </div><div id="positionSelector"></div><div id="employeeSelector"></div><br />\
+    		       		<fieldset><legend>Options</legend>\
+    		       		<div id="container_ignorePositions"><input aria-label="Search employees only" id="ignorePositions" type="checkbox" value="employeeOnly" /> Search Employees Only</div>\
+    		       		<div id="container_includeSub"><input aria-label="Apply to all subordinates" id="includeSub" type="checkbox" value="applyRecursive" disable="disabled" /> Apply to all subordinates</div>\
     		       		</fieldset>');
     dialog.show(); // need to show early because of ie6
 
