@@ -92,7 +92,7 @@ switch ($action) {
             $categoryArray[$key] = array_map('XSSHelpers::xscrub', $cat );
         }
 
-        $servicesArray = $stack->getServices2();
+        $servicesArray = $form->getServices2();
         foreach($servicesArray as $key => $service)
         {
             $servicesArray[$key]['service'] = XSSHelpers::xscrub($servicesArray[$key]['service']);
