@@ -91,7 +91,7 @@ class Group
             if (is_numeric($group))
             {
                 $vars = array(':userID' => $member,
-                              ':groupID' => $group, );
+                              ':groupID' => (int)$group, );
                 $res = $this->db->prepared_query('INSERT INTO users (userID, groupID)
                                                     VALUES (:userID, :groupID)', $vars);
             }

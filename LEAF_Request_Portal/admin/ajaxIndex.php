@@ -19,6 +19,7 @@ include '../../libs/smarty/Smarty.class.php';
 include '../Login.php';
 include '../db_mysql.php';
 include '../db_config.php';
+include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 
 // Enforce HTTPS
 include_once '../enforceHTTPS.php';
@@ -69,7 +70,7 @@ switch ($action) {
         $group = new Group($db, $login);
         foreach ($deleteList as $del)
         {
-            $group->removeMember($del['userID'], $del['groupID']);
+            $group->removeMember(XSSHelpers::xscrub($del['userID']), $del['groupID']);
         }
 
         break;

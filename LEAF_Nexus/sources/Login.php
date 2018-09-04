@@ -11,6 +11,8 @@
 
 namespace Orgchart;
 
+include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+
 // Sanitize all $_GET input
 if (count($_GET) > 0)
 {
@@ -273,7 +275,7 @@ class Login
     {
         if ($empUID == null)
         {
-            $empUID = $this->empUID;
+            $empUID = (int)$this->empUID;
         }
 
         if (isset($this->cache['getMembership_' . $empUID]))
@@ -376,7 +378,8 @@ class Login
         $indicatorList = '';
         foreach ($indicatorIDs as $id)
         {
-            $indicatorList .= (int)$id . ',';
+            $id = (int)$id;
+            $indicatorList .= $id . ',';
             // grant by default if user is the owner, or is a member of a group who has ownership
             if (isset($memberships[$dataTableUID][$UID]))
             {
@@ -408,57 +411,64 @@ class Login
                                             	WHERE indicatorID IN ({$indicatorList})", $var);
             $this->cache[$cacheHash2] = $res;
         }
-
+        
         foreach ($res as $item)
         {
+            $resIndicatorID = (int)$item['indicatorID'];
+            $resCategoryID = \XSSHelpers::xscrub($item['categoryID']);
+            $resUID = (int)$item['UID'];
+            $resRead = (int)$item['read'];
+            $resWrite = (int)$item['write'];
+            $resGrant = (int)$item['grant'];
+            
             // grant highest available access
-            if (isset($memberships[$item['categoryID'] . 'ID'][$item['UID']]))
+            if (isset($memberships[$resCategoryID . 'ID'][$resUID]))
             {
-                if (isset($data[$item['indicatorID']]['read']) && $data[$item['indicatorID']]['read'] != 1)
+                if (isset($data[$resIndicatorID]['read']) && $data[$resIndicatorID]['read'] != 1)
                 {
-                    $data[$item['indicatorID']]['read'] = $item['read'];
+                    $data[$resIndicatorID]['read'] = $resRead;
                 }
-                if (isset($data[$item['indicatorID']]['write']) && $data[$item['indicatorID']]['write'] != 1)
+                if (isset($data[$resIndicatorID]['write']) && $data[$resIndicatorID]['write'] != 1)
                 {
-                    $data[$item['indicatorID']]['write'] = $item['write'];
+                    $data[$resIndicatorID]['write'] = $resWrite;
                 }
-                if (isset($data[$item['indicatorID']]['grant']) && $data[$item['indicatorID']]['grant'] != 1)
+                if (isset($data[$resIndicatorID]['grant']) && $data[$resIndicatorID]['grant'] != 1)
                 {
-                    $data[$item['indicatorID']]['grant'] = $item['grant'];
+                    $data[$resIndicatorID]['grant'] = $resGrant;
                 }
             }
             else
             {
-                if (isset($data[$item['indicatorID']]['read']) && $data[$item['indicatorID']]['read'] != 1)
+                if (isset($data[$resIndicatorID]['read']) && $data[$resIndicatorID]['read'] != 1)
                 {
-                    $data[$item['indicatorID']]['read'] = 0;
+                    $data[$resIndicatorID]['read'] = 0;
                 }
-                if (isset($data[$item['indicatorID']]['write']) && $data[$item['indicatorID']]['write'] != 1)
+                if (isset($data[$resIndicatorID]['write']) && $data[$resIndicatorID]['write'] != 1)
                 {
-                    $data[$item['indicatorID']]['write'] = 0;
+                    $data[$resIndicatorID]['write'] = 0;
                 }
-                if (isset($data[$item['indicatorID']]['grant']) && $data[$item['indicatorID']]['grant'] != 1)
+                if (isset($data[$resIndicatorID]['grant']) && $data[$resIndicatorID]['grant'] != 1)
                 {
-                    $data[$item['indicatorID']]['grant'] = 0;
+                    $data[$resIndicatorID]['grant'] = 0;
                 }
             }
 
             // apply access levels for special group: Owner (groupID 3)
-            if ($item['categoryID'] == 'group'
-                && $item['UID'] == 3
-                && isset($data[$item['indicatorID']]['isOwner']))
+            if ($resCategoryID == 'group'
+                && $resUID == 3
+                && isset($data[$resIndicatorID]['isOwner']))
             {
-                if (isset($data[$item['indicatorID']]['read']) && $data[$item['indicatorID']]['read'] != 1)
+                if (isset($data[$resIndicatorID]['read']) && $data[$resIndicatorID]['read'] != 1)
                 {
-                    $data[$item['indicatorID']]['read'] = $item['read'];
+                    $data[$resIndicatorID]['read'] = $resRead;
                 }
-                if (isset($data[$item['indicatorID']]['write']) && $data[$item['indicatorID']]['write'] != 1)
+                if (isset($data[$resIndicatorID]['write']) && $data[$resIndicatorID]['write'] != 1)
                 {
-                    $data[$item['indicatorID']]['write'] = $item['write'];
+                    $data[$resIndicatorID]['write'] = $resWrite;
                 }
-                if (isset($data[$item['indicatorID']]['grant']) && $data[$item['indicatorID']]['grant'] != 1)
+                if (isset($data[$resIndicatorID]['grant']) && $data[$resIndicatorID]['grant'] != 1)
                 {
-                    $data[$item['indicatorID']]['grant'] = $item['grant'];
+                    $data[$resIndicatorID]['grant'] = $resGrant;
                 }
             }
         }
@@ -469,6 +479,7 @@ class Login
         {
             foreach ($indicatorIDs as $id)
             {
+                $id = (int)$id;
                 $data[$id]['grant'] = 1;
             }
         }
