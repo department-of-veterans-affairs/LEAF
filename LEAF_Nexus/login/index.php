@@ -6,8 +6,8 @@ include '../config.php';
 $config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$settings['heading'] = $settings['heading'] == '' ? $config->title : $settings['heading'];
-$settings['subheading'] = $settings['subheading'] == '' ? $config->city : $settings['subheading'];
+$settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
+$settings['subheading'] = XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']);
 
 function getBaseDir()
 {

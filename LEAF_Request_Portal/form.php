@@ -78,7 +78,7 @@ class Form
 
         foreach ($res as $field)
         {
-            $temp['serviceID'] = $field['serviceID'];
+            $temp['serviceID'] = (int)$field['serviceID'];
             $temp['service'] = $field['service'];
             $services[] = $temp;
         }
@@ -941,7 +941,7 @@ class Form
                         }
 
                         $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
-                        $sanitizedFileName = stripslashes($sanitizedFileName);
+                        $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
                     }
                     else

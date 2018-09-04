@@ -396,7 +396,7 @@ class Login
      */
     public function getMembership()
     {
-        $empUID = $this->empUID;
+        $empUID = (int)$this->empUID;
 
         if (isset($this->cache['getMembership_' . $empUID]))
         {

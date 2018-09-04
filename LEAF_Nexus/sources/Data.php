@@ -11,6 +11,8 @@
 
 namespace Orgchart;
 
+require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+
 abstract class Data
 {
     protected $db;
@@ -389,6 +391,7 @@ abstract class Data
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
                         $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
+                        $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
                         if (!is_dir(Config::$uploadDir))
                         {
                             mkdir(Config::$uploadDir, 755, true);
