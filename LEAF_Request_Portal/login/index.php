@@ -3,12 +3,13 @@ header('X-UA-Compatible: IE=edge');
 
 include '../db_mysql.php';
 include '../db_config.php';
+include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 $config = new Config();
 $db_config = new DB_Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$settings['heading'] = $settings['heading'] == '' ? $config->title : $settings['heading'];
-$settings['subheading'] = $settings['subheading'] == '' ? $config->city : $settings['subheading'];
+$settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
+$settings['subheading'] = XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']);
 
 function getBaseDir()
 {

@@ -91,7 +91,8 @@ switch ($action) {
         $t_form->assign('header', XSSHelpers::sanitizeHTML($_GET['header']));
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . urlencode($_SERVER['REQUEST_URI']);
+        $HTTP_HOST = XSSHelpers::sanitizeHTML($_SERVER['HTTP_HOST']);
+        $qrcodeURL = "{$protocol}://{$HTTP_HOST}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css'));
         $main->assign('stylesheets_print', array('css/editor_printer.css'));
@@ -368,11 +369,20 @@ switch ($action) {
                                            'css/groupSelector.css',
                                            'css/view_group.css', ));
 
+        $indicatorArray = $indicators->getIndicator((int)$_GET['indicatorID']);
+        $indicatorArray = array_map('XSSHelpers::sanitizeHTML', $indicatorArray);
+
+        $privilegesArray = $indicators->getPrivileges((int)$_GET['indicatorID']);
+        foreach($privilegesArray as $key => $val)
+        {
+                $privilegesArray[$key] = array_map('XSSHelpers::sanitizeHTML', $privilegesArray[$key] );
+        }
+
         $t_form->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_form->assign('UID', (int)$_GET['UID']);
-        $t_form->assign('indicator', $indicators->getIndicator((int)$_GET['indicatorID']));
-        $t_form->assign('permissions', $indicators->getPrivileges((int)$_GET['indicatorID']));
-        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('indicator', $indicatorArray);
+        $t_form->assign('permissions', $privilegesArray);
+        $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
         $main->assign('body', $t_form->fetch('view_permissions.tpl'));
 
         $tabText = 'Permission Editor';
@@ -568,9 +578,9 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', $settings['heading'] == '' ? $config->title : $settings['heading']);
-$main->assign('city', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
-$main->assign('revision', $settings['version']);
+$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {
