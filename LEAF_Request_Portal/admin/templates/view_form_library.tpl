@@ -59,7 +59,7 @@ $(function() {
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
 
     query = new LeafFormQuery();
-    query.useJSONP(false);
+    query.useJSONP(true);
     query.setRootURL('<!--{$LEAF_NEXUS_URL}-->LEAF/library/');
     query.onSuccess(function(res) {
         data = res;
