@@ -22,8 +22,8 @@ Typical workflow:
 1. Create a [good commit message](https://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message). Keep the commit subject under 50 characters, and wrap the commit message body at 72 characters.
 1. Push feature branch to remote origin.
 1. Create a pull for the feature branch into `dev`. The request name should follow the format: "LEAF<ticket#> Short Description"
-1. Teammates will comment and/or approve the changes.
+1. Teammates will comment on and/or approve the changes (see [CodeReviews](CodeReviews.md).
 1. Make any necessary changes. 
 1. Push changed feature branch to remote.
 1. The pull request from the feature branch will be automatically updated.
-1. After the pull request has been merged, the feature branch will be deleted.
+1. After the pull request has been reviewed, approved, and merged, the feature branch will be deleted.
