@@ -3,7 +3,7 @@
 <div id="maincontent">
     <div id="group">
         <div id="groupHeader">
-            <span id="groupTitle"><!--{$group[0].groupTitle|sanitize}-->
+            <span id="groupTitle" tabindex="0"><!--{$group[0].groupTitle|sanitize}-->
             <!--{if $group[0].groupAbbreviation != ''}-->
                 (<!--{$group[0].groupAbbreviation}-->)
             <!--{/if}-->
@@ -35,7 +35,7 @@
 </div>
 
 <div id="toolbar" class="toolbar_right toolbar noprint">
-    <div id="tools"><h1 role="heading">Options</h1>
+    <div id="tools"><h1 role="heading" tabindex="0">Options</h1>
         <!--{if array_search('service', $tags) !== false}-->
         <div onkeypress="triggerClickViewOrgChart(event)" role="button" id="view_orgchart"><a id="view_orgchart_link" href="?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->"></a><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
         <br />
@@ -47,7 +47,7 @@
         <button class="options" onclick="confirmRemove()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
     </button>
 
-    <div class="toolbar_tags"><h1 role="heading">Tags</h1>
+    <div class="toolbar_tags"><h1 role="heading" tabindex="0">Tags</h1>
         <div class="tags">
             <!--{foreach $tags as $tag}-->
             <span role="button" aria-label="<!--{$tag}-->. Click to delete tag" tabindex="0" onkeypress="triggerClick(event, this.id)" onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></span>
@@ -64,15 +64,15 @@
         </div>
     </div>
 <br />
-    <div class="toolbar_security"><h1 role="heading">Security Permissions</h1>
-        <div>
+    <div class="toolbar_security"><h1 role="heading" tabindex="0">Security Permissions</h1>
+        <div tabindex="0">
         <!--{if $groupPrivileges[$groupID].read != 0}-->
-            <img src="../libs/dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" /> You have read access
+            <img src="../libs/dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" / > You have read access
         <!--{else}-->
-            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Read Access" style="vertical-align: middle" /> You do not have read access
+            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Read Access" style="vertical-align: middle" / tabindex="0"> You do not have read access
         <!--{/if}-->
         </div>
-        <div>
+        <div tabindex="0">
         <!--{if $groupPrivileges[$groupID].write != 0}-->
             <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Write Access" style="vertical-align: middle" /> You have write access
         <!--{else}-->
@@ -447,6 +447,10 @@ $(function() {
 
     <!--{if $groupID >= 2 && $groupID <= 10}-->
     alert('This is a special group for internal use. Do not modify.');
+    setTimeout(function () {
+      $("button.ui-dialog-titlebar-close").eq(1).focus();
+    }, 10);
+
     <!--{/if}-->
 
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
