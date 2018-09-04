@@ -14,10 +14,37 @@ class GroupControllerTest extends DatabaseTest
 {
     private static $client = null;
 
+    private static $testEndpointClient = null;
+
+    private static $db;
+
     protected function setUp()
     {
         $this->resetDatabase();
+        $db_config = new Config();
+        self::$db = new DB($db_config->phonedbHost, $db_config->phonedbUser, $db_config->phonedbPass, $db_config->phonedbName);
         self::$client = LEAFClient::createNexusClient();
+        self::$testEndpointClient = LEAFClient::createNexusClient('http://localhost/test/LEAF_test_endpoints/nexus/', '../../../LEAF_Nexus/auth_domain/');
+    }
+
+    /**
+     * Tests the GET `formEditor/version` endpoint.
+     */
+    public function testEditParentID() : void
+    {
+        $action = 'group/editParentID';
+
+        $queryParams = array('a' => $action);
+        $formParams = array('groupID' => '1', 'newParentID' => 11);
+        self::$testEndpointClient->post($queryParams, $formParams);
+
+        $var = array(':groupID' => 1);
+        $res = self::$db->prepared_query('SELECT parentID
+                                            FROM groups
+                                            WHERE groupID=:groupID', $var);
+
+        $this->assertFalse(empty($res));
+        $this->assertEquals(11, $res[0]['parentID']);
     }
 
     /**
