@@ -232,7 +232,7 @@ nationalEmployeeSelector.prototype.search = function() {
 
 		                	var photo = response[i].data[1] != undefined && response[i].data[1].data != '' ? '<img class="employeeSelectorPhoto" src="' + t.rootPath + 'image.php?categoryID=1&amp;UID='+response[i].empUID+'&amp;indicatorID=1" alt="photo" />' : '';
 		                	var positionTitle = response[i].positionData != undefined ? response[i].positionData.positionTitle : '';
-		                	positionTitle = positionTitle == '' ? response[i].data[23].data : positionTitle;
+		                	positionTitle = positionTitle == '' && response[i].data[23] !== undefined ? response[i].data[23].data : positionTitle;
 		                	var groupTitle = '';
 		                	
 		                	if(response[i].serviceData != undefined && response[i].serviceData[0].groupTitle != null) {
