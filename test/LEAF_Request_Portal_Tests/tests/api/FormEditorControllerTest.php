@@ -11,14 +11,61 @@ final class FormEditorControllerTest extends DatabaseTest
 {
     private static $client = null;
 
+    private static $testEndpointClient = null;
+
+    private static $db;
+
     public static function setUpBeforeClass()
     {
+        $db_config = new DB_Config();
+        self::$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
         self::$client = LEAFClient::createRequestPortalClient();
+        self::$testEndpointClient = LEAFClient::createRequestPortalClient('http://localhost/test/LEAF_test_endpoints/request_portal/', '../../../LEAF_Request_Portal/auth_domain/');
     }
 
     protected function setUp()
     {
         $this->resetDatabase();
+    }
+
+    /**
+     * Tests the POST `formEditor/setFormat` endpoint.
+     */
+    public function testSetFormat() : void
+    {
+        $action = 'formEditor/setFormat';
+
+        $queryParams = array('a' => $action);
+        $formParams = array('indicatorID' => '1', 'format' => 'whatever');
+        self::$testEndpointClient->post($queryParams, $formParams);
+
+        $var = array(':indicatorID' => 1);
+        $res = self::$db->prepared_query('SELECT format
+                                            FROM indicators
+                                            WHERE indicatorID=:indicatorID', $var);
+
+        $this->assertFalse(empty($res));
+        $this->assertEquals('whatever', $res[0]['format']);
+    }
+
+    /**
+     * Tests the POST `formEditor/setFormat` endpoint.
+     */
+    public function testSetFormatGeneric() : void
+    {
+        $action = 'formEditor/genericFunctionCall/_setFormat';
+
+        $queryParams = array('a' => $action);
+        $formParams = array('indicatorID' => '1', 'format' => 'whatevero');
+        self::$testEndpointClient->post($queryParams, $formParams);
+
+        $var = array(':indicatorID' => 1);
+        $res = self::$db->prepared_query('SELECT format
+                                            FROM indicators
+                                            WHERE indicatorID=:indicatorID', $var);
+
+        $this->assertFalse(empty($res));
+        $this->assertEquals('whatevero', $res[0]['format']);
     }
 
     /**
