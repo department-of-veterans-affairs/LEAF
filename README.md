@@ -2,7 +2,7 @@
 # 
 Light Electronic Action Framework (LEAF) empowers VA staff in process improvement. LEAF is a solution that enables non-technical users to rapidly digitize paper processes, such as travel and tuition reimbursement, FTE, and many other types of resource requests.
 
-[Quick introduction to LEAF](raw/readme_updates/docs/LEAF_Product_Overview.pptx)
+[Quick introduction to LEAF](docs/LEAF_Product_Overview.pptx)
 
 ## NOTICE
 
