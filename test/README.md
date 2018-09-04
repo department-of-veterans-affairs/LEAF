@@ -114,13 +114,19 @@ All tests for new API endpoints should live in the `tests` directory of each pro
 
 When deciding where to place a test that requires database interaction, it should be the project it interacts with the most. For example, [CryptoHelpersTest](LEAF_Request_Portal_Tests/tests/helpers/CryptoHelpersTest.php) actually tests [CryptoHelpers](../libs/php-commons/CryptoHelpers.php) in the [libs](../libs/php-commons) project, but the test interacts with the [Request Portal](../LEAF_Request_Portal) database, so it lives in the [LEAF_Request_Portal_Tests](LEAF_Request_Portal_Tests) directory.
 
-#### New functions written without endpoints
+#### Functions in classes without endpoints
 
-New functions that do not have direct endpoint access need to have endpoints written form them. These new endpoints should live in the `tests/LEAF_test_endpoints` directory of each projects root directory (e.g. `nexus`, `request_portal`). Tests should be placed according to the rules above.
+Due to the intricate nature of how database access is configured, any methods in classes that do not have direct endpoint access need to have endpoints written for them within the [LEAF_test_endpoints](LEAF_test_endpoints) directory for each project (e.g. [nexus](LEAF_test_endpoints), [request_portal](LEAF_test_endpoints/request_portal)). Tests should be placed according to the rules in the section above.
 
-There should be a controller file for each file/class being tested. If an appropriate controller does not exist, create one. (`/LEAF_Request_Portal/sources/FormEditor.php` >> `FormEditorController.php`). Then make sure you add the controller to the index file in the root folder (e.g. `tests/LEAF_test_endpoints/nexus/index.php`). 
+A controller file should be created for each class being tested, then added to the controller index file in the root folder (e.g. [nexus/index.php](LEAF_test_endpoints/nexus/index.php)). 
 
-You can add an endpoint for each function to be tested or you can try to implement a genericFunctionCall endpoint. An example of the genericFunctionCall endpoint can be seen in `tests/LEAF_test_endpoints/request_portal/controllers/FormEditorController.php` and the test that calls it in `tests/api/FormEditorControllerTest.php` (`testSetFormatGeneric()`). You just make a call to `whateverController/genericFunctionCall/[text]` where `[text]` is replaced with the name of the function, preceded by an underscore (`formEditor/genericFunctionCall/_setFormat`). Then send and parameters as formParams in the correct order.
+An endpoint can be added for each function to be tested, or a `genericFunctionCall` endpoint can be implemented. An example of the `genericFunctionCall` endpoint can be seen in [FormEditorController.php](LEAF_test_endpoints/request_portal/controllers/FormEditorController.php) and the test that calls it in [FormEditorControllerTest.php](LEAF_Request_Portal_Tests/tests/api/FormEditorControllerTest.php) (`testSetFormatGeneric()`). Just make a call to `whateverController/genericFunctionCall/[text]` where `[text]` is replaced with the name of the function, preceded by an underscore:
+
+```
+formEditor/genericFunctionCall/_setFormat
+```
+
+Then send parameters as formParams in the correct order.
 
 ### LEAFClient
 
