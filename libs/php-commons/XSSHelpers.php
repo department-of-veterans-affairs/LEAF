@@ -288,8 +288,22 @@ class XSSHelpers
      */
     public static function scrubNewLinesFromURL($stringToSanitize)
     {
-        $toRemove = ['%0a','%0A'];
+        $toRemove = ['%0a','%0A', '\r', '\n'];
 
         return str_replace($toRemove, '', $stringToSanitize);
+    }
+
+    /**
+     * Sanitize a filename, removing anything that isn't a letter, number, underscore, or dash
+     *
+     * @param    string  $stringToScrub the string to be sanitized
+     *
+     * @return   string  the sanitized string
+     */
+    public static function scrubFilename($stringToSanitize)
+    {
+        $pattern = "/[^a-zA-Z0-9\.\-\_]*/";
+        
+        return preg_replace($pattern, "" , $stringToSanitize );
     }
 }

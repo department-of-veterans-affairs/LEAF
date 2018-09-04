@@ -645,7 +645,7 @@ var LeafFormGrid = function(containerID, options) {
     		var i = 0;
     		var thisSite = document.createElement('a');
     		if (/^[A-Za-z0-9+&@#/%?=~_|!:,.;()]/.test(window.location.href)) {
-                thisSite.href = window.location.href;
+                thisSite.href = urlencode(window.location.href);
             } else return false;
     		var numColumns = headers.length - 1;
     		$('#' + prefixID + 'tbody>tr>td').each(function(idx, val) {

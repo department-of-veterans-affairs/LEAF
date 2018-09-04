@@ -247,4 +247,97 @@ final class XSSHelpersTest extends TestCase
 
         $this->assertEquals($out1, XSSHelpers::xscrub($str1));
     }
+
+    /**
+     * Tests XSSHelpers::scrubNewLinesFromURL()
+     *
+     * Tests scrubbing newline characters from URL
+     */
+    public function testScrubNewLinesFromURL() : void
+    {
+        $goodNames = array('http://www.website.com',
+                            'http://www.website.eu.com',
+                            'http://www.sub.website.com',
+                            'https://www.website.com',
+                            'https://www.website.eu.com',
+                            'https://www.sub.website.com',
+                            'http://www.website.com/whatever',
+                            'http://www.website.eu.com/what.exe',
+                            'http://www.sub.website.com/yo/yo.jpg',
+                            'http://www.sub.123website.com/yo/yo.jpg',
+                        );
+
+        $badNames = array('http://w%0aww.%0awebsit%0ae.com' => 'http://www.website.com',
+                          'http://%0Awww%0A.webs%0Aite.eu%0A.co%0Am' => 'http://www.website.eu.com',
+                          'http://\r\nwww.sub.website.com' => 'http://www.sub.website.com',
+                          'https://\nwww.websi\rte.com' => 'https://www.website.com',
+                          'https://w%0A%0A%0Aww.web%0Asite.eu%0A.com' => 'https://www.website.eu.com',
+                          'https://%0a%0a%0awww.sub%0a%0a.websi%0a%0ate.com' => 'https://www.sub.website.com',
+                          'http://www.website.com/whatever' => 'http://www.website.com/whatever',
+                          'http://www.websi\r\n\r\n\r\nte.eu.com/what.exe' => 'http://www.website.eu.com/what.exe',
+                          'http://w\r\n\r\nww.sub.website.com/\r\nyo/\r\nyo.jp\r\ng' => 'http://www.sub.website.com/yo/yo.jpg',
+                        );
+
+        foreach($goodNames as $good)
+        {
+            $this->assertEquals($good, XSSHelpers::scrubNewLinesFromURL($good));
+        }
+
+        foreach($badNames as $bad => $good)
+        {
+            $this->assertEquals($good, XSSHelpers::scrubNewLinesFromURL($bad));
+        }
+    }
+
+    /**
+     * Tests XSSHelpers::scrubFilename()
+     *
+     * Tests scrubbing bad characters from filename
+     */
+    public function testScrubFilename() : void
+    {
+        $goodNames = array('filename.exe',
+                            'file-name.exe',
+                            'file_name.exe',
+                            '_filename_.exe',
+                            '-file-name-.exe',
+                            '_-file_name-_.exe',
+                            'filename132.exe',
+                            '456file-name.exe',
+                            'file4_na5me.exe',
+                            '_fil785ename_.exe',
+                            '-fi448ame-.exe',
+                            '_-f48748name-_.exe',
+                        );
+
+        $badNames = array('badpath/filename.exe' => 'badpathfilename.exe',
+                            'badpath//file-name.exe' => 'badpathfile-name.exe',
+                            'badpath///file_name.exe' => 'badpathfile_name.exe',
+                            'badpath\\filename.exe' => 'badpathfilename.exe',
+                            'badpath\\\\file-name.exe' => 'badpathfile-name.exe',
+                            'badpath\\\\\\file_name.exe' => 'badpathfile_name.exe',
+                            '!@#$%^&_filename_.exe' => '_filename_.exe',
+                            '-f)*&^%ile-name-.exe' => '-file-name-.exe',
+                            '_-file_n[]}{\';";/?><$ame-_.exe' => '_-file_name-_.exe',
+                            '123badpath/filename.exe' => '123badpathfilename.exe',
+                            'badpath//file-name123.exe' => 'badpathfile-name123.exe',
+                            'badpath///file_name.e123xe' => 'badpathfile_name.e123xe',
+                            'badpath\\312filename.exe' => 'badpath312filename.exe',
+                            'badpath\\33\\file-name.exe' => 'badpath33file-name.exe',
+                            'badpath44\\\\\\file_name.exe' => 'badpath44file_name.exe',
+                            '!@#345$%^&_filename_.exe' => '345_filename_.exe',
+                        );
+
+        foreach($goodNames as $good)
+        {
+            $this->assertEquals($good, XSSHelpers::scrubFilename($good));
+        }
+
+        foreach($badNames as $bad => $good)
+        {
+            $this->assertEquals($good, XSSHelpers::scrubFilename($bad));
+        }
+
+        
+    }
 }

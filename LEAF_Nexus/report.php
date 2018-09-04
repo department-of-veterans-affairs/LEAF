@@ -127,7 +127,7 @@ $main->assign('tabText', $tabText);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
 $main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$main->assign('revision', XSSHelpers::scrubNewLinesFromURL($settings['version']));
 
 if (!isset($_GET['iframe']))
 {
