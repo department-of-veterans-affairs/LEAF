@@ -75,6 +75,9 @@ var LeafForm = function(containerID) {
                             dialog_confirm_sig.hide();
                             dialog.show();
                             dialog.indicateBusy();
+
+                            //hides stamps without reloading page
+                            $('#stamps').html('');
                             getEditWindow(indicatorID, series)
                         });
                         dialog_confirm_sig.show();
