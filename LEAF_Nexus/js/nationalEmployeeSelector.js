@@ -104,7 +104,7 @@ nationalEmployeeSelector.prototype.showBusy = function() {
 nationalEmployeeSelector.prototype.select = function(id) {
 	this.selection = id;
 
-	$.each($('.employeeSelected'), function(key, item) {
+	$.each($('#'+ this.containerID +' .employeeSelected'), function(key, item) {
 		$('#' + item.id).removeClass('employeeSelected');
 		$('#' + item.id).addClass('employeeSelector');
 	});
@@ -207,10 +207,10 @@ nationalEmployeeSelector.prototype.search = function() {
 		            	$('#' + t.prefixID + 'result').html('');
 		            	var buffer = '';
 		            	if(t.outputStyle == 'micro') {
-		            		buffer = '<table class="employeeSelectorTable"><tr><th>Name</th><th>Contact</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+		            		buffer = '<table class="employeeSelectorTable"><thead><tr><th>Name</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 		            	}
 		            	else {
-		            		buffer = '<table class="employeeSelectorTable"><tr><th>Name</th><th>Location</th><th>Contact</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+		            		buffer = '<table class="employeeSelectorTable"><thead><tr><th>Name</th><th>Location</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 		            	}
 
 		            	$('#' + t.prefixID + 'result').html(buffer);

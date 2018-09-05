@@ -1,10 +1,12 @@
 <?php
-
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use Phinx\Seed\AbstractSeed;
 
 /**
- * Empties the Nexus database of all data. 
+ * Empties the Nexus database of all data.
  * To repopulate with initial data, seed with IntialSeed.
  */
 class TruncateTables extends AbstractSeed

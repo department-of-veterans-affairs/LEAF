@@ -26,7 +26,7 @@ final class FormControllerTest extends DatabaseTest
      */
     public function testDataForSigning() : void
     {
-        $results = self::$reqClient->get('?a=form/1/dataforsigning');
+        $results = self::$reqClient->get(array('a' => 'form/1/dataforsigning'));
 
         $this->assertNotNull($results);
         $this->assertTrue(isset($results['form_id']));
@@ -150,7 +150,7 @@ final class FormControllerTest extends DatabaseTest
 
     /**
      * Tests the `form/[text]/workflow` endpoint.
-     * 
+     *
      * Tests with invalid category ID
      */
     public function testGetWorkflow_invalidCategory() : void
@@ -169,6 +169,77 @@ final class FormControllerTest extends DatabaseTest
         $results = self::$reqClient->postEncodedForm('?a=form/new', array(
             'title' => "Junk Title",
             'numform_f4687' => 1
+        ));
+
+        $this->assertNotNull($results);
+        $this->assertEquals(2, $results);
+    }
+    /**
+     * Tests the `form/[digit]` endpoint.
+     */
+    public function testGetForm() : void
+    {
+        $results = self::$reqClient->get(array('a' => 'form/1'));
+
+        $this->assertNotNull($results);
+        $this->assertNotNull($results['items']);
+        $this->assertEquals(1, count($results['items']));
+
+        $form = $results['items'][0];
+
+        $this->assertEquals('Sample Form', $form['name']);
+
+        $this->assertNotNull($form['children']);
+        $this->assertEquals(7, count($form['children']));
+        $this->assertEquals('form_f4687', $form['children'][0]['type']);
+    }
+
+    /**
+     * Tests the `form/[digit]/[digit]/[digit]/history` endpoint.
+     */
+    public function testGetIndicatorLog() : void
+    {
+        $results = self::$reqClient->get(array('a' => 'form/1/2/1/history'));
+
+        $this->assertNotNull($results);
+        $this->assertEquals(1, count($results));
+        $this->assertEquals('Bruce', $results[0]['data']);
+    }
+
+    /**
+     * Tests the `form/[text]/workflow` endpoint.
+     */
+    public function testGetWorkflow() : void
+    {
+        $results = self::$reqClient->get(array('a' => 'form/_form_f4687/workflow'));
+
+        $this->assertNotNull($results);
+        $this->assertEquals(1, count($results));
+        $this->assertEquals(1, $results[0]['workflowID']);
+        $this->assertEquals('form_f4687', $results[0]['categoryID']);
+    }
+
+    /**
+     * Tests the `form/[text]/workflow` endpoint.
+     *
+     * Tests with invalid category ID
+     */
+    public function testGetWorkflow_invalidCategory() : void
+    {
+        $results = self::$reqClient->get(array('a' => 'form/_form_junk/workflow'));
+
+        $this->assertNotNull($results);
+        $this->assertEquals(0, count($results));
+    }
+
+    /**
+     * Tests the `form/new` endpoint.
+     */
+    public function testNewForm() : void
+    {
+        $results = self::$reqClient->post(array('a' => 'form/new'), array(
+            'title' => 'Junk Title',
+            'numform_f4687' => 1,
         ));
 
         $this->assertNotNull($results);

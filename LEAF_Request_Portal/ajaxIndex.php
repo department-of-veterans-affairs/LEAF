@@ -1,5 +1,9 @@
 <?php
 /*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
+/*
     Index for everything
     Date Created: September 11, 2007
 
@@ -472,7 +476,7 @@ switch ($action) {
 
         $tagMembers = $form->getTagMembers(XSSHelpers::xscrub($_GET['tag']));
 
-        $t_form->assign('tag', strip_tags($_GET['tag']));
+        $t_form->assign('tag', XSSHelpers::xscrub($_GET['tag']));
         $t_form->assign('totalNum', count($tagMembers));
         $t_form->assign('requests', $tagMembers);
         $t_form->display('tag_show_members.tpl');

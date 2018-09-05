@@ -8,30 +8,35 @@ require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 
 class FormWorkflow
 {
-    private $db;
-    private $login;
-    private $recordID;
-    // workflow actions are triggered from ./api/ except on submit
-    private $eventFolder = '../scripts/events/';
     public $siteRoot = '';
 
-    function __construct($db, $login, $recordID)
+    private $db;
+
+    private $login;
+
+    private $recordID;
+
+    // workflow actions are triggered from ./api/ except on submit
+    private $eventFolder = '../scripts/events/';
+
+    public function __construct($db, $login, $recordID)
     {
         $this->db = $db;
         $this->login = $login;
         $this->recordID = is_numeric($recordID) ? $recordID : 0;
-        
+
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
         $apiEntry = strpos($this->siteRoot, '/api/');
-        if($apiEntry !== false) {
-        	$this->siteRoot = substr($this->siteRoot, 0, $apiEntry + 1);
+        if ($apiEntry !== false)
+        {
+            $this->siteRoot = substr($this->siteRoot, 0, $apiEntry + 1);
         }
     }
 
     public function initRecordID($recordID)
     {
-    	$this->recordID = is_numeric($recordID) ? $recordID : 0;
+        $this->recordID = is_numeric($recordID) ? $recordID : 0;
     }
 
     /**
@@ -41,9 +46,9 @@ class FormWorkflow
     public function isActive()
     {
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query("SELECT * FROM records_workflow_state
-        									WHERE recordID=:recordID", $vars);
-        
+        $res = $this->db->prepared_query('SELECT * FROM records_workflow_state
+        									WHERE recordID=:recordID', $vars);
+
         return isset($res[0]);
     }
     
@@ -365,15 +370,12 @@ class FormWorkflow
 
     /**
      * Handle an action
-     * 
-     * @param int       $dependencyID
-     * @param string    $actionType
-     * @param string    $comment
-     * @param string    $signature_id   A id for a signature database entry (default: null)
-     * 
+     * @param int $dependencyID
+     * @param string $actionType
+     * @param string $comment
      * @return array {status(int), errors[string]}
      */
-    public function handleAction($dependencyID, $actionType, $comment, $signature_id = null)
+    public function handleAction($dependencyID, $actionType, $comment)
     {
     	$errors = [];
 
@@ -990,12 +992,12 @@ class FormWorkflow
     }
 
     /**
-     * For the given recordID, this function adds 
-     * an action_history entry for signature invalidation, 
-     * removes invalidated signatures, and sets the current 
+     * For the given recordID, this function adds
+     * an action_history entry for signature invalidation,
+     * removes invalidated signatures, and sets the current
      * step back to the first of the now invalid signatures
-     * 
-     * @param int $recordID the recordID to 
+     *
+     * @param int $recordID the recordID to
      */
     public function invalidatePastSignatures()
     {
@@ -1051,7 +1053,7 @@ class FormWorkflow
             $this->db->prepared_query("DELETE FROM signatures 
                                         WHERE id IN ($questionMarkString)", array_map('intval', $signatureIDArray));
 
-            
+
 
             //move workflow back to the first step requiring a signature
             if(!is_null($earliestSignatureStepID))
@@ -1061,6 +1063,6 @@ class FormWorkflow
 
             $this->db->commitTransaction();
         }
-        
+
     }
 }

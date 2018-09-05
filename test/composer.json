@@ -9,7 +9,8 @@
     "files": [
       "shared/src/DatabaseTest.php",
       "shared/src/LEAFClient.php",
-      "shared/src/ResponseFormatter.php"
+      "shared/src/ResponseFormatter.php",
+      "shared/src/SessionDecoder.php"
     ]
   }
 }

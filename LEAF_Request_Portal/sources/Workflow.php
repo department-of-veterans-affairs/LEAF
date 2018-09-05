@@ -7,13 +7,17 @@
 
 class Workflow
 {
-    private $db;
-    private $login;
-    private $workflowID;
-    private $eventFolder = './scripts/events/';
     public $siteRoot = '';
 
-    function __construct($db, $login, $workflowID = 0)
+    private $db;
+
+    private $login;
+
+    private $workflowID;
+
+    private $eventFolder = './scripts/events/';
+
+    public function __construct($db, $login, $workflowID = 0)
     {
         $this->db = $db;
         $this->login = $login;
@@ -277,17 +281,17 @@ class Workflow
 	/**
 	 * Set whether the specified step for the current Workflow requires a digital signature.
 	 * Uses the workflowID that was set with setWorkflowID(workflowID).
-	 * 
+	 *
 	 * @param int $stepID 				the step id to require a signature for
 	 * @param int $requiresSignature 	whether a signature is required
-	 * 
+	 *
 	 * @return int if the query was successful
 	 */
 	public function requireDigitalSignature($stepID, $requireSignature) {
     	if(!$this->login->checkGroup(1)) {
     		return 'Admin access required.';
 		}
-		
+
 		$vars = array(
 			':workflowID' => (int)$this->workflowID,
 			':stepID' => (int)$stepID,
@@ -343,9 +347,9 @@ class Workflow
     									AND dependencyID=:dependencyID
     									AND filled=0
     									AND records_dependencies.time IS NULL', $vars);
-    	
-    	return true;
-	}
+
+        return true;
+    }
 
     public function updateDependency($dependencyID, $description) {
     	if(!$this->login->checkGroup(1)) {
