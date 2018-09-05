@@ -63,7 +63,7 @@ var LeafForm = function(containerID) {
 	function checkSignature(indicatorID, series) {
 		$.ajax({
 			type: 'GET',
-			url: "./api/?a=signature/" + recordID,
+			url: "./api/form/signatures/" + recordID,
 			success: function(res) {
 				if(res.length > 0) {
 					{
