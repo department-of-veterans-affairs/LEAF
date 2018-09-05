@@ -50,7 +50,7 @@
     <div class="toolbar_tags"><h1 role="heading" tabindex="0">Tags</h1>
         <div class="tags">
             <!--{foreach $tags as $tag}-->
-            <span role="button" aria-label="<!--{$tag}-->. Click to delete tag" tabindex="0" onkeypress="triggerClick(event, this.id)" onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></span>
+            <button class="buttonNorm" style="width: 100%" aria-label="<!--{$tag}-->. Click to delete tag" tabindex="0" onkeypress="triggerClick(event, this.id)" onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></button>
             <!--{/foreach}-->
             <!--{if $groupPrivileges[$groupID].write == 1}-->
             <br /><br />

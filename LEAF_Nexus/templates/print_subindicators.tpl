@@ -68,7 +68,7 @@
     <!--{/foreach}-->
     </div>
 
-    <span role="button" tabindex="0" class="tempText" id="showallfields" style="float: right; text-decoration: underline; font-size: 80%; cursor: pointer" onkeypress="triggerClick(event, 'showallfields')" onclick="showAllFields(); announceAction('displaying all fields');">Show_all_fields</span>
+    <span role="button" tabindex="0" class="tempText" id="showallfields" style="float: right; text-decoration: underline; font-size: 80%; cursor: pointer" onkeypress="triggerClick(event, 'showallfields')" onclick="showAllFields(); announceAction('showing all fields');">Show_all_fields</span>
     <br />
     <!--{/if}-->
 <!--{/strip}-->
