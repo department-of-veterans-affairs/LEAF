@@ -112,7 +112,10 @@ function getGroupList() {
                                 cache: false
                             });
                         });
+                        //508 fix
                         setTimeout(function () {
+                            $("#simplebutton_cancelchange").remove();
+                            $("#simplebutton_save").remove();
                             dialog_simple.show();
                         }, 0);
                     }
@@ -290,7 +293,7 @@ $(function() {
 
 	$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
 	$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
-	
+
     getGroupList();
 });
 
