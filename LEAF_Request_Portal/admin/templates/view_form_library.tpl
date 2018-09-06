@@ -48,6 +48,7 @@ function showPreview(recordID) {
 function applyFilter(search) {
     query.updateDataTerm('data', '3', 'LIKE', '*' + search + '*');
     query.execute();
+    announceFilter(search);
 }
 
 var query;
@@ -139,13 +140,13 @@ $(function() {
     <a role="button" class="buttonNorm" tabindex="0" href="?a=form" style="display: inherit; width: 150px; text-decoration: none; color: black" id="backToForm"><img src="../../libs/dynicons/?img=edit-undo.svg&amp;w=32" alt="Go back" title="Go back"/> Back to My Forms</a>
     <br /><br />
     Filter by Business Lines:
-    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter(''); announceFilter(this.id)" style="width: 150px" id="all_Business_Lines"><img aria-hidden="true" src="../../libs/dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="Icon" title="Icon"/> All Business Lines</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('')" style="width: 150px" id="all_Business_Lines"><img aria-hidden="true" src="../../libs/dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="Icon" title="Icon"/> All Business Lines</div>
     <br />
-    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Administrative'); announceFilter(this.id)" style="width: 150px" id="administrative"><img aria-hidden="true" src="../../libs/dynicons/?img=applications-office.svg&amp;w=32" alt="Icon" title="Icon" /> Administrative</div>
-    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Human Resources'); announceFilter(this.id)" style="width: 150px" id="human_Resources"><img aria-hidden="true" src="../../libs/dynicons/?img=system-users.svg&amp;w=32" alt="Icon" title="Icon" /> Human Resources</div>
-    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Information Technology'); announceFilter(this.id)" style="width: 150px" id="information_Technology"><img aria-hidden="true" src="../../libs/dynicons/?img=network-idle.svg&amp;w=32" alt="Icon" title="Icon" /> Information Technology</div>
-    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Logistics'); announceFilter(this.id)" style="width: 150px" id="logistics"><img aria-hidden="true" src="../../libs/dynicons/?img=package-x-generic.svg&amp;w=32" alt="Icon" title="Icon" /> Logistics</div>
-    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Fiscal'); announceFilter(this.id)" style="width: 150px" id="fiscal"><img aria-hidden="true" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="Icon" title="Icon" /> Fiscal</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Administrative')" style="width: 150px" id="Administrative"><img aria-hidden="true" src="../../libs/dynicons/?img=applications-office.svg&amp;w=32" alt="Icon" title="Icon" /> Administrative</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Human Resources')" style="width: 150px" id="Human Resources"><img aria-hidden="true" src="../../libs/dynicons/?img=system-users.svg&amp;w=32" alt="Icon" title="Icon" /> Human Resources</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Information Technology')" style="width: 150px" id="Information Technology"><img aria-hidden="true" src="../../libs/dynicons/?img=network-idle.svg&amp;w=32" alt="Icon" title="Icon" /> Information Technology</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Logistics')" style="width: 150px" id="Logistics"><img aria-hidden="true" src="../../libs/dynicons/?img=package-x-generic.svg&amp;w=32" alt="Icon" title="Icon" /> Logistics</div>
+    <div role="button" onkeydown="triggerKeydown(event, this.id)" class="buttonNorm" tabindex="0" onclick="applyFilter('Fiscal')" style="width: 150px" id="Fiscal"><img aria-hidden="true" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="Icon" title="Icon" /> Fiscal</div>
 </div>
 <div id="formEditor_content" style="margin-left: 184px; padding-left: 8px">
 
