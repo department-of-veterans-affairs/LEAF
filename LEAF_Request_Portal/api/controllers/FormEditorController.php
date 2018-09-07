@@ -43,7 +43,9 @@ class FormEditorController extends RESTfulResponse
         });
 
         $this->index['GET']->register('formEditor/indicator/[digit]', function ($args) use ($form, $formEditor) {
-            return $form->getIndicator($args[0], 1, null, false);
+            $parseTemplate = isset($_GET['parseTemplate']);
+            $recordID = isset($_GET['recordID']) ? XSSHelpers::xscrub($_GET['recordID']) : null;
+            return $form->getIndicator($args[0], 1, $recordID, $parseTemplate);
         });
 
         $this->index['GET']->register('formEditor/indicator/[digit]/privileges', function ($args) use ($formEditor) {
