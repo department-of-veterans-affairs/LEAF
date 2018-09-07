@@ -572,7 +572,8 @@ class System
             return 'Admin access required';
         }
 
-        move_uploaded_file(XSSHelpers::scrubFilename($_FILES['file']['tmp_name']), __DIR__ . '/../files/' . $fileName);
+        // XSSHelpers::scrubFilename($_FILES['file']['tmp_name']) . '   ' . __DIR__ . '/../files/' . $fileName;
+        move_uploaded_file($_FILES['file']['tmp_name'], __DIR__ . '/../files/' . $fileName);
 
         return true;
     }
