@@ -1,4 +1,8 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
 $currDir = dirname(__FILE__);
 include $currDir . '/../db_mysql.php';
 include_once $currDir . '/../config.php';
@@ -8,14 +12,16 @@ $config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $vars = array();
-$res = $db->prepared_query("SELECT * FROM relation_group_employee WHERE groupID=1", $vars);
-$res2 = $db->prepared_query("SELECT * FROM employee WHERE empUID=1", $vars);
+$res = $db->prepared_query('SELECT * FROM relation_group_employee WHERE groupID=1', $vars);
+$res2 = $db->prepared_query('SELECT * FROM employee WHERE empUID=1', $vars);
 
-if(count($res) == 0
-    && count($res2) == 0) {
+if (count($res) == 0
+    && count($res2) == 0)
+{
     $user = $config->adminLogonName;
 
-    if(strlen($user) > 0) {
+    if (strlen($user) > 0)
+    {
         $vars = array(':name' => $user);
         $res = $db->prepared_query('INSERT INTO employee (empUID, userName, lastName, firstName, middleName, phoneticFirstName, phoneticLastName)
                                         VALUES (1, :name, "Please run maintenance scripts", "", "", "", "")', $vars);
@@ -26,10 +32,12 @@ if(count($res) == 0
         $res = $db->prepared_query('UPDATE SETTINGS SET DATA=RAND() WHERE SETTING="salt"', array());
         echo '<br />Random Salt generated.';
     }
-    else {
+    else
+    {
         echo 'Please check administrator configuration.';
     }
 }
-else {
+else
+{
     echo 'Administrator already set. Exiting.';
 }
