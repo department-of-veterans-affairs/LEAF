@@ -1,14 +1,17 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 class ControllerMap
 {
     private $controllers = array();
-    
-    function __construct()
+
+    public function __construct()
     {
         // register default controllers
     }
-   
+
     /**
      * Register a controller, throwing an exception if there is an existing key
      * @param string $key
@@ -17,10 +20,12 @@ class ControllerMap
      */
     public function register($key, $code)
     {
-        if(!isset($this->controllers[$key])) {
+        if (!isset($this->controllers[$key]))
+        {
             $this->controllers[$key] = $code;
         }
-        else {
+        else
+        {
             throw new Exception('Controller already exists.');
         }
     }
@@ -33,11 +38,11 @@ class ControllerMap
      */
     public function runControl($key, $args = null)
     {
-        if(isset($this->controllers[$key])) {
+        if (isset($this->controllers[$key]))
+        {
             return $this->controllers[$key]($args);
         }
-        else {
-            return 'Controller is undefined.';
-        }
+
+        return 'Controller is undefined.';
     }
 }

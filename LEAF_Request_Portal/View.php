@@ -1,5 +1,9 @@
 <?php
-/************************
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
+/*
     Views for forms
     Date Created: September 25, 2008
 
@@ -8,21 +12,24 @@
 class View
 {
     private $db;
+
     private $login;
 
-    function __construct($db, $login)
+    public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
     }
 
-    public function buildViewStatus($recordID) {
-    	// check privileges
-    	require_once 'form.php';
-    	$form = new Form($this->db, $this->login);
-    	if(!$form->hasReadAccess($recordID)) {
-    		return 0;
-    	}
+    public function buildViewStatus($recordID)
+    {
+        // check privileges
+        require_once 'form.php';
+        $form = new Form($this->db, $this->login);
+        if (!$form->hasReadAccess($recordID))
+        {
+            return 0;
+        }
 
         $result = array();
         require_once 'VAMC_Directory.php';
@@ -46,8 +53,10 @@ class View
         									WHERE recordID=:recordID
                                             ORDER BY time ASC', $vars);
 
-        foreach($res as $tmp) {
-            if($tmp['userID'] != '') {
+        foreach ($res as $tmp)
+        {
+            if ($tmp['userID'] != '')
+            {
                 $user = $dir->lookupLogin($tmp['userID']);
                 $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
                 $tmp['userName'] = $name;
@@ -58,7 +67,8 @@ class View
         return $result;
     }
 
-    public function buildViewBookmarks($userID) {
+    public function buildViewBookmarks($userID)
+    {
         $var = array(':bookmarkID' => 'bookmark_' . $userID);
 
         $res = $this->db->prepared_query('SELECT * FROM tags
