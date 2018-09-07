@@ -116,7 +116,16 @@ switch ($action) {
             && file_exists("templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
-            $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
+            $main->assign('javascripts', array(
+                'js/form.js', 
+                'js/workflow.js', 
+                'js/formGrid.js', 
+                'js/formQuery.js', 
+                'js/formSearch.js',
+                '../libs/jsapi/nexus/LEAFNexusAPI.js',
+                '../libs/jsapi/portal/LEAFPortalAPI.js',
+                '../libs/jsapi/portal/model/FormQuery.js'
+            ));
 
             $form = new Form($db, $login);
             $o_login = $t_login->fetch('login.tpl');
