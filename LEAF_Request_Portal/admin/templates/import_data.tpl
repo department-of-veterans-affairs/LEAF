@@ -141,22 +141,44 @@
                 var requestData = { 'title': titleInput.val() };
 
                 for (var j = 0; j < currentIndicators.length; j++) {
-                    var indicator = currentIndicators[j];
-                    var indicatorColumn = $('#' + indicator.indicatorID + '_sheet_column').val();
+                    function processIndicator(indicator) {
+                        var indicatorColumn = $('#' + indicator.indicatorID + '_sheet_column').val();
 
-                    if (indicator.format == 'orgchart_employee') {
-                        nexusAPI.Employee.getByEmailNational(
-                            row[indicatorColumn],
-                            function (user) {
-                                var emp = user[Object.keys(user)[0]];
-                                requestData[parseInt(indicator.indicatorID)] = parseInt(emp.empUID);
-                            },
-                            function (error) {
-                                console.log(error);
+                        if (indicator.format == 'orgchart_employee') {
+                            nexusAPI.Employee.getByEmailNational(
+                                row[indicatorColumn],
+                                function (user) {
+                                    var emp = user[Object.keys(user)[0]];
+                                    if (emp != undefined && emp != null) {
+                                        requestData[parseInt(indicator.indicatorID)] = parseInt(emp.empUID);
+                                    }
+                                },
+                                function (error) {
+                                    console.log(error);
+                                }
+                            );
+                        } else {
+                            requestData[parseInt(indicator.indicatorID)] = row[indicatorColumn];
+                        }
+                    }
+
+                    function processChildren(indicatorChildren) {
+                        var children = Object.keys(indicatorChildren);
+
+                        for (var k=0; k< children.length; k++) {
+                            var child = indicatorChildren[children[k]];
+                            processIndicator(child);
+
+                            if (child.child != undefined && child.child != null) {
+                                processChildren(child.child);
                             }
-                        );
-                    } else {
-                        requestData[parseInt(indicator.indicatorID)] = row[indicatorColumn];
+                        }
+                    }
+
+                    var indicator = currentIndicators[j];
+                    processIndicator(indicator);
+                    if (indicator.child != undefined && indicator.child != null) {
+                        processChildren(indicator.child);
                     }
                 }
 
@@ -196,7 +218,6 @@
 
         portalAPI.Forms.getAllForms(
             function (results) {
-                // $('#import_data_main').html(JSON.stringify(results));
                 var opt = $(document.createElement('option'))
                     .attr('value', '-1')
                     .html('');
@@ -218,6 +239,25 @@
             }
         );
 
+
+        function buildRows(indicator) {
+            if (indicator !== undefined && indicator !== null) {
+                categoryIndicators.append(buildIndicatorRow(indicator));
+
+                if (indicator.child != undefined && indicator.child != null) {
+                    var children = Object.keys(indicator.child);
+                    for (var i=0; i<children.length; i++) {
+                        var child = indicator.child[children[i]];
+
+                        buildRows(child);
+
+                    }
+
+                }
+            }
+
+        };
+
         categorySelect.on('change', function () {
             categoryIndicators.html('');
 
@@ -227,9 +267,14 @@
 
                     for (var i = 0; i < results.length; i++) {
                         var indicator = results[i];
-                        if (indicator !== undefined && indicator !== null) {
-                            categoryIndicators.append(buildIndicatorRow(indicator));
-                        }
+                        buildRows(indicator);
+                        // if (indicator !== undefined && indicator !== null) {
+                        //     categoryIndicators.append(buildIndicatorRow(indicator));
+
+                        //     if (indicator.child != undefined && indicator.child != null) {
+
+                        //     }
+                        // }
                     }
                 },
                 function (error) {
