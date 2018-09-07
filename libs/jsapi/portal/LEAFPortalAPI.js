@@ -132,6 +132,14 @@ var PortalFormsAPI = function (baseAPIURL) {
             // .always(function() {});
         },
 
+        /**
+         * Modify the given record with the given data
+         * 
+         * @param recordID      int                 the record to modify
+         * @param requestData   Object              plain JSON object containing indicator ids and associated values
+         * @param onSuccess     function(results)   callback when action is successful
+         * @param onFail        function(err)       callback when action is not successful
+         */
         modifyRequest = function (recordID, requestData, onSuccess, onFail) {
             var postURL = apiURL + '/' + recordID;
             requestData['CSRFToken'] = csrfToken;
@@ -147,6 +155,14 @@ var PortalFormsAPI = function (baseAPIURL) {
             // .always(function() {});
         },
 
+        /**
+         * Create a new request for the given form using the given data
+         * 
+         * @param formID        string              the form to create a request for
+         * @param requestData   Object              plain JSON object containing indicator ids and associated values
+         * @param onSuccess     function(results)   callback when action is successful
+         * @param onFail        function(err)       callback when action is not successful
+         */
         newRequest = function (formID, requestData, onSuccess, onFail) {
             var postURL = apiURL + '/new';
 
@@ -206,6 +222,7 @@ var PortalFormsAPI = function (baseAPIURL) {
         getAllForms: getAllForms,
         getBaseAPIURL: getBaseAPIURL,
         getIndicatorsForForm: getIndicatorsForForm,
+        modifyRequest: modifyRequest,
         newRequest: newRequest,
         setBaseAPIURL: setBaseAPIURL,
         setCSRFToken: setCSRFToken,
@@ -259,9 +276,13 @@ var PortalFormEditorAPI = function (baseAPIURL) {
          * @param indicatorID   int                 the id of the indicator
          * @param onSuccess     function(result)    callback containing indicator info
          * @param onFail        function(error)     callback when action fails
+         * @param recordID      int                 the record ID to retrieve data for
+         * @param parseTemplate bool                if the indicator ID should be included in the `html` and `htmlPrint` fields
          */
-        getIndicator = function (indicatorID, onSuccess, onFail) {
-            var fetchURL = apiURL + '/indicator/' + indicatorID;
+        getIndicator = function (indicatorID, onSuccess, onFail, recordID = null, parseTemplate = null) {
+            var fetchURL = apiURL + '/indicator/' + indicatorID 
+                + (parseTemplate == true ? '&parseTemplate' : '')
+                + (recordID != null ? '&recordID=' + recordID : '');
 
             $.ajax({
                 method: 'GET',
@@ -274,6 +295,26 @@ var PortalFormEditorAPI = function (baseAPIURL) {
                 .fail(function (err) {
                     onFail(err);
                 });
+        },
+
+        /**
+         * Get the HTML used to edit the given indicator
+         * 
+         * @param indicatorID   int                 the indicator to retrieve
+         * @param recordID      int                 the record to retrieve the indicator data from
+         * @param onSuccess     function(results)   callback when action is successful
+         * @param onFail        function(error)     callback when action is not successful
+         */
+        getIndicatorEditor = function(indicatorID, recordID, onSuccess, onFail) {
+            var fetchURL = 'ajaxIndex.php?a=getindicator&recordID=' + recordID + '&indicatorID=' + indicatorID + '&series=1';
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: 'html'
+            })
+                .done(onSuccess)
+                .fail(onFail);
         },
 
         /**
@@ -359,6 +400,7 @@ var PortalFormEditorAPI = function (baseAPIURL) {
         getAPIURL: getAPIURL,
         getBaseAPIURL: getBaseAPIURL,
         getIndicator: getIndicator,
+        getIndicatorEditor: getIndicatorEditor,
         getIndicatorPrivileges: getIndicatorPrivileges,
         setBaseAPIURL: setBaseAPIURL,
         setCSRFToken: setCSRFToken,
