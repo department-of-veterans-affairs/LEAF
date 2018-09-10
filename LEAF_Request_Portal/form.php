@@ -10,7 +10,11 @@
 */
 
 define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
-require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 
 class Form
 {

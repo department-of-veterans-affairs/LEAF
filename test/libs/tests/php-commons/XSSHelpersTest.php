@@ -5,7 +5,10 @@ declare(strict_types = 1);
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-include '../../libs/php-commons/XSSHelpers.php';
+if (!class_exists('XSSHelpers'))
+{
+    include '../../libs/php-commons/XSSHelpers.php';
+}
 
 use PHPUnit\Framework\TestCase;
 
