@@ -19,7 +19,11 @@ include '../../libs/smarty/Smarty.class.php';
 include '../Login.php';
 include '../db_mysql.php';
 include '../db_config.php';
-include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 
 // Enforce HTTPS
 include_once '../enforceHTTPS.php';

@@ -11,7 +11,10 @@
 
 namespace Orgchart;
 
-include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 
 // Sanitize all $_GET input
 if (count($_GET) > 0)

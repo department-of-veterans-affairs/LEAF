@@ -11,7 +11,10 @@
 
 namespace Orgchart;
 
-require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 
 abstract class Data
 {

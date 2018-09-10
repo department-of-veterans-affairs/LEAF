@@ -10,7 +10,11 @@ include '../db_mysql.php';
 include '../sources/Position.php';
 include '../sources/Tag.php';
 
-include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 
 $config = new Orgchart\Config;
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
