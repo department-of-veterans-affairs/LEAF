@@ -21,7 +21,10 @@
  *
  * @return string
  */
-include_once dirname(__FILE__) . '/../../php-commons/XSSHelpers.php';
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../php-commons/XSSHelpers.php';
+}
 function smarty_modifier_sanitizeRichtext($in)
 {
     return XSSHelpers::sanitizeHTMLRich($in);

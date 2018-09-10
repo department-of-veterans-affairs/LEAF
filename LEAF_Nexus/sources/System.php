@@ -25,7 +25,10 @@ class System
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
 
-        include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+        if (!class_exists('XSSHelpers'))
+        {
+            include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+        }
     }
 
     /**

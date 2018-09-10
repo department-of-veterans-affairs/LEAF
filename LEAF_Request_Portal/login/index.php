@@ -3,7 +3,11 @@ header('X-UA-Compatible: IE=edge');
 
 include '../db_mysql.php';
 include '../db_config.php';
-include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 $config = new Config();
 $db_config = new DB_Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);

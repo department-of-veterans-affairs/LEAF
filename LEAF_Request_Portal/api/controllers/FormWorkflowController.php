@@ -5,7 +5,10 @@
 
 require '../FormWorkflow.php';
 
-require_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+}
 
 class FormWorkflowController extends RESTfulResponse
 {
