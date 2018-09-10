@@ -279,10 +279,10 @@ var PortalFormEditorAPI = function (baseAPIURL) {
          * @param recordID      int                 the record ID to retrieve data for
          * @param parseTemplate bool                if the indicator ID should be included in the `html` and `htmlPrint` fields
          */
-        getIndicator = function (indicatorID, onSuccess, onFail, recordID = null, parseTemplate = null) {
+        getIndicator = function (indicatorID, onSuccess, onFail, recordID, parseTemplate) {
             var fetchURL = apiURL + '/indicator/' + indicatorID 
-                + (parseTemplate == true ? '&parseTemplate' : '')
-                + (recordID != null ? '&recordID=' + recordID : '');
+                + (parseTemplate != undefined && parseTemplate == true ? '&parseTemplate' : '')
+                + (recordID != undefined && recordID != null ? '&recordID=' + recordID : '');
 
             $.ajax({
                 method: 'GET',
