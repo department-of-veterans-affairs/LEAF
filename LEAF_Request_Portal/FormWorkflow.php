@@ -8,7 +8,10 @@
     Date Created: May 25, 2011
 */
 
-require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 
 class FormWorkflow
 {

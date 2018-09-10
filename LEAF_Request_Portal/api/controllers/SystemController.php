@@ -5,7 +5,10 @@
 
 require '../sources/System.php';
 
-include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+}
 
 class SystemController extends RESTfulResponse
 {
