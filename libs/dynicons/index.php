@@ -22,7 +22,10 @@ ini_set('display_errors', 0);
 
 */
 
-include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 
 class Dynicon
 {
