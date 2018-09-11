@@ -554,7 +554,8 @@ class System
     public function newFile()
     {
         $in = $_FILES['file']['name'];
-        $fileName = XSSHelpers::scrubFilename($in);
+        // $fileName = XSSHelpers::scrubFilename($in);
+        $fileName = $in;
         if ($fileName != $in
                 || $fileName == 'index.html'
                 || $fileName == '')
