@@ -63,7 +63,7 @@ $(function() {
     query.setRootURL('<!--{$LEAF_NEXUS_URL}-->LEAF/library/');
     query.onSuccess(function(res) {
         data = res;
-        
+
         grid = new LeafFormGrid('forms', {readOnly: true});
         grid.setRootURL('../');
         grid.hideIndex();
@@ -102,7 +102,7 @@ $(function() {
             	$('#'+data.cellContainerID).html('<button class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" style="white-space: nowrap"><img src="../../libs/dynicons/?img=edit-find.svg&w=32" /> Preview</button>');
             }}
         ]);
-        
+
         grid.setPostRenderFunc(function() {
             $('#' + grid.getPrefixID() + 'table > tbody > tr > td').css({
                 'border-right': '0px',
@@ -110,6 +110,7 @@ $(function() {
             });
         });
         grid.renderBody();
+				grid.announceResults();
 
 /*        $('#forms').html('<table class="leaf_grid"><tbody id="table_forms">');
         for(var i in res) {
