@@ -139,6 +139,7 @@
             for (var i = 0; i < sheet_data.cells.length; i++) {
                 var row = sheet_data.cells[i];
                 var requestData = { 'title': titleInput.val() };
+                var changeToInitiator = null;
 
                 for (var j = 0; j < currentIndicators.length; j++) {
                     function processIndicator(indicator) {
@@ -150,7 +151,16 @@
                                 function (user) {
                                     var emp = user[Object.keys(user)[0]];
                                     if (emp != undefined && emp != null) {
-                                        requestData[parseInt(indicator.indicatorID)] = parseInt(emp.empUID);
+                                        nexusAPI.Employee.importFromNational(
+                                            emp.userName,
+                                            false,
+                                            function (results) {
+                                                changeToInitiator = emp.userName;
+                                                requestData[parseInt(indicator.indicatorID)] = parseInt(emp.empUID);
+                                            },
+                                            function (err) {
+                                                console.log(err);
+                                            });
                                     }
                                 },
                                 function (error) {
@@ -186,8 +196,16 @@
                     categorySelect.val(),
                     requestData,
                     function (recordID) {
-                        if (recordID == 1) {
+                        if (recordID > 0) {
                             createCount += 1;
+
+                            portalAPI.Forms.setInitiator(
+                                recordID, 
+                                changeToInitiator,
+                                function (results) {},
+                                function (err) {
+                                    console.log(err);
+                                });
                         }
 
                         if (createCount === sheet_data.cells.length) {
@@ -250,12 +268,9 @@
                         var child = indicator.child[children[i]];
 
                         buildRows(child);
-
                     }
-
                 }
             }
-
         };
 
         categorySelect.on('change', function () {
@@ -268,20 +283,13 @@
                     for (var i = 0; i < results.length; i++) {
                         var indicator = results[i];
                         buildRows(indicator);
-                        // if (indicator !== undefined && indicator !== null) {
-                        //     categoryIndicators.append(buildIndicatorRow(indicator));
-
-                        //     if (indicator.child != undefined && indicator.child != null) {
-
-                        //     }
-                        // }
                     }
                 },
                 function (error) {
                     console.log(error);
                 }
             );
-        })
+        });
 
         fileSelect.on('change', function () {
             if (fileSelect.val() !== "-1") {

@@ -23,7 +23,7 @@ var LEAFNexusAPI = function () {
 
         setCSRFToken = function (token) {
             csrfToken = token;
-            Employee.setCSRFToken(token);
+            Employee.setCSRFToken(csrfToken);
         };
 
     return {
@@ -94,6 +94,31 @@ var NexusEmployeeAPI = function (baseAPIURL) {
                 .done(onSuccess)
                 .fail(onFail);
                 // .always(function () {});
+        },
+        
+        /**
+         * Import a user from the National Orgchart into the local Nexus
+         * 
+         * @param userName  string              the userName to import
+         * @param async     boolean             if the POST request should not wait to complete before calling the onSuccess method
+         * @param onSuccess function(results)   the callback when the query is successful
+         * @param onFail    function(err)       the callback when the action fails
+         */
+        importFromNational = function(userName, async, onSuccess, onFail) {
+            var fetchURL = apiURL + '/import/_' + userName;
+            var postData = {};
+            postData['CSRFToken'] = csrfToken;
+
+            $.ajax({
+                method: 'POST',
+                url: fetchURL,
+                data: postData,
+                dataType: 'json',
+                async: async
+            })
+                .done(onSuccess)
+                .fail(onFail);
+                // .always(function() {});
         };
 
     return {
@@ -101,6 +126,7 @@ var NexusEmployeeAPI = function (baseAPIURL) {
         getBaseAPIURL: getBaseAPIURL,
         getByEmail: getByEmail,
         getByEmailNational: getByEmailNational,
+        importFromNational: importFromNational,
         setBaseAPIURL: setBaseAPIURL,
         setCSRFToken: setCSRFToken,
     };
