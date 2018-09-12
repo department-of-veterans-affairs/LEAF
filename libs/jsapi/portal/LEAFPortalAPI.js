@@ -180,7 +180,17 @@ var PortalFormsAPI = function (baseAPIURL) {
                 .done(function (recordID) {
                     // title must be removed in order to process the rest of the indicator data
                     delete requestData.title;
-                    modifyRequest(recordID, requestData, onSuccess, onFail);
+                    modifyRequest(
+                        recordID, 
+                        requestData, 
+                        function (result) {
+                            if (result > 0) {
+                                onSuccess(recordID);
+                            } else {
+                                onFail(false);
+                            }
+                        }, 
+                        onFail);
                 })
                 .fail(onFail);
             // .always(function() {});
@@ -215,6 +225,31 @@ var PortalFormsAPI = function (baseAPIURL) {
          */
         setCSRFToken = function (token) {
             csrfToken = token;
+        },
+        
+        /**
+         * Set the initiator of the given record.
+         * 
+         * @param recordID  int                 the record ID to change
+         * @param initiator string              the username to set as initiator
+         * @param onSuccess function(results)   callback containing the results object
+         * @param onFail    function(err)       callback when query fails
+         */
+        setInitiator = function(recordID, initiator, onSuccess, onFail) {
+            var fetchURL = apiURL + '/' + recordID + '/initiator';
+            var postData = {};
+            postData['CSRFToken'] = csrfToken;
+            postData['initiator'] = initiator;
+
+            $.ajax({
+                method: 'POST',
+                url: fetchURL,
+                data: postData,
+                dataType: 'json'
+            })
+                .done(onSuccess)
+                .fail(onFail);
+                // .always(function() {});
         };
 
     return {
@@ -226,6 +261,7 @@ var PortalFormsAPI = function (baseAPIURL) {
         newRequest: newRequest,
         setBaseAPIURL: setBaseAPIURL,
         setCSRFToken: setCSRFToken,
+        setInitiator: setInitiator,
         query: query
     };
 };
