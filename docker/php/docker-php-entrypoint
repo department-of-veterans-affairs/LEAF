@@ -3,7 +3,7 @@
 set -e
 
 # Sleep to run after MySQL container start
-sleep 30
+sleep 120
 
 printf '\n\nRunning updateDatabase scripts...'
 php /var/www/html/LEAF_Nexus/scripts/updateDatabase.php

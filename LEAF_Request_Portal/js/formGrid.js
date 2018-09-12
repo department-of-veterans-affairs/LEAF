@@ -614,14 +614,11 @@ var LeafFormGrid = function(containerID, options) {
     		var line = {};
     		var i = 0;
     		var thisSite = document.createElement('a');
-    		if (/^[A-Za-z0-9+&@#/%?=~_|!:,.;()]/.test(window.location.href)) {
-                thisSite.href = urlencode(window.location.href);
-            } else return false;
     		var numColumns = headers.length - 1;
     		$('#' + prefixID + 'tbody>tr>td').each(function(idx, val) {
     			line[headers[i]] = $(val).text().trim();
     			if(i == 0 && headers[i] == 'UID') {
-    				line[headers[i]] = '=HYPERLINK("'+ thisSite.origin + thisSite.pathname + '?a=printview&recordID=' + $(val).text().trim() +'", "'+ $(val).text().trim() +'")';
+    				line[headers[i]] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + $(val).text().trim() +'", "'+ $(val).text().trim() +'")';
     			}
     			i++;
     			if(i > numColumns) {
