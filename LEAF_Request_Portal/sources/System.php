@@ -26,7 +26,7 @@ class System
                 'doc', 'docx', 'docm', 'dotx', 'dotm',
                 'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
                 'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm',
-                'ai', 'eps',
+				'ai', 'eps',
                 'pdf',
                 'txt',
                 'html',
