@@ -79,7 +79,7 @@ foreach ($res as $pos)
     }
     $output[$pos['positionID']]['data']['Current FTE'] = $data[17]['data'];
     $output[$pos['positionID']]['data']['PD Number'] = $data[9]['data'];
-    //$output[$pos['positionID']]['data']['HR Smart Position #'] = $data[26]['data'];
+    $output[$pos['positionID']]['data']['HR Smart Position #'] = $data[26]['data'];
 
     foreach ($output[$pos['positionID']]['employeees'] as $emp)
     {
