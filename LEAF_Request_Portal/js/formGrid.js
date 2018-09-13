@@ -157,12 +157,12 @@ var LeafFormGrid = function(containerID, options) {
         		$('#'+ prefixID +'header_' + headers[i].indicatorID).on('mouseout', null, headers[i].indicatorID, function(data) {
         			$('#'+ prefixID +'header_' + data.data).css({'background-color': headerColor});
         		});
-                $('#'+ prefixID +'header_' + headers[i].indicatorID).on('focusin', null, headers[i].indicatorID, function(data) {
-                    $('#'+ prefixID +'header_' + data.data).css('background-color', '#79a2ff');
-                });
-                $('#'+ prefixID +'header_' + headers[i].indicatorID).on('focusout', null, headers[i].indicatorID, function(data) {
-                    $('#'+ prefixID +'header_' + data.data).css({'background-color': headerColor});
-                });
+                	$('#'+ prefixID +'header_' + headers[i].indicatorID).on('focusin', null, headers[i].indicatorID, function(data) {
+                    		$('#'+ prefixID +'header_' + data.data).css('background-color', '#79a2ff');
+                	});
+                	$('#'+ prefixID +'header_' + headers[i].indicatorID).on('focusout', null, headers[i].indicatorID, function(data) {
+                    		$('#'+ prefixID +'header_' + data.data).css({'background-color': headerColor});
+                	});
     		}
     	}
     	$('#' + prefixID + 'thead').append('</tr>');
