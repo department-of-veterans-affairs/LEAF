@@ -79,6 +79,8 @@
     var currentIndicators = [];
     var sheet_data = {};
 
+    // build the select input with options for the given indicator
+    // the indicatorID corresponds to the select input id
     function buildSheetSelect(indicatorID, sheetData) {
         var select = $(document.createElement('select'))
             .attr('id', indicatorID + '_sheet_column')
@@ -91,6 +93,7 @@
 
         select.append(option);
 
+        // the value of each option is the column header, which is the key of the sheetData.headers object
         var keys = Object.keys(sheetData.headers);
         for (var i = 0; i < keys.length; i++) {
             var option = $(document.createElement('option'))
@@ -103,6 +106,7 @@
         return select;
     }
 
+    // build the table row and data (<tr> and <td>) for the given indicator
     function buildIndicatorRow(indicator) {
         var row = $(document.createElement('tr'));
 
@@ -136,11 +140,16 @@
     $(function () {
         importBtn.on('click', function () {
             var createCount = 0;
+
+            // iterate through the sheet cells, which are organized by row
             for (var i = 0; i < sheet_data.cells.length; i++) {
                 var row = sheet_data.cells[i];
                 var requestData = { 'title': titleInput.val() };
+
+                // who the request initiator will be changed to
                 var changeToInitiator = null;
 
+                // currentIndicators are the indicators of the form chosen in the form select
                 for (var j = 0; j < currentIndicators.length; j++) {
                     function processIndicator(indicator) {
                         var indicatorColumn = $('#' + indicator.indicatorID + '_sheet_column').val();
@@ -172,6 +181,7 @@
                         }
                     }
 
+                    // process the children of any indicator, their data is formatted slightly differently than the parent
                     function processChildren(indicatorChildren) {
                         var children = Object.keys(indicatorChildren);
 
@@ -179,6 +189,7 @@
                             var child = indicatorChildren[children[k]];
                             processIndicator(child);
 
+                            // process the children of the children...
                             if (child.child != undefined && child.child != null) {
                                 processChildren(child.child);
                             }
@@ -196,16 +207,21 @@
                     categorySelect.val(),
                     requestData,
                     function (recordID) {
+
+                        // recordID is the recordID of the newly created request, it's 0 if there was an error
                         if (recordID > 0) {
                             createCount += 1;
 
-                            portalAPI.Forms.setInitiator(
-                                recordID, 
-                                changeToInitiator,
-                                function (results) {},
-                                function (err) {
-                                    console.log(err);
-                                });
+                            if (changeToInitiator !== undefined && changeToInitiator != null) {
+                                // set the initiator so they can see the request associated with their availability
+                                portalAPI.Forms.setInitiator(
+                                    recordID, 
+                                    changeToInitiator,
+                                    function (results) {},
+                                    function (err) {
+                                        console.log(err);
+                                    });
+                            }
                         }
 
                         if (createCount === sheet_data.cells.length) {
@@ -220,6 +236,7 @@
             }
         });
 
+        // for now, the imported file must be uploaded through the File Manager
         portalAPI.System.getFileList(
             function (fileList) {
                 for (var i = 0; i < fileList.length; i++) {
@@ -236,6 +253,7 @@
 
         portalAPI.Forms.getAllForms(
             function (results) {
+                // build a select options for each form
                 var opt = $(document.createElement('option'))
                     .attr('value', '-1')
                     .html('');
@@ -258,6 +276,7 @@
         );
 
 
+        //  build the rows for the given indicator data, also processes its children if present
         function buildRows(indicator) {
             if (indicator !== undefined && indicator !== null) {
                 categoryIndicators.append(buildIndicatorRow(indicator));
