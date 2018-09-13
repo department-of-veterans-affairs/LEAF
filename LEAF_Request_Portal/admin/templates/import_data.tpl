@@ -145,6 +145,7 @@
             for (var i = 0; i < sheet_data.cells.length; i++) {
                 var row = sheet_data.cells[i];
                 var requestData = { 'title': titleInput.val() };
+                var changeToInitiator = null;
 
                 // who the request initiator will be changed to
                 var changeToInitiator = null;
@@ -207,7 +208,7 @@
                     categorySelect.val(),
                     requestData,
                     function (recordID) {
-
+                    
                         // recordID is the recordID of the newly created request, it's 0 if there was an error
                         if (recordID > 0) {
                             createCount += 1;
