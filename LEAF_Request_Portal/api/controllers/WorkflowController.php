@@ -161,6 +161,11 @@ class WorkflowController extends RESTfulResponse
             return $workflow->setDynamicGroupApprover((int)$args[0], (int)$_POST['indicatorID']);
         });
 
+        $this->index['POST']->register('workflow/[digit]/step/[digit]/requiresig', function($args) use ($workflow) {
+            $workflow->setWorkflowID($args[0]);
+            return $workflow->requireDigitalSignature($args[1], (int)$_POST['requiresSig']);
+        });
+
         $this->index['POST']->register('workflow/dependencies', function ($args) use ($workflow) {
             return $workflow->addDependency(XSSHelpers::xscrub($_POST['description']));
         });
