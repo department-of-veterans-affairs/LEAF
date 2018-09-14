@@ -137,6 +137,7 @@ switch ($action) {
 
         $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
                                            '../' . Config::$orgchartPath . '/js/groupSelector.js',
+                                           '../../libs/jsapi/portal/LEAFPortalAPI.js',
                                            '../../libs/js/LEAF/XSSHelpers.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
