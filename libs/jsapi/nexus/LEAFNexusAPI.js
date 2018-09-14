@@ -75,7 +75,8 @@ var NexusEmployeeAPI = function (baseAPIURL) {
             $.ajax({
                 method: 'GET',
                 url: fetchURL,
-                dataType: "json"
+                dataType: "json",
+                cache: false
             })
                 .done(onSuccess)
                 .fail(onFail);
@@ -89,7 +90,8 @@ var NexusEmployeeAPI = function (baseAPIURL) {
                 method: 'GET',
                 url: fetchURL,
                 dataType: "json",
-                async: false
+                async: false,
+                cache: false
             })
                 .done(onSuccess)
                 .fail(onFail);
@@ -182,7 +184,8 @@ var NexusGroupsAPI = function (baseAPIURL) {
             $.ajax({
                 method: 'GET',
                 url: fetchURL,
-                dataType: 'json'
+                dataType: 'json',
+                cache: false
             })
                 .done(function (msg) {
                     onSuccess(msg);
