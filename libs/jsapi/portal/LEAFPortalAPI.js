@@ -105,7 +105,8 @@ var PortalFormsAPI = function (baseAPIURL) {
             $.ajax({
                 method: 'GET',
                 url: fetchURL,
-                dataType: 'json'
+                dataType: 'json',
+                cache: false
             })
                 .done(onSuccess)
                 .fail(onFail);
@@ -125,7 +126,8 @@ var PortalFormsAPI = function (baseAPIURL) {
             $.ajax({
                 method: 'GET',
                 url: fetchURL,
-                dataType: 'json'
+                dataType: 'json',
+                cache: false
             })
                 .done(onSuccess)
                 .fail(onFail);
@@ -209,7 +211,8 @@ var PortalFormsAPI = function (baseAPIURL) {
             $.ajax({
                 method: 'GET',
                 url: fetchURL,
-                dataType: 'json'
+                dataType: 'json',
+                cache: false
             })
                 .done(function (msg) {
                     onSuccess(msg);
@@ -323,7 +326,8 @@ var PortalFormEditorAPI = function (baseAPIURL) {
             $.ajax({
                 method: 'GET',
                 url: fetchURL,
-                dataType: 'json'
+                dataType: 'json',
+                cache: false
             })
                 .done(function (msg) {
                     onSuccess(msg);
@@ -347,7 +351,8 @@ var PortalFormEditorAPI = function (baseAPIURL) {
             $.ajax({
                 method: 'GET',
                 url: fetchURL,
-                dataType: 'html'
+                dataType: 'html',
+                cache: false
             })
                 .done(onSuccess)
                 .fail(onFail);
@@ -366,7 +371,8 @@ var PortalFormEditorAPI = function (baseAPIURL) {
             $.ajax({
                 method: 'GET',
                 url: fetchURL,
-                dataType: 'json'
+                dataType: 'json',
+                cache: false
             })
                 .done(function (msg) {
                     onSuccess(msg);
@@ -495,7 +501,8 @@ var PortalImportAPI = function (baseAPIURL) {
             $.ajax({
                 method: 'GET',
                 url: fetchURL,
-                dataType: "json"
+                dataType: "json",
+                cache: false
             })
                 .done(onSuccess)
                 .fail(onFail);
@@ -636,7 +643,8 @@ var PortalSystemAPI = function (baseAPIURL) {
             $.ajax({
                 method: 'GET',
                 url: apiURL + '/files',
-                dataType: "json"
+                dataType: "json",
+                cache: false
             })
                 .done(onSuccess)
                 .fail(onFail);
