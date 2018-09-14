@@ -176,7 +176,7 @@ switch ($action) {
             'js/formQuery.js',
             'js/jsdiff.js',
             '../libs/js/LEAF/XSSHelpers.js',
-            '../libs/jsapi/portal/LEAFPortalAPI.js',
+            '../libs/jsapi/portal/LEAFPortalAPI.js'
         ));
 
         $recordIDToPrint = (int)$_GET['recordID'];
