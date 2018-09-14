@@ -1,8 +1,7 @@
-/************************
-    Form Query Helper
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: January 9, 2015
-*/
+/**
+ * Form Query Helper
+ * @deprecated
+ */
 
 var LeafFormQuery = function() {
 	var query = {};
@@ -42,7 +41,7 @@ var LeafFormQuery = function() {
     /**
      * Add a new search term for data table
      * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
-     * @param indicatorID - indicatorID / dependencyID
+     * @param indicatorID - indicatorID / dependencyID / "0" to search all indicators
      * @param operator - SQL comparison operator
      * @param match - search term to match on
      * @memberOf LeafFormQuery
@@ -88,11 +87,18 @@ var LeafFormQuery = function() {
 
     /**
      * Limit number of results
-     * @param limit
+     * @param offset / limit
+     * @param limit (optional)
      * @memberOf LeafFormQuery
      */
-    function setLimit(limit) {
-    	query.limit = limit;
+    function setLimit(offset, limit) {
+    	if(limit === undefined) {
+    		query.limit = offset;
+    	}
+    	else {
+        	query.limit = limit;
+        	setLimitOffset(offset);
+    	}
     }
 
     /**
@@ -138,17 +144,41 @@ var LeafFormQuery = function() {
 
     /**
      * Update an existing search term
-     * @param id - columnID
+     * @param id - columnID or "stepID"
      * @param operator - SQL comparison operator
      * @param match - search term to match on
      * @memberOf LeafFormQuery
      */
     function updateTerm(id, operator, match) {
     	for(var i in query.terms) {
-    		if(query.terms[i].id == id && query.terms[i].id == operator) {
+    		if(query.terms[i].id == id
+    				&& query.terms[i].operator == operator) {
     			query.terms[i].match = match
+    			return;
     		}
     	}
+    	addTerm(id, operator, match);
+    }
+
+    /**
+     * Update an existing data search term
+     * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
+     * @param indicatorID - indicatorID / dependencyID
+     * @param operator - SQL comparison operator
+     * @param match - search term to match on
+     * @memberOf LeafFormQuery
+     */
+    function updateDataTerm(id, indicatorID, operator, match) {
+    	var found = 0;
+    	for(var i in query.terms) {
+    		if(query.terms[i].id == id
+    				&& query.terms[i].indicatorID == indicatorID
+    				&& query.terms[i].operator == operator) {
+    			query.terms[i].match = match
+    			return;
+    		}
+    	}
+    	addDataTerm(id, indicatorID, operator, match);
     }
 
     /**
@@ -197,10 +227,13 @@ var LeafFormQuery = function() {
 		importQuery: importQuery,
 		getQuery: function() { return query; },
 		getData: getData,
+		updateTerm: updateTerm,
+		updateDataTerm: updateDataTerm,
 		setQuery: function(inc) { query = inc; },
 		setLimit: setLimit,
 		setLimitOffset: setLimitOffset,
 		setRootURL: function(url) { rootURL = url; },
+		getRootURL: function() { return rootURL; },
 		useJSONP: function(state) { useJSONP = state; },
 		join: join,
 		sort: sort,
