@@ -143,6 +143,10 @@ var PortalFormsAPI = function (baseAPIURL) {
          * @param onFail        function(err)       callback when action is not successful
          */
         modifyRequest = function (recordID, requestData, onSuccess, onFail) {
+            // title must be removed in order to process the rest of the indicator data
+            if(requestData.title != undefined) {
+                delete requestData.title;
+            }
             var postURL = apiURL + '/' + recordID;
             requestData['CSRFToken'] = csrfToken;
 
@@ -180,8 +184,6 @@ var PortalFormsAPI = function (baseAPIURL) {
                 dataType: 'json'
             })
                 .done(function (recordID) {
-                    // title must be removed in order to process the rest of the indicator data
-                    delete requestData.title;
                     modifyRequest(
                         recordID, 
                         requestData, 
