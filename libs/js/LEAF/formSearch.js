@@ -1,7 +1,5 @@
 /************************
     Form Search Widget
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: January 15, 2015
 */
 
 var LeafFormSearch = function(containerID) {
@@ -17,7 +15,6 @@ var LeafFormSearch = function(containerID) {
 	var searchFunc = null;
 	var leafFormQuery = new LeafFormQuery();
 	var widgetCounter = 0;
-	var interval_advSearch = null;
 	var rootURL = '';
 
 	// constants
@@ -29,15 +26,15 @@ var LeafFormSearch = function(containerID) {
 			    <img id="'+prefixID+'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="'+ rootURL +'../libs/dynicons/?img=search.svg&w=16">\
 			    <img id="'+prefixID+'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="'+ rootURL +'images/indicator.gif">\
 			    <input style="border: 1px solid black; padding: 4px" type="text" id="'+prefixID+'searchtxt" name="searchtxt" size="50" title="Enter your search text" value="" />\
-			    <span class="buttonNorm" id="'+prefixID+'advancedSearchButton">Advanced Options</span>\
-			    <fieldset id="'+prefixID+'advancedOptions" style="display: none; margin: 0px; border: 1px solid black; background-color: white">\
+			    <button class="buttonNorm" id="'+prefixID+'advancedSearchButton">Advanced Options</button>\
+			    <fieldset id="'+prefixID+'advancedOptions" style="position: relative; display: none; margin: 0px; border: 1px solid black; background-color: white">\
 		        <legend>Advanced Search Options</legend>\
-		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" tabindex="0" style="position: absolute; display: none; cursor: pointer" alt="Close advanced search" />\
+		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" tabindex="0" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer" alt="Close advanced search"/>\
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="'+prefixID+'searchTerms"></table>\
-		        <span class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</span>\
+		        <button class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</button>\
 		        <br /><br />\
-		        <div id="'+prefixID+'advancedSearchApply" class="buttonNorm" style="text-align: center">Apply Filters</div>\
+		        <button id="'+prefixID+'advancedSearchApply" class="buttonNorm" style="text-align: center; width: 100%">Apply Filters</button>\
 		    </fieldset>\
 		    </div>\
 		    <div id="'+prefixID+'_result" style="margin-top: 8px" aria-label="Search Results">\
@@ -45,7 +42,6 @@ var LeafFormSearch = function(containerID) {
 
 	    var searchOrigWidth = 0;
 	    $('#' + prefixID + 'advancedOptionsClose').on('click', function() {
-	    	clearInterval(interval_advSearch);
 	    	localStorage.setItem(localStorageNamespace + '.search', '');
 	    	$('#' + prefixID + 'searchtxt').val('');
 	    	search('');
@@ -80,13 +76,12 @@ var LeafFormSearch = function(containerID) {
 	    	$('#' + prefixID + 'searchtxt').animate({'width': '0px'}, 400, 'swing', function() {
 	    		$('#' + prefixID + 'searchtxt').css('display', 'none');
 	        	$('#' + prefixID + 'advancedOptions').slideDown(function() {
-	                updateCloseIconPosition();
 	                $('#' + prefixID + 'advancedOptionsClose').fadeIn();
-	                interval_advSearch = setInterval(function() { updateCloseIconPosition(); }, 500);
 	        	});
 	            $('#' + prefixID + 'advancedOptions').css('display', 'inline');
 	            $('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
 	            renderPreviousAdvancedSearch();
+	            $('#' + prefixID + 'widgetMat_0').focus();
 	    	});
 	    });
 
@@ -198,7 +193,9 @@ var LeafFormSearch = function(containerID) {
         		$('#' + prefixID + 'widgetCod_' + i).val(advSearch[i].operator);
         		if(typeof advSearch[i].match == 'string') {
         			$('#' + prefixID + 'widgetMat_' + i).val(advSearch[i].match.replace(/\*/g, ''));
+
         		}
+
         	}
         }
 	}
@@ -216,14 +213,6 @@ var LeafFormSearch = function(containerID) {
 	    hash |= 0; // Convert to 32bit integer
 	  }
 	  return hash;
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function updateCloseIconPosition() {
-		$('#' + prefixID + 'advancedOptionsClose').css({'top': $('#' + prefixID + 'advancedOptions').position().top,
-            'left': $('#' + prefixID + 'advancedOptions').position().left + $('#' + prefixID + 'advancedOptions').width() + 4});
 	}
 
 	/**
@@ -459,22 +448,25 @@ var LeafFormSearch = function(containerID) {
 	function renderWidget(widgetID, callback) {
 		switch($('#' + prefixID + 'widgetTerm_' + widgetID).val()) {
 			case 'title':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 120px">\
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen"  aria-label="title" style="width: 120px">\
 						<option value="LIKE">CONTAINS</option>\
 						<option value="NOT LIKE">DOES NOT CONTAIN</option>\
 	            		<option value="=">=</option>\
 						<option value="!=">!=</option>\
 	            	</select>');
-				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 250px" />');
+				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 250px" />');
 				break;
 			case 'serviceID':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+                $('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen"  aria-label="title" style="width: 120px">\
+                        <option value="=">IS</option>\
+                        <option value="!=">IS NOT</option>\
+                    </select>');
 				$.ajax({
 					type: 'GET',
 					url: './api/?a=system/services',
 					dataType: 'json',
 					success: function(res) {
-						var services = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
+						var services = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="services" style="width: 250px">';
 						for(var i in res) {
 							services += '<option value="'+ res[i].groupID +'">'+ res[i].groupTitle +'</option>';
 						}
@@ -488,12 +480,14 @@ var LeafFormSearch = function(containerID) {
 				});
 				break;
 			case 'date':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen">\
+			case 'dateInitiated':
+			case 'dateSubmitted':
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen" aria-label="date">\
 	            		<option value="=">ON</option>\
 	            		<option value=">=">ON AND AFTER</option>\
 	            		<option value="<=">ON AND BEFORE</option>\
 	            	</select>');
-				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
 				if(!jQuery.ui) {
 					$.getScript('../libs/js/jquery/jquery-ui.custom.min.js', function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).datepicker();
@@ -504,7 +498,7 @@ var LeafFormSearch = function(containerID) {
 				}
 				break;
 			case 'categoryID':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen">\
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen" aria-label="categoryID">\
 	            		<option value="=">IS</option>\
 	            		<option value="!=">IS NOT</option>\
 	            	</select>');
@@ -513,7 +507,7 @@ var LeafFormSearch = function(containerID) {
 					url: './api/?a=workflow/categoriesUnabridged',
 					dataType: 'json',
 					success: function(res) {
-						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
+						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="categories" style="width: 250px">';
 						for(var i in res) {
 							categories += '<option value="'+ res[i].categoryID +'">'+ res[i].categoryName +'</option>';
 						}
@@ -523,7 +517,8 @@ var LeafFormSearch = function(containerID) {
 						if(callback != undefined) {
 							callback();
 						}
-					}
+					},
+					cache: false
 				});
 				break;
 			case 'userID':
@@ -538,16 +533,16 @@ var LeafFormSearch = function(containerID) {
 					url: './api/?a=workflow/dependencies',
 					dataType: 'json',
 					success: function(res) {
-						var dependencies = '<select id="'+prefixID+'widgetIndicator_'+widgetID+'" class="chosen" style="width: 250px">';
+						var dependencies = '<select id="'+prefixID+'widgetIndicator_'+widgetID+'" class="chosen" aria-label="dependencies" style="width: 250px">';
 						for(var i in res) {
 							dependencies += '<option value="'+ res[i].dependencyID +'">'+ res[i].description +'</option>';
 						}
 						dependencies += '</select>';
 						$('#' + prefixID + 'widgetTerm_' + widgetID).after(dependencies);
 
-						var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
-						options += '<option value="1">Signed</option>';
-						options += '<option value="0">Pending Signature</option>';
+						var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="options" style="width: 250px">';
+						options += '<option value="1">Reviewed</option>';
+						options += '<option value="0">Not Reviewed</option>';
 						options += '<option value="-1">Returned to a previous step</option>';
 						options += '</select>';
 						$('#' + prefixID + 'widgetMatch_' + widgetID).html(options);
@@ -557,21 +552,24 @@ var LeafFormSearch = function(containerID) {
 						if(callback != undefined) {
 							callback();
 						}
-					}
+					},
+					cache: false
 				});
 				break;
 			case 'stepID':
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen" aria-label="categoryID">\
+	            		<option value="=">IS</option>\
+	            		<option value="!=">IS NOT</option>\
+	            	</select>');
 				$.ajax({
 					type: 'GET',
 					url: './api/?a=workflow/steps',
 					dataType: 'json',
 					success: function(res) {
-						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
+						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="stepID" style="width: 250px">';
 						categories += '<option value="submitted">Submitted</option>';
-						categories += '<option value="notSubmitted">Not Submitted</option>';
-						//categories += '<option value="deleted">Cancelled</option>';
-						categories += '<option value="notDeleted">Not Cancelled</option>';
+						categories += '<option value="deleted">Cancelled</option>';
+						categories += '<option value="resolved">Resolved</option>';
 						for(var i in res) {
 							categories += '<option value="'+ res[i].stepID +'">'+ res[i].description + ': ' + res[i].stepTitle +'</option>';
 						}
@@ -581,7 +579,8 @@ var LeafFormSearch = function(containerID) {
 						if(callback != undefined) {
 							callback();
 						}
-					}
+					},
+					cache: false
 				});
 				break;
 			case 'data':
@@ -590,7 +589,7 @@ var LeafFormSearch = function(containerID) {
 					url: './api/?a=form/indicator/list',
 					dataType: 'json',
 					success: function(res) {
-						var indicators = '<select id="'+prefixID+'widgetIndicator_'+widgetID+'" class="chosen" style="width: 250px">';
+						var indicators = '<select id="'+prefixID+'widgetIndicator_'+widgetID+'" class="chosen" aria-label="data" style="width: 250px">';
 						indicators += '<option value="'+ ALL_DATA_FIELDS +'">Any standard data field</option>';
 						indicators += '<option value="'+ ALL_OC_EMPLOYEE_DATA_FIELDS +'">Any Org. Chart employee field</option>';
 						for(var i in res) {
@@ -605,13 +604,13 @@ var LeafFormSearch = function(containerID) {
 
 							// set default conditions for "any data field"
 							if(iID == ALL_DATA_FIELDS) {
-								$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 120px">\
+								$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
 										<option value="LIKE">CONTAINS</option>\
 										<option value="NOT LIKE">DOES NOT CONTAIN</option>\
 					            		<option value="=">=</option>\
 										<option value="!=">!=</option>\
 					            	</select>');
-								$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+								$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
 								$('.chosen').chosen({disable_search_threshold: 6});
 							}
 							else if(iID == ALL_OC_EMPLOYEE_DATA_FIELDS) { // set conditions for orgchart employee fields
@@ -633,7 +632,7 @@ var LeafFormSearch = function(containerID) {
 									switch(format) {
 										case 'number':
 										case 'currency':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 55px">\
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="currency" style="width: 55px">\
 								            		<option value="=">=</option>\
 								            		<option value=">">></option>\
 								            		<option value=">=">>=</option>\
@@ -643,12 +642,12 @@ var LeafFormSearch = function(containerID) {
 											$('.chosen').chosen({disable_search_threshold: 6});
 											break;
 										case 'date':
-                            				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen">\
+                            				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" style="width: 140px" class="chosen" aria-label="date">\
                             	            		<option value="=">ON</option>\
                             	            		<option value=">=">ON AND AFTER</option>\
                             	            		<option value="<=">ON AND BEFORE</option>\
                             	            	</select>');
-                            				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+                            				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
                             				if(!jQuery.ui) {
                             					$.getScript('../libs/js/jquery/jquery-ui.custom.min.js', function() {
                             						$('#' + prefixID + 'widgetMat_' + widgetID).datepicker();
@@ -660,18 +659,30 @@ var LeafFormSearch = function(containerID) {
 											$('.chosen').chosen({disable_search_threshold: 6});
 										    break;
 										case 'orgchart_employee':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
+								            		<option value="=">IS</option>\
+													<option value="!=">IS NOT</option>\
+								            	</select>');
 											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<div id="'+prefixID+'widgetEmp_'+widgetID+'" style="width: 280px"></div><input type="hidden" id="'+prefixID+'widgetMat_'+widgetID+'" />');
+											$('.chosen').chosen({disable_search_threshold: 6});
 											createEmployeeSelectorWidget(widgetID, 'empUID');
 											break;
 										case 'orgchart_position':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
+								            		<option value="=">IS</option>\
+													<option value="!=">IS NOT</option>\
+								            	</select>');
 											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<div id="'+prefixID+'widgetPos_'+widgetID+'" style="width: 280px"></div><input type="hidden" id="'+prefixID+'widgetMat_'+widgetID+'" />');
+											$('.chosen').chosen({disable_search_threshold: 6});
 											createPositionSelectorWidget(widgetID, 'empUID');
 											break;
 										case 'orgchart_group':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
+								            		<option value="=">IS</option>\
+													<option value="!=">IS NOT</option>\
+								            	</select>');
 											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<div id="'+prefixID+'widgetGrp_'+widgetID+'" style="width: 280px"></div><input type="hidden" id="'+prefixID+'widgetMat_'+widgetID+'" />');
+											$('.chosen').chosen({disable_search_threshold: 6});
 											createGroupSelectorWidget(widgetID);
 											break;
 										case 'dropdown':
@@ -679,7 +690,7 @@ var LeafFormSearch = function(containerID) {
 											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
 											var resOptions = res[i].format.split("\n");
 											resOptions.shift();
-											var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" style="width: 250px">';
+											var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="options" style="width: 250px">';
 											for(var i in resOptions) {
 												var currOption = resOptions[i].indexOf("default:") == -1 ? resOptions[i].trim() : resOptions[i].substr(8).trim();
 												options += '<option value="'+ currOption +'">'+ currOption +'</option>';
@@ -689,13 +700,13 @@ var LeafFormSearch = function(containerID) {
 											$('.chosen').chosen({disable_search_threshold: 6});
 											break;
 										default:
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 120px">\
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
 													<option value="LIKE">CONTAINS</option>\
 													<option value="NOT LIKE">DOES NOT CONTAIN</option>\
 								            		<option value="=">=</option>\
 													<option value="!=">!=</option>\
 								            	</select>');
-											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+											$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
 											$('.chosen').chosen({disable_search_threshold: 6});
 											break;
 									}
@@ -706,11 +717,12 @@ var LeafFormSearch = function(containerID) {
 						if(callback != undefined) {
 							callback();
 						}
-					}
+					},
+					cache: false
 				});
 				break;
 			default:
-				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" style="width: 55px">\
+				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 55px">\
 		            		<option value="=">=</option>\
 		            		<option value=">">></option>\
 		            		<option value=">=">>=</option>\
@@ -718,7 +730,7 @@ var LeafFormSearch = function(containerID) {
 		            		<option value="<="><=</option>\
 		            		<option value="LIKE">CONTAINS</option>\
 		            	</select>');
-				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+				$('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
 				break;
 		}
 	}
@@ -729,10 +741,10 @@ var LeafFormSearch = function(containerID) {
 	function newSearchWidget() {
 		var widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'">\
 						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" /></button></td>\
-						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen">\
+						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen" aria-label="condition">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
-            				<option value="date">Date Initiated</option>\
+            				<option value="dateSubmitted">Date Submitted</option>\
             				<option value="categoryID">Type</option>\
             				<option value="userID">Initiator</option>\
             				<option value="dependencyID">Requirement</option>\
