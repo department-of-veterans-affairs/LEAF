@@ -313,6 +313,33 @@ class Workflow
         return 1;
     }
 
+    /**
+     * Set whether the specified step for the current Workflow requires a digital signature.
+     * Uses the workflowID that was set with setWorkflowID(workflowID).
+     *
+     * @param int $stepID 				the step id to require a signature for
+     * @param int $requiresSignature 	whether a signature is required
+     *
+     * @return int if the query was successful
+     */
+    public function requireDigitalSignature($stepID, $requireSignature) {
+        if(!$this->login->checkGroup(1)) {
+            return 'Admin access required.';
+        }
+        
+        $vars = array(
+            ':workflowID' => (int)$this->workflowID,
+            ':stepID' => (int)$stepID,
+            ':requiresSignature' => $requireSignature
+        );
+        
+        $res = $this->db->prepared_query(
+            'UPDATE `workflow_steps` SET `requiresDigitalSignature` = :requiresSignature WHERE `workflowID` = :workflowID AND `stepID` = :stepID',
+            $vars);
+        
+        return $res > 0;
+    }
+
     public function linkDependency($stepID, $dependencyID)
     {
         if (!$this->login->checkGroup(1))

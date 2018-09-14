@@ -76,7 +76,7 @@ class FormWorkflow
 
         $steps = array();
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query('SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID FROM records_workflow_state
+        $res = $this->db->prepared_query('SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
         									LEFT JOIN records USING (recordID)
         									LEFT JOIN workflow_steps USING (stepID)
         									LEFT JOIN step_dependencies USING (stepID)
