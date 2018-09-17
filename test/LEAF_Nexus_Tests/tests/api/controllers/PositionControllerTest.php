@@ -80,6 +80,28 @@ class PositionControllerTest extends DatabaseTest
     }
 
     /**
+     * Tests the `position` POST endpoint
+     */
+    /* TODO: finish this
+    public function testAddNewEmployee() : void
+    {
+        // attempts to create a new position
+        $postData = array('title' => 'My Title',
+                          'parentID' => 'bad ID needs to be numeric',
+                          'groupID' => null
+        );
+        self::$client->post(array('a' => 'position'), $postData); // check that the response is non numeric (error)
+
+        // creates a new position
+        $postData = array('title' => 'My Title',
+                          'parentID' => 1,
+                          'groupID' => null
+        );
+        self::$client->post(array('a' => 'position'), $postData); // check that the response is numeric (success)
+    }
+*/
+
+    /**
      * Tests the `position/<id1>/employee/<id2>` endpoint
      */
     public function testAddAndRemoveEmployee() : void
