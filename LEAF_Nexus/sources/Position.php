@@ -127,9 +127,10 @@ class Position extends Data
     {
         $memberships = $this->login->getMembership();
 
-        if (!is_numeric($parentID) || !is_numeric($groupID))
+        $groupID = (int)$groupID;
+        if (!is_numeric($parentID))
         {
-            throw new Exception('invalid input');
+            throw new Exception('Invalid input: parentID');
         }
         if ($parentID == 0
             && $memberships['groupID'] != 1)
