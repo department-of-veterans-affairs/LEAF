@@ -485,6 +485,10 @@ class FormWorkflow
         									WHERE recordID=:recordID
         										AND dependencyID=:dependencyID', $vars);
 
+        if(count($res) == 0) {
+            return array('status' => 0, 'errors' => array('This page is out of date. Please refresh for the latest status.'));
+        }
+
         $logCache = array();
         // iterate through steps
         foreach ($res as $actionable)
