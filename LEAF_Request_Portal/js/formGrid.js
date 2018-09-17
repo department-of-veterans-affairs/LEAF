@@ -81,15 +81,15 @@ var LeafFormGrid = function(containerID, options) {
     	var temp = '<tr id="'+prefixID + 'thead_tr'+'">';
     	var virtualHeader = '<tr id="'+prefixID + 'tVirt_tr'+'">';
     	if(showIndex) {
-    		temp += '<th id="'+ prefixID +'header_UID" style="text-align: center">UID</th>';
+            temp += '<th tabindex="0" id="'+ prefixID +'header_UID" style="text-align: center">UID</th>';
     		virtualHeader += '<th style="text-align: center">UID</th>';
     	}
     	$('#' + prefixID + 'thead').html(temp);
 
     	if(showIndex) {
-			$('#'+ prefixID +'header_UID').css('cursor', 'pointer');
-			$('#'+ prefixID +'header_UID').on('click', null, null, function(data) {
-				if(headerToggle == 0) {
+		$('#'+ prefixID +'header_UID').css('cursor', 'pointer');
+		$('#'+ prefixID +'header_UID').on('click', null, null, function(data) {
+                if(headerToggle == 0) {
 					sort('recordID', 'asc');
 					headerToggle = 1;
 				}
@@ -106,6 +106,12 @@ var LeafFormGrid = function(containerID, options) {
     		$('#'+ prefixID +'header_UID').on('mouseout', null, null, function(data) {
     			$('#'+ prefixID +'header_UID').css({'background-color': headerColor});
     		});
+            $('#'+ prefixID +'header_UID').on('focusin', null, null, function(data) {
+                $('#'+ prefixID +'header_UID').css('background-color', '#79a2ff');
+            });
+            $('#'+ prefixID +'header_UID').on('focusout', null, null, function(data) {
+                $('#'+ prefixID +'header_UID').css({'background-color': headerColor});
+            });
     	}
 
     	for(var i in headers) {
