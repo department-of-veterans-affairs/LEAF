@@ -56,6 +56,8 @@ class SignatureController extends RESTfulResponse
             return $signature->create(
                 XSSHelpers::sanitizeHTML($_POST['signature']),
                 (int)$_POST['recordID'],
+                (int)$_POST['stepID'],
+                (int)$_POST['dependencyID'],
                 XSSHelpers::sanitizeHTML($_POST['message'])
             );
         });

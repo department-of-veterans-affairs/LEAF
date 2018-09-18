@@ -320,6 +320,26 @@ class FormWorkflow
     }
 
     /**
+     * Get the last action made to the request with a summary of events
+     */
+    public function getLastActionSummary()
+    {
+        $lastActionData = $this->getLastAction();
+        // check access
+        if($lastActionData === 0) {
+            return 0;
+        }
+
+        $vars = array(':recordID' => $this->recordID);
+        $res = $this->db->prepared_query('SELECT * FROM action_history
+                                            INNER JOIN signatures USING (recordID)
+	    									WHERE recordID=:recordID
+	    										AND actionType IS NOT NULL
+    											AND dependencyID != 0', $vars);
+        
+    }
+
+    /**
      * Retrieves actions associated with a dependency
      * @param int $workflowID
      * @param int $stepID
@@ -349,7 +369,7 @@ class FormWorkflow
     {
         if (!is_numeric($dependencyID))
         {
-            return array('status' => 0, 'errors' => array('invalid ID'));
+            return array('status' => 0, 'errors' => array('Invalid ID: dependencyID'));
         }
 
         $errors = array();

@@ -55,11 +55,13 @@ final class SignatureControllerTest extends DatabaseTest
 
         $id = 1;
         $recordID = 10;
+        $stepID = 1;
         foreach ($testCases as $unsanitized => $sanitized)
         {
             $testPost = array(
                 'signature' => $unsanitized,
                 'recordID' => $recordID,
+                'stepID' => $stepID,
                 'message' => $unsanitized,
             );
 
