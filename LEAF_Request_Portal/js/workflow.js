@@ -153,7 +153,6 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
                 var completeAction = function() {
                     data['CSRFToken'] = CSRFToken;
-
                     if (e.data.step.dependencyActions[e.data.idx].fillDependency > 0)
                         if(typeof workflowModule[e.data.step.dependencyID] !== 'undefined') {
                             workflowModule[e.data.step.dependencyID].trigger(function() {
@@ -169,7 +168,8 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 };
 
                 // TODO: eventually this will be handled by Workflow extension
-                if (step.requiresDigitalSignature == true) {
+                if (step.requiresDigitalSignature == true
+                        && e.data.step.dependencyActions[e.data.idx].fillDependency > 0) { // dont require signature for regressive actions
                     if (LEAFRequestPortalAPI !== undefined) {
 
                         var portalAPI = LEAFRequestPortalAPI();
@@ -185,6 +185,8 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                                     portalAPI.Signature.create(
                                         sigData,
                                         currRecordID,
+                                        step.stepID,
+                                        step.dependencyID,
                                         jsonStr,
                                         function (id) {
                                             data['signature'] = id.replace('"', "");
