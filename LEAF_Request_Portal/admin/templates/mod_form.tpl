@@ -57,6 +57,10 @@ function openContent(url) {
                                  <td>Sort Priority</td>\
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
+                             <tr class="isSubForm">\
+                                 <td>Clone authority</td>\
+                                 <td><select id="cloneGroupID"><option value="0">No group</option></select></td>\
+                             </tr>\
                            </table>');
         $('#name').val(categories[currCategoryID].categoryName);
         $('#description').val(categories[currCategoryID].categoryDescription);
@@ -64,6 +68,7 @@ function openContent(url) {
         $('#needToKnow').val(categories[currCategoryID].needToKnow);
         $('#visible').val(categories[currCategoryID].visible);
         $('#sort').val(categories[currCategoryID].sort);
+        $('#cloneGroupID').val(categories[currCategoryID].cloneGroupID);
         if(isSubForm) {
         	$('.isSubForm').css('display', 'none');
         }
@@ -78,7 +83,7 @@ function openContent(url) {
         		if(res.length > 0) {
                     var buffer = '<select id="workflowID">';
                     buffer += '<option value="0">No Workflow</option>';
-                    for(var i in res) {
+                    for(var i = 0; i < res.length; i++) {
                         buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
                     }
                     buffer += '</select>';
@@ -91,6 +96,28 @@ function openContent(url) {
         		dialog.indicateIdle();
         	},
         	cache: false
+        });
+
+        // load group data
+        dialog.indicateBusy();
+        $.ajax({
+            type: 'GET',
+            url: '../api/?a=group/members',
+            success: function(res) {
+                if(res.length > 0) {
+                    for(var i = 0; i < res.length; i++) {
+                        if (res[i].groupID !== '1')
+                        {
+                            $('#cloneGroupID').append('<option value="' + res[i].groupID + '">' + res[i].name + '</input>');
+                        }
+                    }
+                    if(categories[currCategoryID].cloneGroupID !== undefined) {
+                        $('#cloneGroupID').val(categories[currCategoryID].cloneGroupID);
+                    }
+                }
+                dialog.indicateIdle();
+            },
+            cache: false
         });
 
         dialog.setSaveHandler(function() {
@@ -161,6 +188,17 @@ function openContent(url) {
                         if(res != null) {
                         }
                     }
+                }),
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/formCloneAuthority',
+                    data: {cloneGroupID: $('#cloneGroupID').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
                 })
              ).then(function() {
                 categories[currCategoryID].categoryName = $('#name').val();
@@ -170,6 +208,7 @@ function openContent(url) {
                 categories[currCategoryID].needToKnow = $('#needToKnow').val();
                 categories[currCategoryID].visible = $('#visible').val();
                 categories[currCategoryID].sort = $('#sort').val();
+                categories[currCategoryID].cloneAuthority = $('#cloneGroupID').val();
                 openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
                 dialog.hide();
              });
@@ -200,7 +239,7 @@ function addPermission(categoryID, group) {
         url: '../api/?a=system/groups',
         success: function(res) {
             var buffer = '<select id="groupID">';
-            for(var i in res) {
+            for(var i = 0; i < res.length; i++) {
                 buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
             }
             buffer += '</select>';
@@ -257,7 +296,7 @@ function editPermissions() {
 		url: '../api/?a=formEditor/_'+ currCategoryID +'/privileges',
 		success: function(res) {
 			var buffer = '<ul>';
-			for(var i in res) {
+            for(var i = 0; i < res.length; i++) {
 				buffer += '<li>' + res[i].name + ' [ <a href="#" onclick="removePermission(\''+ res[i].groupID +'\');">Remove</a> ]</li>';
 			}
 			buffer += '</ul>';
@@ -297,7 +336,7 @@ function addIndicatorPrivilege(indicatorID) {
         success: function(res) {
             var buffer = '<select id="groupID">';
             buffer += '<option value="1">System Administrators</option>';
-            for(var i in res) {
+            for(var i = 0; i < res.length; i++) {
                 buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
             }
             buffer += '</select>';
@@ -695,7 +734,7 @@ function getForm(indicatorID, series) {
     	        success: function(res) {
     	            var buffer = '<select id="parentID" style="width: 300px">';
     	            buffer += '<option value="">None</option>';
-    	            for(var i in res) {
+    	            for(var i = 0; i < res.length; i++) {
     	                if(indicatorID != i) {
     	                    buffer += '<option value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
     	                }
@@ -713,7 +752,7 @@ function getForm(indicatorID, series) {
                 var format = res[indicatorID].format;
                 if(res[indicatorID].options != undefined
                     && res[indicatorID].options.length > 0) {
-                    for(var i in res[indicatorID].options) {
+                    for(var i = 0; i < res[indicatorID].options.length; i++) {
                         format += "\n" + res[indicatorID].options[i];
                     }
                 }
@@ -932,7 +971,7 @@ function mergeForm(categoryID) {
         url: '../api/formStack/categoryList/all',
         success: function(res) {
             var buffer = '<select id="stapledCategoryID">';
-            for(var i in res) {
+            for(var i = 0; i < res.length; i++) {
             	if(res[i].workflowID == 0
             		&& res[i].categoryID != categoryID
             		&& res[i].parentID == '') {
@@ -987,7 +1026,7 @@ function mergeFormDialog(categoryID) {
         url: '../api/?a=formEditor/_'+ categoryID +'/stapled',
         success: function(res) {
             var buffer = '<ul>';
-            for(var i in res) {
+            for(var i = 0; i < res.length; i++) {
                 buffer += '<li>' + res[i].categoryName + ' [ <a href="#" onclick="unmergeForm(\''+ categoryID +'\', \''+ res[i].stapledCategoryID +'\');">Remove</a> ]</li>';
             }
             buffer += '</ul>';
@@ -1117,7 +1156,7 @@ function buildMenu(categoryID) {
         url: '../api/formEditor/_'+ categoryID + '/stapled',
         success: function(res) {
             let buffer = '<ul>';
-            for(var i in res) {
+            for(var i = 0; i < res.length; i++) {
                 buffer += '<li>'+ res[i].categoryName +'</li>';
             }
             buffer += '</ul>';
@@ -1156,7 +1195,7 @@ function showFormBrowser() {
         success: function(res) {
             var buffer = '<div id="forms" style="padding: 8px"></div><br style="clear: both" /><hr style="margin-top: 32px" />Not associated with a workflow:<div id="forms_inactive" style="padding: 8px"></div>';
             $('#formEditor_content').html(buffer);
-            for(var i in res) {
+            for(var i = 0; i < res.length; i++) {
             	categories[res[i].categoryID] = res[i];
             	if(res[i].parentID == '') {
             		formTitle = res[i].categoryName == '' ? 'Untitled' : res[i].categoryName;
