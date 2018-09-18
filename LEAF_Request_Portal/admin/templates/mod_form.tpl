@@ -752,7 +752,7 @@ function getForm(indicatorID, series) {
                 var format = res[indicatorID].format;
                 if(res[indicatorID].options != undefined
                     && res[indicatorID].options.length > 0) {
-                    for(var i = 0; i < res[indicatorID].options; i++) {
+                    for(var i = 0; i < res[indicatorID].options.length; i++) {
                         format += "\n" + res[indicatorID].options[i];
                     }
                 }
