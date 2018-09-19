@@ -331,12 +331,24 @@ class FormWorkflow
         }
 
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query('SELECT * FROM action_history
-                                            INNER JOIN signatures USING (recordID)
-	    									WHERE recordID=:recordID
-	    										AND actionType IS NOT NULL
-    											AND dependencyID != 0', $vars);
-        
+        $res = $this->db->prepared_query('SELECT signatureID, signature, recordID, stepID, dependencyID, userID, timestamp, stepTitle FROM signatures
+                                            LEFT JOIN workflow_steps USING (stepID)
+	    									WHERE recordID=:recordID', $vars);
+
+        if(count($res) > 0) {
+            require_once 'VAMC_Directory.php';
+            $dir = new VAMC_Directory;
+
+            foreach($res as $key => $sig) {
+                $signer = $dir->lookupLogin($sig['userID']);
+                $res[$key]['name'] = "{$signer[0]['firstName']} {$signer[0]['lastName']}";
+            }
+        }
+
+        $output = [];
+        $output['lastAction'] = $lastActionData;
+        $output['signatures'] = $res;
+        return $output;
     }
 
     /**

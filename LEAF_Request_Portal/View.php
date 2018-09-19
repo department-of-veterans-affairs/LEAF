@@ -36,34 +36,71 @@ class View
         $dir = new VAMC_Directory;
 
         $vars = array(':recordID' => $recordID);
-        // indicator 16 for Request Summary
-        /*$res = $this->db->prepared_query('SELECT *, approvals.userID FROM records
-                                    LEFT JOIN (SELECT data, recordID FROM data
-                                                WHERE indicatorID=16
-                                                        AND series=1) j0 USING (recordID)
-                                    LEFT JOIN approvals USING (recordID)
-                                    LEFT JOIN groups USING (groupID)
-                                    LEFT JOIN services USING (serviceID)
-                                    WHERE records.recordID=:recordID
-                                    ORDER BY time', $vars);*/
 
         $res = $this->db->prepared_query('SELECT * FROM action_history
         									LEFT JOIN dependencies USING (dependencyID)
+                                            LEFT JOIN workflow_steps USING (stepID)
         									LEFT JOIN actions USING (actionType)
         									WHERE recordID=:recordID
                                             ORDER BY time ASC', $vars);
 
         foreach ($res as $tmp)
         {
+            $packet = [];
+            $packet['time'] = $tmp['time'];
+            if($tmp['stepTitle'] != '') {
+                $packet['description'] = $tmp['stepTitle'] . ': ' . $tmp['actionText'];
+            }
+            else {  // backwards compat
+                $packet['description'] = $tmp['description'] . ': ' . $tmp['actionText'];
+            }
+            if($tmp['description'] == ''
+                && $tmp['actionText'] == ''
+            ) {
+                $packet['description'] = 'Action';
+            }
+            $packet['comment'] = $tmp['comment'];
             if ($tmp['userID'] != '')
             {
                 $user = $dir->lookupLogin($tmp['userID']);
                 $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
-                $tmp['userName'] = $name;
+                $packet['userName'] = $name;
             }
-            $result[] = $tmp;
+            $result[] = $packet;
         }
 
+        $vars = array(':recordID' => $recordID);
+        $res = $this->db->prepared_query('SELECT signatureID, signature, recordID, stepID, dependencyID, userID, timestamp, stepTitle FROM signatures
+                                            LEFT JOIN workflow_steps USING (stepID)
+	    									WHERE recordID=:recordID', $vars);
+
+        foreach ($res as $tmp)
+        {
+            $packet = [];
+            $packet['time'] = $tmp['timestamp'];
+            $packet['description'] = $tmp['stepTitle'] . ': Digitally Signed';
+            $packet['comment'] = 'Signature Hash: ' . $tmp['signature'];
+
+            if ($tmp['userID'] != '')
+            {
+                $user = $dir->lookupLogin($tmp['userID']);
+                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
+                $packet['userName'] = $name;
+            }
+            $result[] = $packet;
+        }
+
+        usort($result, function($a, $b) {
+            if($a['time'] == $b['time']) {
+                return 0;
+            }
+            else if($a['time'] > $b['time']) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
+        });
         return $result;
     }
 
