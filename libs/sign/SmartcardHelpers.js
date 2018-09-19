@@ -13,7 +13,9 @@ var Signer = function() {
             stompClient.subscribe('/wsbroker/controller', function (response) {
                 showMessage(JSON.parse(response.body).content);
             });
-            _callback();
+            if(_callback != undefined) {
+                _callback();
+            }
         });
         socket.onclose = function() {
             console.log("Trying to reconnect");
@@ -42,7 +44,7 @@ var Signer = function() {
             // add logic to check if sendData() worked correctly
             onSuccess('signature hash needs to go here');
         });*/
-        onSuccess('signature hash needs to go here');
+        onSuccess('110010101demogsig010100');
     };
 
     var connection = function () {

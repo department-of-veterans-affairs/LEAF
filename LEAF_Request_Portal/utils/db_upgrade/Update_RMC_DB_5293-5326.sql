@@ -10,7 +10,7 @@ ALTER TABLE `workflow_steps` ADD `requiresDigitalSignature` TINYINT(1) DEFAULT N
 
 -- Create table to hold signatures
 CREATE TABLE IF NOT EXISTS `signatures` (
-    `id`        MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+    `signatureID`        MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
     `signature` TEXT NOT NULL,
     `recordID`  SMALLINT(5) unsigned NOT NULL,
     `stepID`  SMALLINT(5) NOT NULL,
@@ -19,14 +19,13 @@ CREATE TABLE IF NOT EXISTS `signatures` (
     -- Typically this will hold a JSON object, but the MySQL JSON data type is not used here since the JSON document
     -- elements will never be accessed individually and this is here only for accounting and validation purposes
     `message`   LONGTEXT NOT NULL,
-    
+
     `userID`    VARCHAR(50) NOT NULL,
     `timestamp` INT unsigned NOT NULL,
 
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ALTER TABLE `signatures` ADD UNIQUE `recordID_stepID_depID` (`recordID`, `stepID`, `dependencyID`);
-ALTER TABLE `signatures` ADD `timestamp` INT UNSIGNED NOT NULL AFTER `message`;
 
 
 UPDATE `settings` SET `data` = '5326' WHERE `settings`.`setting` = 'dbversion';
