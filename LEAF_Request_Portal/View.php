@@ -48,10 +48,11 @@ class View
         {
             $packet = [];
             $packet['time'] = $tmp['time'];
-            if($tmp['stepTitle'] != '') {
+            if($tmp['stepTitle'] != ''
+                && $tmp['dependencyID'] < 0) {
                 $packet['description'] = $tmp['stepTitle'] . ': ' . $tmp['actionText'];
             }
-            else {  // backwards compat
+            else {
                 $packet['description'] = $tmp['description'] . ': ' . $tmp['actionText'];
             }
             if($tmp['description'] == ''
