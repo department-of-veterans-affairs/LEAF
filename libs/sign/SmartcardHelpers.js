@@ -38,13 +38,10 @@ var Signer = function() {
     }
 
     var sign = function (dataToSign, onSuccess) {
-        // add logic to check if a connection can be made, if not show user an error
-        /*connect(function() {
+        connect(function() {
             sendData(dataToSign);
-            // add logic to check if sendData() worked correctly
             onSuccess('signature hash needs to go here');
-        });*/
-        onSuccess('110010101demogsig010100');
+        });
     };
 
     var connection = function () {
