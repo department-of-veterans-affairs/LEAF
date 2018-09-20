@@ -2,6 +2,8 @@ var Signer = function() {
 
     var stompClient = null;
     var isConnected = false;
+    var pendingSignatures = {}; // callbacks
+    var initiatedJNLP = false;
 
     function connect(_callback) {
         var url = "https://localhost:8443/websocket";
@@ -11,7 +13,15 @@ var Signer = function() {
             isConnected = true;
             console.log('Connected: ' + frame);
             stompClient.subscribe('/wsbroker/controller', function (response) {
-                showMessage(JSON.parse(response.body).content);
+                switch(response.command) {
+                    case 'MESSAGE':
+                        console.log(JSON.parse(response.body));
+                        console.log(Object.keys(pendingSignatures));
+                        break;
+                    default:
+                        console.log(response);
+                        break;
+                }
             });
             if(_callback != undefined) {
                 _callback();
@@ -20,6 +30,12 @@ var Signer = function() {
         socket.onclose = function() {
             console.log("Trying to reconnect");
             setTimeout(connect, 1000);
+            if(initiatedJNLP == false) {
+                if (!isConnected) {
+                    initiatedJNLP = true;
+                    window.open("../libs/sign/sign.jnlp");
+                }
+            }
         };
 
     }
@@ -33,14 +49,10 @@ var Signer = function() {
         stompClient.send("/app/sign", {}, JSON.stringify({'content': dataToSign}));
     }
 
-    function showMessage(message) {
-        alert(message);
-    }
-
-    var sign = function (dataToSign, onSuccess) {
+    var sign = function (key, dataToSign, onSuccess) {
         connect(function() {
             sendData(dataToSign);
-            onSuccess('signature hash needs to go here');
+            pendingSignatures[key] = onSuccess;
         });
     };
 
