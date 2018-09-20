@@ -301,7 +301,7 @@ class Form
     // Expects POST input: $_POST['service'], title, priority, num(categoryID)
     public function newForm($userID)
     {
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'] && \Orgchart\Config::$HTTPS == true)
         {
             return 'Error: Invalid token.';
         }
@@ -646,7 +646,7 @@ class Form
 
     public function deleteRecord($recordID)
     {
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'] && \Orgchart\Config::$HTTPS == true)
         {
             return 0;
         }
@@ -728,7 +728,7 @@ class Form
         {
             return 0;
         }
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'] && \Orgchart\Config::$HTTPS == true)
         {
             return 0;
         }
@@ -913,7 +913,7 @@ class Form
         {
             return 0;
         }
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'] && \Orgchart\Config::$HTTPS == true)
         {
             return 0;
         }
@@ -1094,7 +1094,7 @@ class Form
     public function doSubmit($recordID)
     {
         $recordID = (int)$recordID;
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'] && \Orgchart\Config::$HTTPS == true)
         {
             return 0;
         }
@@ -2190,7 +2190,7 @@ class Form
 
     public function setTitle($recordID, $title)
     {
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'] && \Orgchart\Config::$HTTPS == true)
         {
             return;
         }
@@ -2210,8 +2210,8 @@ class Form
 
     public function setService($recordID, $serviceID)
     {
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']
-            || !is_numeric($serviceID))
+        if (($_POST['CSRFToken'] != $_SESSION['CSRFToken']
+            || !is_numeric($serviceID)) && \Orgchart\Config::$HTTPS == true)
         {
             return;
         }
@@ -2230,7 +2230,7 @@ class Form
 
     public function setInitiator($recordID, $userID)
     {
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'] && \Orgchart\Config::$HTTPS == true)
         {
             return;
         }

@@ -8,9 +8,6 @@ include 'db_config.php';
 include 'Login.php';
 include 'form.php';
 
-// Enforce HTTPS
-include_once './enforceHTTPS.php';
-
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';

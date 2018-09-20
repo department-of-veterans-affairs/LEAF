@@ -29,9 +29,6 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
 
-// Enforce HTTPS
-include_once '../enforceHTTPS.php';
-
 $db_config = new DB_Config();
 $config = new Config();
 
@@ -397,7 +394,7 @@ switch ($action) {
         $main->assign('javascripts', array(
             '../../libs/js/LEAF/XSSHelpers.js',
             '../../libs/jsapi/nexus/LEAFNexusAPI.js',
-            '../../libs/jsapi/portal/LEAFPortalAPI.js'
+            '../../libs/jsapi/portal/LEAFPortalAPI.js',
         ));
 
         if ($login->checkGroup(1))
