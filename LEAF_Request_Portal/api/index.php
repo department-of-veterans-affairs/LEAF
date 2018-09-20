@@ -18,9 +18,6 @@ require 'RESTfulResponse.php';
 require '../sources/Exception.php';
 require 'ControllerMap.php';
 
-// Enforce HTTPS
-include_once '../enforceHTTPS.php';
-
 $db_config = new DB_Config();
 $config = new Config();
 

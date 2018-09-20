@@ -36,6 +36,8 @@ class Config
 
     public $adPath = array('OU=myOU,DC=domain,DC=tld'); // Active directory path
 
+    public static $HTTPS = true;
+
     public static $uploadDir = './UPLOADS/';
 
     // Directory for user uploads
@@ -43,8 +45,6 @@ class Config
     public static $orgchartPath = '../orgchart'; // HTTP Path to orgchart with no trailing slash
 
     public static $orgchartImportTags = array('resources_site_access'); // Import org chart groups if they match these tags
-
-    public $enforceHTTPS = true;
 
     public $descriptionID = 16;    // indicator ID for description field
 

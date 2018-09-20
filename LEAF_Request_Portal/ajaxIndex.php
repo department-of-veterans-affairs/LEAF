@@ -16,9 +16,6 @@ include 'Login.php';
 include 'db_mysql.php';
 include 'db_config.php';
 
-// Enforce HTTPS
-include_once './enforceHTTPS.php';
-
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
 {

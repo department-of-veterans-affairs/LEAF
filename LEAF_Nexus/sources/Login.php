@@ -203,6 +203,11 @@ class Login
 
     public function loginUser()
     {
+        if (Config::$HTTPS == false)
+        {
+            $_SESSION['userID'] = 'tester';
+        }
+
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
         {
             if (php_sapi_name() != 'cli')
@@ -415,7 +420,7 @@ class Login
                                             	WHERE indicatorID IN ({$indicatorList})", $var);
             $this->cache[$cacheHash2] = $res;
         }
-        
+
         foreach ($res as $item)
         {
             $resIndicatorID = (int)$item['indicatorID'];
@@ -424,7 +429,7 @@ class Login
             $resRead = (int)$item['read'];
             $resWrite = (int)$item['write'];
             $resGrant = (int)$item['grant'];
-            
+
             // grant highest available access
             if (isset($memberships[$resCategoryID . 'ID'][$resUID]))
             {
