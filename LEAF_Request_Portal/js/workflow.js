@@ -345,17 +345,19 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	    		
                 // check signatures
                 if(lastActionSummary.signatures.length > 0) {
-                    console.log(lastActionSummary.signatures);
                     $('#workflowcontent').append('<div id="workflowSignatureContainer" style="margin-top: 8px"></div>');
                     for(var i in lastActionSummary.signatures) {
                         var sigTime = new Date(lastActionSummary.signatures[i].timestamp * 1000);
                         var month = sigTime.getMonth() + 1;
                         var date = sigTime.getDate();
                         var year = sigTime.getFullYear();
-                        $('#workflowSignatureContainer').append('<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #22d63a; border: 1px solid black; text-align: center">'+ lastActionSummary.signatures[i].stepTitle +' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="../libs/dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle" alt="digital signature logo" />'
+                        $('#workflowSignatureContainer').append('<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">'+ lastActionSummary.signatures[i].stepTitle +' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="../libs/dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature logo" />'
                                 + lastActionSummary.signatures[i].name + ' '
                                 + month + '/' + date + '/' + year
                                 +'</span><br /><span aria-hidden="true" style="font-size: 75%">x'+ lastActionSummary.signatures[i].signature +'</span></div>');
+                    }
+                    for(var i in lastActionSummary.stepsPendingSignature) {
+                        $('#workflowSignatureContainer').append('<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: white; border: 1px dashed black; text-align: center">'+ lastActionSummary.stepsPendingSignature[i] +'<br /><span style="font-size: 140%; line-height: 300%">X&nbsp;______________</span></div>');
                     }
                     $('#workflowcontent').append('<br style="clear: both" />');
                 }
