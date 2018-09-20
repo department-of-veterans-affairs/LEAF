@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `signatures` (
     `userID`    VARCHAR(50) NOT NULL,
     `timestamp` INT unsigned NOT NULL,
 
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`signatureID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ALTER TABLE `signatures` ADD UNIQUE `recordID_stepID_depID` (`recordID`, `stepID`, `dependencyID`);
 
