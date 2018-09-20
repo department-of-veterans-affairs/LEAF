@@ -34,16 +34,6 @@ $config = new Config();
 
 header('X-UA-Compatible: IE=edge');
 
-// Enforce HTTPS
-if (isset($config->enforceHTTPS) && $config->enforceHTTPS == true)
-{
-    if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on')
-    {
-        header('Location: https://' . XSSHelpers::scrubNewLinesFromURL($_SERVER['SERVER_NAME']) . XSSHelpers::scrubNewLinesFromURL($_SERVER['REQUEST_URI']));
-        exit();
-    }
-}
-
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
@@ -120,14 +110,14 @@ switch ($action) {
         {
             $main->assign('useUI', true);
             $main->assign('javascripts', array(
-                'js/form.js', 
-                'js/workflow.js', 
-                'js/formGrid.js', 
-                'js/formQuery.js', 
+                'js/form.js',
+                'js/workflow.js',
+                'js/formGrid.js',
+                'js/formQuery.js',
                 'js/formSearch.js',
                 '../libs/jsapi/nexus/LEAFNexusAPI.js',
                 '../libs/jsapi/portal/LEAFPortalAPI.js',
-                '../libs/jsapi/portal/model/FormQuery.js'
+                '../libs/jsapi/portal/model/FormQuery.js',
             ));
 
             $form = new Form($db, $login);
