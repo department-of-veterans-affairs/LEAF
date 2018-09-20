@@ -331,7 +331,7 @@ class FormWorkflow
         }
 
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query('SELECT signatureID, signature, recordID, stepID, dependencyID, userID, timestamp, stepTitle FROM signatures
+        $res = $this->db->prepared_query('SELECT signatureID, signature, recordID, stepID, dependencyID, userID, timestamp, stepTitle, workflowID FROM signatures
                                             LEFT JOIN workflow_steps USING (stepID)
 	    									WHERE recordID=:recordID', $vars);
 
@@ -339,15 +339,29 @@ class FormWorkflow
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
+            $signedSteps = [];
             foreach($res as $key => $sig) {
                 $signer = $dir->lookupLogin($sig['userID']);
                 $res[$key]['name'] = "{$signer[0]['firstName']} {$signer[0]['lastName']}";
+                $signedSteps[$res[$key]['stepID']] = 1;
+            }
+
+            $stepsPendingSigs = [];
+            $vars = array(':workflowID' => $res[0]['workflowID']);
+            $resWorkflow = $this->db->prepared_query('SELECT * FROM workflow_steps
+                                                        WHERE workflowID=:workflowID
+                                                            AND requiresDigitalSignature = 1', $vars);
+            foreach($resWorkflow as $step) {
+                if(!isset($signedSteps[$step['stepID']])) {
+                    $stepPendingSigs[] = $step['stepTitle'];
+                }
             }
         }
 
         $output = [];
         $output['lastAction'] = $lastActionData;
         $output['signatures'] = $res;
+        $output['stepsPendingSignature'] = $stepPendingSigs;
         return $output;
     }
 
