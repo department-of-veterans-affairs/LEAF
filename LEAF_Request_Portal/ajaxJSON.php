@@ -24,16 +24,6 @@ if (!class_exists('XSSHelpers'))
 $db_config = new DB_Config();
 $config = new Config();
 
-// Enforce HTTPS
-if (isset($config->enforceHTTPS) && $config->enforceHTTPS == true)
-{
-    if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on')
-    {
-        header('Location: https://' . XSSHelpers::scrubNewLinesFromURL($_SERVER['SERVER_NAME']) . XSSHelpers::scrubNewLinesFromURL($_SERVER['REQUEST_URI']));
-        exit();
-    }
-}
-
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);

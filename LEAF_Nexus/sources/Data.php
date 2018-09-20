@@ -105,7 +105,6 @@ abstract class Data
             return $this->cache[$cacheHash];
         }
 
-
         if (!isset($this->cache["getAllData_{$indicatorID}"]))
         {
             if ($indicatorID != 0)
@@ -356,7 +355,7 @@ abstract class Data
         {
             throw new Exception($this->dataTableDescription . ' ID required');
         }
-        if (!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        if ((!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken']) && Config::$HTTPS == true)
         {
             throw new Exception($this->dataTableDescription . ' invalid token');
         }
@@ -608,7 +607,7 @@ abstract class Data
         {
             return 0;
         }
-        if (!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        if ((!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken']) && Config::$HTTPS == true)
         {
             return 'Invalid token';
         }

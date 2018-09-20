@@ -11,9 +11,6 @@ include 'form.php';
 $db_config = new DB_Config();
 $config = new Config();
 
-// Enforce HTTPS
-include_once './enforceHTTPS.php';
-
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';

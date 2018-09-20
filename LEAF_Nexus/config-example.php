@@ -27,14 +27,14 @@ class Config
 
     public $adPath = array('OU=Users,DC=va,DC=gov'); // Active directory paths
 
+    public static $HTTPS = true;
+
     public static $uploadDir = './UPLOADS/';
 
     // Directory for user uploads
     // using backslashes (/), with trailing slash
 
     public static $ERM_Sites = array('resource_management' => ''); // URL to ERM sites with trailing slash
-
-    public $enforceHTTPS = true;
 
     public $dbHost = 'SERVER_HOSTNAME';
 
