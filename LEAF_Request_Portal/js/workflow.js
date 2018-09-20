@@ -183,11 +183,12 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                         var portalAPI = LEAFRequestPortalAPI();
                         portalAPI.setCSRFToken(CSRFToken);
 
+                        var key = currRecordID + '_' + Math.floor(Math.random()*1000); 
                         portalAPI.Forms.getJSONForSigning(
                             currRecordID,
                             function (json) {
                                 var jsonStr = JSON.stringify(json);
-                                Signer.sign(jsonStr, function (signedDataList) {
+                                Signer.sign(key, jsonStr, function (signedDataList) {
                                     portalAPI.Signature.create(
                                         signedDataList,
                                         currRecordID,
