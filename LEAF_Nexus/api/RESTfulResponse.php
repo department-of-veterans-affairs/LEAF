@@ -48,7 +48,7 @@ abstract class RESTfulResponse
 
                 break;
             case 'POST':
-                if ($_POST['CSRFToken'] == $_SESSION['CSRFToken'])
+                if ($_POST['CSRFToken'] == $_SESSION['CSRFToken'] || Orgchart\Config::$HTTPS == false)
                 {
                     $this->output($this->post($action));
                 }
@@ -59,7 +59,7 @@ abstract class RESTfulResponse
 
                 break;
             case 'DELETE':
-                if ($_GET['CSRFToken'] == $_SESSION['CSRFToken'])
+                if ($_GET['CSRFToken'] == $_SESSION['CSRFToken'] || Orgchart\Config::$HTTPS == false)
                 {
                     $this->output($this->delete($action));
                 }
@@ -162,11 +162,11 @@ abstract class RESTfulResponse
                 if (!is_array($out))
                 {
                     $out = array(
-                                'column' => array('error'), 
+                                'column' => array('error'),
                                 'row' => array('error' => $out),
                             );
                 }
-                
+
                 $items = array_keys($out);
                 $columns = array_keys($out[$items[0]]);
 

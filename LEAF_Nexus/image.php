@@ -7,9 +7,6 @@ include 'db_mysql.php';
 include 'config.php';
 include './sources/Login.php';
 
-// Enforce HTTPS
-include_once './enforceHTTPS.php';
-
 $config = new Orgchart\Config();
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);

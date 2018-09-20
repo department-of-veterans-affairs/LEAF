@@ -26,16 +26,6 @@ if (!class_exists('XSSHelpers'))
 
 $config = new Orgchart\Config();
 
-// Enforce HTTPS
-if (isset($config->enforceHTTPS) && $config->enforceHTTPS == true)
-{
-    if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on')
-    {
-        header('Location: https://' . XSSHelpers::scrubNewLinesFromURL($_SERVER['SERVER_NAME']) . XSSHelpers::scrubNewLinesFromURL($_SERVER['REQUEST_URI']));
-        exit();
-    }
-}
-
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
