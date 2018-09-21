@@ -114,7 +114,7 @@ function doSubmit(recordID) {
 }
 
 function doSubmitForParallelProcessing(recordID, parallelProcessingData) {
-    if(parallelProcessingData == '')
+    if(parallelProcessingData === -1)
     {
        alert("You must select at at least one employee or group."); 
     }
