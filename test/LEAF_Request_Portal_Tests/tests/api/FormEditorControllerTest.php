@@ -927,4 +927,25 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertNotNull($res);
         $this->assertFalse($res);
     }
+
+    /**
+     * Tests the `formEditor/[digit]/formParallelProcessing` endpoint.
+     */
+    public function testSetFormParallelProcessing() : void
+    {
+        $category = self::$client->get(array('a' => 'formStack/categoryList/all'))[1];
+        $this->assertNotNull($category);
+        $this->assertEquals('form_f4687', $category['categoryID']);
+        $this->assertEquals('0', $category['parallelProcessing']);
+
+        self::$client->post(array('a' => 'formEditor/formParallelProcessing'), array(
+            'categoryID' => $category['categoryID'],
+            'parallelProcessing' => '1',
+        ));
+
+        $category = self::$client->get(array('a' => 'formStack/categoryList/all'))[1];
+        $this->assertNotNull($category);
+        $this->assertEquals('form_f4687', $category['categoryID']);
+        $this->assertEquals('1', $category['parallelProcessing']);
+    }
 }
