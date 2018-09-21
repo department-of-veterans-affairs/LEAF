@@ -57,10 +57,10 @@ function openContent(url) {
                                  <td>Sort Priority</td>\
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
-							 <tr class="isSubForm">\
-								<td>Parallel Processing <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="When Enabled form will become Multi-assignable"></td>\
-								<td><select id="parallelProcessing"><option value="1">Enabled</option><option value="0">Disabled</option></select></td>\
-							 </tr>\
+                             <tr class="isSubForm">\
+                            	 <td>Parallel Processing <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="When Enabled form will become Multi-assignable"></td>\
+                            	 <td><select id="parallelProcessing"><option value="1">Enabled</option><option value="0">Disabled</option></select></td>\
+                             </tr>\
                            </table>');
         $('#name').val(categories[currCategoryID].categoryName);
         $('#description').val(categories[currCategoryID].categoryDescription);
@@ -167,7 +167,7 @@ function openContent(url) {
                         }
                     }
                 }),
-				$.ajax({
+                $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formParallelProcessing',
                     data: {parallelProcessing: $('#parallelProcessing').val(),
