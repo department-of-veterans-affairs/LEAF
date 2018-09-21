@@ -147,7 +147,7 @@ function selectForParallelProcessing(recordID, orgChartPath)
     function buildParallelProcessingDataJSON()
     {
         var dataToSubmit = Object();
-        var result = '';
+        var result = -1;
 
         if(indicatorToSubmit !== null)
         {
@@ -159,8 +159,10 @@ function selectForParallelProcessing(recordID, orgChartPath)
                     dataToSubmit = employeeObj;
                     break;
             }
-
-            result = JSON.stringify({type: indicatorToSubmit.format, indicatorID: indicatorToSubmit.indicatorID, idsToProcess: Object.keys(dataToSubmit)});
+            if(!$.isEmptyObject(dataToSubmit))
+            {
+                result = JSON.stringify({type: indicatorToSubmit.format, indicatorID: indicatorToSubmit.indicatorID, idsToProcess: Object.keys(dataToSubmit)});
+            }
         }
 
         return result;
