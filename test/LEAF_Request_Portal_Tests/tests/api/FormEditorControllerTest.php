@@ -161,6 +161,36 @@ final class FormEditorControllerTest extends DatabaseTest
     }
 
     /**
+     * Tests the `formEditor/indicator/[digit]/format` endpoint
+     */
+    public function testGetIndicatorsByRecordAndFormat() : void
+    {
+        //gets all indicators for recordID=1 where format is text or textarea
+        $indicators = self::$client->get(array('a' => 'formEditor/indicator/1/format', 'formats' => array('text', 'textarea')));
+
+        //checks text indicators for recordID=1
+        $this->assertEquals('2', $indicators[0]['indicatorID']);
+        $this->assertEquals('First Name', $indicators[0]['name']);
+        $this->assertEquals('text', $indicators[0]['format']);
+
+        $this->assertEquals('3', $indicators[1]['indicatorID']);
+        $this->assertEquals('Last Name', $indicators[1]['name']);
+        $this->assertEquals('text', $indicators[1]['format']);
+
+        $this->assertEquals('4', $indicators[2]['indicatorID']);
+        $this->assertEquals('Occupation', $indicators[2]['name']);
+        $this->assertEquals('text', $indicators[2]['format']);
+
+        $this->assertEquals('5', $indicators[3]['indicatorID']);
+        $this->assertEquals('Hobbies', $indicators[3]['name']);
+        $this->assertEquals('textarea', $indicators[3]['format']);
+
+        $this->assertEquals('7', $indicators[4]['indicatorID']);
+        $this->assertEquals('Masked', $indicators[4]['name']);
+        $this->assertEquals('text', $indicators[4]['format']);
+    }
+
+    /**
      * Tests the `formEditor/newIndicator` endpoint
      */
     public function testNewIndicator() : void
