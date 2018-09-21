@@ -906,9 +906,9 @@ final class FormEditorControllerTest extends DatabaseTest
         $category = self::$client->get(array('a' => 'formStack/categoryList/all'))[1];
         $this->assertNotNull($category);
         $this->assertEquals('form_f4687', $category['categoryID']);
-        $this->assertEquals('1', $category['parallelProcessing']);
+        $this->assertEquals('0', $category['parallelProcessing']);
 
-        self::$client->post(array('a' => 'formEditor/formparallelProcessing'), array(
+        self::$client->post(array('a' => 'formEditor/formParallelProcessing'), array(
             'categoryID' => $category['categoryID'],
             'parallelProcessing' => '1',
         ));
