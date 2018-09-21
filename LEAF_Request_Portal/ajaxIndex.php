@@ -173,6 +173,12 @@ switch ($action) {
                return 0;
            }
 
+        $parallelProcessing = 0;
+        if(array_key_exists(0,$res) && array_key_exists('parallelProcessing',$res[0]))
+        {
+            $parallelProcessing = $res[0]['parallelProcessing'];
+        }
+
         $res = $db->prepared_query('SELECT time FROM action_history
                 WHERE recordID = :recordID
                 LIMIT 1', $vars);
@@ -184,7 +190,16 @@ switch ($action) {
         $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
         $t_form->assign('requestLabel', $requestLabel);
-        $t_form->display(customTemplate('submitForm.tpl'));
+        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        
+        if ($parallelProcessing)
+        {
+            $t_form->display(customTemplate('submitForm_parallel_processing.tpl'));
+        }
+        else
+        {
+            $t_form->display(customTemplate('submitForm.tpl'));
+        }
 
         break;
     case 'dosubmit': // legacy action
