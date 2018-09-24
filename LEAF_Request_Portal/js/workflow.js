@@ -188,9 +188,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                             currRecordID,
                             function (json) {
                                 var jsonStr = JSON.stringify(json);
-                                Signer.sign(key, jsonStr, function (signedDataList) {
+                                Signer.sign(key, jsonStr, function (signedData) {
                                     portalAPI.Signature.create(
-                                        signedDataList,
+                                        signedData,
                                         currRecordID,
                                         step.stepID,
                                         step.dependencyID,

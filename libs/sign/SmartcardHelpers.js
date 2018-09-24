@@ -15,8 +15,15 @@ var Signer = function() {
             stompClient.subscribe('/wsbroker/controller', function (response) {
                 switch(response.command) {
                     case 'MESSAGE':
-                        console.log(JSON.parse(response.body));
-                        console.log(Object.keys(pendingSignatures));
+                        var incMessage = JSON.parse(response.body);
+                        if(incMessage.status == 'SUCCESS') {
+                            if(pendingSignatures[incMessage.key] != undefined) {
+                                pendingSignatures[incMessage.key](incMessage.message); 
+                            }
+                        }
+                        else {
+                            console.log(response.body);
+                        }
                         break;
                     default:
                         console.log(response);
