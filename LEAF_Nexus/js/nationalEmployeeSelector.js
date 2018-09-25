@@ -67,13 +67,13 @@ nationalEmployeeSelector.prototype.initialize = function() {
     }
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="employeeSelectorBorder">\
 			<select id="'+ this.prefixID +'domain" class="employeeSelectorInput" style="width: 100px; display: none">\
-			<option value=""></option>\
+			<option value="">All Domains</option>\
 			'+ domains +'\
 			</select>\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
 			<img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" />\
-			<input id="'+this.prefixID+'input" type="search" class="employeeSelectorInput" style="width: calc(90% - 100px)" aria-label="Add administrator search input"></input></div>\
+			<input id="'+this.prefixID+'input" type="search" class="employeeSelectorInput" style="width: calc(90% - 100px)" aria-label="Search for user to add as administrator"></input></div>\
 			<div id="'+this.prefixID+'result" aria-label="search results"></div>');
 
 	$('#' + this.prefixID+ 'input').on('keydown', function(e) {
