@@ -63,7 +63,7 @@ nationalEmployeeSelector.prototype.initialize = function() {
                     'VHA22',
                     'VHA23'];
     for(var i in tDomains) {
-    	domains += '<option value="'+ tDomains[i] +'"></option>'
+    	domains += '<option value="'+ tDomains[i] +'">' + tDomains[i] + '</option>'
     }
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="employeeSelectorBorder">\
 			<select id="'+ this.prefixID +'domain" class="employeeSelectorInput" style="width: 100px; display: none">\
