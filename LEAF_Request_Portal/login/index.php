@@ -21,14 +21,7 @@ function getBaseDir()
 
     return str_replace('login', '', $dir);
 }
-//if (Config::$HTTPS == true)
-//{
-//    $protocol = 'https';
-//}
-//else
-//{
-//    $protocol = 'http';
-//}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
