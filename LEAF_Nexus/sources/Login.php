@@ -203,11 +203,6 @@ class Login
 
     public function loginUser()
     {
-        if (Config::$HTTPS == false)
-        {
-            $_SESSION['userID'] = 'tester';
-        }
-
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
         {
             if (php_sapi_name() != 'cli')
