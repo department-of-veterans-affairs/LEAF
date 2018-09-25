@@ -27,8 +27,6 @@ class Config
 
     public $adPath = array('OU=Users,DC=va,DC=gov'); // Active directory paths
 
-    public static $HTTPS = true;
-
     public static $uploadDir = './UPLOADS/';
 
     // Directory for user uploads
