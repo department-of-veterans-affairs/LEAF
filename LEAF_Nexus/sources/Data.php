@@ -355,7 +355,7 @@ abstract class Data
         {
             throw new Exception($this->dataTableDescription . ' ID required');
         }
-        if ((!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken']) && Config::$HTTPS == true)
+        if (!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
             throw new Exception($this->dataTableDescription . ' invalid token');
         }
@@ -607,7 +607,7 @@ abstract class Data
         {
             return 0;
         }
-        if ((!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken']) && Config::$HTTPS == true)
+        if (!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
             return 'Invalid token';
         }

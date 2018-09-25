@@ -48,7 +48,7 @@ abstract class RESTfulResponse
 
                 break;
             case 'POST':
-                if ($_POST['CSRFToken'] == $_SESSION['CSRFToken'] || Orgchart\Config::$HTTPS == false)
+                if ($_POST['CSRFToken'] == $_SESSION['CSRFToken'])
                 {
                     $this->output($this->post($action));
                 }
@@ -59,7 +59,7 @@ abstract class RESTfulResponse
 
                 break;
             case 'DELETE':
-                if ($_GET['CSRFToken'] == $_SESSION['CSRFToken'] || Orgchart\Config::$HTTPS == false)
+                if ($_GET['CSRFToken'] == $_SESSION['CSRFToken'])
                 {
                     $this->output($this->delete($action));
                 }
