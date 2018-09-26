@@ -197,6 +197,10 @@ class FormController extends RESTfulResponse
             return $form->addFormType($args[0], XSSHelpers::sanitizeHTML($_POST['category']));
         });
 
+        $this->index['POST']->register('form/[digit]/cancel', function ($args) use ($form) {
+            return $form->deleteRecord((int)$args[0]);
+        });
+
         // form/customData/ recordID list (csv) / indicatorID list (csv)
         $this->index['POST']->register('form/customData', function ($args) use ($form) {
             $recordIDs = array();
