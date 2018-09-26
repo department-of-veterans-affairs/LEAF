@@ -52,13 +52,14 @@ var Signer = function() {
         stompClient.send("/app/close", {}, "");
     }
 
-    function sendData(dataToSign) {
-        stompClient.send("/app/sign", {}, JSON.stringify({'content': dataToSign}));
+    function sendData(key, dataToSign) {
+        stompClient.send("/app/sign", {}, JSON.stringify({'key': key,
+                                                          'dataToSign': dataToSign}));
     }
 
     var sign = function (key, dataToSign, onSuccess) {
         connect(function() {
-            sendData(dataToSign);
+            sendData(key, dataToSign);
             pendingSignatures[key] = onSuccess;
         });
     };
