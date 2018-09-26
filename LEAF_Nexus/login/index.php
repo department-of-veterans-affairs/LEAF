@@ -59,8 +59,14 @@ When logging into this system, you agree to the following:<br />
     </ul>
     This information system is provided for U.S. Government-authorized use only. Unauthorized or improper use of this system may result in disciplinary action, as well as civil and criminal penalties.<br /><br />
 
-    <a href="<?php echo '//' . $_SERVER['SERVER_NAME'] . ':444' . getBaseDir() . 'auth_token/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?>"><div class="buttonNorm" style="text-align: center">Login with your VA PIV card<img src="../../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Icon for Login" title="Icon for Login" /></div></a><br />
-    <a href="<?php echo '//' . $_SERVER['SERVER_NAME'] . getBaseDir() . 'auth_domain/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?>"><div class="buttonNorm" style="text-align: center">Login with Username and Password</div></a>
+    <a href="<?php echo 'https://' . $_SERVER['SERVER_NAME'] . ':444' . getBaseDir() . 'auth_token/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?>"><div class="buttonNorm" style="text-align: center">Login with your VA PIV card<img src="../../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Icon for Login" title="Icon for Login" /></div></a><br />
+    <a href="<?php if (Orgchart\Config::$leafSecure == false)
+{
+    echo 'https://' . $_SERVER['SERVER_NAME'] . getBaseDir() . 'auth_domain/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+} ?>"><?php if (Orgchart\Config::$leafSecure == false)
+{
+    echo '<div class="buttonNorm" style="text-align: center">Login with Username and Password</div>';
+} ?></a>
 
 </div>
 
