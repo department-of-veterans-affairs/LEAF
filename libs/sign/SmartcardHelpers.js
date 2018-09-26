@@ -40,7 +40,7 @@ var Signer = function() {
             if(initiatedJNLP == false) {
                 if (!isConnected) {
                     initiatedJNLP = true;
-                    window.open("../libs/sign/sign.jnlp");
+                    window.open("//" + window.location.hostname + "/LEAF/sign.jnlp");
                 }
             }
         };
