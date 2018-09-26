@@ -36,7 +36,9 @@ var Signer = function() {
         });
         socket.onclose = function() {
             console.log("Trying to reconnect");
-            setTimeout(connect, 1000);
+            setTimeout(function() {
+                connect(_callback);
+            }, 1000);
             if(initiatedJNLP == false) {
                 if (!isConnected) {
                     initiatedJNLP = true;
