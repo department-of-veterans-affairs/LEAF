@@ -104,11 +104,15 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
         }
         else
         {
-            echo 'Unable to log in: SSL_CLIENT_S_DN_UID not found in database.';
+            header('Refresh: 4;URL=' . $_SERVER["HTTP_REFERER"]);
+
+            echo 'Unable to log in: SSL_CLIENT_S_DN_UID not found in database.  Redirecting back to PIV login screen.';
         }
     }
 }
 else
 {
-    echo 'Unable to log in: Client Verification issue';
+    header('Refresh: 4;URL=' . $_SERVER["HTTP_REFERER"]);
+
+    echo 'Unable to log in: Client Verification issue.  Redirecting back to PIV login screen.';
 }
