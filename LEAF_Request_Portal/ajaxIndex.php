@@ -174,9 +174,11 @@ switch ($action) {
            }
 
         $parallelProcessing = 0;
+        $categoryID = '';
         if(array_key_exists(0,$res) && array_key_exists('parallelProcessing',$res[0]))
         {
             $parallelProcessing = $res[0]['parallelProcessing'];
+            $categoryID = $res[0]['categoryID'];
         }
 
         $res = $db->prepared_query('SELECT time FROM action_history
@@ -191,6 +193,7 @@ switch ($action) {
         $t_form->assign('lastActionTime', $lastActionTime);
         $t_form->assign('requestLabel', $requestLabel);
         $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('categoryID', $categoryID);
         
         if ($parallelProcessing)
         {
