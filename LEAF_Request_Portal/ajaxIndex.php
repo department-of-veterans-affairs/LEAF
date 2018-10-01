@@ -194,6 +194,7 @@ switch ($action) {
         $t_form->assign('requestLabel', $requestLabel);
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('categoryID', $categoryID);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         
         if ($parallelProcessing)
         {
