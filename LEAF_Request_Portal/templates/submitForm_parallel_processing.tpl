@@ -13,10 +13,7 @@
 <script type="text/javascript" src="js/lz-string/lz-string.min.js"></script>
 <script type="text/javascript" src="js/parallelProcessing.js"></script>
 <script type="text/javascript">
-	selectForParallelProcessing({$recordID}, "{$orgchartPath}", "{$CSRFToken}", "{$categoryID}");
-	$('#pp_progressBar').progressbar();
-	$('#pp_progressBar').progressbar('option', 'value', 0);
-	$('#pp_progressLabel').text('0%');
+	parallelProcessing({$recordID}, "{$orgchartPath}", "{$CSRFToken}", "{$categoryID}");
 </script>
 <div id="pp_banner" style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">Please review your request before submitting</div>
 <div id="pp_selector" style="width: 500px; background-color: white; border: 1px solid #0000005c; padding: 8px; margin: auto;">
@@ -41,8 +38,8 @@
 		</div>
 	</div>
 </div>
-<div style="padding: 8px; width: 260px; margin: auto" id="submitControl">
-    <button class="buttonNorm" type="button" style="font-weight: bold; font-size: 120%" ><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Submit" />Begin Parallel Processing</button>
+<div style="padding: 8px; margin: auto" id="submitControl">
+    <button class="buttonNorm" type="button" style="font-weight: bold; font-size: 120%" ><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Submit" />Send Request to Selected Individuals</button>
 </div>
 <div id="pp_progressSidebar" style="display: none;">
         <div style="padding: 8px; margin: 0px; color: black; font-weight: bold; text-align: center; font-size: 120%"><img src="./images/indicator.gif" />Submitting</div>

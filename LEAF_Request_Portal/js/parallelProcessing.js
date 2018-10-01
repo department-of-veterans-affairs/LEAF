@@ -1,14 +1,30 @@
-function selectForParallelProcessing(recordID, orgChartPath, CSRFToken)
+function parallelProcessing(recordID, orgChartPath, CSRFToken)
 {
     var indicatorObject = new Object();//indicators to select from
     var indicatorToSubmit = null;//the selected indicator
     var employeeObj = new Object();//selected employees
     var groupObj = new Object();//selected groups
-    var jsonToSubmit;
     var loadingBarSize = 0;
     var currentRequestsSubmitted = 0;
     var newTitleRand = '';
 
+    //initialize progress bar, dropdown, and onClick
+    function initializeParallelProcessing()
+    {
+        $('#pp_progressBar').progressbar();
+        $('#pp_progressBar').progressbar('option', 'value', 0);
+        $('#pp_progressLabel').text('0%');
+        $('.buttonNorm').on( "click", function() {
+            $('#pp_progressSidebar').show();
+            $('#pp_banner').hide();
+            $('#pp_selector').hide();
+            $('.buttonNorm').hide();
+            beginProcessing();
+        });
+        fillIndicatorDropdown();
+    }
+
+    //fill the dropdown with all employee or group indicators in this form
     function fillIndicatorDropdown() 
     {
         $.ajax({
@@ -18,7 +34,6 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken)
             success: function(obj) {
                 indicatorObject = obj;
                 for (var i = 0; i < indicatorObject.length; i++) {
-                    var format = indicatorObject[i].format;
                     $(document.createElement('option'))
                         .attr('value', indicatorObject[i].indicatorID)
                         .html(indicatorObject[i].name)
@@ -41,7 +56,6 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken)
     {
         var newIndicatorToSubmit = null;
         var newFormat = null;
-        var doSwitch = false;
         
         //find this indicator
         for (var key in indicatorObject) 
@@ -146,7 +160,7 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken)
         delete objToUpdate[id];
     }
 
-    //build json to submit
+    //build object to submit
     function buildParallelProcessingData()
     {
         var dataToSubmit = Object();
@@ -171,7 +185,8 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken)
         return result;
     }
 
-    // 1. Read api/form/[record ID]/data to local
+    // Read api/form/[record ID]/data and api/form/[record ID]/recordinfo to local 
+    // and move to next loopThroughSubmissions
     function beginProcessing()
     {
         var priority = 0;
@@ -215,8 +230,9 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken)
         });
     }
 
-    //2. Loop through list of users/groups (progress bar)
-    //2a. Create new form for each entity. Append unique ID to the user supplied title: POST: api/form/new -> returns recordID
+    // Loop through list of users/groups to submit
+    // Create new form for each entity. Append unique ID to the user supplied title
+    // send each to fillAndSubmitForm
     function loopThroughSubmissions(formData, priority, serviceID, title, categories)
     {
         var submissionObj = buildParallelProcessingData();
@@ -254,8 +270,8 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken)
         });
     }
 
-    //2b. Add data for each form for each recordID: POST: api/form/[recordID]
-    //2c. Submit action: POST: api/[recordID]/submit
+    // Add data from form for recordID given
+    // then submit, updating load bar
     function fillAndSubmitForm(formData, newRecordID, indicatorIDToChange, newData)
     {
         var ajaxData = new Object();
@@ -296,9 +312,8 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken)
     }
 
 
-    // 3. Delete original form -- subtask to move ajaxIndex.php (~line 212) into api/FormController.php
-    // 4. Generate Report Builder link (for report columns need at least title, status)
-    // 5. Redirect user to new report 
+    // update the load bar
+    // if all done: Delete original form, Generate Report Builder link, and Redirect user to new report 
     function updateLoadingBar()
     {
         currentRequestsSubmitted++;
@@ -331,14 +346,6 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken)
         }
     }
 
-    $('.buttonNorm').on( "click", function() {
-        $('#pp_progressSidebar').show();
-        $('#pp_banner').hide();
-        $('#pp_selector').hide();
-        $('.buttonNorm').hide();
-        beginProcessing();
-    });
-    fillIndicatorDropdown();
-    
+    initializeParallelProcessing();
 }
 
