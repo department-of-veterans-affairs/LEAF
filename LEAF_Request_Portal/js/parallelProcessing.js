@@ -1,4 +1,4 @@
-function selectForParallelProcessing(recordID, orgChartPath, CSRFToken, categoryID)
+function selectForParallelProcessing(recordID, orgChartPath, CSRFToken)
 {
     var indicatorObject = new Object();//indicators to select from
     var indicatorToSubmit = null;//the selected indicator
@@ -7,6 +7,7 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken, category
     var jsonToSubmit;
     var loadingBarSize = 0;
     var currentRequestsSubmitted = 0;
+    var newTitleRand = '';
 
     function fillIndicatorDropdown() 
     {
@@ -170,47 +171,75 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken, category
         return result;
     }
 
+    // 1. Read api/form/[record ID]/data to local
     function beginProcessing()
     {
-        // 1. Read api/form/[record ID]/data to local
+        var priority = 0;
+        var serviceID = 0;
+        var title = '';
+        var categories = new Object();
+    
         $.ajax({
             type: 'POST',
-            url: './api/form/'+recordID+'/data',
+            url: './api?a=form/'+recordID+'/recordinfo',
             data: {CSRFToken: CSRFToken},
             success: function(res) {
-                loopThroughSubmissions(res);
+                if ('priority' in res)
+                {
+                    priority = res['priority'];
+                }
+                if ('serviceID' in res)
+                {
+                    serviceID = res['serviceID'];
+                }
+                if ('title' in res)
+                {
+                    title = res['title'];
+                }
+                if ('categories' in res)
+                {
+                    categories = res['categories'];
+                }
             },
             cache: false
+        }).done(function() {
+            $.ajax({
+                type: 'POST',
+                url: './api?a=form/'+recordID+'/data',
+                data: {CSRFToken: CSRFToken},
+                success: function(res) {
+                   loopThroughSubmissions(res, priority, serviceID, title, categories);
+                },
+                cache: false
+            });
         });
-
-        // 2. Loop through list of users/groups (progress bar)
-
-        //     2a. Create new form for each entity. Append unique ID to the user supplied title: POST: api/form/new -> returns recordID
-
-        //     2b. Add data for each form for each recordID: POST: api/form/[recordID]
-
-        //     2c. Submit action: POST: api/[recordID]/submit
-
-        // 3. Delete original form -- subtask to move ajaxIndex.php (~line 212) into api/FormController.php
-
-        // 4. Generate Report Builder link (for report columns need at least title, status)
-
-        // 5. Redirect user to new report 
     }
 
-    function loopThroughSubmissions(formData)
+    //2. Loop through list of users/groups (progress bar)
+    //2a. Create new form for each entity. Append unique ID to the user supplied title: POST: api/form/new -> returns recordID
+    function loopThroughSubmissions(formData, priority, serviceID, title, categories)
     {
         var submissionObj = buildParallelProcessingData();
+        loadingBarSize = submissionObj.idsToProcess.length;
         rand = ((Date.now() + Math.floor(Math.random() * 12345))+"");
         rand = rand.substring(rand.length-6, rand.length);
+        newTitleRand = rand;
 
-        //TODO_PP: assess all these, except csrf
         var ajaxData = new Object();
         ajaxData['CSRFToken'] = CSRFToken;
-        ajaxData['service'] = 'service';
-        ajaxData['title'] = 'title'+'-'+rand;
-        ajaxData['priority'] = 0;
-        ajaxData['num'+categoryID] = 1;
+        ajaxData['service'] = serviceID;
+        ajaxData['title'] = title+'-'+rand;
+        ajaxData['priority'] = priority;
+        $.each( categories, function( i, val ) {
+            if ('num'+val in ajaxData)
+            {
+                ajaxData['num'+val]++;
+            }
+            else
+            {
+                ajaxData['num'+val] = 1;
+            }
+        });
 
         $.each( submissionObj.idsToProcess, function( i, val ) {
             $.ajax({
@@ -225,6 +254,8 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken, category
         });
     }
 
+    //2b. Add data for each form for each recordID: POST: api/form/[recordID]
+    //2c. Submit action: POST: api/[recordID]/submit
     function fillAndSubmitForm(formData, newRecordID, indicatorIDToChange, newData)
     {
         var ajaxData = new Object();
@@ -252,8 +283,8 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken, category
             success: function(res) {
                 $.ajax({
                     type: 'POST',
-                    url: './api/'+newRecordID+'/submit',
-                    data: ajaxData,
+                    url: './api/form/'+newRecordID+'/submit',
+                    data: {CSRFToken: CSRFToken},
                     success: function(res) {
                         updateLoadingBar();
                     },
@@ -264,25 +295,50 @@ function selectForParallelProcessing(recordID, orgChartPath, CSRFToken, category
         });
     }
 
+
+    // 3. Delete original form -- subtask to move ajaxIndex.php (~line 212) into api/FormController.php
+    // 4. Generate Report Builder link (for report columns need at least title, status)
+    // 5. Redirect user to new report 
     function updateLoadingBar()
     {
         currentRequestsSubmitted++;
-        if(currentRequestsSubmitted < loadingBarSize)
+        var percentage = (currentRequestsSubmitted / loadingBarSize) * 100;
+        $('#pp_progressBar').progressbar('option', 'value', percentage);
+        $('#pp_progressLabel').text(percentage + '%');
+
+        if(currentRequestsSubmitted == loadingBarSize)
         {
-            //update the bar
-        }
-        else
-        {
-            //redirect to chart
+            //delete original one
+            $.ajax({
+                type: 'POST',
+                url: './api/form/'+recordID+'/cancel',
+                data: {CSRFToken: CSRFToken},
+                success: function(res) {
+                    //redirect to chart
+                    urlIndicatorsJSON = '[{"indicatorID":"title","name":"","sort":0},{"indicatorID":"status","name":"","sort":0}]';
+                    urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*'+newTitleRand+'*"},{"id":"deleted","operator":"=","match":0}],"joins":["service","status"],"sort":{}}';
+
+                    urlQuery = encodeURIComponent(LZString.compressToBase64(urlQueryJSON));
+                    urlIndicators = encodeURIComponent(LZString.compressToBase64(urlIndicatorsJSON));
+
+                    window.location = './?a=reports&v=3&query='+urlQuery+'&indicators='+urlIndicators;
+                },
+                cache: false
+            });
+            
+
+            
         }
     }
 
-    //TODO_PP:
-    //change all this
     $('.buttonNorm').on( "click", function() {
-        buildParallelProcessingDataJSON()
+        $('#pp_progressSidebar').show();
+        $('#pp_banner').hide();
+        $('#pp_selector').hide();
+        $('.buttonNorm').hide();
+        beginProcessing();
     });
-    selectForParallelProcessing.buildParallelProcessingDataJSON = buildParallelProcessingDataJSON;
     fillIndicatorDropdown();
+    
 }
 
