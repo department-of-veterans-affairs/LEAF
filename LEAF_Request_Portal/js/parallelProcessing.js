@@ -15,11 +15,18 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         $('#pp_progressBar').progressbar('option', 'value', 0);
         $('#pp_progressLabel').text('0%');
         $('.buttonNorm').on( "click", function() {
-            $('#pp_progressSidebar').show();
-            $('#pp_banner').hide();
-            $('#pp_selector').hide();
-            $('.buttonNorm').hide();
-            beginProcessing();
+            if(hasSelections())
+            {
+                $('#pp_progressSidebar').show();
+                $('#pp_banner').hide();
+                $('#pp_selector').hide();
+                $('.buttonNorm').hide();
+                beginProcessing();
+            }
+            else
+            {
+                alert('You must select at least one group or employee to begin Parallel Processing.');
+            }
         });
         fillIndicatorDropdown();
     }
@@ -158,6 +165,28 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
 
         listToUpdate.find('li[value="'+id+'"]').remove();
         delete objToUpdate[id];
+    }
+
+    //check if anything is currently selected
+    function hasSelections()
+    {
+        var objToCheck = new Object();
+        var format = '';
+        if(indicatorToSubmit !== null)
+        {
+            format = indicatorToSubmit.format;
+        }
+
+        switch(format) {
+            case 'orgchart_group':
+                objToCheck = groupObj;
+                break;
+            case 'orgchart_employee':
+                objToCheck = employeeObj;
+                break;
+        }
+
+        return Object.keys(objToCheck).length > 0;
     }
 
     //build object to submit
