@@ -126,7 +126,8 @@ switch ($action) {
         $t_form->assign('resolvedService', $position->getService($rootID));
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . urlencode($_SERVER['REQUEST_URI']);
+        $scrubbedHost = XSSHelpers::sanitizeHTML($_SERVER['HTTP_HOST']);
+        $qrcodeURL = "{$protocol}://{$scrubbedHost}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css',
                                            'css/positionSelector.css', ));
