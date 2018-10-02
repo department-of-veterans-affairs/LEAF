@@ -286,7 +286,7 @@ abstract class Smarty_CacheResource_KeyValueStore extends Smarty_CacheResource
      */
     protected function getMetaTimestamp(&$content)
     {
-        extract(unpack('N1s/N1m/a*content', $content));
+        extract(unpack('N1s/N1m/a*content', $content), EXTR_SKIP);
         /**
          * @var  int $s
          * @var  int $m
