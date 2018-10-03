@@ -4,6 +4,8 @@ function selectForParallelProcessing(recordID, orgChartPath)
     var indicatorToSubmit = null;//the selected indicator
     var employeeObj = new Object();//selected employees
     var groupObj = new Object();//selected groups
+    var empSel;
+    var grpSel;
     var jsonToSubmit;
 
     function fillIndicatorDropdown() 
@@ -55,7 +57,7 @@ function selectForParallelProcessing(recordID, orgChartPath)
         {
             switch(newFormat) {
                 case 'orgchart_group':
-                    var grpSel = new groupSelector('grpSelector');
+                    grpSel = new groupSelector('grpSelector');
                     grpSel.rootPath = orgChartPath+'/';
                     grpSel.apiPath = orgChartPath+'/api/';
                     grpSel.setSelectHandler(function(){
@@ -70,7 +72,6 @@ function selectForParallelProcessing(recordID, orgChartPath)
                             for(var i in this.selectionData) {
                                 $('#'+this.prefixID+'grp'+i).off('click');
                                 $('#'+this.prefixID+'grp'+i).append('<td class="groupSelectorAddToList"><button id="btn'+i+'" type="button">+</button></td>');
-                                $('#'+this.prefixID+'grp'+i+' > .groupSelectorAddToList > button').click(function(){grpSel.select(this.id.substring(3));});
                             }
                         }
                     });
@@ -79,7 +80,7 @@ function selectForParallelProcessing(recordID, orgChartPath)
                     $('.grp_visibility').show();
                     break;
                 case 'orgchart_employee':
-                    var empSel = new nationalEmployeeSelector('empSelector');
+                    empSel = new nationalEmployeeSelector('empSelector');
                     empSel.rootPath = orgChartPath+'/';
                     empSel.apiPath = orgChartPath+'/api/';
                     empSel.setSelectHandler(function(){
@@ -94,7 +95,6 @@ function selectForParallelProcessing(recordID, orgChartPath)
                             for(var i in this.selectionData) {
                                 $('#'+this.prefixID+'emp'+i).off('click');
                                 $('#'+this.prefixID+'emp'+i).append('<td class="employeeSelectorAddToList"><button id="btn'+i+'" type="button">+</button></td>');
-                                $('#'+this.prefixID+'emp'+i+' > .employeeSelectorAddToList > button').click(function(){empSel.select(this.id.substring(3));});
                             }
                         }
                     });
@@ -199,5 +199,11 @@ function selectForParallelProcessing(recordID, orgChartPath)
     });
     selectForParallelProcessing.buildParallelProcessingDataJSON = buildParallelProcessingDataJSON;
     fillIndicatorDropdown();
+    $('#selectDiv').on('click', '.employeeSelector > .employeeSelectorAddToList > button', function(){
+        empSel.select(this.id.substring(3));
+    });
+    $('#selectDiv').on('click', '.groupSelector > .groupSelectorAddToList > button', function(){
+        grpSel.select(this.id.substring(3));
+    });
 }
 
