@@ -302,8 +302,10 @@ class Login
         {
             foreach ($res as $item)
             {
-                $temp .= ",{$item['empUID']}";
-                $membership['inheritsFrom'][] = $item['empUID'];
+                //casting as an int to prevent sql injection
+                $scrubEmpUID = (int)$item['empUID'];
+                $temp .= ",{$scrubEmpUID}";
+                $membership['inheritsFrom'][] = $scrubEmpUID;
             }
             $vars = array(':empUID' => $temp);
         }
