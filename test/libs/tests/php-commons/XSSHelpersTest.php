@@ -343,4 +343,54 @@ final class XSSHelpersTest extends TestCase
 
         
     }
+
+    /**
+     * Tests XSSHelpers::scrubObject()
+     *
+     * Tests escaping everything in an object or array
+     */
+    public function testScrubObject() : void
+    {
+        $obj = (object)[1 => 1,2 => 2,3 => 3];
+        $array = [1 => 1,2 => 2,3 => 3];
+
+        $obj2 = (object)[1 => [1 => 1,2 => 2,3 => 3], 2 => 2];
+        $array2 = [1 => [1 => 1,2 => 2,3 => 3], 2 => 2];
+
+        $obj3 = (object)[1 => 'one',2 => 'two',3 => 'three'];
+        $array3 = [1 => 'one',2 => 'two',3 => 'three'];
+
+        $obj4 = (object)[1 => [1 => 'one',2 => 'two',3 => 'three'], 2 => 'two'];
+        $array4 = [1 => [1 => 'one',2 => 'two',3 => 'three'], 2 => 'two'];
+
+        $obj5 = (object)[1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => 'three'], 2 => '<h1>two</h1>'];
+        $array5 = [1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => 'three'], 2 => '<h1>two</h1>'];
+        $obj5Scrubbed = (object)[1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => 'three'], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+        $array5Scrubbed = [1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => 'three'], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+
+        $obj6 = (object)[1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => ["something" => '<style>other</style>']], 2 => '<h1>two</h1>'];
+        $array6 = [1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => ["something" => '<style>other</style>']], 2 => '<h1>two</h1>'];
+        $obj6Scrubbed = (object)[1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => ["something" => '&lt;style&gt;other&lt;/style&gt;']], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+        $array6Scrubbed = [1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => ["something" => '&lt;style&gt;other&lt;/style&gt;']], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+
+        $obj7 = (object)[1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => (object)["something" => '<style>other</style>']], 2 => '<h1>two</h1>'];
+        $array7 = [1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => (object)["something" => '<style>other</style>']], 2 => '<h1>two</h1>'];
+        $obj7Scrubbed = (object)[1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => (object)["something" => '&lt;style&gt;other&lt;/style&gt;']], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+        $array7Scrubbed = [1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => (object)["something" => '&lt;style&gt;other&lt;/style&gt;']], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+
+        $this->assertEquals($obj, XSSHelpers::scrubObjectOrArray($obj));
+        $this->assertEquals($array, XSSHelpers::scrubObjectOrArray($array));
+        $this->assertEquals($obj2, XSSHelpers::scrubObjectOrArray($obj2));
+        $this->assertEquals($array2, XSSHelpers::scrubObjectOrArray($array2));
+        $this->assertEquals($obj3, XSSHelpers::scrubObjectOrArray($obj3));
+        $this->assertEquals($array3, XSSHelpers::scrubObjectOrArray($array3));
+        $this->assertEquals($obj4, XSSHelpers::scrubObjectOrArray($obj4));
+        $this->assertEquals($array4, XSSHelpers::scrubObjectOrArray($array4));
+        $this->assertEquals($obj5Scrubbed, XSSHelpers::scrubObjectOrArray($obj5));
+        $this->assertEquals($array5Scrubbed, XSSHelpers::scrubObjectOrArray($array5));
+        $this->assertEquals($obj6Scrubbed, XSSHelpers::scrubObjectOrArray($obj6));
+        $this->assertEquals($array6Scrubbed, XSSHelpers::scrubObjectOrArray($array6));
+        $this->assertEquals($obj7Scrubbed, XSSHelpers::scrubObjectOrArray($obj7));
+        $this->assertEquals($array7Scrubbed, XSSHelpers::scrubObjectOrArray($array7));
+    }
 }
