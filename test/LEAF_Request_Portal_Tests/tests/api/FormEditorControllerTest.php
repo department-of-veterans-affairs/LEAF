@@ -929,9 +929,9 @@ final class FormEditorControllerTest extends DatabaseTest
     }
 
     /**
-     * Tests the `formEditor/[digit]/formTest` endpoint.
+     * Tests the `formEditor/[digit]/formType` endpoint.
      */
-    public function testSetFormTest() : void
+    public function testSetFormType() : void
     {
         $category = self::$client->get(array('a' => 'formStack/categoryList/all'))[1];
         $this->assertNotNull($category);
