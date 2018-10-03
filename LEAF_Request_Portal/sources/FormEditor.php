@@ -337,13 +337,13 @@ class FormEditor
     								WHERE categoryID=:categoryID', $vars);
     }
 
-    public function setFormParallelProcessing($categoryID, $input){
+    public function setFormType($categoryID, $input){
 
       $vars = array(':categoryID' => $categoryID,
           ':input' => $input, );
 
       return $this->db->prepared_query('UPDATE categories
-                  SET parallelProcessing=:input
+                  SET type=:input
                   WHERE categoryID=:categoryID', $vars);
     }
 

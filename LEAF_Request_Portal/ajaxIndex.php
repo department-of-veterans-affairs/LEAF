@@ -173,10 +173,10 @@ switch ($action) {
                return 0;
            }
 
-        $parallelProcessing = 0;
-        if(array_key_exists(0,$res) && array_key_exists('parallelProcessing',$res[0]))
+        $parallelProcessing = false;
+        if(array_key_exists(0,$res) && array_key_exists('type',$res[0]) && ($res[0]['type'] == 'parallel_processing'))
         {
-            $parallelProcessing = $res[0]['parallelProcessing'];
+            $parallelProcessing = true;
         }
 
         $res = $db->prepared_query('SELECT time FROM action_history
