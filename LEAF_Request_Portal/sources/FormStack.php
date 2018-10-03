@@ -110,12 +110,12 @@ class FormStack
         }
         if (isset($_POST['formPacket']))
         {
-            $formPacket = json_decode($_POST['formPacket'], true);
+            $formPacket = XSSHelpers::scrubObjectOrArray(json_decode($_POST['formPacket'], true));
         }
         else
         {
             $file = file_get_contents($_FILES['formPacket']['tmp_name']);
-            $formPacket = json_decode($file, true);
+            $formPacket = XSSHelpers::scrubObjectOrArray(json_decode($file, true));
         }
 
         $categoryID = null;

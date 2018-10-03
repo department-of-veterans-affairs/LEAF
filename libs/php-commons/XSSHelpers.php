@@ -306,4 +306,38 @@ class XSSHelpers
         
         return preg_replace($pattern, "" , $stringToSanitize );
     }
+
+    /**
+     * Sanitize everything in an Object or Array
+     *
+     * @param    string  $stringToScrub the string to be sanitized
+     *
+     * @return   string  the sanitized string
+     */
+    public static function scrubObjectOrArray($objectToScrub)
+    {
+        $objectToScrubCopy = $objectToScrub;
+        if(is_object($objectToScrub))
+        {
+            $objectToScrubCopy = clone $objectToScrub;
+        }
+
+        foreach($objectToScrubCopy as $key => &$value)
+        {
+            if(is_object($value) || is_array($value))
+            {
+                $value = self::scrubObjectOrArray($value);
+            }
+            else if(is_numeric($value))
+            {
+                $value = (int)$value;
+            }
+            else
+            {
+                $value = self::xscrub($value);
+            }
+        }
+        
+        return $objectToScrubCopy;
+    }
 }
