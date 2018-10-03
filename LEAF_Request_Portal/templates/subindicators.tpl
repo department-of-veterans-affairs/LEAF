@@ -693,7 +693,6 @@
         <!--{if $indicator.is_sensitive == 1}-->
         <script>
         var visible = 0;
-        text = $('#<!--{$indicator.indicatorID|strip_tags}-->').html();
         $('#<!--{$indicator.indicatorID|strip_tags}-->').attr('type', 'password');
         if($('#<!--{$indicator.indicatorID|strip_tags}-->').is('textarea')) {
             $('#<!--{$indicator.indicatorID|strip_tags}-->').css('display', 'none');
