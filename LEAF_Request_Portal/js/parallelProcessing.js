@@ -59,8 +59,20 @@ function selectForParallelProcessing(recordID, orgChartPath)
                     grpSel.rootPath = orgChartPath+'/';
                     grpSel.apiPath = orgChartPath+'/api/';
                     grpSel.setSelectHandler(function(){
-                        var name = $('#'+grpSel.prefixID+'grp'+grpSel.selection+' > .groupSelectorTitle').html();
-                        addToList(grpSel.selection, name);
+                        $('#'+this.prefixID+'grp'+this.selection).removeClass('groupSelected');
+                        $('#'+this.prefixID+'grp'+this.selection).addClass('groupSelector');
+                        var name = $('#'+this.prefixID+'grp'+this.selection+' > .groupSelectorTitle').html();
+                        addToList(this.selection, name);
+                    });
+                    grpSel.setResultHandler(function(){
+                        if(this.numResults > 0) {
+                            $('table.groupSelectorTable tr:first').append('<th>&nbsp;</th>');
+                            for(var i in this.selectionData) {
+                                $('#'+this.prefixID+'grp'+i).off('click');
+                                $('#'+this.prefixID+'grp'+i).append('<td class="groupSelectorAddToList"><button id="btn'+i+'" type="button">+</button></td>');
+                                $('#'+this.prefixID+'grp'+i+' > .groupSelectorAddToList > button').click(function(){grpSel.select(this.id.substring(3));});
+                            }
+                        }
                     });
                     grpSel.initialize();
                     $('.emp_visibility').hide();
@@ -71,8 +83,20 @@ function selectForParallelProcessing(recordID, orgChartPath)
                     empSel.rootPath = orgChartPath+'/';
                     empSel.apiPath = orgChartPath+'/api/';
                     empSel.setSelectHandler(function(){
-                        var name = $('#'+empSel.prefixID+'emp'+empSel.selection+' > .employeeSelectorName').html();
-                        addToList(empSel.selection, name);
+                        $('#'+this.prefixID+'emp'+this.selection).removeClass('employeeSelected');
+                        $('#'+this.prefixID+'emp'+this.selection).addClass('employeeSelector');
+                        var name = $('#'+this.prefixID+'emp'+this.selection+' > .employeeSelectorName').html();
+                        addToList(this.selection, name);
+                    });
+                    empSel.setResultHandler(function(){
+                        if(this.numResults > 0) {
+                            $('table.employeeSelectorTable tr:first').append('<th>&nbsp;</th>');
+                            for(var i in this.selectionData) {
+                                $('#'+this.prefixID+'emp'+i).off('click');
+                                $('#'+this.prefixID+'emp'+i).append('<td class="employeeSelectorAddToList"><button id="btn'+i+'" type="button">+</button></td>');
+                                $('#'+this.prefixID+'emp'+i+' > .employeeSelectorAddToList > button').click(function(){empSel.select(this.id.substring(3));});
+                            }
+                        }
                     });
                     empSel.initialize();
                     $('.grp_visibility').hide();
