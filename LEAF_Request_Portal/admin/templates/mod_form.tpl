@@ -58,8 +58,8 @@ function openContent(url) {
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                            	 <td>Parallel Processing <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="When Enabled form will become Multi-assignable"></td>\
-                            	 <td><select id="parallelProcessing"><option value="1">Enabled</option><option value="0">Disabled</option></select></td>\
+                            	 <td>Type <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form."></td>\
+                            	 <td><select id="formType"><option value="parallel_processing">Parallel Processing</option><option value="">None</option></select></td>\
                              </tr>\
                            </table>');
         $('#name').val(categories[currCategoryID].categoryName);
@@ -68,7 +68,7 @@ function openContent(url) {
         $('#needToKnow').val(categories[currCategoryID].needToKnow);
         $('#visible').val(categories[currCategoryID].visible);
         $('#sort').val(categories[currCategoryID].sort);
-        $('#parallelProcessing').val(categories[currCategoryID].parallelProcessing);
+        $('#formType').val(categories[currCategoryID].type);
         if(isSubForm) {
         	$('.isSubForm').css('display', 'none');
         }
@@ -169,8 +169,8 @@ function openContent(url) {
                 }),
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/formParallelProcessing',
-                    data: {parallelProcessing: $('#parallelProcessing').val(),
+                    url: '../api/?a=formEditor/formType',
+                    data: {type: $('#formType').val(),
                         categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
                     success: function(res) {
@@ -185,7 +185,7 @@ function openContent(url) {
                 categories[currCategoryID].workflowID = $('#workflowID').val();
                 categories[currCategoryID].needToKnow = $('#needToKnow').val();
                 categories[currCategoryID].visible = $('#visible').val();
-                categories[currCategoryID].parallelProcessing = $('#parallelProcessing').val();
+                categories[currCategoryID].type = $('#formType').val();
                 categories[currCategoryID].sort = $('#sort').val();
                 openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
                 dialog.hide();
