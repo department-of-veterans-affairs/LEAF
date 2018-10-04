@@ -162,11 +162,11 @@ abstract class RESTfulResponse
                 if (!is_array($out))
                 {
                     $out = array(
-                                'column' => array('error'), 
+                                'column' => array('error'),
                                 'row' => array('error' => $out),
                             );
                 }
-                
+
                 $items = array_keys($out);
                 $columns = array_keys($out[$items[0]]);
 

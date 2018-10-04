@@ -70,4 +70,11 @@ $orgchartPath = '../LEAF_Nexus'
 
 ## Running
 
-Navigate to http://localhost/LEAF_Nexus or http://localhost/LEAF_Request_Portal in your browser.
+Navigate to https://localhost/LEAF_Nexus or https://localhost/LEAF_Request_Portal in your browser.
+
+## Running without HTTPS
+### Docker
+In `docker/docker-compose.yml`, comment out the line `- 443:443`.  Next, in `docker/php/Dockerfile`, comment out the line `EXPOSE 443`.  Finally, rebuild the images with `docker-compose build --no-cache` and navigate to http://localhost/LEAF_Nexus or http://localhost/LEAF_Request_Portal.
+
+### Without Docker
+Turn off SSL in your apache configuration and navigate to https://localhost/LEAF_Nexus or https://localhost/LEAF_Request_Portal.

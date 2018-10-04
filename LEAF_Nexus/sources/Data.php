@@ -105,7 +105,6 @@ abstract class Data
             return $this->cache[$cacheHash];
         }
 
-
         if (!isset($this->cache["getAllData_{$indicatorID}"]))
         {
             if ($indicatorID != 0)

@@ -44,8 +44,6 @@ class Config
 
     public static $orgchartImportTags = array('resources_site_access'); // Import org chart groups if they match these tags
 
-    public $enforceHTTPS = true;
-
     public $descriptionID = 16;    // indicator ID for description field
 
     public static $emailPrefix = 'Resources: ';              // Email prefix

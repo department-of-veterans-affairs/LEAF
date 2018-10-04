@@ -264,6 +264,9 @@ class Login
         {
             unset($_SESSION[$key]);
         }
+        $cookie = session_get_cookie_params();
+        $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
+        setcookie('PHPSESSID', '', time() - 3600, $cookie['path'], $cookie['domain'], $https, true);
     }
 
     public function isLogin()
@@ -298,8 +301,10 @@ class Login
         {
             foreach ($res as $item)
             {
-                $temp .= ",{$item['empUID']}";
-                $membership['inheritsFrom'][] = $item['empUID'];
+                //casting as an int to prevent sql injection
+                $scrubEmpUID = (int)$item['empUID'];
+                $temp .= ",{$scrubEmpUID}";
+                $membership['inheritsFrom'][] = $scrubEmpUID;
             }
             $vars = array(':empUID' => $temp);
         }
@@ -415,7 +420,7 @@ class Login
                                             	WHERE indicatorID IN ({$indicatorList})", $var);
             $this->cache[$cacheHash2] = $res;
         }
-        
+
         foreach ($res as $item)
         {
             $resIndicatorID = (int)$item['indicatorID'];
@@ -424,7 +429,7 @@ class Login
             $resRead = (int)$item['read'];
             $resWrite = (int)$item['write'];
             $resGrant = (int)$item['grant'];
-            
+
             // grant highest available access
             if (isset($memberships[$resCategoryID . 'ID'][$resUID]))
             {

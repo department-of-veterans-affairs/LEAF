@@ -23,9 +23,6 @@ include './sources/Login.php';
 include 'db_mysql.php';
 include 'config.php';
 
-// Enforce HTTPS
-include_once './enforceHTTPS.php';
-
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
@@ -126,7 +123,8 @@ switch ($action) {
         $t_form->assign('resolvedService', $position->getService($rootID));
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . urlencode($_SERVER['REQUEST_URI']);
+        $scrubbedHost = XSSHelpers::sanitizeHTML($_SERVER['HTTP_HOST']);
+        $qrcodeURL = "{$protocol}://{$scrubbedHost}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css',
                                            'css/positionSelector.css', ));
@@ -376,9 +374,9 @@ switch ($action) {
         $indicatorArray = array_map('XSSHelpers::sanitizeHTML', $indicatorArray);
 
         $privilegesArray = $indicators->getPrivileges((int)$_GET['indicatorID']);
-        foreach($privilegesArray as $key => $val)
+        foreach ($privilegesArray as $key => $val)
         {
-                $privilegesArray[$key] = array_map('XSSHelpers::sanitizeHTML', $privilegesArray[$key] );
+            $privilegesArray[$key] = array_map('XSSHelpers::sanitizeHTML', $privilegesArray[$key]);
         }
 
         $t_form->assign('indicatorID', (int)$_GET['indicatorID']);

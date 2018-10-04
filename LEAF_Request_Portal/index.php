@@ -18,9 +18,6 @@ include 'db_mysql.php';
 include 'db_config.php';
 include 'form.php';
 
-// Enforce HTTPS
-include_once './enforceHTTPS.php';
-
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
 {
@@ -90,17 +87,17 @@ switch ($action) {
         $currEmployeeData = $form->employee->getAllData($currEmployee[0]['empUID'], 5);
 
         $categoryArray = $stack->getCategories();
-        foreach($categoryArray as $key => $cat)
+        foreach ($categoryArray as $key => $cat)
         {
-            $categoryArray[$key] = array_map('XSSHelpers::xscrub', $cat );
+            $categoryArray[$key] = array_map('XSSHelpers::xscrub', $cat);
         }
 
         $servicesArray = $form->getServices2();
-        foreach($servicesArray as $key => $service)
+        foreach ($servicesArray as $key => $service)
         {
             $servicesArray[$key]['service'] = XSSHelpers::xscrub($servicesArray[$key]['service']);
         }
-        
+
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
