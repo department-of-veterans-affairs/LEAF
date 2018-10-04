@@ -10,9 +10,6 @@ include 'config.php';
 $db_config = new Orgchart\Config();
 $config = new Orgchart\Config();
 
-// Enforce HTTPS
-include_once './enforceHTTPS.php';
-
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 unset($db_config);
 

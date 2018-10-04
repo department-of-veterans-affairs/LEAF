@@ -18,9 +18,6 @@ include 'config.php';
 include './sources/Exception.php';
 include './sources/Group.php';
 
-// Enforce HTTPS
-include_once './enforceHTTPS.php';
-
 $config = new Orgchart\Config();
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);

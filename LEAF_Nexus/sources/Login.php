@@ -124,12 +124,16 @@ class Login
             ini_set('session.gc_maxlifetime', 2592000);
             $sessionHandler = new Session($this->userDB);
             session_set_save_handler($sessionHandler, true);
-            session_start();
             $cookie = session_get_cookie_params();
-            $id = session_id();
-
             $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
-            setcookie('PHPSESSID', $id, time() + 2592000, $cookie['path'], $cookie['domain'], $https, true);
+
+            //if not https set the cookie params not secure
+            if(!$https){
+              $cookie = session_set_cookie_params($cookie["lifetime"], $cookie["path"], $cookie["domain"], false, true);
+            }
+            session_start();
+            $id = session_id();
+            setcookie('PHPSESSID', $id, time() + 2592000, $cookie['path'], $cookie['domain'], false, true);
         }
     }
 
@@ -417,7 +421,7 @@ class Login
                                             	WHERE indicatorID IN ({$indicatorList})", $var);
             $this->cache[$cacheHash2] = $res;
         }
-        
+
         foreach ($res as $item)
         {
             $resIndicatorID = (int)$item['indicatorID'];
@@ -426,7 +430,7 @@ class Login
             $resRead = (int)$item['read'];
             $resWrite = (int)$item['write'];
             $resGrant = (int)$item['grant'];
-            
+
             // grant highest available access
             if (isset($memberships[$resCategoryID . 'ID'][$resUID]))
             {

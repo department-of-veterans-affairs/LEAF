@@ -23,9 +23,6 @@ include './sources/Login.php';
 include 'db_mysql.php';
 include 'config.php';
 
-// Enforce HTTPS
-include_once './enforceHTTPS.php';
-
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
@@ -377,9 +374,9 @@ switch ($action) {
         $indicatorArray = array_map('XSSHelpers::sanitizeHTML', $indicatorArray);
 
         $privilegesArray = $indicators->getPrivileges((int)$_GET['indicatorID']);
-        foreach($privilegesArray as $key => $val)
+        foreach ($privilegesArray as $key => $val)
         {
-                $privilegesArray[$key] = array_map('XSSHelpers::sanitizeHTML', $privilegesArray[$key] );
+            $privilegesArray[$key] = array_map('XSSHelpers::sanitizeHTML', $privilegesArray[$key]);
         }
 
         $t_form->assign('indicatorID', (int)$_GET['indicatorID']);
