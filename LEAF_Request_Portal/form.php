@@ -1,5 +1,9 @@
 <?php
 /*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
+/*
     Form Generator
     Date Created: September 11, 2007
 
@@ -546,7 +550,7 @@ class Form
                 WHERE recordID=:recordID',
             $vars
         );
-        
+
         $vars = array(':recordID' => (int)$recordID,
                       ':indicatorID' => (int)$indicatorID,
                       ':series' => (int)$series, );
@@ -557,7 +561,7 @@ class Form
                 WHERE recordID=:recordID
                 AND indicatorID=:indicatorID
                 AND series=:series
-                ORDER BY timestamp DESC', 
+                ORDER BY timestamp DESC',
             $vars
         );
 
@@ -576,12 +580,13 @@ class Form
                 $groups = $this->login->getMembership();
 
                 // check if logged in user is request initiator
-                if($this->login->getUserID() != $resInitiator[0]['userID'])
+                if ($this->login->getUserID() != $resInitiator[0]['userID'])
                 {
                     // the user does not need permission to view the indicator data, so the data
                     // must be masked
-                    if (!isset($groups['groupID'][$line['groupID']])) {
-                        $line['data'] = "[protected data]";
+                    if (!isset($groups['groupID'][$line['groupID']]))
+                    {
+                        $line['data'] = '[protected data]';
                     }
                 }
             }
@@ -874,6 +879,7 @@ class Form
     public static function getFileHash($recordID, $indicatorID, $series, $fileName)
     {
         $fileName = strip_tags($fileName);
+
         return "{$recordID}_{$indicatorID}_{$series}_{$fileName}";
     }
 
@@ -1016,7 +1022,8 @@ class Form
                 {
                     $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
                 }
-                else {
+                else
+                {
                     $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
                 }
 
@@ -1129,9 +1136,10 @@ class Form
                 $vars = array(':stepID' => $workflow['initialStepID']);
                 $res = $this->db->prepared_query('SELECT * FROM workflow_steps
                                                      WHERE stepID=:stepID', $vars);
-                if($res[0]['workflowID'] == $workflow['workflowID']) {
+                if ($res[0]['workflowID'] == $workflow['workflowID'])
+                {
                     $vars = array(':recordID' => $recordID,
-                                  ':stepID' => $workflow['initialStepID']);
+                                  ':stepID' => $workflow['initialStepID'], );
                     $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
                                              VALUES (:recordID, :stepID)', $vars);
                     $hasInitialStep = true;
@@ -1595,7 +1603,8 @@ class Form
         $recordIDs = '';
         foreach ($records as $item)
         {
-            if (is_numeric($item['recordID'])) {
+            if (is_numeric($item['recordID']))
+            {
                 $recordIDs .= $item['recordID'] . ',';
             }
         }
@@ -1603,7 +1612,7 @@ class Form
         $recordIDsHash = sha1($recordIDs);
 
         $res = array();
-        $hasCategoryAccess = []; // the keys will be categoryIDs that the current user has access to
+        $hasCategoryAccess = array(); // the keys will be categoryIDs that the current user has access to
         if (isset($this->cache["checkReadAccess_{$recordIDsHash}"]))
         {
             $res = $this->cache["checkReadAccess_{$recordIDsHash}"];
@@ -1630,22 +1639,24 @@ class Form
 
             // if a needToKnow form doesn't have a workflow (eg: general info), pull in approval chain for associated forms
             $t_needToKnowRecords = '';
-            $t_uniqueCategories = [];
+            $t_uniqueCategories = array();
             foreach ($res as $dep)
             {
                 if ($dep['dependencyID'] == null)
                 {
-                    if (is_numeric($dep['recordID'])) {
+                    if (is_numeric($dep['recordID']))
+                    {
                         $t_needToKnowRecords .= $dep['recordID'] . ',';
                     }
                 }
-                
+
                 // keep track of unique categories
-                if(!isset($t_uniqueCategories[$dep['categoryID']])) {
+                if (isset($dep['categoryID']) && !isset($t_uniqueCategories[$dep['categoryID']]))
+                {
                     $t_uniqueCategories[$dep['categoryID']] = 1;
                 }
             }
-           
+
             $t_needToKnowRecords = trim($t_needToKnowRecords, ',');
             if ($t_needToKnowRecords != '')
             {
@@ -1667,22 +1678,26 @@ class Form
             // find out if "collaborator access" is being used for any categoryID in the set
             // and whether the current user has access
             $uniqueCategoryIDs = '';
-            foreach($t_uniqueCategories as $key => $value) {
+            foreach ($t_uniqueCategories as $key => $value)
+            {
                 $uniqueCategoryIDs .= "'{$key}',";
             }
             $uniqueCategoryIDs = trim($uniqueCategoryIDs, ',');
-            
+
             $catsInGroups = $this->db->prepared_query(
                 "SELECT * FROM category_privs WHERE categoryID IN ({$uniqueCategoryIDs}) AND readable = 1",
                 array()
             );
-            if(count($catsInGroups) > 0) {
+            if (count($catsInGroups) > 0)
+            {
                 $groups = $this->login->getMembership();
-                foreach($catsInGroups as $cat) {
-                    if(isset($groups['groupID'][$cat['groupID']])
-                        && $groups['groupID'][$cat['groupID']] == 1) {
-                            $hasCategoryAccess[$cat['categoryID']] = 1;
-                        }
+                foreach ($catsInGroups as $cat)
+                {
+                    if (isset($groups['groupID'][$cat['groupID']])
+                        && $groups['groupID'][$cat['groupID']] == 1)
+                    {
+                        $hasCategoryAccess[$cat['categoryID']] = 1;
+                    }
                 }
             }
 
@@ -1717,9 +1732,10 @@ class Form
                 {
                     $temp[$dep['recordID']] = 1;
                 }
-                
+
                 // collaborator access
-                if (isset($hasCategoryAccess[$dep['categoryID']])) {
+                if (isset($hasCategoryAccess[$dep['categoryID']]))
+                {
                     $temp[$dep['recordID']] = 1;
                 }
             }
@@ -1745,7 +1761,7 @@ class Form
      */
     public function isMasked($indicatorID, $recordID = null)
     {
-        $vars = array(':indicatorID' => (int) $indicatorID);
+        $vars = array(':indicatorID' => (int)$indicatorID);
         $res = $this->db->prepared_query('SELECT * FROM indicator_mask WHERE indicatorID = :indicatorID', $vars);
         if (count($res) == 0)
         {
@@ -1869,14 +1885,14 @@ class Form
     {
         $indicatorID_list = trim($indicatorID_list, ',');
         $tempIndicatorIDs = explode(',', $indicatorID_list);
-        $indicatorIdStructure = [];
+        $indicatorIdStructure = array();
         foreach ($tempIndicatorIDs as $id)
         {
             if (!is_numeric($id) && $id != '')
             {
                 return false;
             }
-            $indicatorIdStructure['id'.$id] = null;
+            $indicatorIdStructure['id' . $id] = null;
         }
 
         $recordIDs = '';
@@ -1900,7 +1916,7 @@ class Form
                     $out[$id['recordID']][$importedKey] = $id[$importedKey];
                 }
             }
-            
+
             if ($indicatorID_list != '')
             {
                 $out[$id['recordID']]['s1'] = $indicatorIdStructure; // initialize structure
@@ -2241,9 +2257,9 @@ class Form
                 ':actionType' => 'changeInitiator',
                 ':actionTypeID' => 8,
                 ':time' => time(),
-                ':comment' => $comment);
-            $this->db->prepared_query("INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)", $vars2);
+                ':comment' => $comment, );
+            $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
+                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
 
             return $userID;
         }
@@ -2412,17 +2428,17 @@ class Form
                         case '=':
                             $vars[':dateInitiated' . $count . 'b'] = $vars[':dateInitiated' . $count] + 86400;
                             $conditions .= "date >= :dateInitiated{$count} AND date <= :dateInitiated{$count}b AND ";
-                            
+
                             break;
                         case '<=':
                             $vars[':dateInitiated' . $count] += 86400; // set to end of day
                             // no break
                         default:
                             $conditions .= "date {$operator} :dateInitiated{$count} AND ";
-                            
+
                             break;
                     }
-                    
+
                     break;
                 case 'dateSubmitted':
                     $vars[':dateSubmitted' . $count] = strtotime($vars[':dateSubmitted' . $count]);
@@ -2430,17 +2446,17 @@ class Form
                         case '=':
                             $vars[':dateSubmitted' . $count . 'b'] = $vars[':dateSubmitted' . $count] + 86400;
                             $conditions .= "submitted >= :dateSubmitted{$count} AND submitted <= :dateSubmitted{$count}b AND ";
-                            
+
                             break;
                         case '<=':
                             $vars[':dateSubmitted' . $count] += 86400; // set to end of day
                             // no break
                         default:
                             $conditions .= "submitted {$operator} :dateSubmitted{$count} AND ";
-                            
+
                             break;
                     }
-                    
+
                     break;
                 case 'categoryID':
                     if ($q['operator'] != '!=')
@@ -2460,7 +2476,8 @@ class Form
 
                     break;
                 case 'stepID':
-                    if ($q['operator'] == '=') {
+                    if ($q['operator'] == '=')
+                    {
                         switch ($vars[':stepID' . $count]) {
                             case 'submitted':
                                 $conditions .= 'submitted > 0 AND ';
@@ -2468,25 +2485,25 @@ class Form
                                 break;
                             case 'notSubmitted': // backwards compat
                                 $conditions .= 'submitted = 0 AND ';
-                                
+
                                 break;
                             case 'deleted':
                                 $conditions .= 'deleted > 0 AND ';
-                                
+
                                 break;
                             case 'notDeleted': // backwards compat
                                 $conditions .= 'deleted = 0 AND ';
-                                
+
                                 break;
                             case 'resolved':
                                 $conditions .= 'records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0 AND ';
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
-                                
+
                                 break;
                             case 'notResolved': // backwards compat
                                 $conditions .= 'records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0 AND ';
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
-                                
+
                                 break;
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
@@ -2495,22 +2512,26 @@ class Form
                 									WHERE stepID=:stepID{$count}) rj_stepID{$count}
                 									USING (recordID) ";
                                 }
-                                else {
+                                else
+                                {
                                     return 'Unsupported match in stepID';
                                 }
 
                                 break;
                         }
                     }
-                    else if ($q['operator'] == '!='){
-                        switch ($vars[':stepID' . $count]) {
+                    else
+                    {
+                        if ($q['operator'] == '!=')
+                        {
+                            switch ($vars[':stepID' . $count]) {
                             case 'submitted':
                                 $conditions .= 'submitted = 0 AND ';
-                                
+
                                 break;
                             case 'notSubmitted': // backwards compat
                                 $conditions .= 'submitted > 0 AND ';
-                                
+
                                 break;
                             case 'deleted':
                                 $conditions .= 'deleted = 0 AND ';
@@ -2518,17 +2539,17 @@ class Form
                                 break;
                             case 'notDeleted': // backwards compat
                                 $conditions .= 'deleted > 0 AND ';
-                                
+
                                 break;
                             case 'resolved':
                                 $conditions .= 'records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0 AND ';
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
-                                
+
                                 break;
                             case 'notResolved': // backwards compat
                                 $conditions .= 'records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0 AND ';
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
-                                
+
                                 break;
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
@@ -2537,15 +2558,18 @@ class Form
                 									WHERE stepID != :stepID{$count}) rj_stepID{$count}
                 									USING (recordID) ";
                                 }
-                                else {
+                                else
+                                {
                                     return 'Unsupported match in stepID';
                                 }
-                                
+
                                 break;
                         }
-                    }
-                    else {
-                        return 'Invalid operator for stepID';
+                        }
+                        else
+                        {
+                            return 'Invalid operator for stepID';
+                        }
                     }
 
                     if (!is_numeric($vars[':stepID' . $count]))
@@ -3131,7 +3155,8 @@ class Form
                 {
                     $empRes = $this->employee->lookupEmpUID($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = '';
-                    if(isset($empRes[0])) {
+                    if (isset($empRes[0]))
+                    {
                         $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
                     }
                 }

@@ -36,6 +36,7 @@ final class WorkflowControllerTest extends DatabaseTest
     public function testNewWorkflow() : void
     {
         $response = self::$client->post(array('a' => 'workflow/new'), array('description' => 'A test Workflow'), '');
+
         $this->assertNotNull($response);
         $this->assertEquals('3', $response);
     }
@@ -51,6 +52,7 @@ final class WorkflowControllerTest extends DatabaseTest
         'y' => 301,
       );
         $response = self::$client->post(array('a' => 'workflow/1/editorPosition'), $data);
+
         $this->assertNotNull($response);
         $this->assertEquals(true, $response);
     }
@@ -65,7 +67,9 @@ final class WorkflowControllerTest extends DatabaseTest
         'stepBgColor' => '#fffdcd',
         'stepFontColor' => '1px solid black',
       );
+
         $response = self::$client->post(array('a' => 'workflow/1/step/'), $data);
+
         $this->assertNotNull($response);
         $this->assertEquals(2, $response);
     }
@@ -78,7 +82,9 @@ final class WorkflowControllerTest extends DatabaseTest
         $data = array(
         'initialStepID' => 2,
       );
+
         $response = self::$client->post(array('a' => 'workflow/1/initialStep'), $data);
+
         $this->assertNotNull($response);
         $this->assertEquals(true, $response);
     }
@@ -91,7 +97,9 @@ final class WorkflowControllerTest extends DatabaseTest
         $data = array(
         'title' => 'Updated title',
       );
+
         $response = self::$client->post(array('a' => 'workflow/step/1'), $data);
+
         $this->assertNotNull($response);
         $this->assertEquals(true, $response);
     }
@@ -104,7 +112,9 @@ final class WorkflowControllerTest extends DatabaseTest
         $data = array(
         'dependencyID' => 8,
       );
+
         $response = self::$client->post(array('a' => 'workflow/step/1/dependencies'), $data);
+
         $this->assertNotNull($response);
         $this->assertEquals(true, $response);
     }
@@ -117,7 +127,9 @@ final class WorkflowControllerTest extends DatabaseTest
         $data = array(
         'description' => 'Updated Dependency Title',
       );
+
         $response = self::$client->post(array('a' => 'workflow/dependency/8'), $data);
+
         $this->assertNotNull($response);
         $this->assertEquals(true, $response);
     }
@@ -132,6 +144,7 @@ final class WorkflowControllerTest extends DatabaseTest
       );
 
         $response = self::$client->post(array('a' => 'workflow/dependency/8/privileges'), $data);
+
         $this->assertNotNull($response);
         $this->assertEquals(true, $response);
     }
@@ -146,6 +159,7 @@ final class WorkflowControllerTest extends DatabaseTest
       );
 
         $response = self::$client->post(array('a' => 'workflow/1/step/1/_approve/events'), $data);
+
         $this->assertNotNull($response);
         $this->assertEquals(true, $response);
     }
@@ -158,7 +172,9 @@ final class WorkflowControllerTest extends DatabaseTest
         $data = array(
         'description' => 'Test Dependency',
       );
+
         $response = self::$client->post(array('a' => 'workflow/dependencies'), $data);
+
         $this->assertNotNull($response);
         $this->assertEquals(9, $response);
     }
@@ -171,11 +187,13 @@ final class WorkflowControllerTest extends DatabaseTest
         $data = array(
         'dependencyID' => 8,
       );
+
         $response = self::$client->post(array('a' => 'workflow/step/1/dependencies'), $data);
         $this->assertNotNull($response);
         $this->assertEquals(true, $response);
 
         $delResponse = self::$client->Delete(array('a' => 'workflow/step/1/dependencies', 'dependencyID' => '8'));
+
         $this->assertNotNull($delResponse);
         $this->assertEquals(true, $response);
     }
@@ -196,6 +214,7 @@ final class WorkflowControllerTest extends DatabaseTest
         $event_id = self::$client->get(array('a' => 'workflow/1/step/1/_approve/events'));
 
         $delResponse = self::$client->Delete(array('a' => 'workflow/1/step/1/_approve/events', 'eventID' => $event_id[0]['eventID']));
+
         $this->assertNotNull($delResponse);
         $this->assertEquals(true, $response);
     }
