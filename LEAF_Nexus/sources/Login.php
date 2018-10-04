@@ -124,16 +124,12 @@ class Login
             ini_set('session.gc_maxlifetime', 2592000);
             $sessionHandler = new Session($this->userDB);
             session_set_save_handler($sessionHandler, true);
-            $cookie = session_get_cookie_params();
-            $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
-
-            //if not https set the cookie params not secure
-            if(!$https){
-              $cookie = session_set_cookie_params($cookie["lifetime"], $cookie["path"], $cookie["domain"], false, true);
-            }
             session_start();
+            $cookie = session_get_cookie_params();
             $id = session_id();
-            setcookie('PHPSESSID', $id, time() + 2592000, $cookie['path'], $cookie['domain'], false, true);
+
+            $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
+            setcookie('PHPSESSID', $id, time() + 2592000, $cookie['path'], $cookie['domain'], $https, true);
         }
     }
 
@@ -268,6 +264,9 @@ class Login
         {
             unset($_SESSION[$key]);
         }
+        $cookie = session_get_cookie_params();
+        $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
+        setcookie('PHPSESSID', '', time() - 3600, $cookie['path'], $cookie['domain'], $https, true);
     }
 
     public function isLogin()
