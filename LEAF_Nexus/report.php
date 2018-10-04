@@ -23,9 +23,6 @@ include './sources/Login.php';
 include 'db_mysql.php';
 include 'config.php';
 
-// Enforce HTTPS
-include_once './enforceHTTPS.php';
-
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';

@@ -14,9 +14,6 @@ include '../Login.php';
 include '../db_mysql.php';
 include '../db_config.php';
 
-// Enforce HTTPS
-include_once '../enforceHTTPS.php';
-
 $db_config = new DB_Config();
 $config = new Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);

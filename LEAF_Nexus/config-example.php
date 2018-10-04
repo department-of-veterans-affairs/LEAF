@@ -34,8 +34,6 @@ class Config
 
     public static $ERM_Sites = array('resource_management' => ''); // URL to ERM sites with trailing slash
 
-    public $enforceHTTPS = true;
-
     public $dbHost = 'SERVER_HOSTNAME';
 
     public $dbName = 'DATABASE_NAME';
