@@ -67,6 +67,7 @@ final class FormWorkflowControllerTest extends DatabaseTest
         //create a new request with the generated indicator
         $vars = array('title' => 'test',
                         'num' . $newCategoryID => 1, );
+
         $result = self::$client->post(array('a' => 'form/new'), $vars);
 
         //checks to make sure the request creation was successful
@@ -80,6 +81,7 @@ final class FormWorkflowControllerTest extends DatabaseTest
         $vars = array('dependencyID' => '5',
             'actionType' => '6',
             'comment' => 'test', );
+
         $result = self::$client->post(array('a' => 'formWorkflow/2/apply'), $vars);
 
         //process finished with no errors
@@ -91,6 +93,7 @@ final class FormWorkflowControllerTest extends DatabaseTest
     {
         $vars = array('stepID' => 1,
                     'comment' => 'TESTSTEP', );
+
         $result = self::$client->post(array('a' => 'formWorkflow/1/step'), $vars, '');
 
         //if true, setStep method executed successfully

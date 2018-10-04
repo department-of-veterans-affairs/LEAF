@@ -7,6 +7,7 @@ declare(strict_types = 1);
 
 use LEAFTest\LEAFClient;
 
+
 /**
  * Tests LEAF_Request_Portal/api/?a=system API
  */
@@ -45,66 +46,79 @@ final class SystemControllerTest extends DatabaseTest
     public function testHeading() : void
     {
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 'New Heading'));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('New Heading', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 'Heading that is too long for the field and this is very long'));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('Heading that is too long for the field and this is', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "LEAF's Header"));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('LEAF&#039;s Header', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => null));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 'Header "Header" Header'));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('Header &quot;Header&quot; Header', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 'HEADER > header'));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('HEADER &gt; header', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 'HEADER < header'));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('HEADER &lt; header', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => ''));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => ' '));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals(' ', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => '  '));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('  ', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => '    '));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('    ', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 0));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('0', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => 123456789));
+
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('123456789', $fromDB);
@@ -156,6 +170,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($complexTags as $unsanitized => $sanitized)
         {
             self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => $unsanitized));
+
             $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals($sanitized, $fromDB);
@@ -164,6 +179,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($simpleTags as $tag)
         {
             self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "<$tag>Heading</$tag>"));
+
             $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
@@ -172,6 +188,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($simpleTags as $tag)
         {
             self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "<$tag>Heading"));
+
             $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
@@ -180,6 +197,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($simpleTags as $tag)
         {
             self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "Heading</$tag>"));
+
             $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
@@ -188,6 +206,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($simpleTags as $tag)
         {
             self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "<$tag>New Heading"));
+
             $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>New Heading</$tag>", $fromDB);
@@ -196,6 +215,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($simpleTags as $tag)
         {
             self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "New Heading</$tag>"));
+
             $fromDB = $this->getSetting('heading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>New Heading</$tag>", $fromDB);
@@ -208,66 +228,79 @@ final class SystemControllerTest extends DatabaseTest
     public function testSubHeading() : void
     {
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 'New Heading'));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('New Heading', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 'Heading that is too long for the field and this is very long'));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('Heading that is too long for the field and this is', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "LEAF's Header"));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('LEAF&#039;s Header', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => null));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 'Header "Header" Header'));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('Header &quot;Header&quot; Header', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 'HEADER > header'));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('HEADER &gt; header', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 'HEADER < header'));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('HEADER &lt; header', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => ''));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => ' '));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals(' ', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => '  '));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('  ', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => '    '));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('    ', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 0));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('0', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => 123456789));
+
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
         $this->assertEquals('123456789', $fromDB);
@@ -319,6 +352,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($complexTags as $unsanitized => $sanitized)
         {
             self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => $unsanitized));
+
             $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals($sanitized, $fromDB);
@@ -327,6 +361,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($simpleTags as $tag)
         {
             self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "<$tag>Heading</$tag>"));
+
             $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
@@ -335,6 +370,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($simpleTags as $tag)
         {
             self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "<$tag>Heading"));
+
             $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
@@ -343,6 +379,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($simpleTags as $tag)
         {
             self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "Heading</$tag>"));
+
             $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>Heading</$tag>", $fromDB);
@@ -351,6 +388,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($simpleTags as $tag)
         {
             self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "<$tag>New Heading"));
+
             $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>New Heading</$tag>", $fromDB);
@@ -359,6 +397,7 @@ final class SystemControllerTest extends DatabaseTest
         foreach ($simpleTags as $tag)
         {
             self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "New Heading</$tag>"));
+
             $fromDB = $this->getSetting('subheading');
             $this->assertNotNull($fromDB);
             $this->assertEquals("<$tag>New Heading</$tag>", $fromDB);
