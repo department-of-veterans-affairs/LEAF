@@ -24,8 +24,7 @@ $webMode = false;
 $webLog = array();
 if (isset($argv[1]))
 {
-    // $file = XSSHelpers::scrubFilename($argv[1]);
-    $file = $argv[1];
+    $file = XSSHelpers::scrubFilename($argv[1]);
 }
 else
 {

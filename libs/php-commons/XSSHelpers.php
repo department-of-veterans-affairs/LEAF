@@ -294,7 +294,7 @@ class XSSHelpers
     }
 
     /**
-     * Sanitize a filename, removing anything that isn't a letter, number, underscore, or dash
+     * Sanitize a filename, removing anything that isn't a letter, number, underscore, dash, or whitespace
      *
      * @param    string  $stringToScrub the string to be sanitized
      *
@@ -302,7 +302,7 @@ class XSSHelpers
      */
     public static function scrubFilename($stringToSanitize)
     {
-        $pattern = "/[^a-zA-Z0-9\.\-\_]*/";
+        $pattern = "/[\/\:\*\?\"\<\>\|\\\]*/";
         
         return preg_replace($pattern, "" , $stringToSanitize );
     }
