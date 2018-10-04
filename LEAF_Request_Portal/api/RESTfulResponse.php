@@ -162,11 +162,11 @@ abstract class RESTfulResponse
                 if (!is_array($out))
                 {
                     $out = array(
-                                'column' => array('error'), 
+                                'column' => array('error'),
                                 'row' => array('error' => $out),
                             );
                 }
-                
+
                 // flatten out s1 value, which is map of data fields -> values
                 foreach ($out as $key => $item)
                 {

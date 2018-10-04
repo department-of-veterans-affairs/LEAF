@@ -945,8 +945,8 @@ class Form
                     {
                         return 0;
                     }
-
-                    $_POST[$indicator] = $_FILES[$indicator]['name'];
+                    $_FILES[$indicator]['name'] = XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
+                    $_POST[$indicator] = XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
 
                     $filenameParts = explode('.', $_FILES[$indicator]['name']);
                     $fileExtension = array_pop($filenameParts);
@@ -960,7 +960,6 @@ class Form
                         }
 
                         $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
-                        // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
                     }
                     else
