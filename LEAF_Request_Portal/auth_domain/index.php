@@ -105,7 +105,7 @@ if (isset($_SERVER['REMOTE_USER']))
         }
         else
         {
-            header('Refresh: 4;URL=' . $_SERVER["HTTP_REFERER"]);
+            header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
 
             echo 'Unable to log in: User not found in global database.  Redirecting back to PIV login screen.';
         }
@@ -113,7 +113,7 @@ if (isset($_SERVER['REMOTE_USER']))
 }
 else
 {
-    header('Refresh: 4;URL=' . $_SERVER["HTTP_REFERER"]);
+    header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
 
     echo 'Unable to log in: Domain logon issue.  Redirecting back to PIV login screen.';
 }
