@@ -4,7 +4,6 @@
     <div id="requestTitle"><!--{$title|sanitize}--> <!--{$subtype|sanitize}-->
     <!--{if $submitted == 0 || $is_admin}-->
         <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" style="cursor: pointer" alt="Edit Title" title="Edit Title" onclick="changeTitle()" tabindex="0" role="button" onkeypress="if (event.keyCode==13){ changeTitle(); }" />
-=======
     <!--{/if}-->
 
     <br /><span style="font-weight: normal; color: #686868; font-style: italic"><!--{$categoryText|sanitize}--></span>
