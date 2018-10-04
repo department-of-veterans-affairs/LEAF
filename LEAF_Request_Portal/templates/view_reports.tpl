@@ -99,6 +99,12 @@ function addHeader(column) {
             	$('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
             }});
             break;
+        case 'dateInitiated':
+            headers.push({name: 'Request Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
+                var date = new Date(blob[data.recordID].date * 1000);
+                $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+            }});
+            break;
         case 'actionButton':
         	headers.unshift({name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
                 $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
@@ -315,6 +321,11 @@ function loadSearchPrereqs() {
                         success: function(res) {
                             buffer2 = '';
                             buffer2 += '<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>';
+
+                            // Option to retrieve Date Request Initiated
+                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" />';
+                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Request Initiated</label></div>';
+
                             for(var i in res) {
                                 buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
                                 buffer2 += '<label class="checkable" style="width: 100px" for="indicators_depID_'+ res[i].dependencyID +'"> ' + res[i].description +'</label></div>';
