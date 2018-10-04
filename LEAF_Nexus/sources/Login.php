@@ -264,6 +264,9 @@ class Login
         {
             unset($_SESSION[$key]);
         }
+        $cookie = session_get_cookie_params();
+        $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
+        setcookie('PHPSESSID', '', time() - 3600, $cookie['path'], $cookie['domain'], $https, true);
     }
 
     public function isLogin()
