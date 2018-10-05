@@ -36,7 +36,7 @@
 	<script type="text/javascript" src="js/lz-string/lz-string.min.js"></script>
     <script type="text/javascript" src="js/parallelProcessing.js"></script>
     <script type="text/javascript">
-        selectForParallelProcessing({$recordID}, "{$orgchartPath}", "{$CSRFToken}");
+        parallelProcessing({$recordID}, "{$orgchartPath}", "{$CSRFToken}");
     </script>
 	<div id="pp_banner" style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">Please review your request before submitting</div>
 

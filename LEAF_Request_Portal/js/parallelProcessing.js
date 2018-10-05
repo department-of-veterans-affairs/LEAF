@@ -405,5 +405,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
             
         }
     }
+
+    initializeParallelProcessing();
 }
 
