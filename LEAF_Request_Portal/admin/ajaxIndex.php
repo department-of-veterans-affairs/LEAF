@@ -66,7 +66,7 @@ switch ($action) {
         checkToken();
         require 'Group.php';
 
-        $deleteList = json_decode($_POST['json'], true);
+        $deleteList = XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
         $group = new Group($db, $login);
         foreach ($deleteList as $del)
