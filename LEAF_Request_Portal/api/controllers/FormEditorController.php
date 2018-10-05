@@ -135,8 +135,8 @@ class FormEditorController extends RESTfulResponse
             return $formEditor->setDisabled((int)$args[0], (int)$_POST['disabled']);
         });
 
-        $this->index['POST']->register('formEditor/formParallelProcessing', function ($args) use ($formEditor) {
-            return $formEditor->setFormParallelProcessing(XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['parallelProcessing']);
+        $this->index['POST']->register('formEditor/formType', function ($args) use ($formEditor) {
+            return $formEditor->setFormType(XSSHelpers::xscrub($_POST['categoryID']), XSSHelpers::xscrub($_POST['type']));
         });
 
         $this->index['POST']->register('formEditor/[digit]/sort', function ($args) use ($formEditor) {
