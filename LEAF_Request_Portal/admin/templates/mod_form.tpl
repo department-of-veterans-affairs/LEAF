@@ -7,14 +7,21 @@
 <script>
 
 var currCategoryID = '';
-function checkSensitive(indicatorID, index = 0) {
-    if(indicatorID[index] === undefined) {
-        return 0;
-    } else if (indicatorID[index].is_sensitive === '1') {
-        return 1;
-    } else {
-        checkSensitive(indicatorID[index + 1]);
-    }
+function checkSensitive(indicator) {
+    var result = 0;
+    $.each(indicator, function( index, value )
+    {
+        if (value.is_sensitive === '1') {
+            result = 1;
+        } else if(result === 0 && !$.isEmptyObject(value.child)){
+            result = checkSensitive(value.child);
+        }
+        if(result)
+        {
+            return false;
+        }
+    });
+    return result;
 }
 
 function openContent(url) {
@@ -73,8 +80,7 @@ function openContent(url) {
             url: '../api/form/_' + currCategoryID,
             success: function(res) {
                 if(res.length > 0) {
-                    $("#needToKnow").val(checkSensitive(res));
-                    if($("#needToKnow").val() === '1') {
+                    if(checkSensitive(res) === 1) {
                         $("#needToKnow option[value='0']").remove();
                         $("#needToKnow option[value='1']").html('Forced on because sensitive fields are present');
                     }
@@ -494,6 +500,17 @@ function newQuestion(parentIndicatorID) {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
         var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
         if (isSensitive === 1) {
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formNeedToKnow',
+                data: {needToKnow: '1',
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
+                    }
+                }
+            });
             categories[currCategoryID].needToKnow = 1;
         }
 
@@ -809,6 +826,17 @@ function getForm(indicatorID, series) {
         var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
     	var isDisabled = $('#disabled').is(':checked') ? 1 : 0;
         if (isSensitive === 1) {
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formNeedToKnow',
+                data: {needToKnow: '1',
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
+                    }
+                }
+            });
             categories[currCategoryID].needToKnow = 1;
         }
 
