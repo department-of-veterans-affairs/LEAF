@@ -42,7 +42,7 @@ class ConverterController extends RESTfulResponse
         });
 
         $this->index['POST']->register('converter/json', function ($args) {
-            return XSSHelpers::scrubObjectOrArray(json_decode($_POST['input'], true));
+            return json_decode($_POST['input'], true);
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
