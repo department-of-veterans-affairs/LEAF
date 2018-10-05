@@ -29,16 +29,16 @@
         <br />
         <br />
         <!--{/if}-->
-        <button class="tools" onclick="viewHistory()" title="View History" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=appointment.svg&w=32); background-repeat: no-repeat; height: 38px; background-position: left; text-align: center" /> View History</button>
-        <button class="tools" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" title="Write Email" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=internet-mail.svg&amp;w=32); background-repeat: no-repeat; height: 38px; background-position: left; text-align: center"/> Write Email</button>
+        <button class="tools" onclick="viewHistory()" title="View History" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=appointment.svg&w=32); background-repeat: no-repeat; height: 38px; background-position: left; text-align: left; text-indent: 35px;" /> View History</button>
+        <button class="tools" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" title="Write Email" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=internet-mail.svg&amp;w=32); background-repeat: no-repeat; height: 38px; background-position: left; text-align: left; text-indent: 35px;"/> Write Email</button>
         <!--{if $bookmarked == ''}-->
-        <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" title="Add Bookmark" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=bookmark-new.svg&amp;w=32); background-repeat: no-repeat; height: 38px; background-position: left; text-align: center"/> Add Bookmark</button>
+        <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" title="Add Bookmark" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=bookmark-new.svg&amp;w=32); background-repeat: no-repeat; height: 38px; background-position: left; text-align: left; text-indent: 35px;"/> Add Bookmark</button>
         <!--{else}-->
-        <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" title="Add Bookmark" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=bookmark-new.svg&amp;w=32); background-repeat: no-repeat; height: 38px; background-position: left; text-align: center"/> Remove Bookmark</button>
+        <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" title="Add Bookmark" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=bookmark-new.svg&amp;w=32); background-repeat: no-repeat; height: 38px; background-position: left; text-align: left; text-indent: 35px;"/> Remove Bookmark</button>
         <!--{/if}-->
         <br />
         <br />
-        <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()" title="Cancel Request" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=process-stop.svg&amp;w=16); background-repeat: no-repeat; background-position: left; text-align: center"/> Cancel Request</button>
+        <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()" title="Cancel Request" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=process-stop.svg&amp;w=16); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 20px;"/> Cancel Request</button>
     </div>
 
     <!--{if count($comments) > 0}-->
@@ -55,7 +55,7 @@
 
     <div id="category_list">
         <h1>Internal Use</h1>
-        <button class="IUbutton" onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=printview&amp;recordID=<!--{$recordID|strip_tags}-->'); "style="vertical-align: middle; background-image: url(../libs/dynicons/?img=text-x-generic.svg&amp;w=16); background-repeat: no-repeat; background-position: left; text-align: center"> Main Request</button>
+        <button class="IUbutton" onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=printview&amp;recordID=<!--{$recordID|strip_tags}-->'); "style="vertical-align: middle; background-image: url(../libs/dynicons/?img=text-x-generic.svg&amp;w=16); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 20px;"> Main Request</button>
         <!--{section name=i loop=$childforms}-->
             <button class="IUbutton" onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=internalonlyview&amp;recordID=<!--{$recordID|strip_tags}-->&amp;childCategoryID=<!--{$childforms[i].childCategoryID|strip_tags}-->');" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=text-x-generic.svg&amp;w=16); background-repeat: no-repeat; background-position: left; text-align: center"> <!--{$childforms[i].childCategoryName|sanitize}--></button>
         <!--{/section}-->
@@ -69,11 +69,11 @@
     <!--{if $is_admin}-->
     <div id="adminTools" class="tools"><h1>Administrative Tools</h1>
         <!--{if $submitted != 0}-->
-            <button class="AdminButton" onclick="admin_changeStep()" title="Change Current Step" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=go-jump.svg&w=32); background-repeat: no-repeat; background-position: left; text-align: center; height: 38px"/> Change Current Step</button>
+            <button class="AdminButton" onclick="admin_changeStep()" title="Change Current Step" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=go-jump.svg&w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Current Step</button>
         <!--{/if}-->
-        <button class="AdminButton" onclick="changeService()" title="Change Service" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=user-home.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: center; height: 38px"/> Change Service</button>
-        <button class="AdminButton" onclick="admin_changeForm()" title="Change Forms" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=system-file-manager.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: center; height: 38px"/> Change Forms</button>
-        <button class="AdminButton" onclick="admin_changeInitiator()" title="Change Initiator" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: center; height: 38px"/> Change Initiator</button>
+        <button class="AdminButton" onclick="changeService()" title="Change Service" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=user-home.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Service</button>
+        <button class="AdminButton" onclick="admin_changeForm()" title="Change Forms" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=system-file-manager.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Form(s)</button>
+        <button class="AdminButton" onclick="admin_changeInitiator()" title="Change Initiator" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Initiator</button>
     </div>
     <!--{/if}-->
 </div>
