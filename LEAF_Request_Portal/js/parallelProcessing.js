@@ -7,6 +7,8 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
     var loadingBarSize = 0;
     var currentRequestsSubmitted = 0;
     var newTitleRand = '';
+    var empSel;
+    var grpSel;
 
     //initialize progress bar, dropdown, and onClick
     function initializeParallelProcessing()
@@ -29,6 +31,13 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
             }
         });
         fillIndicatorDropdown();
+        $('#selectDiv').on('click', '.employeeSelector > .employeeSelectorAddToList > button', function(){
+            empSel.select(this.id.substring(3));
+        });
+        $('#selectDiv').on('click', '.groupSelector > .groupSelectorAddToList > button', function(){
+            grpSel.select(this.id.substring(3));
+        });
+      
     }
 
     //fill the dropdown with all employee or group indicators in this form
@@ -79,24 +88,46 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         {
             switch(newFormat) {
                 case 'orgchart_group':
-                    var grpSel = new groupSelector('grpSelector');
+                    grpSel = new groupSelector('grpSelector');
                     grpSel.rootPath = orgChartPath+'/';
                     grpSel.apiPath = orgChartPath+'/api/';
                     grpSel.setSelectHandler(function(){
-                        var name = $('#'+grpSel.prefixID+'grp'+grpSel.selection+' > .groupSelectorTitle').html();
-                        addToList(grpSel.selection, name);
+                        $('#'+this.prefixID+'grp'+this.selection).removeClass('groupSelected');
+                        $('#'+this.prefixID+'grp'+this.selection).addClass('groupSelector');
+                        var name = $('#'+this.prefixID+'grp'+this.selection+' > .groupSelectorTitle').html();
+                        addToList(this.selection, name);
+                    });
+                    grpSel.setResultHandler(function(){
+                        if(this.numResults > 0) {
+                            $('table.groupSelectorTable tr:first').append('<th>&nbsp;</th>');
+                            for(var i in this.selectionData) {
+                                $('#'+this.prefixID+'grp'+i).off('click');
+                                $('#'+this.prefixID+'grp'+i).append('<td class="groupSelectorAddToList"><button id="btn'+i+'" type="button">+</button></td>');
+                            }
+                        }
                     });
                     grpSel.initialize();
                     $('.emp_visibility').hide();
                     $('.grp_visibility').show();
                     break;
                 case 'orgchart_employee':
-                    var empSel = new nationalEmployeeSelector('empSelector');
+                    empSel = new nationalEmployeeSelector('empSelector');
                     empSel.rootPath = orgChartPath+'/';
                     empSel.apiPath = orgChartPath+'/api/';
                     empSel.setSelectHandler(function(){
-                        var name = $('#'+empSel.prefixID+'emp'+empSel.selection+' > .employeeSelectorName').html();
-                        addToList(empSel.selection, name);
+                        $('#'+this.prefixID+'emp'+this.selection).removeClass('employeeSelected');
+                        $('#'+this.prefixID+'emp'+this.selection).addClass('employeeSelector');
+                        var name = $('#'+this.prefixID+'emp'+this.selection+' > .employeeSelectorName').html();
+                        addToList(this.selection, name);
+                    });
+                    empSel.setResultHandler(function(){
+                        if(this.numResults > 0) {
+                            $('table.employeeSelectorTable tr:first').append('<th>&nbsp;</th>');
+                            for(var i in this.selectionData) {
+                                $('#'+this.prefixID+'emp'+i).off('click');
+                                $('#'+this.prefixID+'emp'+i).append('<td class="employeeSelectorAddToList"><button id="btn'+i+'" type="button">+</button></td>');
+                            }
+                        }
                     });
                     empSel.initialize();
                     $('.grp_visibility').hide();
@@ -374,7 +405,5 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
             
         }
     }
-
-    initializeParallelProcessing();
 }
 

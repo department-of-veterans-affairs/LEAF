@@ -1,22 +1,46 @@
-<link type="text/css" rel="stylesheet" href="{$orgchartPath}/css/employeeSelector.css">
-<link type="text/css" rel="stylesheet" href="{$orgchartPath}/css/groupSelector.css">
-<style type="text/css">
-	.ui-widget-header {
-		background: #cedc98;
-		border: 1px solid #DDDDDD;
-		color: #333333;
-		font-weight: bold;
-	}
-</style>
-<script type="text/javascript" src="{$orgchartPath}/js/nationalEmployeeSelector.js"></script>
-<script type="text/javascript" src="{$orgchartPath}/js/groupSelector.js"></script>
-<script type="text/javascript" src="js/lz-string/lz-string.min.js"></script>
-<script type="text/javascript" src="js/parallelProcessing.js"></script>
-<script type="text/javascript">
-	parallelProcessing({$recordID}, "{$orgchartPath}", "{$CSRFToken}", "{$categoryID}");
-</script>
-<div id="pp_banner" style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">Please review your request before submitting</div>
-<div id="pp_selector" style="width: 500px; background-color: white; border: 1px solid #0000005c; padding: 8px; margin: auto;">
+	<link type="text/css" rel="stylesheet" href="{$orgchartPath}/css/employeeSelector.css">
+	<link type="text/css" rel="stylesheet" href="{$orgchartPath}/css/groupSelector.css">
+	<style>
+		.groupSelector, .employeeSelector {
+			cursor: default;
+		}
+		.groupSelectorAddToList > button, .employeeSelectorAddToList > button {
+			cursor: pointer;
+		}
+		.employeeSelectorBorder {
+			border: 1px solid black;
+			background-color: white;
+			padding: 4px;
+			margin-bottom: 8px;
+			width: 99%;
+		}
+		.employeeSelectorInput {
+			position: relative;
+			border: 0px;
+			font-size: 140%;
+			padding: 0px 0px 0px 4px;
+			width: 90% !important;
+		}
+		.employeeSelectorIcon {
+			float: left;
+		}
+		.ui-widget-header {
+			background: #cedc98;
+			border: 1px solid #DDDDDD;
+			color: #333333;
+			font-weight: bold;
+		}
+	</style>
+	<script type="text/javascript" src="{$orgchartPath}/js/nationalEmployeeSelector.js"></script>
+	<script type="text/javascript" src="{$orgchartPath}/js/groupSelector.js"></script>
+	<script type="text/javascript" src="js/lz-string/lz-string.min.js"></script>
+    <script type="text/javascript" src="js/parallelProcessing.js"></script>
+    <script type="text/javascript">
+        selectForParallelProcessing({$recordID}, "{$orgchartPath}", "{$CSRFToken}");
+    </script>
+	<div id="pp_banner" style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">Please review your request before submitting</div>
+
+	<div id="pp_selector" style="width: 500px; background-color: white; border: 1px solid #0000005c; padding: 8px; margin: auto;">
 	<div id="selectDiv" style="">Please select an indicator:<br>
 		<select id="indicator_selector">
 			<option value="0-0">-Select-</option>
