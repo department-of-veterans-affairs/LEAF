@@ -3,6 +3,31 @@
 <div style="width: 500px; background-color: white; border: 1px solid #0000005c; padding: 8px; margin: auto;">
 	<link type="text/css" rel="stylesheet" href="{$orgchartPath}/css/employeeSelector.css">
 	<link type="text/css" rel="stylesheet" href="{$orgchartPath}/css/groupSelector.css">
+	<style>
+		.groupSelector, .employeeSelector {
+			cursor: default;
+		}
+		.groupSelectorAddToList > button, .employeeSelectorAddToList > button {
+			cursor: pointer;
+		}
+		.employeeSelectorBorder {
+			border: 1px solid black;
+			background-color: white;
+			padding: 4px;
+			margin-bottom: 8px;
+			width: 99%;
+		}
+		.employeeSelectorInput {
+			position: relative;
+			border: 0px;
+			font-size: 140%;
+			padding: 0px 0px 0px 4px;
+			width: 90% !important;
+		}
+		.employeeSelectorIcon {
+			float: left;
+		}
+	</style>
 	<script type="text/javascript" src="{$orgchartPath}/js/nationalEmployeeSelector.js"></script>
 	<script type="text/javascript" src="{$orgchartPath}/js/groupSelector.js"></script>
     <script type="text/javascript" src="js/parallelProcessing.js"></script>
