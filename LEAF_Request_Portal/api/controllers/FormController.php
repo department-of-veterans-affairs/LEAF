@@ -77,7 +77,7 @@ class FormController extends RESTfulResponse
         $this->index['GET']->register('form/query', function ($args) use ($form) {
             if (isset($_GET['debug']))
             {
-                return $query = json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true);
+                return $query = XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
             }
 
             return $form->query($_GET['q']);
