@@ -42,7 +42,6 @@ class ConverterController extends RESTfulResponse
         });
 
         $this->index['POST']->register('converter/json', function ($args) {
-            trigger_error("done did the thing", E_USER_WARNING);
             return XSSHelpers::scrubObjectOrArray(json_decode($_POST['input'], true));
         });
 
