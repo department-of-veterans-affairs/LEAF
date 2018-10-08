@@ -505,6 +505,23 @@ switch ($action) {
         $main->assign('body', $t_form->fetch('view_about.tpl'));
 
         break;
+        case 'logout':
+            $login->logout();
+
+            $t_form = new Smarty;
+            $t_form->left_delimiter = '<!--{';
+            $t_form->right_delimiter = '}-->';
+
+            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+            $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
+            $main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subheading']));
+            $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
+
+            $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
+            $main->display(customTemplate('main.tpl'));
+            exit();
+
+            break;
     default:
 //        $main->assign('useDojo', false);
         if ($login->isLogin())
@@ -574,6 +591,7 @@ switch ($action) {
 $memberships = $login->getMembership();
 $t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
+$main->assign('leafSecure', Orgchart\Config::$leafSecure);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);

@@ -100,7 +100,7 @@ switch ($action) {
         {
             $servicesArray[$key]['service'] = XSSHelpers::xscrub($servicesArray[$key]['service']);
         }
-        
+
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -523,6 +523,7 @@ $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $main->assign('tabText', XSSHelpers::sanitizeHTML($tabText));
 
+$main->assign('leafSecure', Config::$leafSecure);
 $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subheading']));
 $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));

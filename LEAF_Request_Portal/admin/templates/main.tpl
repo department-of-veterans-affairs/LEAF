@@ -32,6 +32,14 @@
     <script type="text/javascript" src="../../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <script type="text/javascript" src="../../libs/js/jquery/icheck/icheck.js"></script>
     {/if}
+
+    {if isset($leafSecure) && $leafSecure == true}
+      {if $useUI == false}
+        <script type="text/javascript" src="../../libs/js/jquery/jquery-ui.custom.min.js"></script>
+      {/if}
+    <script type="text/javascript" src="../../libs/js/sessionTimeout.js"></script>
+    {/if}
+
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
@@ -68,5 +76,16 @@
     <br /><br /><a id="versionID" href="../?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>
 </div>
 
+{if isset($leafSecure) && $leafSecure == true}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $.sessionTimeout({
+      keepAliveUrl: 'ajaxIndex.php?a=keepAlive',
+      logoutUrl: '../?a=logout',
+      redirUrl: '../?a=logout',
+    });
+  });
+</script>
+{/if}
 </body>
 </html>{/strip}

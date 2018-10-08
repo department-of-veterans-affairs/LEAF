@@ -256,6 +256,7 @@ switch ($action) {
 $memberships = $login->getMembership();
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
 $main->assign('login', $t_login->fetch('login.tpl'));
+$main->assign('leafSecure', Orgchart\Config::$leafSecure);
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';

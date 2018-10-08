@@ -29,6 +29,8 @@ class Config
 
     public static $uploadDir = './UPLOADS/';
 
+    public static $leafSecure = false;
+
     // Directory for user uploads
     // using backslashes (/), with trailing slash
 

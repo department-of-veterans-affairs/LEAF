@@ -136,6 +136,9 @@ switch ($action) {
         echo $type->deleteAttachment($_POST['categoryID'], $_POST['UID'], $_POST['indicatorID'], $_POST['file']);
 
         break;
+        case 'keepAlive':
+              //session can be extending by http request
+        break;
     default:
         /*
         echo "Action: $action<br /><br />Catchall...<br /><br />POST: <pre>";

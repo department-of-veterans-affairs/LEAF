@@ -422,9 +422,7 @@ switch ($action) {
             $t_form->assign('orgchartPath', Config::$orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-            $main->assign('javascripts', array('../../libs/js/jquery/jquery.min.js',
-                                           '../../libs/js/jquery/jquery-ui.custom.min.js',
-                                           '../../libs/js/jsPlumb/dom.jsPlumb-min.js', ));
+            $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js', ));
 
             $main->assign('body', $t_form->fetch(customTemplate('view_admin_menu.tpl')));
 
@@ -450,6 +448,7 @@ $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
+$main->assign('leafSecure', Config::$leafSecure);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));

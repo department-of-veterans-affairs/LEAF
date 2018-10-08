@@ -511,6 +511,9 @@ switch ($action) {
         $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 
         break;
+    case 'keepAlive':
+          //session can be extending by http request
+        break;
     default:
         break;
 }
