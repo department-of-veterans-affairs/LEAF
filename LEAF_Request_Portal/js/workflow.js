@@ -171,19 +171,20 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 if (step.requiresDigitalSignature == true
                         && e.data.step.dependencyActions[e.data.idx].fillDependency > 0) { // dont require signature for regressive actions
                     if (LEAFRequestPortalAPI !== undefined) {
+                        var key = currRecordID + '_' + Math.floor(Math.random()*1000);
                         $('#form_dep'+ step.dependencyID).slideUp();    // UI hint for loading
                         $(document.createElement('div'))
                         .css({'margin': 'auto',
                               'width': '95%',
                               'padding-bottom': '16px',
                               'text-align': 'center'})
-                        .html("<br style='clear: both' /><img src='images/largespinner.gif' alt='Loading Digital Signature Routines' title='Loading Digital Signature Routines'' style='vertical-align: middle'> Loading Digital Signature Routines...")
+                        .html("<img src='images/largespinner.gif' alt='Loading Digital Signature Routines' title='Loading Digital Signature Routines'' style='vertical-align: middle'> Loading Digital Signature Routines...")
+                        .setAttribute('id', 'digitalSignatureStatus_' + key)
                         .appendTo('#workflowbox_dep' + step.dependencyID);
 
                         var portalAPI = LEAFRequestPortalAPI();
                         portalAPI.setCSRFToken(CSRFToken);
-
-                        var key = currRecordID + '_' + Math.floor(Math.random()*1000); 
+ 
                         portalAPI.Forms.getJSONForSigning(
                             currRecordID,
                             function (json) {
