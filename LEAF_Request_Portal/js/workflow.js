@@ -121,10 +121,6 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                     dataType: 'script'});
                 $.ajax({
                     type: 'GET',
-                    url: "../libs/sign/Stomp.js",
-                    dataType: 'script'});
-                $.ajax({
-                    type: 'GET',
                     url: "../libs/sign/SockJS.js",
                     dataType: 'script'});
             }

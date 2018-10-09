@@ -1,62 +1,65 @@
 var Signer = function() {
 
-    var stompClient = null;
     var isConnected = false;
     var pendingSignatures = {}; // callbacks
     var initiatedJNLP = false;
+    var socket = null;
 
     function connect(_callback) {
-        var url = "https://localhost:8443/websocket";
-        var socket = new SockJS(url);
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
+        if(socket != null
+            && socket.readyState == 1) {
+            if(typeof _callback == 'function') {
+                _callback();
+            }
+            return 1;
+        }
+        socket = new WebSocket('ws://localhost:8443');
+
+        socket.addEventListener('open', function() {
             isConnected = true;
-            console.log('Connected: ' + frame);
-            stompClient.subscribe('/wsbroker/controller', function (response) {
-                switch(response.command) {
-                    case 'MESSAGE':
-                        var incMessage = JSON.parse(response.body);
-                        if(incMessage.status == 'SUCCESS') {
-                            if(pendingSignatures[incMessage.key] != undefined) {
-                                pendingSignatures[incMessage.key](incMessage.message); 
-                            }
-                        }
-                        else {
-                            console.log(response.body);
-                        }
-                        break;
-                    default:
-                        console.log(response);
-                        break;
-                }
-            });
-            if(_callback != undefined) {
+            if(typeof _callback == 'function') {
                 _callback();
             }
         });
-        socket.onclose = function() {
-            console.log("Trying to reconnect");
-            setTimeout(function() {
-                connect(_callback);
-            }, 1000);
-            if(initiatedJNLP == false) {
-                if (!isConnected) {
-                    initiatedJNLP = true;
-                    window.open("//" + window.location.hostname + "/LEAF/digital-signature/sign.jnlp");
+
+        socket.addEventListener('error', function() {
+            if(socket.readyState == 3 || socket.readyState == 0) { // closed/can't open
+                console.log("Connection Closed/Can't Open - Trying to reconnect. ReadyState: " + socket.readyState);
+                setTimeout(function() {
+                    connect(_callback);
+                }, 500);
+                if(initiatedJNLP == false) {
+                    if (!isConnected) {
+                        initiatedJNLP = true;
+                        window.open("//" + window.location.hostname + "/LEAF/digital-signature/sign.jnlp");
+                    }
                 }
             }
-        };
+        });
 
-    }
-
-    function disconnect() {
-        isConnected = false;
-        stompClient.send("/app/close", {}, "");
+        socket.addEventListener('message', function(e) {
+            var response = JSON.parse(e.data);
+            switch(response.status) {
+                case 'SUCCESS':
+                    if(pendingSignatures[response.key] != undefined) {
+                        pendingSignatures[response.key](response.message);
+                    }
+                    break;
+                case 'ERROR':
+                    document.getElementById('digitalSignatureStatus_' + response.key).innerHTML = '<img src="../libs/dynicons/?img=dialog-error.svg&w=32" style="vertical-align: middle" alt="Error icon" /> ' + response.message
+                        + '<br />Please refresh the page and try again.';
+                    break;
+                default:
+                    console.log('Full response: ');
+                    console.log(response);
+                    break;
+            }
+        });
     }
 
     function sendData(key, dataToSign) {
-        stompClient.send("/app/sign", {}, JSON.stringify({'key': key,
-                                                          'dataToSign': dataToSign}));
+        socket.send(JSON.stringify({'key': key,
+                                    'dataToSign': dataToSign}));
     }
 
     var sign = function (key, dataToSign, onSuccess) {
@@ -66,18 +69,8 @@ var Signer = function() {
         });
     };
 
-    var connection = function () {
-        connect();
-    };
-
-    var disconnection = function () {
-        disconnect();
-    };
-
     return {
-        sign: sign,
-        connection: connection,
-        disconnection: disconnection
+        sign: sign
     };
 
 } ();
