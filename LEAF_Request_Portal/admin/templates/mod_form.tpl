@@ -7,6 +7,23 @@
 <script>
 
 var currCategoryID = '';
+function checkSensitive(indicator) {
+    var result = 0;
+    $.each(indicator, function( index, value )
+    {
+        if (value.is_sensitive === '1') {
+            result = 1;
+        } else if(result === 0 && !$.isEmptyObject(value.child)){
+            result = checkSensitive(value.child);
+        }
+        if(result)
+        {
+            return false;
+        }
+    });
+    return result;
+}
+
 function openContent(url) {
 	var isSubForm = categories[currCategoryID].parentID == '' ? false : true;
 	var formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
@@ -46,7 +63,7 @@ function openContent(url) {
                                  <td id="container_workflowID"></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Need to Know mode <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form."></td>\
+                                 <td>Need to Know mode <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information."></td>\
                                  <td><select id="needToKnow"><option value="0">Off</option><option value="1">On</option></select></td>\
                              </tr>\
                              <tr class="isSubForm">\
@@ -58,6 +75,18 @@ function openContent(url) {
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
                            </table>');
+        $.ajax({
+            type: 'GET',
+            url: '../api/form/_' + currCategoryID,
+            success: function(res) {
+                if(res.length > 0) {
+                    if(checkSensitive(res) === 1) {
+                        $("#needToKnow option[value='0']").remove();
+                        $("#needToKnow option[value='1']").html('Forced on because sensitive fields are present');
+                    }
+                }
+            }
+        });
         $('#name').val(categories[currCategoryID].categoryName);
         $('#description').val(categories[currCategoryID].categoryDescription);
         $('#workflowID').val(categories[currCategoryID].workflowID);
@@ -470,6 +499,21 @@ function newQuestion(parentIndicatorID) {
     dialog.setSaveHandler(function() {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
         var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
+        if (isSensitive === 1) {
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formNeedToKnow',
+                data: {needToKnow: '1',
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
+                    }
+                }
+            });
+            categories[currCategoryID].needToKnow = 1;
+        }
+
         switch($('#indicatorType').val()) {
             case 'radio':
             case 'checkboxes':
@@ -781,6 +825,20 @@ function getForm(indicatorID, series) {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
         var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
     	var isDisabled = $('#disabled').is(':checked') ? 1 : 0;
+        if (isSensitive === 1) {
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formNeedToKnow',
+                data: {needToKnow: '1',
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
+                    }
+                }
+            });
+            categories[currCategoryID].needToKnow = 1;
+        }
 
         switch($('#indicatorType').val()) {
             case 'radio':
