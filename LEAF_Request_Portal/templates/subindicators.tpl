@@ -695,27 +695,23 @@
         <script>
         var visible = 0;
         $('#<!--{$indicator.indicatorID|strip_tags}-->').attr('type', 'password');
-        if($('#<!--{$indicator.indicatorID|strip_tags}-->').is('textarea')) {
-            $('#<!--{$indicator.indicatorID|strip_tags}-->').css('display', 'none');
+        if(!$('#<!--{$indicator.indicatorID|strip_tags}-->').is('input')) {
+            $('#<!--{$indicator.indicatorID|strip_tags}-->_sensitive').css('background-image', 'none');
         }
         function toggleSensitive(indicatorID) {
             if(visible === 0) {
-                $(event.target).css('background-image', 'url(/libs/dynicons/?img=eye_visible.svg&w=16)');
-                if($('#' + indicatorID).is('textarea')) {
-                    $('#' + indicatorID).css('display', 'inline');
-                } else {
+                if($('#' + indicatorID).is('input')) {
+                    $(event.target).css('background-image', 'url(/libs/dynicons/?img=eye_visible.svg&w=16)');
                     $('#' + indicatorID).attr('type', 'text');
+                    $('#sensitiveStatus').attr('aria-label', 'sensitive data shown');
                 }
-                $('#sensitiveStatus').attr('aria-label', 'sensitive data shown');
                 visible = 1;
             } else {
-                $(event.target).css('background-image', 'url(/libs/dynicons/?img=eye_invisible.svg&w=16)');
-                if($('#' + indicatorID).is('textarea')) {
-                    $('#' + indicatorID).css('display', 'none');
-                } else {
+                if($('#' + indicatorID).is('input')) {
+                    $(event.target).css('background-image', 'url(/libs/dynicons/?img=eye_invisible.svg&w=16)');
                     $('#' + indicatorID).attr('type', 'password');
+                    $('#sensitiveStatus').attr('aria-label', 'sensitive data hidden');
                 }
-                $('#sensitiveStatus').attr('aria-label', 'sensitive data hidden');
                 visible = 0;
             }
         }

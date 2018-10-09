@@ -1,12 +1,19 @@
 <!--{**}-->
         <!--{if $indicator.is_sensitive == 1}-->
-                <div class="sensitiveIndicatorMaskToggle">
-                    <input type="checkbox" id="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" onClick="toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, this.checked);">
-                    <label for="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" title="Show Sensitive Data" alt="Show Sensitive Data"  tabindex="0" onkeydown="if (event.keyCode==13){ this.click(); }"></label>
-                </div>
-                <span class="sensitiveIndicator-masked">
-                    *****
-                </span>
+            <div class="sensitiveIndicatorMaskToggle">
+                <input type="checkbox" id="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" onClick="toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, this.checked);">
+                <label for="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" title="Show Sensitive Data" alt="Show Sensitive Data"  tabindex="0" onkeydown="if (event.keyCode==13){ this.click(); }"></label>
+            </div>
+            <span class="sensitiveIndicator-masked">
+                *****
+            </span>
+            <script>
+                $("div.sensitiveIndicator#xhrIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").hover(function() {
+                    $("div.sensitiveIndicator#xhrIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}--> > div.sensitiveIndicatorMaskToggle > label").trigger('click');
+                }, function() {
+                    $("div.sensitiveIndicator#xhrIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}--> > div.sensitiveIndicatorMaskToggle > label").trigger('click');
+                })
+            </script>
         <!--{/if}-->
         <!--{if $indicator.format == 'textarea'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
