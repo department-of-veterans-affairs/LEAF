@@ -59,7 +59,7 @@ function openContent(url) {
                              </tr>\
                              <tr class="isSubForm">\
                             	 <td>Type <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form."></td>\
-                            	 <td><select id="formType"><option value="parallel_processing">Parallel Processing</option><option value="">None</option></select></td>\
+                            	 <td><select id="formType"><option value="">None</option><option value="parallel_processing">Parallel Processing</option></select></td>\
                              </tr>\
                            </table>');
         $('#name').val(categories[currCategoryID].categoryName);

@@ -16,13 +16,13 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         $('#pp_progressBar').progressbar();
         $('#pp_progressBar').progressbar('option', 'value', 0);
         $('#pp_progressLabel').text('0%');
-        $('.buttonNorm').on( "click", function() {
+        $('#submitControl .buttonNorm').on( "click", function() {
             if(hasSelections())
             {
                 $('#pp_progressSidebar').show();
                 $('#pp_banner').hide();
                 $('#pp_selector').hide();
-                $('.buttonNorm').hide();
+                $('#submitControl .buttonNorm').hide();
                 beginProcessing();
             }
             else
@@ -390,13 +390,15 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 data: {CSRFToken: CSRFToken},
                 success: function(res) {
                     //redirect to chart
-                    urlIndicatorsJSON = '[{"indicatorID":"title","name":"","sort":0},{"indicatorID":"status","name":"","sort":0}]';
-                    urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*'+newTitleRand+'*"},{"id":"deleted","operator":"=","match":0}],"joins":["service","status"],"sort":{}}';
+                    urlTitle = "Requests have been assigned to these people";
+                    urlIndicatorsJSON = '[{"indicatorID":"title","name":"","sort":0},{"indicatorID":"status","name":"","sort":0},{"indicatorID":"initiator","name":"","sort":0}]';
+                    urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*'+newTitleRand+'*"},{"id":"deleted","operator":"=","match":0}],"joins":["service","status","initiatorName"],"sort":{}}';
 
+                    urlTitle = encodeURIComponent(btoa(urlTitle));
                     urlQuery = encodeURIComponent(LZString.compressToBase64(urlQueryJSON));
                     urlIndicators = encodeURIComponent(LZString.compressToBase64(urlIndicatorsJSON));
 
-                    window.location = './?a=reports&v=3&query='+urlQuery+'&indicators='+urlIndicators;
+                    window.location = './?a=reports&v=3&title='+urlTitle+'&query='+urlQuery+'&indicators='+urlIndicators;
                 },
                 cache: false
             });
