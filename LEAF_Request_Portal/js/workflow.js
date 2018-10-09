@@ -179,7 +179,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                               'padding-bottom': '16px',
                               'text-align': 'center'})
                         .html("<img src='images/largespinner.gif' alt='Loading Digital Signature Routines' title='Loading Digital Signature Routines'' style='vertical-align: middle'> Loading Digital Signature Routines...")
-                        .setAttribute('id', 'digitalSignatureStatus_' + key)
+                        .attr('id', 'digitalSignatureStatus_' + key)
                         .appendTo('#workflowbox_dep' + step.dependencyID);
 
                         var portalAPI = LEAFRequestPortalAPI();
