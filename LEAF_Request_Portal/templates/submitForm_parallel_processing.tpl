@@ -1,6 +1,3 @@
-<div style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">Please review your request before submitting</div>
-
-<div style="width: 500px; background-color: white; border: 1px solid #0000005c; padding: 8px; margin: auto;">
 	<link type="text/css" rel="stylesheet" href="{$orgchartPath}/css/employeeSelector.css">
 	<link type="text/css" rel="stylesheet" href="{$orgchartPath}/css/groupSelector.css">
 	<style>
@@ -27,14 +24,23 @@
 		.employeeSelectorIcon {
 			float: left;
 		}
+		.ui-widget-header {
+			background: #cedc98;
+			border: 1px solid #DDDDDD;
+			color: #333333;
+			font-weight: bold;
+		}
 	</style>
 	<script type="text/javascript" src="{$orgchartPath}/js/nationalEmployeeSelector.js"></script>
 	<script type="text/javascript" src="{$orgchartPath}/js/groupSelector.js"></script>
+	<script type="text/javascript" src="js/lz-string/lz-string.min.js"></script>
     <script type="text/javascript" src="js/parallelProcessing.js"></script>
     <script type="text/javascript">
-        selectForParallelProcessing({$recordID}, "{$orgchartPath}");
+        parallelProcessing({$recordID}, "{$orgchartPath}", "{$CSRFToken}");
     </script>
+	<div id="pp_banner" style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">Please review your request before submitting</div>
 
+	<div id="pp_selector" style="width: 500px; background-color: white; border: 1px solid #0000005c; padding: 8px; margin: auto;">
 	<div id="selectDiv" style="">Please select an indicator:<br>
 		<select id="indicator_selector">
 			<option value="0-0">-Select-</option>
@@ -56,8 +62,10 @@
 		</div>
 	</div>
 </div>
-
-
-<div style="padding: 8px; width: 260px; margin: auto" id="submitControl">
-    <button class="buttonNorm" type="button" style="font-weight: bold; font-size: 120%" onclick="doSubmitForParallelProcessing({$recordID|strip_tags}, selectForParallelProcessing.buildParallelProcessingDataJSON());"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Submit" />Begin Parallel Processing</button>
+<div style="padding: 8px; margin: auto" id="submitControl">
+    <button class="buttonNorm" type="button" style="font-weight: bold; font-size: 120%" ><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Submit" />Send Request to Selected Individuals</button>
+</div>
+<div id="pp_progressSidebar" style="display: none;">
+        <div style="padding: 8px; margin: 0px; color: black; font-weight: bold; text-align: center; font-size: 120%"><img src="./images/indicator.gif" />Submitting</div>
+        <div id="pp_progressControl" style="padding: 0 16px 16px; text-align: center; background-color: #ffaeae; font-weight: bold; font-size: 120%"><div id="pp_progressBar" style="height: 30px; border: 1px solid black; text-align: center; width: 80%; margin: auto"><div style="width: 100%; line-height: 200%; float: left; font-size: 14px" id="pp_progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div></div>
 </div>

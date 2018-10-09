@@ -113,37 +113,6 @@ function doSubmit(recordID) {
 	});
 }
 
-function doSubmitForParallelProcessing(recordID, parallelProcessingData) {
-    if(parallelProcessingData === -1)
-    {
-       alert("You must select at at least one employee or group."); 
-    }
-    else
-    {
-        $('#submitControl').empty().html('<img src="./images/indicator.gif" />Submitting...');
-        $.ajax({
-            type: 'POST',
-            url: "./api/form/" + recordID + "/submit",
-            data: {CSRFToken: '<!--{$CSRFToken}-->',
-                    parallelProcessingData: parallelProcessingData},
-            success: function(response) {
-                if(response.errors.length == 0) {
-                    $('#submitControl').empty().html('Submitted');
-                    $('#submitContent').hide('blind', 500);
-                    workflow.getWorkflow(recordID);
-                }
-                else {
-                    var errors = '';
-                    for(var i in response.errors) {
-                        errors += response.errors[i] + '<br />';
-                    }
-                    $('#submitControl').empty().html('Error: ' + errors);
-                }
-            }
-        });
-    }
-}
-
 function updateTags() {
 	$('#tags').fadeOut(250);
 	$.ajax({
