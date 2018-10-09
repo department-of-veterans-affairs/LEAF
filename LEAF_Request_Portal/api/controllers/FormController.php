@@ -152,6 +152,10 @@ class FormController extends RESTfulResponse
             return $form->getWorkflow(XSSHelpers::xscrub($args[0]));
         });
 
+        $this->index['GET']->register('form/[digit]/recordinfo', function ($args) use ($form) {
+            return $form->getRecordInfo($args[0]);
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
@@ -195,6 +199,10 @@ class FormController extends RESTfulResponse
 
         $this->index['POST']->register('form/[digit]/types/append', function ($args) use ($form) {
             return $form->addFormType($args[0], XSSHelpers::sanitizeHTML($_POST['category']));
+        });
+
+        $this->index['POST']->register('form/[digit]/cancel', function ($args) use ($form) {
+            return $form->deleteRecord((int)$args[0]);
         });
 
         // form/customData/ recordID list (csv) / indicatorID list (csv)

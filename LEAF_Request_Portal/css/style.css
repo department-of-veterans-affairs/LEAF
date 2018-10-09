@@ -1085,6 +1085,7 @@ ul.id_selections {
     list-style: none;
     padding: 0px;
     margin: 0px;
+    font-size: 18px;
 }
 
 ul.id_selections > li > span.remove_id{
