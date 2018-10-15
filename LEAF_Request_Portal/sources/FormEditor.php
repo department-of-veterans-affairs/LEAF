@@ -312,6 +312,16 @@ class FormEditor
     								WHERE categoryID=:categoryID', $vars);
     }
 
+    public function setFormType($categoryID, $input){
+
+      $vars = array(':categoryID' => $categoryID,
+          ':input' => $input, );
+
+      return $this->db->prepared_query('UPDATE categories
+                  SET type=:input
+                  WHERE categoryID=:categoryID', $vars);
+    }
+
     public function getCategoryPrivileges($categoryID)
     {
         if (!$this->login->checkGroup(1))
@@ -426,7 +436,7 @@ class FormEditor
 
         $res = $this->db->prepared_query(
             'SELECT indicator_mask.groupID, groups.name AS groupName
-				FROM indicator_mask 
+				FROM indicator_mask
 				LEFT JOIN groups ON (groups.groupID = indicator_mask.groupID)
 				WHERE indicator_mask.indicatorID = :indicatorID ORDER BY indicator_mask.groupID ASC',
             array(':indicatorID' => $indicatorID)
