@@ -133,6 +133,10 @@ class FormController extends RESTfulResponse
             return $form->getIndicatorsByRecordAndFormat((int)$args[0], $formats);
         });
 
+        $this->index['GET']->register('form/[digit]/workflow/indicator/assigned', function ($args) use ($form) {
+            return $form->getIndicatorsAssociatedWithWorkflow((int)$args[0]);
+        });
+
         $this->index['GET']->register('form/indicator/list', function ($args) use ($form) {
             return $form->getIndicatorList($_GET['sort']);
         });

@@ -45,8 +45,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
     {
         $.ajax({
             type: 'GET',
-            url: 'api/?a=form/'+recordID+'/indicator/formatSearch',
-            data: {'formats': ['orgchart_employee','orgchart_group']},
+            url: 'api/?a=form/'+recordID+'/workflow/indicator/assigned',
             success: function(obj) {
                 indicatorObject = obj;
                 for (var i = 0; i < indicatorObject.length; i++) {
