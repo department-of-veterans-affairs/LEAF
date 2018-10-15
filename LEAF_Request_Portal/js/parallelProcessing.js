@@ -299,12 +299,12 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         loadingBarSize = submissionObj.idsToProcess.length;
         rand = ((Date.now() + Math.floor(Math.random() * 12345))+"");
         rand = rand.substring(rand.length-6, rand.length);
-        newTitleRand = rand;
+        newTitleRand = 'PR:'+rand;
 
         var ajaxData = new Object();
         ajaxData['CSRFToken'] = CSRFToken;
         ajaxData['service'] = serviceID;
-        ajaxData['title'] = title+'-'+rand;
+        ajaxData['title'] = title+' ('+newTitleRand+')';
         ajaxData['priority'] = priority;
         $.each( categories, function( i, val ) {
             if ('num'+val in ajaxData)

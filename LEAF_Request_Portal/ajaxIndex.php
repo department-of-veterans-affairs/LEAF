@@ -177,6 +177,17 @@ switch ($action) {
         if(array_key_exists(0,$res) && array_key_exists('type',$res[0]) && ($res[0]['type'] == 'parallel_processing'))
         {
             $parallelProcessing = true;
+
+            // show normal submit control if a parallel request has been sent back
+            // a request is assumed to sent back if a matching entry exists in the records_dependencies table
+            $vars = array('recordID' => $recordID);
+            $res = $db->prepared_query('SELECT * FROM records_dependencies
+                                             WHERE recordID=:recordID
+                                               AND dependencyID = 5
+        									   AND filled = 0', $vars);
+            if(isset($res[0])) {
+                $parallelProcessing = false;
+            }
         }
 
         $res = $db->prepared_query('SELECT time FROM action_history
