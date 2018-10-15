@@ -29,31 +29,6 @@ class FormEditor
     }
 
     /**
-     * retrieves all indicators associated with recordID in a given array of format
-     * returns array of indicators.indicatorID, indicators.name, indicators.format
-     * @param int $recordID
-     * @param array $formats
-     * @return array
-     */
-    public function getIndicatorsByRecordAndFormat($recordID, $formats)
-    {
-        $vars = array(
-            ':recordID' => $recordID,
-        );
-
-        $res = $this->db->prepared_query(
-            'SELECT indicatorID, name, format 
-            FROM category_count  
-            LEFT JOIN indicators USING (categoryID) 
-            WHERE recordID=:recordID 
-            AND format IN ("' . implode('","', $formats) . '")',
-            $vars
-        );
-
-        return $res;
-    }
-
-    /**
      * @param array $package - Array of input items
      * @param bool $overwriteExisting - If true, matching IDs will be overwritten
      * @return number

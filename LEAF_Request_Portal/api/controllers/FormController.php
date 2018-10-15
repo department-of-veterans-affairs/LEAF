@@ -123,6 +123,16 @@ class FormController extends RESTfulResponse
             return $form->getIndicatorLog($args[1], $args[2], $args[0]);
         });
 
+        $this->index['GET']->register('form/[digit]/indicator/formatSearch', function ($args) use ($form) {
+            $formats = $_GET['formats'];
+            for ($i = 0; $i < count($formats); $i++)
+            {
+                $formats[$i] = XSSHelpers::xscrub($formats[$i]);
+            }
+            
+            return $form->getIndicatorsByRecordAndFormat((int)$args[0], $formats);
+        });
+
         $this->index['GET']->register('form/indicator/list', function ($args) use ($form) {
             return $form->getIndicatorList($_GET['sort']);
         });
