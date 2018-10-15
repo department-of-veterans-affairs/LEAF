@@ -42,6 +42,7 @@
 		    font-size: 14px;
 		    padding: 5px;
 		    cursor: pointer;
+            margin-right: 8px;
 		}
 	</style>
 	<script type="text/javascript" src="{$orgchartPath}/js/nationalEmployeeSelector.js"></script>
@@ -53,10 +54,10 @@
     </script>
 	<div id="pp_banner" style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">Please review your request before submitting</div>
 
-	<div id="pp_selector" style="width: 500px; background-color: white; border: 1px solid #0000005c; padding: 8px; margin: auto;">
-	<div id="selectDiv" style="">Who should this request be assigned to:<br>
+	<div id="pp_selector" style="width: 90%; background-color: white; border: 1px solid #0000005c; padding: 8px; margin: auto;">
+	<div id="selectDiv" style="">
 		<select id="indicator_selector">
-			<option value="0-0">-Select-</option>
+			<option value="0-0">Select a data field</option>
 		</select>
 		<div style="visiblity: hidden; display: none" class="emp_visibility">
 			<div id="empSelector"></div><br>

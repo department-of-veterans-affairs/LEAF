@@ -63,16 +63,6 @@ class FormEditorController extends RESTfulResponse
             return $formEditor->getStapledCategories(XSSHelpers::xscrub($args[0]));
         });
 
-        $this->index['GET']->register('formEditor/indicator/[digit]/format', function ($args) use ($formEditor) {
-            $formats = $_GET['formats'];
-            for ($i = 0; $i < count($formats); $i++)
-            {
-                $formats[$i] = XSSHelpers::xscrub($formats[$i]);
-            }
-
-            return $formEditor->getIndicatorsByRecordAndFormat((int)$args[0], $formats);
-        });
-
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 

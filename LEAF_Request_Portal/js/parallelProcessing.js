@@ -45,7 +45,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
     {
         $.ajax({
             type: 'GET',
-            url: 'api/?a=formEditor/indicator/'+recordID+'/format/',
+            url: 'api/?a=form/'+recordID+'/indicator/formatSearch',
             data: {'formats': ['orgchart_employee','orgchart_group']},
             success: function(obj) {
                 indicatorObject = obj;
@@ -55,11 +55,12 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                         .html(indicatorObject[i].name)
                         .appendTo($("select#indicator_selector"));
                 }
+                if(obj.length == 0) {
+                    $('#submitControl').css('display', 'none');
+                    $('#selectDiv').html('<span style="font-size: 120%">Error: The form must contain a field of type "orgchart group" or "orgchart employee" to begin Parallel Processing.</span>');
+                }
             },
-            error: function(xhr, status, error) {
-                dialog.hide();
-                alert('There must be an indicator of type "orgchart group" or "orgchart employee" to begin Parallel Processing.');
-            }
+            cache: false
         });
 
         $("select#indicator_selector").on('change', function() {
@@ -102,7 +103,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                             $('table.groupSelectorTable tr:first').append('<th>&nbsp;</th>');
                             for(var i in this.selectionData) {
                                 $('#'+this.prefixID+'grp'+i).off('click');
-                                $('#'+this.prefixID+'grp'+i).append('<td class="groupSelectorAddToList"><button id="btn'+i+'" type="button">+</button></td>');
+                                $('#'+this.prefixID+'grp'+i).append('<td class="groupSelectorAddToList"><button id="btn'+i+'" type="button">Select</button></td>');
                             }
                         }
                     });
@@ -125,7 +126,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                             $('table.employeeSelectorTable tr:first').append('<th>&nbsp;</th>');
                             for(var i in this.selectionData) {
                                 $('#'+this.prefixID+'emp'+i).off('click');
-                                $('#'+this.prefixID+'emp'+i).append('<td class="employeeSelectorAddToList"><button id="btn'+i+'" type="button">+</button></td>');
+                                $('#'+this.prefixID+'emp'+i).append('<td class="employeeSelectorAddToList"><button id="btn'+i+'" type="button">Select</button></td>');
                             }
                         }
                     });
@@ -166,11 +167,11 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 .attr('value',id)
                 .appendTo(listToUpdate);
                 var removeButton = $(document.createElement('span'))
-                    .attr('class','remove_id')
+                    .attr('class','remove_id buttonNorm')
                     .on('click',function(){
                         removeFromList(id);
                     })
-                    .html("X")
+                    .html("Remove")
                     .appendTo(newListItem);
                 var itemText = $(document.createElement('span'))
                     .html(name)
