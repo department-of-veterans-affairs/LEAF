@@ -107,6 +107,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                         }
                     });
                     grpSel.initialize();
+                    $('#' + grpSel.prefixID + 'input').attr('placeholder', 'Search and select group...');
                     $('.emp_visibility').hide();
                     $('.grp_visibility').show();
                     break;
@@ -130,6 +131,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                         }
                     });
                     empSel.initialize();
+                    $('#' + empSel.prefixID + 'input').attr('placeholder', 'Search and select employee...');
                     $('.grp_visibility').hide();
                     $('.emp_visibility').show();
                     break;

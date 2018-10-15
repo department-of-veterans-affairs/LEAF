@@ -35,6 +35,7 @@
 		    padding: 0px;
 		    margin: 0px;
 		    font-size: 18px;
+            line-height: 32px;
 		}
 		ul.id_selections > li > span.remove_id{
 		    color: red;
