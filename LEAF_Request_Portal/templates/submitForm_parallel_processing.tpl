@@ -62,7 +62,6 @@
 		</select>
 		<div style="visiblity: hidden; display: none" class="emp_visibility">
 			<div id="empSelector"></div><br>
-			<span>Hint: If there are too many results, use their E-mail address as a search term.</span>
 		</div>
 		<div style="visiblity: hidden; display: none" class="grp_visibility">
 			<div id="grpSelector"></div>
