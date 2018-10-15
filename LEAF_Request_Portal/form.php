@@ -3034,6 +3034,79 @@ class Form
     }
 
     /**
+     * Retrieves all indicators associated with recordID in a given array of format
+     * returns array of indicators.indicatorID, indicators.name, indicators.format
+     * @param int $recordID
+     * @param array $formats
+     * @return array
+     */
+    public function getIndicatorsByRecordAndFormat($recordID, $formats)
+    {
+        $vars = array(
+            ':recordID' => $recordID,
+        );
+        
+        $res = $this->db->prepared_query(
+            'SELECT indicatorID, name, format
+                FROM category_count
+                LEFT JOIN indicators USING (categoryID)
+                WHERE recordID=:recordID
+                AND format IN ("' . implode('","', $formats) . '")',
+            $vars
+            );
+        
+        return $res;
+    }
+
+    /**
+     * Retrieves all indicators associated with a record and its workflow
+     * returns array of indicators.indicatorID, indicators.name, indicators.format
+     * @param int $recordID
+     * @return array
+     */
+    public function getIndicatorsAssociatedWithWorkflow($recordID)
+    {
+        $vars = array(
+            ':recordID' => $recordID,
+        );
+
+        $res = $this->db->prepared_query(
+            'SELECT recordID, categoryID, workflowID, stepID, dependencyID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID
+                FROM category_count
+                LEFT JOIN categories USING (categoryID)
+                LEFT JOIN workflows USING (workflowID)
+                LEFT JOIN workflow_steps USING (workflowID)
+                LEFT JOIN step_dependencies USING (stepID)
+                WHERE recordID=:recordID
+                    AND count > 0
+                    AND dependencyID < 0
+                    AND (indicatorID_for_assigned_empUID != 0
+    		            OR indicatorID_for_assigned_groupID != 0)',
+            $vars
+            );
+
+        $indicatorList = '';
+        foreach($res as $item) {
+            if($item['indicatorID_for_assigned_empUID'] != ''
+                && $item['dependencyID'] == -1) {
+                $indicatorList .= (int)$item['indicatorID_for_assigned_empUID'] . ',';
+            }
+            if($item['indicatorID_for_assigned_groupID'] != ''
+                && $item['dependencyID'] == -3) {
+                $indicatorList .= (int)$item['indicatorID_for_assigned_groupID'] . ',';
+            }
+        }
+        $indicatorList = trim($indicatorList, ',');
+
+        $res = $this->db->query(
+            'SELECT indicatorID, name, format
+                FROM indicators
+                WHERE indicatorID IN ('. $indicatorList .')'
+            );
+        return $res;
+    }
+
+    /**
      * @deprecated use XSSHelpers::sanitizeHTML() from XSSHelpers.php instead.
      *
      * Clean up html input, allow some tags
