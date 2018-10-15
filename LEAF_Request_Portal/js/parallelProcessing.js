@@ -392,8 +392,8 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 success: function(res) {
                     //redirect to chart
                     urlTitle = "Requests have been assigned to these people";
-                    urlIndicatorsJSON = '[{"indicatorID":"title","name":"","sort":0},{"indicatorID":"status","name":"","sort":0},{"indicatorID":"initiator","name":"","sort":0}]';
-                    urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*'+newTitleRand+'*"},{"id":"deleted","operator":"=","match":0}],"joins":["service","status","initiatorName"],"sort":{}}';
+                    urlIndicatorsJSON = '[{"indicatorID":"title","name":"","sort":0},{"indicatorID":"status","name":"","sort":0},{"indicatorID":"'+ indicatorToSubmit.indicatorID +'","name":"'+ indicatorToSubmit.name +'","sort":0}]';
+                    urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*'+newTitleRand+'*"},{"id":"deleted","operator":"=","match":0}],"joins":["service","status","initiatorName"],"sort":{},"getData":['+ indicatorToSubmit.indicatorID +']}';
 
                     urlTitle = encodeURIComponent(btoa(urlTitle));
                     urlQuery = encodeURIComponent(LZString.compressToBase64(urlQueryJSON));
