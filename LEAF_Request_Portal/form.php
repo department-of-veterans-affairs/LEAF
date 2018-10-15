@@ -2015,6 +2015,7 @@ class Form
                             if (isset($empRes[0]))
                             {
                                 $item['data'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                                $item['dataOrgchart'] = $empRes[0];
                             }
                             else
                             {
