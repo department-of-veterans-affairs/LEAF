@@ -30,6 +30,19 @@
 			color: #333333;
 			font-weight: bold;
 		}
+		ul.id_selections {
+		    list-style: none;
+		    padding: 0px;
+		    margin: 0px;
+		    font-size: 18px;
+		}
+		ul.id_selections > li > span.remove_id{
+		    color: red;
+		    font-weight: bold;
+		    font-size: 14px;
+		    padding: 5px;
+		    cursor: pointer;
+		}
 	</style>
 	<script type="text/javascript" src="{$orgchartPath}/js/nationalEmployeeSelector.js"></script>
 	<script type="text/javascript" src="{$orgchartPath}/js/groupSelector.js"></script>
