@@ -121,15 +121,15 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                             type: 'POST',
                             url: orgChartPath + '/api/employee/import/_' + selectedUserName,
                             data: {CSRFToken: CSRFToken},
-                            success: function(res) {
-                                if(!isNaN(res)) {
-                                    $('#'+this.prefixID+'emp'+this.selection).removeClass('employeeSelected');
-                                    $('#'+this.prefixID+'emp'+this.selection).addClass('employeeSelector');
-                                    var name = $('#'+this.prefixID+'emp'+this.selection+' > .employeeSelectorName').html();
-                                    addToList(this.selection, name);
+                            success: function(localEmpUID) {
+                                if(!isNaN(localEmpUID)) {
+                                    $('#'+this.prefixID+'emp'+empSel.selection).removeClass('employeeSelected');
+                                    $('#'+this.prefixID+'emp'+empSel.selection).addClass('employeeSelector');
+                                    var name = empSel.selectionData[empSel.selection].lastName + ', ' + empSel.selectionData[empSel.selection].firstName;
+                                    addToList(localEmpUID, name);
                                 }
                                 else {
-                                    alert(res);
+                                    alert(localEmpUID);
                                 }
                             }
                         });
