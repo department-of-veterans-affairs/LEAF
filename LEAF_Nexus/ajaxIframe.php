@@ -150,7 +150,12 @@ switch ($action) {
 
         //$main->assign('useDojoUI', true);
         $main->assign('javascripts', array('minified/nexusScriptsDefault.js', ));
-        $main->assign('stylesheets', array('minified/nexusStylesDefault.css', ));
+        $main->assign('stylesheets', array('css/employeeSelector.css',
+                'css/view_employee.css',
+                'css/positionSelector.css',
+                'css/view_position.css',
+                'css/groupSelector.css',
+                'css/view_group.css', ));
 
         $positionID = isset($_GET['positionID']) ? (int)$_GET['positionID'] : 0;
         $t_iframe->assign('positionID', $positionID);
