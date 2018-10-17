@@ -45,6 +45,12 @@
 		    cursor: pointer;
             margin-right: 8px;
 		}
+        #selectedEmployeeList > li > span > br {
+            display: none;
+        }
+        #selectedEmployeeList > li > span > span:before {
+            content: ', ';
+        }
 	</style>
 	<script type="text/javascript" src="{$orgchartPath}/js/nationalEmployeeSelector.js"></script>
 	<script type="text/javascript" src="{$orgchartPath}/js/groupSelector.js"></script>
