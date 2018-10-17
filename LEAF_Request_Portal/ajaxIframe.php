@@ -104,7 +104,7 @@ switch ($action) {
            break;
     case 'printview':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/jsdiff.js'));
+        $main->assign('javascripts', array('minified/scriptsRequestIframePrintView.js'));
 
         $form = new Form($db, $login);
         $t_menu->assign('recordID', (int)$_GET['recordID']);

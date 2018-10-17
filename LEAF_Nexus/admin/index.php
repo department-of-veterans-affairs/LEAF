@@ -115,7 +115,7 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('javascripts', array('js/dialogController.js'));
+           $main->assign('javascripts', array('minified/minifiedDialogueController.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -147,7 +147,7 @@ switch ($action) {
 
            //$main->assign('useUI', true);
            $main->assign('stylesheets', array('admin/css/mod_groups.css', 'css/employeeSelector.css'));
-           $main->assign('javascripts', array('js/dialogController.js', 'js/nationalEmployeeSelector.js'));
+           $main->assign('javascripts', array('minified/nexusAdminSetupMedCenterScripts.js',));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -175,19 +175,7 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            $main->assign('useUI', true);
-           $main->assign('javascripts', array('js/dialogController.js',
-                   '../libs/js/codemirror/lib/codemirror.js',
-                   '../libs/js/codemirror/mode/xml/xml.js',
-                   '../libs/js/codemirror/mode/javascript/javascript.js',
-                   '../libs/js/codemirror/mode/css/css.js',
-                   '../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-                   '../libs/js/codemirror/addon/search/search.js',
-                   '../libs/js/codemirror/addon/search/searchcursor.js',
-                   '../libs/js/codemirror/addon/dialog/dialog.js',
-                   '../libs/js/codemirror/addon/scroll/simplescrollbars.js',
-                   '../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
-                   '../libs/js/codemirror/addon/search/matchesonscrollbar.js',
-                   '../libs/js/codemirror/addon/display/fullscreen.js',
+           $main->assign('javascripts', array('../libs/minified/nexusAdminModTemplatesReportsScripts.js',
            ));
            $main->assign('stylesheets', array('../libs/js/codemirror/lib/codemirror.css',
                    '../libs/js/codemirror/addon/dialog/dialog.css',
@@ -220,11 +208,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('js/nationalEmployeeSelector.js',
-                                           'js/positionSelector.js',
-                                           'js/groupSelector.js',
-                                           'js/dialogController.js',
-                                           'js/orgchartForm.js', ));
+        $main->assign('javascripts', array('minified/nexusScriptsDefault.js', ));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                                            'css/view_employee.css',
                                            'css/positionSelector.css',

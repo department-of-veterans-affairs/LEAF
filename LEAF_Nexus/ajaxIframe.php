@@ -149,17 +149,8 @@ switch ($action) {
         $t_iframe->right_delimiter = '}-->';
 
         //$main->assign('useDojoUI', true);
-        $main->assign('javascripts', array('js/employeeSelector.js',
-                'js/positionSelector.js',
-                'js/groupSelector.js',
-                'js/dialogController.js',
-                'js/orgchartForm.js', ));
-        $main->assign('stylesheets', array('css/employeeSelector.css',
-                'css/view_employee.css',
-                'css/positionSelector.css',
-                'css/view_position.css',
-                'css/groupSelector.css',
-                'css/view_group.css', ));
+        $main->assign('javascripts', array('minified/nexusScriptsDefault.js', ));
+        $main->assign('stylesheets', array('minified/nexusStylesDefault.css', ));
 
         $positionID = isset($_GET['positionID']) ? (int)$_GET['positionID'] : 0;
         $t_iframe->assign('positionID', $positionID);

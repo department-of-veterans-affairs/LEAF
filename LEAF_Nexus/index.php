@@ -81,7 +81,7 @@ switch ($action) {
         $main->assign('useDojoUI', false);
 
         $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
-                                           'js/ui/position.js', ));
+                                           'minified/nexusScriptsNavigator.js', ));
         require 'sources/Position.php';
         $position = new Orgchart\Position($db, $login);
 
@@ -109,9 +109,7 @@ switch ($action) {
         $main->assign('useDojoUI', true);
 
         $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
-                                           'js/dialogController.js',
-                                           'js/ui/position.js',
-                                           'js/positionSelector.js', ));
+                                           'minified/nexusScriptsEditor.js', ));
         require 'sources/Position.php';
         $position = new Orgchart\Position($db, $login);
 
@@ -141,11 +139,7 @@ switch ($action) {
 
         //$main->assign('useDojoUI', true);
 
-        $main->assign('javascripts', array('js/nationalEmployeeSelector.js',
-                                           'js/orgchartForm.js',
-                                           'js/dialogController.js',
-                                           'js/groupSelector.js',
-                                           'js/positionSelector.js', ));
+        $main->assign('javascripts', array('minified/nexusScriptsViewEmployee.js', ));
         $main->assign('stylesheets', array('css/view_employee.css',
                                            'css/view_position.css',
                                            'css/view_group.css',
@@ -188,11 +182,7 @@ switch ($action) {
 
         //$main->assign('useDojoUI', true);
 
-        $main->assign('javascripts', array('js/nationalEmployeeSelector.js',
-                                           'js/orgchartForm.js',
-                                           'js/dialogController.js',
-                                           'js/groupSelector.js',
-                                           'js/positionSelector.js', ));
+        $main->assign('javascripts', array('minified/nexusScriptsViewPosition.js',  ));
         $main->assign('stylesheets', array('css/view_position.css',
                                            'css/employeeSelector.css',
                                            'css/groupSelector.css',
@@ -236,10 +226,7 @@ switch ($action) {
 
         //$main->assign('useDojoUI', true);
 
-        $main->assign('javascripts', array('js/positionSelector.js',
-                                           'js/orgchartForm.js',
-                                           'js/dialogController.js',
-                                           'js/nationalEmployeeSelector.js', ));
+        $main->assign('javascripts', array('minified/nexusScriptsViewGroup.js', ));
         $main->assign('stylesheets', array('css/view_group.css',
                                            'css/positionSelector.css',
                                            'css/employeeSelector.css', ));
@@ -280,7 +267,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         //$main->assign('useDojoUI', true);
-        $main->assign('javascripts', array('js/employeeSelector.js', 'js/dialogController.js', 'js/orgchartForm.js'));
+        $main->assign('javascripts', array('minified/nexusScriptsBrowseEmployee.js'));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                                            'css/view_employee.css', ));
         $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
@@ -304,7 +291,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $main->assign('useDojoUI', true);
-        $main->assign('javascripts', array('js/positionSelector.js', 'js/dialogController.js', 'js/orgchartForm.js'));
+        $main->assign('javascripts', array('minified/nexusScriptsBrowsePosition.js'));
         $main->assign('stylesheets', array('css/positionSelector.css',
                                            'css/view_position.css', ));
         $main->assign('body', $t_form->fetch('browse_position.tpl'));
@@ -319,7 +306,7 @@ switch ($action) {
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         //$main->assign('useDojoUI', true);
-        $main->assign('javascripts', array('js/groupSelector.js', 'js/dialogController.js', 'js/orgchartForm.js'));
+        $main->assign('javascripts', array('minified/nexusScriptsBrowseGroup.js'));
         $main->assign('stylesheets', array('css/groupSelector.css',
                                            'css/view_group.css', ));
         $main->assign('body', $t_form->fetch('browse_group.tpl'));
@@ -333,11 +320,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         //$main->assign('useDojoUI', true);
-        $main->assign('javascripts', array('js/employeeSelector.js',
-                                           'js/positionSelector.js',
-                                           'js/groupSelector.js',
-                                           'js/dialogController.js',
-                                           'js/orgchartForm.js', ));
+        $main->assign('javascripts', array('minified/nexusScriptsDefault.js', ));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                                            'css/view_employee.css',
                                            'css/positionSelector.css',
@@ -358,11 +341,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         //$main->assign('useDojoUI', true);
-        $main->assign('javascripts', array('js/employeeSelector.js',
-                                           'js/positionSelector.js',
-                                           'js/groupSelector.js',
-                                           'js/dialogController.js',
-                                           'js/orgchartForm.js', ));
+        $main->assign('javascripts', array('minified/nexusScriptsDefault.js', ));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                                            'css/view_employee.css',
                                            'css/positionSelector.css',
@@ -398,11 +377,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         //$main->assign('useDojoUI', true);
-        $main->assign('javascripts', array('js/employeeSelector.js',
-                'js/positionSelector.js',
-                'js/groupSelector.js',
-                'js/dialogController.js',
-                'js/orgchartForm.js', ));
+        $main->assign('javascripts', array('minified/nexusScriptsDefault.js', ));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                 'css/view_employee.css',
                 'css/positionSelector.css',
@@ -429,11 +404,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         //$main->assign('useDojoUI', true);
-        $main->assign('javascripts', array('js/employeeSelector.js',
-                'js/positionSelector.js',
-                'js/groupSelector.js',
-                'js/dialogController.js',
-                'js/orgchartForm.js', ));
+        $main->assign('javascripts', array('minified/nexusScriptsDefault.js', ));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                 'css/view_employee.css',
                 'css/positionSelector.css',
@@ -456,11 +427,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('js/employeeSelector.js',
-                                            'js/positionSelector.js',
-                                            'js/groupSelector.js',
-                                            'js/dialogController.js',
-                                            'js/orgchartForm.js', ));
+        $main->assign('javascripts', array('minified/nexusScriptsDefault.js', ));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                                             'css/view_employee.css',
                                             'css/positionSelector.css',
@@ -538,11 +505,7 @@ switch ($action) {
 
             $t_form->assign('is_admin', $login->getMembership()['groupID'][1]);
 
-            $main->assign('javascripts', array('js/employeeSelector.js',
-                                               'js/positionSelector.js',
-                                               'js/groupSelector.js',
-                                               'js/dialogController.js',
-                                               'js/orgchartForm.js', ));
+            $main->assign('javascripts', array('minified/nexusScriptsDefault.js', ));
             $main->assign('stylesheets', array('css/employeeSelector.css',
                                                'css/view_employee.css',
                                                'css/positionSelector.css',
