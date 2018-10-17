@@ -116,10 +116,23 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                     empSel.rootPath = orgChartPath+'/';
                     empSel.apiPath = orgChartPath+'/api/';
                     empSel.setSelectHandler(function(){
-                        $('#'+this.prefixID+'emp'+this.selection).removeClass('employeeSelected');
-                        $('#'+this.prefixID+'emp'+this.selection).addClass('employeeSelector');
-                        var name = $('#'+this.prefixID+'emp'+this.selection+' > .employeeSelectorName').html();
-                        addToList(this.selection, name);
+                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                        $.ajax({
+                            type: 'POST',
+                            url: orgChartPath + '/api/employee/import/_' + selectedUserName,
+                            data: {CSRFToken: CSRFToken},
+                            success: function(res) {
+                                if(!isNaN(res)) {
+                                    $('#'+this.prefixID+'emp'+this.selection).removeClass('employeeSelected');
+                                    $('#'+this.prefixID+'emp'+this.selection).addClass('employeeSelector');
+                                    var name = $('#'+this.prefixID+'emp'+this.selection+' > .employeeSelectorName').html();
+                                    addToList(this.selection, name);
+                                }
+                                else {
+                                    alert(res);
+                                }
+                            }
+                        });
                     });
                     empSel.setResultHandler(function(){
                         if(this.numResults > 0) {
