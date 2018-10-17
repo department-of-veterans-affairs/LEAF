@@ -29,8 +29,8 @@ gulp scriptsNexusViewEmployee
 gulp scriptsNexusEditor
 gulp scriptsNexusNavigator
 gulp sharedLEAFformScripts
-gulp minifiedNexusStyle
-gulp minifiedCodeMirrorStyles
+#gulp minifiedNexusStyle
+#gulp minifiedCodeMirrorStyles
 
 # nexus admin
 gulp nexusAdminModTemplatesReportsScripts
@@ -54,5 +54,9 @@ gulp scriptsRequestAdminImportData
 gulp minifiedXSSHelper
 gulp sharedCodemirrorScripts
 gulp sharedFormScripts
+gulp scriptsRequestAdminWorkflow
+gulp scriptsRequestAdminImportData
+gulp minifiedNationalEmployeeSelector
+gulp scriptsModGroups
 
 echo 'Done'

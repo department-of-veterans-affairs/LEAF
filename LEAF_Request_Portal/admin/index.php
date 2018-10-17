@@ -86,8 +86,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
-                                           '../' . Config::$orgchartPath . '/js/groupSelector.js',
+        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/minified/scriptsModGroups.js',
         ));
 
         $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
@@ -111,7 +110,7 @@ switch ($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
+        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/minified/minifiedNationalEmployeeSelector.js',
         ));
 
         $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
@@ -133,8 +132,7 @@ switch ($action) {
         $main->assign('useUI', true);
 
         $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
-                                           '../' . Config::$orgchartPath . '/js/groupSelector.js',
-                                           '../../libs/js/LEAF/XSSHelpers.js',
+                                           '../' . Config::$orgchartPath . '/minified/scriptsWorkflow.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
                                            '../' . Config::$orgchartPath . '/css/groupSelector.css',
