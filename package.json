@@ -1,0 +1,28 @@
+{
+  "name": "js-bundler",
+  "version": "1.0.0",
+  "description": "minifies and concacates nexus and request portal js files",
+  "main": "gulpfile.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "start": "gulp build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VHAINNOVATIONS/LEAF.git"
+  },
+  "author": "Jean-Marc Daviau <jeanmarc.daviau@ablevets.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VHAINNOVATIONS/LEAF/issues"
+  },
+  "dependencies": {
+    "gulp": "^4.0.0",
+    "uglify": "^0.1.5",
+    "concat": "^1.0.3"
+  },
+  "homepage": "https://github.com/VHAINNOVATIONS/LEAF#readme"
+}
