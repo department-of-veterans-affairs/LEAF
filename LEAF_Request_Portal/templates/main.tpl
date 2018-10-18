@@ -23,12 +23,12 @@
     <script type="text/javascript" src="../libs/js/jquery/jquery.min.js"></script>
     {if $useUI == true}
     <script type="text/javascript" src="../libs/js/jquery/jquery-ui.custom.min.js"></script>
-    <script type="text/javascript" src="minified/minifiedDialogueController.js"></script>
+    <script type="text/javascript" src="minified/dialogueController.min.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/icheck/icheck.js"></script>
     {else if $useLiteUI == true}
-    <script type="text/javascript" src="minified/minifiedDialogueController.js"></script>
+    <script type="text/javascript" src="minified/dialogueController.min.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/icheck/icheck.js"></script>

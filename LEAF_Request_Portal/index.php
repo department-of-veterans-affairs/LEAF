@@ -118,7 +118,7 @@ switch ($action) {
     case 'view':
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/view.css'));
-        $main->assign('javascripts', array('minified/scriptsRequestView.js'));
+        $main->assign('javascripts', array('minified/view.min.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
         $form = new Form($db, $login);
@@ -167,7 +167,7 @@ switch ($action) {
     case 'printview':
         $main->assign('useUI', true);
         $main->assign('javascripts', array(
-            'minified/scriptsRequestPrintView.js',
+            'minified/printView.min.js',
         ));
 
         $recordIDToPrint = (int)$_GET['recordID'];
@@ -250,7 +250,7 @@ switch ($action) {
         break;
     case 'inbox':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('minified/scriptsRequestInbox.js'));
+        $main->assign('javascripts', array('minified/inbox.min.js'));
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -403,7 +403,7 @@ switch ($action) {
 
         break;
     case 'search':
-        $main->assign('javascripts', array('minified/scriptsRequestDefault.js'));
+        $main->assign('javascripts', array('minified/default.min.js'));
         $main->assign('useUI', true);
 
         $o_login = $t_login->fetch('login.tpl');
@@ -422,7 +422,7 @@ switch ($action) {
         break;
     case 'reports':
         $main->assign('stylesheets', array('css/report.css'));
-           $main->assign('javascripts', array('minified/scriptsRequestReports.js',
+           $main->assign('javascripts', array('minified/reports.min.js',
            ));
            $main->assign('useUI', true);
 
@@ -463,7 +463,7 @@ switch ($action) {
 
         break;
     default:
-        $main->assign('javascripts', array('minified/scriptsRequestDefault.js'));
+        $main->assign('javascripts', array('minified/default.min.js'));
         $main->assign('useLiteUI', true);
 
         $o_login = $t_login->fetch('login.tpl');

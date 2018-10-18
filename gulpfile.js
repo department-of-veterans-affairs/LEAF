@@ -13,7 +13,7 @@ gulp.task('build', gulp.series(
             'LEAF_Nexus/js/groupSelector.js',
             'LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/orgchartForm.js'])
-            .pipe(concat('nexusScriptsDefault.js'))
+            .pipe(concat('default.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
@@ -22,7 +22,7 @@ gulp.task('build', gulp.series(
         return gulp.src(['LEAF_Nexus/js/employeeSelector.js',
             'LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/orgchartForm.js'])
-            .pipe(concat('nexusScriptsBrowseEmployee.js'))
+            .pipe(concat('browseEmployee.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
@@ -31,7 +31,7 @@ gulp.task('build', gulp.series(
         return gulp.src(['LEAF_Nexus/js/positionSelector.js',
             'LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/orgchartForm.js'])
-            .pipe(concat('nexusScriptsBrowsePosition.js'))
+            .pipe(concat('browsePosition.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
@@ -40,7 +40,7 @@ gulp.task('build', gulp.series(
         return gulp.src(['LEAF_Nexus/js/groupSelector.js',
             'LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/orgchartForm.js'])
-            .pipe(concat('nexusScriptsBrowseGroup.js'))
+            .pipe(concat('browseGroup.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
@@ -50,7 +50,7 @@ gulp.task('build', gulp.series(
             'LEAF_Nexus/js/orgchartForm.js',
             'LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/nationalEmployeeSelector.js'])
-            .pipe(concat('nexusScriptsViewGroup.js'))
+            .pipe(concat('viewGroup.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
@@ -61,7 +61,7 @@ gulp.task('build', gulp.series(
             'LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/groupSelector.js',
             'LEAF_Nexus/js/positionSelector.js'])
-            .pipe(concat('nexusScriptsViewPosition.js'))
+            .pipe(concat('viewPosition.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
@@ -72,7 +72,7 @@ gulp.task('build', gulp.series(
             'LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/groupSelector.js',
             'LEAF_Nexus/js/positionSelector.js'])
-            .pipe(concat('nexusScriptsViewEmployee.js'))
+            .pipe(concat('viewEmployee.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
@@ -81,14 +81,14 @@ gulp.task('build', gulp.series(
         return gulp.src(['LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/ui/position.js',
             'LEAF_Nexus/js/positionSelector.js'])
-            .pipe(concat('nexusScriptsEditor.js'))
+            .pipe(concat('editor.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
     function nexusScriptsNavigator() {
         return gulp.src(['LEAF_Nexus/js/ui/position.js'])
-            .pipe(concat('nexusScriptsNavigator.js'))
+            .pipe(concat('navigator.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
@@ -96,7 +96,7 @@ gulp.task('build', gulp.series(
     function sharedLEAFformScripts() {
         return gulp.src(["libs/js/LEAF/formQuery.js",
             "libs/js/LEAF/formGrid.js"])
-            .pipe(concat('sharedLEAFformScripts.js'))
+            .pipe(concat('LEAFform.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('libs/minified/'))
     },
@@ -117,7 +117,7 @@ gulp.task('build', gulp.series(
             'libs/js/codemirror/addon/scroll/annotatescrollbar.js',
             'libs/js/codemirror/addon/search/matchesonscrollbar.js',
             'libs/js/codemirror/addon/display/fullscreen.js'])
-            .pipe(concat('nexusAdminModTemplatesReportsScripts.js'))
+            .pipe(concat('modTemplateReports.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('libs/minified/'))
     },
@@ -125,21 +125,21 @@ gulp.task('build', gulp.series(
     function nexusAdminSetupMedCenterScripts() {
         return gulp.src(['LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/nationalEmployeeSelector.js'])
-            .pipe(concat('nexusAdminSetupMedCenterScripts.js'))
+            .pipe(concat('setupMedCenter.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
     function minifiedDialogueController() {
         return gulp.src(['LEAF_Nexus/js/dialogController.js'])
-            .pipe(concat('minifiedDialogueController.js'))
+            .pipe(concat('dialogueController.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
     function codeMirrorMergeScripts() {
         return gulp.src(['libs/js/codemirror/addon/merge/merge.js'])
-            .pipe(concat('codeMirrorMergeScripts.js'))
+            .pipe(concat('merge.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('libs/minified/'))
     },
@@ -151,7 +151,7 @@ gulp.task('build', gulp.series(
             'LEAF_Request_Portal/js/formGrid.js',
             'LEAF_Request_Portal/js/formQuery.js',
             'LEAF_Request_Portal/js/formSearch.js'])
-            .pipe(concat('scriptsRequestDefault.js'))
+            .pipe(concat('default.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
@@ -164,7 +164,7 @@ gulp.task('build', gulp.series(
             'LEAF_Request_Portal/js/workflow.js',
             'LEAF_Request_Portal/js/lz-string/lz-string.min.js',
             'libs/js/LEAF/XSSHelpers.js',])
-            .pipe(concat('scriptsRequestReports.js'))
+            .pipe(concat('reports.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
@@ -173,7 +173,7 @@ gulp.task('build', gulp.series(
         return gulp.src(['LEAF_Request_Portal/js/form.js',
             'LEAF_Request_Portal/js/workflow.js',
             'LEAF_Request_Portal/js/formGrid.js'])
-            .pipe(concat('scriptsRequestInbox.js'))
+            .pipe(concat('inbox.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
@@ -182,7 +182,7 @@ gulp.task('build', gulp.series(
         return gulp.src(['LEAF_Request_Portal/js/form.js',
             'LEAF_Request_Portal/js/formGrid.js',
             'libs/js/LEAF/XSSHelpers.js'])
-            .pipe(concat('scriptsRequestView.js'))
+            .pipe(concat('view.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
@@ -195,21 +195,21 @@ gulp.task('build', gulp.series(
             'LEAF_Request_Portal/js/jsdiff.js',
             'libs/js/LEAF/XSSHelpers.js',
             'libs/jsapi/portal/LEAFPortalAPI.js',])
-            .pipe(concat('scriptsRequestPrintView.js'))
+            .pipe(concat('printView.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
 
     function minifiedDialogueController() {
         return gulp.src(['LEAF_Request_Portal/js/dialogController.js',])
-            .pipe(concat('minifiedDialogueController.js'))
+            .pipe(concat('dialogueController.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
 
     function minifiedXSSHelper() {
         return gulp.src(['libs/js/LEAF/XSSHelpers.js'])
-            .pipe(concat('minifiedXSSHelper.js'))
+            .pipe(concat('XSSHelper.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('libs/minified/'))
     },
@@ -226,7 +226,7 @@ gulp.task('build', gulp.series(
             'libs/js/codemirror/addon/scroll/annotatescrollbar.js',
             'libs/js/codemirror/addon/search/matchesonscrollbar.js',
             'libs/js/codemirror/addon/display/fullscreen.js',])
-            .pipe(concat('sharedCodemirrorScripts.js'))
+            .pipe(concat('codemirror.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('libs/minified/'))
     },
@@ -242,7 +242,7 @@ gulp.task('build', gulp.series(
             'libs/js/codemirror/addon/display/fullscreen.js',
             'libs/js/LEAF/XSSHelpers.js',
             'libs/jsapi/portal/LEAFPortalAPI.js',])
-            .pipe(concat('sharedFormScripts.js'))
+            .pipe(concat('form.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('libs/minified/'))
     },
@@ -253,7 +253,31 @@ gulp.task('build', gulp.series(
             'LEAF_Request_Portal/js/formGrid.js',
             'LEAF_Request_Portal/js/formQuery.js',
             'LEAF_Request_Portal/js/jsdiff.js',])
-            .pipe(concat('scriptsRequestIframePrintView.js'))
+            .pipe(concat('iframePrintView.min.js'))
+            .pipe(uglify())
+            .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
+    },
+
+    function scriptsRequestShowFTEstatus() {
+        return gulp.src(['LEAF_Request_Portal/js/form.js',
+            'LEAF_Request_Portal/js/workflow.js',
+            'LEAF_Request_Portal/js/formGrid.js',
+            'LEAF_Request_Portal/js/formQuery.js',])
+            .pipe(concat('showFTEstatus.min.js'))
+            .pipe(uglify())
+            .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
+    },
+
+    function scriptsRequestReportsDefault() {
+        return gulp.src(['LEAF_Request_Portal/js/form.js',
+            'LEAF_Request_Portal/js/workflow.js',
+            'LEAF_Request_Portal/js/formGrid.js',
+            'LEAF_Request_Portal/js/formQuery.js',
+            'LEAF_Request_Portal/js/formSearch.js',
+            'libs/jsapi/nexus/LEAFNexusAPI.js',
+            'libs/jsapi/portal/LEAFPortalAPI.js',
+            'libs/jsapi/portal/model/FormQuery.js'])
+            .pipe(concat('reportsDefault.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
@@ -263,7 +287,7 @@ gulp.task('build', gulp.series(
     function scriptsWorkflow() {
         return gulp.src(['LEAF_Nexus/js/groupSelector.js',
             'libs/js/LEAF/XSSHelpers.js',])
-            .pipe(concat('scriptsWorkflow.js'))
+            .pipe(concat('workflow.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
@@ -272,14 +296,14 @@ gulp.task('build', gulp.series(
         return gulp.src(['libs/js/LEAF/XSSHelpers.js',
             'libs/jsapi/nexus/LEAFNexusAPI.js',
             'libs/jsapi/portal/LEAFPortalAPI.js'])
-            .pipe(concat('scriptsRequestAdminImportData.js'))
+            .pipe(concat('importData.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('libs/minified/'))
     },
 
     function minifiedNationalEmployeeSelector() {
         return gulp.src(['LEAF_Nexus/js/nationalEmployeeSelector.js'])
-            .pipe(concat('minifiedNationalEmployeeSelector.js'))
+            .pipe(concat('nationalEmployeeSelector.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
@@ -287,7 +311,7 @@ gulp.task('build', gulp.series(
     function scriptsModGroups() {
         return gulp.src(['LEAF_Nexus/js/nationalEmployeeSelector.js',
             "LEAF_Nexus/js/groupSelector.js"])
-            .pipe(concat('scriptsModGroups.js'))
+            .pipe(concat('modGroups.min.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     })

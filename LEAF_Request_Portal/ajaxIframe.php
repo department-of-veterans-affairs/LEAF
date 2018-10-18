@@ -104,7 +104,7 @@ switch ($action) {
            break;
     case 'printview':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('minified/scriptsRequestIframePrintView.js'));
+        $main->assign('javascripts', array('minified/iframePrintView.min.js'));
 
         $form = new Form($db, $login);
         $t_menu->assign('recordID', (int)$_GET['recordID']);

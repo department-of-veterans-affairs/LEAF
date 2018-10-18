@@ -86,7 +86,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/minified/scriptsModGroups.js',
+        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/minified/modGroups.min.js',
         ));
 
         $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
@@ -110,7 +110,7 @@ switch ($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/minified/minifiedNationalEmployeeSelector.js',
+        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/minified/nationalEmployeeSelector.min.js',
         ));
 
         $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
@@ -132,7 +132,7 @@ switch ($action) {
         $main->assign('useUI', true);
 
         $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
-                                           '../' . Config::$orgchartPath . '/minified/scriptsWorkflow.js',
+                                           '../' . Config::$orgchartPath . '/minified/workflow.min.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
                                            '../' . Config::$orgchartPath . '/css/groupSelector.css',
@@ -152,7 +152,7 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('../../libs/minified/sharedFormScripts.js',
+        $main->assign('javascripts', array('../../libs/minified/form.min.js',
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
                                             '../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
@@ -186,7 +186,7 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            $main->assign('useUI', true);
-           $main->assign('javascripts', array('../../libs/minified/sharedCodemirrorScripts.js',
+           $main->assign('javascripts', array('../../libs/minified/codemirror.min.js',
            ));
            $main->assign('stylesheets', array('../../libs/js/codemirror/lib/codemirror.css',
                                               '../../libs/js/codemirror/addon/dialog/dialog.css',
@@ -311,7 +311,7 @@ switch ($action) {
         $main->assign('useUI', true);
 //   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $main->assign('javascripts', array('../../libs/minified/minifiedXSSHelper.js'));
+        $main->assign('javascripts', array('../../libs/minified/XSSHelper.min.js'));
 
         $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
         $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
@@ -371,7 +371,7 @@ switch ($action) {
         $t_form->assign('orgchartPath', Config::$orgchartPath);
 
         $main->assign('javascripts', array(
-            '../../libs/minified/scriptsRequestAdminImportData.js',
+            '../../libs/minified/importData.min.js',
         ));
 
         if ($login->checkGroup(1))

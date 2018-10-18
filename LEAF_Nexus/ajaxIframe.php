@@ -149,7 +149,7 @@ switch ($action) {
         $t_iframe->right_delimiter = '}-->';
 
         //$main->assign('useDojoUI', true);
-        $main->assign('javascripts', array('minified/nexusScriptsDefault.js', ));
+        $main->assign('javascripts', array('minified/default.min.js', ));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                 'css/view_employee.css',
                 'css/positionSelector.css',

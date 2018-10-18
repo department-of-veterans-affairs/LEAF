@@ -1,4 +1,4 @@
-<script src="../libs/minified/sharedLEAFformScripts.js"></script>
+<script src="../libs/minified/LEAFform.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/2.3.0/bignumber.min.js"></script>
 

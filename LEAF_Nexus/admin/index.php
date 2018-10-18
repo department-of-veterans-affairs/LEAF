@@ -115,7 +115,7 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('javascripts', array('minified/minifiedDialogueController.js'));
+           $main->assign('javascripts', array('minified/dialogueController.min.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -147,7 +147,7 @@ switch ($action) {
 
            //$main->assign('useUI', true);
            $main->assign('stylesheets', array('admin/css/mod_groups.css', 'css/employeeSelector.css'));
-           $main->assign('javascripts', array('minified/nexusAdminSetupMedCenterScripts.js',));
+           $main->assign('javascripts', array('minified/setupMedCenter.min.js',));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -175,7 +175,7 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            $main->assign('useUI', true);
-           $main->assign('javascripts', array('../libs/minified/nexusAdminModTemplatesReportsScripts.js',
+           $main->assign('javascripts', array('../libs/minified/modTemplateReports.min.js',
            ));
            $main->assign('stylesheets', array('../libs/js/codemirror/lib/codemirror.css',
                    '../libs/js/codemirror/addon/dialog/dialog.css',
@@ -208,7 +208,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('minified/nexusScriptsDefault.js', ));
+        $main->assign('javascripts', array('minified/default.min.js', ));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                                            'css/view_employee.css',
                                            'css/positionSelector.css',
