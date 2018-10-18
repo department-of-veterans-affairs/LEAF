@@ -7,7 +7,7 @@ var concat = require('gulp-concat');
 
 // gulp tasks for nexus pages
 gulp.task('build', gulp.series(
-    function() {
+    function nexusScriptsDefault() {
         return gulp.src(['LEAF_Nexus/js/employeeSelector.js',
             'LEAF_Nexus/js/positionSelector.js',
             'LEAF_Nexus/js/groupSelector.js',
@@ -18,7 +18,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function nexusScriptsBrowseEmployee() {
         return gulp.src(['LEAF_Nexus/js/employeeSelector.js',
             'LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/orgchartForm.js'])
@@ -27,7 +27,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function nexusScriptsBrowsePosition() {
         return gulp.src(['LEAF_Nexus/js/positionSelector.js',
             'LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/orgchartForm.js'])
@@ -36,7 +36,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function nexusScriptsBrowseGroup() {
         return gulp.src(['LEAF_Nexus/js/groupSelector.js',
             'LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/orgchartForm.js'])
@@ -45,7 +45,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function nexusScriptsViewGroup() {
         return gulp.src(['LEAF_Nexus/js/positionSelector.js',
             'LEAF_Nexus/js/orgchartForm.js',
             'LEAF_Nexus/js/dialogController.js',
@@ -55,7 +55,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function nexusScriptsViewPosition() {
         return gulp.src(['LEAF_Nexus/js/nationalEmployeeSelector.js',
             'LEAF_Nexus/js/orgchartForm.js',
             'LEAF_Nexus/js/dialogController.js',
@@ -66,7 +66,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function nexusScriptsViewEmployee() {
         return gulp.src(['LEAF_Nexus/js/nationalEmployeeSelector.js',
             'LEAF_Nexus/js/orgchartForm.js',
             'LEAF_Nexus/js/dialogController.js',
@@ -77,7 +77,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function nexusScriptsEditor() {
         return gulp.src(['LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/ui/position.js',
             'LEAF_Nexus/js/positionSelector.js'])
@@ -86,14 +86,14 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function nexusScriptsNavigator() {
         return gulp.src(['LEAF_Nexus/js/ui/position.js'])
             .pipe(concat('nexusScriptsNavigator.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function sharedLEAFformScripts() {
         return gulp.src(["libs/js/LEAF/formQuery.js",
             "libs/js/LEAF/formGrid.js"])
             .pipe(concat('sharedLEAFformScripts.js'))
@@ -103,7 +103,7 @@ gulp.task('build', gulp.series(
 
 // gulp tasks for nexus admin page scripts
 
-    function() {
+    function nexusAdminModTemplatesReportsScripts() {
         return gulp.src(['LEAF_Nexus/js/dialogController.js',
             'libs/js/codemirror/lib/codemirror.js',
             'libs/js/codemirror/mode/xml/xml.js',
@@ -122,7 +122,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('libs/minified/'))
     },
 
-    function() {
+    function nexusAdminSetupMedCenterScripts() {
         return gulp.src(['LEAF_Nexus/js/dialogController.js',
             'LEAF_Nexus/js/nationalEmployeeSelector.js'])
             .pipe(concat('nexusAdminSetupMedCenterScripts.js'))
@@ -130,14 +130,14 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function minifiedDialogueController() {
         return gulp.src(['LEAF_Nexus/js/dialogController.js'])
             .pipe(concat('minifiedDialogueController.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function codeMirrorMergeScripts() {
         return gulp.src(['libs/js/codemirror/addon/merge/merge.js'])
             .pipe(concat('codeMirrorMergeScripts.js'))
             .pipe(uglify())
@@ -146,7 +146,7 @@ gulp.task('build', gulp.series(
 
 // Gulp tasks to minify Request Portal scripts for each page
 
-    function() {
+    function scriptsRequestDefault() {
         return gulp.src(['LEAF_Request_Portal/js/form.js',
             'LEAF_Request_Portal/js/formGrid.js',
             'LEAF_Request_Portal/js/formQuery.js',
@@ -156,7 +156,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
 
-    function() {
+    function scriptsRequestReports() {
         return gulp.src(['LEAF_Request_Portal/js/form.js',
             'LEAF_Request_Portal/js/formGrid.js',
             'LEAF_Request_Portal/js/formQuery.js',
@@ -169,7 +169,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
 
-    function() {
+    function scriptsRequestInbox() {
         return gulp.src(['LEAF_Request_Portal/js/form.js',
             'LEAF_Request_Portal/js/workflow.js',
             'LEAF_Request_Portal/js/formGrid.js'])
@@ -178,7 +178,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
 
-    function() {
+    function scriptsRequestView() {
         return gulp.src(['LEAF_Request_Portal/js/form.js',
             'LEAF_Request_Portal/js/formGrid.js',
             'libs/js/LEAF/XSSHelpers.js'])
@@ -187,7 +187,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
 
-    function() {
+    function scriptsRequestPrintView() {
         return gulp.src(['LEAF_Request_Portal/js/form.js',
             'LEAF_Request_Portal/js/workflow.js',
             'LEAF_Request_Portal/js/formGrid.js',
@@ -200,21 +200,21 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
 
-    function() {
+    function minifiedDialogueController() {
         return gulp.src(['LEAF_Request_Portal/js/dialogController.js',])
             .pipe(concat('minifiedDialogueController.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Request_Portal/minified/'))
     },
 
-    function() {
+    function minifiedXSSHelper() {
         return gulp.src(['libs/js/LEAF/XSSHelpers.js'])
             .pipe(concat('minifiedXSSHelper.js'))
             .pipe(uglify())
             .pipe(gulp.dest('libs/minified/'))
     },
 
-    function() {
+    function sharedCodemirrorScripts() {
         return gulp.src(['libs/js/codemirror/lib/codemirror.js',
             'libs/js/codemirror/mode/xml/xml.js',
             'libs/js/codemirror/mode/javascript/javascript.js',
@@ -231,7 +231,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('libs/minified/'))
     },
 
-    function() {
+    function sharedFormScripts() {
         return gulp.src(['libs/js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
             'libs/js/filesaver/FileSaver.min.js',
             'libs/js/codemirror/lib/codemirror.js',
@@ -247,7 +247,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('libs/minified/'))
     },
 
-    function() {
+    function scriptsRequestIframePrintView() {
         return gulp.src(['LEAF_Request_Portal/js/form.js',
             'LEAF_Request_Portal/js/workflow.js',
             'LEAF_Request_Portal/js/formGrid.js',
@@ -260,7 +260,7 @@ gulp.task('build', gulp.series(
 
 // gulp tasks to minify request portal admin scripts for each page
 
-    function() {
+    function scriptsWorkflow() {
         return gulp.src(['LEAF_Nexus/js/groupSelector.js',
             'libs/js/LEAF/XSSHelpers.js',])
             .pipe(concat('scriptsWorkflow.js'))
@@ -268,7 +268,7 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function scriptsRequestAdminImportData() {
         return gulp.src(['libs/js/LEAF/XSSHelpers.js',
             'libs/jsapi/nexus/LEAFNexusAPI.js',
             'libs/jsapi/portal/LEAFPortalAPI.js'])
@@ -277,14 +277,14 @@ gulp.task('build', gulp.series(
             .pipe(gulp.dest('libs/minified/'))
     },
 
-    function() {
+    function minifiedNationalEmployeeSelector() {
         return gulp.src(['LEAF_Nexus/js/nationalEmployeeSelector.js'])
             .pipe(concat('minifiedNationalEmployeeSelector.js'))
             .pipe(uglify())
             .pipe(gulp.dest('LEAF_Nexus/minified/'))
     },
 
-    function() {
+    function scriptsModGroups() {
         return gulp.src(['LEAF_Nexus/js/nationalEmployeeSelector.js',
             "LEAF_Nexus/js/groupSelector.js"])
             .pipe(concat('scriptsModGroups.js'))
