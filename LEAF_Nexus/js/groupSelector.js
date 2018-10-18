@@ -177,7 +177,10 @@ groupSelector.prototype.search = function() {
 	            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center">No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
 	            	}
 
+			t.selectionData = new Object();
 	                $.each(response, function(key, item) {
+				t.selectionData[item.groupID] = item;
+		                	
 
 	                	linkText = item.groupTitle;
 	                	if(t.selectLink != null) {
