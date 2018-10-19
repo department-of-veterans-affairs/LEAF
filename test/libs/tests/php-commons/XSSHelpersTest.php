@@ -299,7 +299,7 @@ final class XSSHelpersTest extends TestCase
      */
     public function testScrubFilename() : void
     {
-        $goodNames = array('filename.exe',
+        $goodNames = array('file\'name.exe',
                             'file-name.exe',
                             'file_name.exe',
                             '_filename_.exe',
@@ -308,27 +308,39 @@ final class XSSHelpersTest extends TestCase
                             'filename132.exe',
                             '456file-name.exe',
                             'file4_na5me.exe',
-                            '_fil785ename_.exe',
-                            '-fi448ame-.exe',
+                            '_\'fil785ename_.exe',
+                            '-fi448\'ame-.exe',
                             '_-f48748name-_.exe',
+                            'f\'\'\'ile name.exe',
+                            'fi le-name.exe',
+                            'file_nam e.exe',
+                            '_filen ame_.exe',
+                            '-file-n ame\'-.exe',
+                            '_ -file_name-_.exe',
+                            'filename132 .exe',
+                            '456    file- name.exe',
+                            'file4 _na5me.exe',
+                            '_fil785\'ename_.exe',
+                            '-fi448 ame-.exe',
+                            '_- f48\'7    48name-_.exe',
                         );
 
         $badNames = array('badpath/filename.exe' => 'badpathfilename.exe',
-                            'badpath//file-name.exe' => 'badpathfile-name.exe',
-                            'badpath///file_name.exe' => 'badpathfile_name.exe',
-                            'badpath\\filename.exe' => 'badpathfilename.exe',
-                            'badpath\\\\file-name.exe' => 'badpathfile-name.exe',
-                            'badpath\\\\\\file_name.exe' => 'badpathfile_name.exe',
-                            '!@#$%^&_filename_.exe' => '_filename_.exe',
-                            '-f)*&^%ile-name-.exe' => '-file-name-.exe',
-                            '_-file_n[]}{\';";/?><$ame-_.exe' => '_-file_name-_.exe',
-                            '123badpath/filename.exe' => '123badpathfilename.exe',
-                            'badpath//file-name123.exe' => 'badpathfile-name123.exe',
-                            'badpath///file_name.e123xe' => 'badpathfile_name.e123xe',
-                            'badpath\\312filename.exe' => 'badpath312filename.exe',
-                            'badpath\\33\\file-name.exe' => 'badpath33file-name.exe',
-                            'badpath44\\\\\\file_name.exe' => 'badpath44file_name.exe',
-                            '!@#345$%^&_filename_.exe' => '345_filename_.exe',
+                            'bad"pa>>th//file-na\'me.exe' => 'badpathfile-na\'me.exe',
+                            'badp<<ath///file_name.exe' => 'badpathfile_name.exe',
+                            'ba>d"\'path\\f*ile*name.exe' => 'bad\'pathfilename.exe',
+                            'b|adpath:\\\\file-name.e|xe' => 'badpathfile-name.exe',
+                            'badpa<<<th\\\\\:file_name.exe' => 'badpathfile_name.exe',
+                            '!@#$%^&_fil*ename_.exe' => '!@#$%^&_filename_.exe',
+                            '-f)*&^%il:e-name-.ex"e' => '-f)&^%ile-name-.exe',
+                            '_-file_n[]*}{\';";/?><$ame-_.exe' => '_-file_n[]}{\';;$ame-_.exe',
+                            '123badp>>>ath/filenam"e.exe' => '123badpathfilename.exe',
+                            'badpa\'th//file-name123.exe' => 'badpa\'thfile-name123.exe',
+                            'badpa"th///file_na<<<<<me".e123xe' => 'badpathfile_name.e123xe',
+                            'badp\'ath\\*312filena"me.exe' => 'badp\'ath312filename.exe',
+                            '|b>>>>ad:path\\33\\file-name.exe' => 'badpath33file-name.exe',
+                            'badpa"|th44*\\\\\\fi<le_name.exe' => 'badpath44file_name.exe',
+                            '!@#345$%^&_filename_|.exe' => '!@#345$%^&_filename_.exe',
                         );
 
         foreach($goodNames as $good)
@@ -342,5 +354,55 @@ final class XSSHelpersTest extends TestCase
         }
 
         
+    }
+
+    /**
+     * Tests XSSHelpers::scrubObject()
+     *
+     * Tests escaping everything in an object or array
+     */
+    public function testScrubObject() : void
+    {
+        $obj = (object)[1 => 1,2 => 2,3 => 3];
+        $array = [1 => 1,2 => 2,3 => 3];
+
+        $obj2 = (object)[1 => [1 => 1,2 => 2,3 => 3], 2 => 2];
+        $array2 = [1 => [1 => 1,2 => 2,3 => 3], 2 => 2];
+
+        $obj3 = (object)[1 => 'one',2 => 'two',3 => 'three'];
+        $array3 = [1 => 'one',2 => 'two',3 => 'three'];
+
+        $obj4 = (object)[1 => [1 => 'one',2 => 'two',3 => 'three'], 2 => 'two'];
+        $array4 = [1 => [1 => 'one',2 => 'two',3 => 'three'], 2 => 'two'];
+
+        $obj5 = (object)[1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => 'three'], 2 => '<h1>two</h1>'];
+        $array5 = [1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => 'three'], 2 => '<h1>two</h1>'];
+        $obj5Scrubbed = (object)[1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => 'three'], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+        $array5Scrubbed = [1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => 'three'], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+
+        $obj6 = (object)[1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => ["something" => '<style>other</style>']], 2 => '<h1>two</h1>'];
+        $array6 = [1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => ["something" => '<style>other</style>']], 2 => '<h1>two</h1>'];
+        $obj6Scrubbed = (object)[1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => ["something" => '&lt;style&gt;other&lt;/style&gt;']], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+        $array6Scrubbed = [1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => ["something" => '&lt;style&gt;other&lt;/style&gt;']], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+
+        $obj7 = (object)[1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => (object)["something" => '<style>other</style>']], 2 => '<h1>two</h1>'];
+        $array7 = [1 => [1 => '<script>one</script>',2 => '<b>two</b>',3 => (object)["something" => '<style>other</style>']], 2 => '<h1>two</h1>'];
+        $obj7Scrubbed = (object)[1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => (object)["something" => '&lt;style&gt;other&lt;/style&gt;']], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+        $array7Scrubbed = [1 => [1 => '&lt;script&gt;one&lt;/script&gt;',2 => '&lt;b&gt;two&lt;/b&gt;',3 => (object)["something" => '&lt;style&gt;other&lt;/style&gt;']], 2 => '&lt;h1&gt;two&lt;/h1&gt;'];
+
+        $this->assertEquals($obj, XSSHelpers::scrubObjectOrArray($obj));
+        $this->assertEquals($array, XSSHelpers::scrubObjectOrArray($array));
+        $this->assertEquals($obj2, XSSHelpers::scrubObjectOrArray($obj2));
+        $this->assertEquals($array2, XSSHelpers::scrubObjectOrArray($array2));
+        $this->assertEquals($obj3, XSSHelpers::scrubObjectOrArray($obj3));
+        $this->assertEquals($array3, XSSHelpers::scrubObjectOrArray($array3));
+        $this->assertEquals($obj4, XSSHelpers::scrubObjectOrArray($obj4));
+        $this->assertEquals($array4, XSSHelpers::scrubObjectOrArray($array4));
+        $this->assertEquals($obj5Scrubbed, XSSHelpers::scrubObjectOrArray($obj5));
+        $this->assertEquals($array5Scrubbed, XSSHelpers::scrubObjectOrArray($array5));
+        $this->assertEquals($obj6Scrubbed, XSSHelpers::scrubObjectOrArray($obj6));
+        $this->assertEquals($array6Scrubbed, XSSHelpers::scrubObjectOrArray($array6));
+        $this->assertEquals($obj7Scrubbed, XSSHelpers::scrubObjectOrArray($obj7));
+        $this->assertEquals($array7Scrubbed, XSSHelpers::scrubObjectOrArray($array7));
     }
 }

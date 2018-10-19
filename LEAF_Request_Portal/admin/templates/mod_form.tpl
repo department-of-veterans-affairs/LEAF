@@ -32,129 +32,138 @@ function editProperties(isSubForm) {
                                  <td>Sort Priority</td>\
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
+                             <tr class="isSubForm">\
+                            	 <td>Type <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form."></td>\
+                            	 <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
+                             </tr>\
                            </table>');
-    $('#name').val(categories[currCategoryID].categoryName);
-    $('#description').val(categories[currCategoryID].categoryDescription);
-    $('#workflowID').val(categories[currCategoryID].workflowID);
-    $('#needToKnow').val(categories[currCategoryID].needToKnow);
-    $('#visible').val(categories[currCategoryID].visible);
-    $('#sort').val(categories[currCategoryID].sort);
-    if(isSubForm) {
-        $('.isSubForm').css('display', 'none');
-    }
+        $('#name').val(categories[currCategoryID].categoryName);
+        $('#description').val(categories[currCategoryID].categoryDescription);
+        $('#workflowID').val(categories[currCategoryID].workflowID);
+        $('#needToKnow').val(categories[currCategoryID].needToKnow);
+        $('#visible').val(categories[currCategoryID].visible);
+        $('#sort').val(categories[currCategoryID].sort);
+        $('#formType').val(categories[currCategoryID].type);if(isSubForm) {
+        	$('.isSubForm').css('display', 'none');
+        }
+        //ie11 fix
+		setTimeout(function () {dialog.show();}, 0);
 
-		//ie11 fix
-		setTimeout(function () {
-			dialog.show();
-		}, 0);
-
-
-    // load workflow data
-    dialog.indicateBusy();
-    $.ajax({
-        type: 'GET',
-        url: '../api/?a=workflow',
-        success: function(res) {
-            if(res.length > 0) {
-                var buffer = '<select id="workflowID">';
-                buffer += '<option value="0">No Workflow</option>';
-                for(var i in res) {
-                    buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
-                }
-                buffer += '</select>';
-                $('#container_workflowID').html(buffer);
-                $('#workflowID').val(categories[currCategoryID].workflowID);
-            }
-            else {
-                $('#container_workflowID').html('<span style="color: red">A workflow must be set up first</span>');
-            }
-            dialog.indicateIdle();
-        },
-        cache: false
-    });
-    
-    dialog.setSaveHandler(function() {
-        $.when(
-            $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/formName',
-                data: {name: $('#name').val(),
-                categoryID: currCategoryID,
-                CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    if(res != null) {
+        // load workflow data
+        dialog.indicateBusy();
+        $.ajax({
+        	type: 'GET',
+        	url: '../api/?a=workflow',
+        	success: function(res) {
+        		if(res.length > 0) {
+                    var buffer = '<select id="workflowID">';
+                    buffer += '<option value="0">No Workflow</option>';
+                    for(var i in res) {
+                        buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
                     }
-                }
-            }),
-            $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/formDescription',
-                data: {description: $('#description').val(),
-                categoryID: currCategoryID,
-                CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    if(res != null) {
-                    }
-                }
-            }),
-            $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/formWorkflow',
-                data: {workflowID: $('#workflowID').val(),
-                categoryID: currCategoryID,
-                CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    if(res == false) {
-                        alert('Workflow cannot be set because this form has been merged into another form');
-                    }
-                }
-            }),
-            $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/formNeedToKnow',
-                data: {needToKnow: $('#needToKnow').val(),
-                categoryID: currCategoryID,
-                CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    if(res != null) {
-                    }
-                }
-            }),
-            $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/formSort',
-                data: {sort: $('#sort').val(),
-                categoryID: currCategoryID,
-                CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    if(res != null) {
-                    }
-                }
-            }),
-            $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/formVisible',
-                data: {visible: $('#visible').val(),
-                categoryID: currCategoryID,
-                CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    if(res != null) {
-                    }
-                }
-            })
-        ).then(function() {
-            categories[currCategoryID].categoryName = $('#name').val();
-            categories[currCategoryID].categoryDescription = $('#description').val();
-            categories[currCategoryID].description = '';
-            categories[currCategoryID].workflowID = $('#workflowID').val();
-            categories[currCategoryID].needToKnow = $('#needToKnow').val();
-            categories[currCategoryID].visible = $('#visible').val();
-            categories[currCategoryID].sort = $('#sort').val();
-            openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
-            dialog.hide();
+                    buffer += '</select>';
+                    $('#container_workflowID').html(buffer);
+                    $('#workflowID').val(categories[currCategoryID].workflowID);
+        		}
+        		else {
+        			$('#container_workflowID').html('<span style="color: red">A workflow must be set up first</span>');
+        		}
+        		dialog.indicateIdle();
+        	},
+        	cache: false
         });
-    });
-}
+
+        dialog.setSaveHandler(function() {
+            $.when(
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/formName',
+                    data: {name: $('#name').val(),
+                    	categoryID: currCategoryID,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+                }),
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/formDescription',
+                    data: {description: $('#description').val(),
+                    	categoryID: currCategoryID,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+                }),
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/formWorkflow',
+                    data: {workflowID: $('#workflowID').val(),
+                    	categoryID: currCategoryID,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res == false) {
+                        	alert('Workflow cannot be set because this form has been merged into another form');
+                        }
+                    }
+                }),
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/formNeedToKnow',
+                    data: {needToKnow: $('#needToKnow').val(),
+                        categoryID: currCategoryID,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+                }),
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/formSort',
+                    data: {sort: $('#sort').val(),
+                        categoryID: currCategoryID,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+                }),
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/formVisible',
+                    data: {visible: $('#visible').val(),
+                        categoryID: currCategoryID,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+                }),
+             $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/formType',
+                    data: {type: $('#formType').val(),
+                        categoryID: currCategoryID,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+                })).then(function() {
+                categories[currCategoryID].categoryName = $('#name').val();
+                categories[currCategoryID].categoryDescription = $('#description').val();
+                categories[currCategoryID].description = '';
+                categories[currCategoryID].workflowID = $('#workflowID').val();
+                categories[currCategoryID].needToKnow = $('#needToKnow').val();
+                categories[currCategoryID].visible = $('#visible').val();categories[currCategoryID].type = $('#formType').val();
+                categories[currCategoryID].sort = $('#sort').val();
+                openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
+                dialog.hide();
+             });
+        });}
 var currCategoryID = '';
 function openContent(url) {
 	var isSubForm = categories[currCategoryID].parentID == '' ? false : true;
@@ -1211,11 +1220,12 @@ function buildMenu(categoryID) {
             }
         }
     });
+    
+    
+	$('#menu').append('<br /><div tabindex="0"class="buttonNorm" onkeypress="onKeyPressClick(event)"onclick="exportForm(\''+ categoryID +'\');" style="font-size: 120%"role="button"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="deleteForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div><br />');
 
-	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="exportForm(\''+ categoryID +'\');" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
-
-	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="deleteForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div><br />');
-
+	$('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div><br />');
+	
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 

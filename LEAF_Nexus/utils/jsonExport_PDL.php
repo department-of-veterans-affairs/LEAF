@@ -37,9 +37,10 @@ if (isset($cache['jsonExport_PDL.php'])
     ) {
     header('Content-type: application/json');
 
-    json_decode($cache['jsonExport_PDL.php']['data']);
+    $scrubCache = json_decode($cache['jsonExport_PDL.php']['data']);
     if(json_last_error() == JSON_ERROR_NONE) { // validate JSON object
-        echo $cache['jsonExport_PDL.php']['data'];
+        $scrubCache = XSSHelpers::scrubObjectOrArray($scrubCache);
+        echo json_encode($scrubCache);
     }
     exit();
 }
