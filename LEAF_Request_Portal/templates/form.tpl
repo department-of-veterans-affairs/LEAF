@@ -15,8 +15,6 @@
                 <form id="record" enctype="multipart/form-data" action="javascript:void(0);">
                     <div>
                         <div id="xhr" style="padding: 16px"></div>
-                        <!-- <button id="prevQuestion">Previous question</button> -->
-                        <!-- <button class="button" dojoType="dijit.form.Button" onclick="checkForm(false);"><div id="save_indicator">Save Change</div></button> -->
                     </div>
                     <input type="submit" value="Submit" aria-disabled="true" aria-label="Previous" hidden>
                 </form>
@@ -155,6 +153,7 @@ function manualSaveChange()
     $("#save_indicator").html('<img src="images/indicator.gif" alt="Saving..." /> Saving...');
     setTimeout("$('#save_indicator').html('<img src=\"../libs/dynicons/?img=media-floppy.svg&amp;w=22\" alt=\"save\" style=\"vertical-align: middle\"/> Save Change')", 1000);
     form.setPostModifyCallback(function() {
+        getForm(formStructure[currFormPosition].indicatorID, formStructure[currFormPosition].series);
     });
     form.dialog().clickSave();
 }

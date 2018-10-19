@@ -77,7 +77,7 @@ class FormController extends RESTfulResponse
         $this->index['GET']->register('form/query', function ($args) use ($form) {
             if (isset($_GET['debug']))
             {
-                return $query = json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true);
+                return $query = XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
             }
 
             return $form->query($_GET['q']);
@@ -123,6 +123,20 @@ class FormController extends RESTfulResponse
             return $form->getIndicatorLog($args[1], $args[2], $args[0]);
         });
 
+        $this->index['GET']->register('form/[digit]/indicator/formatSearch', function ($args) use ($form) {
+            $formats = $_GET['formats'];
+            for ($i = 0; $i < count($formats); $i++)
+            {
+                $formats[$i] = XSSHelpers::xscrub($formats[$i]);
+            }
+            
+            return $form->getIndicatorsByRecordAndFormat((int)$args[0], $formats);
+        });
+
+        $this->index['GET']->register('form/[digit]/workflow/indicator/assigned', function ($args) use ($form) {
+            return $form->getIndicatorsAssociatedWithWorkflow((int)$args[0]);
+        });
+
         $this->index['GET']->register('form/indicator/list', function ($args) use ($form) {
             return $form->getIndicatorList($_GET['sort']);
         });
@@ -150,6 +164,10 @@ class FormController extends RESTfulResponse
 
         $this->index['GET']->register('form/[text]/workflow', function ($args) use ($form) {
             return $form->getWorkflow(XSSHelpers::xscrub($args[0]));
+        });
+
+        $this->index['GET']->register('form/[digit]/recordinfo', function ($args) use ($form) {
+            return $form->getRecordInfo($args[0]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);

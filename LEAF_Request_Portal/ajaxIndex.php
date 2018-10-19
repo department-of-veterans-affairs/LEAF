@@ -170,6 +170,23 @@ switch ($action) {
                return 0;
            }
 
+        $parallelProcessing = false;
+        if(array_key_exists(0,$res) && array_key_exists('type',$res[0]) && ($res[0]['type'] == 'parallel_processing'))
+        {
+            $parallelProcessing = true;
+
+            // show normal submit control if a parallel request has been sent back
+            // a request is assumed to sent back if a matching entry exists in the records_dependencies table
+            $vars = array('recordID' => $recordID);
+            $res = $db->prepared_query('SELECT * FROM records_dependencies
+                                             WHERE recordID=:recordID
+                                               AND dependencyID = 5
+        									   AND filled = 0', $vars);
+            if(isset($res[0])) {
+                $parallelProcessing = false;
+            }
+        }
+
         $res = $db->prepared_query('SELECT time FROM action_history
                 WHERE recordID = :recordID
                 LIMIT 1', $vars);
@@ -181,7 +198,17 @@ switch ($action) {
         $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
         $t_form->assign('requestLabel', $requestLabel);
-        $t_form->display(customTemplate('submitForm.tpl'));
+        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        
+        if ($parallelProcessing)
+        {
+            $t_form->display(customTemplate('submitForm_parallel_processing.tpl'));
+        }
+        else
+        {
+            $t_form->display(customTemplate('submitForm.tpl'));
+        }
 
         break;
     case 'dosubmit': // legacy action

@@ -182,7 +182,10 @@ groupSelector.prototype.search = function() {
 	            		$('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below');
 	            	}
 
+			t.selectionData = new Object();
 	                $.each(response, function(key, item) {
+				t.selectionData[item.groupID] = item;
+		                	
 
 	                	linkText = item.groupTitle;
 	                	if(t.selectLink != null) {
