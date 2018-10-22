@@ -1,21 +1,28 @@
 <!--{**}-->
         <!--{if $indicator.is_sensitive == 1}-->
             <div class="sensitiveIndicatorMaskToggle">
-                <input type="checkbox" id="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" onClick="toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, this.checked);">
-                <label for="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" title="Show Sensitive Data" alt="Show Sensitive Data"  tabindex="0" onkeydown="if (event.keyCode==13){ this.click(); }"></label>
+                <input type="checkbox" id="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" onClick=" if (stayVisible === 0) {stayVisible = 1;} else {stayVisible = 0;} toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, this.checked);">
+                <label for="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" title="Show Sensitive Data" alt="Show Sensitive Data"  tabindex="0" onkeydown="if (event.keyCode==13){ this.click();}"></label>
             </div>
             <span class="sensitiveIndicator-masked" id="<!--{$indicator.indicatorID|strip_tags}-->_masked">
                 *****
             </span>
             <script>
+                var stayVisible = 0;
                 $("#<!--{$indicator.indicatorID|strip_tags}-->_masked").on({
                     mouseenter: function () {
-                        $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").trigger('click');
+                        if (stayVisible === 0) {
+                            $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked', true);
+                            toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked'));
+                        }
                     }
                 });
                 $("#data_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").on({
                     mouseleave: function () {
-                        $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").trigger('click');
+                        if (stayVisible === 0) {
+                            $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked', false);
+                            toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked'));
+                        }
                     }
                 });
 
