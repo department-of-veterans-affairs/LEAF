@@ -1,7 +1,5 @@
 /************************
     FormGrid editor
-    Author: Michael Gao (Michael.Gao@va.gov)
-    Date: Noverber 13, 2014
 */
 
 // The options arg (type: object) is currently only used for a "read only" type of grid
@@ -23,11 +21,12 @@ var LeafFormGrid = function(containerID, options) {
 	var postRenderFunc = null;
 	var rootURL = '';
 	var isRenderingVirtualHeader = true;
+	var isRenderingBody = false;
 
 	$('#' + containerID).html('<div id="'+prefixID+'grid"></div><div id="'+prefixID+'form" style="display: none"></div>');
 
-	$('#' + prefixID+'grid').html('<div style="position: relative"><div id="'+prefixID+'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto"></div></div><div id="'+prefixID+'table_stickyHeader" style="display: none"></div><table id="'+prefixID+'table" class="leaf_grid"><thead id="'+prefixID+'thead"></thead><tbody id="'+prefixID+'tbody"></tbody><tfoot id="'+prefixID+'tfoot"></tfoot></table>');
-	
+	$('#' + prefixID+'grid').html('<div style="position: relative"><div id="'+prefixID+'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="'+prefixID+'table_stickyHeader" style="display: none"></div><table id="'+prefixID+'table" class="leaf_grid"><thead id="'+prefixID+'thead" aria-label="Search Results"></thead><tbody id="'+prefixID+'tbody"></tbody><tfoot id="'+prefixID+'tfoot"></tfoot></table>');
+
 	$('#' + prefixID+'thead').css({'background-color': headerColor});
 
 	if(options == undefined) {
@@ -41,7 +40,7 @@ var LeafFormGrid = function(containerID, options) {
     function hideIndex() {
     	showIndex = false;
     }
-    
+
     /**
      * @memberOf LeafFormGrid
      */
@@ -82,11 +81,11 @@ var LeafFormGrid = function(containerID, options) {
     	var temp = '<tr id="'+prefixID + 'thead_tr'+'">';
     	var virtualHeader = '<tr id="'+prefixID + 'tVirt_tr'+'">';
     	if(showIndex) {
-    		temp += '<td id="'+ prefixID +'header_UID" style="text-align: center">UID</td>';
-    		virtualHeader += '<td style="text-align: center">UID</td>';
+    		temp += '<th id="'+ prefixID +'header_UID" style="text-align: center">UID</th>';
+    		virtualHeader += '<th style="text-align: center">UID</th>';
     	}
     	$('#' + prefixID + 'thead').html(temp);
-    	
+
     	if(showIndex) {
 			$('#'+ prefixID +'header_UID').css('cursor', 'pointer');
 			$('#'+ prefixID +'header_UID').on('click', null, null, function(data) {
@@ -114,8 +113,8 @@ var LeafFormGrid = function(containerID, options) {
     			continue;
     		}
     		var align = headers[i].align != undefined ? headers[i].align : 'center';
-    		$('#' + prefixID + 'thead_tr').append('<td id="' + prefixID + 'header_'+headers[i].indicatorID+'" style="text-align:'+align+'">'+headers[i].name+'<span id="'+ prefixID +'header_'+ headers[i].indicatorID +'_sort" class="'+prefixID+'sort"></span></td>');
-    		virtualHeader += '<td id="Vheader_'+headers[i].indicatorID+'" style="text-align:'+align+'">'+headers[i].name+'</td>';
+    		$('#' + prefixID + 'thead_tr').append('<th id="' + prefixID + 'header_'+headers[i].indicatorID+'" tabindex="0"  style="text-align:'+align+'">'+headers[i].name+'<span id="'+ prefixID +'header_'+ headers[i].indicatorID +'_sort" class="'+prefixID+'sort"></span></th>');
+    		virtualHeader += '<th id="Vheader_'+headers[i].indicatorID+'" style="text-align:'+align+'">'+headers[i].name+'</th>';
     		if(headers[i].sortable == undefined
     				|| headers[i].sortable == true) {
     			$('#'+ prefixID +'header_' + headers[i].indicatorID).css('cursor', 'pointer');
@@ -130,6 +129,21 @@ var LeafFormGrid = function(containerID, options) {
         			}
         			renderBody(0, Infinity);
         		});
+						//using enter key to sort the the table heads for 508 compliance
+						$('#'+ prefixID +'header_' + headers[i].indicatorID).on('keydown', null, headers[i].indicatorID, function(data) {
+							if(data.keyCode == 13){
+
+							if(headerToggle == 0) {
+								sort(data.data, 'asc');
+								headerToggle = 1;
+							}
+							else {
+								sort(data.data, 'desc');
+								headerToggle = 0;
+							}
+							renderBody(0, Infinity);
+						}
+						});
         		// todo: move this into a stylesheet
         		$('#'+ prefixID +'header_' + headers[i].indicatorID).on('mouseover', null, headers[i].indicatorID, function(data) {
         			$('#'+ prefixID +'header_' + data.data).css('background-color', '#79a2ff');
@@ -142,7 +156,7 @@ var LeafFormGrid = function(containerID, options) {
     	$('#' + prefixID + 'thead').append('</tr>');
     	virtualHeader += '</tr>';
 
-    	$('#' + prefixID+'table>thead>tr>td').css({'border': '1px solid black',
+    	$('#' + prefixID+'table>thead>tr>th').css({'border': '1px solid black',
 			   'padding': '4px 2px 4px 2px',
 			   'font-size': '12px'});
 
@@ -178,12 +192,13 @@ var LeafFormGrid = function(containerID, options) {
     				$('#' + prefixID + 'table_stickyHeader').css('display', 'none');
     			}
     		}
+
 			if(scrollPos > (tableHeight - pageHeight * .8)
-				&& isDataLoaded) {
+				&& isDataLoaded
+                && isRenderingBody) {
 				if(renderRequest[currentRenderIndex] == undefined) {
 					renderRequest[currentRenderIndex] = 1;
 					renderBody(currentRenderIndex, defaultLimit);
-					renderVirtualHeader();
 				}
 			}
     	}, 100);
@@ -337,9 +352,9 @@ var LeafFormGrid = function(containerID, options) {
     	if(!isRenderingVirtualHeader) {
     		return false;
     	}
-    	
+
     	var virtHeaderSizes = [];
-		$('#' + prefixID + 'thead>tr>td').each(function() {
+		$('#' + prefixID + 'thead>tr>th').each(function() {
 			virtHeaderSizes.push($(this).css('width'));
 		});
 
@@ -347,18 +362,20 @@ var LeafFormGrid = function(containerID, options) {
 			'width': $('#' + prefixID + 'thead').css('width'),
 			'height': '30px'
 		});
-		$('#' + prefixID + 'table_stickyHeader > table > thead > tr > td').each(function(idx) {
-			$(this).css('width', virtHeaderSizes[idx]);
+		$('#' + prefixID + 'table_stickyHeader > table > thead > tr > th').each(function(idx) {
+			$(this).css({'width': virtHeaderSizes[idx],
+                         'padding': '2px',
+                         'font-weight': 'normal'});
 		});
 
 		$('#' + prefixID+'table_stickyHeader > table').css({'border': '1px solid black',
 			  'border-collapse': 'collapse',
-			  'margin': '0px'});
+			  'margin': '0 2px 0'});
 		$('#' + prefixID+'table_stickyHeader > table > thead > tr').css({
 			'background-color': 'black',
 			'color': 'white'
 		});
-		$('#' + prefixID+'table_stickyHeader > table > thead > tr > td').css('border', '1px solid #e0e0e0');
+		$('#' + prefixID+'table_stickyHeader > table > thead > tr > th').css('border', '1px solid #e0e0e0');
     }
 
     /**
@@ -367,6 +384,7 @@ var LeafFormGrid = function(containerID, options) {
      * @memberOf LeafFormGrid
      */
     function renderBody(startIdx, limit) {
+        isRenderingBody = true;
     	if(preRenderFunc != null) {
     		preRenderFunc();
     	}
@@ -375,7 +393,7 @@ var LeafFormGrid = function(containerID, options) {
     		limit = defaultLimit;
     	}
     	currLimit = limit;
-    	
+
     	var fullRender = false;
     	if(startIdx == undefined
     		|| startIdx == 0) {
@@ -448,7 +466,7 @@ var LeafFormGrid = function(containerID, options) {
         	}
         	buffer += '</tr>';
         	counter++;
-        	
+
         	if(fullRender) {
         		currentRenderIndex = i + 1;
         	}
@@ -459,7 +477,7 @@ var LeafFormGrid = function(containerID, options) {
     		$('#' + prefixID + 'tfoot').html('');
     	}
     	else {
-    		$('#' + prefixID + 'tfoot').html('<tr><td colspan='+colspan+' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>');
+    		$('#' + prefixID + 'tfoot').html('<tr><td colspan='+colspan+' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="'+ rootURL +'images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>');
     	}
 
         $('#' + prefixID + 'tbody').append(buffer);
@@ -485,6 +503,7 @@ var LeafFormGrid = function(containerID, options) {
     	if(postRenderFunc != null) {
     		postRenderFunc();
     	}
+    	renderVirtualHeader();
     }
 
     /**
@@ -493,7 +512,7 @@ var LeafFormGrid = function(containerID, options) {
     function loadData(recordIDs, callback) {
     	currentData = [];
     	var colspan = showIndex ? headers.length + 1 : headers.length;
-    	$('#' + prefixID + 'tbody').html('<tr><td colspan="'+colspan+'" style="text-align: left; padding: 8px">Building report... <img src="images/largespinner.gif" alt="loading..." /></td></tr>');
+    	$('#' + prefixID + 'tbody').html('<tr><td colspan="'+colspan+'" style="text-align: left; padding: 8px">Building report... <img src="'+ rootURL +'images/largespinner.gif" alt="loading..." /></td></tr>');
 
     	var headerIDList = '';
     	for(var i in headers) {
@@ -514,7 +533,17 @@ var LeafFormGrid = function(containerID, options) {
             	for(var i in res) {
             		if(dataBlob[i] != undefined) {
             			for(var j in dataBlob[i]) {
-            				res[i][j] = dataBlob[i][j];
+                            if(typeof dataBlob[i][j] == 'object') {
+                				//ECMA6
+                				//Object.assign(res[i][j], dataBlob[i][j]);
+                                for(var tAttr in dataBlob[i][j]) {
+                                	res[i][j] = res[i][j] || {};
+                                    res[i][j][tAttr] = dataBlob[i][j][tAttr];
+                                }
+                            }
+            				else {
+                                res[i][j] = dataBlob[i][j];
+                            }
             			}
             		}
             		currentData.push(res[i]);
@@ -524,8 +553,7 @@ var LeafFormGrid = function(containerID, options) {
             	}
             	sort('recordID', 'desc');
             	renderBody(0, defaultLimit);
-            	renderVirtualHeader();
-            	
+
             	if(callback != undefined
             		&& typeof callback === 'function') {
             		callback();
@@ -553,33 +581,44 @@ var LeafFormGrid = function(containerID, options) {
     }
 
     /**
+     * Imports LEAF Query result
+     * @memberOf LeafFormGrid
+     */
+    function importQueryResult(res) {
+        var tGridData = [];
+        for(var i in res) {
+            tGridData.push(res[i]);
+        }
+        setData(tGridData);
+        setDataBlob(tGridData);
+    }
+
+    /**
      * @memberOf LeafFormGrid
      */
     function enableToolbar() {
     	containerID = prefixID + 'gridToolbar';
     	$('#' + containerID).css('display', 'block');
-    	$('#' + containerID).html('<span id="'+ prefixID +'getExcel" class="buttonNorm"><img src="../libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Download spreadsheet" /> Export</span>');
+    	$('#' + containerID).html('<button type="button" id="'+ prefixID +'getExcel" class="buttonNorm"><img src="../libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Icon of Spreadsheet" /> Export</button>');
+
     	$('#' + prefixID + 'getExcel').on('click', function() {
             if(currentRenderIndex != currentData.length) {
         		renderBody(0, Infinity);
             }
     		var output = [];
     		var headers = [];
-    		$('#' + prefixID + 'thead>tr>td').each(function(idx, val) {
+    		$('#' + prefixID + 'thead>tr>th').each(function(idx, val) {
     			headers.push($(val).text().trim());
     		});
 
     		var line = {};
     		var i = 0;
     		var thisSite = document.createElement('a');
-            if (/^[A-Za-z0-9+&@#/%?=~_|!:,.;()]/.test(window.location.href)) {
-                thisSite.href = window.location.href;
-            } else return false;
     		var numColumns = headers.length - 1;
     		$('#' + prefixID + 'tbody>tr>td').each(function(idx, val) {
     			line[headers[i]] = $(val).text().trim();
     			if(i == 0 && headers[i] == 'UID') {
-    				line[headers[i]] = '=HYPERLINK("'+ thisSite.origin + thisSite.pathname + '?a=printview&recordID=' + $(val).text().trim() +'", "'+ $(val).text().trim() +'")';
+    				line[headers[i]] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + $(val).text().trim() +'", "'+ $(val).text().trim() +'")';
     			}
     			i++;
     			if(i > numColumns) {
@@ -668,6 +707,7 @@ var LeafFormGrid = function(containerID, options) {
 		loadData: loadData,
 		setData: setData,
 		setDataBlob: setDataBlob,
+		importQueryResult: importQueryResult,
 		enableToolbar: enableToolbar,
 		setPostProcessDataFunc: setPostProcessDataFunc,
 		setPreRenderFunc: setPreRenderFunc,
@@ -677,6 +717,7 @@ var LeafFormGrid = function(containerID, options) {
 		getDataByIndex: getDataByIndex,
 		getDataByRecordID: getDataByRecordID,
 		disableVirtualHeader: function() { isRenderingVirtualHeader = false },
+		stop: function() { isRenderingBody = false },
 		setRootURL: function(url) { rootURL = url; }
 	}
 };

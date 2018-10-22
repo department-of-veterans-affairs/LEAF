@@ -1,7 +1,11 @@
 <?php
-/*
- * As a work of the United States government, this project is in the public domain within the United States.
- */
+/************************
+    Database config
+    Date Created: November 23, 2009
+
+    Central place to put database login information
+    This should be kept outside of web accessible directories
+*/
 
 // require '../../../db_config.php';
 
@@ -37,8 +41,6 @@ class Config
     public static $orgchartImportTags = array('resources_site_access'); // Import org chart groups if they match these tags
 
     public static $leafSecure = false;      //toggle LEAF-Secure on and off, default is off
-
-    public $enforceHTTPS = true;
 
     public $descriptionID = 16;    // indicator ID for description field
 

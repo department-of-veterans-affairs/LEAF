@@ -3,13 +3,16 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+/*
+    Authenticator
+    Date: March 8, 2013
+
+*/
+
 include '../globals.php';
 include '../sources/Login.php';
 include '../db_mysql.php';
 include '../config.php';
-
-// Enforce HTTPS
-include_once '../enforceHTTPS.php';
 
 $config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
@@ -97,11 +100,15 @@ if (isset($_SERVER['REMOTE_USER']) && Orgchart\Config::$leafSecure == false)
         }
         else
         {
-            echo 'Unable to log in: User not found in global database.';
+            header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
+
+            echo 'Unable to log in: User not found in global database.  Redirecting back to PIV login screen.';
         }
     }
 }
 else
 {
-    echo 'Unable to log in: Domain logon issue';
+    header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
+
+    echo 'Unable to log in: Domain logon issue.  Redirecting back to PIV login screen.';
 }

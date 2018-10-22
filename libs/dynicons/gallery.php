@@ -1,5 +1,5 @@
 <?php
-/************************
+/*
     Dynicon gallery
     Author: Michael Gao (Michael.Gao@va.gov)
     Date: November 27, 2012
@@ -31,10 +31,12 @@
         }
         img {
         <?php
-            if(isset($_GET['noSVG']) && $_GET['noSVG'] == 1) {
+            if (isset($_GET['noSVG']) && $_GET['noSVG'] == 1)
+            {
                 echo 'width: 32px;';
             }
-            else {
+            else
+            {
                 echo 'width: 48px;';
             }
         ?>
@@ -62,14 +64,18 @@ $folder = './svg/';
 $images = scandir($folder);
 
 $counter = 0;
-foreach($images as $image) {
-    if(strpos($image, '.svg') > 0) {
-        if(isset($_GET['noSVG']) && $_GET['noSVG'] == 1) {
+foreach ($images as $image)
+{
+    if (strpos($image, '.svg') > 0)
+    {
+        if (isset($_GET['noSVG']) && $_GET['noSVG'] == 1)
+        {
             echo "<div class='icon'>
                     <img src='./?img={$image}&amp;w=32' alt='{$image}' /><br />
                     {$image}</div>";
         }
-        else {
+        else
+        {
             echo "<div class='icon'>
                     <img src='./svg/{$image}' alt='{$image}' /><br />
                     {$image}</div>";

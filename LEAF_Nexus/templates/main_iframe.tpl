@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     {if $tabText != ''}
-    <title>{$tabText} - {$title} | {$city}</title>
+    <title>{$tabText|sanitize} - {$title|sanitize} | {$city|sanitize}</title>
     {else}
-    <title>{$title} | {$city}</title>
+    <title>{$title|sanitize} | {$city|sanitize}</title>
     {/if}
     <style type="text/css" media="screen">
         {if $useDojo == true && $useDojoUI == true}

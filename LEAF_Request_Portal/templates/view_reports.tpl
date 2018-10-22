@@ -85,7 +85,7 @@ function addHeader(column) {
 	    case 'status':
 	    	leafSearch.getLeafFormQuery().join('status');
             headers.push({name: 'Current Status', indicatorID: 'status', editable: false, callback: function(data, blob) {
-                             status = blob[data.recordID].stepTitle == null ? blob[data.recordID].lastStatus : 'Pending ' + blob[data.recordID].stepTitle;
+                             var status = blob[data.recordID].stepTitle == null ? blob[data.recordID].lastStatus : 'Pending ' + blob[data.recordID].stepTitle;
                              status = status == 'null' ? 'Not Submitted' : status;
                              if(blob[data.recordID].deleted > 0) {
                             	 status += ', Cancelled';
@@ -97,6 +97,12 @@ function addHeader(column) {
         	leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
             	$('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
+            }});
+            break;
+        case 'dateInitiated':
+            headers.push({name: 'Request Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
+                var date = new Date(blob[data.recordID].date * 1000);
+                $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
             }});
             break;
         case 'actionButton':
@@ -230,6 +236,7 @@ function loadSearchPrereqs() {
             buffer += '<label class="checkable" style="width: 100px" for="indicators_approval_history"> Approval History</label></div>';
             buffer += '</div>';
             var groupList = {};
+            var groupNames = [];
             var groupIDmap = {};
             var tmp = document.createElement('div');
             var temp;
@@ -241,36 +248,52 @@ function loadSearchPrereqs() {
 
                 resIndicatorList[res[i].indicatorID] = temp;
 
-                if(groupList[res[i].categoryName] == undefined) {
-                    groupList[res[i].categoryName] = [];
+                if(groupList[res[i].categoryID] == undefined) {
+                    groupList[res[i].categoryID] = [];
                 }
-                groupList[res[i].categoryName].push(res[i].indicatorID);
-                if(groupIDmap[res[i].categoryName] == undefined) {
-                	groupIDmap[res[i].categoryName] = {};
-                	groupIDmap[res[i].categoryName].categoryID = res[i].categoryID;
-                	groupIDmap[res[i].categoryName].parentCategoryID = res[i].parentCategoryID;
-                	groupIDmap[res[i].categoryName].parentStaples = res[i].parentStaples;
+                groupList[res[i].categoryID].push(res[i].indicatorID);
+                if(groupIDmap[res[i].categoryID] == undefined) {
+                    groupNames.push({categoryID: res[i].categoryID,
+                                                    categoryName: res[i].categoryName});
+                    groupIDmap[res[i].categoryID] = {};
+                    groupIDmap[res[i].categoryID].categoryName = res[i].categoryName;
+                    groupIDmap[res[i].categoryID].categoryID = res[i].categoryID;
+                    groupIDmap[res[i].categoryID].parentCategoryID = res[i].parentCategoryID;
+                    groupIDmap[res[i].categoryID].parentStaples = res[i].parentStaples;
                 }
             }
 
             buffer += '<div class="col span_1_of_3">';
 
-            var groupNames = Object.keys(groupList);
-            groupNames.sort();
+            groupNames.sort(function(a, b) {
+                a = a.categoryName.toLowerCase();
+                b = b.categoryName.toLowerCase();
+                if(a < b) {
+                    return -1;
+                }
+                if(a > b) {
+                    return 1;
+                }
+                return 0;
+            });
 
             for(var k in groupNames) {
-            	var i = groupNames[k];
-            	var associatedCategories = groupIDmap[i].categoryID;
-            	if(groupIDmap[i].parentCategoryID != '') {
-            		associatedCategories += ' ' + groupIDmap[i].parentCategoryID; 
-            	}
-            	if(groupIDmap[i].parentStaples != null) {
-            		for(var j in groupIDmap[i].parentStaples) {
-            			associatedCategories += ' ' + groupIDmap[i].parentStaples[j];
-            		}
-            	}
-            	
-                buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + i + '</div>';
+                var i = groupNames[k].categoryID;
+                var associatedCategories = groupIDmap[i].categoryID;
+                if(groupIDmap[i].parentCategoryID != '') {
+                    associatedCategories += ' ' + groupIDmap[i].parentCategoryID; 
+                }
+                if(groupIDmap[i].parentStaples != null) {
+                    for(var j in groupIDmap[i].parentStaples) {
+                        associatedCategories += ' ' + groupIDmap[i].parentStaples[j];
+                    }
+                }
+                
+                var categoryLabel = groupNames[k].categoryName;
+                if(groupIDmap[i].parentCategoryID != '') {
+                    categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
+                }
+                buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(var j in groupList[i]) {
                     buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
                     buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
@@ -315,6 +338,11 @@ function loadSearchPrereqs() {
                         success: function(res) {
                             buffer2 = '';
                             buffer2 += '<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>';
+
+                            // Option to retrieve Date Request Initiated
+                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" />';
+                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Request Initiated</label></div>';
+
                             for(var i in res) {
                                 buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
                                 buffer2 += '<label class="checkable" style="width: 100px" for="indicators_depID_'+ res[i].dependencyID +'"> ' + res[i].description +'</label></div>';

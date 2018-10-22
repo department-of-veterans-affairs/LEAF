@@ -57,6 +57,10 @@ function openContent(url) {
                                  <td>Sort Priority</td>\
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
+                             <tr class="isSubForm">\
+                            	 <td>Type <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form."></td>\
+                            	 <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
+                             </tr>\
                            </table>');
         $('#name').val(categories[currCategoryID].categoryName);
         $('#description').val(categories[currCategoryID].categoryDescription);
@@ -64,6 +68,7 @@ function openContent(url) {
         $('#needToKnow').val(categories[currCategoryID].needToKnow);
         $('#visible').val(categories[currCategoryID].visible);
         $('#sort').val(categories[currCategoryID].sort);
+        $('#formType').val(categories[currCategoryID].type);
         if(isSubForm) {
         	$('.isSubForm').css('display', 'none');
         }
@@ -161,6 +166,17 @@ function openContent(url) {
                         if(res != null) {
                         }
                     }
+                }),
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/formType',
+                    data: {type: $('#formType').val(),
+                        categoryID: currCategoryID,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
                 })
              ).then(function() {
                 categories[currCategoryID].categoryName = $('#name').val();
@@ -169,6 +185,7 @@ function openContent(url) {
                 categories[currCategoryID].workflowID = $('#workflowID').val();
                 categories[currCategoryID].needToKnow = $('#needToKnow').val();
                 categories[currCategoryID].visible = $('#visible').val();
+                categories[currCategoryID].type = $('#formType').val();
                 categories[currCategoryID].sort = $('#sort').val();
                 openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
                 dialog.hide();
@@ -209,7 +226,7 @@ function addPermission(categoryID, group) {
         },
         cache: false
     });
-    
+
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
@@ -248,7 +265,7 @@ function editPermissions() {
 
 	dialog_simple.setTitle('Edit Collaborators - ' + formTitle);
 	dialog_simple.setContent('<h2>Collaborators have access to fill out data fields at any time in the workflow.</h2><br />'
-	                             + 'This is typically used to give groups access to fill out internal-use fields.<br />' 
+	                             + 'This is typically used to give groups access to fill out internal-use fields.<br />'
 	                             + '<div id="formPrivs"></div>');
 	dialog_simple.indicateBusy();
 
@@ -329,7 +346,7 @@ function addIndicatorPrivilege(indicatorID) {
             }
         );
     });
-    
+
     dialog.show();
 }
 
@@ -382,7 +399,10 @@ function newQuestion(parentIndicatorID) {
 		title = 'Adding Question to ' + parentIndicatorID;
 	}
     dialog.setTitle(title);
-    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button><div style="float: right">Describe field in 1-2 words<br /><input type="text" id="description" maxlength="50"></input></div></fieldset> \
+    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button></fieldset> \
+            <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>\
+                <input type="text" id="description" maxlength="50"></input>\
+            </fieldset>\
             <fieldset><legend>Input Format</legend>\
                 <select id="indicatorType">\
                     <option value="">None</option>\
@@ -441,7 +461,11 @@ function newQuestion(parentIndicatorID) {
         $('#advNameEditor').css('display', 'none');
         $('#name').trumbowyg({
             resetCss: true,
-            btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'link', '|', 'foreColor', '|', 'viewHTML']
+            btns: ['formatting', 'bold', 'italic', 'underline', '|',
+                'unorderedList', 'orderedList', '|',
+                'link', '|',
+                'foreColor', '|',
+                'justifyLeft', 'justifyCenter', 'justifyRight']
         });
 
         $('.trumbowyg-box').css({
@@ -515,7 +539,10 @@ function newQuestion(parentIndicatorID) {
 // edit question
 function getForm(indicatorID, series) {
 	dialog.setTitle('Editing indicatorID: ' + indicatorID);
-    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button><div style="float: right">Describe field in 1-2 words<br /><input type="text" id="description" maxlength="50"></input></div></fieldset> \
+    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button></fieldset> \
+            <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>\
+                <input type="text" id="description" maxlength="50"></input>\
+            </fieldset>\
             <fieldset><legend>Input Format</legend>\
                 <select id="indicatorType">\
                     <option value="">None</option>\
@@ -940,7 +967,7 @@ function formatIndicatorMultiAnswer(multiAnswerValue){
     });
 
     $.each(uniqueNames, function(i, el){
-      if(el === "no") { 
+      if(el === "no") {
            uniqueNames[i] = "No";
         }
     });
@@ -972,7 +999,7 @@ function mergeForm(categoryID) {
         },
         cache: false
     });
-    
+
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
@@ -1092,7 +1119,7 @@ function deleteForm() {
 	var formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 	dialog_confirm.setTitle('Delete Form?');
 	dialog_confirm.setContent('Are you sure you want to delete the <b>'+ formTitle +'</b> form?');
-	
+
 	dialog_confirm.setSaveHandler(function() {
 		$.ajax({
 			type: 'DELETE',
@@ -1132,9 +1159,9 @@ function buildMenu(categoryID) {
             }(categories[i].categoryID));
 		}
 	}
-	
+
 	$('#menu').append('<div class="buttonNorm" onclick="createForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Form" /> Add Internal-Use</div><br />');
-	
+
     $('#menu').append('<br /><div class="buttonNorm" onclick="mergeFormDialog(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=tab-new.svg&w=32" alt="Staple Form" /> Staple other form</div>\
                           <div id="stapledArea"></div><br />');
 
@@ -1153,12 +1180,12 @@ function buildMenu(categoryID) {
             }
         }
     });
-    
-    
+
+
 	$('#menu').append('<br /><div class="buttonNorm" onclick="exportForm(\''+ categoryID +'\');" style="font-size: 120%"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
 
 	$('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();" style="font-size: 120%"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div><br />');
-	
+
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 
@@ -1295,12 +1322,12 @@ $(function() {
     portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('../api/');
     portalAPI.setCSRFToken('<!--{$CSRFToken}-->');
-	
+
     showFormBrowser();
     <!--{if $form != ''}-->
     postRenderFormBrowser = function() { selectForm('<!--{$form}-->') };
     <!--{/if}-->
-    
+
     <!--{if $referFormLibraryID != ''}-->
     postRenderFormBrowser = function() { $('.formLibraryID_<!--{$referFormLibraryID}-->')
         .animate({'background-color': 'yellow'}, 1000)

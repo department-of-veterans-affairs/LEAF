@@ -347,9 +347,8 @@ function cancelRequest() {
 	dialog_confirm.setSaveHandler(function() {
 		$.ajax({
 			type: 'POST',
-			url: 'ajaxIndex.php?a=cancel',
-			data: {cancel: <!--{$recordID|strip_tags|escape}-->,
-                CSRFToken: '<!--{$CSRFToken}-->'},
+			url: 'api/form/<!--{$recordID|strip_tags|escape}-->/cancel',
+			data: {CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
             	if(response == 1) {
                     window.location.href="index.php?a=cancelled_request&cancelled=<!--{$recordID|strip_tags}-->";

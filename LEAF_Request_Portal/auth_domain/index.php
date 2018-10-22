@@ -3,13 +3,16 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+/*
+    Authenticator for domain accounts
+    Date Created: March 8, 2013
+
+*/
+
 include '../globals.php';
 include '../Login.php';
 include '../db_mysql.php';
 include '../db_config.php';
-
-// Enforce HTTPS
-include_once '../enforceHTTPS.php';
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -99,11 +102,15 @@ if (isset($_SERVER['REMOTE_USER']) && Config::$leafSecure == false)
         }
         else
         {
-            echo 'Unable to log in: User not found in global database.';
+            header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
+
+            echo 'Unable to log in: User not found in global database.  Redirecting back to PIV login screen.';
         }
     }
 }
 else
 {
-    echo 'Unable to log in: Domain logon issue';
+    header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
+
+    echo 'Unable to log in: Domain logon issue.  Redirecting back to PIV login screen.';
 }

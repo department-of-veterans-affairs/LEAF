@@ -3,6 +3,14 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+/*
+    General configuration
+    Date: August 9, 2011
+
+    Central place to put org. chart config
+    This should be kept outside of web accessible directories
+*/
+
 // require '../../../config.php';
 
 namespace Orgchart;
@@ -19,15 +27,10 @@ class Config
 
     public $adPath = array('OU=Users,DC=va,DC=gov'); // Active directory paths
 
-    public static $leafSecure = false;      //toggle LEAF-Secure on and off, default is off
-
-    public static $uploadDir = './UPLOADS/';
-    // Directory for user uploads
-    // using backslashes (/), with trailing slash
+    public static $leafSecure = false;      //toggle LEAF-Secure on and off, default is offpublic static $uploadDir = './UPLOADS/'; // Directory for user uploads
+                                             // using backslashes (/), with trailing slash
 
     public static $ERM_Sites = array('resource_management' => ''); // URL to ERM sites with trailing slash
-
-    public $enforceHTTPS = true;
 
     public $dbHost = 'SERVER_HOSTNAME';
 

@@ -98,6 +98,7 @@ function smarty_modifiercompiler_escape($params, $compiler)
     }
     catch (SmartyException $e) {
         // pass through to regular plugin fallback
+        error_log($e->getMessage());
     }
 
     // could not optimize |escape call, so fallback to regular plugin

@@ -1,13 +1,22 @@
 <?php
 header('X-UA-Compatible: IE=edge');
 
+$https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
+setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
+
 include '../db_mysql.php';
 include '../config.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
+
 $config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$settings['heading'] = $settings['heading'] == '' ? $config->title : $settings['heading'];
-$settings['subheading'] = $settings['subheading'] == '' ? $config->city : $settings['subheading'];
+$settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
+$settings['subheading'] = XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']);
 
 function getBaseDir()
 {
@@ -31,8 +40,8 @@ function getBaseDir()
 <div id="header">
     <div>
       <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
-      <span id="headerLabel"><?php echo $settings['subheading']; ?></span>
-      <span id="headerDescription"><?php echo $settings['heading']; ?></span>
+      <span id="headerLabel"><?php echo htmlentities($settings['subheading']); ?></span>
+      <span id="headerDescription"><?php echo htmlentities($settings['heading']); ?></span>
     </div>
     <span id="headerTab">Secure Login</span>
     <span id="headerTabImg"><img src="../images/tab.png" alt="tab" /></span>
