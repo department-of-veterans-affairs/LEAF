@@ -855,6 +855,7 @@ class Worksheet extends BIFFwriter
             return 0;
         } catch (PhpSpreadsheetException $e) {
             // do nothing
+            error_log($e->getMessage());
         }
     }
 
