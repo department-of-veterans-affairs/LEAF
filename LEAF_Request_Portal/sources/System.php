@@ -554,7 +554,7 @@ class System
     public function newFile()
     {
         $in = $_FILES['file']['name'];
-        // $fileName = XSSHelpers::scrubFilename($in);
+        $fileName = XSSHelpers::scrubFilename($in);
         $fileName = $in;
         if ($fileName != $in
                 || $fileName == 'index.html'
@@ -576,8 +576,7 @@ class System
             return 'Admin access required';
         }
 
-        // XSSHelpers::scrubFilename($_FILES['file']['tmp_name']) . '   ' . __DIR__ . '/../files/' . $fileName;
-        move_uploaded_file($_FILES['file']['tmp_name'], __DIR__ . '/../files/' . $fileName);
+        move_uploaded_file(XSSHelpers::scrubFilename($_FILES['file']['tmp_name']) . '   ' . __DIR__ . '/../files/' . $fileName);
 
         return true;
     }
