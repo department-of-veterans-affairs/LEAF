@@ -484,6 +484,14 @@ span.approval_disapproved {
     text-decoration: none;
 }
 
+/* 508 fix */
+.menu a:focus > .menuButton{
+  box-shadow: 0 4px 6px 2px #8e8e8e;
+  margin: 14px;
+  outline-style: dotted;
+
+}
+
 .menu a:hover {
     color: black;
 }
