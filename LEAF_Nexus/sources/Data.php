@@ -423,10 +423,10 @@ abstract class Data
                 // handle JSON indicator type
                 if (isset($res[0]['format']) && $res[0]['format'] == 'json')
                 {
-                    $res_temp = json_decode(html_entity_decode($res[0]['data']), true);
+                    $res_temp = \XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode($res[0]['data']), true));
                     if (is_array($res_temp))
                     {
-                        $_POST[$key] = json_decode($_POST[$key], true);
+                        $_POST[$key] = \XSSHelpers::scrubObjectOrArray(json_decode($_POST[$key], true));
 
                         $jsonKeys = array_keys($res_temp);
                         foreach ($jsonKeys as $jsonKey)
