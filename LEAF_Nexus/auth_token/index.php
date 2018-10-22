@@ -99,7 +99,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
         }
         else
         {
-            header('Refresh: 4;URL=' . $_SERVER["HTTP_REFERER"]);
+            header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
 
             echo 'Unable to log in: ' . $_SERVER['SSL_CLIENT_S_DN_UID'] . ' not found in database.  Redirecting back to PIV login screen.';
         }
