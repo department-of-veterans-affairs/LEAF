@@ -742,7 +742,7 @@ var LeafFormSearch = function(containerID) {
 	 */
 	function newSearchWidget() {
 		var widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'">\
-						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" / tabindex="0"></button></td>\
+						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
 						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen" aria-label="condition">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
