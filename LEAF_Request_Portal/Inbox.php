@@ -100,6 +100,12 @@ class Inbox
             $resGroupDesignatedRecords = array(); // array[indicatorID] of DB results
             foreach ($personDesignatedRecords as $indicatorID => $recordIDList)
             {
+              foreach ($recordIDList as $key => $recordID)
+              {
+                  //casting as an int to prevent sql injection
+                  $recordIDList[$key] = (int)$recordID;
+
+              }
                 $recordIDs = implode(',', $recordIDList);
                 $vars = array(':indicatorID' => $indicatorID);
                 $resPersonDesignatedRecords[$indicatorID] = $this->db->prepared_query("SELECT * FROM data
