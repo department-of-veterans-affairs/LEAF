@@ -31,9 +31,10 @@ positionSelector.prototype.initialize = function() {
     var t = this;
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="positionSelectorBorder">\
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="positionSelectorIcon" alt="search" />\
+			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="positionSelectorIcon" alt="search" /></div>\
 			<input id="'+this.prefixID+'input" type="search" class="positionSelectorInput" aria-label="Search"></input></div>\
-			<div id="'+this.prefixID+'result"></div>');
+			<div tabindex="0" id="'+this.prefixID+'result"></div>');
 
 	$('#' + this.prefixID+ 'input').on('keydown', function(e) {
 		t.showBusy();
@@ -58,7 +59,9 @@ positionSelector.prototype.showNotBusy = function() {
 positionSelector.prototype.showBusy = function() {
 	$('#' + this.prefixID + 'icon').css('display', 'none');
 	$('#' + this.prefixID + 'iconBusy').css('display', 'inline');
-	this.isBusy = 1;
+    $('#' + this.prefixID + 'status').text('Loading');
+
+    this.isBusy = 1;
 };
 
 positionSelector.prototype.select = function(id) {
@@ -152,7 +155,10 @@ positionSelector.prototype.search = function() {
 
 	            	if(response.length == 0) {
 	            		$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=2>No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
-	            	}
+                        $('#' + t.prefixID + 'status').text('No results found for term ' + txt);
+                    }else {
+                        $('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below');
+                    }
 
 	            	t.selectionData = new Object();
 	                $.each(response, function(key, item) {
@@ -195,15 +201,16 @@ positionSelector.prototype.search = function() {
 	                		linkText = '<a href="'+ t.selectLink +'&positionID='+ item.positionID +'">' + linkText + '</a>';
 	                	}
 
-	                	$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'pos' + item.positionID + '">\
-	                			<td class="positionSelectorTitle" title="PositionID: ' + item.positionID + '">' + linkText + '<br /><span class="positionSelectorService">'+ service +'</span></td>\
-                    			<td class="positionSelectorIncumbents">'+ employees + '</td>\</tr>');
+	                	$('#' + t.prefixID + 'result_table').append('<tr tabindex="0" id="' + t.prefixID + 'pos' + item.positionID + '">\
+	                			<td tabindex="0" class="positionSelectorTitle" title="PositionID: ' + item.positionID + '">' + linkText + '<br /><span class="positionSelectorService">'+ service +'</span></td>\
+                    			<td tabindex="0" class="positionSelectorIncumbents">'+ employees + '</td>\</tr>');
 
 	                	$('#' + t.prefixID + 'pos' + item.positionID).addClass('positionSelector');
 
 	                	$('#' + t.prefixID + 'pos' + item.positionID).on('click', function() {
 	                		t.select(item.positionID);
 	                	});
+                        $('#' + t.prefixID + 'status').append(' ' + linkText + ',');
 	                	t.numResults++;
 	                });
 

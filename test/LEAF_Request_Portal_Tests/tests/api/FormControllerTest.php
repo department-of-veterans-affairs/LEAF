@@ -213,7 +213,7 @@ final class FormControllerTest extends DatabaseTest
     public function testGetIndicatorsByRecordAndFormat() : void
     {
         //gets all indicators for recordID=1 where format is text or textarea
-        $indicators = self::$client->get(array('a' => 'form/1/indicator/formatSearch', 'formats' => array('text', 'textarea')));
+        $indicators = self::$reqClient->get(array('a' => 'form/1/indicator/formatSearch', 'formats' => array('text', 'textarea')));
         
         //checks text indicators for recordID=1
         $this->assertEquals('2', $indicators[0]['indicatorID']);

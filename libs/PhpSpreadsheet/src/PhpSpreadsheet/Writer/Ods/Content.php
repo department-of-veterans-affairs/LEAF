@@ -210,6 +210,7 @@ class Content extends WriterPart
                             $formulaValue = $cell->getCalculatedValue();
                         } catch (Exception $e) {
                             // don't do anything
+                            error_log($e->getMessage());
                         }
                     }
                     $objWriter->writeAttribute('table:formula', 'of:' . $cell->getValue());
