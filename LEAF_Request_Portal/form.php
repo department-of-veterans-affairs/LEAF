@@ -11,6 +11,7 @@
 
 define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
 
+include_once dirname(__FILE__) . '/../libs/php-commons/FileHasher.php';
 if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
@@ -740,7 +741,8 @@ class Form
 
         $data = $this->getIndicator($indicatorID, $series, $recordID);
         $value = $data[$indicatorID]['value'];
-        $file = $this->getFileHash($recordID, $indicatorID, $series, $data[$indicatorID]['value'][$fileIdx]);
+        $fileHasher = new FileHasher($this->db);
+        $file = $fileHasher->portalFileHash($recordID, $indicatorID, $series, $data[$indicatorID]['value'][$fileIdx]);
 
         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
 
@@ -876,13 +878,6 @@ class Form
         return $res[0]['lastStatus'];
     }
 
-    public static function getFileHash($recordID, $indicatorID, $series, $fileName)
-    {
-        $fileName = strip_tags($fileName);
-
-        return "{$recordID}_{$indicatorID}_{$series}_{$fileName}";
-    }
-
     public function isCategory($categoryID)
     {
         if (isset($this->cache['isCategory_' . $categoryID]))
@@ -936,6 +931,7 @@ class Form
                                             'pub',
             );
             $fileIndicators = array_keys($_FILES);
+            $fileHasher = new FileHasher($this->db);
             foreach ($fileIndicators as $indicator)
             {
                 if (is_int($indicator))
@@ -959,7 +955,7 @@ class Form
                             mkdir($uploadDir, 755, true);
                         }
 
-                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
+                        $sanitizedFileName = $fileHasher->portalFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
                     }
                     else

@@ -306,20 +306,6 @@ abstract class NationalData
         return $in;
     }
 
-    public function getFileHash($categoryID, $uid, $indicatorID, $fileName)
-    {
-        if (!is_numeric($categoryID) || !is_numeric($uid) || !is_numeric($indicatorID))
-        {
-            return '';
-        }
-        $res = $this->db->prepared_query('SELECT * FROM settings WHERE setting="salt"', array());
-        $salt = isset($res[0]['data']) ? $res[0]['data'] : '';
-
-        $fileName = md5($fileName . $salt);
-
-        return "{$categoryID}_{$uid}_{$indicatorID}_{$fileName}";
-    }
-
     public function getAllTags($uid)
     {
         $vars = array(':UID' => $uid);

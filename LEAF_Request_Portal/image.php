@@ -7,7 +7,7 @@ include 'db_mysql.php';
 include 'db_config.php';
 include 'Login.php';
 include 'form.php';
-
+include_once dirname(__FILE__) . '/../libs/php-commons/FileHasher.php';
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
@@ -22,6 +22,7 @@ unset($db_config);
 
 $login = new Login($db_phonebook, $db);
 $login->loginUser();
+$fileHasher = new FileHasher($db);
 
 $form = new Form($db, $login);
 
@@ -46,9 +47,9 @@ $_GET['id'] = (int)$_GET['id'];
 $_GET['series'] = (int)$_GET['series'];
 
 $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
-$filename = $uploadDir . Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
+$filename = $uploadDir . $fileHasher->portalFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
 
-$filenameParts = explode('.', $filename);
+$filenameParts = explode('.', $value[$_GET['file']]);
 $fileExtension = array_pop($filenameParts);
 $fileExtension = strtolower($fileExtension);
 

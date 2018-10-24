@@ -18,6 +18,7 @@ function oldFileHash($categoryID, $uid, $indicatorID, $fileName)
 include '../sources/Login.php';
 include '../db_mysql.php';
 include '../config.php';
+include_once dirname(__FILE__) . '/../../libs/php-commons/FileHasher.php';
 
 $config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
@@ -25,6 +26,7 @@ $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName)
 $login = new Orgchart\Login($db, $db);
 $login->setBaseDir('../');
 $login->loginUser();
+$fileHasher = new FileHasher($db);
 
 $uploadPath = '';
 $queue = array();
@@ -81,7 +83,7 @@ foreach ($queue as $file)
                 if ($file == oldFileHash($categoryID, $uid, $indicatorID, $dbFile))
                 {
                     $oldName = $uploadPath . $file;
-                    $newName = $uploadPath . $type->getFileHash($categoryID, $uid, $indicatorID, $dbFile);
+                    $newName = $uploadPath . $fileHasher->nexusFileHash($categoryID, $uid, $indicatorID, $dbFile);
                     echo 'Renaming: ' . $oldName . ' to ' . $newName . '... ';
                     copy($oldName, $newName);
                     unlink($oldName);
@@ -95,7 +97,7 @@ foreach ($queue as $file)
             if ($file == oldFileHash($categoryID, $uid, $indicatorID, $dbFile))
             {
                 $oldName = $uploadPath . $file;
-                $newName = $uploadPath . $type->getFileHash($categoryID, $uid, $indicatorID, $dbFile);
+                $newName = $uploadPath . $fileHasher->nexusFileHash($categoryID, $uid, $indicatorID, $dbFile);
                 echo 'Renaming: ' . $oldName . ' to ' . $newName . '... ';
                 copy($oldName, $newName);
                 unlink($oldName);

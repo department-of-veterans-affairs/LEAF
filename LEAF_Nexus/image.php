@@ -6,6 +6,7 @@
 include 'db_mysql.php';
 include 'config.php';
 include './sources/Login.php';
+include_once dirname(__FILE__) . '/../libs/php-commons/FileHasher.php';
 
 $config = new Orgchart\Config();
 
@@ -14,6 +15,7 @@ $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName)
 session_cache_limiter('');
 $login = new Orgchart\Login($db, $db);
 $login->loginUser();
+$fileHasher = new FileHasher($db);
 
 $type = null;
 switch ($_GET['categoryID']) {
@@ -42,8 +44,8 @@ $data = $type->getAllData($_GET['UID'], $_GET['indicatorID']);
 
 $value = $data[$_GET['indicatorID']]['data'];
 
-$filename = Orgchart\Config::$uploadDir . $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $value);
-$origFile = $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $value);
+$filename = Orgchart\Config::$uploadDir . $fileHasher->nexusFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $value);
+$origFile = $fileHasher->nexusFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $value);
 
 $filenameParts = explode('.', $value);
 $fileExtension = array_pop($filenameParts);

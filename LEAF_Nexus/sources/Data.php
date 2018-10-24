@@ -11,6 +11,7 @@
 
 namespace Orgchart;
 
+include_once dirname(__FILE__) . '/../../libs/php-commons/FileHasher.php';
 if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
@@ -329,20 +330,6 @@ abstract class Data
         return $in;
     }
 
-    public function getFileHash($categoryID, $uid, $indicatorID, $fileName)
-    {
-        if (!is_numeric($categoryID) || !is_numeric($uid) || !is_numeric($indicatorID))
-        {
-            return '';
-        }
-        $res = $this->db->prepared_query('SELECT * FROM settings WHERE setting="salt"', array());
-        $salt = isset($res[0]['data']) ? $res[0]['data'] : '';
-
-        $fileName = md5($fileName . $salt);
-
-        return "{$categoryID}_{$uid}_{$indicatorID}_{$fileName}";
-    }
-
     /**
      * Modify data using $_POST superglobal
      * $_POST Format: $_POST[indicatorID] = value
@@ -374,6 +361,7 @@ abstract class Data
                                             'rtf',
                                             'mht', 'htm', 'html', 'msg', 'xml', );
             $fileIndicators = array_keys($_FILES);
+            $fileHasher = new \FileHasher($this->db);
             foreach ($fileIndicators as $indicator)
             {
                 if (is_int($indicator))
@@ -392,7 +380,7 @@ abstract class Data
                     $fileExtension = strtolower($fileExtension);
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
-                        $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
+                        $sanitizedFileName = $fileHasher->nexusFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
                         // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
                         if (!is_dir(Config::$uploadDir))
                         {
@@ -621,7 +609,8 @@ abstract class Data
         $data = $this->getAllData($UID, $indicatorID);
         $value = $data[$indicatorID]['data'];
         $inputFilename = html_entity_decode($this->sanitizeInput($file));
-        $file = $this->getFileHash($categoryID, $UID, $indicatorID, $inputFilename);
+        $fileHasher = new \FileHasher($this->db);
+        $file = $fileHasher->nexusFileHash($categoryID, $UID, $indicatorID, $inputFilename);
 
         $uploadDir = Config::$uploadDir;
 

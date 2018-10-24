@@ -6,7 +6,7 @@
 include 'db_mysql.php';
 include 'config.php';
 include './sources/Login.php';
-
+include_once dirname(__FILE__) . '/../libs/php-commons/FileHasher.php';
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
@@ -18,6 +18,7 @@ $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName)
 
 $login = new Orgchart\Login($db, $db);
 $login->loginUser();
+$fileHasher = new \FileHasher($db);
 
 $type = null;
 switch ($_GET['categoryID']) {
@@ -48,7 +49,7 @@ $value = $data[$_GET['indicatorID']]['data'];
 
 $inputFilename = html_entity_decode($type->sanitizeInput($_GET['file']));
 
-$filename = Orgchart\Config::$uploadDir . $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $inputFilename);
+$filename = Orgchart\Config::$uploadDir . $fileHasher->nexusFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $inputFilename);
 
 if (is_array($value)
     && array_search($inputFilename, $value) === false)
