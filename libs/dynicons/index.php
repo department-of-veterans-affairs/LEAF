@@ -43,7 +43,7 @@ class Dynicon
 
     public function __construct($file, $width)
     {
-        // $file = XSSHelpers::scrubFilename($file);
+        $file = XSSHelpers::scrubFilename($file);
         $this->file = $file;
         $this->width = $width;
         if (!is_numeric($width) || $width <= 0)
