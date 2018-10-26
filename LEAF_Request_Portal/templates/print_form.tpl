@@ -466,8 +466,8 @@ function admin_changeStep() {
                 			|| workflows[res[i].workflowID] != undefined) {
                             steps += '<option value="'+ res[i].stepID +'">' + res[i].description + ': ' + res[i].stepTitle +'</option>';
                             stepCounter++;
-                            steps2 += '<option value="'+ res[i].stepID +'">' + res[i].description + ' - ' + res[i].stepTitle +'</option>';
                 		}
+                        steps2 += '<option value="'+ res[i].stepID +'">' + res[i].description + ' - ' + res[i].stepTitle +'</option>';
                 	}
                 	if(stepCounter == 0) {
                 		steps += steps2;
