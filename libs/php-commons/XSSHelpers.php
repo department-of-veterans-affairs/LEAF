@@ -330,7 +330,7 @@ class XSSHelpers
             }
             else if(is_numeric($value))
             {
-                $value = (int)$value;
+                $value = $value;
             }
             else
             {
