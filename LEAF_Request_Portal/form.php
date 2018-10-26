@@ -1977,78 +1977,74 @@ class Form
             foreach ($res as $item)
             {
                 // handle special data types
-                if ($indicators[$item['indicatorID']]['format'] == 'date')
-                {
-                    if ($item['data'] != '' && !is_numeric($item['data']))
-                    {
-                        $parsedDate = strtotime($item['data']);
-                        if ($parsedDate !== false)
+                switch($indicators[$item['indicatorID']]['format']) {
+                    case 'date':
+                        if ($item['data'] != '' && !is_numeric($item['data']))
                         {
-                            $item['data'] = date('n/j/o', $parsedDate);
-                        }
-                    }
-                }
-                else
-                {
-                    if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
-                    {
-                        $tData = @unserialize($item['data']);
-                        $item['data'] = '';
-                        if (is_array($tData))
-                        {
-                            foreach ($tData as $tItem)
+                            $parsedDate = strtotime($item['data']);
+                            if ($parsedDate !== false)
                             {
-                                if ($tItem != 'no')
-                                {
-                                    $item['data'] .= "{$tItem}, ";
-                                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_array'][] = $tItem;
-                                }
+                                $item['data'] = date('n/j/o', $parsedDate);
                             }
                         }
-                        $item['data'] = trim($item['data'], ', ');
-                    }
-                    else
-                    {
-                        if ($indicators[$item['indicatorID']]['format'] == 'orgchart_employee')
+                        break;
+                    case 'orgchart_employee':
+                        $empRes = $this->employee->lookupEmpUID($item['data']);
+                        if (isset($empRes[0]))
                         {
-                            $empRes = $this->employee->lookupEmpUID($item['data']);
-                            if (isset($empRes[0]))
-                            {
-                                $item['data'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
-                                $item['dataOrgchart'] = $empRes[0];
-                            }
-                            else
-                            {
-                                $item['data'] = '';
-                            }
+                            $item['data'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                            $item['dataOrgchart'] = $empRes[0];
                         }
                         else
                         {
-                            if ($indicators[$item['indicatorID']]['format'] == 'orgchart_position')
+                            $item['data'] = '';
+                        }
+                        break;
+                    case 'orgchart_position':
+                        $positionTitle = $this->position->getTitle($item['data']);
+                        $positionData = $this->position->getAllData($item['data']);
+                        
+                        $item['dataOrgchart'] = $positionData;
+                        $item['dataOrgchart']['positionID'] = $item['data'];
+                        $item['data'] = "{$positionTitle} ({$positionData[2]['data']}-{$positionData[13]['data']}-{$positionData[14]['data']})";
+                        break;
+                    case 'orgchart_group':
+                        $groupTitle = $this->group->getTitle($item['data']);
+                        
+                        $item['data'] = $groupTitle;
+                        break;
+                    case 'raw_data':
+                        $item['dataHtmlPrint'] = $indicators[$item['indicatorID']]['htmlPrint'];
+                        break;
+                    default:
+                        if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
+                        {
+                            $tData = @unserialize($item['data']);
+                            $item['data'] = '';
+                            if (is_array($tData))
                             {
-                                $positionTitle = $this->position->getTitle($item['data']);
-                                $positionData = $this->position->getAllData($item['data']);
-
-                                $item['dataOrgchart'] = $positionData;
-                                $item['dataOrgchart']['positionID'] = $item['data'];
-                                $item['data'] = "{$positionTitle} ({$positionData[2]['data']}-{$positionData[13]['data']}-{$positionData[14]['data']})";
-                            }
-                            else
-                            {
-                                if ($indicators[$item['indicatorID']]['format'] == 'orgchart_group')
+                                foreach ($tData as $tItem)
                                 {
-                                    $groupTitle = $this->group->getTitle($item['data']);
-
-                                    $item['data'] = $groupTitle;
+                                    if ($tItem != 'no')
+                                    {
+                                        $item['data'] .= "{$tItem}, ";
+                                        $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_array'][] = $tItem;
+                                    }
                                 }
                             }
+                            $item['data'] = trim($item['data'], ', ');
                         }
-                    }
+                        break;
                 }
+
                 $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
                 if (isset($item['dataOrgchart']))
                 {
                     $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_orgchart'] = $item['dataOrgchart'];
+                }
+                if (isset($item['dataHtmlPrint']))
+                {
+                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_htmlPrint'] = $item['dataHtmlPrint'];
                 }
                 $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_timestamp'] = $item['timestamp'];
             }
