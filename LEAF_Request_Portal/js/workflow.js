@@ -106,6 +106,26 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		                'padding': '4px',
 		                'resize': 'vertical'});
 
+        if (step.requiresDigitalSignature == true) {
+            $(document.createElement('div'))
+                .css({'margin': 'auto',
+                      'width': '95%',
+                      'text-align': 'center'})
+                .html("<br style='clear: both' /><img src='../libs/dynicons/?img=application-certificate.svg&w=24' alt='Digital Signature Enabled' title='Digital Signature Enabled' style='vertical-align: middle'> Digital Signature Enabled")
+                .appendTo('#form_dep' + step.dependencyID);
+
+            if(typeof Signer == 'undefined') {
+                $.ajax({
+                    type: 'GET',
+                    url: "../libs/sign/SmartcardHelpers.js",
+                    dataType: 'script'});
+                $.ajax({
+                    type: 'GET',
+                    url: "../libs/sign/SockJS.js",
+                    dataType: 'script'});
+            }
+        }
+
 		// draw buttons
 		for(var i in step.dependencyActions) {
 			var icon = '';
@@ -125,21 +145,79 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		        var data = new Object();
 		        data['comment'] = $('#comment_dep'+ e.data.step.dependencyID).val();
 		        data['actionType'] = e.data.step.dependencyActions[e.data.idx].actionType;
-		        data['dependencyID'] = e.data.step.dependencyID;
-		        data['CSRFToken'] = CSRFToken;
+                data['dependencyID'] = e.data.step.dependencyID;
 
-		        if (e.data.step.dependencyActions[e.data.idx].fillDependency > 0)
-			        if(typeof workflowModule[e.data.step.dependencyID] !== 'undefined') {
-			            workflowModule[e.data.step.dependencyID].trigger(function() {
-			                applyAction(data);
-			            });
-			        }
-			        else {
-			            applyAction(data);
-			        }
-		        else {
-		        	applyAction(data);
-		        }
+                var completeAction = function() {
+                    data['CSRFToken'] = CSRFToken;
+                    if (e.data.step.dependencyActions[e.data.idx].fillDependency > 0)
+                        if(typeof workflowModule[e.data.step.dependencyID] !== 'undefined') {
+                            workflowModule[e.data.step.dependencyID].trigger(function() {
+                                applyAction(data);
+                            });
+                        }
+                        else {
+                            applyAction(data);
+                        }
+                    else {
+                        applyAction(data);
+                    }
+                };
+
+                // TODO: eventually this will be handled by Workflow extension
+                if (step.requiresDigitalSignature == true
+                        && e.data.step.dependencyActions[e.data.idx].fillDependency > 0) { // dont require signature for regressive actions
+                    if (LEAFRequestPortalAPI !== undefined) {
+                        var key = currRecordID + '_' + Math.floor(Math.random()*1000);
+                        $('#form_dep'+ step.dependencyID).slideUp();    // UI hint for loading
+                        $(document.createElement('div'))
+                        .css({'margin': 'auto',
+                              'width': '95%',
+                              'padding-bottom': '16px',
+                              'font-size': '14px',
+                              'text-align': 'center'})
+                        .html("<img src='images/largespinner.gif' alt='Loading Digital Signature Routines' title='Loading Digital Signature Routines'' style='vertical-align: middle'> Loading Digital Signature Routines...")
+                        .attr('id', 'digitalSignatureStatus_' + key)
+                        .appendTo('#workflowbox_dep' + step.dependencyID);
+
+                        var portalAPI = LEAFRequestPortalAPI();
+                        portalAPI.setCSRFToken(CSRFToken);
+ 
+                        portalAPI.Forms.getJSONForSigning(
+                            currRecordID,
+                            function (json) {
+                                var jsonStr = JSON.stringify(json);
+                                Signer.sign(key, jsonStr, function (signedData) {
+                                    portalAPI.Signature.create(
+                                        signedData,
+                                        currRecordID,
+                                        step.stepID,
+                                        step.dependencyID,
+                                        jsonStr,
+                                        function (id) {
+                                            completeAction();
+                                        },
+                                        function (err) {
+                                            console.log(err);
+                                        }
+                                    );
+
+                                }, function (err) {
+                                    // TODO: display error message to user
+                                    console.log(err);
+                                });
+
+                            },
+                            function (err) {
+                                console.log(err);
+                            }
+                        );
+
+                    }
+                    // TODO: handle getting signature here
+                    // data['signature'] = "TEMPORARY SIGNATURE";
+                } else {
+                    completeAction();
+                }
 		    });
 		}
 
@@ -201,9 +279,10 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	function getLastAction(recordID, res) {
 	    $.ajax({
 	        type: 'GET',
-	        url: 'api/?a=formWorkflow/' + recordID + '/lastAction',
+	        url: 'api/?a=formWorkflow/' + recordID + '/lastActionSummary',
 	        dataType: 'json',
-	        success: function(response) {
+	        success: function(lastActionSummary) {
+	            response = lastActionSummary.lastAction;
 	            if(response == null) {
 	            	if(res == null) {
 	            		$('#' + containerID).append('No actions available');
@@ -262,6 +341,25 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
 	                $('#workflowbox_lastAction').append('<span style="font-size: 150%; font-weight: bold", color: '+response.stepFontColor+'>'+ text +'</span>');
 	    		}
+	    		
+                // check signatures
+                if(lastActionSummary.signatures.length > 0) {
+                    $('#workflowcontent').append('<div id="workflowSignatureContainer" style="margin-top: 8px"></div>');
+                    for(var i in lastActionSummary.signatures) {
+                        var sigTime = new Date(lastActionSummary.signatures[i].timestamp * 1000);
+                        var month = sigTime.getMonth() + 1;
+                        var date = sigTime.getDate();
+                        var year = sigTime.getFullYear();
+                        $('#workflowSignatureContainer').append('<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">'+ lastActionSummary.signatures[i].stepTitle +' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="../libs/dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature logo" />'
+                                + lastActionSummary.signatures[i].name + ' '
+                                + month + '/' + date + '/' + year
+                                +'</span><br /><span aria-hidden="true" style="font-size: 75%">x'+ lastActionSummary.signatures[i].signature.substr(0, 32) +'</span></div>');
+                    }
+                    for(var i in lastActionSummary.stepsPendingSignature) {
+                        $('#workflowSignatureContainer').append('<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: white; border: 1px dashed black; text-align: center">'+ lastActionSummary.stepsPendingSignature[i] +'<br /><span style="font-size: 140%; line-height: 300%">X&nbsp;______________</span></div>');
+                    }
+                    $('#workflowcontent').append('<br style="clear: both" />');
+                }
 	        },
 	        cache: false
 	    });
