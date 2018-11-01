@@ -213,8 +213,6 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                         );
 
                     }
-                    // TODO: handle getting signature here
-                    // data['signature'] = "TEMPORARY SIGNATURE";
                 } else {
                     completeAction();
                 }
