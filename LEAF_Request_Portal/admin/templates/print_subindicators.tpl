@@ -66,20 +66,55 @@
             </div>
             <div tabindex="0" class="printResponse" id="xhrIndicator_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
 
-<!--{$indicator.format}-->
-<!--{if $indicator.options != ''}-->
-    <ul>
-    <!--{assign var="numOptions" value=0}-->
-    <!--{foreach from=$indicator.options item=option}-->
-    <li><!--{$option}--></li>
+<!--{if $indicator.format == 'grid'}-->
+    <!--{$indicator.format}-->
+    </br></br>
+    <table border="1" id="grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="table-layout: fixed; width: 100%; border: 1px black;">
+        <tbody>
+        </tbody>
+    </table>
+    <script>
+        printTablePreview([<!--{foreach from=$indicator.options item=parameter}-->'<!--{$parameter}-->',<!--{/foreach}-->]);
 
-    <!--{if $numOptions > 5}-->
+        function printTablePreview(gridParameters){
+            var gridBodyElement = '#grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> > tbody';
+            var columnNames = gridParameters[0].split(',');
+            var columns = parseInt(gridParameters[1]);
+            var rows = parseInt(gridParameters[2]);
+            var entries = [];
+
+            for(var i = 0; i < gridParameters.length - 2; i++){
+                entries[i] = gridParameters[3 + i];
+            }
+
+            for(var i = 0; i <= rows; i++){
+                $(gridBodyElement).append('<tr></tr>');
+                for(var j = 0; j < columns; j++){
+                    if (i === 0) {
+                        $(gridBodyElement + ' > tr:eq(0)').append('<td>' + columnNames[j] + '</td>');
+                    } else {
+                        $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td>' + entries[(i - 1) * (columns) + j].replace(/,/g, "</br>&nbsp;&nbsp;") + '</td>');
+                    }
+                }
+            }
+        }
+    </script>
+<!--{else}-->
+    <!--{$indicator.format}-->
+    <!--{if $indicator.options != ''}-->
+    <ul>
+        <!--{assign var="numOptions" value=0}-->
+        <!--{foreach from=$indicator.options item=option}-->
+        <li><!--{$option}--></li>
+
+        <!--{if $numOptions > 5}-->
         <li>...</li>
         <!--{break}-->
-    <!--{/if}-->
-    <!--{assign var="numOptions" value=$numOptions+1}-->
-    <!--{/foreach}-->
+        <!--{/if}-->
+        <!--{assign var="numOptions" value=$numOptions+1}-->
+        <!--{/foreach}-->
     </ul>
+    <!--{/if}-->
 <!--{/if}-->
 
                 <!--{include file="print_subindicators_ajax.tpl"}-->

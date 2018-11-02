@@ -42,6 +42,59 @@
                 [protected data]
             </span>
         <!--{/if}-->
+        <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
+            <table id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input" border="1" style="table-layout: fixed; width: 100%; border: 1px black;">
+                <tbody>
+                </tbody>
+            </table>
+            <script>
+                printTablePreview([<!--{foreach from=$indicator.options item=parameter}-->'<!--{$parameter}-->',<!--{/foreach}-->], ("<!--{$indicator.value|strip_tags|regex_replace:"/[\r\n]/" : " "}-->").split(';'));
+
+                function printTablePreview(gridParameters, values){
+                    var gridBodyElement = '#grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input > tbody';
+                    var columnNames = gridParameters[0].split(',');
+                    var columns = parseInt(gridParameters[1]);
+                    var rows = parseInt(gridParameters[2]);
+                    var entries = [];
+                    var element = '';
+
+                    for(var i = 0; i < gridParameters.length - 2; i++){
+                        entries[i] = gridParameters[3 + i];
+                    }
+
+                    for(var i = 0; i <= rows; i++){
+                        $(gridBodyElement).append('<tr></tr>');
+                        for(var j = 0; j < columns; j++){
+                            if (i === 0) {
+                                $(gridBodyElement + ' > tr:eq(0)').append('<td>' + columnNames[j] + '</td>');
+                            } else {
+                                var type = (entries[(i - 1) * (columns) + j] === 'textarea') ? 'textarea' : 'dropdown';
+                                if(type === 'dropdown'){
+                                    var dropdownOption = entries[(i - 1) * (columns) + j].replace('dropdown,', '').toString();
+                                    element = makeDropdown(dropdownOption, values[(i - 1) * (columns) + j]);
+                                } else if(type === 'textarea'){
+                                    element = '<textarea style="padding: 1px; vertical-align: middle; height: 50px; resize: none; width: 98%;">'+ values[(i - 1) * (columns) + j] +'</textarea>';
+                                }
+                                $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td>' + element + '</td>')
+                            }
+                        }
+                    }
+                }
+                function makeDropdown(options, selected){
+                    var dropdownElement = 'Select an option<select>';
+                    var array = [];
+                    array = options.split(",");
+                    for(var i = 0; i < array.length; i++){
+                        if(selected === array[i]){
+                            dropdownElement += '<option value="' + array[i] + '" selected="selected">' + array[i] + '</option>';
+                        }
+                        dropdownElement += '<option value="' + array[i] + '">' + array[i] + '</option>';
+                    }
+                    dropdownElement += '</select>';
+                    return dropdownElement;
+                }
+            </script>
+        <!--{/if}-->
         <!--{if $indicator.format == 'textarea' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <textarea id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 97%; padding: 8px; font-size: 1.3em; font-family: monospace" rows="10"><!--{$indicator.value|sanitize}--></textarea>
             <div id="textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->" style="text-align: right; font-size: 12px"><span class="link">formatting options</span></div>
