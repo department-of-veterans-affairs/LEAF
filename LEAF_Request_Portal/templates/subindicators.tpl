@@ -73,6 +73,9 @@
                                     var dropdownOption = entries[(i - 1) * (columns) + j].replace('dropdown,', '').toString();
                                     element = makeDropdown(dropdownOption, values[(i - 1) * (columns) + j]);
                                 } else if(type === 'textarea'){
+                                    if(values[(i - 1) * (columns) + j] === 'undefined'){
+                                        values[(i - 1) * (columns) + j] = '[ blank ]'
+                                    }
                                     element = '<textarea style="padding: 1px; vertical-align: middle; height: 50px; resize: none; width: 98%;">'+ values[(i - 1) * (columns) + j] +'</textarea>';
                                 }
                                 $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td>' + element + '</td>')
