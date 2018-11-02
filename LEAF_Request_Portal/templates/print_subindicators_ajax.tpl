@@ -183,4 +183,38 @@
             <textarea class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="display: none"><!--{$indicator.value|sanitize}--></textarea>
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
+        <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
+            <table id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output" border="1" style="text-align: center; table-layout: fixed; width: 100%; font-family: monospace; font-size: 15px; letter-spacing: 0.01rem; line-height: 150%; color: rgba(0,0,0,0.8); border: 1px black;">
+                <tbody>
+                </tbody>
+            </table>
+        <script>
+            $(function() {
+                printTablePreview([<!--{foreach from=$indicator.options item=parameter}-->'<!--{$parameter}-->', <!--{/foreach}-->], ("<!--{$indicator.value|strip_tags|regex_replace:"/[\r\n]/" : " "}-->").split(';'));
+
+                function printTablePreview(gridParameters, values) {
+                    var gridBodyElement = '#grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output > tbody';
+                    var columnNames = gridParameters[0].split(',');
+                    var columns = parseInt(gridParameters[1]);
+                    var rows = parseInt(gridParameters[2]);
+                    var entries = [];
+
+                    for (var i = 0; i < gridParameters.length - 2; i++) {
+                        entries[i] = gridParameters[3 + i];
+                    }
+
+                    for (var i = 0; i <= rows; i++) {
+                        $(gridBodyElement).append('<tr></tr>');
+                        for (var j = 0; j < columns; j++) {
+                            if (i === 0) {
+                                $(gridBodyElement + ' > tr:eq(0)').append('<td style="background-color: gainsboro; font-size: 20px; word-wrap:break-word">' + columnNames[j] + '</td>');
+                            } else {
+                                $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td style="word-wrap:break-word">' + values[(i - 1) * (columns) + j] + '</td>')
+                            }
+                        }
+                    }
+                }
+            })
+        </script>
+        <!--{/if}-->
         <!--{include file="print_subindicators.tpl" form=$indicator.child depth=$depth+4 recordID=$recordID}-->

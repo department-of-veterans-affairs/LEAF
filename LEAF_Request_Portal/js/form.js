@@ -37,13 +37,41 @@ var LeafForm = function(containerID) {
 			console.log('recordID not set');
 			return 0;
 		}
+
+		var hasTable = $('#' + htmlFormID).find('table').html() !== undefined;
 		var temp = $('#' + dialog.btnSaveID).html();
 		$('#' + dialog.btnSaveID).empty().html('<img src="images/indicator.gif" alt="saving" /> Saving...');
 
 		$('#' + htmlFormID).find(':input:disabled').removeAttr('disabled');
 
 		var data = {recordID: recordID};
-		$('#' + htmlFormID).serializeArray().map(function(x){data[x.name] = x.value;}); 
+		$('#' + htmlFormID).serializeArray().map(function(x){data[x.name] = x.value;});
+
+		if(hasTable === true){
+            var tables = [];
+
+			$('#' + htmlFormID).find('table').each(function(index) {
+				var tableData = [];
+				var firstRow = $(this).find('tr:eq(0)').children().length;
+
+				//first row contains column names, so they are excluded
+				$(this).find('td').slice(firstRow).each(function() {
+					var value = ($(this).children().val() === undefined) ? "" : $(this).children().val();
+					tableData.push(value.replace(/;/g, ""));
+				});
+
+				tables[index] = {
+					id: $(this).attr('id').split('_')[1],
+					data: tableData.join(';'),
+				};
+			});
+
+            $('#' + htmlFormID).serializeArray().map(function(){
+            	for(var i = 0; i < tables.length; i++){
+                    data[tables[i].id] = tables[i].data;
+                }
+            });
+		}
 
 	    $.ajax({
 	        type: 'POST',
