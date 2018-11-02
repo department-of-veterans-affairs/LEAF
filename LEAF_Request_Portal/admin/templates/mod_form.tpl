@@ -642,7 +642,7 @@ function makeGrid(columns, rows){
                     $(gridBodyElement + ' > tr:eq(' + i + ') > td:eq(' + j + ') > select option[value="' + type + '"]').attr('selected', 'selected');
                     if(type === 'dropdown'){
                         var options = gridLayout.entries[(i - 1) * (columns) + j].split(',').slice(1).toString();
-                        $(gridBodyElement + ' > tr:eq(' + i + ') > td:eq(' + j + ')').append('<span></br>One option per line<textarea value="">' + options.replace(/,/g, "\n") + '</textarea></span>');
+                        $(gridBodyElement + ' > tr:eq(' + i + ') > td:eq(' + j + ')').append('<span></br>One option per line<textarea style="resize: none;"value="">' + options.replace(/,/g, "\n") + '</textarea></span>');
                     }
                 }
             }
@@ -652,7 +652,7 @@ function makeGrid(columns, rows){
 
 function toggleDropDown(type, cell){
     if(type === 'dropdown'){
-        $(cell).parent().append('<span></br>One option per line<textarea value=""></textarea></span>');
+        $(cell).parent().append('<span></br>One option per line</br><textarea value=""></textarea></span>');
     } else {
         $(cell).parent().find('span').remove();
     }
@@ -725,7 +725,7 @@ function getForm(indicatorID, series) {
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
                 <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells(\'column\')">Add column</button>&nbsp;<button class="buttonNorm" onclick="addCells(\'row\')">Add row</button>\
-                </br></br><button class="buttonNorm" onclick="removeCells(\'column\')">Remove column</button>&nbsp;<button class="buttonNorm" onclick="removeCells(\'row\')">Remove row</button></br></br><table border="1" style="border: 1px black;"><tbody></tbody></table></div>\
+                </br></br><button class="buttonNorm" onclick="removeCells(\'column\')">Remove column</button>&nbsp;<button class="buttonNorm" onclick="removeCells(\'row\')">Remove row</button></br></br><table border="1" style="border: 1px black; width: 32%;"><tbody></tbody></table></div>\
                 <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
             <fieldset><legend>Attributes</legend>\
                 <table>\

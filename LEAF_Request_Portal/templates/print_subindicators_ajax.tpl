@@ -184,10 +184,12 @@
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-            <table id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output" border="1" style="text-align: center; table-layout: fixed; width: 100%; font-family: monospace; font-size: 15px; letter-spacing: 0.01rem; line-height: 150%; color: rgba(0,0,0,0.8); border: 1px black;">
+        <div class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
+            <table id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output" border="1" style="padding: 20px; text-align: center; table-layout: fixed; font-family: monospace; font-size: 15px; letter-spacing: 0.01rem; line-height: 150%; color: rgba(0,0,0,0.8); border: 1px black;">
                 <tbody>
                 </tbody>
             </table>
+        </div>
         <script>
             $(function() {
                 printTablePreview([<!--{foreach from=$indicator.options item=parameter}-->'<!--{$parameter}-->', <!--{/foreach}-->], ("<!--{$indicator.value|strip_tags|regex_replace:"/[\r\n]/" : " "}-->").split(';'));
@@ -209,6 +211,9 @@
                             if (i === 0) {
                                 $(gridBodyElement + ' > tr:eq(0)').append('<td style="background-color: gainsboro; font-size: 20px; word-wrap:break-word">' + columnNames[j] + '</td>');
                             } else {
+                                if(values[(i - 1) * (columns) + j] === 'undefined' || values[(i - 1) * (columns) + j] === undefined){
+                                    values[(i - 1) * (columns) + j] = '[blank]';
+                                }
                                 $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td style="word-wrap:break-word">' + values[(i - 1) * (columns) + j] + '</td>')
                             }
                         }
