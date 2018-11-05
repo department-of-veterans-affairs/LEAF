@@ -693,10 +693,17 @@
         <!--{/if}-->
         <!--{if $indicator.is_sensitive == 1}-->
         <script>
-        var visible = 0;
-        $('#<!--{$indicator.indicatorID|strip_tags}-->').attr('type', 'password');
         if(!$('#<!--{$indicator.indicatorID|strip_tags}-->').is('input')) {
             $('#<!--{$indicator.indicatorID|strip_tags}-->_sensitive').css('background-image', 'none');
+        }
+        if($('.printmainform').length > 0) {
+            var visible = 1;
+            $('#<!--{$indicator.indicatorID|strip_tags}-->_sensitive').css('background-image', 'url(/libs/dynicons/?img=eye_visible.svg&w=16)');
+            $('#<!--{$indicator.indicatorID|strip_tags}-->').attr('type', 'text');
+            $('#sensitiveStatus').attr('aria-label', 'sensitive data shown');
+        } else {
+            var visible = 0;
+            $('#<!--{$indicator.indicatorID|strip_tags}-->').attr('type', 'password');
         }
         function toggleSensitive(indicatorID) {
             if(visible === 0) {
