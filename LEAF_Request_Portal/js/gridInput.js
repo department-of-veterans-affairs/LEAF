@@ -1,3 +1,14 @@
+function makeDropdown(options, selected){
+    var dropdownElement = 'Select an option<select>';
+    for(var i = 0; i < options.length; i++){
+        if(selected === options[i]){
+            dropdownElement += '<option value="' + options[i] + '" selected="selected">' + options[i] + '</option>';
+        }
+        dropdownElement += '<option value="' + options[i] + '">' + options[i] + '</option>';
+    }
+    dropdownElement += '</select>';
+    return dropdownElement;
+}
 function printTableInput(gridParameters, values, indicatorID, series){
     var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
     var rows = values.length;
@@ -23,17 +34,6 @@ function printTableInput(gridParameters, values, indicatorID, series){
             $(gridBodyElement + ' > tr:eq(' + (i + 1) + ')').append('<td>' + element + '</td>')
         }
     }
-}
-function makeDropdown(options, selected){
-    var dropdownElement = 'Select an option<select>';
-    for(var i = 0; i < options.length; i++){
-        if(selected === options[i]){
-            dropdownElement += '<option value="' + options[i] + '" selected="selected">' + options[i] + '</option>';
-        }
-        dropdownElement += '<option value="' + options[i] + '">' + options[i] + '</option>';
-    }
-    dropdownElement += '</select>';
-    return dropdownElement;
 }
 function addRow(gridParameters, indicatorID, series){
     var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
