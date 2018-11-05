@@ -563,25 +563,6 @@ function newQuestion(parentIndicatorID) {
                     gridJSON.push(properties);
                 });
 
-                // for (var i = 0; i < columns; i++){
-                //     var type = $(gridBodyElement + '> td:eq('+ i +') option:selected').val();
-                //     if(type != undefined){
-                //         if(type === 'dropdown'){
-                //             type += "," + gridDropdown($(gridBodyElement + ' > tr > td:eq('+ i +') > span > textarea').val());
-                //         }
-                //         gridLayout.entries.push(type);
-                //     }
-                // }
-                // alert(JSON.stringify(gridJSON));
-
-                // var buffer = $('#indicatorType').val();
-                // buffer += "\n" + gridLayout.columnNames.toString();
-                // buffer += "\n" + columns.toString();
-                // buffer += "\n" + gridLayout.rows.toString();
-                //
-                // for(var i = 0; i < gridLayout.entries.length; i++){
-                //     buffer += "\n" + gridLayout.entries[i].toString();
-                // }
                 var buffer = $('#indicatorType').val();
                 buffer += "\n" + JSON.stringify(gridJSON);
                 $('#format').val(buffer);
