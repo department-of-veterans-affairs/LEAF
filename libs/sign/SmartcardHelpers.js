@@ -13,8 +13,8 @@ var Signer = function() {
             return 1;
         }
         //socket = new WebSocket('ws://localhost:8443');
-        var chromeUrl = 'ws://localhost:8080/';
-        var ieUrl = 'https://localhost:8443/myapp/';
+        var chromeUrl = "ws://localhost:8080/";
+        var ieUrl = "https://localhost:8443/myapp/";
         !!document.documentMode ? socket = new SockJS(ieUrl) : socket = new WebSocket(chromeUrl);
         socket.addEventListener('open', function() {
             isConnected = true;
