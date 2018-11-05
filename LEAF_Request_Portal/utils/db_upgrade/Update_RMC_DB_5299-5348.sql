@@ -28,5 +28,5 @@ CREATE TABLE IF NOT EXISTS `signatures` (
 ALTER TABLE `signatures` ADD UNIQUE `recordID_stepID_depID` (`recordID`, `stepID`, `dependencyID`);
 
 
-UPDATE `settings` SET `data` = '5326' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '5348' WHERE `settings`.`setting` = 'dbversion';
 COMMIT;
