@@ -17,7 +17,6 @@ var Signer = function() {
         var ieUrl = 'https://localhost:8443/myapp/';
         !!document.documentMode ? socket = new SockJS(ieUrl) : socket = new WebSocket(chromeUrl);
         socket.addEventListener('open', function() {
-            console.log('onopen');
             isConnected = true;
             if(typeof _callback == 'function') {
                 _callback();
