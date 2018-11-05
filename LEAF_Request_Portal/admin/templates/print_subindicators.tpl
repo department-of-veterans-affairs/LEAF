@@ -69,32 +69,21 @@
 <!--{if $indicator.format == 'grid'}-->
     <!--{$indicator.format}-->
     </br></br>
-    <table border="1" id="grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="table-layout: fixed; width: 100%; border: 1px black;">
-        <tbody>
+    <table id="grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="table-layout: fixed; width: 100%; max-width: 100%;border: 1px black;">
+        <tbody style="display: flex; flex-wrap: wrap;">
         </tbody>
     </table>
     <script>
-        printTablePreview([<!--{foreach from=$indicator.options item=parameter}-->'<!--{$parameter}-->',<!--{/foreach}-->]);
+        var array = <!--{$indicator.options[0]}-->;
+        printTablePreview(array);
 
         function printTablePreview(gridParameters){
-            var gridBodyElement = '#grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> > tbody';
-            var columnNames = gridParameters[0].split(',');
-            var columns = parseInt(gridParameters[1]);
-            var rows = parseInt(gridParameters[2]);
-            var entries = [];
+            var previewElement = '#grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> > tbody';
 
-            for(var i = 0; i < gridParameters.length - 2; i++){
-                entries[i] = gridParameters[3 + i];
-            }
-
-            for(var i = 0; i <= rows; i++){
-                $(gridBodyElement).append('<tr></tr>');
-                for(var j = 0; j < columns; j++){
-                    if (i === 0) {
-                        $(gridBodyElement + ' > tr:eq(0)').append('<td>' + columnNames[j] + '</td>');
-                    } else {
-                        $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td>' + entries[(i - 1) * (columns) + j].replace(/,/g, "</br>&nbsp;&nbsp;") + '</td>');
-                    }
+            for(var i = 0; i < gridParameters.length; i++){
+                $(previewElement).append('<td style="flex: 1; order: '+ (i + 1) + '"><b>Column #' + (i + 1) + '</b></br>Title:' + gridParameters[i].name + '</br>Type:' + gridParameters[i].type + '</br></td>');
+                if(gridParameters[i].type === 'dropdown'){
+                    $(previewElement + '> td:eq(' + i + ')').append('Options:</br><li>' + gridParameters[i].options.toString().replace(/,/g, "</li><li>") + '</li></br>');
                 }
             }
         }

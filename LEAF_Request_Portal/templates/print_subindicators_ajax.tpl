@@ -185,37 +185,30 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
         <div class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-            <table id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output" border="1" style="padding: 20px; text-align: center; table-layout: fixed; font-family: monospace; font-size: 15px; letter-spacing: 0.01rem; line-height: 150%; color: rgba(0,0,0,0.8); border: 1px black;">
+            <table id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output" border="1" style="width: 100%; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed; font-family: monospace; font-size: 15px; letter-spacing: 0.01rem; line-height: 150%; color: rgba(0,0,0,0.8); border: 1px black;">
                 <tbody>
                 </tbody>
             </table>
         </div>
         <script>
             $(function() {
-                printTablePreview([<!--{foreach from=$indicator.options item=parameter}-->'<!--{$parameter}-->', <!--{/foreach}-->], ("<!--{$indicator.value|strip_tags|regex_replace:"/[\r\n]/" : " "}-->").split(';'));
+                printTablePreview(<!--{$indicator.options[0]}-->, <!--{$indicator.value|json_encode}-->);
 
                 function printTablePreview(gridParameters, values) {
                     var gridBodyElement = '#grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output > tbody';
-                    var columnNames = gridParameters[0].split(',');
-                    var columns = parseInt(gridParameters[1]);
-                    var rows = parseInt(gridParameters[2]);
-                    var entries = [];
+                    var rows = values.length;
+                    var columns = gridParameters.length;
 
-                    for (var i = 0; i < gridParameters.length - 2; i++) {
-                        entries[i] = gridParameters[3 + i];
+                    $(gridBodyElement).append('<tr></tr>');
+                    for(var i = 0; i < columns; i++){
+                        $(gridBodyElement + ' > tr:eq(0)').append('<td style="flex: 1; background-color: gainsboro; font-size: 20px; word-wrap:break-word">' + gridParameters[i].name + '</td>');
                     }
 
-                    for (var i = 0; i <= rows; i++) {
+                    for (var i = 0; i < rows; i++) {
                         $(gridBodyElement).append('<tr></tr>');
                         for (var j = 0; j < columns; j++) {
-                            if (i === 0) {
-                                $(gridBodyElement + ' > tr:eq(0)').append('<td style="background-color: gainsboro; font-size: 20px; word-wrap:break-word">' + columnNames[j] + '</td>');
-                            } else {
-                                if(values[(i - 1) * (columns) + j] === 'undefined' || values[(i - 1) * (columns) + j] === undefined){
-                                    values[(i - 1) * (columns) + j] = '[blank]';
-                                }
-                                $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td style="word-wrap:break-word">' + values[(i - 1) * (columns) + j] + '</td>')
-                            }
+                            var value = values[i] === undefined || values[i][j] === undefined ? '[ blank ]' : values[i][j];
+                            $(gridBodyElement + ' > tr:eq(' + (i + 1) + ')').append('<td style="flex: 1; word-wrap:break-word">' + value + '</td>')
                         }
                     }
                 }
