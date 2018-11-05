@@ -184,6 +184,7 @@
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
+        <script type="text/javascript" src="js/gridInput.js"></script>
         <div class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
             <table id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output" border="1" style="width: 100%; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed; font-family: monospace; font-size: 15px; letter-spacing: 0.01rem; line-height: 150%; color: rgba(0,0,0,0.8); border: 1px black;">
                 <tbody>
@@ -192,26 +193,7 @@
         </div>
         <script>
             $(function() {
-                printTablePreview(<!--{$indicator.options[0]}-->, <!--{$indicator.value|json_encode}-->);
-
-                function printTablePreview(gridParameters, values) {
-                    var gridBodyElement = '#grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output > tbody';
-                    var rows = values.length;
-                    var columns = gridParameters.length;
-
-                    $(gridBodyElement).append('<tr></tr>');
-                    for(var i = 0; i < columns; i++){
-                        $(gridBodyElement + ' > tr:eq(0)').append('<td style="flex: 1; background-color: gainsboro; font-size: 20px; word-wrap:break-word">' + gridParameters[i].name + '</td>');
-                    }
-
-                    for (var i = 0; i < rows; i++) {
-                        $(gridBodyElement).append('<tr></tr>');
-                        for (var j = 0; j < columns; j++) {
-                            var value = values[i] === undefined || values[i][j] === undefined ? '[ blank ]' : values[i][j];
-                            $(gridBodyElement + ' > tr:eq(' + (i + 1) + ')').append('<td style="flex: 1; word-wrap:break-word">' + value + '</td>')
-                        }
-                    }
-                }
+                printTableOutput(<!--{$indicator.options[0]}-->, <!--{$indicator.value|json_encode}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
             })
         </script>
         <!--{/if}-->

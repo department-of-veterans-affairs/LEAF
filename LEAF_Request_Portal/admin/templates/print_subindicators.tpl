@@ -74,8 +74,7 @@
         </tbody>
     </table>
     <script>
-        var array = <!--{$indicator.options[0]}-->;
-        printTablePreview(array);
+        printTablePreview(<!--{$indicator.options[0]}-->);
 
         function printTablePreview(gridParameters){
             var previewElement = '#grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> > tbody';
