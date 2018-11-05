@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="1.5.0+" codebase="https://vhav05webrm.v05.med.va.gov/LEAF/digital-signature" href="sign.jnlp">
+<jnlp spec="1.5.0+" codebase="https://[server]/LEAF/digital-signature" href="sign.jnlp">
 
     <information>
         <title>Websocket Digital Signature</title>

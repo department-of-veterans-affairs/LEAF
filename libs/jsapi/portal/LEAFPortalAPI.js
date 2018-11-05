@@ -213,7 +213,8 @@ var PortalFormsAPI = function (baseAPIURL) {
             $.ajax({
                 method: 'GET',
                 url: fetchURL,
-                dataType: 'json'
+                dataType: 'json',
+                cache: false
             })
                 .done(function (msg) {
                     onSuccess(msg);
