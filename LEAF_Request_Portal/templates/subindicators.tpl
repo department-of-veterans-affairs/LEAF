@@ -43,58 +43,68 @@
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
+            <button class="buttonNorm" onclick="addRow_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->()">Add row</button>&nbsp;&nbsp;<button class="buttonNorm" onclick="deleteRow_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->()">Delete row</button>
             <table id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input" border="1" style="table-layout: fixed; width: 100%; border: 1px black;">
                 <tbody>
                 </tbody>
             </table>
             <script>
-                printTablePreview([<!--{foreach from=$indicator.options item=parameter}-->'<!--{$parameter}-->',<!--{/foreach}-->], ("<!--{$indicator.value|strip_tags|regex_replace:"/[\r\n]/" : " "}-->").split(';'));
+                printTablePreview(<!--{$indicator.options[0]}-->, <!--{$indicator.value|json_encode}-->);
 
                 function printTablePreview(gridParameters, values){
                     var gridBodyElement = '#grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input > tbody';
-                    var columnNames = gridParameters[0].split(',');
-                    var columns = parseInt(gridParameters[1]);
-                    var rows = parseInt(gridParameters[2]);
-                    var entries = [];
+                    var rows = values.length;
+                    var columns = gridParameters.length;
                     var element = '';
 
-                    for(var i = 0; i < gridParameters.length - 2; i++){
-                        entries[i] = gridParameters[3 + i];
+                    $(gridBodyElement).append('<tr></tr>');
+                    for(var i = 0; i < columns; i++){
+                        $(gridBodyElement + ' > tr:eq(0)').append('<td><b>' + gridParameters[i].name + '</b></td>');
                     }
 
-                    for(var i = 0; i <= rows; i++){
+                    for(var i = 0; i < rows; i++){
                         $(gridBodyElement).append('<tr></tr>');
                         for(var j = 0; j < columns; j++){
-                            if (i === 0) {
-                                $(gridBodyElement + ' > tr:eq(0)').append('<td>' + columnNames[j] + '</td>');
-                            } else {
-                                var type = (entries[(i - 1) * (columns) + j] === 'textarea') ? 'textarea' : 'dropdown';
-                                if(type === 'dropdown'){
-                                    var dropdownOption = entries[(i - 1) * (columns) + j].replace('dropdown,', '').toString();
-                                    element = makeDropdown(dropdownOption, values[(i - 1) * (columns) + j]);
-                                } else if(type === 'textarea'){
-                                    if(values[(i - 1) * (columns) + j] === 'undefined'){
-                                        values[(i - 1) * (columns) + j] = '[ blank ]'
-                                    }
-                                    element = '<textarea style="padding: 1px; vertical-align: middle; height: 50px; resize: none; width: 98%;">'+ values[(i - 1) * (columns) + j] +'</textarea>';
-                                }
-                                $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td>' + element + '</td>')
+                            var value = values[i] === undefined || values[i][j] === undefined ? '[ blank ]' : values[i][j];
+                            if(gridParameters[j].type === 'dropdown'){
+                                element = makeDropdown(gridParameters[j].options, value);
+                            } else if(gridParameters[j].type === 'textarea'){
+                                element = '<textarea style="padding: 1px; vertical-align: middle; height: 50px; resize: none; width: 98%;">'+ value +'</textarea>';
                             }
+                            $(gridBodyElement + ' > tr:eq(' + (i + 1) + ')').append('<td>' + element + '</td>')
                         }
                     }
                 }
                 function makeDropdown(options, selected){
                     var dropdownElement = 'Select an option<select>';
-                    var array = [];
-                    array = options.split(",");
-                    for(var i = 0; i < array.length; i++){
-                        if(selected === array[i]){
-                            dropdownElement += '<option value="' + array[i] + '" selected="selected">' + array[i] + '</option>';
+                    for(var i = 0; i < options.length; i++){
+                        if(selected === options[i]){
+                            dropdownElement += '<option value="' + options[i] + '" selected="selected">' + options[i] + '</option>';
                         }
-                        dropdownElement += '<option value="' + array[i] + '">' + array[i] + '</option>';
+                        dropdownElement += '<option value="' + options[i] + '">' + options[i] + '</option>';
                     }
                     dropdownElement += '</select>';
                     return dropdownElement;
+                }
+                function addRow_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->(){
+                    var gridBodyElement = '#grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input > tbody';
+                    var gridParameters = <!--{$indicator.options[0]}-->;
+                    $(gridBodyElement).append('<tr></tr>');
+                    for(var i = 0; i < gridParameters.length; i++){
+                        if(gridParameters[i].type === 'textarea'){
+                            $(gridBodyElement + ' > tr:last').append('<td><textarea style="padding: 1px; vertical-align: middle; height: 50px; resize: none; width: 98%;"></textarea></td>');
+                        } else if(gridParameters[i].type === 'dropdown'){
+                            $(gridBodyElement + ' > tr:last').append('<td>' + makeDropdown(gridParameters[i].options, null) + '</td>');
+                        }
+                    }
+                }
+                function deleteRow_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->(){
+                    var gridBodyElement = '#grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input > tbody';
+                    if($(gridBodyElement).find('tr').length > 2){
+                        $(gridBodyElement + ' > tr:last').remove();
+                    } else {
+                        alert('Cannot remove inital row.');
+                    }
                 }
             </script>
         <!--{/if}-->

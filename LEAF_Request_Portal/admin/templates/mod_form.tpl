@@ -399,17 +399,11 @@ function editIndicatorPrivileges(indicatorID) {
         }
     );
 }
-
-var gridLayout = {};
-gridLayout.columnNames = [];
-gridLayout.entries = [];
+var gridJSON = [];
 var gridBodyElement = 'div#container_indicatorGrid > table > tbody:first';
 var gridColumnNamesElement = 'div#container_indicatorGrid > table > tbody:first > tr:eq(0)';
-if(gridLayout.columns === undefined) {
-    gridLayout.columns = 1;
-}
-if(gridLayout.rows === undefined) {
-    gridLayout.rows = 2; //save one row for column titles
+if(columns === undefined) {
+    var columns = 1;
 }
 
 function newQuestion(parentIndicatorID) {
@@ -447,24 +441,24 @@ function newQuestion(parentIndicatorID) {
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
-                <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells(\'column\')">Add column</button>&nbsp;<button class="buttonNorm" onclick="addCells(\'row\')">Add row</button>\
-                </br></br><button class="buttonNorm" onclick="removeCells(\'column\')">Remove column</button>&nbsp;<button class="buttonNorm" onclick="removeCells(\'row\')">Remove row</button>\
-                <br/><br/><table border="1" style="border: 1px black;"><tbody></tbody></table></div>\n                <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
-            <fieldset><legend>Attributes</legend>\
-                <table>\
-                    <tr>\
-                        <td>Required</td>\
-                        <td><input id="required" name="required" type="checkbox" /></td>\
-                    </tr>\
-                </table>\
-        </fieldset>');
+                <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells(\'column\')">Add column</button>\
+                </br></br><button class="buttonNorm" onclick="removeCells(\'column\')">Remove column</button>\
+                <br/><br/>Columns:<table border="1" style="max-width: 100%; border: 1px black;"><tbody style="display: flex; flex-wrap: wrap;"></tbody></table></div>\n                <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
+                    <fieldset><legend>Attributes</legend>\
+                        <table>\
+                            <tr>\
+                                <td>Required</td>\
+                                <td><input id="required" name="required" type="checkbox" /></td>\
+                            </tr>\
+                        </table>\
+                </fieldset>');
     $('#indicatorType').on('change', function() {
         switch($('#indicatorType').val()) {
             case 'grid':
                 $('#container_indicatorGrid').css('display', 'block');
                 $('#container_indicatorMultiAnswer').css('display', 'none');
                 $('#container_indicatorSingleAnswer').css('display', 'none');
-                makeGrid(gridLayout.columns, gridLayout.rows);
+                makeGrid(columns);
                 break;
             case 'radio':
             case 'checkboxes':
@@ -546,37 +540,50 @@ function newQuestion(parentIndicatorID) {
 
         switch($('#indicatorType').val()) {
             case 'grid':
-                gridLayout.entries = [];
-                gridLayout.columnNames = [];
+                var gridJSON = [];
 
-                //gather column names
-                $(gridBodyElement + ' > tr:eq(0)').children('td').each(function() {
-                    if($(this).children('input').val() === 'undefined'){
-                        gridLayout.columnNames.push('No title');
+                //gather column names and column types
+                //if column type is dropdown, adds property.options
+                $(gridBodyElement).find('td').each(function() {
+                    var properties = new Object();
+                    if($(this).children('input:eq(0)').val() === 'undefined'){
+                        properties.name = 'No title';
                     } else {
-                        gridLayout.columnNames.push($(this).children('input').val());
+                        properties.name = $(this).children('input:eq(0)').val();
                     }
+                    properties.type = $(this).find('select').val();
+                    if(properties.type !== undefined){
+                        if(properties.type === 'dropdown'){
+                            properties.options = [];
+                            properties.options.push(gridDropdown($(this).find('textarea').val().replace(/,/g, "")));
+                        }
+                    } else {
+                        properties.type = 'textarea';
+                    }
+                    gridJSON.push(properties);
                 });
 
-                for (var i = 0; i < gridLayout.rows; i++){
-                    for (var j = 0; j < gridLayout.columns; j++){
-                        var type = $(gridBodyElement + ' > tr:eq('+ (i + 1) +') > td:eq('+ j +') option:selected').val();
-                        if(type != undefined){
-                            if(type === 'dropdown'){
-                                type += "," + gridMultiAnswer($(gridBodyElement + ' > tr:eq('+ (i + 1) +') > td:eq('+ j +') > span > textarea').val());
-                            }
-                            gridLayout.entries.push(type);
-                        }
-                    }
-                }
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + gridLayout.columnNames.toString();
-                buffer += "\n" + gridLayout.columns.toString();
-                buffer += "\n" + gridLayout.rows.toString();
+                // for (var i = 0; i < columns; i++){
+                //     var type = $(gridBodyElement + '> td:eq('+ i +') option:selected').val();
+                //     if(type != undefined){
+                //         if(type === 'dropdown'){
+                //             type += "," + gridDropdown($(gridBodyElement + ' > tr > td:eq('+ i +') > span > textarea').val());
+                //         }
+                //         gridLayout.entries.push(type);
+                //     }
+                // }
+                // alert(JSON.stringify(gridJSON));
 
-                for(var i = 0; i < gridLayout.entries.length; i++){
-                    buffer += "\n" + gridLayout.entries[i].toString();
-                }
+                // var buffer = $('#indicatorType').val();
+                // buffer += "\n" + gridLayout.columnNames.toString();
+                // buffer += "\n" + columns.toString();
+                // buffer += "\n" + gridLayout.rows.toString();
+                //
+                // for(var i = 0; i < gridLayout.entries.length; i++){
+                //     buffer += "\n" + gridLayout.entries[i].toString();
+                // }
+                var buffer = $('#indicatorType').val();
+                buffer += "\n" + JSON.stringify(gridJSON);
                 $('#format').val(buffer);
                 break;
             case 'radio':
@@ -620,31 +627,27 @@ function newQuestion(parentIndicatorID) {
 }
 
 function updateNames(){
-    gridLayout.columnNames = [];
-    $(gridColumnNamesElement).children('td').each(function() {
-        if($(this).children('input').val() !== undefined){
-            gridLayout.columnNames.push($(this).children('input').val());
+    $(gridBodyElement).children('td').each(function(i) {
+        if (gridJSON[i] === undefined) {
+            gridJSON.push(new Object);
         }
+        gridJSON[i].name = $(this).children('input').val();
     });
 }
 
-function makeGrid(columns, rows){
-    for(var i = 0; i <= rows; i++){
-        $(gridBodyElement).append('<tr></tr>');
-        for(var j = 0; j < columns; j++){
-            if(i === 0){
-                var name = gridLayout.columnNames[j] === undefined ? 'No title' : gridLayout.columnNames[j];
-                $(gridColumnNamesElement).append('<td><input type="text" value="'+ name +'" onchange="updateNames();"></input></td>')
-            } else {
-                $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option><option value="dropdown">Drop Down</option></select></td>');
-                if(gridLayout.entries !== undefined && gridLayout.entries[(i - 1) * (columns) + j] !== undefined){
-                    var type = gridLayout.entries[(i - 1) * (columns) + j].split(',')[0].toString();
-                    $(gridBodyElement + ' > tr:eq(' + i + ') > td:eq(' + j + ') > select option[value="' + type + '"]').attr('selected', 'selected');
-                    if(type === 'dropdown'){
-                        var options = gridLayout.entries[(i - 1) * (columns) + j].split(',').slice(1).toString();
-                        $(gridBodyElement + ' > tr:eq(' + i + ') > td:eq(' + j + ')').append('<span></br>One option per line<textarea style="resize: none;"value="">' + options.replace(/,/g, "\n") + '</textarea></span>');
-                    }
-                }
+
+function makeGrid(columns) {
+    for (var i = 0; i < columns; i++) {
+        if(gridJSON[i] === undefined){
+            gridJSON.push(new Object());
+        }
+        var name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
+        $(gridBodyElement).append('<td style="flex: 1; order: '+ (i + 1) + '">Column #' + (i + 1) + ': &nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option><option value="dropdown">Drop Down</option></select></td>');
+        if(gridJSON[i].type !== undefined){
+            $(gridBodyElement+ '> td:eq(' + i + ') > select option[value="' + gridJSON[i].type + '"]').attr('selected', 'selected');
+            if(gridJSON[i].type.toString() === 'dropdown'){
+                var options = gridJSON[i].options.join("\n").toString();
+                $(gridBodyElement + ' > td:eq(' + i + ')').append('<span></br>One option per line<textarea style="resize: none;"value="">' + options + '</textarea></span>');
             }
         }
     }
@@ -658,40 +661,17 @@ function toggleDropDown(type, cell){
     }
 }
 
-function addCells(rowOrColumn){
-    if(rowOrColumn === 'column' && gridLayout.columns < 3) {
-        for(var i = 0; i <= gridLayout.rows; i++){
-            if(i === 0){
-                $(gridBodyElement + ' > tr:eq(0)').append('<td><input type="text" value="No title" onchange="updateNames();"></input></td>');
-            } else {
-                $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option><option value="dropdown">Drop Down</option></select></td>');
-            }
-        }
-        gridLayout.columns = gridLayout.columns + 1;
-    } else if(rowOrColumn === 'row' && gridLayout.rows < 5){
-        for(var i = 0; i < gridLayout.columns; i++){
-            if(i === 0){
-                $(gridBodyElement).append('<tr></tr>');
-            }
-            $(gridBodyElement + ' > tr:last').append('<td>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option><option value="dropdown">Drop Down</option></select></td>');
-        }
-        gridLayout.rows = gridLayout.rows + 1;
-    } else {
-        alert('Maximum number of ' + rowOrColumn + 's reached.');
-    }
+function addCells(){
+    columns = columns + 1;
+    $(gridBodyElement).append('<td style="flex: 1;order: '+ columns + '">Column #' + columns + ': &nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option><option value="dropdown">Drop Down</option></select></td>');
 }
 
-function removeCells(rowOrColumn){
-    if(rowOrColumn === 'column' && gridLayout.columns > 1) {
-        for(var i = 0; i <= gridLayout.rows; i++){
-            $(gridBodyElement + ' > tr:eq(' + i + ') > td:last').remove();
-        }
-        gridLayout.columns = gridLayout.columns - 1;
-    } else if(rowOrColumn === 'row' && gridLayout.rows > 1){
-        $(gridBodyElement + ' > tr:last').remove();
-        gridLayout.rows = gridLayout.rows - 1;
+function removeCells(){
+    if(columns > 1) {
+        $(gridBodyElement + ' > td:last').remove();
+        columns = columns - 1;
     } else {
-        alert('Cannot remove initial ' + rowOrColumn + '.');
+        alert('Cannot remove initial column.');
     }
 }
 
@@ -724,8 +704,8 @@ function getForm(indicatorID, series) {
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
-                <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells(\'column\')">Add column</button>&nbsp;<button class="buttonNorm" onclick="addCells(\'row\')">Add row</button>\
-                </br></br><button class="buttonNorm" onclick="removeCells(\'column\')">Remove column</button>&nbsp;<button class="buttonNorm" onclick="removeCells(\'row\')">Remove row</button></br></br><table border="1" style="border: 1px black; width: 32%;"><tbody></tbody></table></div>\
+                <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells(\'column\')">Add column</button>&nbsp;\
+                </br></br><button class="buttonNorm" onclick="removeCells(\'column\')">Remove column</button>&nbsp;</br></br>Columns:<table border="1" style="max-width: 100%; border: 1px black;"><tbody style="display: flex; flex-wrap: wrap;"></tbody></table></div>\
                 <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
             <fieldset><legend>Attributes</legend>\
                 <table>\
@@ -761,7 +741,7 @@ function getForm(indicatorID, series) {
                 $('#container_indicatorGrid').css('display', 'block');
                 $('#container_indicatorMultiAnswer').css('display', 'none');
                 $('#container_indicatorSingleAnswer').css('display', 'none');
-                makeGrid(gridLayout.columns, gridLayout.rows);
+                makeGrid(columns);
                 break;
     	    case 'radio':
     	    case 'checkboxes':
@@ -945,12 +925,8 @@ function getForm(indicatorID, series) {
                     }
                 }
                 if(format === 'grid'){
-                    gridLayout.columnNames = res[indicatorID].options[0].split(',');
-                    gridLayout.columns = Number(res[indicatorID].options[1]);
-                    gridLayout.rows = Number(res[indicatorID].options[2]);
-                    for(var i = 0; i < res[indicatorID].options.length - 2; i++){
-                        gridLayout.entries[i] = res[indicatorID].options[3 + i];
-                    }
+                    gridJSON = JSON.parse(res[indicatorID].options[0]);
+                    columns = gridJSON.length;
                 }
 
                 $('#name').html(res[indicatorID].name);
@@ -979,7 +955,7 @@ function getForm(indicatorID, series) {
                             $('#container_indicatorGrid').css('display', 'block');
                             $('#container_indicatorMultiAnswer').css('display', 'none');
                             $('#container_indicatorSingleAnswer').css('display', 'none');
-                            makeGrid(gridLayout.columns, gridLayout.rows);
+                            makeGrid(columns);
                             break;
                         case 'checkbox':
                             $('#indicatorType').val(format.substr(0, formatIdx));
@@ -1009,37 +985,49 @@ function getForm(indicatorID, series) {
 
         switch($('#indicatorType').val()) {
             case 'grid':
-                gridLayout.entries = [];
-                gridLayout.columnNames = [];
+                var gridJSON = [];
 
-                //gather column names
-                $(gridBodyElement + ' > tr:eq(0)').children('td').each(function() {
-                    if($(this).children('input').val() === 'undefined'){
-                        gridLayout.columnNames.push('No title');
+                //gather column names and column types
+                //if column type is dropdown, adds property.options
+                $(gridBodyElement).find('td').each(function() {
+                    var properties = new Object();
+                    if($(this).children('input:eq(0)').val() === 'undefined'){
+                        properties.name = 'No title';
                     } else {
-                        gridLayout.columnNames.push($(this).children('input').val());
+                        properties.name = $(this).children('input:eq(0)').val();
                     }
+                    properties.type = $(this).find('select').val();
+                    if(properties.type !== undefined){
+                        if(properties.type === 'dropdown'){
+                            properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
+                        }
+                    } else {
+                        properties.type = 'textarea';
+                    }
+                    gridJSON.push(properties);
                 });
 
-                for (var i = 0; i < gridLayout.rows; i++){
-                    for (var j = 0; j < gridLayout.columns; j++){
-                        var type = $(gridBodyElement + ' > tr:eq('+ (i + 1) +') > td:eq('+ j +') option:selected').val();
-                        if(type != undefined){
-                            if(type === 'dropdown'){
-                                type += "," + gridMultiAnswer($(gridBodyElement + ' > tr:eq('+ (i + 1) +') > td:eq('+ j +') > span > textarea').val());
-                            }
-                            gridLayout.entries.push(type);
-                        }
-                    }
-                }
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + gridLayout.columnNames.toString();
-                buffer += "\n" + gridLayout.columns.toString();
-                buffer += "\n" + gridLayout.rows.toString();
+                // for (var i = 0; i < columns; i++){
+                //     var type = $(gridBodyElement + '> td:eq('+ i +') option:selected').val();
+                //     if(type != undefined){
+                //         if(type === 'dropdown'){
+                //             type += "," + gridDropdown($(gridBodyElement + ' > tr > td:eq('+ i +') > span > textarea').val());
+                //         }
+                //         gridLayout.entries.push(type);
+                //     }
+                // }
+                // alert(JSON.stringify(gridJSON));
 
-                for(var i = 0; i < gridLayout.entries.length; i++){
-                    buffer += "\n" + gridLayout.entries[i].toString();
-                }
+                // var buffer = $('#indicatorType').val();
+                // buffer += "\n" + gridLayout.columnNames.toString();
+                // buffer += "\n" + columns.toString();
+                // buffer += "\n" + gridLayout.rows.toString();
+                //
+                // for(var i = 0; i < gridLayout.entries.length; i++){
+                //     buffer += "\n" + gridLayout.entries[i].toString();
+                // }
+                var buffer = $('#indicatorType').val();
+                buffer += "\n" + JSON.stringify(gridJSON);
                 $('#format').val(buffer);
                 break;
             case 'radio':
@@ -1179,12 +1167,13 @@ function getForm(indicatorID, series) {
     });
 }
 
-function gridMultiAnswer(multiAnswerValue){
-    if(multiAnswerValue == null || multiAnswerValue.length === 0){
-        return multiAnswerValue;
+//this is a modified version formatIndicatorMultiAnswer() in order to returns array
+function gridDropdown(dropDownOptions){
+    if(dropDownOptions == null || dropDownOptions.length === 0){
+        return dropDownOptions;
     }
-    multiAnswerValue = multiAnswerValue.replace(/,/g, '');
-    var uniqueNames = multiAnswerValue.split("\n");
+    var uniqueNames = dropDownOptions.split("\n");
+    var returnArray = [];
     uniqueNames = uniqueNames.filter(function(elem, index, self) {
         return index == self.indexOf(elem);
     });
@@ -1193,10 +1182,10 @@ function gridMultiAnswer(multiAnswerValue){
         if(el === "no") {
             uniqueNames[i] = "No";
         }
+        returnArray.push(uniqueNames[i]);
     });
 
-    multiAnswerValue = uniqueNames.join(",");
-    return multiAnswerValue;
+    return returnArray;
 }
 
 function formatIndicatorMultiAnswer(multiAnswerValue){

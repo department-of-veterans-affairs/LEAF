@@ -51,20 +51,24 @@ var LeafForm = function(containerID) {
             var tables = [];
 
 			$('#' + htmlFormID).find('table').each(function(index) {
-				var tableData = [];
-				var firstRow = $(this).find('tr:eq(0)').children().length;
+				var cells = [];
 
-				//first row contains column names, so they are excluded
-				$(this).find('td').slice(firstRow).each(function() {
-					var value = ($(this).children().val() === undefined) ? "" : $(this).children().val();
-					tableData.push(value.replace(/;/g, ""));
+				$(this).find('tr').slice(1).each(function(){
+                    var cellObj = [];
+					$(this).children('td').each(function() {
+                        if($('textarea', this).length) {
+							cellObj.push($(this).find('textarea').val());
+                        } else if($('select', this).length){
+                            cellObj.push($("option:selected", this).val());
+						}
+                    });
+					cells.push(cellObj);
 				});
-
 				tables[index] = {
 					id: $(this).attr('id').split('_')[1],
-					data: tableData.join(';'),
+					data: cells,
 				};
-			});
+            });
 
             $('#' + htmlFormID).serializeArray().map(function(){
             	for(var i = 0; i < tables.length; i++){
