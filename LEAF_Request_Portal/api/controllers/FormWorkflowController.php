@@ -52,6 +52,12 @@ class FormWorkflowController extends RESTfulResponse
             return $formWorkflow->getLastAction();
         });
 
+        $this->index['GET']->register('formWorkflow/[digit]/lastActionSummary', function ($args) use ($formWorkflow) {
+            $formWorkflow->initRecordID($args[0]);
+            
+            return $formWorkflow->getLastActionSummary();
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
