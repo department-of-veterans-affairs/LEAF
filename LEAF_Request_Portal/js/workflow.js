@@ -164,7 +164,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 };
 
                 // TODO: eventually this will be handled by Workflow extension
-                if (step.requiresDigitalSignature == true
+                if (step.requiresDigitalSignature === true
                         && e.data.step.dependencyActions[e.data.idx].fillDependency > 0) { // dont require signature for regressive actions
                     if (LEAFRequestPortalAPI !== undefined) {
                         var key = currRecordID + '_' + Math.floor(Math.random()*1000);
