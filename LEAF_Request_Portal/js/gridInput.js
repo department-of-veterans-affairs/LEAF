@@ -3,8 +3,9 @@ function makeDropdown(options, selected){
     for(var i = 0; i < options.length; i++){
         if(selected === options[i]){
             dropdownElement += '<option value="' + options[i] + '" selected="selected">' + options[i] + '</option>';
+        } else {
+            dropdownElement += '<option value="' + options[i] + '">' + options[i] + '</option>';
         }
-        dropdownElement += '<option value="' + options[i] + '">' + options[i] + '</option>';
     }
     dropdownElement += '</select>';
     return dropdownElement;

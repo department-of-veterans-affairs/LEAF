@@ -56,6 +56,27 @@
                 $(function() {
                     printTableInput(options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, values_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, <!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->);
                 });
+
+                <!--{if $indicator.required == 1}-->
+                formRequired.id<!--{$indicator.indicatorID}--> = {
+                    setRequired:  function() {
+                        var gridElement = '#grid_' + <!--{$indicator.indicatorID}--> + '_' + <!--{$indicator.series}--> + '_input > tbody';
+                        if($(gridElement + ' > tr:eq(1)') === undefined){
+                            return true;
+                        }
+                        for(var i = 0; i < $(gridElement).find('tr').length; i++){
+                            for(var j = 0; j < $(gridElement + ' > tr:eq(0)').find('td').length; j++){
+                                if($(gridElement + ' > tr:eq(' + i + ') > td:eq(' + j + ')').find('textarea').length > 0 && $(gridElement + ' > tr:eq(' + i + ') > td:eq(' + j + ') > textarea').val().trim() === ''){
+                                    return true
+                                }
+                            }
+                        }
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }
+                };
+                <!--{/if}-->
             </script>
         <!--{/if}-->
         <!--{if $indicator.format == 'textarea' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
