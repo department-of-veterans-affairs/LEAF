@@ -554,15 +554,13 @@ function newQuestion(parentIndicatorID) {
                     properties.type = $(this).find('select').val();
                     if(properties.type !== undefined){
                         if(properties.type === 'dropdown'){
-                            properties.options = [];
-                            properties.options.push(gridDropdown($(this).find('textarea').val().replace(/,/g, "")));
+                            properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
                         }
                     } else {
                         properties.type = 'textarea';
                     }
                     gridJSON.push(properties);
                 });
-
                 var buffer = $('#indicatorType').val();
                 buffer += "\n" + JSON.stringify(gridJSON);
                 $('#format').val(buffer);
