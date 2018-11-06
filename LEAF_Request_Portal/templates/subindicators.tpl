@@ -698,8 +698,8 @@
         }
         if($('.printmainform').length > 0) {
             var visible = 1;
-            $('#<!--{$indicator.indicatorID|strip_tags}-->_sensitive').css('background-image', 'url(/libs/dynicons/?img=eye_visible.svg&w=16)');
-            $('#<!--{$indicator.indicatorID|strip_tags}-->').attr('type', 'text');
+            $('#<!--{$indicator.indicatorID|strip_tags}-->_sensitive').css('background-image', 'none');
+            $('#<!--{$indicator.indicatorID|strip_tags}-->_sensitive').attr('onclick', '');
             $('#sensitiveStatus').attr('aria-label', 'sensitive data shown');
         } else {
             var visible = 0;
