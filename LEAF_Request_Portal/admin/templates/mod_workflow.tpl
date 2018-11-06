@@ -688,6 +688,44 @@ function setDynamicGroupApprover(stepID) {
     dialog.show();
 }
 
+function signatureRequired(cb, stepID) {
+    var innerRequired = function (required, stepID) {
+        portalAPI.Workflow.setStepSignatureRequirement(
+            currentWorkflow,
+            stepID,
+            required ? 1 : 0,
+            function (msg) {
+                // nothing to see here...
+            },
+            function (err) {
+                cb.checked = false;
+                console.log(err);
+            }
+        );
+    }
+
+    if (cb.checked) {
+        $('.workflowStepInfo').css('display', 'none');
+        dialog_confirm.setTitle('Confirmation required');
+        dialog_confirm.setContent('Are you sure you want to require a digital signature on this step?<br /><br />'
+                + '<span style="color: red">Digital signatures should only be used if it\'s required by your business process.</span>');
+        dialog_confirm.setSaveHandler(function() {
+            dialog_confirm.hide();
+            innerRequired(true, stepID);
+            steps[stepID].requiresDigitalSignature = true;
+            showStepInfo(stepID);
+        });
+        dialog_confirm.setCancelHandler(function() {
+            cb.checked = false;
+        });
+        dialog_confirm.show();
+    } else {
+        innerRequired(false, stepID);
+        steps[stepID].requiresDigitalSignature = false;
+        cb.checked = false;
+    }
+}
+
 function showStepInfo(stepID) {
 	if($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second click
 		$('.workflowStepInfo').css('display', 'none');
@@ -708,10 +746,14 @@ function showStepInfo(stepID) {
                 type: 'GET',
                 url: '../api/?a=workflow/step/' + stepID + '/dependencies',
                 success: function(res) {
-                    var output = '';
                     var control_removeStep = '<img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="removeStep('+ stepID +')" alt="Remove" />';
-                    output = '<h2>stepID: #'+ stepID +' '+ control_removeStep +'</h2><br />Step: <b>' + steps[stepID].stepTitle + '</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep('+ stepID +')" alt="Edit Step" /><br />';
-                    output += '<br /><div>Requirements:<ul>';
+                    var output = '<h2>stepID: #'+ stepID +' '+ control_removeStep +'</h2><br />Step: <b>' + steps[stepID].stepTitle + '</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep('+ stepID +')" alt="Edit Step" /><br />';
+
+                    // TODO: This will eventually be moved to some sort of Workflow extension plugin
+                    output += '<br /><input id="requiresSigCB" type="checkbox"' + (steps[stepID].requiresDigitalSignature == true ? ' checked' : '') + ' onclick="signatureRequired(this, ' + stepID + ')">'
+                    output += '<label for="requiresSigCB">Require this Step to be Digitally Signed</label>'
+
+                    output += '<br /><br /><div>Requirements:<ul>';
                     var tDeps = {};
                     for(var i in res) {
                     	control_editDependency = '<img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editRequirement('+ res[i].dependencyID +')" alt="Edit Requirement" />';
@@ -1067,6 +1109,11 @@ var endpointOptions = {
 	    paintStyle: {width: 48, height: 48},
 	    maxConnections: -1
 	};
+
+this.portalAPI = LEAFRequestPortalAPI();
+this.portalAPI.setBaseURL('../api/?a=');
+this.portalAPI.setCSRFToken(CSRFToken);
+
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');

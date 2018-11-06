@@ -201,6 +201,31 @@ var PortalFormsAPI = function (baseAPIURL) {
         },
 
         /**
+         * Get a JSON representation of a form that is appropriate for digital signing.
+         *
+         * @param record    string              the record ID to generate JSON for
+         * @param onSuccess function(results)   callback containing the JSON
+         * @param onFail    function(error)     callback when operation fails
+         */
+        getJSONForSigning = function (recordID, onSuccess, onFail) {
+            var fetchURL = apiURL + '/' + recordID + '/dataforsigning';
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: 'json',
+                cache: false
+            })
+                .done(function (msg) {
+                    onSuccess(msg);
+                })
+                .fail(function (err) {
+                    onFail(err);
+                });
+
+        },
+
+        /**
          * Query a form using the Report Builder JSON syntax
          *
          * @param query     object              the JSON query object
@@ -267,6 +292,7 @@ var PortalFormsAPI = function (baseAPIURL) {
         setBaseAPIURL: setBaseAPIURL,
         setCSRFToken: setCSRFToken,
         setInitiator: setInitiator,
+        getJSONForSigning: getJSONForSigning,
         query: query
     };
 };
@@ -569,7 +595,7 @@ var PortalSignaturesAPI = function (baseAPIURL) {
          * @param onSuccess function(id)    callback containing the id of the new signature
          * @param onFail    function(err)   callback when operation fails
          */
-        create = function (signature, recordID, message, onSuccess, onFail) {
+        create = function (signature, recordID, stepID, dependencyID, message, onSuccess, onFail) {
             $.ajax({
                 method: 'POST',
                 url: apiURL + '/create',
@@ -577,6 +603,8 @@ var PortalSignaturesAPI = function (baseAPIURL) {
                 data: {
                     "signature": signature,
                     "recordID": recordID,
+                    "stepID": stepID,
+                    "dependencyID": dependencyID,
                     "message": message,
                     CSRFToken: csrfToken
                 }
