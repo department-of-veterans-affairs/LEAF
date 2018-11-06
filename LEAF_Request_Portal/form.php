@@ -201,9 +201,11 @@ class Form
         $this->flattenFullFormData($fullForm, $indicators);
 
         $output = array(
-            'form_id' => $form['items'][0]['children'][0]['type'],
-            'record_id' => $recordID,
-            'limit_category' => $limitCategory != null ? $limitCategory : '',
+            'userName' => $this->login->getUserID(),
+            'timestamp' => time(),
+            'formId' => $form['items'][0]['children'][0]['type'],
+            'recordId' => $recordID,
+            'limitCategory' => $limitCategory != null ? $limitCategory : '',
             'indicators' => $indicators,
         );
 

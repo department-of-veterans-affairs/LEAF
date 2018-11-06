@@ -21,12 +21,12 @@ Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID|strip_tags|e
 
 <!--{foreach from=$agenda item=indicator}--><!--{strip}-->
 
-<tr id="id_<!--{$indicator.recordID|strip_tags}-->">
+<tr>
     <td>
         <!--{$indicator.time|date_format:"%B %e, %Y. %l:%M %p"}-->
     </td>
     <td>
-        <span><b><!--{$indicator.description|sanitize}-->: <!--{$indicator.actionText|sanitize}--></b> by <!--{$indicator.userName|sanitize}-->
+        <span><b><!--{$indicator.description|sanitize}--></b> by <!--{$indicator.userName|sanitize}-->
         <!--{if $indicator.comment != ''}-->
         <br />Comment: <!--{$indicator.comment|sanitize}--></span>
         <!--{/if}-->
