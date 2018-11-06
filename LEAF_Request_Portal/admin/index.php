@@ -448,7 +448,13 @@ $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
-$main->assign('leafSecure', Config::$leafSecure);
+
+if (!isset(Config::$leafSecure))
+{
+  $main->assign('leafSecure', false);
+}else{
+  $main->assign('leafSecure', Config::$leafSecure);
+}
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));

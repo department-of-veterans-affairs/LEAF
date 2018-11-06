@@ -591,7 +591,14 @@ switch ($action) {
 $memberships = $login->getMembership();
 $t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
-$main->assign('leafSecure', Orgchart\Config::$leafSecure);
+
+if (!isset(Orgchart\Config::$leafSecure))
+{
+  $main->assign('leafSecure', false);
+}else{
+  $main->assign('leafSecure', Orgchart\Config::$leafSecure);
+}
+
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);

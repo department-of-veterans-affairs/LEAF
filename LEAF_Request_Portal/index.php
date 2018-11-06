@@ -523,7 +523,13 @@ $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $main->assign('tabText', XSSHelpers::sanitizeHTML($tabText));
 
-$main->assign('leafSecure', Config::$leafSecure);
+if (!isset(Config::$leafSecure))
+{
+  $main->assign('leafSecure', false);
+}else{
+  $main->assign('leafSecure', Config::$leafSecure);
+}
+
 $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subheading']));
 $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
