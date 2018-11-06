@@ -61,9 +61,6 @@
                 formRequired.id<!--{$indicator.indicatorID}--> = {
                     setRequired:  function() {
                         var gridElement = '#grid_' + <!--{$indicator.indicatorID}--> + '_' + <!--{$indicator.series}--> + '_input > tbody';
-                        if($(gridElement + ' > tr:eq(1)') === undefined){
-                            return true;
-                        }
                         for(var i = 0; i < $(gridElement).find('tr').length; i++){
                             for(var j = 0; j < $(gridElement + ' > tr:eq(0)').find('td').length; j++){
                                 if($(gridElement + ' > tr:eq(' + i + ') > td:eq(' + j + ')').find('textarea').length > 0 && $(gridElement + ' > tr:eq(' + i + ') > td:eq(' + j + ') > textarea').val().trim() === ''){

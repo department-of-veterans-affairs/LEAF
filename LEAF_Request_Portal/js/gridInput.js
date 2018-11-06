@@ -12,7 +12,7 @@ function makeDropdown(options, selected){
 }
 function printTableInput(gridParameters, values, indicatorID, series){
     var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
-    var rows = values.length;
+    var rows = values.length > 0 ? values.length : 1;
     var columns = gridParameters.length;
     var element = '';
 
@@ -26,7 +26,7 @@ function printTableInput(gridParameters, values, indicatorID, series){
     for(var i = 0; i < rows; i++){
         $(gridBodyElement).append('<tr></tr>');
         for(var j = 0; j < columns; j++){
-            var value = values[i] === undefined || values[i][j] === undefined ? '[ blank ]' : values[i][j];
+            var value = values[i] === undefined || values[i][j] === undefined ? '' : values[i][j];
             if(gridParameters[j].type === 'dropdown'){
                 element = makeDropdown(gridParameters[j].options, value);
             } else if(gridParameters[j].type === 'textarea'){
@@ -51,7 +51,7 @@ function deleteRow(indicatorID, series){
     var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
 
     //prevents deletion of column name row
-    if($(gridBodyElement).find('tr').length > 1){
+    if($(gridBodyElement).find('tr').length > 2){
         $(gridBodyElement + ' > tr:last').remove();
     } else {
         alert('Cannot remove inital row.');
