@@ -625,7 +625,11 @@ function makeGrid(columns) {
         if(gridJSON[i].type !== undefined){
             $(gridBodyElement+ '> td:eq(' + i + ') > select option[value="' + gridJSON[i].type + '"]').attr('selected', 'selected');
             if(gridJSON[i].type.toString() === 'dropdown'){
-                var options = gridJSON[i].options.join("\n").toString();
+                if(gridJSON[i].options !== ""){
+                    var options = gridJSON[i].options.join("\n").toString();
+                } else {
+                    var options = "";
+                }
                 $(gridBodyElement + ' > td:eq(' + i + ')').append('<span></br>One option per line<textarea style="resize: none;"value="">' + options + '</textarea></span>');
             }
         }
