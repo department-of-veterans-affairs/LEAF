@@ -21,7 +21,7 @@ $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phon
 
 $login = new Login($db_phonebook, $db);
 
-if (isset($_SERVER['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || Config::$leafSecure == false))
+if (isset($_SERVER['REMOTE_USER']) && (!isset(Config::$leafSecure) || Config::$leafSecure == false))
 {
     $protocol = 'http://';
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
