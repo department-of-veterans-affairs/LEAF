@@ -708,7 +708,8 @@ function signatureRequired(cb, stepID) {
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to require a digital signature on this step?<br /><br />'
-                + '<span style="color: red">Digital signatures should only be used if it\'s required by your business process.</span>');
+//                + '<span>Digital signatures should only be used if it\'s required by your business process.</span>');
+                + '<span style="color: red">WARNING: For testing only. This feature is currently in development.</span>');
         dialog_confirm.setSaveHandler(function() {
             dialog_confirm.hide();
             innerRequired(true, stepID);
@@ -750,8 +751,8 @@ function showStepInfo(stepID) {
                     var output = '<h2>stepID: #'+ stepID +' '+ control_removeStep +'</h2><br />Step: <b>' + steps[stepID].stepTitle + '</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep('+ stepID +')" alt="Edit Step" /><br />';
 
                     // TODO: This will eventually be moved to some sort of Workflow extension plugin
-                    output += '<br /><input id="requiresSigCB" type="checkbox"' + (steps[stepID].requiresDigitalSignature == true ? ' checked' : '') + ' onclick="signatureRequired(this, ' + stepID + ')">'
-                    output += '<label for="requiresSigCB">Require this Step to be Digitally Signed</label>'
+                    output += '<br /><input id="requiresSigCB" style="cursor: pointer" type="checkbox"' + (steps[stepID].requiresDigitalSignature == true ? ' checked' : '') + ' onclick="signatureRequired(this, ' + stepID + ')">'
+                    output += '<label for="requiresSigCB" style="cursor: pointer"><span style="color: red">TESTING ONLY</span> - Require this step to be Digitally Signed</label>'
 
                     output += '<br /><br /><div>Requirements:<ul>';
                     var tDeps = {};
