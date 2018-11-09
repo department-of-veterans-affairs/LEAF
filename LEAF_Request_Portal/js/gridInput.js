@@ -75,6 +75,12 @@ function printTableOutput(gridParameters, values, indicatorID, series) {
     for(var i = 0; i < columns; i++){
         $(gridHeadElement).append('<td>' + gridParameters[i].name + '</td>');
     }
+    if(rows === 0){
+        $(gridBodyElement).append('<tr></tr>');
+        for(var i = 0; i < columns; i++){
+            $(gridBodyElement + ' > tr').append('<td></td>');
+        }
+    }
 
     //populates table
     for (var i = 0; i < rows; i++) {
