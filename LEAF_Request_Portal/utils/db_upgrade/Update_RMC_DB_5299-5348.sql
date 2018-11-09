@@ -1,7 +1,7 @@
 START TRANSACTION;
 
 -- New action to indicate a digital signature 
-INSERT INTO `actions` 
+INSERT IGNORE INTO `actions` 
     (`actionType`, `actionText`, `actionTextPasttense`, `actionIcon`, `actionAlignment`, `sort`, `fillDependency`)
     VALUES ('sign', 'Sign', 'Signed', 'application-certificate.svg', 'right', 0, 1);
 
