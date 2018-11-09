@@ -555,7 +555,7 @@ class System
     {
         $in = $_FILES['file']['name'];
         $fileName = XSSHelpers::scrubFilename($in);
-        $fileName = $in;
+        $fileName = XSSHelpers::xscrub($fileName);
         if ($fileName != $in
                 || $fileName == 'index.html'
                 || $fileName == '')
