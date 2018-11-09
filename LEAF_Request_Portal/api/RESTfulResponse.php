@@ -83,7 +83,7 @@ abstract class RESTfulResponse
      */
     public function output($out = '')
     {
-        header('Access-Control-Allow-Origin: *');
+        //header('Access-Control-Allow-Origin: *');
         $format = isset($_GET['format']) ? $_GET['format'] : '';
         switch ($format) {
             case 'json':
