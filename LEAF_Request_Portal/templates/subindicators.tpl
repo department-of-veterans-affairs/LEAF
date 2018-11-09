@@ -44,11 +44,13 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <script type="text/javascript" src="js/gridInput.js"></script>
-            <button class="buttonNorm" onclick="addRow(options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)">Add row</button>&nbsp;&nbsp;<button class="buttonNorm" onclick="deleteRow(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)">Delete row</button>
-            <table id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input" border="1" style="table-layout: fixed; width: 100%; border: 1px black;">
+            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input" style="word-wrap:break-word; table-layout: fixed; width: 100%;">
+                <thead>
+                </thead>
                 <tbody>
                 </tbody>
             </table>
+            <button class="buttonNorm" onclick="addRow(options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
             <script>
                 var options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = <!--{$indicator.options[0]}-->;
                 var values_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = <!--{$indicator.value|json_encode}-->;

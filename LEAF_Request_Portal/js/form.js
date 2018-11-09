@@ -50,10 +50,10 @@ var LeafForm = function(containerID) {
 		if(hasTable === true){
             var tables = [];
 
-			$('#' + htmlFormID).find('table').each(function(index) {
+			$('#' + htmlFormID).find('tbody').each(function(index) {
 				var cells = [];
 
-				$(this).find('tr').slice(1).each(function(){
+				$(this).find('tr').each(function(){
                     var cellObj = [];
 					$(this).children('td').each(function() {
                         if($('textarea', this).length) {
@@ -65,7 +65,7 @@ var LeafForm = function(containerID) {
 					cells.push(cellObj);
 				});
 				tables[index] = {
-					id: $(this).attr('id').split('_')[1],
+					id: $(this).parent('table').attr('id').split('_')[1],
 					data: cells,
 				};
             });

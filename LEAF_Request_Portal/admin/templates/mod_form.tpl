@@ -441,8 +441,7 @@ function newQuestion(parentIndicatorID) {
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
-                <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells(\'column\')">Add column</button>\
-                </br></br><button class="buttonNorm" onclick="removeCells(\'column\')">Remove column</button>\
+                <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells()"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>\
                 <br/><br/>Columns:<table border="1" style="max-width: 100%; border: 1px black;"><tbody style="display: flex; flex-wrap: wrap;"></tbody></table></div>\n                <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
                     <fieldset><legend>Attributes</legend>\
                         <table>\
@@ -621,7 +620,14 @@ function makeGrid(columns) {
             gridJSON.push(new Object());
         }
         var name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
-        $(gridBodyElement).append('<td style="flex: 1; order: '+ (i + 1) + '">Column #' + (i + 1) + ': &nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option><option value="dropdown">Drop Down</option></select></td>');
+        $(gridBodyElement).append(
+            '<td style="flex: 1;"><span>Column #' + (i + 1) + ': </span><img onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
+            '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br><img src=""/></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
+            '<option value="dropdown">Drop Down</option></select></br>' +
+            '<img onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer" />' +
+            '<img onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
+            '<img onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" />' +
+            '<img onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer" /></td>');
         if(gridJSON[i].type !== undefined){
             $(gridBodyElement+ '> td:eq(' + i + ') > select option[value="' + gridJSON[i].type + '"]').attr('selected', 'selected');
             if(gridJSON[i].type.toString() === 'dropdown'){
@@ -646,16 +652,54 @@ function toggleDropDown(type, cell){
 
 function addCells(){
     columns = columns + 1;
-    $(gridBodyElement).append('<td style="flex: 1;order: '+ columns + '">Column #' + columns + ': &nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option><option value="dropdown">Drop Down</option></select></td>');
+    $(gridBodyElement).append(
+        '<td style="flex: 1;"><span></span><img onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
+        '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
+        '<option value="dropdown">Drop Down</option></select></br>' +
+        '<img onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer" />' +
+        '<img onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
+        '<img onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" />' +
+        '<img onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer" /></td>');
+    updateColumnNumbers();
 }
 
-function removeCells(){
-    if(columns > 1) {
-        $(gridBodyElement + ' > td:last').remove();
+function updateColumnNumbers(){
+    $(gridBodyElement).find('td').each(function(index) {
+        $(this).find('span:first').html('Column #' + (index + 1) +':&nbsp;');
+    });
+}
+
+function deleteColumn(){
+    if($(event.target).closest('tbody').find('td').length > 1){
         columns = columns - 1;
+        $(event.target).closest('td').remove();
+        updateColumnNumbers();
     } else {
-        alert('Cannot remove initial column.');
+        alert('Cannot remove inital column.');
     }
+}
+
+function moveRight(){
+    var column = $(event.target).closest('td');
+    column.insertAfter(column.next());
+    updateColumnNumbers();
+}
+
+function moveLast(){
+    var column = $(event.target).closest('td');
+    column.insertAfter($(gridBodyElement + ' > td:last'));
+    updateColumnNumbers();
+}
+
+function moveLeft(){
+    var column = $(event.target).closest('td');
+    column.prev().insertAfter(column);
+    updateColumnNumbers();
+}
+function moveFirst(){
+    var column = $(event.target).closest('td');
+    column.insertBefore($(gridBodyElement + ' > td:first'));
+    updateColumnNumbers();
 }
 
 // edit question
@@ -687,8 +731,8 @@ function getForm(indicatorID, series) {
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
-                <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells(\'column\')">Add column</button>&nbsp;\
-                </br></br><button class="buttonNorm" onclick="removeCells(\'column\')">Remove column</button>&nbsp;</br></br>Columns:<table border="1" style="max-width: 100%; border: 1px black;"><tbody style="display: flex; flex-wrap: wrap;"></tbody></table></div>\
+                <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>&nbsp;\
+                </br></br>Columns:<table border="1" style="max-width: 100%; border: 1px black;"><tbody style="display: flex; flex-wrap: wrap;"></tbody></table></div>\
                 <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
             <fieldset><legend>Attributes</legend>\
                 <table>\
