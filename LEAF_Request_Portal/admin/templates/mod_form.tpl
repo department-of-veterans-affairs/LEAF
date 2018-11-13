@@ -628,6 +628,21 @@ function makeGrid(columns) {
             '<img onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
             '<img onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" />' +
             '<img onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer" /></td>');
+        if(columns === 1){
+            rightArrows($(gridBodyElement + ' > td:last'), false);
+            leftArrows($(gridBodyElement + ' > td:last'), false);
+        } else {
+            switch (i) {
+                case 0:
+                    leftArrows($(gridBodyElement + ' > td:last'), false);
+                    break;
+                case columns - 1:
+                    rightArrows($(gridBodyElement + ' > td:last'), false);
+                    break;
+                default:
+                    break;
+            }
+        }
         if(gridJSON[i].type !== undefined){
             $(gridBodyElement+ '> td:eq(' + i + ') > select option[value="' + gridJSON[i].type + '"]').attr('selected', 'selected');
             if(gridJSON[i].type.toString() === 'dropdown'){
@@ -650,16 +665,36 @@ function toggleDropDown(type, cell){
     }
 }
 
+function leftArrows(cell, toggle){
+    if(toggle){
+        cell.find('[title="Move column left"]').css('display', 'inline');
+        cell.find('[title="Move column first"]').css('display', 'inline');
+    } else {
+        cell.find('[title="Move column left"]').css('display', 'none');
+        cell.find('[title="Move column first"]').css('display', 'none');
+    }
+}
+function rightArrows(cell, toggle){
+    if(toggle){
+        cell.find('[title="Move column right"]').css('display', 'inline');
+        cell.find('[title="Move column last"]').css('display', 'inline');
+    } else {
+        cell.find('[title="Move column right"]').css('display', 'none');
+        cell.find('[title="Move column last"]').css('display', 'none');
+    }
+}
+
 function addCells(){
     columns = columns + 1;
+    rightArrows($(gridBodyElement + ' > td:last'), true);
     $(gridBodyElement).append(
         '<td style="flex: 1;"><span></span><img onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
         '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
         '<option value="dropdown">Drop Down</option></select></br>' +
-        '<img onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer" />' +
-        '<img onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
-        '<img onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" />' +
-        '<img onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer" /></td>');
+        '<img onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer; display: inline" />' +
+        '<img onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
+        '<img onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" />' +
+        '<img onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer; display: none" /></td>');
     updateColumnNumbers();
 }
 
@@ -670,34 +705,79 @@ function updateColumnNumbers(){
 }
 
 function deleteColumn(){
-    if($(event.target).closest('tbody').find('td').length > 1){
-        columns = columns - 1;
-        $(event.target).closest('td').remove();
-        updateColumnNumbers();
-    } else {
-        alert('Cannot remove inital column.');
+    var column = $(event.target).closest('td');
+    var tbody = $(event.target).closest('tbody');
+    switch(tbody.find('td').length){
+        case 1:
+            alert('Cannot remove inital column.');
+            break;
+        case 2:
+            column.remove();
+            rightArrows(tbody.find('td'), false);
+            leftArrows(tbody.find('td'), false);
+            break;
+        default:
+            if(column.find('[title="Move column right"]').css('display') === 'none'){
+                rightArrows(column.prev(), false);
+                leftArrows(column.prev(), true);
+            }
+            if(column.find('[title="Move column left"]').css('display') === 'none'){
+                leftArrows(column.next(), false);
+                rightArrows(column.next(), true);
+            }
+            column.remove();
+            break;
     }
+    updateColumnNumbers();
 }
 
 function moveRight(){
     var column = $(event.target).closest('td');
+    var nextColumnLast = column.next().find('[title="Move column right"]').css('display') === 'none';
+    var first = column.find('[title="Move column left"]').css('display') === 'none';
+    leftArrows(column, true);
+    if(first){
+        leftArrows(column.next(), false);
+    }
+    if(nextColumnLast){
+        rightArrows(column, false);
+        rightArrows(column.next(), true);
+    }
     column.insertAfter(column.next());
     updateColumnNumbers();
 }
 
 function moveLast(){
     var column = $(event.target).closest('td');
+    rightArrows(column, false);
+    leftArrows(column, true);
+    leftArrows(column.next(), false);
+    rightArrows($(gridBodyElement + ' > td:last'), true);
     column.insertAfter($(gridBodyElement + ' > td:last'));
     updateColumnNumbers();
 }
 
 function moveLeft(){
     var column = $(event.target).closest('td');
-    column.prev().insertAfter(column);
+    var nextColumnFirst = column.prev().find('[title="Move column left"]').css('display') === 'none';
+    var last = column.find('[title="Move column right"]').css('display') === 'none';
+    rightArrows(column, true);
+    if(last){
+        rightArrows(column.prev(), false);
+    }
+    if(nextColumnFirst){
+        leftArrows(column, false);
+        leftArrows(column.prev(), true);
+    }
+    column.insertBefore(column.prev());
     updateColumnNumbers();
 }
 function moveFirst(){
     var column = $(event.target).closest('td');
+    leftArrows(column, false);
+    rightArrows(column, true);
+    rightArrows(column.prev(), false);
+    leftArrows($(gridBodyElement + ' > td:first'), true);
     column.insertBefore($(gridBodyElement + ' > td:first'));
     updateColumnNumbers();
 }
