@@ -91,6 +91,6 @@ workflowStepModule[{{$stepID}}]['LEAF_digital_signature'] = (function() {
 
 	return {
 		init: init,
-		trigger: trigger
+//		trigger: trigger
 	};
 })();

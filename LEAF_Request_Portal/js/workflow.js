@@ -80,6 +80,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
     /**
      * @memberOf LeafWorkflow
      */
+	var modulesLoaded = {};
 	function drawWorkflow(step) {
 		// draw frame and header
 		var stepDescription = step.description == null ? 'Your workflow is missing a requirement. Please check your workflow.' : step.description;
@@ -136,6 +137,21 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                             workflowModule[e.data.step.dependencyID].trigger(function() {
                                 applyAction(data);
                             });
+						}
+						else if(typeof workflowStepModule[e.data.step.stepID] !== 'undefined') {
+							var actionTriggered = false;
+							for(var i in workflowStepModule[e.data.step.stepID]) {
+								if(typeof workflowStepModule[e.data.step.stepID][i].trigger !== 'undefined') {
+									actionTriggered = true;
+									workflowStepModule[e.data.step.stepID][i].trigger(function() {
+										applyAction(data);
+									});
+									break;
+								}
+							}
+							if(!actionTriggered) {
+								applyAction(data);
+							}
                         }
                         else {
                             applyAction(data);
@@ -165,6 +181,21 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 					workflowStepModule[step.stepID].LEAF_digital_signature.init(step);
 				}
 			});
+		}
+		if(step.stepModules != undefined) {
+			for(var x in step.stepModules) {
+				if(modulesLoaded[step.stepModules[x].moduleName + '_' + step.stepID] == undefined) {
+					modulesLoaded[step.stepModules[x].moduleName + '_' + step.stepID] = 1;
+					$.ajax({
+						type: 'GET',
+						url: 'ajaxScript.php?a=workflowStepModules&s='+ step.stepModules[x].moduleName +'&stepID=' + step.stepID,
+						dataType: 'script',
+						success: function() {
+							workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step);
+						}
+					});
+				}
+			}
 		}
 
 		// legacy workflow modules based on dependencyIDs

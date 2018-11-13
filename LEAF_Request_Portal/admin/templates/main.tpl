@@ -35,7 +35,7 @@
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
-    <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
+    <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
 <body class="claro">
 <div id="header">
