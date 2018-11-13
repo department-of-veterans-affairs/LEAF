@@ -3,6 +3,7 @@
 */
 var workflow;
 var workflowModule = new Object();
+var workflowStepModule = new Object();
 var LeafWorkflow = function(containerID, CSRFToken) {
 	var containerID = containerID;
 	var CSRFToken = CSRFToken;
@@ -12,6 +13,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 	var currRecordID = 0;
 	var postModifyCallback;
 	var antiDblClick = 0;
+	var actionPreconditionFunc;
 	var actionSuccessCallback;
 
     /**
@@ -106,26 +108,6 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		                'padding': '4px',
 		                'resize': 'vertical'});
 
-        if (step.requiresDigitalSignature == true) {
-            $(document.createElement('div'))
-                .css({'margin': 'auto',
-                      'width': '95%',
-                      'text-align': 'center'})
-                .html("<br style='clear: both' /><img src='../libs/dynicons/?img=application-certificate.svg&w=24' alt='Digital Signature Enabled' title='Digital Signature Enabled' style='vertical-align: middle'> Digital Signature Enabled")
-                .appendTo('#form_dep' + step.dependencyID);
-
-            if(typeof Signer == 'undefined') {
-                $.ajax({
-                    type: 'GET',
-                    url: "../libs/sign/SmartcardHelpers.js",
-                    dataType: 'script'});
-                $.ajax({
-                    type: 'GET',
-                    url: "../libs/sign/SockJS.js",
-                    dataType: 'script'});
-            }
-        }
-
 		// draw buttons
 		for(var i in step.dependencyActions) {
 			var icon = '';
@@ -163,59 +145,14 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                     }
                 };
 
-                // TODO: eventually this will be handled by Workflow extension
-                if (step.requiresDigitalSignature == 1
-                        && e.data.step.dependencyActions[e.data.idx].fillDependency > 0) { // dont require signature for regressive actions
-                    if (LEAFRequestPortalAPI !== undefined) {
-                        var key = currRecordID + '_' + Math.floor(Math.random()*1000);
-                        $('#form_dep'+ step.dependencyID).slideUp();    // UI hint for loading
-                        $(document.createElement('div'))
-                        .css({'margin': 'auto',
-                              'width': '95%',
-                              'padding-bottom': '16px',
-                              'font-size': '14px',
-                              'text-align': 'center'})
-                        .html("<img src='images/largespinner.gif' alt='Loading Digital Signature Routines' title='Loading Digital Signature Routines'' style='vertical-align: middle'> Loading Digital Signature Routines...")
-                        .attr('id', 'digitalSignatureStatus_' + key)
-                        .appendTo('#workflowbox_dep' + step.dependencyID);
+				// TODO: eventually this will be handled by Workflow extension
+				if(actionPreconditionFunc !== undefined) {
+					actionPreconditionFunc(e.data, completeAction);
+				}
+				else {
+					completeAction();
+				}
 
-                        var portalAPI = LEAFRequestPortalAPI();
-                        portalAPI.setCSRFToken(CSRFToken);
- 
-                        portalAPI.Forms.getJSONForSigning(
-                            currRecordID,
-                            function (json) {
-                                var jsonStr = JSON.stringify(json);
-                                Signer.sign(key, jsonStr, function (signedData) {
-                                    portalAPI.Signature.create(
-                                        signedData,
-                                        currRecordID,
-                                        step.stepID,
-                                        step.dependencyID,
-                                        jsonStr,
-                                        function (id) {
-                                            completeAction();
-                                        },
-                                        function (err) {
-                                            console.log(err);
-                                        }
-                                    );
-
-                                }, function (err) {
-                                    // TODO: display error message to user
-                                    console.log(err);
-                                });
-
-                            },
-                            function (err) {
-                                console.log(err);
-                            }
-                        );
-
-                    }
-                } else {
-                    completeAction();
-                }
 		    });
 		}
 
@@ -230,6 +167,20 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		        }
 		    });
 		}
+
+        if (step.requiresDigitalSignature == true) {
+			$.ajax({
+				type: 'GET',
+				url: 'ajaxScript.php?a=workflowStepModules&s=LEAF_digital_signature&stepID=' + step.stepID,
+				dataType: 'script',
+				success: function() {
+					for(var i in workflowStepModule[step.stepID]) {
+						workflowStepModule[step.stepID].LEAF_digital_signature.init(step);
+					}
+				}
+			});
+        }
+
 	}
 
     /**
@@ -399,8 +350,22 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		actionSuccessCallback = func;
 	}
 
+    /**
+     * @memberOf LeafWorkflow
+	 * func should accept 2 arguments:
+	 *     data - {
+	 * 				idx: index matching the current action for data.step.dependencyActions[]
+	 * 				step: data related to the current step
+	 * 			  }
+	 *     completeAction - to be executed in order to complete the workflow action
+     */
+	function setActionPreconditionFunc(func) {
+		actionPreconditionFunc = func;
+	}
+
 	return {
 		getWorkflow: getWorkflow,
+		setActionPreconditionFunc: setActionPreconditionFunc,
 		setActionSuccessCallback: setActionSuccessCallback
 	}
 };
