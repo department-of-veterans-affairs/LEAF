@@ -41,9 +41,21 @@ class Workflow
         $vars = array(':workflowID' => $this->workflowID);
         $res = $this->db->prepared_query('SELECT * FROM workflow_steps
                                             LEFT JOIN workflows USING (workflowID)
+                                            LEFT JOIN step_modules USING (stepID)
         									WHERE workflowID=:workflowID', $vars);
 
-        return $res;
+        $out = [];
+        foreach($res as $item) {
+            $out[$item['stepID']] = $item;
+            unset($out[$item['stepID']]['moduleName']);
+            unset($out[$item['stepID']]['moduleConfig']);
+            if($item['moduleName'] != '') {
+                $out[$item['stepID']]['stepModules'][] = array('moduleName' => $item['moduleName'],
+                                                               'moduleConfig' => $item['moduleConfig']);
+            }
+        }
+
+        return $out;
     }
 
     public function deleteStep($stepID)
@@ -105,6 +117,16 @@ class Workflow
 
     public function getCategories()
     {
+        $vars = array(':workflowID' => $this->workflowID);
+        $res = $this->db->prepared_query("SELECT * FROM categories
+                                                WHERE workflowID = :workflowID
+        										ORDER BY categoryName", $vars);
+
+        return $res;
+    }
+
+    public function getAllCategories()
+    {
         $res = $this->db->prepared_query("SELECT * FROM categories
                                                 WHERE workflowID>0 AND parentID=''
         											AND disabled = 0
@@ -113,7 +135,7 @@ class Workflow
         return $res;
     }
 
-    public function getCategoriesUnabridged()
+    public function getAllCategoriesUnabridged()
     {
         $res = $this->db->prepared_query("SELECT * FROM categories
                                                 WHERE parentID=''
@@ -314,6 +336,45 @@ class Workflow
     }
 
     /**
+     * Set an inline indicator for a particular step
+     *
+     * @param int $stepID
+     * @param int $indicatorID
+     *
+     * @return int
+     */
+    public function setStepInlineIndicator($stepID, $indicatorID) {
+        $indicatorID = (int)$indicatorID;
+        if(!$this->login->checkGroup(1)) {
+            return 'Admin access required.';
+        }
+        
+        if($indicatorID < 1) {
+            $vars = array(
+                ':stepID' => (int)$stepID
+            );
+            $res = $this->db->prepared_query(
+                'DELETE FROM step_modules
+                    WHERE stepID = :stepID
+                        AND moduleName="LEAF_workflow_indicator"',
+                $vars);
+        }
+        else {
+            $vars = array(
+                ':stepID' => (int)$stepID,
+                ':config' => json_encode(array('indicatorID' => $indicatorID))
+            );
+            $res = $this->db->prepared_query(
+                'INSERT INTO step_modules (stepID, moduleName, moduleConfig)
+                    VALUES (:stepID, "LEAF_workflow_indicator", :config)
+                    ON DUPLICATE KEY UPDATE moduleConfig=:config',
+                $vars);
+        }
+        
+        return 1;
+    }
+
+    /**
      * Set whether the specified step for the current Workflow requires a digital signature.
      * Uses the workflowID that was set with setWorkflowID(workflowID).
      *
@@ -328,13 +389,12 @@ class Workflow
         }
         
         $vars = array(
-            ':workflowID' => (int)$this->workflowID,
             ':stepID' => (int)$stepID,
             ':requiresSignature' => $requireSignature
         );
         
         $res = $this->db->prepared_query(
-            'UPDATE `workflow_steps` SET `requiresDigitalSignature` = :requiresSignature WHERE `workflowID` = :workflowID AND `stepID` = :stepID',
+            'UPDATE `workflow_steps` SET `requiresDigitalSignature` = :requiresSignature WHERE `stepID` = :stepID',
             $vars);
         
         return $res > 0;
