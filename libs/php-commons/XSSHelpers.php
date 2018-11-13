@@ -310,9 +310,9 @@ class XSSHelpers
     /**
      * Sanitize everything in an Object or Array
      *
-     * @param    string  $stringToScrub the string to be sanitized
+     * @param    object  $objectToScrub the string to be sanitized
      *
-     * @return   string  the sanitized string
+     * @return   object  the sanitized object
      */
     public static function scrubObjectOrArray($objectToScrub)
     {
@@ -320,6 +320,9 @@ class XSSHelpers
         if(is_object($objectToScrub))
         {
             $objectToScrubCopy = clone $objectToScrub;
+        }
+        else {
+            return self::xscrub($objectToScrub);
         }
 
         foreach($objectToScrubCopy as $key => &$value)
