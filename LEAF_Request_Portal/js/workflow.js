@@ -138,7 +138,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                                 applyAction(data);
                             });
 						}
-						else if(typeof workflowStepModule[e.data.step.stepID] !== 'undefined') {
+					    else if(typeof workflowStepModule[e.data.step.stepID] !== 'undefined') {
 							var actionTriggered = false;
 							for(var i in workflowStepModule[e.data.step.stepID]) {
 								if(typeof workflowStepModule[e.data.step.stepID][i].trigger !== 'undefined') {
