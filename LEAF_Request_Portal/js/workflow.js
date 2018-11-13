@@ -145,7 +145,6 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                     }
                 };
 
-				// TODO: eventually this will be handled by Workflow extension
 				if(actionPreconditionFunc !== undefined) {
 					actionPreconditionFunc(e.data, completeAction);
 				}
@@ -156,7 +155,19 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		    });
 		}
 
-		// load jsAssets
+		// load workflowStep modules
+        if (step.requiresDigitalSignature == true) {
+			$.ajax({
+				type: 'GET',
+				url: 'ajaxScript.php?a=workflowStepModules&s=LEAF_digital_signature&stepID=' + step.stepID,
+				dataType: 'script',
+				success: function() {
+					workflowStepModule[step.stepID].LEAF_digital_signature.init(step);
+				}
+			});
+		}
+
+		// legacy workflow modules based on dependencyIDs
 		for(var u in step.jsSrcList) {
 		    $.ajax({
 		        type: 'GET',
@@ -167,20 +178,6 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 		        }
 		    });
 		}
-
-        if (step.requiresDigitalSignature == true) {
-			$.ajax({
-				type: 'GET',
-				url: 'ajaxScript.php?a=workflowStepModules&s=LEAF_digital_signature&stepID=' + step.stepID,
-				dataType: 'script',
-				success: function() {
-					for(var i in workflowStepModule[step.stepID]) {
-						workflowStepModule[step.stepID].LEAF_digital_signature.init(step);
-					}
-				}
-			});
-        }
-
 	}
 
     /**

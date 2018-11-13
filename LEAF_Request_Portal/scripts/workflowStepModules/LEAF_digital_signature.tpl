@@ -60,6 +60,7 @@ workflowStepModule[{{$stepID}}]['LEAF_digital_signature'] = (function() {
 			}
 		});
 	}
+
 	function init(currStep) {
 		step = currStep;
 		$(document.createElement('div'))
@@ -83,6 +84,7 @@ workflowStepModule[{{$stepID}}]['LEAF_digital_signature'] = (function() {
 		setupButtonAction();
 	}
 
+	// placeholder
 	function trigger(callback) {
 
 	}
