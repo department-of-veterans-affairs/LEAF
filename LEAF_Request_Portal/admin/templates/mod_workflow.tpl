@@ -763,6 +763,11 @@ function buildWorkflowIndicatorDropdown(stepID, steps) {
     });
 
     $('#workflowIndicator').on('change', function() {
+        for(var i in steps[stepID].stepModules) {
+            if(steps[stepID].stepModules[i].moduleName == 'LEAF_workflow_indicator') {
+                steps[stepID].stepModules[i].moduleConfig = JSON.stringify({indicatorID: $('#workflowIndicator').val()});
+            }
+        }
         $.ajax({
             type: 'POST',
             url: '../api/workflow/step/'+ stepID +'/inlineIndicator',
