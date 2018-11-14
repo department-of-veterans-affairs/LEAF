@@ -45,6 +45,12 @@ class WorkflowController extends RESTfulResponse
             return $workflow->getSteps();
         });
 
+        $this->index['GET']->register('workflow/[digit]/categories', function ($args) use ($workflow) {
+            $workflow->setWorkflowID($args[0]);
+
+            return $workflow->getCategories();
+        });
+
         $this->index['GET']->register('workflow/[digit]/route', function ($args) use ($workflow) {
             $workflow->setWorkflowID($args[0]);
 
@@ -64,11 +70,11 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['GET']->register('workflow/categories', function ($args) use ($workflow) {
-            return $workflow->getCategories();
+            return $workflow->getAllCategories();
         });
 
         $this->index['GET']->register('workflow/categoriesUnabridged', function ($args) use ($workflow) {
-            return $workflow->getCategoriesUnabridged();
+            return $workflow->getAllCategoriesUnabridged();
         });
 
         $this->index['GET']->register('workflow/dependencies', function ($args) use ($workflow) {
@@ -161,9 +167,12 @@ class WorkflowController extends RESTfulResponse
             return $workflow->setDynamicGroupApprover((int)$args[0], (int)$_POST['indicatorID']);
         });
 
-        $this->index['POST']->register('workflow/[digit]/step/[digit]/requiresig', function($args) use ($workflow) {
-            $workflow->setWorkflowID($args[0]);
-            return $workflow->requireDigitalSignature($args[1], (int)$_POST['requiresSig']);
+        $this->index['POST']->register('workflow/step/[digit]/inlineIndicator', function($args) use ($workflow) {
+            return $workflow->setStepInlineIndicator($args[0], (int)$_POST['indicatorID']);
+        });
+
+        $this->index['POST']->register('workflow/step/[digit]/requiresig', function($args) use ($workflow) {
+            return $workflow->requireDigitalSignature($args[0], (int)$_POST['requiresSig']);
         });
 
         $this->index['POST']->register('workflow/dependencies', function ($args) use ($workflow) {

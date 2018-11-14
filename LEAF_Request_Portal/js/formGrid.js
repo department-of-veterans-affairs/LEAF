@@ -684,8 +684,8 @@ var LeafFormGrid = function(containerID, options) {
 			download.style.display = 'none';
 
 			document.body.appendChild(download);
-			if (navigator.msSaveBlob) {
-				navigator.msSaveBlob(new Blob([rows], {type: 'text/csv;charset=utf-8;'}), "Exported_" + now + ".csv");
+			if (navigator.msSaveOrOpenBlob) {
+				navigator.msSaveOrOpenBlob(new Blob([rows], {type: 'text/csv;charset=utf-8;'}), "Exported_" + now + ".csv");
 			} else {
 				download.click();
 			}
