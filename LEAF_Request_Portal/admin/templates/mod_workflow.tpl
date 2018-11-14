@@ -537,9 +537,10 @@ function createAction(params) {
 			dialog.indicateIdle();
 			dialog.setContent(buffer);
             $('#actionType').chosen({disable_search_threshold: 5});
+            /*
             dialog.setCancelHandler(function() {
                 loadWorkflow(currentWorkflow);
-            });
+            });*/
 			dialog.setSaveHandler(function() {
 				$.ajax({
 					type: 'POST',
