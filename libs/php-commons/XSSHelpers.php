@@ -316,16 +316,7 @@ class XSSHelpers
      */
     public static function scrubObjectOrArray($objectToScrub)
     {
-        $objectToScrubCopy = $objectToScrub;
-        if(is_object($objectToScrub))
-        {
-            $objectToScrubCopy = clone $objectToScrub;
-        }
-        else {
-            return self::xscrub($objectToScrub);
-        }
-
-        foreach($objectToScrubCopy as $key => &$value)
+         foreach($objectToScrub as $key => &$value)
         {
             if(is_object($value) || is_array($value))
             {
@@ -341,6 +332,6 @@ class XSSHelpers
             }
         }
         
-        return $objectToScrubCopy;
+        return $objectToScrub;
     }
 }
