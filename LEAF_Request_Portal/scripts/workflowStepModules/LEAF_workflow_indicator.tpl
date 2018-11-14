@@ -11,7 +11,7 @@ workflowStepModule[{{$stepID}}]['LEAF_workflow_indicator'] = (function() {
 		depID = step.dependencyID;
 		indicatorID = config.indicatorID;
 		$('#form_dep_extension' + depID).html('<div style="padding: 8px 24px 8px">\
-				<div style="background-color: white; border: 1px solid black; padding: 4px">\
+				<div style="background-color: white; border: 1px solid black; padding: 16px">\
 					<div id="'+prefixID+'container"></div>\
 					<div id="'+prefixID+'anchor"></div>\
 				</div>\
