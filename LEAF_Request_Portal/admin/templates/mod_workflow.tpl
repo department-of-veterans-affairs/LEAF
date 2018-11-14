@@ -745,9 +745,17 @@ function buildWorkflowIndicatorDropdown(stepID, steps) {
         .then(function(indicatorList) {
             for(var i in associatedCategories) {
                 for(var j in indicatorList) {
-                    if(associatedCategories[i].categoryID == indicatorList[j].categoryID
+                    if((associatedCategories[i].categoryID == indicatorList[j].categoryID
+                        || associatedCategories[i].categoryID == indicatorList[j].parentCategoryID)
                         && indicatorList[j].parentIndicatorID == null) {
                         $('#workflowIndicator').append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
+                    }
+                    else if(indicatorList[j].parentStaples != null) {
+                        for(var k in indicatorList[j].parentStaples) {
+                            if(indicatorList[j].parentStaples[k] == associatedCategories[i].categoryID) {
+                                $('#workflowIndicator').append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
+                            }
+                        }
                     }
                 }
             }
