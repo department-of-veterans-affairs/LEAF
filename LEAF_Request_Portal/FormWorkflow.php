@@ -213,14 +213,23 @@ class FormWorkflow
                     }
                 }
 
-                // load related js assets from shared steps
                 if (!isset($steps[$res[$i]['dependencyID']]))
                 {
                     $steps[$res[$i]['dependencyID']] = $res[$i];
                 }
+
+                // load related js assets from shared steps
                 if ($res[$i]['jsSrc'] != '' && file_exists(dirname(__FILE__) . '/scripts/custom_js/' . $res[$i]['jsSrc']))
                 {
                     $steps[$res[$i]['dependencyID']]['jsSrcList'][] = 'scripts/custom_js/' . $res[$i]['jsSrc'];
+                }
+
+                // load step modules
+                $varsSm = array(':stepID' => $res[$i]['stepID']);
+                $resSm = $this->db->prepared_query('SELECT moduleName, moduleConfig FROM step_modules
+                                                        WHERE stepID=:stepID', $varsSm);
+                foreach($resSm as $module) {
+                    $steps[$res[$i]['dependencyID']]['stepModules'][] = $module;
                 }
             }
 
