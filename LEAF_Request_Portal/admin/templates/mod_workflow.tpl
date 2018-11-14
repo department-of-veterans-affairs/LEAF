@@ -537,6 +537,7 @@ function createAction(params) {
 			dialog.indicateIdle();
 			dialog.setContent(buffer);
             $('#actionType').chosen({disable_search_threshold: 5});
+            // TODO: Figure out why this triggers even when the user clicks save
             /*
             dialog.setCancelHandler(function() {
                 loadWorkflow(currentWorkflow);
@@ -738,9 +739,14 @@ function buildWorkflowIndicatorDropdown(stepID, steps) {
         cache: false
     })
     .then(function(associatedCategories) {
+        var formList = '';
+        for(var i in associatedCategories) {
+            formList += associatedCategories[i].categoryID + ',';
+        }
+        formList = formList.replace(/,$/, '');
         $.ajax({
         type: 'GET',
-        url: '../api/form/indicator/list',
+        url: '../api/form/indicator/list?includeHeadings=1&forms=' + formList,
         cache: false
         })
         .then(function(indicatorList) {
