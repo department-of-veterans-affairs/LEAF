@@ -3015,6 +3015,7 @@ class Form
                     || $isActiveCategory[$item['parentCategoryID']] == 1)
                 {
                     $temp = array();
+                    $temp['parentIndicatorID'] = $item['parentIndicatorID'];
                     $temp['indicatorID'] = $item['indicatorID'];
                     $temp['name'] = $item['name'];
                     $temp['format'] = $item['format'];
