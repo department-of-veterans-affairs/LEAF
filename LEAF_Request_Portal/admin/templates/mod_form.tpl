@@ -400,8 +400,7 @@ function editIndicatorPrivileges(indicatorID) {
     );
 }
 var gridJSON = [];
-var gridBodyElement = 'div#container_indicatorGrid > table > tbody:first';
-var gridColumnNamesElement = 'div#container_indicatorGrid > table > tbody:first > tr:eq(0)';
+var gridBodyElement = 'div#container_indicatorGrid > div';
 if(columns === undefined) {
     var columns = 1;
 }
@@ -543,7 +542,8 @@ function newQuestion(parentIndicatorID) {
 
                 //gather column names and column types
                 //if column type is dropdown, adds property.options
-                $(gridBodyElement).find('td').each(function() {
+                $(gridBodyElement).find('div').each(function() {
+                    alert($(this).html());
                     var properties = new Object();
                     if($(this).children('input:eq(0)').val() === 'undefined'){
                         properties.name = 'No title';
@@ -605,7 +605,7 @@ function newQuestion(parentIndicatorID) {
 }
 
 function updateNames(){
-    $(gridBodyElement).children('td').each(function(i) {
+    $(gridBodyElement).children('div').each(function(i) {
         if (gridJSON[i] === undefined) {
             gridJSON.push(new Object);
         }
@@ -621,37 +621,37 @@ function makeGrid(columns) {
         }
         var name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
         $(gridBodyElement).append(
-            '<td style="flex: 1;"><span>Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
+            '<div style="padding: 10px; vertical-align: top; display: inline-block; flex: 1;"><span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
             '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br><img src=""/></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
             '<option value="dropdown">Drop Down</option></select></br>' +
             '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer" />' +
             '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
             '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" />' +
-            '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer" /></td>');
+            '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer" /></div>');
         if(columns === 1){
-            rightArrows($(gridBodyElement + ' > td:last'), false);
-            leftArrows($(gridBodyElement + ' > td:last'), false);
+            rightArrows($(gridBodyElement + ' > div:last'), false);
+            leftArrows($(gridBodyElement + ' > div:last'), false);
         } else {
             switch (i) {
                 case 0:
-                    leftArrows($(gridBodyElement + ' > td:last'), false);
+                    leftArrows($(gridBodyElement + ' > div:last'), false);
                     break;
                 case columns - 1:
-                    rightArrows($(gridBodyElement + ' > td:last'), false);
+                    rightArrows($(gridBodyElement + ' > div:last'), false);
                     break;
                 default:
                     break;
             }
         }
         if(gridJSON[i].type !== undefined){
-            $(gridBodyElement+ '> td:eq(' + i + ') > select option[value="' + gridJSON[i].type + '"]').attr('selected', 'selected');
+            $(gridBodyElement+ '> div:eq(' + i + ') > select option[value="' + gridJSON[i].type + '"]').attr('selected', 'selected');
             if(gridJSON[i].type.toString() === 'dropdown'){
                 if(gridJSON[i].options !== ""){
                     var options = gridJSON[i].options.join("\n").toString();
                 } else {
                     var options = "";
                 }
-                $(gridBodyElement + ' > td:eq(' + i + ')').append('<span></br>One option per line<textarea style="resize: none;"value="">' + options + '</textarea></span>');
+                $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea style="resize: none;"value="">' + options + '</textarea></span>');
             }
         }
     }
@@ -659,9 +659,9 @@ function makeGrid(columns) {
 
 function toggleDropDown(type, cell){
     if(type === 'dropdown'){
-        $(cell).parent().append('<span></br>One option per line</br><textarea value=""></textarea></span>');
+        $(cell).parent().append('<span class="dropdown"><div>One option per line</div><textarea value="" style="resize:none"></textarea></span>');
     } else {
-        $(cell).parent().find('span:last').remove();
+        $(cell).parent().find('span.dropdown').remove();
     }
 }
 
@@ -686,35 +686,35 @@ function rightArrows(cell, toggle){
 
 function addCells(){
     columns = columns + 1;
-    rightArrows($(gridBodyElement + ' > td:last'), true);
+    rightArrows($(gridBodyElement + ' > div:last'), true);
     $(gridBodyElement).append(
-        '<td style="flex: 1;"><span></span><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
+        '<div style="padding: 10px; vertical-align: top; display: inline-block; flex: 1;"><span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
         '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
         '<option value="dropdown">Drop Down</option></select></br>' +
         '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer; display: inline" />' +
         '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
         '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" />' +
-        '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer; display: none" /></td>');
+        '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer; display: none" /></div>');
     updateColumnNumbers();
 }
 
 function updateColumnNumbers(){
-    $(gridBodyElement).find('td').each(function(index) {
-        $(this).find('span:first').html('Column #' + (index + 1) +':&nbsp;');
+    $(gridBodyElement).find('span.columnNumber').each(function(index) {
+        $(this).html('Column #' + (index + 1) +':&nbsp;');
     });
 }
 
 function deleteColumn(){
-    var column = $(event.target).closest('td');
-    var tbody = $(event.target).closest('tbody');
-    switch(tbody.find('td').length){
+    var column = $(event.target).closest('div');
+    var tbody = $(event.target).closest('div').parent('div');
+    switch(tbody.find('div').length){
         case 1:
             alert('Cannot remove inital column.');
             break;
         case 2:
             column.remove();
-            rightArrows(tbody.find('td'), false);
-            leftArrows(tbody.find('td'), false);
+            rightArrows(tbody.find('div'), false);
+            leftArrows(tbody.find('div'), false);
             break;
         default:
             if(column.find('[title="Move column right"]').css('display') === 'none'){
@@ -732,7 +732,7 @@ function deleteColumn(){
 }
 
 function moveRight(){
-    var column = $(event.target).closest('td');
+    var column = $(event.target).closest('div');
     var nextColumnLast = column.next().find('[title="Move column right"]').css('display') === 'none';
     var first = column.find('[title="Move column left"]').css('display') === 'none';
     leftArrows(column, true);
@@ -748,21 +748,21 @@ function moveRight(){
 }
 
 function moveLast(){
-    var column = $(event.target).closest('td');
+    var column = $(event.target).closest('div');
     var first = column.find('[title="Move column left"]').css('display') === 'none';
     rightArrows(column, false);
     leftArrows(column, true);
     if(first) {
         leftArrows(column.next(), false);
     }
-    rightArrows($(gridBodyElement + ' > td:last'), true);
-    leftArrows($(gridBodyElement + ' > td:last'), true);
-    column.insertAfter($(gridBodyElement + ' > td:last'));
+    rightArrows($(gridBodyElement + ' > div:last'), true);
+    leftArrows($(gridBodyElement + ' > div:last'), true);
+    column.insertAfter($(gridBodyElement + ' > div:last'));
     updateColumnNumbers();
 }
 
 function moveLeft(){
-    var column = $(event.target).closest('td');
+    var column = $(event.target).closest('div');
     var nextColumnFirst = column.prev().find('[title="Move column left"]').css('display') === 'none';
     var last = column.find('[title="Move column right"]').css('display') === 'none';
     rightArrows(column, true);
@@ -777,16 +777,16 @@ function moveLeft(){
     updateColumnNumbers();
 }
 function moveFirst(){
-    var column = $(event.target).closest('td');
+    var column = $(event.target).closest('div');
     var last = column.find('[title="Move column right"]').css('display') === 'none';
     leftArrows(column, false);
     if(last) {
         rightArrows(column.prev(), false);
     }
     rightArrows(column, true);
-    leftArrows($(gridBodyElement + ' > td:first'), true);
-    rightArrows($(gridBodyElement + ' > td:first'), true);
-    column.insertBefore($(gridBodyElement + ' > td:first'));
+    leftArrows($(gridBodyElement + ' > div:first'), true);
+    rightArrows($(gridBodyElement + ' > div:first'), true);
+    column.insertBefore($(gridBodyElement + ' > div:first'));
     updateColumnNumbers();
 }
 
@@ -820,7 +820,7 @@ function getForm(indicatorID, series) {
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
                 <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>&nbsp;\
-                </br></br>Columns:<table border="1" style="max-width: 100%; border: 1px black;"><tbody style="display: flex; flex-wrap: wrap;"></tbody></table></div>\
+                </br></br>Columns:<div border="1" style="max-width: 100%; border: 1px black;"></div></div>\
                 <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
             <fieldset><legend>Attributes</legend>\
                 <table>\
@@ -1104,7 +1104,7 @@ function getForm(indicatorID, series) {
 
                 //gather column names and column types
                 //if column type is dropdown, adds property.options
-                $(gridBodyElement).find('td').each(function() {
+                $(gridBodyElement).find('div').each(function() {
                     var properties = new Object();
                     if($(this).children('input:eq(0)').val() === 'undefined'){
                         properties.name = 'No title';

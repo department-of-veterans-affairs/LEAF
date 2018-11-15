@@ -68,24 +68,12 @@
 
 <!--{if $indicator.format == 'grid'}-->
     <!--{$indicator.format}-->
+    <script type="text/javascript" src="../js/gridInput.js"></script>
     </br></br>
-    <table id="grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="table-layout: fixed; width: 100%; max-width: 100%;border: 1px black;">
-        <tbody style="display: flex; flex-wrap: wrap;">
-        </tbody>
-    </table>
+    <div id="grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="width: 100%; max-width: 100%;">
+    </div>
     <script>
-        printTablePreview(<!--{$indicator.options[0]}-->);
-
-        function printTablePreview(gridParameters){
-            var previewElement = '#grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> > tbody';
-
-            for(var i = 0; i < gridParameters.length; i++){
-                $(previewElement).append('<td style="flex: 1; order: '+ (i + 1) + '"><b>Column #' + (i + 1) + '</b></br>Title:' + gridParameters[i].name + '</br>Type:' + gridParameters[i].type + '</br></td>');
-                if(gridParameters[i].type === 'dropdown'){
-                    $(previewElement + '> td:eq(' + i + ')').append('Options:</br><li>' + gridParameters[i].options.toString().replace(/,/g, "</li><li>") + '</li></br>');
-                }
-            }
-        }
+        printTablePreview(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
     </script>
 <!--{else}-->
     <!--{$indicator.format}-->

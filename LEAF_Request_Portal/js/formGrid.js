@@ -408,7 +408,7 @@ var LeafFormGrid = function(containerID, options) {
         var columns = values.names.length;
         //finds and displays column names
         for(var i = 0; i < columns; i++){
-        	gridHeadBuffer +='<td>' + values.names[i] + '</td>';
+        	gridHeadBuffer +='<td style=" width: 100px;">' + values.names[i] + '</td>';
         }
 
         //populates table
@@ -421,7 +421,7 @@ var LeafFormGrid = function(containerID, options) {
             gridRowBuffer += '</tr>';
             gridBodyBuffer += gridRowBuffer
         }
-        return '<table class="table" style="word-wrap:break-word; width: 100%; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer.replace(/undefined/g, "") + '</thead><tbody>' + gridBodyBuffer.replace(/undefined/g, "") + '</tbody></table>';
+        return '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer.replace(/undefined/g, "") + '</thead><tbody>' + gridBodyBuffer.replace(/undefined/g, "") + '</tbody></table>';
     }
 
     /**

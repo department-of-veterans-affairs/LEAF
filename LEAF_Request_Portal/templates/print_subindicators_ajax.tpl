@@ -186,7 +186,7 @@
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
         <script type="text/javascript" src="js/gridInput.js"></script>
         <div class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output" style="word-wrap:break-word; width: 100%; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;">
+            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;">
                 <thead>
                 </thead>
                 <tbody>
