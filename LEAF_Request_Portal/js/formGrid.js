@@ -10,7 +10,6 @@ var LeafFormGrid = function(containerID, options) {
 	var form;
 	var headers;
 	var currentData = [];
-	var currentGridParameters = [];
 	var currentRenderIndex = 0;
 	var isDataLoaded = false;
 	var defaultLimit = 50;
