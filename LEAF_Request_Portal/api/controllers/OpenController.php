@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/Shortener.php';
+require dirname(__FILE__) . '/../../sources/Shortener.php';
 
 if (!class_exists('XSSHelpers'))
 {
