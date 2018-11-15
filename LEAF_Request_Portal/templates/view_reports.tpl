@@ -465,18 +465,33 @@ function sortHeaders(a, b) {
 }
 
 function showJSONendpoint() {
-	var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
-	var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-	var urlEncoded = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + encodeURIComponent(JSON.stringify(leafSearch.getLeafFormQuery().getQuery())); 
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
+	var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
+	var urlEncoded = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + encodeURIComponent(queryString); 
 
 	dialog_message.setTitle('Data Endpoints');
-	dialog_message.setContent('<p>These endpoints provide a live data source for custom dashboards or automated programs.</p>'
-			               + '<b>JSON:</b><br /><textarea style="width: 95%; height: 100px">'+ jsonPath +'</textarea><br />For JSONP, append <b>&amp;format=jsonp</b>'
+    dialog_message.setContent('<p>These endpoints provide a live data source for custom dashboards or automated programs.</p>'
+                           + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
+			               + '<b>JSON:</b><br /><textarea id="jsonPath" style="width: 95%; height: 100px">'+ jsonPath +'</textarea><br />For JSONP, append <b>&amp;format=jsonp</b>'
 			               + '<br /><br /><b>HTML Table:</b><br /><textarea id="encodedTable" style="width: 95%; height: 100px">'+ urlEncoded +'&format=htmltable</textarea>'
 			               + '<br /><a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>');
 	$('#encodedTable').on('click', function() {
 		$('#encodedTable').select();
-	});
+    });
+    $('#shortenLink').on('click', function() {
+        $('#shortenLink').css('display', 'none');
+        $.ajax({
+            type: 'POST',
+            url: './api/open/report',
+            data: {data: queryString,
+                CSRFToken: CSRFToken}
+        })
+        .then(function(res) {
+            $('#jsonPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/report/_' + res);
+            $('#encodedTable').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/report/_' + res + '&format=htmltable');
+        });
+    });
 	dialog_message.show();
 }
 
