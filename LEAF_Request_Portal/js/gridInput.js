@@ -13,7 +13,7 @@ function makeDropdown(options, selected){
 function printTableInput(gridParameters, values, indicatorID, series){
     var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
     var gridHeadElement = '#grid_' + indicatorID + '_' + series + '_input > thead';
-    var rows = values.cells !== undefined && values.cells.length > 0 ? values.cells.length : 1;
+    var rows = values.cells !== undefined && values.cells.length > 0 ? values.cells.length : 0;
     var columns = gridParameters.length;
     var element = '';
 
@@ -75,7 +75,11 @@ function addRow(gridParameters, indicatorID, series){
             $(gridBodyElement + ' > tr:last').append('<td>' + makeDropdown(gridParameters[i].options, null) + '</td>');
         }
     }
-    $(gridBodyElement + ' > tr:last').append('<td><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveUp()" src="../libs/dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="cursor: pointer" /></br><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="deleteRow()" src="../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" /></br><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveDown()" style="display: none" src="../libs/dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="cursor: pointer" /></td>');
+    if($(gridBodyElement).children().length === 1){
+        $(gridBodyElement + ' > tr:last').append('<td><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveUp()" src="../libs/dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="cursor: pointer; display: none;" /></br><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="deleteRow()" src="../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" /></br><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveDown()" style="display: none" src="../libs/dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="cursor: pointer" /></td>');
+    } else {
+        $(gridBodyElement + ' > tr:last').append('<td><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveUp()" src="../libs/dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="cursor: pointer" /></br><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="deleteRow()" src="../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" /></br><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveDown()" style="display: none" src="../libs/dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="cursor: pointer" /></td>');
+    }
 }
 // click function for 508 compliance
 function triggerClick(){
@@ -87,9 +91,6 @@ function deleteRow(){
     var row = $(event.target).closest('tr');
     var tbody = $(event.target).closest('tbody');
     switch(tbody.find('tr').length){
-        case 1:
-            alert('Cannot remove inital row.');
-            break;
         case 2:
             row.remove();
             upArrows(tbody.find('tr'), false);
@@ -159,12 +160,6 @@ function printTableOutput(gridParameters, values, indicatorID, series) {
     //finds and displays column names
     for(var i = 0; i < columns; i++){
         $(gridHeadElement).append('<td style="width:100px">' + gridParameters[i].name + '</td>');
-    }
-    if(rows === 0){
-        $(gridBodyElement).append('<tr></tr>');
-        for(var i = 0; i < columns; i++){
-            $(gridBodyElement + ' > tr').append('<td style="width:100px"></td>');
-        }
     }
 
     //populates table
