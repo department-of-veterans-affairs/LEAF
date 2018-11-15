@@ -661,7 +661,7 @@ function toggleDropDown(type, cell){
     if(type === 'dropdown'){
         $(cell).parent().append('<span></br>One option per line</br><textarea value=""></textarea></span>');
     } else {
-        $(cell).parent().find('span').remove();
+        $(cell).parent().find('span:last').remove();
     }
 }
 
@@ -749,9 +749,12 @@ function moveRight(){
 
 function moveLast(){
     var column = $(event.target).closest('td');
+    var first = column.find('[title="Move column left"]').css('display') === 'none';
     rightArrows(column, false);
     leftArrows(column, true);
-    leftArrows(column.next(), false);
+    if(first) {
+        leftArrows(column.next(), false);
+    }
     rightArrows($(gridBodyElement + ' > td:last'), true);
     leftArrows($(gridBodyElement + ' > td:last'), true);
     column.insertAfter($(gridBodyElement + ' > td:last'));
@@ -775,9 +778,12 @@ function moveLeft(){
 }
 function moveFirst(){
     var column = $(event.target).closest('td');
+    var last = column.find('[title="Move column right"]').css('display') === 'none';
     leftArrows(column, false);
+    if(last) {
+        rightArrows(column.prev(), false);
+    }
     rightArrows(column, true);
-    rightArrows(column.prev(), false);
     leftArrows($(gridBodyElement + ' > td:first'), true);
     rightArrows($(gridBodyElement + ' > td:first'), true);
     column.insertBefore($(gridBodyElement + ' > td:first'));
