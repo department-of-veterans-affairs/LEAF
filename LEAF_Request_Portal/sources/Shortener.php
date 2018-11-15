@@ -64,14 +64,19 @@ class Shortener
 
     public function shortenReport($data) {
         $hash = hash('sha256', $data);
-        $vars = array(':data' => $data,
-                      ':hash' => $hash);
-        $this->db->prepared_query('INSERT IGNORE INTO short_links (type, hash, data)
-                                    VALUES ("report", :hash, :data)', $vars);
 
         $vars = array(':hash' => $hash);
         $res = $this->db->prepared_query('SELECT shortID FROM short_links
-                                            WHERE hash=:hash', $vars);
-        return $this->encodeShortUID($res[0]['shortID']);
+                                            WHERE hash=:hash
+                                                and type="report"', $vars);
+        if(count($res) > 0) {
+            return $this->encodeShortUID($res[0]['shortID']);
+        }
+
+        $vars = array(':data' => $data,
+                      ':hash' => $hash);
+        $this->db->prepared_query('INSERT INTO short_links (type, hash, data)
+                                    VALUES ("report", :hash, :data)', $vars);
+        return $this->encodeShortUID($this->db->getLastInsertID());
     }
 }
