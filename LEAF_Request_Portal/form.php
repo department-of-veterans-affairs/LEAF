@@ -2036,6 +2036,10 @@ class Form
                             }
                             $item['data'] = trim($item['data'], ', ');
                         }
+                        if (substr($indicators[$item['indicatorID']]['format'], 0, 4) == 'grid')
+                        {
+                            $item['data'] = @unserialize($item['data']);
+                        }
                         break;
                 }
 

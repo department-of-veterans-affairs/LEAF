@@ -10,6 +10,7 @@ var LeafFormGrid = function(containerID, options) {
 	var form;
 	var headers;
 	var currentData = [];
+	var currentGridParameters = [];
 	var currentRenderIndex = 0;
 	var isDataLoaded = false;
 	var defaultLimit = 50;
@@ -60,6 +61,9 @@ var LeafFormGrid = function(containerID, options) {
                         }
                     }
                     data = tData.substr(2);
+                }
+            	if(response[indicatorID].format == 'grid') {
+                    data = printTableReportBuilder(data);
                 }
                 $('#' + prefixID+recordID+'_'+indicatorID).empty().html(data);
                 $('#' + prefixID+recordID+'_'+indicatorID).fadeOut(250, function() {
@@ -395,6 +399,33 @@ var LeafFormGrid = function(containerID, options) {
     }
 
     /**
+	 * @param values (required) object of cells and names to generate grid
+     * @memberOf LeafFormGrid
+     */
+    function printTableReportBuilder(values) {
+        var gridBodyBuffer;
+        var gridHeadBuffer;
+        var rows = values.cells.length;
+        var columns = values.names.length;
+        //finds and displays column names
+        for(var i = 0; i < columns; i++){
+        	gridHeadBuffer +='<td>' + values.names[i] + '</td>';
+        }
+
+        //populates table
+        for (var i = 0; i < rows; i++) {
+        	var gridRowBuffer = '<tr>';
+            for (var j = 0; j < columns; j++) {
+                var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
+                gridRowBuffer += '<td>' + value + '</td>';
+            }
+            gridRowBuffer += '</tr>';
+            gridBodyBuffer += gridRowBuffer
+        }
+        return '<table class="table" style="word-wrap:break-word; width: 100%; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer.replace(/undefined/g, "") + '</thead><tbody>' + gridBodyBuffer.replace(/undefined/g, "") + '</tbody></table>';
+    }
+
+    /**
      * @param startIdx (optional) row to start rendering on
      * @param limit (optional) number of rows to render
      * @memberOf LeafFormGrid
@@ -459,12 +490,16 @@ var LeafFormGrid = function(containerID, options) {
                 			currentData[i].s1 = {};
                 		}
                     	data.data = currentData[i].s1['id'+headers[j].indicatorID] != undefined ? currentData[i].s1['id'+headers[j].indicatorID] : '';
+                		// console.log(JSON.parse(JSON.stringify(data.data))["names"]);
                         if(currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint'] != undefined) {
                             var htmlPrint = '<textarea id="data_'+currentData[i].recordID+'_'+headers[j].indicatorID+'_1" style="display: none">'+ data.data +'</textarea>';
                             htmlPrint += currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint'].replace(/{{ iID }}/g, currentData[i].recordID + '_' + headers[j].indicatorID);
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + htmlPrint + '</td>';
                         }
                         else {
+                            if(JSON.parse(JSON.stringify(data.data))["names"] !== undefined){
+                                data.data = printTableReportBuilder(JSON.parse(JSON.stringify(data.data)));
+                            }
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + data.data + '</td>';
                         }
                 	}

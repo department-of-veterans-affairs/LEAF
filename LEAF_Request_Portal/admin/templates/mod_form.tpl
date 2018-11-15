@@ -621,13 +621,13 @@ function makeGrid(columns) {
         }
         var name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
         $(gridBodyElement).append(
-            '<td style="flex: 1;"><span>Column #' + (i + 1) + ': </span><img onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
+            '<td style="flex: 1;"><span>Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
             '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br><img src=""/></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
             '<option value="dropdown">Drop Down</option></select></br>' +
-            '<img onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer" />' +
-            '<img onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
-            '<img onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" />' +
-            '<img onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer" /></td>');
+            '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer" />' +
+            '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
+            '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" />' +
+            '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer" /></td>');
         if(columns === 1){
             rightArrows($(gridBodyElement + ' > td:last'), false);
             leftArrows($(gridBodyElement + ' > td:last'), false);
@@ -688,13 +688,13 @@ function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > td:last'), true);
     $(gridBodyElement).append(
-        '<td style="flex: 1;"><span></span><img onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
+        '<td style="flex: 1;"><span></span><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
         '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
         '<option value="dropdown">Drop Down</option></select></br>' +
-        '<img onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer; display: inline" />' +
-        '<img onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
-        '<img onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" />' +
-        '<img onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer; display: none" /></td>');
+        '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer; display: inline" />' +
+        '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
+        '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" />' +
+        '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer; display: none" /></td>');
     updateColumnNumbers();
 }
 
@@ -753,6 +753,7 @@ function moveLast(){
     leftArrows(column, true);
     leftArrows(column.next(), false);
     rightArrows($(gridBodyElement + ' > td:last'), true);
+    leftArrows($(gridBodyElement + ' > td:last'), true);
     column.insertAfter($(gridBodyElement + ' > td:last'));
     updateColumnNumbers();
 }
@@ -778,6 +779,7 @@ function moveFirst(){
     rightArrows(column, true);
     rightArrows(column.prev(), false);
     leftArrows($(gridBodyElement + ' > td:first'), true);
+    rightArrows($(gridBodyElement + ' > td:first'), true);
     column.insertBefore($(gridBodyElement + ' > td:first'));
     updateColumnNumbers();
 }
@@ -1439,6 +1441,12 @@ function exportForm(categoryID) {
 		var outBlob = new Blob([JSON.stringify(outPacket).replace(/[^ -~]/g,'')], {type : 'text/plain'}); // Regex replace needed to workaround IE11 encoding issue
 		saveAs(outBlob, 'LEAF_FormPacket_'+ categoryID +'.txt');
 	});
+}
+// click function for 508 compliance
+function triggerClick(){
+    if(event.keyCode === 13){
+        $(event.target).trigger('click');
+    }
 }
 
 function deleteForm() {

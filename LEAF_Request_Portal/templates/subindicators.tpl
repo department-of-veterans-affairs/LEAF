@@ -44,7 +44,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <script type="text/javascript" src="js/gridInput.js"></script>
-            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input" style="word-wrap:break-word; table-layout: fixed; width: 100%;">
+            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input" style="word-wrap:break-word; table-layout: fixed; width: 100%; height: 100%; display: table">
                 <thead>
                 </thead>
                 <tbody>

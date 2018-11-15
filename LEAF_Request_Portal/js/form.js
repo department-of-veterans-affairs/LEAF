@@ -50,23 +50,29 @@ var LeafForm = function(containerID) {
 		if(hasTable === true){
             var tables = [];
 
-			$('#' + htmlFormID).find('tbody').each(function(index) {
-				var cells = [];
+			$('#' + htmlFormID).find('table').each(function(index) {
+				var gridObject = {};
+                gridObject.cells = [];
+                gridObject.names = [];
 
-				$(this).find('tr').each(function(){
-                    var cellObj = [];
+                $('thead', this).find('td').slice(0, -1).each(function() {
+                    gridObject.names.push($(this).html());
+				});
+
+				$('tbody', this).find('tr').each(function(){
+                    var cellArr = [];
 					$(this).children('td').each(function() {
                         if($('textarea', this).length) {
-							cellObj.push($(this).find('textarea').val());
+                            cellArr.push($(this).find('textarea').val());
                         } else if($('select', this).length){
-                            cellObj.push($("option:selected", this).val());
+                            cellArr.push($("option:selected", this).val());
 						}
                     });
-					cells.push(cellObj);
+                    gridObject.cells.push(cellArr);
 				});
 				tables[index] = {
-					id: $(this).parent('table').attr('id').split('_')[1],
-					data: cells,
+					id: $(this).attr('id').split('_')[1],
+					data: gridObject,
 				};
             });
 
