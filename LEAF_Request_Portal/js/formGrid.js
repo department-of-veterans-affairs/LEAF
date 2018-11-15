@@ -490,7 +490,6 @@ var LeafFormGrid = function(containerID, options) {
                 			currentData[i].s1 = {};
                 		}
                     	data.data = currentData[i].s1['id'+headers[j].indicatorID] != undefined ? currentData[i].s1['id'+headers[j].indicatorID] : '';
-                		// console.log(JSON.parse(JSON.stringify(data.data))["names"]);
                         if(currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint'] != undefined) {
                             var htmlPrint = '<textarea id="data_'+currentData[i].recordID+'_'+headers[j].indicatorID+'_1" style="display: none">'+ data.data +'</textarea>';
                             htmlPrint += currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint'].replace(/{{ iID }}/g, currentData[i].recordID + '_' + headers[j].indicatorID);
