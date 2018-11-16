@@ -465,7 +465,6 @@ function newQuestion(parentIndicatorID) {
             case 'checkboxes':
             case 'dropdown':
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $(gridBodyElement).closest('div[role="dialog"]').css('left', 'auto');
                 $(gridBodyElement).closest('#xhr').css('width', 'auto');
                 $('#container_indicatorGrid').css('display', 'none');
                 $('#container_indicatorMultiAnswer').css('display', 'block');
@@ -473,7 +472,6 @@ function newQuestion(parentIndicatorID) {
                 break;
             case 'checkbox':
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $(gridBodyElement).closest('div[role="dialog"]').css('left', 'auto');
                 $(gridBodyElement).closest('#xhr').css('width', 'auto');
                 $('#container_indicatorGrid').css('display', 'none');
                 $('#container_indicatorMultiAnswer').css('display', 'none');
@@ -481,7 +479,6 @@ function newQuestion(parentIndicatorID) {
             	break;
             default:
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $(gridBodyElement).closest('div[role="dialog"]').css('left', 'auto');
                 $(gridBodyElement).closest('#xhr').css('width', 'auto');
                 $('#container_indicatorGrid').css('display', 'none');
                 $('#container_indicatorMultiAnswer').css('display', 'none');
@@ -828,9 +825,8 @@ function getForm(indicatorID, series) {
             Template Variables:<br />\
             <b>{{ iID }}</b> will be replaced with the indicatorID # of the data field\
         </div></div>');
-
     $('#indicatorType').on('change', function() {
-    	switch($('#indicatorType').val()) {
+        switch($('#indicatorType').val()) {
             case 'grid':
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', '70%');
                 $(gridBodyElement).closest('div[role="dialog"]').css('left', '15%');
@@ -844,7 +840,6 @@ function getForm(indicatorID, series) {
     	    case 'checkboxes':
     	    case 'dropdown':
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $(gridBodyElement).closest('div[role="dialog"]').css('left', 'auto');
                 $(gridBodyElement).closest('#xhr').css('width', 'auto');
                 $('#container_indicatorGrid').css('display', 'none');
     	    	$('#container_indicatorMultiAnswer').css('display', 'block');
@@ -852,7 +847,6 @@ function getForm(indicatorID, series) {
     		    break;
     	    case 'checkbox':
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $(gridBodyElement).closest('div[role="dialog"]').css('left', 'auto');
                 $(gridBodyElement).closest('#xhr').css('width', 'auto');
                 $('#container_indicatorGrid').css('display', 'none');
     	    	$('#container_indicatorMultiAnswer').css('display', 'none');
@@ -860,7 +854,6 @@ function getForm(indicatorID, series) {
     	    	break;
     	    default:
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $(gridBodyElement).closest('div[role="dialog"]').css('left', 'auto');
                 $(gridBodyElement).closest('#xhr').css('width', 'auto');
                 $('#container_indicatorGrid').css('display', 'none');
                 $('#container_indicatorMultiAnswer').css('display', 'none');
@@ -1057,6 +1050,9 @@ function getForm(indicatorID, series) {
                 if(formatIdx != -1 && format.substr(0, formatIdx) != '') {
                     switch(format.substr(0, formatIdx)) {
                         case 'grid':
+                            $(gridBodyElement).closest('div[role="dialog"]').css('width', '70%');
+                            $(gridBodyElement).closest('div[role="dialog"]').css('left', '15%');
+                            $(gridBodyElement).closest('#xhr').css('width', '100%');
                             $('#indicatorType').val(format.substr(0, formatIdx));
                             $('#container_indicatorGrid').css('display', 'block');
                             $('#container_indicatorMultiAnswer').css('display', 'none');
@@ -1064,6 +1060,8 @@ function getForm(indicatorID, series) {
                             makeGrid(columns);
                             break;
                         case 'checkbox':
+                            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                            $(gridBodyElement).closest('#xhr').css('width', 'auto');
                             $('#indicatorType').val(format.substr(0, formatIdx));
                             $('#indicatorSingleAnswer').val(format.substr(formatIdx + 1));
                             $('#container_indicatorSingleAnswer').css('display', 'block');
@@ -1072,6 +1070,8 @@ function getForm(indicatorID, series) {
                         case 'checkboxes':
                         case 'dropdown':
                         default:
+                            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                            $(gridBodyElement).closest('#xhr').css('width', 'auto');
                             $('#indicatorType').val(format.substr(0, formatIdx));
                             $('#indicatorMultiAnswer').val(format.substr(formatIdx + 1));
                             $('#container_indicatorMultiAnswer').css('display', 'block');
