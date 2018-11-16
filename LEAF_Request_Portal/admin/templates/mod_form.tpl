@@ -542,8 +542,7 @@ function newQuestion(parentIndicatorID) {
 
                 //gather column names and column types
                 //if column type is dropdown, adds property.options
-                $(gridBodyElement).find('div').each(function() {
-                    alert($(this).html());
+                $(gridBodyElement).find('div.cell').each(function() {
                     var properties = new Object();
                     if($(this).children('input:eq(0)').val() === 'undefined'){
                         properties.name = 'No title';
@@ -621,13 +620,13 @@ function makeGrid(columns) {
         }
         var name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
         $(gridBodyElement).append(
-            '<div style="padding: 10px; vertical-align: top; display: inline-block; flex: 1;"><span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
-            '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br><img src=""/></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
+            '<div class="cell" style="padding: 10px; vertical-align: top; display: inline-block; flex: 1;"><span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
+            '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
             '<option value="dropdown">Drop Down</option></select></br>' +
-            '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer" />' +
-            '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
-            '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" />' +
-            '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer" /></div>');
+            '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveFirst(event)" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer" />' +
+            '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
+            '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" />' +
+            '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLast(event)" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer" /></div>');
         if(columns === 1){
             rightArrows($(gridBodyElement + ' > div:last'), false);
             leftArrows($(gridBodyElement + ' > div:last'), false);
@@ -688,13 +687,13 @@ function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > div:last'), true);
     $(gridBodyElement).append(
-        '<div style="padding: 10px; vertical-align: top; display: inline-block; flex: 1;"><span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick();" onclick="deleteColumn()" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
-        '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
+        '<div class="cell" style="padding: 10px; vertical-align: top; display: inline-block; flex: 1;"><span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
+        '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
         '<option value="dropdown">Drop Down</option></select></br>' +
-        '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveFirst()" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer; display: inline" />' +
-        '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLeft()" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
-        '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveRight()" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" />' +
-        '<img role="button" tabindex="0" onkeydown="triggerClick();" onclick="moveLast()" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer; display: none" /></div>');
+        '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveFirst(event)" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer; display: inline" />' +
+        '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
+        '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" />' +
+        '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLast(event)" src="../../libs/dynicons/?img=go-last.svg&w=16" title="Move column last" alt="Move column last" style="cursor: pointer; display: none" /></div>');
     updateColumnNumbers();
 }
 
@@ -704,7 +703,7 @@ function updateColumnNumbers(){
     });
 }
 
-function deleteColumn(){
+function deleteColumn(event){
     var column = $(event.target).closest('div');
     var tbody = $(event.target).closest('div').parent('div');
     switch(tbody.find('div').length){
@@ -731,7 +730,7 @@ function deleteColumn(){
     updateColumnNumbers();
 }
 
-function moveRight(){
+function moveRight(event){
     var column = $(event.target).closest('div');
     var nextColumnLast = column.next().find('[title="Move column right"]').css('display') === 'none';
     var first = column.find('[title="Move column left"]').css('display') === 'none';
@@ -747,7 +746,7 @@ function moveRight(){
     updateColumnNumbers();
 }
 
-function moveLast(){
+function moveLast(event){
     var column = $(event.target).closest('div');
     var first = column.find('[title="Move column left"]').css('display') === 'none';
     rightArrows(column, false);
@@ -755,14 +754,18 @@ function moveLast(){
     if(first) {
         leftArrows(column.next(), false);
     }
-    rightArrows($(gridBodyElement + ' > div:last'), true);
-    leftArrows($(gridBodyElement + ' > div:last'), true);
-    column.insertAfter($(gridBodyElement + ' > div:last'));
+    if($(gridBodyElement).find('div.cell').length !== 2){
+        rightArrows($(gridBodyElement + ' > div.cell:last'), true);
+        leftArrows($(gridBodyElement + ' > div.cell:last'), true);
+    } else {
+        rightArrows(column.next(), true);
+    }
+    column.insertAfter($(gridBodyElement + ' > div.cell:last'));
     updateColumnNumbers();
 }
 
-function moveLeft(){
-    var column = $(event.target).closest('div');
+function moveLeft(event){
+    var column = $(event.target).closest('div.cell');
     var nextColumnFirst = column.prev().find('[title="Move column left"]').css('display') === 'none';
     var last = column.find('[title="Move column right"]').css('display') === 'none';
     rightArrows(column, true);
@@ -776,17 +779,21 @@ function moveLeft(){
     column.insertBefore(column.prev());
     updateColumnNumbers();
 }
-function moveFirst(){
-    var column = $(event.target).closest('div');
+function moveFirst(event){
+    var column = $(event.target).closest('div.cell');
     var last = column.find('[title="Move column right"]').css('display') === 'none';
     leftArrows(column, false);
     if(last) {
         rightArrows(column.prev(), false);
     }
     rightArrows(column, true);
-    leftArrows($(gridBodyElement + ' > div:first'), true);
-    rightArrows($(gridBodyElement + ' > div:first'), true);
-    column.insertBefore($(gridBodyElement + ' > div:first'));
+    if($(gridBodyElement).find('div.cell').length !== 2){
+        leftArrows($(gridBodyElement + ' > div.cell:first'), true);
+        rightArrows($(gridBodyElement + ' > div.cell:first'), true);
+    } else {
+        leftArrows(column.prev(), true);
+    }
+    column.insertBefore($(gridBodyElement + ' > div.cell:first'));
     updateColumnNumbers();
 }
 
@@ -1104,7 +1111,7 @@ function getForm(indicatorID, series) {
 
                 //gather column names and column types
                 //if column type is dropdown, adds property.options
-                $(gridBodyElement).find('div').each(function() {
+                $(gridBodyElement).find('div.cell').each(function() {
                     var properties = new Object();
                     if($(this).children('input:eq(0)').val() === 'undefined'){
                         properties.name = 'No title';
@@ -1449,7 +1456,7 @@ function exportForm(categoryID) {
 	});
 }
 // click function for 508 compliance
-function triggerClick(){
+function triggerClick(event){
     if(event.keyCode === 13){
         $(event.target).trigger('click');
     }

@@ -47,7 +47,7 @@ var LeafForm = function(containerID) {
 		var data = {recordID: recordID};
 		$('#' + htmlFormID).serializeArray().map(function(x){data[x.name] = x.value;});
 
-		if(hasTable === true){
+		if(hasTable){
             var tables = [];
 
 			$('#' + htmlFormID).find('table').each(function(index) {
