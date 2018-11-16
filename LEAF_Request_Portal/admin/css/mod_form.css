@@ -42,11 +42,10 @@
 }
 
 div.cell {
-    border: 1px grey;
-    border-style:solid;
+    text-align: center;
+    border: 1px grey solid;
     padding: 10px;
     vertical-align: top;
-    display: inline-block;
-    flex: 1;
+    display: table-cell;
     padding-bottom: 65px;
 }
