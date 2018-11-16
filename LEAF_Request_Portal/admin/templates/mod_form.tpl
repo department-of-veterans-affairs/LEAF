@@ -620,7 +620,7 @@ function makeGrid(columns) {
         }
         var name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
         $(gridBodyElement).append(
-            '<div class="cell" style="padding: 10px; vertical-align: top; display: inline-block; flex: 1;"><span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
+            '<div class="cell"><span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
             '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
             '<option value="dropdown">Drop Down</option></select></br>' +
             '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveFirst(event)" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer" />' +
@@ -650,7 +650,8 @@ function makeGrid(columns) {
                 } else {
                     var options = "";
                 }
-                $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea style="resize: none;"value="">' + options + '</textarea></span>');
+                $(gridBodyElement + ' > div:eq(' + i + ')').css('padding-bottom', '11px');
+                $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea style="width: 153px; resize: none;"value="">' + options + '</textarea></span>');
             }
         }
     }
@@ -658,7 +659,7 @@ function makeGrid(columns) {
 
 function toggleDropDown(type, cell){
     if(type === 'dropdown'){
-        $(cell).parent().append('<span class="dropdown"><div>One option per line</div><textarea value="" style="resize:none"></textarea></span>');
+        $(cell).parent().append('<span class="dropdown"><div>One option per line</div><textarea value="" style="width: 153px; resize:none"></textarea></span>');
     } else {
         $(cell).parent().find('span.dropdown').remove();
     }
@@ -687,7 +688,7 @@ function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > div:last'), true);
     $(gridBodyElement).append(
-        '<div class="cell" style="padding: 10px; vertical-align: top; display: inline-block; flex: 1;"><span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
+        '<div class="cell"><span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
         '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
         '<option value="dropdown">Drop Down</option></select></br>' +
         '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveFirst(event)" src="../../libs/dynicons/?img=go-first.svg&w=16" title="Move column first" alt="Move column first" style="cursor: pointer; display: inline" />' +
