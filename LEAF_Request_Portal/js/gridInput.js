@@ -10,6 +10,20 @@ function makeDropdown(options, selected){
     dropdownElement += '</select>';
     return dropdownElement;
 }
+function upArrows(row, toggle){
+    if(toggle){
+        row.find('[title="Move line up"]').css('display', 'inline');
+    } else {
+        row.find('[title="Move line up"]').css('display', 'none');
+    }
+}
+function downArrows(row, toggle){
+    if(toggle){
+        row.find('[title="Move line down"]').css('display', 'inline');
+    } else {
+        row.find('[title="Move line down"]').css('display', 'none');
+    }
+}
 function printTableInput(gridParameters, values, indicatorID, series){
     var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
     var gridHeadElement = '#grid_' + indicatorID + '_' + series + '_input > thead';
@@ -109,20 +123,7 @@ function deleteRow(event){
             break;
     }
 }
-function upArrows(row, toggle){
-    if(toggle){
-        row.find('[title="Move line up"]').css('display', 'inline');
-    } else {
-        row.find('[title="Move line up"]').css('display', 'none');
-    }
-}
-function downArrows(row, toggle){
-    if(toggle){
-        row.find('[title="Move line down"]').css('display', 'inline');
-    } else {
-        row.find('[title="Move line down"]').css('display', 'none');
-    }
-}
+
 function moveDown(event){
     var row = $(event.target).closest('tr');
     var nextRowBottom = row.next().find('[title="Move line down"]').css('display') === 'none';
