@@ -42,6 +42,33 @@ var LeafFormGrid = function(containerID, options) {
     }
 
     /**
+     * @param values (required) object of cells and names to generate grid
+     * @memberOf LeafFormGrid
+     */
+    function printTableReportBuilder(values) {
+        var gridBodyBuffer;
+        var gridHeadBuffer;
+        var rows = values.cells.length;
+        var columns = values.names.length;
+        //finds and displays column names
+        for(var i = 0; i < columns; i++){
+            gridHeadBuffer +='<td style=" width: 100px;">' + values.names[i] + '</td>';
+        }
+
+        //populates table
+        for (var i = 0; i < rows; i++) {
+            var gridRowBuffer = '<tr>';
+            for (var j = 0; j < columns; j++) {
+                var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
+                gridRowBuffer += '<td>' + value + '</td>';
+            }
+            gridRowBuffer += '</tr>';
+            gridBodyBuffer += gridRowBuffer
+        }
+        return '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer.replace(/undefined/g, "") + '</thead><tbody>' + gridBodyBuffer.replace(/undefined/g, "") + '</tbody></table>';
+    }
+
+    /**
      * @memberOf LeafFormGrid
      */
     function getIndicator(indicatorID, series) {
@@ -71,33 +98,6 @@ var LeafFormGrid = function(containerID, options) {
             },
             cache: false
         });
-    }
-
-    /**
-     * @param values (required) object of cells and names to generate grid
-     * @memberOf LeafFormGrid
-     */
-    function printTableReportBuilder(values) {
-        var gridBodyBuffer;
-        var gridHeadBuffer;
-        var rows = values.cells.length;
-        var columns = values.names.length;
-        //finds and displays column names
-        for(var i = 0; i < columns; i++){
-            gridHeadBuffer +='<td style=" width: 100px;">' + values.names[i] + '</td>';
-        }
-
-        //populates table
-        for (var i = 0; i < rows; i++) {
-            var gridRowBuffer = '<tr>';
-            for (var j = 0; j < columns; j++) {
-                var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
-                gridRowBuffer += '<td>' + value + '</td>';
-            }
-            gridRowBuffer += '</tr>';
-            gridBodyBuffer += gridRowBuffer
-        }
-        return '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer.replace(/undefined/g, "") + '</thead><tbody>' + gridBodyBuffer.replace(/undefined/g, "") + '</tbody></table>';
     }
 
     var headerToggle = 0;
