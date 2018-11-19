@@ -22,7 +22,7 @@
         <div class="mainlabel">
             <div>
             <span>
-                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: red; background-repeat: no-repeat; background-image: url(/libs/dynicons/?img=eye_invisible.svg&w=16); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}--><br />
+                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: red;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
             </span>
             </div>
                 <!--{else}-->
@@ -690,39 +690,6 @@
         <!--{if $indicator.format == 'raw_data' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
             <!--{$indicator.html}-->
-        <!--{/if}-->
-        <!--{if $indicator.is_sensitive == 1}-->
-        <script>
-        if(!$('#<!--{$indicator.indicatorID|strip_tags}-->').is('input')) {
-            $('#<!--{$indicator.indicatorID|strip_tags}-->_sensitive').css('background-image', 'none');
-        }
-        if($('.printmainform').length > 0) {
-            var visible = 1;
-            $('#<!--{$indicator.indicatorID|strip_tags}-->_sensitive').css('background-image', 'none');
-            $('#<!--{$indicator.indicatorID|strip_tags}-->_sensitive').attr('onclick', '');
-            $('#sensitiveStatus').attr('aria-label', 'sensitive data shown');
-        } else {
-            var visible = 0;
-            $('#<!--{$indicator.indicatorID|strip_tags}-->').attr('type', 'password');
-        }
-        function toggleSensitive(indicatorID) {
-            if(visible === 0) {
-                if($('#' + indicatorID).is('input')) {
-                    $(event.target).css('background-image', 'url(/libs/dynicons/?img=eye_visible.svg&w=16)');
-                    $('#' + indicatorID).attr('type', 'text');
-                    $('#sensitiveStatus').attr('aria-label', 'sensitive data shown');
-                }
-                visible = 1;
-            } else {
-                if($('#' + indicatorID).is('input')) {
-                    $(event.target).css('background-image', 'url(/libs/dynicons/?img=eye_invisible.svg&w=16)');
-                    $('#' + indicatorID).attr('type', 'password');
-                    $('#sensitiveStatus').attr('aria-label', 'sensitive data hidden');
-                }
-                visible = 0;
-            }
-        }
-        </script>
         <!--{/if}-->
         <!--{include file=$subindicatorsTemplate form=$indicator.child depth=$depth+4 recordID=$recordID}-->
 
