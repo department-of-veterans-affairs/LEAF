@@ -5,7 +5,7 @@ define('VAR_VALUE', 1); //var value
 define('VAR_COMMENT', 2); //var comment
 define('VAR_TYPE', 3); // static or const
 define('NEW_LINE', "\n"); // new line
-define('TAB', "\t " . "\t "); // Tab
+define('TAB', "\t \t "); // Tab
 define('WORD_WRAP', 120); // word wrap
 
 /**
