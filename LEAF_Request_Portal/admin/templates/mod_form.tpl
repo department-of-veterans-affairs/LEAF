@@ -441,7 +441,7 @@ function newQuestion(parentIndicatorID) {
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
                 <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells()"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>\
-                <br/><br/>Columns:<div border="1" style="max-width: 100%; border: 1px black;"></div></div>\n                <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
+                <br/><br/>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\n                <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
                     <fieldset><legend>Attributes</legend>\
                         <table>\
                             <tr>\
@@ -796,7 +796,7 @@ function getForm(indicatorID, series) {
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
                 <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>&nbsp;\
-                </br></br>Columns:<div border="1" style="max-width: 100%; border: 1px black;"></div></div>\
+                </br></br>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\
                 <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
             <fieldset><legend>Attributes</legend>\
                 <table>\
