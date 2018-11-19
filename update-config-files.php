@@ -16,16 +16,15 @@ define('WORD_WRAP', 120); // word wrap
 for ($i = 0; $i <= $argc -1; ++$i) {
     switch ($argv[$i]) {
     case '-help':
-      print "Note: Before running this file edit the array for add/remove of variables" .
-      "\n1. (write-portal) Writes Portal Config \n2. (write-nexus) Writes Nexus Config \n";
-      break;
-      case 'write-portal':
-        writePortalConfig();
-      break;
+      print "Note: Before running this file edit the array for add/remove of variables \n1. (write-portal) Writes Portal Config \n2. (write-nexus) Writes Nexus Config \n";
+    break;
+    case 'write-portal':
+      writePortalConfig();
+    break;
 
-      case 'write-nexus':
-        writeNexusConfig();
-      break;
+    case 'write-nexus':
+      writeNexusConfig();
+    break;
 
     default:
       break;
@@ -67,7 +66,7 @@ for ($i = 0; $i <= $argc -1; ++$i) {
         $portalConfigs = rGlob('./*config.php');
         foreach ($portalConfigs as $config) {
             if (preg_match("/\/LEAF_Request_Portal\/\w.*/", $config)) {
-              //make a backup first
+                //make a backup first
                 $date = new Datetime();
                 $timestamp = $date->format('U');
                 $backupConfig = dirname($config) . '/' . basename($config) .  '.' . $timestamp . '.php';
@@ -158,38 +157,28 @@ for ($i = 0; $i <= $argc -1; ++$i) {
                 $t_type = $token[0];
                 $t_val = $token[1];
                 if ($t_type == T_VARIABLE) {
-
                     if ($current_var[VAR_NAME] === false) {
                         $current_var[VAR_NAME] = substr($t_val, 1);
-
                     } elseif ($current_var[VAR_VALUE] !== false) {
                         $current_var[VAR_VALUE] .= $t_val;
                     }
                 } elseif ($t_val === 'static') {
-
                     if ($current_var[VAR_TYPE] === false) {
                         $current_var[VAR_TYPE] = '';
-
                     } else {
                         $current_var[VAR_TYPE] .= $t_val;
                     }
-                }
-
-                elseif ($current_var[VAR_VALUE] !== false) {
+                } elseif ($current_var[VAR_VALUE] !== false) {
                     $current_var[VAR_VALUE] .= $t_val;
                 }
             } else {
                 if ($token === '=') {
-
                     if ($current_var[VAR_VALUE] === false) {
                         $current_var[VAR_VALUE] = '';
-
                     } else {
                         $current_var[VAR_VALUE] .= $token;
                     }
-                }
-
-                elseif ($token === ';') {
+                } elseif ($token === ';') {
                     if ($current_var[VAR_NAME] && $current_var[VAR_VALUE] !== false) {
                         $current_var[VAR_VALUE] = ltrim($current_var[VAR_VALUE]);
                         $vars[$current_var[VAR_NAME]] = $current_var;
@@ -234,7 +223,7 @@ for ($i = 0; $i <= $argc -1; ++$i) {
      */
     function SaveNexus($fname = false, $vars)
     {
-      $src = "<?php " . NEW_LINE .
+        $src = "<?php " . NEW_LINE .
        "/*"  . NEW_LINE .
        "* As a work of the United States government, this project is in the public domain within the United States." . NEW_LINE .
        "*/" . NEW_LINE .
@@ -251,7 +240,7 @@ for ($i = 0; $i <= $argc -1; ++$i) {
         "class Config" . NEW_LINE .
         "{";
         foreach ($vars as $var) {
-            $src .= NEW_LINE . TAB . 'public ' . ($var[VAR_TYPE] ? $var[VAR_TYPE] . ' ' : $var['varType'] . ' ') . '$'.($var[VAR_NAME] ? $var[VAR_NAME] : $var['varName'] ).' = '.($var[VAR_VALUE] ? $var[VAR_VALUE] : $var['varValue']).';' .' '.
+            $src .= NEW_LINE . TAB . 'public ' . ($var[VAR_TYPE] ? $var[VAR_TYPE] . ' ' : $var['varType'] . ' ') . '$'.($var[VAR_NAME] ? $var[VAR_NAME] : $var['varName']).' = '.($var[VAR_VALUE] ? $var[VAR_VALUE] : $var['varValue']).';' .' '.
             formatComments(wordwrap(($var['varComment'] ? $var['varComment'] : ''), WORD_WRAP));
         }
         $src .= NEW_LINE . NEW_LINE . ' }';
