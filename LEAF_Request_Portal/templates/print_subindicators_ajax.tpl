@@ -5,7 +5,7 @@
                 <label for="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" title="Show Sensitive Data" alt="Show Sensitive Data"  tabindex="0" onkeydown="if (event.keyCode==13){ this.click();}"></label>
             </div>
             <span class="sensitiveIndicator-masked" id="<!--{$indicator.indicatorID|strip_tags}-->_masked">
-                *****
+                **********
             </span>
             <script>
                 var stayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}--> = false;
