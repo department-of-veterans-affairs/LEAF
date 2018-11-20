@@ -67,23 +67,20 @@ for ($i = 0; $i <= $argc - 1; $i++)
           'phonedbPass' => array('varName' => 'phonedbPass', 'varValue' => '', 'varComment' => '', 'varType' => ''),
           'myNewVar' => array('varName' => 'myNewVar', 'varValue' => "'myNewValue'", 'varComment' => 'my new comment', 'varType' => 'static'),
         );
-        $portalConfigs = rGlob('./*config.php');
+        $portalConfigs = rGlob('./db?*config.php');
         foreach ($portalConfigs as $config)
         {
-            if (preg_match('/\\/LEAF_Request_Portal\\/\\w.*/', $config))
-            {
-                //make a backup first
-                $date = new Datetime();
-                $timestamp = $date->format('U');
-                $backupConfig = dirname($config) . '/' . basename($config) . '.' . $timestamp . '.php';
-                copy($config, $backupConfig);
+          //make a backup first
+          $date = new Datetime();
+          $timestamp = $date->format('U');
+          $backupConfig = dirname($config) . '/' . basename($config) . '.' . $timestamp . '.php';
+          copy($config, $backupConfig);
 
-                $file = file_get_contents($config);
-                $varArray = parseStr($file);
-                $vars = array_intersect_key(array_merge_recursive($portalConfig, $varArray), $portalConfig);
-                $savedConfig = savePortal($config, $vars);
-                //print_r($savedConfig);
-            }
+          $file = file_get_contents($config);
+          $varArray = parseStr($file);
+          $vars = array_intersect_key(array_merge_recursive($portalConfig, $varArray), $portalConfig);
+          $savedConfig = savePortal($config, $vars);
+          //print_r($savedConfig);
         }
     }
 
@@ -113,20 +110,17 @@ for ($i = 0; $i <= $argc - 1; $i++)
         $nexusConfigs = rGlob('./config.php');
         foreach ($nexusConfigs as $config)
         {
-            if (preg_match('/\\/LEAF_Nexus\\/\\w.*/', $config))
-            {
-                //make a backup first
-                $date = new Datetime();
-                $timestamp = $date->format('U');
-                $backupConfig = dirname($config) . '/' . basename($config) . '.' . $timestamp . '.php';
-                copy($config, $backupConfig);
+          //make a backup first
+          $date = new Datetime();
+          $timestamp = $date->format('U');
+          $backupConfig = dirname($config) . '/' . basename($config) . '.' . $timestamp . '.php';
+          copy($config, $backupConfig);
 
-                $file = file_get_contents($config);
-                $varArray = parseStr($file);
-                $vars = array_intersect_key(array_merge_recursive($nexusConfig, $varArray), $nexusConfig);
-                $savedConfig = saveNexus($config, $vars);
-                //print_r($savedConfig);
-            }
+          $file = file_get_contents($config);
+          $varArray = parseStr($file);
+          $vars = array_intersect_key(array_merge_recursive($nexusConfig, $varArray), $nexusConfig);
+          $savedConfig = saveNexus($config, $vars);
+          //print_r($savedConfig);
         }
     }
 
