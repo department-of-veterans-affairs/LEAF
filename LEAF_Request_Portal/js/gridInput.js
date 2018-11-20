@@ -39,7 +39,7 @@ function printTableInput(gridParameters, values, indicatorID, series){
 
     //finds and displays column names
     for(var i = 0; i < columns; i++){
-        $(gridHeadElement).append('<td>' + gridParameters[i].name + '</td>');
+        $(gridHeadElement).append('<td><div style="width: 100px;">' + gridParameters[i].name + '</div></td>');
     }
     $(gridHeadElement).append('<td style="width: 17px;">&nbsp;</td>');
 
