@@ -536,7 +536,12 @@ function createAction(params) {
 
 			dialog.indicateIdle();
 			dialog.setContent(buffer);
-			$('#actionType').chosen({disable_search_threshold: 5});
+            $('#actionType').chosen({disable_search_threshold: 5});
+            // TODO: Figure out why this triggers even when the user clicks save
+            /*
+            dialog.setCancelHandler(function() {
+                loadWorkflow(currentWorkflow);
+            });*/
 			dialog.setSaveHandler(function() {
 				$.ajax({
 					type: 'POST',
@@ -708,7 +713,8 @@ function signatureRequired(cb, stepID) {
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to require a digital signature on this step?<br /><br />'
-                + '<span style="color: red">Digital signatures should only be used if it\'s required by your business process.</span>');
+//                + '<span>Digital signatures should only be used if it\'s required by your business process.</span>');
+                + '<span style="color: red">WARNING: For testing only. This feature is currently in development.</span>');
         dialog_confirm.setSaveHandler(function() {
             dialog_confirm.hide();
             innerRequired(true, stepID);
@@ -726,7 +732,69 @@ function signatureRequired(cb, stepID) {
     }
 }
 
+function buildWorkflowIndicatorDropdown(stepID, steps) {
+    $.ajax({
+        type: 'GET',
+        url: '../api/workflow/' + currentWorkflow + '/categories',
+        cache: false
+    })
+    .then(function(associatedCategories) {
+        var formList = '';
+        for(var i in associatedCategories) {
+            formList += associatedCategories[i].categoryID + ',';
+        }
+        formList = formList.replace(/,$/, '');
+        $.ajax({
+        type: 'GET',
+        url: '../api/form/indicator/list?includeHeadings=1&forms=' + formList,
+        cache: false
+        })
+        .then(function(indicatorList) {
+            for(var i in associatedCategories) {
+                for(var j in indicatorList) {
+                    if((associatedCategories[i].categoryID == indicatorList[j].categoryID
+                        || associatedCategories[i].categoryID == indicatorList[j].parentCategoryID)
+                        && indicatorList[j].parentIndicatorID == null) {
+                        $('#workflowIndicator').append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
+                    }
+                    else if(indicatorList[j].parentStaples != null) {
+                        for(var k in indicatorList[j].parentStaples) {
+                            if(indicatorList[j].parentStaples[k] == associatedCategories[i].categoryID) {
+                                $('#workflowIndicator').append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
+                            }
+                        }
+                    }
+                }
+            }
+            if(steps[stepID].stepModules != undefined) {
+                for(var i in steps[stepID].stepModules) {
+                    if(steps[stepID].stepModules[i].moduleName == 'LEAF_workflow_indicator') {
+                        var config = JSON.parse(steps[stepID].stepModules[i].moduleConfig);
+                        $('#workflowIndicator').val(config.indicatorID);
+                    }
+                }
+            }
+        });
+    });
+
+    $('#workflowIndicator').on('change', function() {
+        for(var i in steps[stepID].stepModules) {
+            if(steps[stepID].stepModules[i].moduleName == 'LEAF_workflow_indicator') {
+                steps[stepID].stepModules[i].moduleConfig = JSON.stringify({indicatorID: $('#workflowIndicator').val()});
+            }
+        }
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflow/step/'+ stepID +'/inlineIndicator',
+            data: {
+                indicatorID: $('#workflowIndicator').val(),
+                CSRFToken: CSRFToken
+            }
+        });
+    });
+}
 function showStepInfo(stepID) {
+    $('#stepInfo_' + stepID).html('');
 	if($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second click
 		$('.workflowStepInfo').css('display', 'none');
 		return;
@@ -748,10 +816,6 @@ function showStepInfo(stepID) {
                 success: function(res) {
                     var control_removeStep = '<img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="removeStep('+ stepID +')" alt="Remove" />';
                     var output = '<h2>stepID: #'+ stepID +' '+ control_removeStep +'</h2><br />Step: <b>' + steps[stepID].stepTitle + '</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep('+ stepID +')" alt="Edit Step" /><br />';
-
-                    // TODO: This will eventually be moved to some sort of Workflow extension plugin
-                    output += '<br /><input id="requiresSigCB" type="checkbox"' + (steps[stepID].requiresDigitalSignature == true ? ' checked' : '') + ' onclick="signatureRequired(this, ' + stepID + ')">'
-                    output += '<label for="requiresSigCB">Require this Step to be Digitally Signed</label>'
 
                     output += '<br /><br /><div>Requirements:<ul>';
                     var tDeps = {};
@@ -794,8 +858,20 @@ function showStepInfo(stepID) {
                     	output += '<li><span style="color: red; font-weight: bold">A requirement must be added.</span></li>';
                     }
                     output += '</ul><div>';
+
+                    // TODO: This will eventually be moved to some sort of Workflow extension plugin
+                    output += '<fieldset><legend>Options</legend><ul>';
+                    output += '<li><input id="requiresSigCB" style="cursor: pointer" type="checkbox"' + (steps[stepID].requiresDigitalSignature == true ? ' checked' : '') + ' onclick="signatureRequired(this, ' + stepID + ')">';
+                    output += '<label for="requiresSigCB" style="cursor: pointer">Require Digital Signature <span style="color: red">(TESTING ONLY)</span></label></li>';
+                    output += '<li>Form Field: <select id="workflowIndicator" style="width: 240px"><option value="">None</option></select></li>';
+                    output += '</ul></fieldset>';
+
+                    // button options for steps
                     output += '<hr /><div style="padding: 4px"><span class="buttonNorm" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span></div>';
                     $('#stepInfo_' + stepID).html(output);
+
+                    // setup UI for form fields in the workflow area
+                    buildWorkflowIndicatorDropdown(stepID, steps);
 
                     // TODO: clean everything here up
                     var counter = 0;

@@ -2955,9 +2955,17 @@ class Form
 
     /**
      * List of all available active indicators
+     * @param string $sort
+     * @param boolean $includeHeadings
+     * @param string $formsFilter - csv list of forms to search for
+     * @return array list of indicators
      */
-    public function getIndicatorList($sort = 'name')
+    public function getIndicatorList($sort = 'name', $includeHeadings = false, $formsFilter = '')
     {
+        $forms = [];
+        if($formsFilter != '') {
+            $forms = explode(',', trim($formsFilter, ','));
+        }
         $orderBy = '';
         switch ($sort) {
             case 'indicatorID':
@@ -2971,12 +2979,20 @@ class Form
                 break;
         }
         $vars = array();
-        $res = $this->db->prepared_query('SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
-											LEFT JOIN categories USING (categoryID)
-						                    WHERE indicators.disabled = 0
-						    					AND format != ""
-						    					AND name != ""
-						    					AND categories.disabled = 0' . $orderBy, $vars);
+        $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
+                    LEFT JOIN categories USING (categoryID)
+                    WHERE indicators.disabled = 0
+                        AND format != ""
+                        AND name != ""
+                        AND categories.disabled = 0' . $orderBy;
+        if($includeHeadings) {
+            $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
+            LEFT JOIN categories USING (categoryID)
+            WHERE indicators.disabled = 0
+                AND name != ""
+                AND categories.disabled = 0' . $orderBy;
+        }
+        $res = $this->db->prepared_query($query, $vars);
 
         $resAll = $this->db->prepared_query('SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
 													LEFT JOIN categories USING (categoryID)
@@ -3019,6 +3035,7 @@ class Form
                     || $isActiveCategory[$item['parentCategoryID']] == 1)
                 {
                     $temp = array();
+                    $temp['parentIndicatorID'] = $item['parentIndicatorID'];
                     $temp['indicatorID'] = $item['indicatorID'];
                     $temp['name'] = $item['name'];
                     $temp['format'] = $item['format'];
@@ -3027,7 +3044,19 @@ class Form
                     $temp['categoryID'] = $item['categoryID'];
                     $temp['parentCategoryID'] = $item['parentCategoryID'];
                     $temp['parentStaples'] = $dataStaples[$item['categoryID']];
-                    $data[] = $temp;
+                    if(count($forms) > 0) {
+                        foreach($forms as $form) {
+                            if($form == $temp['categoryID']
+                                || $form == $temp['parentCategoryID']
+                                || (is_array($temp['parentStaples'])
+                                    && array_search($form, $temp['parentStaples']) !== false)) {
+                                $data[] = $temp;
+                            }
+                        }
+                    }
+                    else {
+                        $data[] = $temp;
+                    }
                 }
             }
         }

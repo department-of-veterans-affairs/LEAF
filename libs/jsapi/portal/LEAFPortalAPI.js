@@ -744,7 +744,7 @@ var PortalWorkflowAPI = function (baseAPIURL) {
         setStepSignatureRequirement = function (workflowID, stepID, requiresSignature, onSuccess, onFail) {
             $.ajax({
                 method: 'POST',
-                url: apiURL + '/' + workflowID + '/step/' + stepID + '/requiresig',
+                url: apiURL + '/step/' + stepID + '/requiresig',
                 dataType: "text",
                 data: { "requiresSig": requiresSignature, CSRFToken: csrfToken }
             })
