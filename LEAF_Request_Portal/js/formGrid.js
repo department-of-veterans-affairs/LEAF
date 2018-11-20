@@ -678,44 +678,51 @@ var LeafFormGrid = function(containerID, options) {
     		var output = [];
     		var headers = [];
     		$('#' + prefixID + 'thead>tr>th').each(function(idx, val) {
-    			headers.push($(val).text().trim());
-    		});
+				headers.push($(val).text().trim());
+			});
+			output.push(headers);//first row will be headers
 
-    		var line = {};
+    		var line = [];
     		var i = 0;
     		var thisSite = document.createElement('a');
     		var numColumns = headers.length - 1;
     		$('#' + prefixID + 'tbody>tr>td').each(function(idx, val) {
-    			line[headers[i]] = $(val).text().trim();
+    			line[i] = $(val).text().trim();
     			if(i == 0 && headers[i] == 'UID') {
-    				line[headers[i]] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + $(val).text().trim() +'", "'+ $(val).text().trim() +'")';
-    			}
+    				line[i] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + $(val).text().trim() +'", "'+ $(val).text().trim() +'")';
+				}
     			i++;
     			if(i > numColumns) {
-    				output.push(line);
-    				line = {};
+    				output.push(line);//add new row
+    				line = [];
     				i = 0;
     			}
-    		});
-    		var tForm = $(document.createElement('form'));
-    		tForm.attr({'action': rootURL + 'api/?a=converter/json&format=csv',
-    					'method': 'POST'
-    		});
-    		var tInput = $(document.createElement('input'));
-    		var tInput2 = $(document.createElement('input'));
-    		tInput.attr({'type': 'hidden',
-    					 'name': 'input',
-    					 'value': JSON.stringify(output)
-    		});
-    		tInput2.attr({'type': 'hidden',
-    			 'name': 'CSRFToken',
-    			 'value': CSRFToken
-    		});
-    		tForm.append(tInput);
-    		tForm.append(tInput2);
-    		tForm.appendTo('#' + containerID);
-    		tForm.submit();
-    		tForm.remove();
+			});
+			
+			rows = '';
+			$(output).each(function(idx, thisRow)
+			{
+				//escape double quotes
+				$(thisRow).each(function(idx, col) {
+					thisRow[idx] = col.replace(/\"/g, "\"\"");
+				});
+				//add to csv string
+				rows += '"' + thisRow.join('","') + '",\r\n';
+			});
+
+			var download = document.createElement('a');
+			var now = new Date().getTime();
+			download.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows));
+			download.setAttribute('download', 'Exported_' + now + '.csv');
+			download.style.display = 'none';
+
+			document.body.appendChild(download);
+			if (navigator.msSaveOrOpenBlob) {
+				navigator.msSaveOrOpenBlob(new Blob([rows], {type: 'text/csv;charset=utf-8;'}), "Exported_" + now + ".csv");
+			} else {
+				download.click();
+			}
+			document.body.removeChild(download);
     	});
     }
 
