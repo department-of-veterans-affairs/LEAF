@@ -25,7 +25,7 @@
 
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%"></div>
-    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" value="Untitled Report" />
+    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
 </div>
 <div id="results" style="display: none">Loading...</div>
 
@@ -49,7 +49,7 @@ function loadWorkflow(recordID, prefixID) {
 }
 
 function prepareEmail(link) {
-	mailtoHref = 'mailto:?subject=' + $('#reportTitle').val() + '&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
+	mailtoHref = 'mailto:?subject=Report%20for&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
     $('body').append($('<iframe id="ie9workaround" src="' + mailtoHref + '"/>'));
     $('#ie9workaround').remove();
 }
@@ -776,6 +776,9 @@ $(function() {
     			baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
     		}
             url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
+            if($('#reportTitle').val() != '') {
+                url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+            }
             window.history.pushState('', '', url);
             $('#reportTitle').on('keyup', function() {
                 url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
@@ -798,6 +801,17 @@ $(function() {
         title = title.replace(/>/g, '&gt;');
         $('#reportTitleDisplay').html(title);
         $('#reportTitle').css('display', 'none');
+        $('#reportTitle').off();
+        $('#reportTitle').val(title);
+        $('#reportTitleDisplay').on('click', function() {
+            $('#reportTitleDisplay').css('display', 'none');
+            $('#reportTitle').css('display', 'inline');
+            $('#reportTitle').on('keyup', function() {
+                baseURL = window.location.href.substr(0, window.location.href.indexOf('&title='));
+                url = baseURL + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+                window.history.pushState('', '', url);
+            });
+        });
         try {
         	if(<!--{$version}--> >= 2) {
         	    var query = '<!--{$query|escape:"html"}-->';
