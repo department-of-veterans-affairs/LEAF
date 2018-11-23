@@ -39,8 +39,8 @@ class OpenController extends RESTfulResponse
         $this->index['GET']->register('open', function ($args) {
         });
 
-        $this->index['GET']->register('open/report/[text]', function ($args) use ($short) {
-            return $short->getReport($args[0]);
+        $this->index['GET']->register('open/form/query/[text]', function ($args) use ($short) {
+            return $short->getFormQuery($args[0]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -54,8 +54,8 @@ class OpenController extends RESTfulResponse
         $this->index['POST']->register('open', function ($args) {
         });
 
-        $this->index['POST']->register('open/report', function ($args) use ($short) {
-            return $short->shortenReport($_POST['data']);
+        $this->index['POST']->register('open/form/query', function ($args) use ($short) {
+            return $short->shortenFormQuery($_POST['data']);
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

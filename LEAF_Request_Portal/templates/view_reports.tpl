@@ -468,30 +468,88 @@ function showJSONendpoint() {
     var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
     var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
 	var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
-	var urlEncoded = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + encodeURIComponent(queryString); 
 
 	dialog_message.setTitle('Data Endpoints');
-    dialog_message.setContent('<p>These endpoints provide a live data source for custom dashboards or automated programs.</p>'
+    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
                            + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
-			               + '<b>JSON:</b><br /><textarea id="jsonPath" style="width: 95%; height: 100px">'+ jsonPath +'</textarea><br />For JSONP, append <b>&amp;format=jsonp</b>'
-			               + '<br /><br /><b>HTML Table:</b><br /><textarea id="encodedTable" style="width: 95%; height: 100px">'+ urlEncoded +'&format=htmltable</textarea>'
-			               + '<br /><a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>');
-	$('#encodedTable').on('click', function() {
-		$('#encodedTable').select();
+                           + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
+                           + '<select id="format">'
+                           + '<option value="json">JSON</option>'
+                           + '<option value="htmltable">HTML Table</option>'
+                           + '<option value="jsonp">JSON-P</option>'
+                           + '<option value="csv">CSV</option>'
+                           + '<option value="xml">XML</option>'
+                           + '<option value="debug">Plaintext</option>'
+                           + '</select>'
+                           + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
+			               + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
+                           + '<br /><br />'
+                           + '<fieldset>'
+                           + '<legend>Options</legend>'
+                           + '<input id="msCompatMode" type="checkbox" /><label for="msCompatMode">Use compatibility mode (Excel, Access, etc.)</label>'
+                           + '</fieldset>');
+
+    $('#msCompatMode').on('click', function() {
+        $('#shortenLink').click();
     });
+
+    function setExportFormat() {
+        if($('#shortenLink').css('display') == 'none') {
+            $('#exportFormat').html('?');
+        }
+        else {
+            $('#exportFormat').html('&');
+        }
+        switch($('#format').val()) {
+            case 'json':
+                $('#exportFormat').html('');
+                break;
+            default:
+                $('#exportFormat').append('format=' + $('#format').val());
+                break;
+        }
+    }
+
+    $('#format').on('change', function() {
+        setExportFormat();
+    });
+
+    $('#expandLink').on('click', function() {
+        $('#expandLink').css('display', 'none');
+        $('#shortenLink').css('display', 'inline');
+        $('#exportPath').html(jsonPath);
+        $('#exportPath').off();
+        setExportFormat();
+    });
+
     $('#shortenLink').on('click', function() {
         $('#shortenLink').css('display', 'none');
+        $('#exportPath').on('focus', function() {
+		    document.execCommand("selectAll", false, null);
+	    });
         $.ajax({
             type: 'POST',
-            url: './api/open/report',
+            url: './api/open/form/query',
             data: {data: queryString,
                 CSRFToken: CSRFToken}
         })
         .then(function(res) {
-            $('#jsonPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/report/_' + res);
-            $('#encodedTable').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/report/_' + res + '&format=htmltable');
+            if($('#msCompatMode').is(':checked')) {
+                $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'auth_domain/api/open/form/query/_' + res);
+                $('#expandLink').css('display', 'none');
+            }
+            else {
+                $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
+                $('#expandLink').css('display', 'inline');
+            }
+            setExportFormat();
         });
     });
+
+    // set defaults for IE
+    if (navigator.msSaveOrOpenBlob) {
+        $('#msCompatMode').click();
+    }
 	dialog_message.show();
 }
 
