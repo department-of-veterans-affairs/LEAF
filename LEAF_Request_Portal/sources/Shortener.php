@@ -49,7 +49,7 @@ class Shortener
         return $res - $this->offset;
     }
 
-    public function getReport($shortUID) {
+    public function getFormQuery($shortUID) {
         $shortID = $this->decodeShortUID($shortUID);
         $vars = array(':shortID' => $shortID);
         $resReport = $this->db->prepared_query('SELECT data FROM short_links
@@ -62,13 +62,12 @@ class Shortener
         return $form->query($resReport[0]['data']);
     }
 
-    public function shortenReport($data) {
+    public function shortenFormQuery($data) {
         $hash = hash('sha256', $data);
 
         $vars = array(':hash' => $hash);
         $res = $this->db->prepared_query('SELECT shortID FROM short_links
-                                            WHERE hash=:hash
-                                                and type="report"', $vars);
+                                            WHERE hash=:hash', $vars);
         if(count($res) > 0) {
             return $this->encodeShortUID($res[0]['shortID']);
         }
@@ -76,7 +75,7 @@ class Shortener
         $vars = array(':data' => $data,
                       ':hash' => $hash);
         $this->db->prepared_query('INSERT INTO short_links (type, hash, data)
-                                    VALUES ("report", :hash, :data)', $vars);
+                                    VALUES ("formQuery", :hash, :data)', $vars);
         return $this->encodeShortUID($this->db->getLastInsertID());
     }
 }
