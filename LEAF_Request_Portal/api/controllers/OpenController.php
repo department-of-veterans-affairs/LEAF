@@ -58,6 +58,10 @@ class OpenController extends RESTfulResponse
             return $short->shortenFormQuery($_POST['data']);
         });
 
+        $this->index['POST']->register('open/report', function ($args) use ($short) {
+            return $short->shortenReport($_POST['data']);
+        });
+
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
 }

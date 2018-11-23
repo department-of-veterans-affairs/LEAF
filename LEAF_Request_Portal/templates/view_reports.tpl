@@ -48,8 +48,8 @@ function loadWorkflow(recordID, prefixID) {
     dialog_message.show();
 }
 
-function prepareEmail() {
-	mailtoHref = 'mailto:?subject=' + $('#reportTitle').val() + '&body=Report%20Link:%20'+ encodeURIComponent(url +'&title='+ btoa($('#reportTitle').val())) +'%0A%0A';
+function prepareEmail(link) {
+	mailtoHref = 'mailto:?subject=' + $('#reportTitle').val() + '&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
     $('body').append($('<iframe id="ie9workaround" src="' + mailtoHref + '"/>'));
     $('#ie9workaround').remove();
 }
@@ -464,6 +464,35 @@ function sortHeaders(a, b) {
     return 0;
 }
 
+function openShareDialog() {
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    var reportLink = document.URL.substr(document.URL.lastIndexOf('/') + 1);
+
+    dialog_message.setTitle('Share Report');
+    dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
+                            + '<br /><textarea id="reportLink" style="width: 95%; height: 100px">'+ pwd + reportLink +'</textarea>'
+                            + '<button id="prepareEmail" type="button" class="buttonNorm"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="Email report" /> Email Report</button> '
+                            + '<br /><br /><p>Access rules are automatically applied based on the form and workflow configuration.</p>');
+    dialog_message.show();
+    $('#reportLink').on('click', function() {
+        $('#reportLink').select();
+    })
+
+    $('#prepareEmail').on('click', function() {
+        prepareEmail($('#reportLink').html());
+    });
+
+    $.ajax({
+        type: 'POST',
+        url: './api/open/report',
+        data: {data: reportLink,
+            CSRFToken: CSRFToken}
+    })
+    .then(function(res) {
+        $('#reportLink').html(pwd + 'open?report=' + res);
+    });
+}
+
 function showJSONendpoint() {
     var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
     var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
@@ -561,6 +590,13 @@ var isNewQuery = false;
 var dialog, dialog_message;
 var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
+
+var version = 3;
+/* URL formats
+    * v1 - base64
+    * v2 - lz-string in base64
+    * v3 - uses getData() from formQuery.js
+*/
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
@@ -701,7 +737,7 @@ $(function() {
     	
     	// create save link once
     	if(!extendedToolbar) {
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="prepareEmail()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="email report" /> Email Report</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '460px');
@@ -730,12 +766,7 @@ $(function() {
 
     	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
-    	var version = 3;
-    	/* URL formats
-    	 * v1 - base64
-    	 * v2 - lz-string in base64
-    	 * v3 - uses getData() from formQuery.js
-    	*/
+
     	if(isNewQuery) {
     		baseURL = '';
     		if(window.location.href.indexOf('&') == -1) {

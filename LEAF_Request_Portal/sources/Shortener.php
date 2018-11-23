@@ -20,7 +20,8 @@ class Shortener
         $this->login = $login;
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
+        // todo: replace with config based URL
+        $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['PHP_SELF']);
     }
 
     // Algo based in part on https://helloacm.com/base62/
@@ -76,6 +77,35 @@ class Shortener
                       ':hash' => $hash);
         $this->db->prepared_query('INSERT INTO short_links (type, hash, data)
                                     VALUES ("formQuery", :hash, :data)', $vars);
+        return $this->encodeShortUID($this->db->getLastInsertID());
+    }
+
+    public function getReport($shortUID) {
+        $shortID = $this->decodeShortUID($shortUID);
+        $vars = array(':shortID' => $shortID);
+        $resReport = $this->db->prepared_query('SELECT data FROM short_links
+                                    WHERE shortID=:shortID', $vars);
+        if(!isset($resReport[0])) {
+            return '';
+        }
+
+        header('Location: ' . $this->siteRoot . $resReport[0]['data']);
+    }
+
+    public function shortenReport($data) {
+        $hash = hash('sha256', $data);
+
+        $vars = array(':hash' => $hash);
+        $res = $this->db->prepared_query('SELECT shortID FROM short_links
+                                            WHERE hash=:hash', $vars);
+        if(count($res) > 0) {
+            return $this->encodeShortUID($res[0]['shortID']);
+        }
+
+        $vars = array(':data' => $data,
+                      ':hash' => $hash);
+        $this->db->prepared_query('INSERT INTO short_links (type, hash, data)
+                                    VALUES ("report", :hash, :data)', $vars);
         return $this->encodeShortUID($this->db->getLastInsertID());
     }
 }
