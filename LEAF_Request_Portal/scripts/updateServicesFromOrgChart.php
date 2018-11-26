@@ -213,6 +213,16 @@ foreach (Config::$orgchartImportTags as $tag)
     }
 }
 
+$groupIDs = $this->db->prepared_query('SELECT catprivs.groupID
+                                        FROM category_privs AS catprivs
+                                        LEFT JOIN groups USING (groupID)
+                                        WHERE groups.groupID IS NULL;');
+foreach($groupIDs as $groupIDToDelete)
+{
+
+    $db->prepared_query('DELETE FROM category_privs WHERE groupID = :groupID', array(':groupID' => $groupIDToDelete['groupID']));
+}
+
 $db->commitTransaction();
 
 echo '<br />... Done.';
