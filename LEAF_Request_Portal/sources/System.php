@@ -13,6 +13,7 @@ if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
+require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
 
 class System
 {
@@ -22,22 +23,7 @@ class System
 
     private $login;
 
-    private $fileExtensionWhitelist = array( // for file manager
-                'doc', 'docx', 'docm', 'dotx', 'dotm',
-                'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
-                'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm',
-                'ai', 'eps',
-                'pdf',
-                'txt',
-                'html',
-                'png', 'jpg', 'bmp', 'gif', 'tif', 'svg',
-                'vsd',
-                'rtf',
-                'js',
-                'css',
-                'pub',
-                'msg', 'ics',
-    );
+    private $fileExtensionWhitelist;
 
     public function __construct($db, $login)
     {
@@ -46,6 +32,8 @@ class System
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
+        $commonConfig = new CommonConfig();
+        $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
     }
 
     public function updateService($serviceID)
