@@ -1,7 +1,7 @@
 (function ($) {
     jQuery.sessionTimeout = function (options) {
         var defaults = {
-            message: 'Your session is about to expire.',
+            message: 'Your will expire in two minutes.',
             keepAliveUrl: '/keep-alive',
             keepAliveAjaxRequestType: 'POST',
             redirUrl: '/timed-out',
@@ -27,11 +27,7 @@
             closeOnEscape: false,
             open: function () { $(".ui-dialog-titlebar-close").hide(); },
             buttons: {
-                // Button one - takes user to logout URL
-                "Log Out Now": function () {
-                    window.location = o.logoutUrl;
-                },
-                // Button two - closes dialog and makes call to keep-alive URL
+                // Button one - closes dialog and makes call to keep-alive URL
                 "Stay Connected": function () {
                     $(this).dialog('close');
 

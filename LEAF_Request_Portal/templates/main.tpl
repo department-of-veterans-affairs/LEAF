@@ -38,7 +38,7 @@
       {if $useUI == false}
         <script type="text/javascript" src="../libs/js/jquery/jquery-ui.custom.min.js"></script>
       {/if}
-    <script type="text/javascript" src="../libs/js/sessionTimeout.js"></script>
+    <script type="text/javascript" src="../libs/js/jquery/sessionTimeout/sessionTimeout.js"></script>
     {/if}
 
 {section name=i loop=$javascripts}
