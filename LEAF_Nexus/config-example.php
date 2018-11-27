@@ -27,6 +27,9 @@ class Config
 
     public $adPath = array('OU=Users,DC=va,DC=gov'); // Active directory paths
 
+    //toggle LEAF-Secure on and off, default is offpublic static $uploadDir = './UPLOADS/';
+    public static $leafSecure = false;
+
     public static $uploadDir = './UPLOADS/';
 
     // Directory for user uploads
