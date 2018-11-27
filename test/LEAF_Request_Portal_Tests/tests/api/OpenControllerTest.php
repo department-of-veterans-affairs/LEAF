@@ -35,7 +35,7 @@ final class OpenControllerTest extends DatabaseTest
      */
     public function testNewReportLink() : void
     {
-        $response = self::$client->post(array('a' => 'open/report'), array('link' => 'http://somelink'), '');
+        $response = self::$client->post(array('a' => 'open/report'), array('data' => 'http://somelink'));
 
         $this->assertNotNull($response);
         $this->assertEquals('32wmT', $response);
