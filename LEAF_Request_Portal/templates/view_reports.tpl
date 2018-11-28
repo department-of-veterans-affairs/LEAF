@@ -25,7 +25,7 @@
 
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%"></div>
-    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" value="Untitled Report" />
+    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
 </div>
 <div id="results" style="display: none">Loading...</div>
 
@@ -48,8 +48,8 @@ function loadWorkflow(recordID, prefixID) {
     dialog_message.show();
 }
 
-function prepareEmail() {
-	mailtoHref = 'mailto:?subject=' + $('#reportTitle').val() + '&body=Report%20Link:%20'+ encodeURIComponent(url +'&title='+ btoa($('#reportTitle').val())) +'%0A%0A';
+function prepareEmail(link) {
+	mailtoHref = 'mailto:?subject=Report%20for&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
     $('body').append($('<iframe id="ie9workaround" src="' + mailtoHref + '"/>'));
     $('#ie9workaround').remove();
 }
@@ -464,19 +464,121 @@ function sortHeaders(a, b) {
     return 0;
 }
 
+function openShareDialog() {
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    var reportLink = document.URL.substr(document.URL.lastIndexOf('/') + 1);
+
+    dialog_message.setTitle('Share Report');
+    dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
+                            + '<br /><textarea id="reportLink" style="width: 95%; height: 100px">'+ pwd + reportLink +'</textarea>'
+                            + '<button id="prepareEmail" type="button" class="buttonNorm"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="Email report" /> Email Report</button> '
+                            + '<br /><br /><p>Access rules are automatically applied based on the form and workflow configuration.</p>');
+    dialog_message.show();
+    $('#reportLink').on('click', function() {
+        $('#reportLink').select();
+    })
+
+    $('#prepareEmail').on('click', function() {
+        prepareEmail($('#reportLink').html());
+    });
+
+    $.ajax({
+        type: 'POST',
+        url: './api/open/report',
+        data: {data: reportLink,
+            CSRFToken: CSRFToken}
+    })
+    .then(function(res) {
+        $('#reportLink').html(pwd + 'open?report=' + res);
+    });
+}
+
 function showJSONendpoint() {
-	var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
-	var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-	var urlEncoded = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + encodeURIComponent(JSON.stringify(leafSearch.getLeafFormQuery().getQuery())); 
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
+	var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
 
 	dialog_message.setTitle('Data Endpoints');
-	dialog_message.setContent('<p>These endpoints provide a live data source for custom dashboards or automated programs.</p>'
-			               + '<b>JSON:</b><br /><textarea style="width: 95%; height: 100px">'+ jsonPath +'</textarea><br />For JSONP, append <b>&amp;format=jsonp</b>'
-			               + '<br /><br /><b>HTML Table:</b><br /><textarea id="encodedTable" style="width: 95%; height: 100px">'+ urlEncoded +'&format=htmltable</textarea>'
-			               + '<br /><a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>');
-	$('#encodedTable').on('click', function() {
-		$('#encodedTable').select();
-	});
+    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
+                           + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
+                           + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
+                           + '<select id="format">'
+                           + '<option value="json">JSON</option>'
+                           + '<option value="htmltable">HTML Table</option>'
+                           + '<option value="jsonp">JSON-P</option>'
+                           + '<option value="csv">CSV</option>'
+                           + '<option value="xml">XML</option>'
+                           + '<option value="debug">Plaintext</option>'
+                           + '</select>'
+                           + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
+			               + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
+                           + '<br /><br />'
+                           + '<fieldset>'
+                           + '<legend>Options</legend>'
+                           + '<input id="msCompatMode" type="checkbox" /><label for="msCompatMode">Use compatibility mode (Excel, Access, etc.)</label>'
+                           + '</fieldset>');
+
+    $('#msCompatMode').on('click', function() {
+        $('#shortenLink').click();
+    });
+
+    function setExportFormat() {
+        if($('#shortenLink').css('display') == 'none') {
+            $('#exportFormat').html('?');
+        }
+        else {
+            $('#exportFormat').html('&');
+        }
+        switch($('#format').val()) {
+            case 'json':
+                $('#exportFormat').html('');
+                break;
+            default:
+                $('#exportFormat').append('format=' + $('#format').val());
+                break;
+        }
+    }
+
+    $('#format').on('change', function() {
+        setExportFormat();
+    });
+
+    $('#expandLink').on('click', function() {
+        $('#expandLink').css('display', 'none');
+        $('#shortenLink').css('display', 'inline');
+        $('#exportPath').html(jsonPath);
+        $('#exportPath').off();
+        setExportFormat();
+    });
+
+    $('#shortenLink').on('click', function() {
+        $('#shortenLink').css('display', 'none');
+        $('#exportPath').on('focus', function() {
+		    document.execCommand("selectAll", false, null);
+	    });
+        $.ajax({
+            type: 'POST',
+            url: './api/open/form/query',
+            data: {data: queryString,
+                CSRFToken: CSRFToken}
+        })
+        .then(function(res) {
+            if($('#msCompatMode').is(':checked')) {
+                $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'auth_domain/api/open/form/query/_' + res);
+                $('#expandLink').css('display', 'none');
+            }
+            else {
+                $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
+                $('#expandLink').css('display', 'inline');
+            }
+            setExportFormat();
+        });
+    });
+
+    // set defaults for IE
+    if (navigator.msSaveOrOpenBlob) {
+        $('#msCompatMode').click();
+    }
 	dialog_message.show();
 }
 
@@ -488,6 +590,13 @@ var isNewQuery = false;
 var dialog, dialog_message;
 var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
+
+var version = 3;
+/* URL formats
+    * v1 - base64
+    * v2 - lz-string in base64
+    * v3 - uses getData() from formQuery.js
+*/
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
@@ -628,7 +737,7 @@ $(function() {
     	
     	// create save link once
     	if(!extendedToolbar) {
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="prepareEmail()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="email report" /> Email Report</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '460px');
@@ -657,12 +766,7 @@ $(function() {
 
     	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
-    	var version = 3;
-    	/* URL formats
-    	 * v1 - base64
-    	 * v2 - lz-string in base64
-    	 * v3 - uses getData() from formQuery.js
-    	*/
+
     	if(isNewQuery) {
     		baseURL = '';
     		if(window.location.href.indexOf('&') == -1) {
@@ -672,6 +776,9 @@ $(function() {
     			baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
     		}
             url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
+            if($('#reportTitle').val() != '') {
+                url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+            }
             window.history.pushState('', '', url);
             $('#reportTitle').on('keyup', function() {
                 url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
@@ -694,6 +801,17 @@ $(function() {
         title = title.replace(/>/g, '&gt;');
         $('#reportTitleDisplay').html(title);
         $('#reportTitle').css('display', 'none');
+        $('#reportTitle').off();
+        $('#reportTitle').val(title);
+        $('#reportTitleDisplay').on('click', function() {
+            $('#reportTitleDisplay').css('display', 'none');
+            $('#reportTitle').css('display', 'inline');
+            $('#reportTitle').on('keyup', function() {
+                baseURL = window.location.href.substr(0, window.location.href.indexOf('&title='));
+                url = baseURL + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+                window.history.pushState('', '', url);
+            });
+        });
         try {
         	if(<!--{$version}--> >= 2) {
         	    var query = '<!--{$query|escape:"html"}-->';

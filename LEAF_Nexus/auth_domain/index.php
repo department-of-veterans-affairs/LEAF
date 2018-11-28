@@ -19,7 +19,7 @@ $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName)
 
 $login = new Orgchart\Login($db, $db);
 
-if (isset($_SERVER['REMOTE_USER']))
+if (isset($_SERVER['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || Orgchart\Config::$leafSecure == false))
 {
     $protocol = 'http://';
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
