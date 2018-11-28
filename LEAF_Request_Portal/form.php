@@ -506,6 +506,13 @@ class Form
             $groupTitle = $this->group->getGroup($data[0]['data']);
             $form[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
         }
+        if (substr($data[0]['format'], 0, 4) == 'grid'
+            && isset($data[0]['data']))
+        {
+            $values = @unserialize($data[0]['data']);
+            $format = json_decode(substr($data[0]['format'], 5, -1) . ']');
+            $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+        }
 
         // prevent masked data from being output
         if ($form[$idx]['isMasked'])
@@ -2038,7 +2045,9 @@ class Form
                         }
                         if (substr($indicators[$item['indicatorID']]['format'], 0, 4) == 'grid')
                         {
-                            $item['data'] = @unserialize($item['data']);
+                            $values = @unserialize($item['data']);
+                            $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']');
+                            $item['data'] = array_merge($values, array("format" => $format));
                         }
                         break;
                 }

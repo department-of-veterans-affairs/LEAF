@@ -30,6 +30,7 @@ function printTableInput(gridParameters, values, indicatorID, series){
     var rows = values.cells !== undefined && values.cells.length > 0 ? values.cells.length : 0;
     var columns = gridParameters.length;
     var element = '';
+    var columnOrder = [];
 
     //fix for report builder
     //prevents duplicate table from being created on edit
@@ -38,23 +39,59 @@ function printTableInput(gridParameters, values, indicatorID, series){
     }
 
     //finds and displays column names
+    //gives each cell in table head unique ID from form editor
     for(var i = 0; i < columns; i++){
-        $(gridHeadElement).append('<td><div style="width: 100px;">' + gridParameters[i].name + '</div></td>');
+        $(gridHeadElement).append('<td><div style="width: 100px;" id="' + gridParameters[i].id + '">' + gridParameters[i].name + '</div></td>');
+        columnOrder.push(gridParameters[i].id);
     }
+
+    //column for row manipulation
     $(gridHeadElement).append('<td style="width: 17px;">&nbsp;</td>');
 
     //populates table
     for(var i = 0; i < rows; i++){
         $(gridBodyElement).append('<tr></tr>');
+
+        //generates row layout
         for(var j = 0; j < columns; j++){
-            var value = values.cells === undefined || values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
-            if(gridParameters[j].type === 'dropdown'){
-                element = makeDropdown(gridParameters[j].options, value);
-            } else if(gridParameters[j].type === 'textarea'){
-                element = '<textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">'+ value +'</textarea>';
+            switch (gridParameters[j].type) {
+                case 'dropdown':
+                    element = makeDropdown(gridParameters[j].options, null);
+                    break;
+                case 'textarea':
+                    element = '<textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;"></textarea>';
+                    break;
+                case 'single line input':
+                    element = '<input value=""></input>';
+                    break;
+                default:
+                    break;
             }
             $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td>' + element + '</td>');
         }
+
+        //assigns pre-existing values to cells based on its column
+        //if its column has been deleted, the value is not assigned
+        for(var j = 0; j < values.columns.length; j++){
+            if(columnOrder.indexOf(values.columns[j]) !== -1) {
+                var value = values.cells === undefined || values.cells[i] === undefined || values.cells[i][j] === undefined || columnOrder.indexOf(values.columns[j]) === -1 ? '' : values.cells[i][j];
+                var newCoordinates = gridBodyElement + ' > tr:eq(' + i + ') > td:eq(' + columnOrder.indexOf(values.columns[j]) + ')';
+                switch ($(newCoordinates).children().first().prop("tagName")) {
+                    case 'SELECT':
+                        $(newCoordinates + ' > select > option[value=' + value + ']').attr('selected', 'selected');
+                        break;
+                    case 'TEXTAREA':
+                        $(newCoordinates + ' > textarea').val(value);
+                        break;
+                    case 'INPUT':
+                        $(newCoordinates + ' > input').val(value);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
         //arrow logic:
         //if there is only one row, arrows are not necessary
         if(rows === 1) {
@@ -83,10 +120,18 @@ function addRow(gridParameters, indicatorID, series){
     $(gridBodyElement + ' > tr:last > td:last').find('[title="Move line down"]').css('display', 'inline');
     $(gridBodyElement).append('<tr></tr>');
     for(var i = 0; i < gridParameters.length; i++){
-        if(gridParameters[i].type === 'textarea'){
-            $(gridBodyElement + ' > tr:last').append('<td><textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;"></textarea></td>');
-        } else if(gridParameters[i].type === 'dropdown'){
-            $(gridBodyElement + ' > tr:last').append('<td>' + makeDropdown(gridParameters[i].options, null) + '</td>');
+        switch (gridParameters[i].type) {
+            case 'dropdown':
+                $(gridBodyElement + ' > tr:last').append('<td>' + makeDropdown(gridParameters[i].options, null) + '</td>');
+                break;
+            case 'textarea':
+                $(gridBodyElement + ' > tr:last').append('<td><textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;"></textarea></td>');
+                break;
+            case 'single line input':
+                $(gridBodyElement + ' > tr:last').append('<td><input value=""></input></td>');
+                break;
+            default:
+                break;
         }
     }
     if($(gridBodyElement).children().length === 1){
@@ -167,18 +212,30 @@ function printTableOutput(gridParameters, values, indicatorID, series) {
     var gridHeadElement = '#grid_' + indicatorID + '_' + series + '_output > thead';
     var rows = values.cells === undefined ? 0 : values.cells.length;
     var columns = gridParameters.length;
+    var columnOrder = [];
 
     //finds and displays column names
     for(var i = 0; i < columns; i++){
         $(gridHeadElement).append('<td style="width:100px">' + gridParameters[i].name + '</td>');
+        columnOrder.push(gridParameters[i].id);
     }
 
     //populates table
     for (var i = 0; i < rows; i++) {
         $(gridBodyElement).append('<tr></tr>');
+
+        //generates row layout
         for (var j = 0; j < columns; j++) {
-            var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
-            $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td style="width:100px">' + value + '</td>')
+            $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td style="width:100px"></td>')
+        }
+
+        //assigns pre-existing values to cells based on its column
+        //if its column has been deleted, the value is not assigned
+        for (var j = 0; j < values.columns.length; j++) {
+            if(columnOrder.indexOf(values.columns[j]) !== -1) {
+                var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
+                $(gridBodyElement + ' > tr:eq(' + i + ') > td:eq(' + columnOrder.indexOf(values.columns[j]) + ')').html(value);
+            }
         }
     }
 }

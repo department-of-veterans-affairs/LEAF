@@ -46,26 +46,41 @@ var LeafFormGrid = function(containerID, options) {
      * @memberOf LeafFormGrid
      */
     function printTableReportBuilder(values) {
-        var gridBodyBuffer;
-        var gridHeadBuffer;
-        var rows = values.cells.length;
-        var columns = values.names.length;
+        var gridBodyBuffer = '';
+        var gridHeadBuffer = '';
+        var rows = values.cells === undefined ? 0 : values.cells.length;
+        var columns = values.format.length;
+        var columnOrder = [];
+
         //finds and displays column names
         for(var i = 0; i < columns; i++){
-            gridHeadBuffer +='<td style=" width: 100px;">' + values.names[i] + '</td>';
+            gridHeadBuffer +='<td style="width: 100px;">' + values.format[i].name + '</td>';
+            columnOrder.push(values.format[i].id)
         }
 
         //populates table
         for (var i = 0; i < rows; i++) {
-            var gridRowBuffer = '<tr>';
+            var gridRow = '<tr>';
+            var rowBuffer = [];
+
+            //makes array of cells
             for (var j = 0; j < columns; j++) {
-                var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
-                gridRowBuffer += '<td>' + value + '</td>';
+				rowBuffer.push('<td style="width:100px"></td>');
             }
-            gridRowBuffer += '</tr>';
-            gridBodyBuffer += gridRowBuffer
+
+			//for all values with matching column id, replaces cell with value
+            for (var j = 0; j < values.columns.length; j++) {
+                if(columnOrder.indexOf(values.columns[j]) !== -1) {
+                    var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
+                    rowBuffer.splice(columnOrder.indexOf(values.columns[j]), 1, '<td style="width:100px">' + value + '</td>');
+                }
+            }
+
+            //combines cells into html and pushes row to body buffer
+            gridRow += rowBuffer.join("") + '</tr>';
+            gridBodyBuffer += gridRow;
         }
-        return '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer.replace(/undefined/g, "") + '</thead><tbody>' + gridBodyBuffer.replace(/undefined/g, "") + '</tbody></table>';
+        return '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer + '</thead><tbody>' + gridBodyBuffer + '</tbody></table>';
     }
 
     /**

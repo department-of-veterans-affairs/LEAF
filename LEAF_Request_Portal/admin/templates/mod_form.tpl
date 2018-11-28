@@ -405,6 +405,12 @@ if(columns === undefined) {
     var columns = 1;
 }
 
+// function that generates unique id to track columns
+// so that user input order updates with the grid format
+function makeColumnID(){
+    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+}
+
 function newQuestion(parentIndicatorID) {
 	var title = '';
 	if(parentIndicatorID == null) {
@@ -459,7 +465,7 @@ function newQuestion(parentIndicatorID) {
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', '70%');
                 $(gridBodyElement).closest('div[role="dialog"]').css('left', '15%');
                 $('#xhr').css('width', '100%');
-                makeGrid(columns);
+                makeGrid(0);
                 break;
             case 'radio':
             case 'checkboxes':
@@ -558,6 +564,7 @@ function newQuestion(parentIndicatorID) {
                     } else {
                         properties.name = $(this).children('input:eq(0)').val();
                     }
+                    properties.id = $('span.columnID', this).html();
                     properties.type = $(this).find('select').val();
                     if(properties.type !== undefined){
                         if(properties.type === 'dropdown'){
@@ -618,22 +625,28 @@ function updateNames(){
             gridJSON.push(new Object);
         }
         gridJSON[i].name = $(this).children('input').val();
+        gridJSON[i].id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
     });
 }
 
 
 function makeGrid(columns) {
+    if(columns === 0){
+        gridJSON = [];
+        columns = 1;
+    }
     for (var i = 0; i < columns; i++) {
         if(gridJSON[i] === undefined){
             gridJSON.push(new Object());
         }
         var name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
+        var id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
         $(gridBodyElement).append(
-            '<div class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
+            '<div class="cell"><span class="columnID">' + id + '</span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
             '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
             '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
             '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
-            '<option value="dropdown">Drop Down</option></select>'
+            '<option value="dropdown">Drop Down</option><option value="single line input">Single line input</option></select>'
         );
         if(columns === 1){
             rightArrows($(gridBodyElement + ' > div:last'), false);
@@ -651,7 +664,7 @@ function makeGrid(columns) {
             }
         }
         if(gridJSON[i].type !== undefined){
-            $(gridBodyElement+ '> div:eq(' + i + ') > select option[value="' + gridJSON[i].type + '"]').attr('selected', 'selected');
+            $(gridBodyElement + '> div:eq(' + i + ') > select option[value="' + gridJSON[i].type + '"]').attr('selected', 'selected');
             if(gridJSON[i].type.toString() === 'dropdown'){
                 if(gridJSON[i].options !== ""){
                     var options = gridJSON[i].options.join("\n").toString();
@@ -694,11 +707,11 @@ function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > div:last'), true);
     $(gridBodyElement).append(
-        '<div class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
+        '<div class="cell"><span class="columnID">' + makeColumnID() + '</span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
         '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" /></br>' +
         '<span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
         '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
-        '<option value="dropdown">Drop Down</option></select>'
+        '<option value="dropdown">Drop Down</option><option value="single line input">Single line input</option></select>'
     );
     updateColumnNumbers();
 }
@@ -1104,6 +1117,7 @@ function getForm(indicatorID, series) {
                     } else {
                         properties.name = $(this).children('input:eq(0)').val();
                     }
+                    properties.id = $('span.columnID', this).html();
                     properties.type = $(this).find('select').val();
                     if(properties.type !== undefined){
                         if(properties.type === 'dropdown'){
