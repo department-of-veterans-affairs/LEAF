@@ -49,7 +49,3 @@ div.cell {
     display: table-cell;
     padding-bottom: 65px;
 }
-
-span.columnID {
-    display: none;
-}
