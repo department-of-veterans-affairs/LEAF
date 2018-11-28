@@ -15,6 +15,8 @@ Ensure that the apache server configuration contains:
 ```apache
 RewriteEngine On
 RewriteRule (.*)/api/(.*)$ $1/api/index.php?a=$2 [QSA,L]
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule (.*) $1.php [L]
 ```
 
 This will fix some issues where the API endpoint is unreachable.
