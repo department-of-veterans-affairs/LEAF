@@ -18,7 +18,6 @@ class CommonConfig
                                         'pub',
                                     );
     
-    //doesn't have jpeg, mht, htm, xml;  has js, css, ics, svg
     public $fileManagerWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
                                             'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
                                             'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm', 'ppts',
@@ -36,7 +35,6 @@ class CommonConfig
                                             'mht', 'htm', 'html', 'msg', 'xml',
                                         );
 
-    //doesn't have pub; has ppts; 
     public $fileManagerWhitelist_nexus = array('doc', 'docx', 'docm', 'dotx', 'dotm',
                                                 'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
                                                 'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm', 'ppts',
