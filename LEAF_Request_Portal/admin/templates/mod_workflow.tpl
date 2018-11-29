@@ -6,6 +6,7 @@
     <div id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();" style="font-size: 120%" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
     <br />
     <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 100%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
+    <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size: 100%; display: none" role="button" tabindex="0">List Action Type</div><br />
 </div>
 <div id="workflow" style="margin-left: 184px; background-color: #444444"></div>
 
@@ -412,6 +413,108 @@ function setInitialStep(stepID) {
         }
     });
 }
+
+//list all action type to edit/delete
+function listActionType() {
+	dialog.hide();
+  $("#button_save").hide();
+	dialog.setTitle('List of Action Type');
+	dialog.show();
+  $.ajax({
+		type: 'GET',
+		url: '../api/?a=workflow/actions',
+		success: function(res) {
+			var buffer = '';
+			buffer += '<br /><table id="actions" border="1"><caption><h2>List of Current Action Types:</h2></caption><tr><th scope="col">Action Name</th><th scope="col">Action</th></tr>';
+
+			for(var i in res) {
+        buffer +='<tr>';
+				buffer += '<td width="300px" id="'+ res[i].actionType +'">'+ res[i].actionText +'</td>';
+        buffer += '<td width="150px" id="'+ res[i].actionType +'"><button onclick="editActionType(\'' + res[i].actionType + '\')" style="float:left;background: blue;color: #fff;">Edit</button> <button onclick="deleteActionType(\'' + res[i].actionType + '\')" style="float:left;background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
+        buffer += '</tr>';
+			}
+
+			buffer += '</table><br /> <br />';
+      buffer += '<span class="buttonNorm" id="create-action-type">Create a new Action Type</span>';
+
+			dialog.indicateIdle();
+			dialog.setContent(buffer);
+
+      $("#create-action-type").click(function() {
+        $("#button_save").show();
+        newAction();
+      });
+
+		},
+		cache: false
+	});
+}
+
+//edit action type
+function editActionType(actionType) {
+	dialog.hide();
+  $("#button_save").show();
+	dialog.setTitle('Edit Action ' + actionType);
+	dialog.show();
+
+  $.ajax({
+		type: 'GET',
+		url: '../api/?a=system/action/_' + actionType,
+		success: function(res) {
+			var buffer = '';
+
+      buffer += '<table>\
+    		              <tr>\
+    		                  <td>Action <span style="color: red">*Required</span></td>\
+    		                  <td><input id="actionText" type="text" maxlength="50" style="border: 1px solid red" value="'+res[0].actionType+'"></input></td>\
+    		                  <td>eg: Approve</td>\
+    		              </tr>\
+    		              <tr>\
+                              <td>Action Past Tense <span style="color: red">*Required</span></td>\
+                              <td><input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red" value="'+res[0].actionTextPasttense+'"></input></td>\
+                              <td>eg: Approved</td>\
+                          </tr>\
+                          <tr>\
+                              <td>Icon</td>\
+                              <td><input id="actionIcon" type="text" maxlength="50" value="'+res[0].actionIcon+'" ></input></td>\
+                              <td>eg: go-next.svg <a href="../../libs/dynicons/gallery.php" target="_blank">List of available icons</a></td>\
+                          </tr>\
+    		          </table>\
+    		          <br /><br />Does this action represent moving forwards or backwards in the process? <select id="fillDependency"><option value="1">Forwards</option><option value="-1">Backwards</option></select><br />';
+			dialog.indicateIdle();
+			dialog.setContent(buffer);
+      $('#fillDependency').val(res[0].fillDependency);
+			dialog.setSaveHandler(function() {
+				$.ajax({
+					type: 'POST',
+					url: '../api/?a=system/editAction/_' + actionType ,
+					data: {actionText: $('#actionText').val(),
+                 actionTextPasttense: $('#actionTextPasttense').val(),
+                 actionIcon: $('#actionIcon').val(),
+                 fillDependency: $('#fillDependency').val(),
+						     CSRFToken: CSRFToken},
+					success: function() {
+						listActionType();
+					}
+				});
+				dialog.hide();
+			});
+		},
+		cache: false
+	});
+}
+
+//deletes action type
+function deleteActionType(actionType) {
+    $.ajax({
+      type: 'DELETE',
+      url: '../api/?a=system/action/_' + actionType + '&CSRFToken=' + CSRFToken,
+      success: function() {
+        listActionType();
+      }
+    });
+  }
+
 
 // create a brand new action
 function newAction() {
@@ -1028,6 +1131,7 @@ var currentWorkflow = 0;
 function loadWorkflow(workflowID) {
     $('#btn_createStep').css('display', 'block');
     $('#btn_deleteWorkflow').css('display', 'block');
+    $('#btn_listActionType').css('display', 'block');
 
     //508
     $('#btn_createStep').on('keypress',function(event) {

@@ -247,6 +247,19 @@ class System
         							ORDER BY name ASC', array());
     }
 
+    public function getAction($actionType)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $vars = array(':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($actionType)));
+
+        $action = $this->db->prepared_query('SELECT * FROM actions WHERE actionType=:actionType', $vars);
+        return $action;
+    }
+
     public function addAction()
     {
         if (!$this->login->checkGroup(1))
@@ -271,6 +284,49 @@ class System
 
         $this->db->prepared_query('INSERT INTO actions (actionType, actionText, actionTextPasttense, actionIcon, actionAlignment, sort, fillDependency)
 										VALUES (:actionType, :actionText, :actionTextPasttense, :actionIcon, :actionAlignment, :sort, :fillDependency)', $vars);
+    }
+
+    public function editAction($actionType)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $alignment = 'right';
+        if ($_POST['fillDependency'] < 1)
+        {
+            $alignment = 'left';
+        }
+
+        $vars = array(':oldActionType' => strip_tags($actionType),
+                ':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($_POST['actionText'])),
+                ':actionText' => strip_tags($_POST['actionText']),
+                ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
+                ':actionIcon' => $_POST['actionIcon'],
+                ':actionAlignment' => $alignment,
+                ':sort' => 0,
+                ':fillDependency' => $_POST['fillDependency'],
+        );
+
+        $this->db->prepared_query('UPDATE actions SET actionType=:actionType, actionText=:actionText, actionTextPasttense=:actionTextPasttense, actionIcon=:actionIcon, actionAlignment=:actionAlignment, sort=:sort, fillDependency=:fillDependency WHERE actionType=:oldActionType', $vars);
+
+        return 1;
+    }
+
+
+    public function removeAction($actionType)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $vars = array('ActionType' => strip_tags($actionType));
+
+        $this->db->prepared_query('DELETE FROM actions WHERE actionType=:ActionType', $vars);
+
+        return 1;
     }
 
     public function getTemplateList()
