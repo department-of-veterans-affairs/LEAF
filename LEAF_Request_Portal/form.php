@@ -3321,4 +3321,15 @@ class Form
 
         return 0;
     }
+
+    public function getRecordsByCategory($categoryID)
+    {
+        $vars = array(':categoryID'=>XSSHelpers::xscrub($categoryID));
+        $data = $this->db->prepared_query('SELECT recordID, title, userID, categoryID, submitted 
+                                            FROM records
+                                            JOIN category_count USING (recordID)
+                                            WHERE categoryID=:categoryID', $vars);
+        
+        return $data;
+    }
 }
