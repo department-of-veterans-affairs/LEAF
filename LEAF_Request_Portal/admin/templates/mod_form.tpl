@@ -620,11 +620,19 @@ function getForm(indicatorID, series) {
         </fieldset>\
         <span class="buttonNorm" id="button_advanced">Advanced Options</span>\
         <div><fieldset id="advanced" style="visibility: hidden"><legend>Advanced Options</legend>\
+            Template Variables:<br />\
+            <table class="table">\
+            <tr>\
+                <td><b>{{ iID }}</b></td>\
+                <td>The indicatorID # of the current data field.<br />* Note if this will be used for API writes through the Report Builder: The record ID is prefixed as "recordID_indicatorID".</td>\
+            </tr>\
+            <tr>\
+                <td><b>{{&nbsp;recordID&nbsp;}}</b></td>\
+                <td>The record ID # of the current request.</td>\
+            </tr>\
+            </table><br />\
             html (for pages where the user can edit data): <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button><textarea id="html"></textarea><br />\
             htmlPrint (for pages where the user can only read data): <button id="btn_codeSave_htmlPrint" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button><textarea id="htmlPrint"></textarea><br />\
-            Template Variables:<br />\
-            <b>{{ iID }}</b> will be replaced with the indicatorID # of the current data field<br />\
-            <b>{{ recordID }}</b> will be replaced with the record ID # of the current request\
         </div></div>');
 
     $('#indicatorType').on('change', function() {
