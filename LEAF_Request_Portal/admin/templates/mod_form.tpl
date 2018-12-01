@@ -623,7 +623,7 @@ function getForm(indicatorID, series) {
             html (for pages where the user can edit data): <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button><textarea id="html"></textarea><br />\
             htmlPrint (for pages where the user can only read data): <button id="btn_codeSave_htmlPrint" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button><textarea id="htmlPrint"></textarea><br />\
             Template Variables:<br />\
-            <b>{{ iID }}</b> will be replaced with the indicatorID # of the current data field\
+            <b>{{ iID }}</b> will be replaced with the indicatorID # of the current data field<br />\
             <b>{{ recordID }}</b> will be replaced with the record ID # of the current request\
         </div></div>');
 
