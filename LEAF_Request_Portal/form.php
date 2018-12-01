@@ -464,10 +464,16 @@ class Form
         $form[$idx]['description'] = $data[0]['description'];
         $form[$idx]['default'] = $data[0]['default'];
         $form[$idx]['parentID'] = $data[0]['parentID'];
-        $form[$idx]['html'] = $parseTemplate ? str_replace('{{ iID }}', $idx, $data[0]['html'])
-                                : $data[0]['html'];
-        $form[$idx]['htmlPrint'] = $parseTemplate ? str_replace('{{ iID }}', $idx, $data[0]['htmlPrint'])
-                                : $data[0]['htmlPrint'];
+        $form[$idx]['html'] = $data[0]['html'];
+        $form[$idx]['htmlPrint'] = $data[0]['htmlPrint'];
+        if($parseTemplate) {
+            $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}'],
+                                              [$idx, $recordID],
+                                              $data[0]['html']);
+            $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}'],
+                                              [$idx, $recordID],
+                                              $data[0]['htmlPrint']);
+        }
         $form[$idx]['required'] = $data[0]['required'];
         $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
         $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
@@ -1891,9 +1897,32 @@ class Form
         {
             if (!is_numeric($id) && $id != '')
             {
-                return false;
+                return false; // abort if indicatorID_list is malformed
             }
             $indicatorIdStructure['id' . $id] = null;
+        }
+
+        $indicators = array();
+        $indicatorDefaults = array();
+        if ($indicatorID_list != '')
+        {
+            $res = $this->db->prepared_query("SELECT * FROM indicators
+                                                WHERE indicatorID IN ({$indicatorID_list})", array());
+            if (count($res) > 0)
+            {
+                foreach ($res as $item)
+                {
+                    $indicators[$item['indicatorID']] = $item;
+                    if ($item['default'] != '')
+                    {
+                        $indicatorDefaults['id' . $item['indicatorID']] = '( ' . $item['default'] . ' )';
+                    }
+                    if ($item['htmlPrint'] != '')
+                    {
+                        $indicatorIdStructure['id' . $item['indicatorID'] . '_htmlPrint'] = $item['htmlPrint'];
+                    }
+                }
+            }
         }
 
         $recordIDs = '';
@@ -1928,22 +1957,6 @@ class Form
         if ($indicatorID_list == '')
         {
             return $out;
-        }
-
-        $indicators = array();
-        $indicatorDefaults = array();
-        $res = $this->db->prepared_query("SELECT * FROM indicators
-                                    WHERE indicatorID IN ({$indicatorID_list})", array());
-        if (count($res) > 0)
-        {
-            foreach ($res as $item)
-            {
-                $indicators[$item['indicatorID']] = $item;
-                if ($item['default'] != '')
-                {
-                    $indicatorDefaults['id' . $item['indicatorID']] = '( ' . $item['default'] . ' )';
-                }
-            }
         }
 
         // already made sure that $indicatorID_list and $recordIDs are comma delimited lists of numbers
@@ -2015,9 +2028,6 @@ class Form
                         
                         $item['data'] = $groupTitle;
                         break;
-                    case 'raw_data':
-                        $item['dataHtmlPrint'] = $indicators[$item['indicatorID']]['htmlPrint'];
-                        break;
                     default:
                         if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
                         {
@@ -2043,10 +2053,6 @@ class Form
                 if (isset($item['dataOrgchart']))
                 {
                     $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_orgchart'] = $item['dataOrgchart'];
-                }
-                if (isset($item['dataHtmlPrint']))
-                {
-                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_htmlPrint'] = $item['dataHtmlPrint'];
                 }
                 $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_timestamp'] = $item['timestamp'];
             }
@@ -3209,10 +3215,16 @@ class Form
                 $child[$idx]['series'] = $series;
                 $child[$idx]['name'] = $field['name'];
                 $child[$idx]['default'] = $field['default'];
-                $child[$idx]['html'] = $parseTemplate ? str_replace('{{ iID }}', $idx, $field['html'])
-                                            : $field['html'];
-                $child[$idx]['htmlPrint'] = $parseTemplate ? str_replace('{{ iID }}', $idx, $field['htmlPrint'])
-                                                : $field['htmlPrint'];
+                $child[$idx]['html'] = $field['html'];
+                $child[$idx]['htmlPrint'] = $field['htmlPrint'];
+                if($parseTemplate) {
+                    $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}'],
+                                                      [$idx, $recordID],
+                                                      $field['html']);
+                    $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}'],
+                                                      [$idx, $recordID],
+                                                      $field['htmlPrint']);
+                }
                 $child[$idx]['required'] = $field['required'];
                 $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;
                 $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '') ? $data[$idx]['data'] : $child[$idx]['default'];
