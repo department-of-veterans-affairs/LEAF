@@ -364,7 +364,7 @@ class Form
         $vars = array(':date' => time(),
                       ':serviceID' => $serviceID,
                       ':userID' => $userID,
-                      ':title' => XSSHelpers::xscrub($_POST['title']),
+                      ':title' => XSSHelpers::sanitizer($_POST['title']),
                       ':priority' => $_POST['priority'], );
 
         $this->db->prepared_query('INSERT INTO records (date, serviceID, userID, title, priority)
