@@ -735,7 +735,7 @@ function deleteColumn(event){
     var focus;
     switch(tbody.find('div').length){
         case 1:
-            alert('Cannot remove inital column.');
+            alert('Cannot remove initial column.');
             break;
         case 2:
             column.remove();
