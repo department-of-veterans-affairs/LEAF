@@ -133,7 +133,7 @@ function addRecordData(recordID, indicatorID)
         var dataRows = data[indicatorID]['value']['cells'];
         for(var i = 0; i < dataRows.length; i++)
         {
-            bodyObj[recordID] = dataRows[i];
+            bodyObj[recordID].push(dataRows[i]);
         }
         updateProgress();
     }).fail(function (jqXHR, error, errorThrown) {
@@ -167,7 +167,7 @@ function exportCSV()
 
     var currentRow = 1;
     $.each( bodyObj, function( recordID, dataRowArray ) {
-        $.each( bodyObj, function( key, dataRow ) {
+        $.each( dataRowArray, function( key, dataRow ) {
             var extraBodyColumns = [recordID, currentRow];
             output.push(extraBodyColumns.concat(dataRow));
             currentRow++;
