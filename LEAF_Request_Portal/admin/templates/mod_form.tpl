@@ -446,7 +446,8 @@ function newQuestion(parentIndicatorID) {
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
-                <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells()"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>\
+                <div id="container_indicatorGrid" style="display: none"><span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>\
+                </br><button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" onclick="addCells()"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>\
                 <br/><br/>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\n                <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
                     <fieldset><legend>Attributes</legend>\
                         <table>\
@@ -642,7 +643,7 @@ function makeGrid(columns) {
         var name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
         var id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
         $(gridBodyElement).append(
-            '<div id="' + id + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
+            '<div tabindex="0" id="' + id + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
             '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
             '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
             '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
@@ -673,7 +674,7 @@ function makeGrid(columns) {
                 }
                 $(gridBodyElement + ' > div:eq(' + i + ')').css('padding-bottom', '11px');
                 if($(gridBodyElement + ' > div:eq(' + i + ') > span.dropdown').length === 0){
-                    $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea style="width: 153px; resize: none;"value="">' + options + '</textarea></span>');
+                    $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" style="width: 153px; resize: none;"value="">' + options + '</textarea></span>');
                 }
             }
         }
@@ -682,9 +683,11 @@ function makeGrid(columns) {
 
 function toggleDropDown(type, cell){
     if(type === 'dropdown'){
-        $(cell).parent().append('<span class="dropdown"><div>One option per line</div><textarea value="" style="width: 153px; resize:none"></textarea></span>');
+        $(cell).parent().append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" value="" style="width: 153px; resize:none"></textarea></span>');
+        $('#tableStatus').attr('aria-label', 'Make drop options in the space below, one option per line.');
     } else {
         $(cell).parent().find('span.dropdown').remove();
+        $('#tableStatus').attr('aria-label', 'Dropdown options box removed');
     }
 }
 
@@ -707,12 +710,14 @@ function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > div:last'), true);
     $(gridBodyElement).append(
-        '<div id="' + makeColumnID() + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
+        '<div tabindex="0" id="' + makeColumnID() + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
         '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" /></br>' +
         '<span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
         '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
         '<option value="dropdown">Drop Down</option><option value="single line input">Single line input</option></select>'
     );
+    $('#tableStatus').attr('aria-label', 'Column added, ' + $(gridBodyElement).children().length + ' total.');
+    $(gridBodyElement + ' > div:last').focus();
     updateColumnNumbers();
 }
 
@@ -725,19 +730,23 @@ function updateColumnNumbers(){
 function deleteColumn(event){
     var column = $(event.target).closest('div');
     var tbody = $(event.target).closest('div').parent('div');
+    var columnDeleted = parseInt($(column).index()) + 1;
     switch(tbody.find('div').length){
         case 1:
             alert('Cannot remove inital column.');
             break;
         case 2:
+            tbody.find('[title="Delete column"]').focus();
             column.remove();
             rightArrows(tbody.find('div'), false);
             leftArrows(tbody.find('div'), false);
             break;
         default:
+            column.next().find('[title="Delete line"]').focus();
             if(column.find('[title="Move column right"]').css('display') === 'none'){
                 rightArrows(column.prev(), false);
                 leftArrows(column.prev(), true);
+                column.prev().find('[title="Delete line"]').focus();
             }
             if(column.find('[title="Move column left"]').css('display') === 'none'){
                 leftArrows(column.next(), false);
@@ -746,6 +755,7 @@ function deleteColumn(event){
             column.remove();
             break;
     }
+    $('#tableStatus').attr('aria-label', 'Row ' + columnDeleted + ' removed, ' + $(tbody).children().length + ' total.');
     updateColumnNumbers();
 }
 
@@ -762,6 +772,12 @@ function moveRight(event){
         rightArrows(column.next(), true);
     }
     column.insertAfter(column.next());
+    if(nextColumnLast){
+        column.find('[title="Move column left"]').focus();
+    } else {
+        column.find('[title="Move column right"]').focus();
+    }
+    $('#tableStatus').attr('aria-label', 'Moved right to column ' + (parseInt($(column).index()) + 1) + ' of ' + column.parent().children().length);
     updateColumnNumbers();
 }
 
@@ -778,6 +794,12 @@ function moveLeft(event){
         leftArrows(column.prev(), true);
     }
     column.insertBefore(column.prev());
+    if(nextColumnFirst){
+        column.find('[title="Move column right"]').focus();
+    } else {
+        column.find('[title="Move column left"]').focus();
+    }
+    $('#tableStatus').attr('aria-label', 'Moved left to column ' + (parseInt($(column).index()) + 1) + ' of ' + column.parent().children().length);
     updateColumnNumbers();
 }
 
@@ -810,7 +832,8 @@ function getForm(indicatorID, series) {
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
-                <div id="container_indicatorGrid" style="display: none"></br><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>&nbsp;\
+                <div id="container_indicatorGrid" style="display: none"><span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>\
+                </br><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>&nbsp;\
                 </br></br>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\
                 <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
             <fieldset><legend>Attributes</legend>\

@@ -44,6 +44,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <script type="text/javascript" src="js/gridInput.js"></script>
+            <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
             <div class="tableinput">
             <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input" style="word-wrap:break-word; table-layout: fixed; height: 100%; display: table">
                 <thead>
@@ -52,7 +53,7 @@
                 </tbody>
             </table>
             </div>
-            <button class="buttonNorm" onclick="addRow(options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
+            <button class="buttonNorm" id="addRowBtn" title="Grid input add row" alt="Grid input add row" aria-label="Grid input add row" onclick="addRow(options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
             <script>
                 var options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = <!--{$indicator.options[0]}-->;
                 var values_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = <!--{$indicator.value|json_encode}-->;

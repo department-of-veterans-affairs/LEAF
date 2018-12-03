@@ -67,7 +67,7 @@ function printTableInput(gridParameters, values, indicatorID, series){
                 default:
                     break;
             }
-            $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td>' + element + '</td>');
+            $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td aria-label="' + gridParameters[j].name + '">' + element + '</td>');
         }
 
         //assigns pre-existing values to cells based on its column
@@ -122,13 +122,13 @@ function addRow(gridParameters, indicatorID, series){
     for(var i = 0; i < gridParameters.length; i++){
         switch (gridParameters[i].type) {
             case 'dropdown':
-                $(gridBodyElement + ' > tr:last').append('<td>' + makeDropdown(gridParameters[i].options, null) + '</td>');
+                $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '">' + makeDropdown(gridParameters[i].options, null) + '</td>');
                 break;
             case 'textarea':
-                $(gridBodyElement + ' > tr:last').append('<td><textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;"></textarea></td>');
+                $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '"><textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;"></textarea></td>');
                 break;
             case 'single line input':
-                $(gridBodyElement + ' > tr:last').append('<td><input value=""></input></td>');
+                $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '"><input value=""></input></td>');
                 break;
             default:
                 break;
@@ -139,6 +139,8 @@ function addRow(gridParameters, indicatorID, series){
     } else {
         $(gridBodyElement + ' > tr:last').append('<td><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveUp(event)" src="../libs/dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="cursor: pointer" /></br><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteRow(event)" src="../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" /></br><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveDown(event)" style="display: none" src="../libs/dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="cursor: pointer" /></td>');
     }
+    $('#tableStatus').attr('aria-label', 'Row number ' + $(gridBodyElement).children().length + ' added, ' + $(gridBodyElement).children().length + ' total.');
+    $(gridBodyElement + ' > tr:last > td:first').children().focus();
 }
 // click function for 508 compliance
 function triggerClick(event){
@@ -149,16 +151,25 @@ function triggerClick(event){
 function deleteRow(event){
     var row = $(event.target).closest('tr');
     var tbody = $(event.target).closest('tbody');
+    var rowDeleted = parseInt($(row).index()) + 1;
     switch(tbody.find('tr').length){
+        case 1:
+            row.remove();
+            setTimeout(function () {
+                $('#addRowBtn').focus();
+            }, 0);
         case 2:
             row.remove();
+            tbody.find('[title="Delete line"]').focus();
             upArrows(tbody.find('tr'), false);
             downArrows(tbody.find('tr'), false);
             break;
         default:
+            row.next().find('[title="Delete line"]').focus();
             if(row.find('[title="Move line down"]').css('display') === 'none'){
                 downArrows(row.prev(), false);
                 upArrows(row.prev(), true);
+                row.prev().find('[title="Delete line"]').focus();
             }
             if(row.find('[title="Move line up"]').css('display') === 'none'){
                 upArrows(row.next(), false);
@@ -167,6 +178,7 @@ function deleteRow(event){
             row.remove();
             break;
     }
+    $('#tableStatus').attr('aria-label', 'Row ' + rowDeleted + ' removed, ' + $(tbody).children().length + ' total.');
 }
 
 function moveDown(event){
@@ -187,6 +199,7 @@ function moveDown(event){
     } else {
         row.find('td:last > img[title="Move line down"]').focus();
     }
+    $('#tableStatus').attr('aria-label', 'Moved down to row ' + (parseInt($(row).index()) + 1) + ' of ' + $(event.target).closest('tbody').children().length);
 }
 function moveUp(event){
     var row = $(event.target).closest('tr');
@@ -206,6 +219,7 @@ function moveUp(event){
     } else {
         row.find('td:last > img[title="Move line up"]').focus();
     }
+    $('#tableStatus').attr('aria-label', 'Moved up to row ' + (parseInt($(row).index()) + 1) + ' of ' + $(event.target).closest('tbody').children().length);
 }
 function printTableOutput(gridParameters, values, indicatorID, series) {
     var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_output > tbody';
