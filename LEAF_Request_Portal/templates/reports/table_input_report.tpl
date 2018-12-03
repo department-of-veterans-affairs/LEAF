@@ -1,5 +1,5 @@
 <style type="text/css">
-    select#indicators, div#progress {
+    div#dataFieldContainer, div#progress {
         display:none;
     }
 </style>
@@ -14,7 +14,7 @@ $(document).on('change', 'select#forms', function() {
     populateIndicators(this.value);
 });
 
-$(document).on('change', 'select#indicators', function() {
+$(document).on('change', 'select#dataField', function() {
     buildHeaderArray(indicatorFormats[this.value]);
     getDataForExport($('select#forms').val(), this.value);
 });
@@ -47,25 +47,25 @@ function populateIndicators(categoryID)
                 forms: categoryID
             }
         }).done(function(data) {
-            $('select#indicators').empty();
-            $('select#indicators').append($('<option />').val('').text('-Select Indicator-'));
+            $('select#dataField').empty();
+            $('select#dataField').append($('<option />').val('').text('-Select Data Field-'));
             var anyTables = false;
             for(var i = 0; i < data.length; i++)
             {
                 var format = data[i].format;
                 if (format.match("^grid")) {
                     anyTables = true;
-                    $('select#indicators').append($('<option />').val(data[i].indicatorID).text(data[i].name));
+                    $('select#dataField').append($('<option />').val(data[i].indicatorID).text(data[i].name));
                     indicatorFormats[data[i].indicatorID] = JSON.parse(format.substring(5));
                 }
             }
             if(!anyTables)
             {
-                $('select#indicators').hide();
+                $('div#dataFieldContainer').hide();
                 alert('No grid input found in this form.');
             }
             else{
-                $('select#indicators').show();
+                $('div#dataFieldContainer').show();
             }
         }).fail(function (jqXHR, error, errorThrown) {
             console.log(jqXHR);
@@ -75,7 +75,7 @@ function populateIndicators(categoryID)
     }
     else
     {
-        $('select#indicators').hide();
+        $('div#dataFieldContainer').hide();
     }
 }
 
@@ -207,11 +207,15 @@ function exportCSV()
 </script>
 
 <div id="tableInputExport">
-    <select id="forms">
+    <label for="forms">Select a form: </label>
+    <select name="forms" id="forms">
         <option value="">-Select Form-</option>
     </select>
     <br/>
-    <select id="indicators">
-    </select>
+    <div id="dataFieldContainer">
+        <label for="dataField">Select a data field: </label>
+        <select name="dataField" id="dataField">
+        </select>
+    </div>
     <div id='progress'>Progress: <span></span></div>
 </div>
