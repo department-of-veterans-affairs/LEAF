@@ -402,7 +402,7 @@ function editIndicatorPrivileges(indicatorID) {
 var gridJSON = [];
 var gridBodyElement = 'div#container_indicatorGrid > div';
 if(columns === undefined) {
-    var columns = 1;
+    var columns = 0;
 }
 
 // function that generates unique id to track columns
@@ -632,6 +632,7 @@ function updateNames(){
 
 
 function makeGrid(columns) {
+    $(gridBodyElement).html('');
     if(columns === 0){
         gridJSON = [];
         columns = 1;
@@ -645,7 +646,7 @@ function makeGrid(columns) {
         $(gridBodyElement).append(
             '<div tabindex="0" id="' + id + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
             '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
-            '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer; vertical-align: middle;" />' +
+            '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
             '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
             '<option value="dropdown">Drop Down</option><option value="single line input">Single line input</option></select>'
         );
@@ -731,22 +732,24 @@ function deleteColumn(event){
     var column = $(event.target).closest('div');
     var tbody = $(event.target).closest('div').parent('div');
     var columnDeleted = parseInt($(column).index()) + 1;
+    var focus;
     switch(tbody.find('div').length){
         case 1:
             alert('Cannot remove inital column.');
             break;
         case 2:
-            tbody.find('[title="Delete column"]').focus();
             column.remove();
+            focus = $('div.cell:first');
             rightArrows(tbody.find('div'), false);
             leftArrows(tbody.find('div'), false);
             break;
         default:
-            column.next().find('[title="Delete line"]').focus();
+            focus = column.next().find('[title="Delete column"]');
+            // column.next().focus();
             if(column.find('[title="Move column right"]').css('display') === 'none'){
                 rightArrows(column.prev(), false);
                 leftArrows(column.prev(), true);
-                column.prev().find('[title="Delete line"]').focus();
+                focus = column.prev().find('[title="Delete column"]');
             }
             if(column.find('[title="Move column left"]').css('display') === 'none'){
                 leftArrows(column.next(), false);
@@ -755,7 +758,13 @@ function deleteColumn(event){
             column.remove();
             break;
     }
+    columns = columns - 1;
     $('#tableStatus').attr('aria-label', 'Row ' + columnDeleted + ' removed, ' + $(tbody).children().length + ' total.');
+
+    //ie11 fix
+    setTimeout(function () {
+        focus.focus();
+    }, 0);
     updateColumnNumbers();
 }
 
@@ -872,7 +881,7 @@ function getForm(indicatorID, series) {
                 $('#container_indicatorGrid').css('display', 'block');
                 $('#container_indicatorMultiAnswer').css('display', 'none');
                 $('#container_indicatorSingleAnswer').css('display', 'none');
-                makeGrid(columns);
+                makeGrid(0);
                 break;
     	    case 'radio':
     	    case 'checkboxes':

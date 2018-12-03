@@ -152,6 +152,7 @@ function deleteRow(event){
     var row = $(event.target).closest('tr');
     var tbody = $(event.target).closest('tbody');
     var rowDeleted = parseInt($(row).index()) + 1;
+    var focus;
     switch(tbody.find('tr').length){
         case 1:
             row.remove();
@@ -160,16 +161,16 @@ function deleteRow(event){
             }, 0);
         case 2:
             row.remove();
-            tbody.find('[title="Delete line"]').focus();
+            focus = tbody.find('[title="Delete line"]');
             upArrows(tbody.find('tr'), false);
             downArrows(tbody.find('tr'), false);
             break;
         default:
-            row.next().find('[title="Delete line"]').focus();
+            focus = row.next().find('[title="Delete line"]');
             if(row.find('[title="Move line down"]').css('display') === 'none'){
                 downArrows(row.prev(), false);
                 upArrows(row.prev(), true);
-                row.prev().find('[title="Delete line"]').focus();
+                focus = row.prev().find('[title="Delete line"]');
             }
             if(row.find('[title="Move line up"]').css('display') === 'none'){
                 upArrows(row.next(), false);
@@ -178,6 +179,13 @@ function deleteRow(event){
             row.remove();
             break;
     }
+    if(focus !== undefined){
+        //ie11 fix
+        setTimeout(function () {
+            focus.focus();
+        }, 0);
+    }
+
     $('#tableStatus').attr('aria-label', 'Row ' + rowDeleted + ' removed, ' + $(tbody).children().length + ' total.');
 }
 
@@ -185,6 +193,7 @@ function moveDown(event){
     var row = $(event.target).closest('tr');
     var nextRowBottom = row.next().find('[title="Move line down"]').css('display') === 'none';
     var rowTop = row.find('[title="Move line up"]').css('display') === 'none';
+    var focus;
     upArrows(row, true);
     if(nextRowBottom){
         downArrows(row, false);
@@ -195,16 +204,21 @@ function moveDown(event){
     }
     row.insertAfter(row.next());
     if(nextRowBottom){
-        row.find('td:last > img[title="Move line up"]').focus();
+        focus = row.find('td:last > img[title="Move line up"]');
     } else {
-        row.find('td:last > img[title="Move line down"]').focus();
+        focus = row.find('td:last > img[title="Move line down"]');
     }
+    //ie11 fix
+    setTimeout(function () {
+        focus.focus();
+    }, 0);
     $('#tableStatus').attr('aria-label', 'Moved down to row ' + (parseInt($(row).index()) + 1) + ' of ' + $(event.target).closest('tbody').children().length);
 }
 function moveUp(event){
     var row = $(event.target).closest('tr');
     var prevRowTop = row.prev().find('[title="Move line up"]').css('display') === 'none';
     var rowBottom = row.find('[title="Move line down"]').css('display') === 'none';
+    var focus;
     downArrows(row, true);
     if(prevRowTop){
         upArrows(row, false);
@@ -215,10 +229,14 @@ function moveUp(event){
     }
     row.insertBefore(row.prev());
     if(prevRowTop){
-        row.find('td:last > img[title="Move line down"]').focus();
+        focus = row.find('td:last > img[title="Move line down"]');
     } else {
-        row.find('td:last > img[title="Move line up"]').focus();
+        focus = row.find('td:last > img[title="Move line up"]');
     }
+    //ie11 fix
+    setTimeout(function () {
+        focus.focus();
+    }, 0);
     $('#tableStatus').attr('aria-label', 'Moved up to row ' + (parseInt($(row).index()) + 1) + ' of ' + $(event.target).closest('tbody').children().length);
 }
 function printTableOutput(gridParameters, values, indicatorID, series) {
