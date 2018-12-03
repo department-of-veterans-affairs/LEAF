@@ -7,9 +7,6 @@ declare(strict_types = 1);
 
 use LEAFTest\LEAFClient;
 
-include '../../LEAF_Request_Portal/db_config.php';
-include '../../LEAF_Request_Portal/db_mysql.php';
-
 /**
  * Tests LEAF_Request_Portal/api/?a=signature API
  */
