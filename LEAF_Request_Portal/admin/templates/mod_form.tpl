@@ -362,7 +362,8 @@ function addIndicatorPrivilege(indicatorID) {
 
 var currentIndicator = {};
 function editIndicatorPrivileges(indicatorID) {
-    dialog_simple.setContent('<h2>Only those Groups with Read Privileges will be able to view the data contained by the indicator</h2><br />'
+    dialog_simple.setContent('<h2>Special access restrictions for this field</h2>'
+                            + '<p>These restrictions will limit view access to the request initiator and members of any groups you specify.</p>'
                             + 'All others will see "[protected data]".<br /><div id="indicatorPrivs"></div>');
 
     dialog_simple.indicateBusy();
@@ -377,13 +378,20 @@ function editIndicatorPrivileges(indicatorID) {
             portalAPI.FormEditor.getIndicatorPrivileges(indicatorID,
                 function (groups) {
                     var buffer = '<ul>';
+                    var count = 0;
                     for (var group in groups) {
                         if (groups[group].id !== undefined) {
                             buffer += '<li>' + groups[group].name + ' [ <a href="#" tabindex="0" onkeypress="onKeyPressClick(event);" onclick="removeIndicatorPrivilege(' + indicatorID + ',' + groups[group].id + ');">Remove</a> ]</li>';
+                            count++;
                         }
                     }
                     buffer += '</ul>';
                     buffer += '<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addIndicatorPrivilege(' + indicatorID + ');">Add Group</span>';
+                    var statusMessage = "Special access restrictions are not enabled. Normal access rules apply.";
+                    if(count > 0) {
+                        statusMessage = "Special access restrictions are enabled!";
+                    }
+                    buffer += '<p>'+ statusMessage +'</p>';
                     $('#indicatorPrivs').html(buffer);
                     dialog_simple.indicateIdle();
                     dialog_simple.show();
@@ -612,10 +620,19 @@ function getForm(indicatorID, series) {
         </fieldset>\
         <span class="buttonNorm" id="button_advanced">Advanced Options</span>\
         <div><fieldset id="advanced" style="visibility: hidden"><legend>Advanced Options</legend>\
+            Template Variables:<br />\
+            <table class="table">\
+            <tr>\
+                <td><b>{{ iID }}</b></td>\
+                <td>The indicatorID # of the current data field.</td>\
+            </tr>\
+            <tr>\
+                <td><b>{{&nbsp;recordID&nbsp;}}</b></td>\
+                <td>The record ID # of the current request.</td>\
+            </tr>\
+            </table><br />\
             html (for pages where the user can edit data): <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button><textarea id="html"></textarea><br />\
             htmlPrint (for pages where the user can only read data): <button id="btn_codeSave_htmlPrint" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button><textarea id="htmlPrint"></textarea><br />\
-            Template Variables:<br />\
-            <b>{{ iID }}</b> will be replaced with the indicatorID # of the data field\
         </div></div>');
 
     $('#indicatorType').on('change', function() {
