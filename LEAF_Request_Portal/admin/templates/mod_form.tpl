@@ -624,7 +624,7 @@ function getForm(indicatorID, series) {
             <table class="table">\
             <tr>\
                 <td><b>{{ iID }}</b></td>\
-                <td>The indicatorID # of the current data field.<br />* Note: If this is used for API writes through the Report Builder, the record ID is prefixed as "recordID_indicatorID".</td>\
+                <td>The indicatorID # of the current data field.</td>\
             </tr>\
             <tr>\
                 <td><b>{{&nbsp;recordID&nbsp;}}</b></td>\

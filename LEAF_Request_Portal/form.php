@@ -911,9 +911,83 @@ class Form
     }
 
     /**
+     * Write data from input fields if the current user has access, used with doModify()
+     * @param int $recordID
+     * @param int $key
+     * @param int $series
+     * @return int 1 for success, 0 for error
+     */
+    private function writeDataField($recordID, $key, $series)
+    {
+        if (is_array($_POST[$key]))
+        {
+            $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
+        }
+        else
+        {
+            $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
+        }
+
+        $vars = array(':recordID' => $recordID,
+                      ':indicatorID' => $key,
+                      ':series' => $series, );
+        $res = $this->db->prepared_query('SELECT data, format FROM data
+                                            LEFT JOIN indicators USING (indicatorID)
+                                            WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
+
+        // handle fileupload indicator type
+        if (isset($res[0]['format'])
+                && ($res[0]['format'] == 'fileupload'
+                        || $res[0]['format'] == 'image'))
+        {
+            if (!isset($_POST['overwrite'])
+                && strpos($res[0]['data'], $_POST[$key]) === false)
+            {
+                $_POST[$key] = trim($res[0]['data'] . "\n" . $_POST[$key]);
+            }
+            else
+            {
+                if (!isset($_POST['overwrite'])
+                && strpos($res[0]['data'], $_POST[$key]) !== false)
+                {
+                    $_POST[$key] = trim($res[0]['data']);
+                }
+            }
+        }
+
+        $duplicate = false;
+        if (isset($res[0]['data']) && $res[0]['data'] == trim($_POST[$key]))
+        {
+            $duplicate = true;
+        }
+
+        // check write access
+        if (!$this->hasWriteAccess($recordID, 0, $key))
+        {
+            return 0;
+        }
+        $vars = array(':recordID' => $recordID,
+                      ':indicatorID' => $key,
+                      ':series' => $series,
+                      ':data' => trim($_POST[$key]),
+                      ':timestamp' => time(),
+                      ':userID' => $this->login->getUserID(), );
+        $res = $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
+                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
+                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
+
+        if (!$duplicate)
+        {
+            $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
+        }
+        return 1;
+    }
+
+    /**
      * Write data from input fields if the current user has access - HTTP POST
      * @param int $recordID
-     * @return number 1 for success, 0 for error
+     * @return int 1 for success, 0 for error
      */
     public function doModify($recordID)
     {
@@ -1025,67 +1099,21 @@ class Form
         {
             if (is_numeric($key))
             {
-                if (is_array($_POST[$key]))
-                {
-                    $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
-                }
-                else
-                {
-                    $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
-                }
-
-                $vars = array(':recordID' => $recordID,
-                              ':indicatorID' => $key,
-                              ':series' => $series, );
-                $res = $this->db->prepared_query('SELECT data, format FROM data
-                									LEFT JOIN indicators USING (indicatorID)
-                									WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
-
-                // handle fileupload indicator type
-                if (isset($res[0]['format'])
-                        && ($res[0]['format'] == 'fileupload'
-                                || $res[0]['format'] == 'image'))
-                {
-                    if (!isset($_POST['overwrite'])
-                        && strpos($res[0]['data'], $_POST[$key]) === false)
-                    {
-                        $_POST[$key] = trim($res[0]['data'] . "\n" . $_POST[$key]);
-                    }
-                    else
-                    {
-                        if (!isset($_POST['overwrite'])
-                        && strpos($res[0]['data'], $_POST[$key]) !== false)
-                        {
-                            $_POST[$key] = trim($res[0]['data']);
-                        }
-                    }
-                }
-
-                $duplicate = false;
-                if (isset($res[0]['data']) && $res[0]['data'] == trim($_POST[$key]))
-                {
-                    $duplicate = true;
-                }
-
-                // check write access
-                if (!$this->hasWriteAccess($recordID, 0, $key))
+                if(!$this->writeDataField($recordID, $key, $series))
                 {
                     return 0;
                 }
-                $vars = array(':recordID' => $recordID,
-                              ':indicatorID' => $key,
-                              ':series' => $series,
-                              ':data' => trim($_POST[$key]),
-                              ':timestamp' => time(),
-                              ':userID' => $this->login->getUserID(), );
-                $res = $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
-                                                    VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
-                                                    ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
-
-                if (!$duplicate)
+            }
+            else
+            {
+                list($tRecordID, $tIndicatorID) = explode('_', $key);
+                if($tRecordID == $recordID
+                    && is_numeric($tIndicatorID))
                 {
-                    $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
-                                                           VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
+                    if(!$this->writeDataField($recordID, $tIndicatorID, $series))
+                    {
+                        return 0;
+                    }
                 }
             }
         }
