@@ -240,12 +240,16 @@ function exportCSV()
     <select name="forms" id="forms">
         <option value="">-Select Form-</option>
     </select>
-    <br/>
+    <br/><br/>
     <div id="dataFieldContainer">
         <label for="dataField">Select a data field: </label>
         <select name="dataField" id="dataField">
         </select>
     </div>
-    <button type="button" name="submit" id="submit">Submit</button>
+    <br/>
+    <button class="buttonNorm" type="button" style="font-weight: bold; font-size: 120%" name="submit" id="submit">
+        <img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Submit"> 
+        Submit&nbsp; 
+    </button>
     <div id='progress'>Progress: <span></span></div>
 </div>
