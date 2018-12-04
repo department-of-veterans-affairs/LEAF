@@ -1,5 +1,5 @@
 <style type="text/css">
-    div#dataFieldContainer, div#progress, button#submit {
+    div#dataFieldContainer, div#progress, button#download {
         display:none;
     }
 </style>
@@ -27,24 +27,24 @@ $.ajax({
 
 //when a form is selected, populate the indicator select
 $(document).on('change', 'select#forms', function() {
-    $('button#submit').hide();
+    $('button#download').hide();
     populateIndicators(this.value);
 });
 
-//when an indicator is selected, show submit button
+//when an indicator is selected, show download button
 $(document).on('change', 'select#dataField', function() {
     if(this.value !== '')
     {
-        $('button#submit').show(); $('button#submit').show();
+        $('button#download').show();
     }
     else
     {
-        $('button#submit').hide();
+        $('button#download').hide();
     }
 });
 
 //when button is clicked, start the export process
-$(document).on('click', 'button#submit', function() {
+$(document).on('click', 'button#download', function() {
     if($('select#dataField').val() !== '')
     {
         buildHeaderArray(indicatorFormats[$('select#dataField').val()]);
@@ -247,9 +247,9 @@ function exportCSV()
         </select>
     </div>
     <br/>
-    <button class="buttonNorm" type="button" style="font-weight: bold; font-size: 120%" name="submit" id="submit">
-        <img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Submit"> 
-        Submit&nbsp; 
+    <button class="buttonNorm" type="button" style="font-weight: bold; font-size: 120%" name="download" id="download">
+        <img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Download"> 
+        Download&nbsp; 
     </button>
     <div id='progress'>Progress: <span></span></div>
 </div>
