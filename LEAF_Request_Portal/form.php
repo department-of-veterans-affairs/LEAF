@@ -2047,7 +2047,8 @@ class Form
                         {
                             $values = @unserialize($item['data']);
                             $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']');
-                            $item['data'] = array_merge($values, array("format" => $format));
+                            $item['gridInput'] = array_merge($values, array("format" => $format));
+                            $item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
                         }
                         break;
                 }
@@ -2060,6 +2061,10 @@ class Form
                 if (isset($item['dataHtmlPrint']))
                 {
                     $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_htmlPrint'] = $item['dataHtmlPrint'];
+                }
+                if (isset($item['gridInput']))
+                {
+                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_gridInput'] = $item['gridInput'];
                 }
                 $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_timestamp'] = $item['timestamp'];
             }

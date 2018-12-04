@@ -408,7 +408,7 @@ if(columns === undefined) {
 // function that generates unique id to track columns
 // so that user input order updates with the grid format
 function makeColumnID(){
-    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    return "col_" + (((1+Math.random())*0x10000)|0).toString(16).substring(1);
 }
 
 function newQuestion(parentIndicatorID) {

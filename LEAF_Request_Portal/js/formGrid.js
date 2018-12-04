@@ -510,8 +510,8 @@ var LeafFormGrid = function(containerID, options) {
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + htmlPrint + '</td>';
                         }
                         else {
-                            if(JSON.parse(JSON.stringify(data.data))["names"] !== undefined){
-                                data.data = printTableReportBuilder(JSON.parse(JSON.stringify(data.data)));
+                            if(currentData[i].s1[data.data] !== undefined && data.data.search("gridInput")){
+                                data.data = printTableReportBuilder(currentData[i].s1[data.data]);
                             }
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + data.data + '</td>';
                         }
