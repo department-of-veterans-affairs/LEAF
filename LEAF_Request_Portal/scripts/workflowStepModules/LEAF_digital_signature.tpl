@@ -84,10 +84,6 @@ workflowStepModule[{{$stepID}}]['LEAF_digital_signature'] = (function() {
 		setupButtonAction();
 	}
 
-    function signCallback(arg) {
-        console.log(arg);
-    }
-
 	// placeholder
 	function trigger(callback) {
 
