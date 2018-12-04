@@ -84,21 +84,6 @@ workflowStepModule[{{$stepID}}]['LEAF_digital_signature'] = (function() {
 		setupButtonAction();
 	}
 
-    function sign() {
-        var applet = document.createElement("applet");
-        applet.setAttribute("archive", "SignApplet.jar");
-        applet.setAttribute("code", "SignApplet.class");
-        applet.setAttribute("name", "signApplet");
-        applet.setAttribute("width", "0");
-        applet.setAttribute("height", "0");
-        var param = document.createElement("param");
-        param.setAttribute("name", "data");
-        param.setAttribute("value", "hello world");
-        applet.appendChild(param);
-        document.body.appendChild(applet);
-        document.signApplet();
-    }
-
     function signCallback(arg) {
         console.log(arg);
     }
