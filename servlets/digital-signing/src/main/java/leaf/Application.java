@@ -14,11 +14,14 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 public class Application extends AbstractVerticle {
 
     public static void main(String[] args) {
+
         Runner.run(Application.class);
+        timeout();
+
     }
 
     @Override
-    public void start() {
+    public void start() throws Exception {
 
         VertxOptions vertxOptions = new VertxOptions().setMaxEventLoopExecuteTime(Long.MAX_VALUE);
         vertx = Vertx.vertx(vertxOptions);
@@ -54,5 +57,17 @@ public class Application extends AbstractVerticle {
         }).listen(8080);
         System.out.println("Websocket server started on port 8080");
 
+    }
+
+    private static void timeout() {
+        Thread thread = new Thread(() -> {
+            try {
+                Thread.sleep(43200000);
+                System.exit(0);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        thread.start();
     }
 }
