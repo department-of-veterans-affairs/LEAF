@@ -1,5 +1,5 @@
 <style type="text/css">
-    div#dataFieldContainer, div#progress {
+    div#dataFieldContainer, div#progress, button#submit {
         display:none;
     }
 </style>
@@ -27,15 +27,28 @@ $.ajax({
 
 //when a form is selected, populate the indicator select
 $(document).on('change', 'select#forms', function() {
+    $('button#submit').hide();
     populateIndicators(this.value);
 });
 
-//when an indicator is selected, start the export process
+//when an indicator is selected, show submit button
 $(document).on('change', 'select#dataField', function() {
     if(this.value !== '')
     {
-        buildHeaderArray(indicatorFormats[this.value]);
-        getDataForExport($('select#forms').val(), this.value);
+        $('button#submit').show(); $('button#submit').show();
+    }
+    else
+    {
+        $('button#submit').hide();
+    }
+});
+
+//when button is clicked, start the export process
+$(document).on('click', 'button#submit', function() {
+    if($('select#dataField').val() !== '')
+    {
+        buildHeaderArray(indicatorFormats[$('select#dataField').val()]);
+        getDataForExport($('select#forms').val(), $('select#dataField').val());
     }
 });
 
@@ -233,5 +246,6 @@ function exportCSV()
         <select name="dataField" id="dataField">
         </select>
     </div>
+    <button type="button" name="submit" id="submit">Submit</button>
     <div id='progress'>Progress: <span></span></div>
 </div>
