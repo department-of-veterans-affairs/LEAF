@@ -10,15 +10,6 @@ var bodyObj = {};
 var indicatorFormats = [];
 var processedRecords = 0;
 
-$(document).on('change', 'select#forms', function() {
-    populateIndicators(this.value);
-});
-
-$(document).on('change', 'select#dataField', function() {
-    buildHeaderArray(indicatorFormats[this.value]);
-    getDataForExport($('select#forms').val(), this.value);
-});
-
 //populate dropdown for forms
 $.ajax({
     type: 'GET',
@@ -32,6 +23,20 @@ $.ajax({
     console.log(jqXHR);
     console.log(error);
     console.log(errorThrown);
+});
+
+//when a form is selected, populate the indicator select
+$(document).on('change', 'select#forms', function() {
+    populateIndicators(this.value);
+});
+
+//when an indicator is selected, start the export process
+$(document).on('change', 'select#dataField', function() {
+    if(this.value !== '')
+    {
+        buildHeaderArray(indicatorFormats[this.value]);
+        getDataForExport($('select#forms').val(), this.value);
+    }
 });
 
 //populate dropdown of table input indicators
@@ -79,6 +84,20 @@ function populateIndicators(categoryID)
     }
 }
 
+//build the header array
+//these will be the headers for the current version of the grid
+function buildHeaderArray(columnNames)
+{
+    headerArray = [];
+    if(typeof columnNames !== 'undefined')
+    {
+        for(var i = 0; i < columnNames.length; i++)
+        {
+            headerArray.push(columnNames[i].name);
+        }
+    }
+}
+
 //get all submitted records using this form
 function getDataForExport(categoryID, indicatorID)
 {
@@ -107,19 +126,6 @@ function getDataForExport(categoryID, indicatorID)
     });
 }
 
-//build the header array
-function buildHeaderArray(columnNames)
-{
-    headerArray = [];
-    if(typeof columnNames !== 'undefined')
-    {
-        for(var i = 0; i < columnNames.length; i++)
-        {
-            headerArray.push(columnNames[i].name);
-        }
-    }
-}
-
 //get data for the selected indicator associated with the given recordID
 function addRecordData(recordID, indicatorID)
 {
@@ -131,11 +137,19 @@ function addRecordData(recordID, indicatorID)
         }
     }).done(function(data) {
         var dataRows = data[indicatorID]['value']['cells'];
-        for(var i = 0; i < dataRows.length; i++)
+        if(dataRows !== null && dataRows !== undefined)
         {
-            bodyObj[recordID].push(dataRows[i]);
+            for(var i = 0; i < dataRows.length; i++)
+            {
+                bodyObj[recordID].push(dataRows[i]);
+            }
+            updateProgress();
         }
-        updateProgress();
+        else
+        {
+            //if the data for this request isn't in table format, just mark as processed
+            updateProgress();
+        }
     }).fail(function (jqXHR, error, errorThrown) {
         console.log(jqXHR);
         console.log(error);
@@ -167,7 +181,9 @@ function exportCSV()
 
     var currentRow = 1;
     $.each( bodyObj, function( recordID, dataRowArray ) {
+        console.log(recordID);
         $.each( dataRowArray, function( key, dataRow ) {
+            console.log(dataRowArray);
             var extraBodyColumns = [recordID, currentRow];
             output.push(extraBodyColumns.concat(dataRow));
             currentRow++;
