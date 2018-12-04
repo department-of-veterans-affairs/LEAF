@@ -21,7 +21,7 @@ public class Application extends AbstractVerticle {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() {
 
         VertxOptions vertxOptions = new VertxOptions().setMaxEventLoopExecuteTime(Long.MAX_VALUE);
         vertx = Vertx.vertx(vertxOptions);
