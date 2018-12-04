@@ -410,48 +410,4 @@ final class SystemControllerTest extends DatabaseTest
 
         return $settings[$settingName];
     }
-
-
-    /**
-     * Tests the `system/action[Text]` GET endpoint.
-     */
-    public function testGetAction() : void
-    {
-        $action = self::$reqClient->get(array('a' => 'system/action/_approve'));
-        $this->assertNotNull($action);
-        $this->assertEquals('approve', $action[0]['actionType']);
-    }
-
-    /**
-     * Tests the `system/editAction/[text]` POST endpoint.
-     */
-    public function testEditAction() : void
-    {
-
-      $results = self::$reqClient->post(array('a' => 'system/editAction/_approve'), array(
-          'actionText' => 'Active',
-          'actionTextPasttense' => 'Activated',
-          'actionIcon' => 'active.svg',
-          'actionAlignment' => 'left',
-          'fillDependency' => '-1'
-      ));
-
-      $this->assertNotNull($results);
-      $this->assertEquals(1, $results);
-
-      $action = self::$reqClient->get(array('a' => 'system/action/_active'));
-      $this->assertNotNull($action);
-      $this->assertEquals('Active', $action[0]['actionType']);
-    }
-
-    /**
-     * Tests the `system/action/[text]` DELETE endpoint.
-     */
-    public function testRemoveAction() : void
-    {
-
-        $delRes = self::$reqClient->delete(array('a' => 'system/action/_active'));
-        $this->assertNotNull($delRes);
-        $this->assertEquals(1, $delRes);
-    }
 }

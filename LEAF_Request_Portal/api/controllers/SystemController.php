@@ -81,10 +81,6 @@ class SystemController extends RESTfulResponse
             return $system->getReportTemplate($args[0]);
         });
 
-        $this->index['GET']->register('system/action/[text]', function ($args) use ($login, $system) {
-            return $system->getAction($args[0]);
-        });
-
         $this->index['GET']->register('system/files', function ($args) use ($system) {
             return $system->getFileList();
         });
@@ -106,10 +102,6 @@ class SystemController extends RESTfulResponse
 
         $this->index['POST']->register('system/actions', function ($args) use ($db, $login, $system) {
             return $system->addAction();
-        });
-
-        $this->index['POST']->register('system/editAction/[text]', function ($args) use ($db, $login, $system) {
-            return $system->editAction($args[0]);
         });
 
         $this->index['POST']->register('system/templates/[text]', function ($args) use ($system) {
@@ -169,10 +161,6 @@ class SystemController extends RESTfulResponse
 
         $this->index['DELETE']->register('system/files/[text]', function ($args) use ($db, $login, $system) {
             return $system->removeFile($args[0]);
-        });
-
-        $this->index['DELETE']->register('system/action/[text]', function ($args) use ($db, $login, $system) {
-            return $system->removeAction($args[0]);
         });
 
         return $this->index['DELETE']->runControl($act['key'], $act['args']);

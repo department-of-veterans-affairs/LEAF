@@ -218,4 +218,76 @@ final class WorkflowControllerTest extends DatabaseTest
         $this->assertNotNull($delResponse);
         $this->assertEquals(true, $response);
     }
+
+    /**
+     * Tests the `workflow/action[Text]` GET endpoint.
+     */
+    public function testGetAction() : void
+    {
+
+      $results = self::$reqClient->post(array('a' => '?a=system/actions'), array(
+          'actionText' => 'Active',
+          'actionTextPasttense' => 'Activated',
+          'actionIcon' => 'active.svg',
+          'actionAlignment' => 'left',
+          'fillDependency' => '-1'
+      ));
+
+      $this->assertNotNull($results);
+      $this->assertEquals(1, $results);
+
+      $action = self::$reqClient->get(array('a' => 'workflow/action/_Active'));
+      $this->assertNotNull($action);
+      $this->assertEquals('Active', $action[0]['actionType']);
+    }
+
+    /**
+     * Tests the `workflow/editAction/[text]` POST endpoint.
+     */
+    public function testEditAction() : void
+    {
+      $results = self::$reqClient->post(array('a' => '?a=system/actions'), array(
+          'actionText' => 'Active',
+          'actionTextPasttense' => 'Activated',
+          'actionIcon' => 'active.svg',
+          'actionAlignment' => 'left',
+          'fillDependency' => '-1'
+      ));
+
+      $this->assertNotNull($results);
+      $this->assertEquals(1, $results);
+
+      $results = self::$reqClient->post(array('a' => 'workflow/editAction/_Active'), array(
+          'actionText' => 'Test',
+          'actionTextPasttense' => 'Tested',
+          'actionIcon' => 'active.svg',
+          'actionAlignment' => 'left',
+          'fillDependency' => '-1'
+      ));
+
+      $this->assertNotNull($results);
+      $this->assertEquals(1, $results);
+
+      $action = self::$reqClient->get(array('a' => 'workflow/action/_Test'));
+      $this->assertNotNull($action);
+      $this->assertEquals('Test', $action[0]['actionType']);
+    }
+
+    /**
+     * Tests the `workflow/action/[text]` DELETE endpoint.
+     */
+    public function testRemoveAction() : void
+    {
+      $results = self::$reqClient->post(array('a' => '?a=system/actions'), array(
+          'actionText' => 'Active',
+          'actionTextPasttense' => 'Activated',
+          'actionIcon' => 'active.svg',
+          'actionAlignment' => 'left',
+          'fillDependency' => '-1'
+      ));
+      
+        $delRes = self::$reqClient->delete(array('a' => 'workflow/action/_active'));
+        $this->assertNotNull($delRes);
+        $this->assertEquals(1, $delRes);
+    }
 }

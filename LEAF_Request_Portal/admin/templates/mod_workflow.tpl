@@ -6,7 +6,7 @@
     <div id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();" style="font-size: 120%" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
     <br />
     <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 100%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
-    <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size: 100%; display: none" role="button" tabindex="0">List Action Type</div><br />
+    <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size: 100%; display: none" role="button" tabindex="0">Edit Actions</div><br />
 </div>
 <div id="workflow" style="margin-left: 184px; background-color: #444444"></div>
 
@@ -418,14 +418,14 @@ function setInitialStep(stepID) {
 function listActionType() {
 	dialog.hide();
   $("#button_save").hide();
-	dialog.setTitle('List of Action Type');
+	dialog.setTitle('List of Actions');
 	dialog.show();
   $.ajax({
 		type: 'GET',
-		url: '../api/?a=workflow/actions',
+		url: '../api/?a=workflow/userActions',
 		success: function(res) {
 			var buffer = '';
-			buffer += '<br /><table id="actions" border="1"><caption><h2>List of Current Action Types:</h2></caption><tr><th scope="col">Action Name</th><th scope="col">Action</th></tr>';
+			buffer += '<br /><table id="actions" border="1"><caption><h2>List of Current Actions:</h2></caption><tr><th scope="col">Action Name</th><th scope="col">Action</th></tr>';
 
 			for(var i in res) {
         buffer +='<tr>';
@@ -435,7 +435,7 @@ function listActionType() {
 			}
 
 			buffer += '</table><br /> <br />';
-      buffer += '<span class="buttonNorm" id="create-action-type">Create a new Action Type</span>';
+      buffer += '<span class="buttonNorm" id="create-action-type" tabindex="0">Create a new Action</span>';
 
 			dialog.indicateIdle();
 			dialog.setContent(buffer);
@@ -459,7 +459,7 @@ function editActionType(actionType) {
 
   $.ajax({
 		type: 'GET',
-		url: '../api/?a=system/action/_' + actionType,
+		url: '../api/?a=workflow/action/_' + actionType,
 		success: function(res) {
 			var buffer = '';
 
@@ -487,7 +487,7 @@ function editActionType(actionType) {
 			dialog.setSaveHandler(function() {
 				$.ajax({
 					type: 'POST',
-					url: '../api/?a=system/editAction/_' + actionType ,
+					url: '../api/?a=workflow/editAction/_' + actionType ,
 					data: {actionText: $('#actionText').val(),
                  actionTextPasttense: $('#actionTextPasttense').val(),
                  actionIcon: $('#actionIcon').val(),
@@ -508,7 +508,7 @@ function editActionType(actionType) {
 function deleteActionType(actionType) {
     $.ajax({
       type: 'DELETE',
-      url: '../api/?a=system/action/_' + actionType + '&CSRFToken=' + CSRFToken,
+      url: '../api/?a=workflow/action/_' + actionType + '&CSRFToken=' + CSRFToken,
       success: function() {
         listActionType();
       }
