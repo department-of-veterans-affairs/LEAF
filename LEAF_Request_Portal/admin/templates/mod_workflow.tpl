@@ -448,6 +448,11 @@ function listActionType() {
 		},
 		cache: false
 	});
+  //shows the save button for other dialogs
+  $('div#xhrDialog').on('dialogclose', function(event) {
+     $("#button_save").show();
+     $('div#xhrDialog').off();
+ });
 }
 
 //edit action type
@@ -466,7 +471,7 @@ function editActionType(actionType) {
       buffer += '<table>\
     		              <tr>\
     		                  <td>Action <span style="color: red">*Required</span></td>\
-    		                  <td><input id="actionText" type="text" maxlength="50" style="border: 1px solid red" value="'+res[0].actionType+'"></input></td>\
+    		                  <td><input id="actionText" type="text" maxlength="50" style="border: 1px solid red" value="'+res[0].actionText+'"></input></td>\
     		                  <td>eg: Approve</td>\
     		              </tr>\
     		              <tr>\

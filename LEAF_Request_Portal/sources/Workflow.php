@@ -780,7 +780,7 @@ class Workflow
     public function getUserActions()
     {
         $vars = array();
-        $res = $this->db->prepared_query("SELECT * FROM actions WHERE actionType NOT IN ('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit')", $vars);
+        $res = $this->db->prepared_query("SELECT * FROM actions WHERE actionType NOT IN ('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit') AND NOT (deleted = 1)", $vars);
 
         return $res;
     }
@@ -795,7 +795,7 @@ class Workflow
 
         $vars = array(':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($actionType)));
 
-        $action = $this->db->prepared_query('SELECT * FROM actions WHERE actionType=:actionType', $vars);
+        $action = $this->db->prepared_query('SELECT * FROM actions WHERE actionType=:actionType AND NOT (deleted = 1)', $vars);
         return $action;
     }
 
@@ -820,8 +820,8 @@ class Workflow
             $alignment = 'left';
         }
 
-        $vars = array(':oldActionType' => strip_tags($actionType),
-                ':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($_POST['actionText'])),
+        $vars = array(
+                ':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($actionType)),
                 ':actionText' => strip_tags($_POST['actionText']),
                 ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
                 ':actionIcon' => $_POST['actionIcon'],
@@ -830,7 +830,7 @@ class Workflow
                 ':fillDependency' => $_POST['fillDependency'],
         );
 
-        $this->db->prepared_query('UPDATE actions SET actionType=:actionType, actionText=:actionText, actionTextPasttense=:actionTextPasttense, actionIcon=:actionIcon, actionAlignment=:actionAlignment, sort=:sort, fillDependency=:fillDependency WHERE actionType=:oldActionType', $vars);
+        $this->db->prepared_query('UPDATE actions SET actionText=:actionText, actionTextPasttense=:actionTextPasttense, actionIcon=:actionIcon, actionAlignment=:actionAlignment, sort=:sort, fillDependency=:fillDependency WHERE actionType=:actionType AND NOT (deleted = 1)', $vars);
 
         return 1;
     }
@@ -849,9 +849,9 @@ class Workflow
             return 'System Action cannot be removed.';
         }
 
-        $vars = array('ActionType' => strip_tags($actionType));
+        $vars = array('ActionType' => strip_tags($actionType), 'deleted' => 1);
 
-        $this->db->prepared_query('DELETE FROM actions WHERE actionType=:ActionType', $vars);
+        $this->db->prepared_query('UPDATE actions SET deleted=:deleted WHERE actionType=:actionType', $vars);
 
         return 1;
     }

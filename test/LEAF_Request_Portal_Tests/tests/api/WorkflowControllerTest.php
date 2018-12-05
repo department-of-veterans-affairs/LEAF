@@ -270,7 +270,7 @@ final class WorkflowControllerTest extends DatabaseTest
 
       $action = self::$reqClient->get(array('a' => 'workflow/action/_Test'));
       $this->assertNotNull($action);
-      $this->assertEquals('Test', $action[0]['actionType']);
+      $this->assertEquals('Test', $action[0]['actionText']);
     }
 
     /**
@@ -285,7 +285,7 @@ final class WorkflowControllerTest extends DatabaseTest
           'actionAlignment' => 'left',
           'fillDependency' => '-1'
       ));
-      
+
         $delRes = self::$reqClient->delete(array('a' => 'workflow/action/_active'));
         $this->assertNotNull($delRes);
         $this->assertEquals(1, $delRes);
