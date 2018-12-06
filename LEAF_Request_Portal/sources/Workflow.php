@@ -849,7 +849,7 @@ class Workflow
             return 'System Action cannot be removed.';
         }
 
-        $vars = array('ActionType' => strip_tags($actionType), 'deleted' => 1);
+        $vars = array(':actionType' => strip_tags($actionType), ':deleted' => 1);
 
         $this->db->prepared_query('UPDATE actions SET deleted=:deleted WHERE actionType=:actionType', $vars);
 
