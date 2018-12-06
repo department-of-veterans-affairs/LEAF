@@ -61,6 +61,7 @@ class XSSHelpers
      */
     public static function sanitizer($in, $allowedTags = array(), $encoding = 'UTF-8')
     {
+        $errorReportingLevel = error_reporting(0);//turn off errors for the next few lines
         // replace linebreaks with <br /> if there's no html <p>'s
         if (strpos($in, '<p>') === false
             && strpos($in, '<table') === false)
@@ -78,6 +79,7 @@ class XSSHelpers
         {
             $in = strip_tags($in, '<br>');
         }
+        error_reporting($errorReportingLevel);//turn errors back on
 
         $pattern = array();
         $replace = array();
