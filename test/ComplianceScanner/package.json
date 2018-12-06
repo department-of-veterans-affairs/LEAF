@@ -8,10 +8,10 @@
     "test": ""
   },
   "dependencies": {
-    "async": "^2.6.0",
-    "commander": "^2.13.0",
-    "dot": "^1.1.2",
-    "pa11y": "^4.13.2"
+    "async": "latest",
+    "commander": "latest",
+    "dot": "latest",
+    "pa11y": "latest"
   },
   "devDependencies": {},
   "main": "./lib/complianceScan.js",

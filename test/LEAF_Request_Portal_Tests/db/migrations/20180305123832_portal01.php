@@ -1,4 +1,7 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 use Phinx\Migration\AbstractMigration;
 
@@ -75,13 +78,19 @@ class Portal01 extends AbstractMigration
         '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5192-5213.sql',
         '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5213-5219.sql',
         '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5219-5225.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5225-5293.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5293-5294.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5293-5299.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5299-5348.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5348-5360.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5360-5366.sql',
       );
 
-      foreach ($files as $file)
-      {
-          echo 'Migrating: ' . $file . "\n";
-          $this->execute(file_get_contents($file));
-      }
+        foreach ($files as $file)
+        {
+            echo 'Migrating: ' . $file . "\n";
+            $this->execute(file_get_contents($file));
+        }
     }
 
     /**

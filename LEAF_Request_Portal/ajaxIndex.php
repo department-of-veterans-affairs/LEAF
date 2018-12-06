@@ -1,5 +1,9 @@
 <?php
 /*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
+/*
     Index for everything
     Date Created: September 11, 2007
 
@@ -12,11 +16,11 @@ include 'Login.php';
 include 'db_mysql.php';
 include 'db_config.php';
 
-// Enforce HTTPS
-include_once './enforceHTTPS.php';
-
 // Include XSSHelpers
-include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -53,6 +57,7 @@ switch ($action) {
         if (is_numeric($recordID))
         {
             header('Location: index.php?a=view&recordID=' . $recordID);
+            exit();
         }
         else
         {
@@ -166,6 +171,23 @@ switch ($action) {
                return 0;
            }
 
+        $parallelProcessing = false;
+        if(array_key_exists(0,$res) && array_key_exists('type',$res[0]) && ($res[0]['type'] == 'parallel_processing'))
+        {
+            $parallelProcessing = true;
+
+            // show normal submit control if a parallel request has been sent back
+            // a request is assumed to sent back if a matching entry exists in the records_dependencies table
+            $vars = array('recordID' => $recordID);
+            $res = $db->prepared_query('SELECT * FROM records_dependencies
+                                             WHERE recordID=:recordID
+                                               AND dependencyID = 5
+        									   AND filled = 0', $vars);
+            if(isset($res[0])) {
+                $parallelProcessing = false;
+            }
+        }
+
         $res = $db->prepared_query('SELECT time FROM action_history
                 WHERE recordID = :recordID
                 LIMIT 1', $vars);
@@ -177,7 +199,17 @@ switch ($action) {
         $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
         $t_form->assign('requestLabel', $requestLabel);
-        $t_form->display(customTemplate('submitForm.tpl'));
+        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+
+        if ($parallelProcessing)
+        {
+            $t_form->display(customTemplate('submitForm_parallel_processing.tpl'));
+        }
+        else
+        {
+            $t_form->display(customTemplate('submitForm.tpl'));
+        }
 
         break;
     case 'dosubmit': // legacy action
@@ -472,7 +504,7 @@ switch ($action) {
 
         $tagMembers = $form->getTagMembers(XSSHelpers::xscrub($_GET['tag']));
 
-        $t_form->assign('tag', strip_tags($_GET['tag']));
+        $t_form->assign('tag', XSSHelpers::xscrub($_GET['tag']));
         $t_form->assign('totalNum', count($tagMembers));
         $t_form->assign('requests', $tagMembers);
         $t_form->display('tag_show_members.tpl');

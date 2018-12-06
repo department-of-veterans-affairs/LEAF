@@ -1,17 +1,19 @@
 <?php
-/************************
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
+
+/*
     JSON index for legacy ajax endpoints
     Date Created: August 13, 2009
 
 */
+
 error_reporting(E_ALL & ~E_NOTICE);
 
 include '../Login.php';
 include '../db_mysql.php';
 include '../db_config.php';
-
-// Enforce HTTPS
-include_once '../enforceHTTPS.php';
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -24,19 +26,20 @@ $login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
-if(!$login->checkGroup(1)) {
+if (!$login->checkGroup(1))
+{
     echo 'You must be in the administrator group to access this section.';
     exit();
 }
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
-switch($action) {
+switch ($action) {
     case 'mod_groups_getMembers':
         require 'Group.php';
-        
+
         $group = new Group($db, $login);
-        
+
         echo json_encode($group->getMembers($_GET['groupID']));
 
         break;
@@ -47,7 +50,7 @@ switch($action) {
 
         echo json_encode($results);
 
-        break;        
+        break;
     default:
         /*
         echo "Action: $action<br /><br />Catchall...<br /><br />POST: <pre>";
@@ -60,5 +63,3 @@ switch($action) {
         */
         break;
 }
-
-?>

@@ -70,9 +70,10 @@ nationalEmployeeSelector.prototype.initialize = function() {
 			<option value="">All Domains</option>\
 			'+ domains +'\
 			</select>\
+			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
 			<img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" />\
-			<input id="'+this.prefixID+'input" type="search" class="employeeSelectorInput" style="width: calc(90% - 100px)" aria-label="search input"></input></div>\
+			<input id="'+this.prefixID+'input" type="search" class="employeeSelectorInput" style="width: calc(90% - 100px)" aria-label="Search for user to add as administrator"></input></div>\
 			<div id="'+this.prefixID+'result" aria-label="search results"></div>');
 
 	$('#' + this.prefixID+ 'input').on('keydown', function(e) {
@@ -98,13 +99,14 @@ nationalEmployeeSelector.prototype.showNotBusy = function() {
 nationalEmployeeSelector.prototype.showBusy = function() {
 	$('#' + this.prefixID + 'icon').css('display', 'none');
 	$('#' + this.prefixID + 'iconBusy').css('display', 'inline');
+    $('#' + this.prefixID + 'status').text('Loading');
 	this.isBusy = 1;
 };
 
 nationalEmployeeSelector.prototype.select = function(id) {
 	this.selection = id;
 
-	$.each($('.employeeSelected'), function(key, item) {
+	$.each($('#'+ this.containerID +' .employeeSelected'), function(key, item) {
 		$('#' + item.id).removeClass('employeeSelected');
 		$('#' + item.id).addClass('employeeSelector');
 	});
@@ -193,6 +195,7 @@ nationalEmployeeSelector.prototype.search = function() {
             if(this.q.substr(0, 1) == '#') {
                 apiOption = "employee/search";
             }
+            var announceID = this.prefixID;
 
 	    	var ajaxOptions = {
 		            url: this.apiPath + apiOption,
@@ -207,25 +210,29 @@ nationalEmployeeSelector.prototype.search = function() {
 		            	$('#' + t.prefixID + 'result').html('');
 		            	var buffer = '';
 		            	if(t.outputStyle == 'micro') {
-		            		buffer = '<table class="employeeSelectorTable"><tr><th>Name</th><th>Contact</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+		            		buffer = '<table aria-live="true" aria-atomic="true" tabindex="0" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 		            	}
 		            	else {
-		            		buffer = '<table class="employeeSelectorTable"><tr><th>Name</th><th>Location</th><th>Contact</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+		            		buffer = '<table aria-live="true" aria-atomic="true" tabindex="0" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Location</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 		            	}
 
 		            	$('#' + t.prefixID + 'result').html(buffer);
 
 		            	if(response.length == 0) {
-		            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');	            		
-		            	}
+		            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
+                            $('#' + t.prefixID + 'status').text('No results found for term ' + txt);
+                        }else {
+                            $('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below');
+                        }
 
-		            	t.selectionData = new Object();
+
+                            t.selectionData = new Object();
 		            	for(var i in response) {
 		                	t.selectionData[response[i].empUID] = response[i];
 
 		                	var photo = response[i].data[1] != undefined && response[i].data[1].data != '' ? '<img class="employeeSelectorPhoto" src="' + t.rootPath + 'image.php?categoryID=1&amp;UID='+response[i].empUID+'&amp;indicatorID=1" alt="photo" />' : '';
 		                	var positionTitle = response[i].positionData != undefined ? response[i].positionData.positionTitle : '';
-		                	positionTitle = positionTitle == '' ? response[i].data[23].data : positionTitle;
+		                	positionTitle = positionTitle == '' && response[i].data[23] !== undefined ? response[i].data[23].data : positionTitle;
 		                	var groupTitle = '';
 		                	
 		                	if(response[i].serviceData != undefined && response[i].serviceData[0].groupTitle != null) {
@@ -279,7 +286,9 @@ nationalEmployeeSelector.prototype.search = function() {
 		                	$('#' + t.prefixID + 'emp' + response[i].empUID).addClass('employeeSelector');
 
 		                	$('#' + t.prefixID + 'emp' + response[i].empUID).on('click', t.getSelectorFunction(response[i].empUID));
-		                	t.numResults++;
+
+                            $('#' + t.prefixID + 'status').append(' ' + response[i].userName + ' ' + positionTitle + ' ' + email + ',');
+                            t.numResults++;
 		            	}
 
 		            	if(t.numResults == 1) {

@@ -1,7 +1,14 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 require '../form.php';
-include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+}
 
 class FormController extends RESTfulResponse
 {
@@ -32,6 +39,23 @@ class FormController extends RESTfulResponse
         $this->index['GET']->register('form', function ($args) use ($form) {
         });
 
+        $this->index['GET']->register('form/categories', function ($args) use ($form) {
+            $result = $form->getAllCategories();
+
+            for ($i = 0; $i < count($result); $i++)
+            {
+                $result[$i]['categoryID'] = XSSHelpers::xscrub($result[$i]['categoryID']);
+                $result[$i]['categoryName'] = XSSHelpers::xscrub($result[$i]['categoryName']);
+                $result[$i]['categoryDescription'] = XSSHelpers::xscrub($result[$i]['categoryDescription']);
+            }
+
+            return $result;
+        });
+
+        $this->index['GET']->register('form/category', function ($args) use ($form) {
+            return $form->getFormByCategory(XSSHelpers::xscrub($_GET['id']));
+        });
+
         // form/customData/ recordID list (csv) / indicatorID list (csv)
         $this->index['GET']->register('form/customData/[text]/[text]', function ($args) use ($form) {
             $recordIDs = array();
@@ -53,7 +77,7 @@ class FormController extends RESTfulResponse
         $this->index['GET']->register('form/query', function ($args) use ($form) {
             if (isset($_GET['debug']))
             {
-                return $query = json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true);
+                return $query = XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
             }
 
             return $form->query($_GET['q']);
@@ -99,8 +123,22 @@ class FormController extends RESTfulResponse
             return $form->getIndicatorLog($args[1], $args[2], $args[0]);
         });
 
+        $this->index['GET']->register('form/[digit]/indicator/formatSearch', function ($args) use ($form) {
+            $formats = $_GET['formats'];
+            for ($i = 0; $i < count($formats); $i++)
+            {
+                $formats[$i] = XSSHelpers::xscrub($formats[$i]);
+            }
+            
+            return $form->getIndicatorsByRecordAndFormat((int)$args[0], $formats);
+        });
+
+        $this->index['GET']->register('form/[digit]/workflow/indicator/assigned', function ($args) use ($form) {
+            return $form->getIndicatorsAssociatedWithWorkflow((int)$args[0]);
+        });
+
         $this->index['GET']->register('form/indicator/list', function ($args) use ($form) {
-            return $form->getIndicatorList($_GET['sort']);
+            return $form->getIndicatorList($_GET['sort'], $_GET['includeHeadings'], $_GET['forms']);
         });
 
         $this->index['GET']->register('form/indicator/list/disabled', function ($args) use ($form) {
@@ -125,7 +163,11 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['GET']->register('form/[text]/workflow', function ($args) use ($form) {
-            return $form->getWorkflow($args[0]);
+            return $form->getWorkflow(XSSHelpers::xscrub($args[0]));
+        });
+
+        $this->index['GET']->register('form/[digit]/recordinfo', function ($args) use ($form) {
+            return $form->getRecordInfo($args[0]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -171,6 +213,10 @@ class FormController extends RESTfulResponse
 
         $this->index['POST']->register('form/[digit]/types/append', function ($args) use ($form) {
             return $form->addFormType($args[0], XSSHelpers::sanitizeHTML($_POST['category']));
+        });
+
+        $this->index['POST']->register('form/[digit]/cancel', function ($args) use ($form) {
+            return $form->deleteRecord((int)$args[0]);
         });
 
         // form/customData/ recordID list (csv) / indicatorID list (csv)

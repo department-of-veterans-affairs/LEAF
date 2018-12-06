@@ -1,15 +1,28 @@
-## PHP Code Standards
 
-LEAF uses [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) to enforce PHP coding standards.
+## Installation and Configuration
 
-`PHP-CS-Fixer` should be installed on the development machine, and **NOT** as a dependency of this project.
+[XAMPP](https://www.apachefriends.org/index.html) is the recommended way to install and run LEAF locally on Windows.
 
-Plugins for all major IDEs are available to assist in using `PHP-CS-Fixer`. Or it can be run from the command line.
+See [InstallationConfiguration](InstallationConfiguration.md)
 
-All rules for LEAF are contained in [php-cs-config.php](standards/php-cs-config.php), this is the file `PHP-CS-Fixer` should use as a config file.
+## Testing
 
-All PHP files that have been changed must be run through `PHP-CS-Fixer` before being committed to the repository.
+All tests for LEAF are located in the [test](../test) directory. Instructions for running and creating tests can be found in the README there.
 
-### Default File Header
+Tests for LEAF are in their infancy, so expect a lot of change and growing pains in this area.
 
-[DefaultFileHeader.txt](standards/DefaultFileHeader.txt) contains the default header `PHP-CS-Fixer` will append to the top of every file it runs against.
+See [Tests](../test)
+
+## Development
+
+LEAF is open source, we welcome pull requests from the community.
+
+See [Development](Development.md)
+
+## Code Reviews
+
+Code reviews are important for maintaining quality. Request a certain user for a review if necessary, otherwise all developers should be looking out for pull requests to review as needed. 
+
+A minimum of two approved reviews are required in order to merge a pull request.
+
+See [CodeReviews](CodeReviews.md)

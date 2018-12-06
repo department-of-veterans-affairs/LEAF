@@ -14,12 +14,14 @@
         <div id="progressControl" style="padding: 16px; text-align: center; background-color: #ffaeae; font-weight: bold; font-size: 120%"><div id="progressBar" style="height: 30px; border: 1px solid black; text-align: center; width: 80%; margin: auto"><div style="width: 100%; line-height: 200%; float: left; font-size: 14px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div></div>
     </div>
     <!--{/if}-->
+    <span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="submitStatus" role="status"></span>
     <div id="submitContent" class="noprint"></div>
     <div id="workflowcontent"></div>
 </div>
 <div id="formcontent"><div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div></div>
 </div>
 
+<!-- Toolbar -->
 <!-- Toolbar -->
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools" class="tools"><h1>Tools</h1>
@@ -54,9 +56,9 @@
 
     <div id="category_list">
         <h1>Internal Use</h1>
-        <button class="IUbutton" onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=printview&amp;recordID=<!--{$recordID|strip_tags}-->');"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" /> Main Request</button>
+        <button class="IUbutton" onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=printview&amp;recordID=<!--{$recordID|strip_tags}-->'); "style="vertical-align: middle; background-image: url(../libs/dynicons/?img=text-x-generic.svg&amp;w=16); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 20px;"> Main Request</button>
         <!--{section name=i loop=$childforms}-->
-            <button class="IUbutton" onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=internalonlyview&amp;recordID=<!--{$recordID|strip_tags}-->&amp;childCategoryID=<!--{$childforms[i].childCategoryID|strip_tags}-->');"><img src="../libs/dynicons/?img=text-x-generic.svg&amp;w=16" alt="sub form" /> <!--{$childforms[i].childCategoryName|sanitize}--></button>
+            <button class="IUbutton" onclick="scrollPage('formcontent');openContent('ajaxIndex.php?a=internalonlyview&amp;recordID=<!--{$recordID|strip_tags}-->&amp;childCategoryID=<!--{$childforms[i].childCategoryID|strip_tags}-->');" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=text-x-generic.svg&amp;w=16); background-repeat: no-repeat; background-position: left; text-align: center"> <!--{$childforms[i].childCategoryName|sanitize}--></button>
         <!--{/section}-->
     </div>
 
@@ -68,11 +70,11 @@
     <!--{if $is_admin}-->
     <div id="adminTools" class="tools"><h1>Administrative Tools</h1>
         <!--{if $submitted != 0}-->
-            <button class="AdminButton" onclick="admin_changeStep()" ><img src="../libs/dynicons/?img=go-jump.svg&amp;w=32" alt="Change Current Step" title="Change Current Step" style="vertical-align: middle"/> Change Current Step</button>
+            <button class="AdminButton" onclick="admin_changeStep()" title="Change Current Step" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=go-jump.svg&w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Current Step</button>
         <!--{/if}-->
-        <button class="AdminButton" onclick="changeService()" ><img src="../libs/dynicons/?img=user-home.svg&amp;w=32" alt="Change Service" title="Change Service" style="vertical-align: middle"/> Change Service</button>
-        <button class="AdminButton" onclick="admin_changeForm()" ><img src="../libs/dynicons/?img=system-file-manager.svg&amp;w=32" alt="Change Forms" title="Change Forms" style="vertical-align: middle"/> Change Form(s)</button>
-        <button class="AdminButton" onclick="admin_changeInitiator()" ><img src="../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32" alt="Change Initiator" title="Change Initiator" style="vertical-align: middle"/> Change Initiator</button>
+        <button class="AdminButton" onclick="changeService()" title="Change Service" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=user-home.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Service</button>
+        <button class="AdminButton" onclick="admin_changeForm()" title="Change Forms" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=system-file-manager.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Form(s)</button>
+        <button class="AdminButton" onclick="admin_changeInitiator()" title="Change Initiator" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Initiator</button>
     </div>
     <!--{/if}-->
 </div>
@@ -99,6 +101,7 @@ function doSubmit(recordID) {
 		data: {CSRFToken: '<!--{$CSRFToken}-->'},
 		success: function(response) {
             if(response.errors.length == 0) {
+                $('#submitStatus').text('Request submmited');
                 $('#submitControl').empty().html('Submitted');
                 $('#submitContent').hide('blind', 500);
                 workflow.getWorkflow(recordID);
@@ -109,6 +112,7 @@ function doSubmit(recordID) {
             		errors += response.errors[i] + '<br />';
             	}
                 $('#submitControl').empty().html('Error: ' + errors);
+                $('#submitStatus').text('Request can not be submmited');
             }
 		}
 	});
@@ -133,7 +137,10 @@ function updateTags() {
 }
 
 function getForm(indicatorID, series) {
-	form.dialog().show();
+  //ie11 fix
+  setTimeout(function () {
+	   form.dialog().show();
+  }, 0);
 	form.setPostModifyCallback(function() {
         getIndicator(indicatorID, series);
         updateProgress();
@@ -145,7 +152,10 @@ function getForm(indicatorID, series) {
 function getIndicatorLog(indicatorID, series) {
 	dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><th>Date/Author</th><th>Data</th></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
     dialog_message.indicateBusy();
-    dialog_message.show();
+    //ie11 fix
+    setTimeout(function () {
+      dialog_message.show();
+    }, 0);
 
     $.ajax({
         type: 'GET',
@@ -258,12 +268,12 @@ function toggleBookmark() {
     if(bookmarkStatus == 0) {
         addBookmark();
         bookmarkStatus = 1;
-        $('#tool_bookmarkText').empty().html('<img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" style="vertical-align: middle" alt="Delete Bookmark" title="Delete Bookmark" /> Delete Bookmark');
+        $('#tool_bookmarkText').empty().html('Delete Bookmark');
     }
     else {
         removeBookmark();
         bookmarkStatus = 0;
-        $('#tool_bookmarkText').empty().html('<img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" style="vertical-align: middle" alt="Add Bookmark" title="Add Bookmark" /> Add Bookmark');
+        $('#tool_bookmarkText').empty().html('Add Bookmark');
     }
 }
 
@@ -347,9 +357,8 @@ function cancelRequest() {
 	dialog_confirm.setSaveHandler(function() {
 		$.ajax({
 			type: 'POST',
-			url: 'ajaxIndex.php?a=cancel',
-			data: {cancel: <!--{$recordID|strip_tags|escape}-->,
-                CSRFToken: '<!--{$CSRFToken}-->'},
+			url: 'api/form/<!--{$recordID|strip_tags|escape}-->/cancel',
+			data: {CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
             	if(response == 1) {
                     window.location.href="index.php?a=cancelled_request&cancelled=<!--{$recordID|strip_tags}-->";
@@ -366,8 +375,10 @@ function cancelRequest() {
 
 function changeTitle() {
 	dialog.setContent('Title: <input type="text" id="title" style="width: 300px" name="title" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
+  //ie11 fix
+  setTimeout(function () {
     dialog.show();
-
+  }, 0);
     dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'POST',
@@ -387,7 +398,11 @@ function changeTitle() {
 function changeService() {
     dialog.setTitle('Change Service');
     dialog.setContent('Select new service: <br /><div id="changeService"></div>');
-    dialog.show();
+    //ie11 fix
+    setTimeout(function () {
+      dialog.show();
+    }, 10);
+
     dialog.indicateBusy();
     dialog.setSaveHandler(function() {
         alert('Please wait for service list to load.');
@@ -426,7 +441,13 @@ function changeService() {
 
 function admin_changeStep() {
     dialog.setTitle('Change Step');
-    dialog.setContent('Set to this step: <br /><div id="changeStep"></div><br /><br />Comments:<br /><textarea id="changeStep_comment" type="text" style="width: 90%; padding: 4px"></textarea>');
+    dialog.setContent('Set to this step: <br /><div id="changeStep"></div><br /><br />'
+                + 'Comments:<br /><textarea id="changeStep_comment" type="text" style="width: 90%; padding: 4px" aria-label="Comments"></textarea>'
+                + '<br /><br />'
+                + '<fieldset>'
+                + '<legend>Advanced Options</legend>'
+                + '<input id="showAllSteps" type="checkbox" /><label for="showAllSteps">Show steps from other workflows</label>'
+                + '</fieldset>');
     dialog.show();
     dialog.indicateBusy();
     $.ajax({
@@ -452,14 +473,24 @@ function admin_changeStep() {
                 			|| workflows[res[i].workflowID] != undefined) {
                             steps += '<option value="'+ res[i].stepID +'">' + res[i].description + ': ' + res[i].stepTitle +'</option>';
                             stepCounter++;
-                            steps2 += '<option value="'+ res[i].stepID +'">' + res[i].description + ' - ' + res[i].stepTitle +'</option>';
                 		}
+                        steps2 += '<option value="'+ res[i].stepID +'">' + res[i].description + ' - ' + res[i].stepTitle +'</option>';
                 	}
                 	if(stepCounter == 0) {
                 		steps += steps2;
                 	}
                 	steps += '</select>';
                     $('#changeStep').html(steps);
+
+                    $('#showAllSteps').on('click', function() {
+                        if($('#showAllSteps').is(':checked')) {
+                            $('#newStep').html(steps2);
+                        }
+                        else {
+                            $('#newStep').html(steps);
+                        }
+                        $('#newStep').trigger('chosen:updated');
+                    });
                     $('.chosen').chosen({disable_search_threshold: 6});
                     dialog.indicateIdle();
                     dialog.setSaveHandler(function() {

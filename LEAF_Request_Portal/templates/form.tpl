@@ -15,8 +15,6 @@
                 <form id="record" enctype="multipart/form-data" action="javascript:void(0);">
                     <div>
                         <div id="xhr" style="padding: 16px"></div>
-                        <!-- <button id="prevQuestion">Previous question</button> -->
-                        <!-- <button class="button" dojoType="dijit.form.Button" onclick="checkForm(false);"><div id="save_indicator">Save Change</div></button> -->
                     </div>
                     <input type="submit" value="Submit" aria-disabled="true" aria-label="Previous" hidden>
                 </form>
@@ -31,9 +29,9 @@
     </div>
     <div class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <div onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form" title="View full form" /> Show single page</div>
+            <div id="showSinglePage" aria-role="button" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'"><a aria-label="Show single page" id="showSinglePageLink" style="display: block; font-size: 120%; cursor: pointer" href='?a=printview&amp;recordID=<!--{$recordID}-->'></a><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form" title="View full form" /> Show single page</div>
             <br /><br />
-            <div onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" /> Cancel Request</div>
+            <button tabindex="0" class="tools" aria-label="Cancel request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
         </div>
     </div>
 </div>
@@ -52,6 +50,23 @@
 var currIndicatorID = 0;
 var currSeries = 0;
 var CSRFToken = '<!--{$CSRFToken}-->';
+
+$('#showSinglePage').keypress(function(event) {
+    if(event.keyCode === 32) {
+        $('#showSinglePageLink')[0].click();
+        $('#showSinglePageLink').trigger('click');
+    }
+});
+
+$('#showSinglePage').on('focusin', function(event) {
+    $('#showSinglePage').css('background', '#2372b0');
+    $('#showSinglePage').css('color', 'white');
+});
+
+$('#showSinglePage').on('focusout', function(event) {
+    $('#showSinglePage').css('background', '#e8f2ff');
+    $('#showSinglePage').css('color', 'black');
+});
 
 function getForm(indicatorID, series) {
     $('.question').removeClass('buttonNormSelected');
@@ -138,6 +153,7 @@ function manualSaveChange()
     $("#save_indicator").html('<img src="images/indicator.gif" alt="Saving..." /> Saving...');
     setTimeout("$('#save_indicator').html('<img src=\"../libs/dynicons/?img=media-floppy.svg&amp;w=22\" alt=\"save\" style=\"vertical-align: middle\"/> Save Change')", 1000);
     form.setPostModifyCallback(function() {
+        getForm(formStructure[currFormPosition].indicatorID, formStructure[currFormPosition].series);
     });
     form.dialog().clickSave();
 }
@@ -206,7 +222,7 @@ $(function() {
                 else {
                     description = formStructure[i].desc;
                 }
-                buffer += '<div id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');">' + counter + '. ' + description + '</div>';
+                buffer += '<div tabindex="0" aria-label=description id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');">' + counter + '. ' + description + '</div>';
                 counter++;
             }
             $('#navtree').html(buffer);

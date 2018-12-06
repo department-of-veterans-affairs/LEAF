@@ -81,15 +81,15 @@ var LeafFormGrid = function(containerID, options) {
     	var temp = '<tr id="'+prefixID + 'thead_tr'+'">';
     	var virtualHeader = '<tr id="'+prefixID + 'tVirt_tr'+'">';
     	if(showIndex) {
-    		temp += '<th id="'+ prefixID +'header_UID" style="text-align: center">UID</th>';
+            temp += '<th tabindex="0" id="'+ prefixID +'header_UID" style="text-align: center">UID</th>';
     		virtualHeader += '<th style="text-align: center">UID</th>';
     	}
     	$('#' + prefixID + 'thead').html(temp);
 
     	if(showIndex) {
-			$('#'+ prefixID +'header_UID').css('cursor', 'pointer');
-			$('#'+ prefixID +'header_UID').on('click', null, null, function(data) {
-				if(headerToggle == 0) {
+		$('#'+ prefixID +'header_UID').css('cursor', 'pointer');
+		$('#'+ prefixID +'header_UID').on('click', null, null, function(data) {
+                if(headerToggle == 0) {
 					sort('recordID', 'asc');
 					headerToggle = 1;
 				}
@@ -106,6 +106,12 @@ var LeafFormGrid = function(containerID, options) {
     		$('#'+ prefixID +'header_UID').on('mouseout', null, null, function(data) {
     			$('#'+ prefixID +'header_UID').css({'background-color': headerColor});
     		});
+            $('#'+ prefixID +'header_UID').on('focusin', null, null, function(data) {
+                $('#'+ prefixID +'header_UID').css('background-color', '#79a2ff');
+            });
+            $('#'+ prefixID +'header_UID').on('focusout', null, null, function(data) {
+                $('#'+ prefixID +'header_UID').css({'background-color': headerColor});
+            });
     	}
 
     	for(var i in headers) {
@@ -151,6 +157,12 @@ var LeafFormGrid = function(containerID, options) {
         		$('#'+ prefixID +'header_' + headers[i].indicatorID).on('mouseout', null, headers[i].indicatorID, function(data) {
         			$('#'+ prefixID +'header_' + data.data).css({'background-color': headerColor});
         		});
+                	$('#'+ prefixID +'header_' + headers[i].indicatorID).on('focusin', null, headers[i].indicatorID, function(data) {
+                    		$('#'+ prefixID +'header_' + data.data).css('background-color', '#79a2ff');
+                	});
+                	$('#'+ prefixID +'header_' + headers[i].indicatorID).on('focusout', null, headers[i].indicatorID, function(data) {
+                    		$('#'+ prefixID +'header_' + data.data).css({'background-color': headerColor});
+                	});
     		}
     	}
     	$('#' + prefixID + 'thead').append('</tr>');
@@ -213,14 +225,18 @@ var LeafFormGrid = function(containerID, options) {
         }
 
     	$('.' + prefixID + 'sort').css('display', 'none');
-    	if(order.toLowerCase() == 'asc') {
-    		$('#'+ prefixID +'header_' + key + '_sort').html(' &#9650;');
-    		$('#'+ prefixID +'header_' + key + '_sort').css('vertical-align', 'super');
-    	}
-    	else {
-    		$('#'+ prefixID +'header_' + key + '_sort').html(' &#9660;');
-    		$('#'+ prefixID +'header_' + key + '_sort').css('vertical-align', 'sub');
-    	}
+        if(order.toLowerCase() == 'asc') {
+            $('#'+ prefixID +'header_' + key).attr('aria-live', 'assertive');
+            $('#'+ prefixID +'header_' + key).attr('aria-label', 'Sorting by ascending '+key);
+            $('#'+ prefixID +'header_' + key + '_sort').html('<div style="position: absolute" aria-label="Sorting by ascending '+key+'"></div>'+' &#9650;');
+            $('#'+ prefixID +'header_' + key + '_sort').css('vertical-align', 'super');
+        }
+        else {
+            $('#'+ prefixID +'header_' + key).attr('aria-live', 'assertive');
+            $('#'+ prefixID +'header_' + key).attr('aria-label', 'Sorting by descending '+key);
+            $('#'+ prefixID +'header_' + key + '_sort').html('<div style="position: absolute" aria-label="Sorting by descending '+key+'"></div>'+' &#9660;');
+            $('#'+ prefixID +'header_' + key + '_sort').css('vertical-align', 'sub');
+        }
     	$('#'+ prefixID +'header_' + key + '_sort').css('display', 'inline');
     	var array = [];
     	var isIndicatorID = $.isNumeric(key);
@@ -443,7 +459,16 @@ var LeafFormGrid = function(containerID, options) {
                 			currentData[i].s1 = {};
                 		}
                     	data.data = currentData[i].s1['id'+headers[j].indicatorID] != undefined ? currentData[i].s1['id'+headers[j].indicatorID] : '';
-                    	buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + data.data + '</td>';
+                        if(currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint'] != undefined) {
+                            var htmlPrint = '<textarea id="data_'+currentData[i].recordID+'_'+headers[j].indicatorID+'_1" style="display: none">'+ data.data +'</textarea>';
+                            htmlPrint += currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint']
+                                            .replace(/{{ iID }}/g, currentData[i].recordID + '_' + headers[j].indicatorID)
+                                            .replace(/{{ recordID }}/g, currentData[i].recordID);
+                            buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + htmlPrint + '</td>';
+                        }
+                        else {
+                            buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + data.data + '</td>';
+                        }
                 	}
                 	else if(headers[j].callback != undefined) {
                 		buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-clickable="' + editable + '"></td>';
@@ -505,6 +530,20 @@ var LeafFormGrid = function(containerID, options) {
     	}
     	renderVirtualHeader();
     }
+
+		/**
+     * @memberOf LeafFormGrid
+     */
+		 function announceResults(){
+			 var term = $('[name="searchtxt"]').val();
+
+			 if(currentData.length == 0) {
+				 $('.status').text('No results found for term ' + term);
+     	}else{
+				 $('.status').text('Search results found for term ' + term + ' listed below');
+			}
+
+		}
 
     /**
      * @memberOf LeafFormGrid
@@ -608,47 +647,51 @@ var LeafFormGrid = function(containerID, options) {
     		var output = [];
     		var headers = [];
     		$('#' + prefixID + 'thead>tr>th').each(function(idx, val) {
-    			headers.push($(val).text().trim());
-    		});
+				headers.push($(val).text().trim());
+			});
+			output.push(headers);//first row will be headers
 
-    		var line = {};
+    		var line = [];
     		var i = 0;
     		var thisSite = document.createElement('a');
-    		if (/^[A-Za-z0-9+&@#/%?=~_|!:,.;()]/.test(window.location.href)) {
-                thisSite.href = window.location.href;
-            } else return false;
     		var numColumns = headers.length - 1;
     		$('#' + prefixID + 'tbody>tr>td').each(function(idx, val) {
-    			line[headers[i]] = $(val).text().trim();
+    			line[i] = $(val).text().trim();
     			if(i == 0 && headers[i] == 'UID') {
-    				line[headers[i]] = '=HYPERLINK("'+ thisSite.origin + thisSite.pathname + '?a=printview&recordID=' + $(val).text().trim() +'", "'+ $(val).text().trim() +'")';
-    			}
+    				line[i] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + $(val).text().trim() +'", "'+ $(val).text().trim() +'")';
+				}
     			i++;
     			if(i > numColumns) {
-    				output.push(line);
-    				line = {};
+    				output.push(line);//add new row
+    				line = [];
     				i = 0;
     			}
-    		});
-    		var tForm = $(document.createElement('form'));
-    		tForm.attr({'action': rootURL + 'api/?a=converter/json&format=csv',
-    					'method': 'POST'
-    		});
-    		var tInput = $(document.createElement('input'));
-    		var tInput2 = $(document.createElement('input'));
-    		tInput.attr({'type': 'hidden',
-    					 'name': 'input',
-    					 'value': JSON.stringify(output)
-    		});
-    		tInput2.attr({'type': 'hidden',
-    			 'name': 'CSRFToken',
-    			 'value': CSRFToken
-    		});
-    		tForm.append(tInput);
-    		tForm.append(tInput2);
-    		tForm.appendTo('#' + containerID);
-    		tForm.submit();
-    		tForm.remove();
+			});
+			
+			rows = '';
+			$(output).each(function(idx, thisRow)
+			{
+				//escape double quotes
+				$(thisRow).each(function(idx, col) {
+					thisRow[idx] = col.replace(/\"/g, "\"\"");
+				});
+				//add to csv string
+				rows += '"' + thisRow.join('","') + '",\r\n';
+			});
+
+			var download = document.createElement('a');
+			var now = new Date().getTime();
+			download.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows));
+			download.setAttribute('download', 'Exported_' + now + '.csv');
+			download.style.display = 'none';
+
+			document.body.appendChild(download);
+			if (navigator.msSaveOrOpenBlob) {
+				navigator.msSaveOrOpenBlob(new Blob([rows], {type: 'text/csv;charset=utf-8;'}), "Exported_" + now + ".csv");
+			} else {
+				download.click();
+			}
+			document.body.removeChild(download);
     	});
     }
 
@@ -707,6 +750,7 @@ var LeafFormGrid = function(containerID, options) {
 		sort: sort,
 		renderVirtualHeader: renderVirtualHeader,
 		renderBody: renderBody,
+		announceResults: announceResults,
 		loadData: loadData,
 		setData: setData,
 		setDataBlob: setDataBlob,

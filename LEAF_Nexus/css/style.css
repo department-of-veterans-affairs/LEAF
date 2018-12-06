@@ -320,6 +320,10 @@ table#tform td {
     background-color: white;
 }
 
+.printheading:focus {
+    background-color: white;
+}
+
 .printheading_missing {
     padding: 4px;
     border-top: 2px solid black;

@@ -33,6 +33,7 @@ groupSelector.prototype.initialize = function() {
     var t = this;
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="groupSelectorBorder">\
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ this.basePath +'../libs/dynicons/?img=search.svg&w=16" class="groupSelectorIcon" alt="search" />\
+			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
 			<img id="'+this.prefixID+'iconBusy" src="'+ this.basePath +'images/indicator.gif" style="display: none" class="groupSelectorIcon" alt="search" /></div>\
 			<input id="'+this.prefixID+'input" type="search" class="groupSelectorInput" aria-label="search"></input></div>\
 			<div id="'+this.prefixID+'result"></div>');
@@ -64,13 +65,14 @@ groupSelector.prototype.showNotBusy = function() {
 groupSelector.prototype.showBusy = function() {
 	$('#' + this.prefixID + 'icon').css('display', 'none');
 	$('#' + this.prefixID + 'iconBusy').css('display', 'inline');
+	$('#' + this.prefixID + 'status').text('Loading');
 	this.isBusy = 1;
 };
 
 groupSelector.prototype.select = function(id) {
 	this.selection = id;
 
-	nodes = $('.groupSelected');
+	nodes = $('#'+ this.containerID +' .groupSelected');
 	for(var i in nodes) {
 		if(nodes[i].id != undefined) {
 			$('#' + nodes[i].id).removeClass('groupSelected');
@@ -175,9 +177,15 @@ groupSelector.prototype.search = function() {
 
 	            	if(response.length == 0) {
 	            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center">No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
+									$('#' + t.prefixID + 'status').text('No results found for term ' + txt);
+	            	}else {
+	            		$('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below');
 	            	}
 
+			t.selectionData = new Object();
 	                $.each(response, function(key, item) {
+				t.selectionData[item.groupID] = item;
+		                	
 
 	                	linkText = item.groupTitle;
 	                	if(t.selectLink != null) {
@@ -190,6 +198,7 @@ groupSelector.prototype.search = function() {
 	                	$('#' + t.prefixID + 'grp' + item.groupID).on('click', function() {
 	                		t.select(item.groupID);
 	                	});
+                        $('#'+t.prefixID+'status').append(' ' + linkText + ',');
 	                	t.numResults++;
 	                });
 

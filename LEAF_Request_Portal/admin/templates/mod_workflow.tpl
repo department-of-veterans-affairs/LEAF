@@ -1,11 +1,11 @@
 <div id="sideBar" style="float: left; width: 180px">
-    <div id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size: 120%; display: none"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
+    <div id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size: 120%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
     Workflows: <br />
     <div id="workflowList"></div>
     <br />
-    <div class="buttonNorm" onclick="newWorkflow();" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
+    <div id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();" style="font-size: 120%" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
     <br />
-    <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 100%; display: none"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
+    <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 100%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
 </div>
 <div id="workflow" style="margin-left: 184px; background-color: #444444"></div>
 
@@ -15,11 +15,18 @@
 <script type="text/javascript">
 var CSRFToken = '<!--{$CSRFToken}-->';
 
+//508
+$("#btn_newWorkflow").on('keypress', function(event) {
+  if(event.keyCode == 13){
+    newWorkflow();
+  }
+});
+
 function newWorkflow() {
     $('.workflowStepInfo').css('display', 'none');
-    
+
     dialog.setTitle('Create new workflow');
-    dialog.setContent('<br />Workflow Title: <input type="text" id="description"></input>');
+    dialog.setContent('<br /><label for="description">Workflow Title:</label> <input type="text" id="description"></input>');
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
@@ -92,15 +99,15 @@ function addEventDialog(workflowID, stepID, actionType) {
             var buffer = '';
             buffer = 'Add an event: ';
             buffer += '<br /><div><select id="eventID" name="eventID">';
-            
+
             for(var i in res) {
                 buffer += '<option value="'+ res[i].eventID +'">'+ res[i].eventDescription +'</option>';
             }
-            
+
             buffer += '</select></div>';
             $('#addEventDialog').html(buffer);
             $('#eventID').chosen({disable_search_threshold: 5});
-            
+
             dialog.setSaveHandler(function() {
             	$.ajax({
             		type: 'POST',
@@ -255,13 +262,13 @@ function dependencyGrantAccess(dependencyID, stepID) {
     	},
     	cache: false
     });
-    
+
     var groupSel = new groupSelector('groupSearch');
     groupSel.basePath = '<!--{$orgchartPath}-->/';
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     groupSel.tag = '<!--{$orgchartImportTags[0]}-->';
     groupSel.initialize();
-    
+
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
@@ -283,7 +290,7 @@ function dependencyGrantAccess(dependencyID, stepID) {
 function newDependency(stepID) {
 	dialog.setTitle('Create a new requirement');
     dialog.setContent('<br />Requirement Label: <input type="text" id="description"></input><br /><br />Requirements determine the WHO and WHAT part of the process.<br />Example: "Fiscal Team Review"');
-    
+
     dialog.setSaveHandler(function() {
     	$.ajax({
     		type: 'POST',
@@ -302,7 +309,7 @@ function newDependency(stepID) {
 function linkDependencyDialog(stepID) {
 	$('.workflowStepInfo').css('display', 'none');
     dialog.setTitle('Add requirement to a workflow step');
-    dialog.setContent('<br /><div id="dependencyList"></div>');	
+    dialog.setContent('<br /><div id="dependencyList"></div>');
     dialog.show();
 
     $.ajax({
@@ -312,10 +319,10 @@ function linkDependencyDialog(stepID) {
             var buffer = '';
             buffer = 'Select an existing requirement ';
             buffer += '<br /><div><select id="dependencyID" name="dependencyID">';
-            
+
             var reservedDependencies = ['-3', '-2', '-1', '1', '8'];
             var maskedDependencies = ['5'];
-            
+
             buffer += '<optgroup label="Custom Requirements">';
             for(var i in res) {
             	if(reservedDependencies.indexOf(res[i].dependencyID) == -1
@@ -332,12 +339,12 @@ function linkDependencyDialog(stepID) {
                 }
             }
             buffer += '</optgroup>';
-            
+
             buffer += '</select></div>';
             buffer += '<br /><br /><br /><br /><div>If a requirement does not exist: <span class="buttonNorm" onclick="newDependency('+ stepID +')">Create a new requirement</span></div>';
             $('#dependencyList').html(buffer);
             $('#dependencyID').chosen({disable_search_threshold: 5});
-            
+
             dialog.setSaveHandler(function() {
             	linkDependency(stepID, $('#dependencyID').val());
             });
@@ -351,9 +358,9 @@ function createStep() {
 	if(currentWorkflow == 0) {
 		return;
 	}
-	
+
 	dialog.setTitle('Create new Step');
-	dialog.setContent('<br />Step Title: <input type="text" id="stepTitle"></input><br /><br />Example: "Service Chief"');
+	dialog.setContent('<br /><label for="stepTitle">Step Title:</label> <input type="text" id="stepTitle"></input><br /><br />Example: "Service Chief"');
 	dialog.setSaveHandler(function() {
 		$.ajax({
 			type: 'POST',
@@ -389,7 +396,7 @@ function setInitialStep(stepID) {
                     }
                 });
         	}
-        	
+
         	workflows = {};
             $.ajax({
                 type: 'GET',
@@ -411,7 +418,7 @@ function newAction() {
 	dialog.hide();
 	dialog.setTitle('Create New Action Type');
 	dialog.show();
-	
+
 	var buffer = '<table>\
 		              <tr>\
 		                  <td>Action <span style="color: red">*Required</span></td>\
@@ -519,17 +526,22 @@ function createAction(params) {
 			buffer = 'Select action for ';
 			buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
 			buffer += '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
-			
+
 			for(var i in res) {
 				buffer += '<option value="'+ res[i].actionType +'">'+ res[i].actionText +'</option>';
 			}
-			
+
 			buffer += '</select>';
 			buffer += '<br />- OR -<br /><br /><span class="buttonNorm" onclick="newAction();">Create a new Action Type</span>';
 
 			dialog.indicateIdle();
 			dialog.setContent(buffer);
-			$('#actionType').chosen({disable_search_threshold: 5});
+            $('#actionType').chosen({disable_search_threshold: 5});
+            // TODO: Figure out why this triggers even when the user clicks save
+            /*
+            dialog.setCancelHandler(function() {
+                loadWorkflow(currentWorkflow);
+            });*/
 			dialog.setSaveHandler(function() {
 				$.ajax({
 					type: 'POST',
@@ -563,7 +575,7 @@ function removeAction(workflowID, stepID, nextStepID, action) {
 		});
 	    dialog_confirm.hide();
 	});
-	
+
 	dialog_confirm.show();
 }
 
@@ -597,7 +609,7 @@ function showActionInfo(params, evt) {
         },
         cache: false
     });
-    
+
     $('#stepInfo_' + stepID).css({
         left: evt.pageX + 'px',
         top: evt.pageY + 'px'
@@ -609,7 +621,7 @@ function setDynamicApprover(stepID) {
 	$('.workflowStepInfo').css('display', 'none');
     dialog.setTitle('Set Indicator ID');
     dialog.setContent('Loading...');
-    
+
     $.ajax({
     	type: 'GET',
     	url: '../api/form/indicator/list',
@@ -626,8 +638,8 @@ function setDynamicApprover(stepID) {
     	},
     	cache: false
     });
-    
-    
+
+
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
@@ -647,7 +659,7 @@ function setDynamicGroupApprover(stepID) {
     $('.workflowStepInfo').css('display', 'none');
     dialog.setTitle('Set Indicator ID');
     dialog.setContent('Loading...');
-    
+
     $.ajax({
         type: 'GET',
         url: '../api/form/indicator/list',
@@ -664,8 +676,8 @@ function setDynamicGroupApprover(stepID) {
         },
         cache: false
     });
-    
-    
+
+
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
@@ -681,14 +693,114 @@ function setDynamicGroupApprover(stepID) {
     dialog.show();
 }
 
+function signatureRequired(cb, stepID) {
+    var innerRequired = function (required, stepID) {
+        portalAPI.Workflow.setStepSignatureRequirement(
+            currentWorkflow,
+            stepID,
+            required ? 1 : 0,
+            function (msg) {
+                // nothing to see here...
+            },
+            function (err) {
+                cb.checked = false;
+                console.log(err);
+            }
+        );
+    }
+
+    if (cb.checked) {
+        $('.workflowStepInfo').css('display', 'none');
+        dialog_confirm.setTitle('Confirmation required');
+        dialog_confirm.setContent('Are you sure you want to require a digital signature on this step?<br /><br />'
+                + '<span>Digital signatures should only be used if a "wet signature" is required by your business process.</span>');
+        dialog_confirm.setSaveHandler(function() {
+            dialog_confirm.hide();
+            innerRequired(true, stepID);
+            steps[stepID].requiresDigitalSignature = true;
+            showStepInfo(stepID);
+        });
+        dialog_confirm.setCancelHandler(function() {
+            cb.checked = false;
+        });
+        dialog_confirm.show();
+    } else {
+        innerRequired(false, stepID);
+        steps[stepID].requiresDigitalSignature = false;
+        cb.checked = false;
+    }
+}
+
+function buildWorkflowIndicatorDropdown(stepID, steps) {
+    $.ajax({
+        type: 'GET',
+        url: '../api/workflow/' + currentWorkflow + '/categories',
+        cache: false
+    })
+    .then(function(associatedCategories) {
+        var formList = '';
+        for(var i in associatedCategories) {
+            formList += associatedCategories[i].categoryID + ',';
+        }
+        formList = formList.replace(/,$/, '');
+        $.ajax({
+        type: 'GET',
+        url: '../api/form/indicator/list?includeHeadings=1&forms=' + formList,
+        cache: false
+        })
+        .then(function(indicatorList) {
+            for(var i in associatedCategories) {
+                for(var j in indicatorList) {
+                    if((associatedCategories[i].categoryID == indicatorList[j].categoryID
+                        || associatedCategories[i].categoryID == indicatorList[j].parentCategoryID)
+                        && indicatorList[j].parentIndicatorID == null) {
+                        $('#workflowIndicator').append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
+                    }
+                    else if(indicatorList[j].parentStaples != null) {
+                        for(var k in indicatorList[j].parentStaples) {
+                            if(indicatorList[j].parentStaples[k] == associatedCategories[i].categoryID) {
+                                $('#workflowIndicator').append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
+                            }
+                        }
+                    }
+                }
+            }
+            if(steps[stepID].stepModules != undefined) {
+                for(var i in steps[stepID].stepModules) {
+                    if(steps[stepID].stepModules[i].moduleName == 'LEAF_workflow_indicator') {
+                        var config = JSON.parse(steps[stepID].stepModules[i].moduleConfig);
+                        $('#workflowIndicator').val(config.indicatorID);
+                    }
+                }
+            }
+        });
+    });
+
+    $('#workflowIndicator').on('change', function() {
+        for(var i in steps[stepID].stepModules) {
+            if(steps[stepID].stepModules[i].moduleName == 'LEAF_workflow_indicator') {
+                steps[stepID].stepModules[i].moduleConfig = JSON.stringify({indicatorID: $('#workflowIndicator').val()});
+            }
+        }
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflow/step/'+ stepID +'/inlineIndicator',
+            data: {
+                indicatorID: $('#workflowIndicator').val(),
+                CSRFToken: CSRFToken
+            }
+        });
+    });
+}
 function showStepInfo(stepID) {
+    $('#stepInfo_' + stepID).html('');
 	if($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second click
 		$('.workflowStepInfo').css('display', 'none');
 		return;
 	}
 	$('.workflowStepInfo').css('display', 'none');
     $('#stepInfo_' + stepID).html('Loading...');
-	
+
     switch(stepID) {
         case -1:
         	$('#stepInfo_' + stepID).html('Request initiator (stepID #: -1)');
@@ -701,10 +813,10 @@ function showStepInfo(stepID) {
                 type: 'GET',
                 url: '../api/?a=workflow/step/' + stepID + '/dependencies',
                 success: function(res) {
-                    var output = '';
-                    var control_removeStep = '<img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="removeStep('+ stepID +')" alt="Remove" />'; 
-                    output = '<h2>stepID: #'+ stepID +' '+ control_removeStep +'</h2><br />Step: <b>' + steps[stepID].stepTitle + '</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep('+ stepID +')" alt="Edit Step" /><br />';
-                    output += '<br /><div>Requirements:<ul>';
+                    var control_removeStep = '<img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="removeStep('+ stepID +')" alt="Remove" />';
+                    var output = '<h2>stepID: #'+ stepID +' '+ control_removeStep +'</h2><br />Step: <b>' + steps[stepID].stepTitle + '</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep('+ stepID +')" alt="Edit Step" /><br />';
+
+                    output += '<br /><br /><div>Requirements:<ul>';
                     var tDeps = {};
                     for(var i in res) {
                     	control_editDependency = '<img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editRequirement('+ res[i].dependencyID +')" alt="Edit Requirement" />';
@@ -733,7 +845,7 @@ function showStepInfo(stepID) {
                             output += '<li><b style="color: green">'+ res[i].description +'</b> '+ control_unlinkDependency +' (depID: '+ res[i].dependencyID +')<ul>'+ indicatorWarning +'<li>indicatorID: '+ res[i].indicatorID_for_assigned_groupID +'<br /><div class="buttonNorm" onclick="setDynamicGroupApprover('+ res[i].stepID +')">Set Data Field</div></li></ul></li>';
                         }
                         else {
-                        	if(tDeps[res[i].dependencyID] == undefined) { // 
+                        	if(tDeps[res[i].dependencyID] == undefined) { //
                         		tDeps[res[i].dependencyID] = 1;
                                 output += '<li style="padding-bottom: 8px"><b title="depID: '+ res[i].dependencyID +'" onclick="dependencyGrantAccess('+ res[i].dependencyID +')">'+ res[i].description +'</b> ' + control_editDependency + ' ' + control_unlinkDependency
                                 + '<ul id="step_'+ stepID +'_dep'+ res[i].dependencyID +'"><li style="padding-top: 8px"><span class="buttonNorm" onclick="dependencyGrantAccess('+ res[i].dependencyID +')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" alt="Add" /> Add Group</span></li>\
@@ -745,8 +857,20 @@ function showStepInfo(stepID) {
                     	output += '<li><span style="color: red; font-weight: bold">A requirement must be added.</span></li>';
                     }
                     output += '</ul><div>';
+
+                    // TODO: This will eventually be moved to some sort of Workflow extension plugin
+                    output += '<fieldset><legend>Options</legend><ul>';
+                    output += '<li><input id="requiresSigCB" style="cursor: pointer" type="checkbox"' + (steps[stepID].requiresDigitalSignature == true ? ' checked' : '') + ' onclick="signatureRequired(this, ' + stepID + ')">';
+                    output += '<label for="requiresSigCB" style="cursor: pointer">Require Digital Signature</label></li>';
+                    output += '<li>Form Field: <select id="workflowIndicator" style="width: 240px"><option value="">None</option></select></li>';
+                    output += '</ul></fieldset>';
+
+                    // button options for steps
                     output += '<hr /><div style="padding: 4px"><span class="buttonNorm" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span></div>';
                     $('#stepInfo_' + stepID).html(output);
+
+                    // setup UI for form fields in the workflow area
+                    buildWorkflowIndicatorDropdown(stepID, steps);
 
                     // TODO: clean everything here up
                     var counter = 0;
@@ -888,7 +1012,7 @@ function drawRoutes(workflowID) {
                     }]]
                 });
             }
-            
+
             // bind connection events
             jsPlumb.bind("connection", function(info) {
             	createAction(info);
@@ -904,6 +1028,19 @@ function loadWorkflow(workflowID) {
     $('#btn_createStep').css('display', 'block');
     $('#btn_deleteWorkflow').css('display', 'block');
 
+    //508
+    $('#btn_createStep').on('keypress',function(event) {
+      if(event.keyCode == 13){
+        createStep();
+      }
+    });
+
+    $('#btn_deleteWorkflow').on('keypress',function(event) {
+      if(event.keyCode == 13){
+        deleteWorkflow();
+      }
+    });
+
 	currentWorkflow = workflowID;
 	jsPlumb.reset();
 	endPoints = [];
@@ -914,13 +1051,13 @@ function loadWorkflow(workflowID) {
 	$('#workflows').trigger('chosen:updated');
 
 	$('#workflow').html('');
-	$('#workflow').append('<div class="workflowStep" id="step_-1">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>');
+	$('#workflow').append('<div class="workflowStep" id="step_-1" tabindex="0">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>');
     $('#step_-1').css({
         'left': 180 + 40 + 'px',
         'top': 80 + 40 + 'px',
         'background-color': '#e0e0e0'
     });
-    $('#workflow').append('<div class="workflowStep" id="step_0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>');
+    $('#workflow').append('<div class="workflowStep" id="step_0" tabindex="0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>');
     $('#step_0').css({
         'left': 180 + 40 + 'px',
         'top': 80 + 40 + 'px',
@@ -962,7 +1099,7 @@ function loadWorkflow(workflowID) {
                                            CSRFToken: CSRFToken
                                     },
                                     success: function() {
-                                        
+
                                     }
                                 });
                             }
@@ -974,7 +1111,7 @@ function loadWorkflow(workflowID) {
             	$('#step_' + res[i].stepID).on('click', null, res[i].stepID, function(e) {
             		showStepInfo(e.data);
             	});
-            	
+
             	if(maxY < posY) {
             		maxY = posY;
             	}
@@ -1020,9 +1157,9 @@ function loadWorkflowList(workflowID)
             if(count == 0) {
                 return;
             }
-            
+
             output += '</select>';
-            
+
             $('#workflowList').html(output);
             $('#workflows').on('change', function() {
             	loadWorkflow($('#workflows').val());
@@ -1047,6 +1184,11 @@ var endpointOptions = {
 	    paintStyle: {width: 48, height: 48},
 	    maxConnections: -1
 	};
+
+this.portalAPI = LEAFRequestPortalAPI();
+this.portalAPI.setBaseURL('../api/?a=');
+this.portalAPI.setCSRFToken(CSRFToken);
+
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
