@@ -1,7 +1,7 @@
 (function ($) {
     jQuery.sessionTimeout = function (options) {
         var defaults = {
-            message: 'Your will expire in two minutes.',
+            message: 'Your session will expire in two minutes if you remain inactive.',
             keepAliveUrl: '/keep-alive',
             keepAliveAjaxRequestType: 'POST',
             redirUrl: '/timed-out',
@@ -26,20 +26,6 @@
             modal: true,
             closeOnEscape: false,
             open: function () { $(".ui-dialog-titlebar-close").hide(); },
-            buttons: {
-                // Button one - closes dialog and makes call to keep-alive URL
-                "Stay Connected": function () {
-                    $(this).dialog('close');
-
-                    $.ajax({
-                        type: o.keepAliveAjaxRequestType,
-                        url: o.appendTime ? updateQueryStringParameter(o.keepAliveUrl, "_", new Date().getTime()) : o.keepAliveUrl
-                    });
-
-                    // Stop redirect timer and restart warning timer
-                    resetTimer();
-                }
-            }
         });
 
         function controlDialogTimer(action) {
@@ -92,6 +78,13 @@
         }
 
         function resetTimer() {
+            if ($('#sessionTimeout-dialog').dialog("isOpen")) {
+                $('#sessionTimeout-dialog').dialog('close');
+                $.ajax({
+                    type: o.keepAliveAjaxRequestType,
+                    url: o.appendTime ? updateQueryStringParameter(o.keepAliveUrl, "_", new Date().getTime()) : o.keepAliveUrl
+                });
+            }
             controlRedirTimer('stop');
             controlDialogTimer('stop');
 
