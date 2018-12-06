@@ -37,8 +37,7 @@
                     });
 
                     // Stop redirect timer and restart warning timer
-                    controlRedirTimer('stop');
-                    controlDialogTimer('start');
+                    resetTimer();
                 }
             }
         });
@@ -92,11 +91,19 @@
             }
         }
 
+        function resetTimer() {
+            controlRedirTimer('stop');
+            controlDialogTimer('stop');
+
+            setTimeout(controlDialogTimer('start'), 2000);
+        }
+
         $(document).ajaxComplete(function () {
             if (!$('#sessionTimeout-dialog').dialog("isOpen")) {
                 controlRedirTimer('stop');
                 controlDialogTimer('stop');
                 controlDialogTimer('start');
+                $(document.body).bind('mousemove keydown click', resetTimer);
             }
         });
 
