@@ -425,7 +425,7 @@ function listActionType() {
 		url: '../api/?a=workflow/userActions',
 		success: function(res) {
 			var buffer = '';
-			buffer += '<br /><table id="actions" border="1"><caption><h2>List of Current Actions:</h2></caption><tr><th scope="col">Action Text</th><th scope="col">Action Text Pasttense</th><th scope="col">Execute</th></tr>';
+			buffer += '<br /><table id="actions" border="1"><caption><h2>List of Current Actions:</h2></caption><tr><th scope="col">Action Text</th><th scope="col">Action Text Past Tense</th><th scope="col">Execute</th></tr>';
 
 			for(var i in res) {
         buffer +='<tr>';
