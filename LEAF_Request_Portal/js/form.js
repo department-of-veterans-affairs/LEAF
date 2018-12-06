@@ -55,8 +55,12 @@ var LeafForm = function(containerID) {
                 gridObject.cells = [];
                 gridObject.names = [];
 
+                // determines the order of the column values
+                gridObject.columns = [];
+
                 $('thead', this).find('td').slice(0, -1).each(function() {
-                    gridObject.names.push($(this).html());
+                    gridObject.names.push($(this).text());
+                    gridObject.columns.push($('div', this).attr('id'));
 				});
 
 				$('tbody', this).find('tr').each(function(){
@@ -66,7 +70,9 @@ var LeafForm = function(containerID) {
                             cellArr.push($(this).find('textarea').val());
                         } else if($('select', this).length){
                             cellArr.push($("option:selected", this).val());
-						}
+						} else if($('input', this).length) {
+                            cellArr.push($("input", this).val());
+                        }
                     });
                     gridObject.cells.push(cellArr);
 				});

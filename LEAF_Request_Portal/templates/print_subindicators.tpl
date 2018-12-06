@@ -59,7 +59,7 @@
             <!--{/if}-->
         <!--{/if}-->
             </div>
-            <div class="printResponse" id="xhrIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->">
+            <div class="printResponse" style="display:grid; display:-ms-flexbox; -ms-flex-wrap: wrap;" id="xhrIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->">
 
                 <!--{include file="print_subindicators_ajax.tpl"}-->
 
