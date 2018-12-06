@@ -6,8 +6,8 @@
             keepAliveAjaxRequestType: 'POST',
             redirUrl: '/timed-out',
             logoutUrl: '/log-out',
-            warnAfter: 900000, // 15 minutes
-            redirAfter: 1200000, // 20 minutes
+            warnAfter: 900000, // 13 minutes
+            redirAfter: 1200000, // 2 minutes of inactivity from warnAfter, 15 minutes total
             appendTime: true // appends time stamp to keep alive url to prevent caching
         };
 
