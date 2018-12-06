@@ -258,7 +258,7 @@ class Workflow
     public function getActions()
     {
         $vars = array();
-        $res = $this->db->prepared_query('SELECT * FROM actions ORDER BY actionText', $vars);
+        $res = $this->db->prepared_query('SELECT * FROM actions WHERE deleted=0 ORDER BY actionText', $vars);
 
         return $res;
     }

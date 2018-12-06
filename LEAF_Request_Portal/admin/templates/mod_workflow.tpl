@@ -425,11 +425,12 @@ function listActionType() {
 		url: '../api/?a=workflow/userActions',
 		success: function(res) {
 			var buffer = '';
-			buffer += '<br /><table id="actions" border="1"><caption><h2>List of Current Actions:</h2></caption><tr><th scope="col">Action Name</th><th scope="col">Action</th></tr>';
+			buffer += '<br /><table id="actions" border="1"><caption><h2>List of Current Actions:</h2></caption><tr><th scope="col">Action Text</th><th scope="col">Action Text Pasttense</th><th scope="col">Execute</th></tr>';
 
 			for(var i in res) {
         buffer +='<tr>';
 				buffer += '<td width="300px" id="'+ res[i].actionType +'">'+ res[i].actionText +'</td>';
+				buffer += '<td width="300px" id="'+ res[i].actionTextPasttense +'">'+ res[i].actionTextPasttense +'</td>';
         buffer += '<td width="150px" id="'+ res[i].actionType +'"><button onclick="editActionType(\'' + res[i].actionType + '\')" style="float:left;background: blue;color: #fff;">Edit</button> <button onclick="deleteActionType(\'' + res[i].actionType + '\')" style="float:left;background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
         buffer += '</tr>';
 			}
