@@ -1,6 +1,6 @@
 var toggleSensitiveIndicator = function(indicatorID, seriesID, reveal) {
     var maskedElement = $("div.sensitiveIndicator#xhrIndicator_"+indicatorID+"_"+seriesID+" > span.sensitiveIndicator-masked");
-    var unmaskedElement = $("div.sensitiveIndicator#xhrIndicator_"+indicatorID+"_"+seriesID+" > span.printResponse");
+    var unmaskedElement = $("div.sensitiveIndicator#xhrIndicator_"+indicatorID+"_"+seriesID+" > .printResponse");
     var label = $("div.sensitiveIndicator#xhrIndicator_"+indicatorID+"_"+seriesID+" > div.sensitiveIndicatorMaskToggle > label");
     if (reveal)
     {
