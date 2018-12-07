@@ -43,6 +43,45 @@
                 [protected data]
             </span>
         <!--{/if}-->
+        <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
+            <script type="text/javascript" src="js/gridInput.js"></script>
+            <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
+            <div class="tableinput">
+            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input" style="word-wrap:break-word; table-layout: fixed; height: 100%; display: table">
+                <thead>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            </div>
+            <button class="buttonNorm" id="addRowBtn" title="Grid input add row" alt="Grid input add row" aria-label="Grid input add row" onclick="addRow(options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
+            <script>
+                var options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = <!--{$indicator.options[0]}-->;
+                var values_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = <!--{$indicator.value|json_encode}-->;
+
+                $(function() {
+                    printTableInput(options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, values_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, <!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->);
+                });
+
+                <!--{if $indicator.required == 1}-->
+                formRequired.id<!--{$indicator.indicatorID}--> = {
+                    setRequired:  function() {
+                        var gridElement = '#grid_' + <!--{$indicator.indicatorID}--> + '_' + <!--{$indicator.series}--> + '_input > tbody';
+                        for(var i = 0; i < $(gridElement).find('tr').length; i++){
+                            for(var j = 0; j < $(gridElement + ' > tr:eq(0)').find('td').length; j++){
+                                if($(gridElement + ' > tr:eq(' + i + ') > td:eq(' + j + ')').find('textarea').length > 0 && $(gridElement + ' > tr:eq(' + i + ') > td:eq(' + j + ') > textarea').val().trim() === ''){
+                                    return true
+                                }
+                            }
+                        }
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }
+                };
+                <!--{/if}-->
+            </script>
+        <!--{/if}-->
         <!--{if $indicator.format == 'textarea' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <textarea id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 97%; padding: 8px; font-size: 1.3em; font-family: monospace" rows="10"><!--{$indicator.value|sanitize}--></textarea>
             <div id="textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->" style="text-align: right; font-size: 12px"><span class="link">formatting options</span></div>

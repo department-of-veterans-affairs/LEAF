@@ -72,20 +72,31 @@
             </div>
             <div tabindex="0" class="printResponse" id="xhrIndicator_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
 
-<!--{$indicator.format}-->
-<!--{if $indicator.options != ''}-->
+<!--{if $indicator.format == 'grid'}-->
+    <!--{$indicator.format}-->
+    <script type="text/javascript" src="../js/gridInput.js"></script>
+    </br></br>
+    <div id="grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="width: 100%; max-width: 100%;">
+    </div>
+    <script>
+        printTablePreview(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
+    </script>
+<!--{else}-->
+    <!--{$indicator.format}-->
+    <!--{if $indicator.options != ''}-->
     <ul>
-    <!--{assign var="numOptions" value=0}-->
-    <!--{foreach from=$indicator.options item=option}-->
-    <li><!--{$option}--></li>
+        <!--{assign var="numOptions" value=0}-->
+        <!--{foreach from=$indicator.options item=option}-->
+        <li><!--{$option}--></li>
 
-    <!--{if $numOptions > 5}-->
+        <!--{if $numOptions > 5}-->
         <li>...</li>
         <!--{break}-->
-    <!--{/if}-->
-    <!--{assign var="numOptions" value=$numOptions+1}-->
-    <!--{/foreach}-->
+        <!--{/if}-->
+        <!--{assign var="numOptions" value=$numOptions+1}-->
+        <!--{/foreach}-->
     </ul>
+    <!--{/if}-->
 <!--{/if}-->
 
                 <!--{include file="print_subindicators_ajax.tpl"}-->

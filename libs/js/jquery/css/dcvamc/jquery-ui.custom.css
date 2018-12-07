@@ -520,7 +520,7 @@ button.ui-button::-moz-focus-inner {
     border: 0;
     padding: .5em 1em;
     background: none;
-    overflow: auto;
+    overflow: hidden;
 }
 .ui-dialog .ui-dialog-buttonpane {
     text-align: left;
