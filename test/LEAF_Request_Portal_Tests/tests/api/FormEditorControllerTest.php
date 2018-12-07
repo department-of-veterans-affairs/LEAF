@@ -95,6 +95,7 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertEquals(null, $ind['html']);
         $this->assertEquals(null, $ind['htmlPrint']);
         $this->assertEquals('1', $ind['required']);
+        $this->assertEquals('0', $ind['is_sensitive']);
         $this->assertEquals(true, $ind['isEmpty']);
         $this->assertEquals('', $ind['value']);
         $this->assertEquals('', $ind['displayedValue']);
@@ -126,6 +127,7 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertEquals(null, $ind['html']);
         $this->assertEquals(null, $ind['htmlPrint']);
         $this->assertEquals(null, $ind['required']);
+        $this->assertEquals(null, $ind['is_sensitive']);
         $this->assertEquals(true, $ind['isEmpty']);
         $this->assertEquals(null, $ind['value']);
         $this->assertEquals('', $ind['displayedValue']);
@@ -181,6 +183,7 @@ final class FormEditorControllerTest extends DatabaseTest
             'html' => null,
             'htmlPrint' => null,
             'required' => 0,
+            'is_sensitive' => 0,
             'sort' => 1,
         );
 
@@ -198,6 +201,7 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertEquals(null, $indicator['8']['html']);
         $this->assertEquals(null, $indicator['8']['htmlPrint']);
         $this->assertEquals(0, $indicator['8']['required']);
+        $this->assertEquals(0, $indicator['8']['is_sensitive']);
         $this->assertEquals(1, $indicator['8']['sort']);
     }
 
@@ -224,6 +228,7 @@ final class FormEditorControllerTest extends DatabaseTest
             'html' => "<script lang='javascript'>alert('hi')</script><b>the html</b>",
             'htmlPrint' => "<script lang='javascript'>alert('hi')</script><b>the html</b>",
             'required' => 0,
+            'is_sensitive' => 0,
             'sort' => 1,
         );
 
@@ -241,6 +246,7 @@ final class FormEditorControllerTest extends DatabaseTest
         $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator['8']['html']); // Advanced Option allows HTML/JS
         $this->assertEquals("<script lang='javascript'>alert('hi')</script><b>the html</b>", $indicator['8']['htmlPrint']); // Advanced Option allows HTML/JS
         $this->assertEquals(0, $indicator['8']['required']);
+        $this->assertEquals(0, $indicator['8']['is_sensitive']);
         $this->assertEquals(1, $indicator['8']['sort']);
     }
 
@@ -463,6 +469,24 @@ final class FormEditorControllerTest extends DatabaseTest
 
         $this->assertNotNull($indicator);
         $this->assertEquals('0', $indicator['6']['required']);
+    }
+
+    /**
+     * Tests the `formEditor/[digit]/sensitive` endpoint.
+     */
+    public function testSetIndicatorSensitive() : void
+    {
+        $indicator = self::$client->get('?a=formEditor/indicator/6');
+
+        $this->assertNotNull($indicator);
+        $this->assertEquals('1', $indicator['6']['is_sensitive']);
+
+        self::$client->postEncodedForm('?a=formEditor/6/sensitive', array('is_sensitive' => '0'));
+
+        $indicator = self::$client->get('?a=formEditor/indicator/6');
+
+        $this->assertNotNull($indicator);
+        $this->assertEquals('0', $indicator['6']['is_sensitive']);
     }
 
     /**

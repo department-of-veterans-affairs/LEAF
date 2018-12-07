@@ -33,44 +33,45 @@ class FormEditor
      * @param bool $overwriteExisting - If true, matching IDs will be overwritten
      * @return number
      */
-    public function addIndicator($package, $overwriteExisting = false)
-    {
-        $package['parentID'] = $package['parentID'] == '' ? null : $package['parentID'];
+    function addIndicator($package, $overwriteExisting = false) {
+    	$package['parentID'] = $package['parentID'] == '' ? null : $package['parentID'];
 
-        if (!$overwriteExisting)
+        if(!$overwriteExisting) 
         {
-            $vars = array(':name' => trim($package['name']),
-                ':format' => $package['format'],
-                ':description' => trim($package['description']),
-                ':default' => trim($package['default']),
-                ':parentID' => $package['parentID'],
-                ':categoryID' => $package['categoryID'],
-                ':html' => $package['html'],
-                ':htmlPrint' => $package['htmlPrint'],
-                ':required' => $package['required'],
-                ':sort' => isset($package['sort']) ? $package['sort'] : 1, );
+    	    $vars = array(':name' => $package['name'],
+    	        ':format' => $package['format'],
+    	        ':description' => $package['description'],
+    	        ':default' => $package['default'],
+    	        ':parentID' => $package['parentID'],
+    	        ':categoryID' => $package['categoryID'],
+    	        ':html' => $package['html'],
+    	        ':htmlPrint' => $package['htmlPrint'],
+    	        ':required' => $package['required'],
+                ':is_sensitive' => $package['is_sensitive'],
+    	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-            $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, sort, timeAdded, disabled)
-            								VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :sort, CURRENT_TIMESTAMP, 0)', $vars);
-        }
-        else
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive, sort, timeAdded, disabled)
+            								VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)', $vars);
+    	}
+        else 
         {
-            $vars = array(':indicatorID' => $package['indicatorID'],
-                ':name' => $package['name'],
-                ':format' => $package['format'],
-                ':description' => $package['description'],
-                ':default' => $package['default'],
-                ':parentID' => $package['parentID'],
-                ':categoryID' => $package['categoryID'],
-                ':html' => $package['html'],
-                ':htmlPrint' => $package['htmlPrint'],
-                ':required' => $package['required'],
-                ':sort' => isset($package['sort']) ? $package['sort'] : 1, );
+    	    $vars = array(':indicatorID' => $package['indicatorID'],
+    	        ':name' => $package['name'],
+    	        ':format' => $package['format'],
+    	        ':description' => $package['description'],
+    	        ':default' => $package['default'],
+    	        ':parentID' => $package['parentID'],
+    	        ':categoryID' => $package['categoryID'],
+    	        ':html' => $package['html'],
+    	        ':htmlPrint' => $package['htmlPrint'],
+    	        ':required' => $package['required'],
+    	        ':is_sensitive' => $package['is_sensitive'], //
+    	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-            $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, sort, timeAdded, disabled)
-            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :sort, CURRENT_TIMESTAMP, 0)
-                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, required=:required, sort=:sort', $vars);
-        }
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive, sort, timeAdded, disabled)
+            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)
+                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
+    	}
 
         return $this->db->getLastInsertID();
     }
@@ -160,20 +161,28 @@ class FormEditor
     								WHERE indicatorID=:indicatorID', $vars);
     }
 
-    public function setDisabled($indicatorID, $input)
+    function setSensitive($indicatorID, $input) 
     {
-        $disabledTime = 0;
-        if ($input >= 1)
-        {
-            $this->setRequired($indicatorID, 0);
-            $this->disableSubindicators($indicatorID);
-            $disabledTime = time();
-        }
-
         $vars = array(':indicatorID' => $indicatorID,
-                      ':input' => $disabledTime, );
+			':input' => (int) $input);
 
         return $this->db->prepared_query('UPDATE indicators
+    								SET is_sensitive=:input
+    								WHERE indicatorID=:indicatorID', $vars);
+    }
+    
+    function setDisabled($indicatorID, $input) 
+    {
+    	$disabledTime = 0;
+    	if($input >= 1) {
+    		$this->setRequired($indicatorID, 0);
+    		$this->disableSubindicators($indicatorID);
+    		$disabledTime = time();
+    	}
+    	
+    	$vars = array(':indicatorID' => $indicatorID,
+    				  ':input' => $disabledTime);
+    	return $this->db->prepared_query('UPDATE indicators
     								SET disabled=:input
     								WHERE indicatorID=:indicatorID', $vars);
     }

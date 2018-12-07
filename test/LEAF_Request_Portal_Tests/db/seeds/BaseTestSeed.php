@@ -56,15 +56,15 @@ class BaseTestSeed extends AbstractSeed
             (2, NULL, 'Test Group', 'A Group for Testing'),
             (3, NULL, 'Another Test Group', 'Another Group for Testing');
 
-            INSERT INTO `indicators`
-            (`indicatorID`, `name`, `format`, `description`, `default`, `parentID`, `categoryID`, `html`, `htmlPrint`, `jsSort`, `required`, `sort`, `timeAdded`, `disabled`) VALUES
-            (1, 'A Very Simple Form', '', '', '', NULL, 'form_f4687', NULL, NULL, NULL, 0, 1, '2018-03-05 16:52:15', 0),
-            (2, 'First Name', 'text', 'First Name', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:52:40', 0),
-            (3, 'Last Name', 'text', 'Last Name', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:52:54', 0),
-            (4, 'Occupation', 'text', 'Occupation', '', NULL, 'form_f4687', NULL, NULL, NULL, 0, 1, '2018-03-05 16:53:06', 0),
-            (5, 'Hobbies', 'textarea', 'Hobbies', '', NULL, 'form_f4687', NULL, NULL, NULL, 0, 1, '2018-03-05 16:53:30', 0),
-            (6, 'Favorite Day', 'date', 'favorite day', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:53:52', 0),
-            (7, 'Masked', 'text', 'Masked', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:53:52', 0);
+            INSERT INTO `indicators` 
+            (`indicatorID`, `name`, `format`, `description`, `default`, `parentID`, `categoryID`, `html`, `htmlPrint`, `jsSort`, `required`, `sort`, `timeAdded`, `disabled`, `is_sensitive`) VALUES
+            (1, 'A Very Simple Form', '', '', '', NULL, 'form_f4687', NULL, NULL, NULL, 0, 1, '2018-03-05 16:52:15', 0, 1),
+            (2, 'First Name', 'text', 'First Name', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:52:40', 0, 0),
+            (3, 'Last Name', 'text', 'Last Name', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:52:54', 0, 0),
+            (4, 'Occupation', 'text', 'Occupation', '', NULL, 'form_f4687', NULL, NULL, NULL, 0, 1, '2018-03-05 16:53:06', 0, 1),
+            (5, 'Hobbies', 'textarea', 'Hobbies', '', NULL, 'form_f4687', NULL, NULL, NULL, 0, 1, '2018-03-05 16:53:30', 0, 1),
+            (6, 'Favorite Day', 'date', 'favorite day', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:53:52', 0, 0),
+            (7, 'Masked', 'text', 'Masked', '', NULL, 'form_f4687', NULL, NULL, NULL, 1, 1, '2018-03-05 16:53:52', 0, 1);
 
             INSERT INTO `indicator_mask`
             (`indicatorID`, `groupID`) VALUES
