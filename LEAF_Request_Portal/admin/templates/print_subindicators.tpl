@@ -32,6 +32,9 @@
 
             </div>
             <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->" >
+            <!--{if $indicator.is_sensitive == 1}-->
+                &nbsp;<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt="This field is sensitive" title="This field is sensitive" />&nbsp;
+            <!--{/if}-->
                 <span onkeypress="keyPressGetForm(event, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" tabindex="0" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)">
             <!--{if trim($indicator.name) != ''}-->
                 <!--{$indicator.name|sanitizeRichtext|strip_tags}-->
@@ -51,6 +54,9 @@
                 <div class="printsubheading">
             <!--{/if}-->
                 <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->">
+                    <!--{if $indicator.is_sensitive == 1}-->
+                        &nbsp;<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt="This field is sensitive" title="This field is sensitive" />&nbsp;
+                    <!--{/if}-->
                     <span onkeypress="keyPressGetForm(event, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" tabindex="0" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)">
                     <!--{if trim($indicator.name) != ''}-->
                         <!--{$indicator.name|sanitizeRichtext|strip_tags|indent:$depth:""}-->

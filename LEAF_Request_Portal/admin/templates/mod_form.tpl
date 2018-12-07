@@ -5,6 +5,23 @@
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <script>
+function checkSensitive(indicator) {
+    var result = 0;
+    $.each(indicator, function( index, value )
+    {
+        if (value.is_sensitive === '1') {
+            result = 1;
+        } else if(result === 0 && !$.isEmptyObject(value.child)){
+            result = checkSensitive(value.child);
+        }
+        if(result)
+        {
+            return false;
+        }
+    });
+    return result;
+}
+
 function editProperties(isSubForm) {
     dialog.setTitle('Edit Properties');
     dialog.setContent('<table>\
@@ -21,7 +38,7 @@ function editProperties(isSubForm) {
                                  <td id="container_workflowID"></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Need to Know mode <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form."></td>\
+                                 <td>Need to Know mode <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information."></td>\
                                  <td><select id="needToKnow"><option value="0">Off</option><option value="1">On</option></select></td>\
                              </tr>\
                              <tr class="isSubForm">\
@@ -37,6 +54,18 @@ function editProperties(isSubForm) {
                             	 <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
                              </tr>\
                            </table>');
+        $.ajax({
+            type: 'GET',
+            url: '../api/form/_' + currCategoryID,
+            success: function(res) {
+                if(res.length > 0) {
+                    if(checkSensitive(res) === 1) {
+                        $("#needToKnow option[value='0']").remove();
+                        $("#needToKnow option[value='1']").html('Forced on because sensitive fields are present');
+                    }
+                }
+            }
+        });
         $('#name').val(categories[currCategoryID].categoryName);
         $('#description').val(categories[currCategoryID].categoryDescription);
         $('#workflowID').val(categories[currCategoryID].workflowID);
@@ -464,6 +493,12 @@ function newQuestion(parentIndicatorID) {
                                 <td><input id="required" name="required" type="checkbox" /></td>\
                             </tr>\
                         </table>\
+                        <table>\
+                            <tr>\
+                                <td>Sensitive</td>\
+                                <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
+                            </tr>\
+                        </table>\
                 </fieldset>');
     $('#indicatorType').on('change', function() {
         switch($('#indicatorType').val()) {
@@ -551,6 +586,12 @@ function newQuestion(parentIndicatorID) {
     		alert('You can\'t mark a field as required if the Input Format is "None".');
     	}
     });
+    $('#sensitive').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#sensitive').prop('checked', false);
+            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
+        }
+    });
 
 		//ie11 fix
 		setTimeout(function () {
@@ -559,6 +600,21 @@ function newQuestion(parentIndicatorID) {
 
     dialog.setSaveHandler(function() {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
+        var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
+        if (isSensitive === 1) {
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formNeedToKnow',
+                data: {needToKnow: '1',
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
+                    }
+                }
+            });
+            categories[currCategoryID].needToKnow = 1;
+        }
 
         switch($('#indicatorType').val()) {
             case 'grid':
@@ -616,6 +672,7 @@ function newQuestion(parentIndicatorID) {
             	parentID: parentIndicatorID,
             	categoryID: currCategoryID,
             	required: isRequired,
+                is_sensitive: isSensitive,
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
                 if(res != null) {
@@ -859,6 +916,10 @@ function getForm(indicatorID, series) {
                         <td>Required</td>\
                         <td><input id="required" name="required" type="checkbox" /></td>\
                     </tr>\
+                    </tr>\
+                        <td>Sensitive</td>\
+                        <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
+                    </tr>\
                     <tr>\
                         <td>Sort Priority</td>\
                         <td><input id="sort" name="sort" type="number" style="width: 40px" /></td>\
@@ -954,6 +1015,12 @@ function getForm(indicatorID, series) {
         if($('#indicatorType').val() == '') {
             $('#required').prop('checked', false);
             alert('You can\'t mark a field as required if the Input Format is "None".');
+        }
+    });
+    $('#sensitive').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#sensitive').prop('checked', false);
+            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
         }
     });
     $('#rawNameEditor').on('click', function() {
@@ -1104,6 +1171,9 @@ function getForm(indicatorID, series) {
                 if(res[indicatorID].required == 1) {
                     $('#required').prop('checked', true);
                 }
+                if(res[indicatorID].is_sensitive == 1) {
+                    $('#sensitive').prop('checked', true);
+                }
                 $('#parentID').val(res[indicatorID].parentID);
                 $('#sort').val(res[indicatorID].sort);
                 codeEditorHtml.setValue((res[indicatorID].html == null ? '' : res[indicatorID].html));
@@ -1151,7 +1221,22 @@ function getForm(indicatorID, series) {
 
     dialog.setSaveHandler(function() {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
+        var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
     	var isDisabled = $('#disabled').is(':checked') ? 1 : 0;
+        if (isSensitive === 1) {
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formNeedToKnow',
+                data: {needToKnow: '1',
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
+                    }
+                }
+            });
+            categories[currCategoryID].needToKnow = 1;
+        }
 
         switch($('#indicatorType').val()) {
             case 'grid':
@@ -1260,6 +1345,16 @@ function getForm(indicatorID, series) {
    	                }
    	            }
    	        }),
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/' + indicatorID + '/sensitive',
+                data: {is_sensitive: isSensitive,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
+                    }
+                }
+            }),
    	        $.ajax({
    	            type: 'POST',
    	            url: '../api/?a=formEditor/' + indicatorID + '/disabled',

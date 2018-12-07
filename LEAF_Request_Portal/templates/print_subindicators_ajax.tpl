@@ -1,4 +1,37 @@
 <!--{**}-->
+        <!--{if $indicator.is_sensitive == 1}-->
+            <div class="sensitiveIndicatorMaskToggle">
+                <input type="checkbox" id="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" onClick="toggleStayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(); toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, this.checked);">
+                <label for="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" title="Show Sensitive Data" alt="Show Sensitive Data"  tabindex="0" onkeydown="if (event.keyCode==13){ this.click();}"></label>
+            </div>
+            <span class="sensitiveIndicator-masked" id="<!--{$indicator.indicatorID|strip_tags}-->_masked">
+                **********
+            </span>
+            <script>
+                var stayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}--> = false;
+                $("#<!--{$indicator.indicatorID|strip_tags}-->_masked").on({
+                    mouseenter: function () {
+                        if (stayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}--> === false) {
+                            $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked', true);
+                            toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked'));
+                        }
+                    }
+                });
+                $("#data_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").on({
+                    mouseleave: function () {
+                        if (stayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}--> === false) {
+                            $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked', false);
+                            toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked'));
+                        }
+                    }
+                });
+
+                function toggleStayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->() {
+                    stayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}--> = !stayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->;
+                }
+
+            </script>
+        <!--{/if}-->
         <!--{if $indicator.format == 'textarea'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
                 <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'|sanitize}-->
@@ -182,6 +215,9 @@
         <!--{if $indicator.format == 'raw_data'}-->
             <textarea class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="display: none"><!--{$indicator.value|sanitize}--></textarea>
             <!--{$indicator.htmlPrint}-->
+        <!--{/if}-->
+        <!--{if $indicator.is_sensitive == 1}-->
+            <div style="clear:both;"></div>
         <!--{/if}-->
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
         <script type="text/javascript" src="js/gridInput.js"></script>

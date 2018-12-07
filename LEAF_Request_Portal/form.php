@@ -457,6 +457,7 @@ class Form
 
         $required = isset($data[0]['required']) && $data[0]['required'] == 1 ? ' required="true" ' : '';
 
+
         $idx = $data[0]['indicatorID'];
         $form[$idx]['indicatorID'] = $data[0]['indicatorID'];
         $form[$idx]['series'] = $series;
@@ -475,6 +476,7 @@ class Form
                                               $data[0]['htmlPrint']);
         }
         $form[$idx]['required'] = $data[0]['required'];
+        $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
         $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
         $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
         $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
@@ -570,13 +572,16 @@ class Form
                       ':indicatorID' => (int)$indicatorID,
                       ':series' => (int)$series, );
 
+
         $res = $this->db->prepared_query(
-            'SELECT * FROM data_history
-                LEFT JOIN indicator_mask USING (indicatorID)
-                WHERE recordID=:recordID
-                AND indicatorID=:indicatorID
-                AND series=:series
-                ORDER BY timestamp DESC',
+            'SELECT h.recordID, h.indicatorID, h.series, h.data, h.timestamp, h.userID, i.is_sensitive 
+                FROM data_history h
+                    LEFT JOIN indicator_mask USING (indicatorID)
+                    LEFT JOIN indicators i USING (indicatorID)
+                    WHERE h.recordID=:recordID
+                    AND h.indicatorID=:indicatorID
+                    AND h.series=:series
+                    ORDER BY timestamp DESC',
             $vars
         );
 
@@ -605,7 +610,6 @@ class Form
                     }
                 }
             }
-
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
             $line['name'] = $name;
             $res2[] = $line;
@@ -3278,6 +3282,7 @@ class Form
                                                       $field['htmlPrint']);
                 }
                 $child[$idx]['required'] = $field['required'];
+                $child[$idx]['is_sensitive'] = $field['is_sensitive'];
                 $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;
                 $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '') ? $data[$idx]['data'] : $child[$idx]['default'];
                 $child[$idx]['value'] = @unserialize($data[$idx]['data']) === false ? $child[$idx]['value'] : unserialize($data[$idx]['data']);
