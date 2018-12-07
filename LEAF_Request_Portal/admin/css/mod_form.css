@@ -40,3 +40,12 @@
 .formPreview:hover {
     box-shadow: 0 4px 6px 2px #8e8e8e;
 }
+
+div.cell {
+    text-align: center;
+    border: 1px grey solid;
+    padding: 10px;
+    vertical-align: top;
+    display: table-cell;
+    padding-bottom: 65px;
+}

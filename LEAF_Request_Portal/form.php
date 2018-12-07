@@ -512,6 +512,13 @@ class Form
             $groupTitle = $this->group->getGroup($data[0]['data']);
             $form[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
         }
+        if (substr($data[0]['format'], 0, 4) == 'grid'
+            && isset($data[0]['data']))
+        {
+            $values = @unserialize($data[0]['data']);
+            $format = json_decode(substr($data[0]['format'], 5, -1) . ']');
+            $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+        }
 
         // prevent masked data from being output
         if ($form[$idx]['isMasked'])
@@ -2074,6 +2081,13 @@ class Form
                             }
                             $item['data'] = trim($item['data'], ', ');
                         }
+                        if (substr($indicators[$item['indicatorID']]['format'], 0, 4) == 'grid')
+                        {
+                            $values = @unserialize($item['data']);
+                            $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']');
+                            $item['gridInput'] = array_merge($values, array("format" => $format));
+                            $item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
+                        }
                         break;
                 }
 
@@ -2082,6 +2096,16 @@ class Form
                 {
                     $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_orgchart'] = $item['dataOrgchart'];
                 }
+
+                if (isset($item['dataHtmlPrint']))
+                {
+                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_htmlPrint'] = $item['dataHtmlPrint'];
+                }
+                if (isset($item['gridInput']))
+                {
+                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_gridInput'] = $item['gridInput'];
+                }
+
                 $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_timestamp'] = $item['timestamp'];
             }
         }
@@ -3356,5 +3380,16 @@ class Form
         }
 
         return 0;
+    }
+
+    public function getRecordsByCategory($categoryID)
+    {
+        $vars = array(':categoryID'=>XSSHelpers::xscrub($categoryID));
+        $data = $this->db->prepared_query('SELECT recordID, title, userID, categoryID, submitted 
+                                            FROM records
+                                            JOIN category_count USING (recordID)
+                                            WHERE categoryID=:categoryID', $vars);
+        
+        return $data;
     }
 }

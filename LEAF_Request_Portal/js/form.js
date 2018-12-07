@@ -37,13 +37,57 @@ var LeafForm = function(containerID) {
 			console.log('recordID not set');
 			return 0;
 		}
+
+		var hasTable = $('#' + htmlFormID).find('table').html() !== undefined;
 		var temp = $('#' + dialog.btnSaveID).html();
 		$('#' + dialog.btnSaveID).empty().html('<img src="images/indicator.gif" alt="saving" /> Saving...');
 
 		$('#' + htmlFormID).find(':input:disabled').removeAttr('disabled');
 
 		var data = {recordID: recordID};
-		$('#' + htmlFormID).serializeArray().map(function(x){data[x.name] = x.value;}); 
+		$('#' + htmlFormID).serializeArray().map(function(x){data[x.name] = x.value;});
+
+		if(hasTable){
+            var tables = [];
+
+			$('#' + htmlFormID).find('table').each(function(index) {
+				var gridObject = {};
+                gridObject.cells = [];
+                gridObject.names = [];
+
+                // determines the order of the column values
+                gridObject.columns = [];
+
+                $('thead', this).find('td').slice(0, -1).each(function() {
+                    gridObject.names.push($(this).text());
+                    gridObject.columns.push($('div', this).attr('id'));
+				});
+
+				$('tbody', this).find('tr').each(function(){
+                    var cellArr = [];
+					$(this).children('td').each(function() {
+                        if($('textarea', this).length) {
+                            cellArr.push($(this).find('textarea').val());
+                        } else if($('select', this).length){
+                            cellArr.push($("option:selected", this).val());
+						} else if($('input', this).length) {
+                            cellArr.push($("input", this).val());
+                        }
+                    });
+                    gridObject.cells.push(cellArr);
+				});
+				tables[index] = {
+					id: $(this).attr('id').split('_')[1],
+					data: gridObject,
+				};
+            });
+
+            $('#' + htmlFormID).serializeArray().map(function(){
+            	for(var i = 0; i < tables.length; i++){
+                    data[tables[i].id] = tables[i].data;
+                }
+            });
+		}
 
 	    $.ajax({
 	        type: 'POST',
