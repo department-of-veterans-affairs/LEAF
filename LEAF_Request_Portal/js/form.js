@@ -38,7 +38,7 @@ var LeafForm = function(containerID) {
 			return 0;
 		}
 
-		var hasTable = $('#' + htmlFormID).find('table.table').html() !== 0;
+		var hasTable = $('#' + htmlFormID).find('table.table').length !== 0;
 		var temp = $('#' + dialog.btnSaveID).html();
 		$('#' + dialog.btnSaveID).empty().html('<img src="images/indicator.gif" alt="saving" /> Saving...');
 
