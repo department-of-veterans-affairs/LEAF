@@ -307,7 +307,8 @@ var LeafFormGrid = function(containerID, options) {
   					if(currentData[i].sDate == undefined) {
       					currentData[i].sDate = {};
                     }
-    				currentData[i].s1[idKey] = '';
+						//Workaround for sorting manually created grid
+						currentData[i].s1[idKey] = !isNaN(currentData[i][key]) ? currentData[i][key] : '';
   					currentData[i].sDate[key] = 0;
                 }
                 tDate = null;
@@ -715,7 +716,7 @@ var LeafFormGrid = function(containerID, options) {
     				i = 0;
     			}
 			});
-			
+
 			rows = '';
 			$(output).each(function(idx, thisRow)
 			{
