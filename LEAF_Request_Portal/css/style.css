@@ -264,6 +264,24 @@ span#headerTab {
     padding-top: 5px;
 }
 
+div.tableinput {
+    overflow-x: scroll;
+}
+
+div.tableinput::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+div.tableinput::-webkit-scrollbar:horizontal {
+    height: 11px;
+}
+
+div.tableinput::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white;
+    background-color: rgba(0, 0, 0, .5);
+}
+
 .text {
 
 }
@@ -361,7 +379,7 @@ span.printsubheading {
 
 div.printResponse {
     float: left;
-    padding: 0px 16px 8px 16px;
+    padding: 5px 16px 8px 16px;
 }
 
 span.printResponse {
@@ -370,6 +388,20 @@ span.printResponse {
     letter-spacing: 0.01rem;
     line-height: 150%;
     color: rgba(0,0,0,0.8);
+}
+
+div.printResponse::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+div.printResponse::-webkit-scrollbar:horizontal {
+    height: 11px;
+}
+
+div.printResponse::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white;
+    background-color: rgba(0, 0, 0, .5);
 }
 
 a.printResponse {
@@ -1097,6 +1129,41 @@ button.AdminButton{
 button.AdminButton:hover, button.AdminButton:focus {
   background-color: #b02323;
   color: white;
+}
+
+div.sensitiveIndicator > .printResponse {
+    display: none;
+    float: left;
+}
+
+.sensitiveIndicator-masked, .sensitiveIndicatorMaskToggle {
+    display: block;
+    float: left;
+    font-family: monospace;
+    font-size: 20px;
+    letter-spacing: 0.01rem;
+    line-height: 150%;
+    color: rgba(0,0,0,0.8);
+}
+.sensitiveIndicatorMaskToggle {
+    padding-right: 5px;
+}
+
+.sensitiveIndicatorMaskToggle > input[type=checkbox] {
+    display: none;
+}
+
+.sensitiveIndicatorMaskToggle > input[type=checkbox] + label {
+    background-image: url("/libs/dynicons/?img=eye_invisible.svg&w=16");
+    height: 16px;
+    width: 16px;
+    display: inline-block;
+    padding: 0 0 0 0px;
+    cursor: pointer;
+}
+
+.sensitiveIndicatorMaskToggle > input[type=checkbox]:checked + label {
+    background-image: url("/libs/dynicons/?img=eye_visible.svg&w=16");
 }
 
 .tools>div:focus {

@@ -42,6 +42,48 @@ var LeafFormGrid = function(containerID, options) {
     }
 
     /**
+     * @param values (required) object of cells and names to generate grid
+     * @memberOf LeafFormGrid
+     */
+    function printTableReportBuilder(values) {
+        var gridBodyBuffer = '';
+        var gridHeadBuffer = '';
+        var rows = values.cells === undefined ? 0 : values.cells.length;
+        var columns = values.format.length;
+        var columnOrder = [];
+
+        //finds and displays column names
+        for(var i = 0; i < columns; i++){
+            gridHeadBuffer +='<td style="width: 100px;">' + values.format[i].name + '</td>';
+            columnOrder.push(values.format[i].id)
+        }
+
+        //populates table
+        for (var i = 0; i < rows; i++) {
+            var gridRow = '<tr>';
+            var rowBuffer = [];
+
+            //makes array of cells
+            for (var j = 0; j < columns; j++) {
+				rowBuffer.push('<td style="width:100px"></td>');
+            }
+
+			//for all values with matching column id, replaces cell with value
+            for (var j = 0; j < values.columns.length; j++) {
+                if(columnOrder.indexOf(values.columns[j]) !== -1) {
+                    var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
+                    rowBuffer.splice(columnOrder.indexOf(values.columns[j]), 1, '<td style="width:100px">' + value + '</td>');
+                }
+            }
+
+            //combines cells into html and pushes row to body buffer
+            gridRow += rowBuffer.join("") + '</tr>';
+            gridBodyBuffer += gridRow;
+        }
+        return '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer + '</thead><tbody>' + gridBodyBuffer + '</tbody></table>';
+    }
+
+    /**
      * @memberOf LeafFormGrid
      */
     function getIndicator(indicatorID, series) {
@@ -60,6 +102,9 @@ var LeafFormGrid = function(containerID, options) {
                         }
                     }
                     data = tData.substr(2);
+                }
+            	if(response[indicatorID].format == 'grid') {
+                    data = printTableReportBuilder(data);
                 }
                 $('#' + prefixID+recordID+'_'+indicatorID).empty().html(data);
                 $('#' + prefixID+recordID+'_'+indicatorID).fadeOut(250, function() {
@@ -461,10 +506,15 @@ var LeafFormGrid = function(containerID, options) {
                     	data.data = currentData[i].s1['id'+headers[j].indicatorID] != undefined ? currentData[i].s1['id'+headers[j].indicatorID] : '';
                         if(currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint'] != undefined) {
                             var htmlPrint = '<textarea id="data_'+currentData[i].recordID+'_'+headers[j].indicatorID+'_1" style="display: none">'+ data.data +'</textarea>';
-                            htmlPrint += currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint'].replace(/{{ iID }}/g, currentData[i].recordID + '_' + headers[j].indicatorID);
+                            htmlPrint += currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint']
+                                            .replace(/{{ iID }}/g, currentData[i].recordID + '_' + headers[j].indicatorID)
+                                            .replace(/{{ recordID }}/g, currentData[i].recordID);
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + htmlPrint + '</td>';
                         }
                         else {
+                            if(currentData[i].s1[data.data] !== undefined && data.data.search("gridInput")){
+                                data.data = printTableReportBuilder(currentData[i].s1[data.data]);
+                            }
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + data.data + '</td>';
                         }
                 	}

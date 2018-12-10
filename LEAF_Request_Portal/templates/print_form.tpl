@@ -86,6 +86,7 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script type="text/javascript" src="js/functions/toggleZoom.js"></script>
+<script type="text/javascript" src="/libs/js/LEAF/sensitiveIndicator.js"></script>
 <script type="text/javascript">
 var currIndicatorID;
 var currSeries;
@@ -440,7 +441,13 @@ function changeService() {
 
 function admin_changeStep() {
     dialog.setTitle('Change Step');
-    dialog.setContent('Set to this step: <br /><div id="changeStep"></div><br /><br />Comments:<br /><textarea id="changeStep_comment" type="text" style="width: 90%; padding: 4px" aria-label="Comments"></textarea>');
+    dialog.setContent('Set to this step: <br /><div id="changeStep"></div><br /><br />'
+                + 'Comments:<br /><textarea id="changeStep_comment" type="text" style="width: 90%; padding: 4px" aria-label="Comments"></textarea>'
+                + '<br /><br />'
+                + '<fieldset>'
+                + '<legend>Advanced Options</legend>'
+                + '<input id="showAllSteps" type="checkbox" /><label for="showAllSteps">Show steps from other workflows</label>'
+                + '</fieldset>');
     dialog.show();
     dialog.indicateBusy();
     $.ajax({
@@ -474,6 +481,16 @@ function admin_changeStep() {
                 	}
                 	steps += '</select>';
                     $('#changeStep').html(steps);
+
+                    $('#showAllSteps').on('click', function() {
+                        if($('#showAllSteps').is(':checked')) {
+                            $('#newStep').html(steps2);
+                        }
+                        else {
+                            $('#newStep').html(steps);
+                        }
+                        $('#newStep').trigger('chosen:updated');
+                    });
                     $('.chosen').chosen({disable_search_threshold: 6});
                     dialog.indicateIdle();
                     dialog.setSaveHandler(function() {

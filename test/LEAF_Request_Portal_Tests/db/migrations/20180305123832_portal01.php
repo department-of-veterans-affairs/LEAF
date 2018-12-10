@@ -80,6 +80,10 @@ class Portal01 extends AbstractMigration
         '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5219-5225.sql',
         '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5225-5293.sql',
         '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5293-5299.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5299-5348.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5348-5360.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5360-5366.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5366-5367.sql',
       );
 
         foreach ($files as $file)

@@ -211,6 +211,19 @@ class System
             }
         }
 
+        //if the group is removed, also remove the category_privs
+        $vars = array(':groupID' => $groupID);
+        $res = $this->db->prepared_query('SELECT *
+                                            FROM category_privs
+                                            LEFT JOIN groups USING (groupID)
+                                            WHERE category_privs.groupID = :groupID
+                                            AND groups.groupID is null;', $vars);
+        if(count($res) > 0)
+        {
+            $this->db->prepared_query('DELETE FROM category_privs WHERE groupID=:groupID', $vars);
+        }
+
+
         return "groupID: {$groupID} updated";
     }
 
