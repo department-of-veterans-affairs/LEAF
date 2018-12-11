@@ -61,7 +61,7 @@ function printTableInput(gridParameters, values, indicatorID, series){
                 case 'textarea':
                     element = '<textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;"></textarea>';
                     break;
-                case 'single line input':
+                case 'text':
                     element = '<input value=""></input>';
                     break;
                 default:
@@ -127,7 +127,7 @@ function addRow(gridParameters, indicatorID, series){
             case 'textarea':
                 $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '"><textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;"></textarea></td>');
                 break;
-            case 'single line input':
+            case 'text':
                 $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '"><input value=""></input></td>');
                 break;
             default:
