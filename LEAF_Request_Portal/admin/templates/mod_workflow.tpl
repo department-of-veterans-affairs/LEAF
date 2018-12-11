@@ -425,13 +425,13 @@ function listActionType() {
 		url: '../api/?a=workflow/userActions',
 		success: function(res) {
 			var buffer = '';
-			buffer += '<br /><table id="actions" border="1"><caption><h2>List of Current Actions:</h2></caption><tr><th scope="col">Action Text</th><th scope="col">Action Text Past Tense</th><th scope="col">Execute</th></tr>';
+			buffer += '<table id="actions" class="table" border="1"><caption><h2>List of Actions</h2></caption><thead><th scope="col">Action</th><th scope="col">Action (Past Tense)</th><th scope="col"></th></thead>';
 
 			for(var i in res) {
         buffer +='<tr>';
 				buffer += '<td width="300px" id="'+ res[i].actionType +'">'+ res[i].actionText +'</td>';
 				buffer += '<td width="300px" id="'+ res[i].actionTextPasttense +'">'+ res[i].actionTextPasttense +'</td>';
-        buffer += '<td width="150px" id="'+ res[i].actionType +'"><button onclick="editActionType(\'' + res[i].actionType + '\')" style="float:left;background: blue;color: #fff;">Edit</button> <button onclick="deleteActionType(\'' + res[i].actionType + '\')" style="float:left;background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
+        buffer += '<td width="150px" id="'+ res[i].actionType +'"><button class="buttonNorm" onclick="editActionType(\'' + res[i].actionType + '\')" style="background: blue;color: #fff;">Edit</button> <button class="buttonNorm" onclick="deleteActionType(\'' + res[i].actionType + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
         buffer += '</tr>';
 			}
 
@@ -512,13 +512,19 @@ function editActionType(actionType) {
 
 //deletes action type
 function deleteActionType(actionType) {
-    $.ajax({
-      type: 'DELETE',
-      url: '../api/?a=workflow/action/_' + actionType + '&CSRFToken=' + CSRFToken,
-      success: function() {
-        listActionType();
-      }
+    dialog_confirm.setTitle('Confirmation required');
+    dialog_confirm.setContent('Are you sure you want to delete this action?');
+    dialog_confirm.setSaveHandler(function() {
+        $.ajax({
+            type: 'DELETE',
+            url: '../api/?a=workflow/action/_' + actionType + '&CSRFToken=' + CSRFToken,
+            success: function() {
+                listActionType();
+            }
+        });
+        dialog_confirm.hide();
     });
+    dialog_confirm.show();
   }
 
 

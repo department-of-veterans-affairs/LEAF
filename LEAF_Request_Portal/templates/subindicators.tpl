@@ -54,7 +54,7 @@
                 </tbody>
             </table>
             </div>
-            <button class="buttonNorm" id="addRowBtn" title="Grid input add row" alt="Grid input add row" aria-label="Grid input add row" onclick="addRow(options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
+            <button class="buttonNorm" id="addRowBtn" title="Grid input add row" alt="Grid input add row" aria-label="Grid input add row" onclick="addRow(options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)"><img src="../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
             <script>
                 var options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = <!--{$indicator.options[0]}-->;
                 var values_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = <!--{$indicator.value|json_encode}-->;
