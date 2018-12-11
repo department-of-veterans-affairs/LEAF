@@ -38,7 +38,7 @@ var LeafForm = function(containerID) {
 			return 0;
 		}
 
-		var hasTable = $('#' + htmlFormID).find('table.table').length !== 0;
+		var hasTable = $('#' + htmlFormID).find('.tableinput').length !== 0;
 		var temp = $('#' + dialog.btnSaveID).html();
 		$('#' + dialog.btnSaveID).empty().html('<img src="images/indicator.gif" alt="saving" /> Saving...');
 
@@ -50,7 +50,7 @@ var LeafForm = function(containerID) {
 		if(hasTable){
             var tables = [];
 
-			$('#' + htmlFormID).find('table.table').each(function(index) {
+			$('#' + htmlFormID).find('.tableinput > table').each(function(index) {
 				var gridObject = {};
                 gridObject.cells = [];
                 gridObject.names = [];
