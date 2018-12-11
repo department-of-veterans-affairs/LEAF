@@ -370,6 +370,7 @@ var LeafFormGrid = function(containerID, options) {
         	});
     	}
     	else {
+					var collator = new Intl.Collator('en', {numeric: true, sensitivity: 'base'});
         	array.sort(function(a, b) {
         		if(a[key] == undefined) {
         			a[key] = '';
@@ -377,13 +378,7 @@ var LeafFormGrid = function(containerID, options) {
         		if(b[key] == undefined) {
         			b[key] = '';
         		}
-        		if(b[key].toLowerCase() > a[key].toLowerCase()) {
-        			return 1;
-        		}
-        		if(b[key].toLowerCase() < a[key].toLowerCase()) {
-        			return -1;
-        		}
-        		return 0;
+        		return collator.compare(a[key], b[key]);
         	});
     	}
     	if(order == 'asc') {
