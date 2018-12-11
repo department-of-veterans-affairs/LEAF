@@ -68,5 +68,8 @@ When logging into this system, you agree to the following:<br />
 
 </div>
 
+<div class="noprint" id="footer">
+    <br /><br />Powered by VA LEAF</a>
+</div>
 </body>
 </html>
