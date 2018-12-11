@@ -604,7 +604,7 @@ var LeafFormGrid = function(containerID, options) {
 
     /**
      * Set the working data set
-     * @params array - Expects format: [{recordID, indicatorID}, ...]
+     * @params array - Expects format: [{recordID}, ...]
      * @memberOf LeafFormGrid
      */
     function setData(data) {
