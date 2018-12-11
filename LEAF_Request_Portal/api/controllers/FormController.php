@@ -170,6 +170,10 @@ class FormController extends RESTfulResponse
             return $form->getRecordInfo($args[0]);
         });
 
+        $this->index['GET']->register('form/[text]/records', function ($args) use ($form) {
+            return $form->getRecordsByCategory($args[0]);
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 

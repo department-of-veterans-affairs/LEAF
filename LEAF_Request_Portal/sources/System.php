@@ -13,6 +13,7 @@ if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
+require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
 
 class System
 {
@@ -22,22 +23,7 @@ class System
 
     private $login;
 
-    private $fileExtensionWhitelist = array( // for file manager
-                'doc', 'docx', 'docm', 'dotx', 'dotm',
-                'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
-                'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm',
-                'ai', 'eps',
-                'pdf',
-                'txt',
-                'html',
-                'png', 'jpg', 'bmp', 'gif', 'tif', 'svg',
-                'vsd',
-                'rtf',
-                'js',
-                'css',
-                'pub',
-                'msg', 'ics',
-    );
+    private $fileExtensionWhitelist;
 
     public function __construct($db, $login)
     {
@@ -46,6 +32,8 @@ class System
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
+        $commonConfig = new CommonConfig();
+        $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
     }
 
     public function updateService($serviceID)
@@ -211,6 +199,19 @@ class System
             }
         }
 
+        //if the group is removed, also remove the category_privs
+        $vars = array(':groupID' => $groupID);
+        $res = $this->db->prepared_query('SELECT *
+                                            FROM category_privs
+                                            LEFT JOIN groups USING (groupID)
+                                            WHERE category_privs.groupID = :groupID
+                                            AND groups.groupID is null;', $vars);
+        if(count($res) > 0)
+        {
+            $this->db->prepared_query('DELETE FROM category_privs WHERE groupID=:groupID', $vars);
+        }
+
+
         return "groupID: {$groupID} updated";
     }
 
@@ -246,6 +247,8 @@ class System
     								WHERE groupID > 1
         							ORDER BY name ASC', array());
     }
+
+
 
     public function addAction()
     {

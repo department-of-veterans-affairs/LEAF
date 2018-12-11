@@ -5,6 +5,23 @@
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <script>
+function checkSensitive(indicator) {
+    var result = 0;
+    $.each(indicator, function( index, value )
+    {
+        if (value.is_sensitive === '1') {
+            result = 1;
+        } else if(result === 0 && !$.isEmptyObject(value.child)){
+            result = checkSensitive(value.child);
+        }
+        if(result)
+        {
+            return false;
+        }
+    });
+    return result;
+}
+
 function editProperties(isSubForm) {
     dialog.setTitle('Edit Properties');
     dialog.setContent('<table>\
@@ -21,7 +38,7 @@ function editProperties(isSubForm) {
                                  <td id="container_workflowID"></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Need to Know mode <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form."></td>\
+                                 <td>Need to Know mode <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information."></td>\
                                  <td><select id="needToKnow"><option value="0">Off</option><option value="1">On</option></select></td>\
                              </tr>\
                              <tr class="isSubForm">\
@@ -37,6 +54,18 @@ function editProperties(isSubForm) {
                             	 <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
                              </tr>\
                            </table>');
+        $.ajax({
+            type: 'GET',
+            url: '../api/form/_' + currCategoryID,
+            success: function(res) {
+                if(res.length > 0) {
+                    if(checkSensitive(res) === 1) {
+                        $("#needToKnow option[value='0']").remove();
+                        $("#needToKnow option[value='1']").html('Forced on because sensitive fields are present');
+                    }
+                }
+            }
+        });
         $('#name').val(categories[currCategoryID].categoryName);
         $('#description').val(categories[currCategoryID].categoryDescription);
         $('#workflowID').val(categories[currCategoryID].workflowID);
@@ -407,6 +436,17 @@ function editIndicatorPrivileges(indicatorID) {
         }
     );
 }
+var gridJSON = [];
+var gridBodyElement = 'div#container_indicatorGrid > div';
+if(columns === undefined) {
+    var columns = 0;
+}
+
+// function that generates unique id to track columns
+// so that user input order updates with the grid format
+function makeColumnID(){
+    return "col_" + (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+}
 
 function newQuestion(parentIndicatorID) {
 	var title = '';
@@ -426,6 +466,7 @@ function newQuestion(parentIndicatorID) {
                     <option value="">None</option>\
                     <option value="text">Single line text</option>\
                     <option value="textarea">Multi-line text</option>\
+                    <option value="grid">Grid (Table with rows and columns)</option>\
                     <option value="number">Numeric</option>\
                     <option value="currency">Currency</option>\
                     <option value="date">Date</option>\
@@ -442,29 +483,55 @@ function newQuestion(parentIndicatorID) {
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
-                <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
-            <fieldset><legend>Attributes</legend>\
-                <table>\
-                    <tr>\
-                        <td>Required</td>\
-                        <td><input id="required" name="required" type="checkbox" /></td>\
-                    </tr>\
-                </table>\
-        </fieldset>');
+                <div id="container_indicatorGrid" style="display: none"><span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>\
+                </br><button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" onclick="addCells()"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>\
+                <br/><br/>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\n                <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
+                    <fieldset><legend>Attributes</legend>\
+                        <table>\
+                            <tr>\
+                                <td>Required</td>\
+                                <td><input id="required" name="required" type="checkbox" /></td>\
+                            </tr>\
+                        </table>\
+                        <table>\
+                            <tr>\
+                                <td>Sensitive</td>\
+                                <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
+                            </tr>\
+                        </table>\
+                </fieldset>');
     $('#indicatorType').on('change', function() {
         switch($('#indicatorType').val()) {
+            case 'grid':
+                $('#container_indicatorGrid').css('display', 'block');
+                $('#container_indicatorMultiAnswer').css('display', 'none');
+                $('#container_indicatorSingleAnswer').css('display', 'none');
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', '70%');
+                $(gridBodyElement).closest('div[role="dialog"]').css('left', '15%');
+                $('#xhr').css('width', '100%');
+                makeGrid(0);
+                break;
             case 'radio':
             case 'checkboxes':
             case 'dropdown':
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 $('#container_indicatorSingleAnswer').css('display', 'none');
                 break;
             case 'checkbox':
-            	$('#container_indicatorMultiAnswer').css('display', 'none');
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
+                $('#container_indicatorMultiAnswer').css('display', 'none');
             	$('#container_indicatorSingleAnswer').css('display', 'block');
             	break;
             default:
-            	$('#container_indicatorMultiAnswer').css('display', 'none');
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
+                $('#container_indicatorMultiAnswer').css('display', 'none');
                 $('#container_indicatorSingleAnswer').css('display', 'none');
                 break;
         }
@@ -519,6 +586,12 @@ function newQuestion(parentIndicatorID) {
     		alert('You can\'t mark a field as required if the Input Format is "None".');
     	}
     });
+    $('#sensitive').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#sensitive').prop('checked', false);
+            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
+        }
+    });
 
 		//ie11 fix
 		setTimeout(function () {
@@ -527,8 +600,50 @@ function newQuestion(parentIndicatorID) {
 
     dialog.setSaveHandler(function() {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
+        var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
+        if (isSensitive === 1) {
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formNeedToKnow',
+                data: {needToKnow: '1',
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
+                    }
+                }
+            });
+            categories[currCategoryID].needToKnow = 1;
+        }
 
         switch($('#indicatorType').val()) {
+            case 'grid':
+                var gridJSON = [];
+
+                //gather column names and column types
+                //if column type is dropdown, adds property.options
+                $(gridBodyElement).find('div.cell').each(function() {
+                    var properties = new Object();
+                    if($(this).children('input:eq(0)').val() === 'undefined'){
+                        properties.name = 'No title';
+                    } else {
+                        properties.name = $(this).children('input:eq(0)').val();
+                    }
+                    properties.id = $(this).attr('id');
+                    properties.type = $(this).find('select').val();
+                    if(properties.type !== undefined){
+                        if(properties.type === 'dropdown'){
+                            properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
+                        }
+                    } else {
+                        properties.type = 'textarea';
+                    }
+                    gridJSON.push(properties);
+                });
+                var buffer = $('#indicatorType').val();
+                buffer += "\n" + JSON.stringify(gridJSON);
+                $('#format').val(buffer);
+                break;
             case 'radio':
             case 'checkboxes':
             case 'dropdown':
@@ -557,6 +672,7 @@ function newQuestion(parentIndicatorID) {
             	parentID: parentIndicatorID,
             	categoryID: currCategoryID,
             	required: isRequired,
+                is_sensitive: isSensitive,
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
                 if(res != null) {
@@ -567,6 +683,198 @@ function newQuestion(parentIndicatorID) {
             }
         });
     });
+}
+
+function updateNames(){
+    $(gridBodyElement).children('div').each(function(i) {
+        if (gridJSON[i] === undefined) {
+            gridJSON.push(new Object);
+        }
+        gridJSON[i].name = $(this).children('input').val();
+        gridJSON[i].id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
+    });
+}
+
+
+function makeGrid(columns) {
+    $(gridBodyElement).html('');
+    if(columns === 0){
+        gridJSON = [];
+        columns = 1;
+    }
+    for (var i = 0; i < columns; i++) {
+        if(gridJSON[i] === undefined){
+            gridJSON.push(new Object());
+        }
+        var name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
+        var id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
+        $(gridBodyElement).append(
+            '<div tabindex="0" id="' + id + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
+            '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
+            '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
+            '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
+            '<option value="dropdown">Drop Down</option><option value="single line input">Single line input</option></select>'
+        );
+        if(columns === 1){
+            rightArrows($(gridBodyElement + ' > div:last'), false);
+            leftArrows($(gridBodyElement + ' > div:last'), false);
+        } else {
+            switch (i) {
+                case 0:
+                    leftArrows($(gridBodyElement + ' > div:last'), false);
+                    break;
+                case columns - 1:
+                    rightArrows($(gridBodyElement + ' > div:last'), false);
+                    break;
+                default:
+                    break;
+            }
+        }
+        if(gridJSON[i].type !== undefined){
+            $(gridBodyElement + '> div:eq(' + i + ') > select option[value="' + gridJSON[i].type + '"]').attr('selected', 'selected');
+            if(gridJSON[i].type.toString() === 'dropdown'){
+                if(gridJSON[i].options !== ""){
+                    var options = gridJSON[i].options.join("\n").toString();
+                } else {
+                    var options = "";
+                }
+                $(gridBodyElement + ' > div:eq(' + i + ')').css('padding-bottom', '11px');
+                if($(gridBodyElement + ' > div:eq(' + i + ') > span.dropdown').length === 0){
+                    $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" style="width: 153px; resize: none;"value="">' + options + '</textarea></span>');
+                }
+            }
+        }
+    }
+}
+
+function toggleDropDown(type, cell){
+    if(type === 'dropdown'){
+        $(cell).parent().append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" value="" style="width: 153px; resize:none"></textarea></span>');
+        $('#tableStatus').attr('aria-label', 'Make drop options in the space below, one option per line.');
+    } else {
+        $(cell).parent().find('span.dropdown').remove();
+        $('#tableStatus').attr('aria-label', 'Dropdown options box removed');
+    }
+}
+
+function leftArrows(cell, toggle){
+    if(toggle){
+        cell.find('[title="Move column left"]').css('display', 'inline');
+    } else {
+        cell.find('[title="Move column left"]').css('display', 'none');
+    }
+}
+function rightArrows(cell, toggle){
+    if(toggle){
+        cell.find('[title="Move column right"]').css('display', 'inline');
+    } else {
+        cell.find('[title="Move column right"]').css('display', 'none');
+    }
+}
+
+function addCells(){
+    columns = columns + 1;
+    rightArrows($(gridBodyElement + ' > div:last'), true);
+    $(gridBodyElement).append(
+        '<div tabindex="0" id="' + makeColumnID() + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
+        '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" /></br>' +
+        '<span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
+        '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);"><option value="textarea">Text Area</option>' +
+        '<option value="dropdown">Drop Down</option><option value="single line input">Single line input</option></select>'
+    );
+    $('#tableStatus').attr('aria-label', 'Column added, ' + $(gridBodyElement).children().length + ' total.');
+    $(gridBodyElement + ' > div:last').focus();
+    updateColumnNumbers();
+}
+
+function updateColumnNumbers(){
+    $(gridBodyElement).find('span.columnNumber').each(function(index) {
+        $(this).html('Column #' + (index + 1) +':&nbsp;');
+    });
+}
+
+function deleteColumn(event){
+    var column = $(event.target).closest('div');
+    var tbody = $(event.target).closest('div').parent('div');
+    var columnDeleted = parseInt($(column).index()) + 1;
+    var focus;
+    switch(tbody.find('div').length){
+        case 1:
+            alert('Cannot remove initial column.');
+            break;
+        case 2:
+            column.remove();
+            focus = $('div.cell:first');
+            rightArrows(tbody.find('div'), false);
+            leftArrows(tbody.find('div'), false);
+            break;
+        default:
+            focus = column.next().find('[title="Delete column"]');
+            // column.next().focus();
+            if(column.find('[title="Move column right"]').css('display') === 'none'){
+                rightArrows(column.prev(), false);
+                leftArrows(column.prev(), true);
+                focus = column.prev().find('[title="Delete column"]');
+            }
+            if(column.find('[title="Move column left"]').css('display') === 'none'){
+                leftArrows(column.next(), false);
+                rightArrows(column.next(), true);
+            }
+            column.remove();
+            break;
+    }
+    columns = columns - 1;
+    $('#tableStatus').attr('aria-label', 'Row ' + columnDeleted + ' removed, ' + $(tbody).children().length + ' total.');
+
+    //ie11 fix
+    setTimeout(function () {
+        focus.focus();
+    }, 0);
+    updateColumnNumbers();
+}
+
+function moveRight(event){
+    var column = $(event.target).closest('div');
+    var nextColumnLast = column.next().find('[title="Move column right"]').css('display') === 'none';
+    var first = column.find('[title="Move column left"]').css('display') === 'none';
+    leftArrows(column, true);
+    if(first){
+        leftArrows(column.next(), false);
+    }
+    if(nextColumnLast){
+        rightArrows(column, false);
+        rightArrows(column.next(), true);
+    }
+    column.insertAfter(column.next());
+    if(nextColumnLast){
+        column.find('[title="Move column left"]').focus();
+    } else {
+        column.find('[title="Move column right"]').focus();
+    }
+    $('#tableStatus').attr('aria-label', 'Moved right to column ' + (parseInt($(column).index()) + 1) + ' of ' + column.parent().children().length);
+    updateColumnNumbers();
+}
+
+function moveLeft(event){
+    var column = $(event.target).closest('div.cell');
+    var nextColumnFirst = column.prev().find('[title="Move column left"]').css('display') === 'none';
+    var last = column.find('[title="Move column right"]').css('display') === 'none';
+    rightArrows(column, true);
+    if(last){
+        rightArrows(column.prev(), false);
+    }
+    if(nextColumnFirst){
+        leftArrows(column, false);
+        leftArrows(column.prev(), true);
+    }
+    column.insertBefore(column.prev());
+    if(nextColumnFirst){
+        column.find('[title="Move column right"]').focus();
+    } else {
+        column.find('[title="Move column left"]').focus();
+    }
+    $('#tableStatus').attr('aria-label', 'Moved left to column ' + (parseInt($(column).index()) + 1) + ' of ' + column.parent().children().length);
+    updateColumnNumbers();
 }
 
 // edit question
@@ -581,6 +889,7 @@ function getForm(indicatorID, series) {
                     <option value="">None</option>\
                     <option value="text">Single line text</option>\
                     <option value="textarea">Multi-line text</option>\
+                    <option value="grid">Grid (Table with rows and columns)</option>\
                     <option value="number">Numeric</option>\
                     <option value="currency">Currency</option>\
                     <option value="date">Date</option>\
@@ -597,12 +906,19 @@ function getForm(indicatorID, series) {
                 </select>\
                 <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
+                <div id="container_indicatorGrid" style="display: none"><span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>\
+                </br><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>&nbsp;\
+                </br></br>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\
                 <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
             <fieldset><legend>Attributes</legend>\
                 <table>\
                     <tr>\
                         <td>Required</td>\
                         <td><input id="required" name="required" type="checkbox" /></td>\
+                    </tr>\
+                    </tr>\
+                        <td>Sensitive</td>\
+                        <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
                     </tr>\
                     <tr>\
                         <td>Sort Priority</td>\
@@ -634,21 +950,38 @@ function getForm(indicatorID, series) {
             html (for pages where the user can edit data): <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button><textarea id="html"></textarea><br />\
             htmlPrint (for pages where the user can only read data): <button id="btn_codeSave_htmlPrint" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button><textarea id="htmlPrint"></textarea><br />\
         </div></div>');
-
     $('#indicatorType').on('change', function() {
-    	switch($('#indicatorType').val()) {
+        switch($('#indicatorType').val()) {
+            case 'grid':
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', '70%');
+                $(gridBodyElement).closest('div[role="dialog"]').css('left', '15%');
+                $('#xhr').css('width', '100%');
+                $('#container_indicatorGrid').css('display', 'block');
+                $('#container_indicatorMultiAnswer').css('display', 'none');
+                $('#container_indicatorSingleAnswer').css('display', 'none');
+                makeGrid(0);
+                break;
     	    case 'radio':
     	    case 'checkboxes':
     	    case 'dropdown':
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
     	    	$('#container_indicatorMultiAnswer').css('display', 'block');
     	    	$('#container_indicatorSingleAnswer').css('display', 'none');
     		    break;
     	    case 'checkbox':
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
     	    	$('#container_indicatorMultiAnswer').css('display', 'none');
     	    	$('#container_indicatorSingleAnswer').css('display', 'block');
     	    	break;
     	    default:
-    	    	$('#container_indicatorMultiAnswer').css('display', 'none');
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
+                $('#container_indicatorMultiAnswer').css('display', 'none');
     	        $('#container_indicatorSingleAnswer').css('display', 'none');
     	    	break;
     	}
@@ -682,6 +1015,12 @@ function getForm(indicatorID, series) {
         if($('#indicatorType').val() == '') {
             $('#required').prop('checked', false);
             alert('You can\'t mark a field as required if the Input Format is "None".');
+        }
+    });
+    $('#sensitive').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#sensitive').prop('checked', false);
+            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
         }
     });
     $('#rawNameEditor').on('click', function() {
@@ -809,10 +1148,15 @@ function getForm(indicatorID, series) {
             success: function(res) {
                 var format = res[indicatorID].format;
                 if(res[indicatorID].options != undefined
-                    && res[indicatorID].options.length > 0) {
+                    && res[indicatorID].options.length > 0
+                        && format != 'grid') {
                     for(var i in res[indicatorID].options) {
                         format += "\n" + res[indicatorID].options[i];
                     }
+                }
+                if(format === 'grid'){
+                    gridJSON = JSON.parse(res[indicatorID].options[0]);
+                    columns = gridJSON.length;
                 }
 
                 $('#name').html(res[indicatorID].name);
@@ -827,16 +1171,31 @@ function getForm(indicatorID, series) {
                 if(res[indicatorID].required == 1) {
                     $('#required').prop('checked', true);
                 }
+                if(res[indicatorID].is_sensitive == 1) {
+                    $('#sensitive').prop('checked', true);
+                }
                 $('#parentID').val(res[indicatorID].parentID);
                 $('#sort').val(res[indicatorID].sort);
                 codeEditorHtml.setValue((res[indicatorID].html == null ? '' : res[indicatorID].html));
                 codeEditorHtmlPrint.setValue((res[indicatorID].htmlPrint == null ? '' : res[indicatorID].htmlPrint));
 
                 // render input format UI
-                var formatIdx = format.indexOf('\n');
+                var formatIdx = format === 'grid' ? 4 : format.indexOf('\n');
                 if(formatIdx != -1 && format.substr(0, formatIdx) != '') {
                     switch(format.substr(0, formatIdx)) {
+                        case 'grid':
+                            $(gridBodyElement).closest('div[role="dialog"]').css('width', '70%');
+                            $(gridBodyElement).closest('div[role="dialog"]').css('left', '15%');
+                            $('#xhr').css('width', '100%');
+                            $('#indicatorType').val(format.substr(0, formatIdx));
+                            $('#container_indicatorGrid').css('display', 'block');
+                            $('#container_indicatorMultiAnswer').css('display', 'none');
+                            $('#container_indicatorSingleAnswer').css('display', 'none');
+                            makeGrid(columns);
+                            break;
                         case 'checkbox':
+                            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                            $('#xhr').css('width', 'auto');
                             $('#indicatorType').val(format.substr(0, formatIdx));
                             $('#indicatorSingleAnswer').val(format.substr(formatIdx + 1));
                             $('#container_indicatorSingleAnswer').css('display', 'block');
@@ -845,6 +1204,8 @@ function getForm(indicatorID, series) {
                         case 'checkboxes':
                         case 'dropdown':
                         default:
+                            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                            $('#xhr').css('width', 'auto');
                             $('#indicatorType').val(format.substr(0, formatIdx));
                             $('#indicatorMultiAnswer').val(format.substr(formatIdx + 1));
                             $('#container_indicatorMultiAnswer').css('display', 'block');
@@ -860,9 +1221,51 @@ function getForm(indicatorID, series) {
 
     dialog.setSaveHandler(function() {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
+        var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
     	var isDisabled = $('#disabled').is(':checked') ? 1 : 0;
+        if (isSensitive === 1) {
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formNeedToKnow',
+                data: {needToKnow: '1',
+                categoryID: currCategoryID,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
+                    }
+                }
+            });
+            categories[currCategoryID].needToKnow = 1;
+        }
 
         switch($('#indicatorType').val()) {
+            case 'grid':
+                var gridJSON = [];
+
+                //gather column names and column types
+                //if column type is dropdown, adds property.options
+                $(gridBodyElement).find('div.cell').each(function() {
+                    var properties = new Object();
+                    if($(this).children('input:eq(0)').val() === 'undefined'){
+                        properties.name = 'No title';
+                    } else {
+                        properties.name = $(this).children('input:eq(0)').val();
+                    }
+                    properties.id = $(this).attr('id');
+                    properties.type = $(this).find('select').val();
+                    if(properties.type !== undefined){
+                        if(properties.type === 'dropdown'){
+                            properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
+                        }
+                    } else {
+                        properties.type = 'textarea';
+                    }
+                    gridJSON.push(properties);
+                });
+                var buffer = $('#indicatorType').val();
+                buffer += "\n" + JSON.stringify(gridJSON);
+                $('#format').val(buffer);
+                break;
             case 'radio':
             case 'checkboxes':
             case 'dropdown':
@@ -942,6 +1345,16 @@ function getForm(indicatorID, series) {
    	                }
    	            }
    	        }),
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/' + indicatorID + '/sensitive',
+                data: {is_sensitive: isSensitive,
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res != null) {
+                    }
+                }
+            }),
    	        $.ajax({
    	            type: 'POST',
    	            url: '../api/?a=formEditor/' + indicatorID + '/disabled',
@@ -998,6 +1411,27 @@ function getForm(indicatorID, series) {
    	    	dialog.hide();
    	     });
     });
+}
+
+//this is a modified version formatIndicatorMultiAnswer() in order to returns array
+function gridDropdown(dropDownOptions){
+    if(dropDownOptions == null || dropDownOptions.length === 0){
+        return dropDownOptions;
+    }
+    var uniqueNames = dropDownOptions.split("\n");
+    var returnArray = [];
+    uniqueNames = uniqueNames.filter(function(elem, index, self) {
+        return index == self.indexOf(elem);
+    });
+
+    $.each(uniqueNames, function(i, el){
+        if(el === "no") {
+            uniqueNames[i] = "No";
+        }
+        returnArray.push(uniqueNames[i]);
+    });
+
+    return returnArray;
 }
 
 function formatIndicatorMultiAnswer(multiAnswerValue){
@@ -1164,6 +1598,12 @@ function exportForm(categoryID) {
 		var outBlob = new Blob([JSON.stringify(outPacket).replace(/[^ -~]/g,'')], {type : 'text/plain'}); // Regex replace needed to workaround IE11 encoding issue
 		saveAs(outBlob, 'LEAF_FormPacket_'+ categoryID +'.txt');
 	});
+}
+// click function for 508 compliance
+function triggerClick(event){
+    if(event.keyCode === 13){
+        $(event.target).trigger('click');
+    }
 }
 
 function deleteForm() {

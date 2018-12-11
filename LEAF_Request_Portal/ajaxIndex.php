@@ -57,6 +57,7 @@ switch ($action) {
         if (is_numeric($recordID))
         {
             header('Location: index.php?a=view&recordID=' . $recordID);
+            exit();
         }
         else
         {
@@ -200,7 +201,7 @@ switch ($action) {
         $t_form->assign('requestLabel', $requestLabel);
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        
+
         if ($parallelProcessing)
         {
             $t_form->display(customTemplate('submitForm_parallel_processing.tpl'));
