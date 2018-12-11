@@ -286,6 +286,7 @@ var LeafFormGrid = function(containerID, options) {
     	var array = [];
     	var isIndicatorID = $.isNumeric(key);
     	var isDate = false;
+    	var isNumeric = true;
     	var idKey = 'id' + key;
     	var tDate;
     	for(var i in currentData) {
@@ -298,56 +299,39 @@ var LeafFormGrid = function(containerID, options) {
     			currentData[i][key] = currentData[i][key].replace(/[\u200B-\u200E]/g, '');
     		}
 
-    		if(isIndicatorID) {
-    			if(currentData[i].s1 == undefined) {
-    				currentData[i].s1 = {};
-    			}
-                if(currentData[i].s1[idKey] == undefined
-                    || currentData[i].s1[idKey] == '') {
-  					if(currentData[i].sDate == undefined) {
-      					currentData[i].sDate = {};
-                    }
-						//Workaround for sorting manually created grid
-						currentData[i].s1[idKey] = !isNaN(currentData[i][key]) ? currentData[i][key] : '';
-  					currentData[i].sDate[key] = 0;
+			if(currentData[i].s1 == undefined) {
+				currentData[i].s1 = {};
+			}
+            if(currentData[i].s1[idKey] == undefined
+                || currentData[i].s1[idKey] == '') {
+				if(currentData[i].sDate == undefined) {
+  					currentData[i].sDate = {};
                 }
-                tDate = null;
-                if(isNaN(currentData[i].s1[idKey]) && (currentData[i].s1[idKey].indexOf('-') != -1
-                    || currentData[i].s1[idKey].indexOf('/') != -1)) {
-          			tDate = Date.parse(currentData[i].s1[idKey]);
-                }
-  				if(isDate || (tDate != null && !isNaN(tDate))) {
-  					isDate = true;
-  					if(currentData[i].sDate == undefined) {
-      					currentData[i].sDate = {};
-                    }
-  					currentData[i].sDate[key] = 0;
-  					currentData[i].sDate[key] = !isNaN(tDate) ? tDate : 0;
-  				}
-
-  				if($.isNumeric(currentData[i].s1[idKey])) {
-                    currentData[i].s1[idKey] = parseFloat(currentData[i].s1[idKey]);
-                }
-    		}
-    		// detect date fields for other non-indicatorID columns
-    		else {
-    			tDate = null;
+                //Workaround for sorting manually created grid
+                currentData[i].s1[idKey] = !isNaN(currentData[i][key]) ? currentData[i][key] : '';
+				currentData[i].sDate[key] = 0;
+            }
+            tDate = null;
+            if(isNaN(currentData[i].s1[idKey]) && (currentData[i].s1[idKey].indexOf('-') != -1
+                || currentData[i].s1[idKey].indexOf('/') != -1)) {
+      			tDate = Date.parse(currentData[i].s1[idKey]);
+            }
+			if(isDate || (tDate != null && !isNaN(tDate))) {
+				isDate = true;
 				if(currentData[i].sDate == undefined) {
   					currentData[i].sDate = {};
                 }
 				currentData[i].sDate[key] = 0;
+				currentData[i].sDate[key] = !isNaN(tDate) ? tDate : 0;
+			}
 
-                if(isNaN(currentData[i][key])
-                	&& (currentData[i][key].indexOf('-') != -1
-                        || currentData[i][key].indexOf('/') != -1)) {
-              			tDate = Date.parse(currentData[i][key]);
-                }
-  				if(isDate || (tDate != null && !isNaN(tDate))) {
-  					isDate = true;
-
-  					currentData[i].sDate[key] = !isNaN(tDate) && tDate != null ? tDate : 0;
-  				}
-    		}
+			if($.isNumeric(currentData[i].s1[idKey])
+              & isNumeric == true) {
+                currentData[i].s1[idKey] = parseFloat(currentData[i].s1[idKey]);
+            }
+            else {
+                isNumeric= false;
+            }
 
     		array.push(currentData[i]);
     	}
@@ -362,7 +346,8 @@ var LeafFormGrid = function(containerID, options) {
         		return 0;
         	});
 		}
-		else if($.isNumeric(key)) {
+		else if($.isNumeric(key)
+             || isNumeric) {
         	array.sort(function(a, b) {
         		if(b.s1[idKey] > a.s1[idKey]) {
         			return 1;
