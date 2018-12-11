@@ -15,6 +15,7 @@ if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
+require_once dirname(__FILE__) . '/../libs/php-commons/CommonConfig.php';
 
 class Form
 {
@@ -1016,18 +1017,8 @@ class Form
         // Check for file uploads
         if (is_array($_FILES))
         {
-            $fileExtensionWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
-                                            'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
-                                            'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm',
-                                            'ai', 'eps',
-                                            'pdf',
-                                            'txt',
-                                            'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif',
-                                            'vsd',
-                                            'rtf',
-                                            'mht', 'htm', 'html', 'msg', 'xml',
-                                            'pub',
-            );
+            $commonConfig = new CommonConfig();
+            $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)
             {
