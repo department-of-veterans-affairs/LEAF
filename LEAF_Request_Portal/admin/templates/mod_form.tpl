@@ -713,7 +713,7 @@ function makeGrid(columns) {
             '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
             '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
             '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);">' +
-            '<option value="single line input">Single line input</option><option value="dropdown">Drop Down</option><option value="textarea">Text Area</option></select>'
+            '<option value="text">Single line input</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
         );
         if(columns === 1){
             rightArrows($(gridBodyElement + ' > div:last'), false);
@@ -780,7 +780,7 @@ function addCells(){
         '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" /></br>' +
         '<span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
         '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);">' +
-        '<option value="single line input">Single line input</option><option value="dropdown">Drop Down</option><option value="textarea">Text Area</option></select>'
+        '<option value="text">Single line input</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
     );
     $('#tableStatus').attr('aria-label', 'Column added, ' + $(gridBodyElement).children().length + ' total.');
     $(gridBodyElement + ' > div:last').focus();
