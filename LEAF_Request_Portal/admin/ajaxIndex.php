@@ -125,6 +125,7 @@ switch ($action) {
         if ($result === true)
         {
             header('Location: ./?a=form');
+            exit();
         }
         else
         {
@@ -139,6 +140,7 @@ switch ($action) {
            if ($result === true)
            {
                header('Location: ./?a=mod_file_manager');
+               exit();
            }
            else
            {

@@ -59,6 +59,7 @@ var Signer = function() {
             pendingSignatures[key] = onSuccess;
         });
     };
+
     return {
         sign: sign
     };

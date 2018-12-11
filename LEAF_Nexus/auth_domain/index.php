@@ -49,6 +49,7 @@ if (isset($_SERVER['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || O
         $_SESSION['userID'] = $user;
 
         header('Location: ' . $redirect);
+        exit();
     }
     else
     {
@@ -97,6 +98,7 @@ if (isset($_SERVER['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || O
             $_SESSION['userID'] = $res[0]['userName'];
 
             header('Location: ' . $redirect);
+            exit();
         }
         else
         {
