@@ -307,7 +307,8 @@ var LeafFormGrid = function(containerID, options) {
   					if(currentData[i].sDate == undefined) {
       					currentData[i].sDate = {};
                     }
-    				currentData[i].s1[idKey] = '';
+						//Workaround for sorting manually created grid
+						currentData[i].s1[idKey] = !isNaN(currentData[i][key]) ? currentData[i][key] : '';
   					currentData[i].sDate[key] = 0;
                 }
                 tDate = null;
@@ -384,6 +385,7 @@ var LeafFormGrid = function(containerID, options) {
         	});
     	}
     	else {
+					var collator = new Intl.Collator('en', {numeric: true, sensitivity: 'base'});
         	array.sort(function(a, b) {
         		if(a[key] == undefined) {
         			a[key] = '';
@@ -391,13 +393,7 @@ var LeafFormGrid = function(containerID, options) {
         		if(b[key] == undefined) {
         			b[key] = '';
         		}
-        		if(b[key].toLowerCase() > a[key].toLowerCase()) {
-        			return 1;
-        		}
-        		if(b[key].toLowerCase() < a[key].toLowerCase()) {
-        			return -1;
-        		}
-        		return 0;
+        		return collator.compare(a[key], b[key]);
         	});
     	}
     	if(order == 'asc') {
@@ -715,7 +711,7 @@ var LeafFormGrid = function(containerID, options) {
     				i = 0;
     			}
 			});
-			
+
 			rows = '';
 			$(output).each(function(idx, thisRow)
 			{
