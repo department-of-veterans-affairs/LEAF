@@ -15,7 +15,10 @@ if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
-require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
+if (!class_exists('CommonConfig'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
+}
 abstract class Data
 {
     protected $db;
