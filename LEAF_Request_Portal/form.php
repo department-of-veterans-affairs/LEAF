@@ -17,7 +17,7 @@ if (!class_exists('XSSHelpers'))
 }
 if (!class_exists('CommonConfig'))
 {
-    require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
+    require_once dirname(__FILE__) . '/../libs/php-commons/CommonConfig.php';
 }
 
 class Form
@@ -461,7 +461,6 @@ class Form
 
         $required = isset($data[0]['required']) && $data[0]['required'] == 1 ? ' required="true" ' : '';
 
-
         $idx = $data[0]['indicatorID'];
         $form[$idx]['indicatorID'] = $data[0]['indicatorID'];
         $form[$idx]['series'] = $series;
@@ -471,13 +470,18 @@ class Form
         $form[$idx]['parentID'] = $data[0]['parentID'];
         $form[$idx]['html'] = $data[0]['html'];
         $form[$idx]['htmlPrint'] = $data[0]['htmlPrint'];
-        if($parseTemplate) {
-            $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                              [$idx, $recordID],
-                                              $data[0]['html']);
-            $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                              [$idx, $recordID],
-                                              $data[0]['htmlPrint']);
+        if ($parseTemplate)
+        {
+            $form[$idx]['html'] = str_replace(
+                array('{{ iID }}', '{{ recordID }}'),
+                                              array($idx, $recordID),
+                                              $data[0]['html']
+            );
+            $form[$idx]['htmlPrint'] = str_replace(
+                array('{{ iID }}', '{{ recordID }}'),
+                                              array($idx, $recordID),
+                                              $data[0]['htmlPrint']
+            );
         }
         $form[$idx]['required'] = $data[0]['required'];
         $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
@@ -523,7 +527,7 @@ class Form
         {
             $values = @unserialize($data[0]['data']);
             $format = json_decode(substr($data[0]['format'], 5, -1) . ']');
-            $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+            $form[$idx]['displayedValue'] = array_merge($values, array('format' => $format));
         }
 
         // prevent masked data from being output
@@ -575,7 +579,6 @@ class Form
         $vars = array(':recordID' => (int)$recordID,
                       ':indicatorID' => (int)$indicatorID,
                       ':series' => (int)$series, );
-
 
         $res = $this->db->prepared_query(
             'SELECT h.recordID, h.indicatorID, h.series, h.data, h.timestamp, h.userID, i.is_sensitive 
@@ -926,80 +929,6 @@ class Form
     }
 
     /**
-     * Write data from input fields if the current user has access, used with doModify()
-     * @param int $recordID
-     * @param int $key
-     * @param int $series
-     * @return int 1 for success, 0 for error
-     */
-    private function writeDataField($recordID, $key, $series)
-    {
-        if (is_array($_POST[$key]))
-        {
-            $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
-        }
-        else
-        {
-            $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
-        }
-
-        $vars = array(':recordID' => $recordID,
-                      ':indicatorID' => $key,
-                      ':series' => $series, );
-        $res = $this->db->prepared_query('SELECT data, format FROM data
-                                            LEFT JOIN indicators USING (indicatorID)
-                                            WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
-
-        // handle fileupload indicator type
-        if (isset($res[0]['format'])
-                && ($res[0]['format'] == 'fileupload'
-                        || $res[0]['format'] == 'image'))
-        {
-            if (!isset($_POST['overwrite'])
-                && strpos($res[0]['data'], $_POST[$key]) === false)
-            {
-                $_POST[$key] = trim($res[0]['data'] . "\n" . $_POST[$key]);
-            }
-            else
-            {
-                if (!isset($_POST['overwrite'])
-                && strpos($res[0]['data'], $_POST[$key]) !== false)
-                {
-                    $_POST[$key] = trim($res[0]['data']);
-                }
-            }
-        }
-
-        $duplicate = false;
-        if (isset($res[0]['data']) && $res[0]['data'] == trim($_POST[$key]))
-        {
-            $duplicate = true;
-        }
-
-        // check write access
-        if (!$this->hasWriteAccess($recordID, 0, $key))
-        {
-            return 0;
-        }
-        $vars = array(':recordID' => $recordID,
-                      ':indicatorID' => $key,
-                      ':series' => $series,
-                      ':data' => trim($_POST[$key]),
-                      ':timestamp' => time(),
-                      ':userID' => $this->login->getUserID(), );
-        $res = $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
-                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
-                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
-
-        if (!$duplicate)
-        {
-            $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
-                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
-        }
-        return 1;
-    }
-
-    /**
      * Write data from input fields if the current user has access - HTTP POST
      * @param int $recordID
      * @return int 1 for success, 0 for error
@@ -1104,7 +1033,7 @@ class Form
         {
             if (is_numeric($key))
             {
-                if(!$this->writeDataField($recordID, $key, $series))
+                if (!$this->writeDataField($recordID, $key, $series))
                 {
                     return 0;
                 }
@@ -1112,10 +1041,10 @@ class Form
             else
             {
                 list($tRecordID, $tIndicatorID) = explode('_', $key);
-                if($tRecordID == $recordID
+                if ($tRecordID == $recordID
                     && is_numeric($tIndicatorID))
                 {
-                    if(!$this->writeDataField($recordID, $tIndicatorID, $series))
+                    if (!$this->writeDataField($recordID, $tIndicatorID, $series))
                     {
                         return 0;
                     }
@@ -2025,7 +1954,7 @@ class Form
             foreach ($res as $item)
             {
                 // handle special data types
-                switch($indicators[$item['indicatorID']]['format']) {
+                switch ($indicators[$item['indicatorID']]['format']) {
                     case 'date':
                         if ($item['data'] != '' && !is_numeric($item['data']))
                         {
@@ -2035,6 +1964,7 @@ class Form
                                 $item['data'] = date('n/j/o', $parsedDate);
                             }
                         }
+
                         break;
                     case 'orgchart_employee':
                         $empRes = $this->employee->lookupEmpUID($item['data']);
@@ -2047,19 +1977,22 @@ class Form
                         {
                             $item['data'] = '';
                         }
+
                         break;
                     case 'orgchart_position':
                         $positionTitle = $this->position->getTitle($item['data']);
                         $positionData = $this->position->getAllData($item['data']);
-                        
+
                         $item['dataOrgchart'] = $positionData;
                         $item['dataOrgchart']['positionID'] = $item['data'];
                         $item['data'] = "{$positionTitle} ({$positionData[2]['data']}-{$positionData[13]['data']}-{$positionData[14]['data']})";
+
                         break;
                     case 'orgchart_group':
                         $groupTitle = $this->group->getTitle($item['data']);
-                        
+
                         $item['data'] = $groupTitle;
+
                         break;
                     default:
                         if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
@@ -2083,9 +2016,10 @@ class Form
                         {
                             $values = @unserialize($item['data']);
                             $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']');
-                            $item['gridInput'] = array_merge($values, array("format" => $format));
+                            $item['gridInput'] = array_merge($values, array('format' => $format));
                             $item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
                         }
+
                         break;
                 }
 
@@ -3014,8 +2948,9 @@ class Form
      */
     public function getIndicatorList($sort = 'name', $includeHeadings = false, $formsFilter = '')
     {
-        $forms = [];
-        if($formsFilter != '') {
+        $forms = array();
+        if ($formsFilter != '')
+        {
             $forms = explode(',', trim($formsFilter, ','));
         }
         $orderBy = '';
@@ -3037,7 +2972,8 @@ class Form
                         AND format != ""
                         AND name != ""
                         AND categories.disabled = 0' . $orderBy;
-        if($includeHeadings) {
+        if ($includeHeadings)
+        {
             $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
             LEFT JOIN categories USING (categoryID)
             WHERE indicators.disabled = 0
@@ -3096,17 +3032,21 @@ class Form
                     $temp['categoryID'] = $item['categoryID'];
                     $temp['parentCategoryID'] = $item['parentCategoryID'];
                     $temp['parentStaples'] = $dataStaples[$item['categoryID']];
-                    if(count($forms) > 0) {
-                        foreach($forms as $form) {
-                            if($form == $temp['categoryID']
+                    if (count($forms) > 0)
+                    {
+                        foreach ($forms as $form)
+                        {
+                            if ($form == $temp['categoryID']
                                 || $form == $temp['parentCategoryID']
                                 || (is_array($temp['parentStaples'])
-                                    && array_search($form, $temp['parentStaples']) !== false)) {
+                                    && array_search($form, $temp['parentStaples']) !== false))
+                            {
                                 $data[] = $temp;
                             }
                         }
                     }
-                    else {
+                    else
+                    {
                         $data[] = $temp;
                     }
                 }
@@ -3128,7 +3068,7 @@ class Form
         $vars = array(
             ':recordID' => $recordID,
         );
-        
+
         $res = $this->db->prepared_query(
             'SELECT indicatorID, name, format
                 FROM category_count
@@ -3137,7 +3077,7 @@ class Form
                 AND format IN ("' . implode('","', $formats) . '")',
             $vars
             );
-        
+
         return $res;
     }
 
@@ -3169,13 +3109,16 @@ class Form
             );
 
         $indicatorList = '';
-        foreach($res as $item) {
-            if($item['indicatorID_for_assigned_empUID'] != ''
-                && $item['dependencyID'] == -1) {
+        foreach ($res as $item)
+        {
+            if ($item['indicatorID_for_assigned_empUID'] != ''
+                && $item['dependencyID'] == -1)
+            {
                 $indicatorList .= (int)$item['indicatorID_for_assigned_empUID'] . ',';
             }
-            if($item['indicatorID_for_assigned_groupID'] != ''
-                && $item['dependencyID'] == -3) {
+            if ($item['indicatorID_for_assigned_groupID'] != ''
+                && $item['dependencyID'] == -3)
+            {
                 $indicatorList .= (int)$item['indicatorID_for_assigned_groupID'] . ',';
             }
         }
@@ -3184,8 +3127,9 @@ class Form
         $res = $this->db->query(
             'SELECT indicatorID, name, format
                 FROM indicators
-                WHERE indicatorID IN ('. $indicatorList .')'
+                WHERE indicatorID IN (' . $indicatorList . ')'
             );
+
         return $res;
     }
 
@@ -3199,6 +3143,92 @@ class Form
     public function sanitizeInput($in)
     {
         return XSSHelpers::sanitizeHTML($in);
+    }
+
+    public function getRecordsByCategory($categoryID)
+    {
+        $vars = array(':categoryID' => XSSHelpers::xscrub($categoryID));
+        $data = $this->db->prepared_query('SELECT recordID, title, userID, categoryID, submitted 
+                                            FROM records
+                                            JOIN category_count USING (recordID)
+                                            WHERE categoryID=:categoryID', $vars);
+
+        return $data;
+    }
+
+    /**
+     * Write data from input fields if the current user has access, used with doModify()
+     * @param int $recordID
+     * @param int $key
+     * @param int $series
+     * @return int 1 for success, 0 for error
+     */
+    private function writeDataField($recordID, $key, $series)
+    {
+        if (is_array($_POST[$key]))
+        {
+            $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
+        }
+        else
+        {
+            $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
+        }
+
+        $vars = array(':recordID' => $recordID,
+                      ':indicatorID' => $key,
+                      ':series' => $series, );
+        $res = $this->db->prepared_query('SELECT data, format FROM data
+                                            LEFT JOIN indicators USING (indicatorID)
+                                            WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
+
+        // handle fileupload indicator type
+        if (isset($res[0]['format'])
+                && ($res[0]['format'] == 'fileupload'
+                        || $res[0]['format'] == 'image'))
+        {
+            if (!isset($_POST['overwrite'])
+                && strpos($res[0]['data'], $_POST[$key]) === false)
+            {
+                $_POST[$key] = trim($res[0]['data'] . "\n" . $_POST[$key]);
+            }
+            else
+            {
+                if (!isset($_POST['overwrite'])
+                && strpos($res[0]['data'], $_POST[$key]) !== false)
+                {
+                    $_POST[$key] = trim($res[0]['data']);
+                }
+            }
+        }
+
+        $duplicate = false;
+        if (isset($res[0]['data']) && $res[0]['data'] == trim($_POST[$key]))
+        {
+            $duplicate = true;
+        }
+
+        // check write access
+        if (!$this->hasWriteAccess($recordID, 0, $key))
+        {
+            return 0;
+        }
+        $vars = array(':recordID' => $recordID,
+                      ':indicatorID' => $key,
+                      ':series' => $series,
+                      ':data' => trim($_POST[$key]),
+                      ':timestamp' => time(),
+                      ':userID' => $this->login->getUserID(), );
+        $res = $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
+                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
+                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
+
+        if (!$duplicate)
+        {
+            $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
+        }
+
+        return 1;
     }
 
     /**
@@ -3267,13 +3297,18 @@ class Form
                 $child[$idx]['default'] = $field['default'];
                 $child[$idx]['html'] = $field['html'];
                 $child[$idx]['htmlPrint'] = $field['htmlPrint'];
-                if($parseTemplate) {
-                    $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                                      [$idx, $recordID],
-                                                      $field['html']);
-                    $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                                      [$idx, $recordID],
-                                                      $field['htmlPrint']);
+                if ($parseTemplate)
+                {
+                    $child[$idx]['html'] = str_replace(
+                        array('{{ iID }}', '{{ recordID }}'),
+                                                      array($idx, $recordID),
+                                                      $field['html']
+                    );
+                    $child[$idx]['htmlPrint'] = str_replace(
+                        array('{{ iID }}', '{{ recordID }}'),
+                                                      array($idx, $recordID),
+                                                      $field['htmlPrint']
+                    );
                 }
                 $child[$idx]['required'] = $field['required'];
                 $child[$idx]['is_sensitive'] = $field['is_sensitive'];
@@ -3379,16 +3414,5 @@ class Form
         }
 
         return 0;
-    }
-
-    public function getRecordsByCategory($categoryID)
-    {
-        $vars = array(':categoryID'=>XSSHelpers::xscrub($categoryID));
-        $data = $this->db->prepared_query('SELECT recordID, title, userID, categoryID, submitted 
-                                            FROM records
-                                            JOIN category_count USING (recordID)
-                                            WHERE categoryID=:categoryID', $vars);
-        
-        return $data;
     }
 }
