@@ -17,7 +17,7 @@ if (!class_exists('XSSHelpers'))
 }
 if (!class_exists('CommonConfig'))
 {
-    require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
+    require_once dirname(__FILE__) . '/../libs/php-commons/CommonConfig.php';
 }
 
 class Form
