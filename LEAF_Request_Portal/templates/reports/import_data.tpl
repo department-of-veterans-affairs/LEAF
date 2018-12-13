@@ -408,7 +408,7 @@
                 // sheet data is stored in the Sheets property under filename
                 var rawSheet = returnedJSON.Sheets[returnedJSON.SheetNames[0]];
 
-                // insures spreadsheet has headers
+                // insures spreadsheet has filename
                 if(rawSheet === undefined){
                     alert('Unsupported file: file requires name');
                     return;
