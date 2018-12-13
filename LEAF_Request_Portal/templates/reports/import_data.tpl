@@ -405,21 +405,12 @@
                 }
 
                 // conforms js-xlsx schema to LEAFPortalApi.js schema
-                // first, retrieves filename from input box
-                var fullPath = $('#sheetUpload').val();
-                var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
-                var filename = fullPath.substring(startIndex);
-
-                if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
-                    filename = filename.substring(1);
-                }
-
                 // sheet data is stored in the Sheets property under filename
-                var rawSheet = returnedJSON.Sheets[filename.substring(0,filename.length-4)];
+                var rawSheet = returnedJSON.Sheets[returnedJSON.SheetNames[0]];
 
                 // insures spreadsheet has headers
                 if(rawSheet === undefined){
-                    alert('Unsupported file: could not parse headers');
+                    alert('Unsupported file: file requires name');
                     return;
                 }
 
