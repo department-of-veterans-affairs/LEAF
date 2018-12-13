@@ -15,18 +15,16 @@
         padding: 7px;
     }
 </style>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@1eb1ec/dist/xlsx.full.min.js"></script>
 <div id="status" style="background-color: black; color: white; font-weight: bold; font-size: 140%"></div>
 <div id="import_data_main">
-    <h4>Choose a File</h4>
-    A spreadsheet must be upload through the <a href="?a=mod_file_manager">File Manager</a> first. The first row of the file
-    must be headers for the columns.
+    <h4>Choose a Spreadsheet</h4>
+    The first row of the file must be headers for the columns.
+    </br>
+
+    <input id="sheetUpload" type="file"></input>
 
     <br />
-
-    <select id="file_select">
-        <option value="-1"></option>
-    </select>
-
     <div id="import_info" style="display: none">
         <h4>Select a Form</h4>
         <select id="category_select"></select>
@@ -78,6 +76,45 @@
 
     var currentIndicators = [];
     var sheet_data = {};
+
+    function alphaToNum(alpha) {
+
+        var i = 0,
+            num = 0,
+            len = alpha.length;
+
+        for (; i < len; i++) {
+            num = num * 26 + alpha.charCodeAt(i) - 0x40;
+        }
+
+        return num - 1;
+    }
+    function numToAlpha(num) {
+
+        var alpha = '';
+
+        for (; num >= 0; num = parseInt(num / 26, 10) - 1) {
+            alpha = String.fromCharCode(num % 26 + 0x41) + alpha;
+        }
+
+        return alpha;
+    }
+    function _buildColumnsArray(range) {
+
+        var i,
+            res = [],
+            rangeNum = range.split(':').map(function (val) {
+                return alphaToNum(val.replace(/[0-9]/g, ''));
+            }),
+            start = rangeNum[0],
+            end = rangeNum[1] + 1;
+
+        for (i = start; i < end; i++) {
+            res.push(numToAlpha(i));
+        }
+
+        return res;
+    }
 
     // build the select input with options for the given indicator
     // the indicatorID corresponds to the select input id
@@ -175,21 +212,22 @@
             $('#status').html('Processing...'); // UI hint
 
             var createCount = 0;
-			// who the request initiator will be changed to
+            // who the request initiator will be changed to
             var initiators = {};
-            
+
             // iterate through the sheet cells, which are organized by row
-            for (var i = 0; i < sheet_data.cells.length; i++) {
-                var row = sheet_data.cells[i];
-                var requestData = { 'title': titleInput.val() };
+            for (var i = 0; i < sheet_data.cells.length - 1; i++) {
+
+                // js-xlsx rows are 1-based instead of 0-based, so reads them as i+1
+                var row = sheet_data.cells[i+1];
+                var requestData = {'title': titleInput.val()};
                 var changeToInitiator = null;
 
-                
 
                 // currentIndicators are the indicators of the form chosen in the form select
                 for (var j = 0; j < currentIndicators.length; j++) {
                     function processIndicator(indicator) {
-                        
+
                         var indicatorColumn = $('#' + indicator.indicatorID + '_sheet_column').val();
 
                         if (indicator.format == 'orgchart_employee') {
@@ -207,7 +245,7 @@
                                                 if (parseInt(indicator.indicatorID) == 137) {
                                                     changeToInitiator = emp.userName;
                                                 }
-                                                
+
                                             },
                                             function (err) {
                                                 console.log(err);
@@ -227,7 +265,7 @@
                     function processChildren(indicatorChildren) {
                         var children = Object.keys(indicatorChildren);
 
-                        for (var k=0; k< children.length; k++) {
+                        for (var k = 0; k < children.length; k++) {
                             var child = indicatorChildren[children[k]];
                             processIndicator(child);
 
@@ -249,17 +287,17 @@
                 payload.changeToInitiator = changeToInitiator;
                 payload.requestData = requestData;
 
-               	(function (forceVarInScope) {
+                (function (forceVarInScope) {
                     var formQuery = FormQuery();
                     formQuery.addTerm("deleted", "=", 0);
                     formQuery.addDataTerm("data", 137, "=", forceVarInScope.requestData[137]); // 137 = volunteerIID
-                    portalAPI.Forms.query(formQuery.buildQuery(), function(res) {
-                        if(Object.keys(res).length == 0) {
-                           	doStuff(forceVarInScope.changeToInitiator, forceVarInScope.requestData); // only import if the employee hasn't been imported before
+                    portalAPI.Forms.query(formQuery.buildQuery(), function (res) {
+                        if (Object.keys(res).length == 0) {
+                            doStuff(forceVarInScope.changeToInitiator, forceVarInScope.requestData); // only import if the employee hasn't been imported before
                         }
                         else {
-                        	for(var tRes in res) {
-                                portalAPI.Forms.modifyRequest(res[tRes].recordID, forceVarInScope.requestData, function() {
+                            for (var tRes in res) {
+                                portalAPI.Forms.modifyRequest(res[tRes].recordID, forceVarInScope.requestData, function () {
                                     console.log('update written to request #' + res[tRes].recordID);
                                 });
                                 break;
@@ -267,9 +305,9 @@
                         }
                     });
                 })(payload);
-                
+
             }
-            
+
             $('#status').html('Data has been imported');
         });
 
@@ -320,7 +358,7 @@
 
                 if (indicator.child != undefined && indicator.child != null) {
                     var children = Object.keys(indicator.child);
-                    for (var i=0; i<children.length; i++) {
+                    for (var i = 0; i < children.length; i++) {
                         var child = indicator.child[children[i]];
 
                         buildRows(child);
@@ -348,24 +386,68 @@
             );
         });
 
-        fileSelect.on('change', function () {
-            if (fileSelect.val() !== "-1") {
-                portalAPI.Import.parseXLS(
-                    fileSelect.val(),
-                    true,
-                    function (sheetData) {
-                        sheet_data = sheetData;
-                        importInfo.attr('style', 'display: block;')
-                    },
-                    function (error) {
-                        sheet_data = {};
-                        console.log(error);
+        $('#sheetUpload').on('change', function (e) {
+            var files = e.target.files,file;
+            if (!files || files.length === 0) return;
+            file = files[0];
+            var fileReader = new FileReader();
+            fileReader.onload = function (e) {
+                var cells = [];
+                var data = new Uint8Array(e.target.result);
+
+                // passes file through js-xlsx library
+                try {
+                    var returnedJSON = XLSX.read(data, {type: 'array'});
+                }
+                catch (err) {
+                    alert('Unsupported file: could not read');
+                    return;
+                }
+
+                // conforms js-xlsx schema to LEAFPortalApi.js schema
+                // first, retrieves filename from input box
+                var fullPath = $('#sheetUpload').val();
+                var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+                var filename = fullPath.substring(startIndex);
+
+                if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+                    filename = filename.substring(1);
+                }
+
+                // sheet data is stored in the Sheets property under filename
+                var rawSheet = returnedJSON.Sheets[filename.substring(0,filename.length-4)];
+
+                // insures spreadsheet has headers
+                if(rawSheet === undefined){
+                    alert('Unsupported file: could not parse headers');
+                    return;
+                }
+
+                // reads layout of sheet
+                var columnNames = _buildColumnsArray(rawSheet['!ref']);
+                var rows = parseInt(rawSheet['!ref'].substring(rawSheet['!ref'].indexOf(':'), rawSheet['!ref'].length).replace(/:[A-Z]/g, '')) - 1;
+                var headers = new Object();
+
+                // converts schema
+                for(var i = 0; i < rows; i++) {
+                    if(i !== 0){
+                        cells[i.toString()] = {};
                     }
-                );
-            } else {
-                importInfo.attr('style', 'display: none;')
-            }
+                    for (var j = 0; j < columnNames.length; j++) {
+                        if(i === 0){
+                            headers[columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
+                        } else {
+                            cells[i.toString()][columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
+                        }
+                    }
+                }
+                sheet_data.headers = headers;
+                sheet_data.cells = cells;
+                importInfo.attr('style', 'display: block;');
+            };
+            fileReader.readAsArrayBuffer(file);
         });
+
     });
 
 </script>
