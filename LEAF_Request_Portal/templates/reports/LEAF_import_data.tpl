@@ -16,6 +16,7 @@
     }
 </style>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@1eb1ec/dist/xlsx.full.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@64798fd/shim.js"></script>
 <div id="status" style="background-color: black; color: white; font-weight: bold; font-size: 140%"></div>
 <div id="import_data_main">
     <h4>Choose a Spreadsheet</h4>
@@ -400,6 +401,7 @@
                     var returnedJSON = XLSX.read(data, {type: 'array'});
                 }
                 catch (err) {
+                    console.log(err);
                     alert('Unsupported file: could not read');
                     return;
                 }
@@ -425,8 +427,12 @@
                         cells[i.toString()] = {};
                     }
                     for (var j = 0; j < columnNames.length; j++) {
-                        if(i === 0){
-                            headers[columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
+                        if (i === 0){
+                            if (rawSheet[columnNames[j] + (i + 1).toString()] === undefined) {
+                                console.log('Header at column ' + columnNames[j] + ' is ' + rawSheet[columnNames[j] + (i + 1).toString()]);
+                            } else {
+                                headers[columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
+                            }
                         } else if (rawSheet[columnNames[j] + (i + 1).toString()] === undefined) {
                             cells[i.toString()][columnNames[j]] = '';
                         } else {
