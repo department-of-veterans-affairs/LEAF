@@ -46,6 +46,7 @@
         width: 25px;
     }
 </style>
+<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <script>
 
 var processedRequests = 0;
@@ -54,10 +55,12 @@ var actionValue = '';
 var filterValue = '';
 var successfulActionRecordIDs = [];
 var failedActionRecordIDs = [];
+var dialog_confirm;
 
 $(document).ready(function(){
 
     chooseAction();
+    dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
     $('select#action').change(function(){
         chooseAction();
@@ -74,7 +77,13 @@ $(document).ready(function(){
     });
 
     $("button.takeAction").click(function() {
-        executeMassAction();
+        dialog_confirm.setContent('<img src="../../../libs/dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to perform this action?');
+
+        dialog_confirm.setSaveHandler(function() {
+            executeMassAction();
+            dialog_confirm.hide();
+        });
+        dialog_confirm.show();
     });
 
     $('input#selectAllRequests').change(function(){
