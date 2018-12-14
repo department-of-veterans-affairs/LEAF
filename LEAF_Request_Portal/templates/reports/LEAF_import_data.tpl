@@ -402,6 +402,7 @@
                 }
                 catch (err) {
                     console.log(err);
+                    importInfo.attr('style', 'display: none;');
                     alert('Unsupported file: could not read');
                     return;
                 }
@@ -412,6 +413,7 @@
 
                 // insures spreadsheet has filename
                 if(rawSheet === undefined){
+                    importInfo.attr('style', 'display: none;');
                     alert('Unsupported file: file requires name');
                     return;
                 }
