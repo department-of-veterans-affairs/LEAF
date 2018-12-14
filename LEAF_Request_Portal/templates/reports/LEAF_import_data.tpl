@@ -427,6 +427,8 @@
                     for (var j = 0; j < columnNames.length; j++) {
                         if(i === 0){
                             headers[columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
+                        } else if (rawSheet[columnNames[j] + (i + 1).toString()] === undefined) {
+                            cells[i.toString()][columnNames[j]] = '';
                         } else {
                             cells[i.toString()][columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
                         }
