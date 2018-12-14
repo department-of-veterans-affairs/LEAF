@@ -44,7 +44,7 @@ class DB
                 "mysql:host={$this->dbHost};dbname={$this->dbName}",
                 $this->dbUser,
                 $pass,
-                array(PDO::ATTR_PERSISTENT => true)
+                array()
             );
         }
         catch (PDOException $e)
