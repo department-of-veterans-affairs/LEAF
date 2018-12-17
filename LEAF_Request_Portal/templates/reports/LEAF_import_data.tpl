@@ -289,22 +289,7 @@
                 payload.requestData = requestData;
 
                 (function (forceVarInScope) {
-                    var formQuery = FormQuery();
-                    formQuery.addTerm("deleted", "=", 0);
-                    formQuery.addDataTerm("data", 137, "=", forceVarInScope.requestData[137]); // 137 = volunteerIID
-                    portalAPI.Forms.query(formQuery.buildQuery(), function (res) {
-                        if (Object.keys(res).length == 0) {
-                            doStuff(forceVarInScope.changeToInitiator, forceVarInScope.requestData); // only import if the employee hasn't been imported before
-                        }
-                        else {
-                            for (var tRes in res) {
-                                portalAPI.Forms.modifyRequest(res[tRes].recordID, forceVarInScope.requestData, function () {
-                                    console.log('update written to request #' + res[tRes].recordID);
-                                });
-                                break;
-                            }
-                        }
-                    });
+                    doStuff(forceVarInScope.changeToInitiator, forceVarInScope.requestData);
                 })(payload);
 
             }
