@@ -409,7 +409,7 @@
                 var headers = new Object();
 
                 // converts schema
-                for(var i = 0; i < rows; i++) {
+                for(var i = 0; i <= rows; i++) {
                     if(i !== 0){
                         cells[i.toString()] = {};
                     }
