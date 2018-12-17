@@ -70,7 +70,7 @@ $(document).ready(function(){
         doSearch();
     });
 
-    $("#searchRequestsInput").keyup(function() {
+    $(document).on('keyup', "#searchRequestsInput", function() {
         if (event.keyCode !== 9 && event.keyCode !== 16) {//don't search when entering with tab, or shift-tab
             doSearch();
         }
