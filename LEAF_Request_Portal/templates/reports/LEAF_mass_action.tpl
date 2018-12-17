@@ -47,6 +47,8 @@
     }
 </style>
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<script src="../libs/jsapi/portal/model/FormQuery.js" type="text/javascript"></script>
+<script src="../libs/jsapi/portal/LEAFPortalAPI.js" type="text/javascript"></script>
 <script>
 
 var processedRequests = 0;
@@ -56,23 +58,28 @@ var filterValue = '';
 var successfulActionRecordIDs = [];
 var failedActionRecordIDs = [];
 var dialog_confirm;
+var searchID = '';
+var debouncedSearch;
 
 $(document).ready(function(){
 
+    debouncedSearch = debounce(function() {
+        doSearch();
+    }, 300);
+
     chooseAction();
+
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
     $('select#action').change(function(){
         chooseAction();
     });
 
-    $('select#filter').change(function(){
-        doSearch();
-    });
+    $('select#filter').change(debouncedSearch);
 
     $(document).on('keyup', "#searchRequestsInput", function() {
         if (event.keyCode !== 9 && event.keyCode !== 16) {//don't search when entering with tab, or shift-tab
-            doSearch();
+            debouncedSearch();
         }
     });
 
@@ -101,7 +108,7 @@ function chooseAction()
     if($('select#action').val() !== '')
     {
         $('#searchRequestsContainer').show();
-        doSearch();
+        debouncedSearch();
     }
     else
     {
@@ -201,7 +208,8 @@ function doSearch()
             break;
     }
     var queryObj = buildQuery(titleSearchString, getCancelled, getSubmitted, getResolved);
-    listRequests(queryObj);
+    searchID = Math.floor((Math.random() * 1000000000));
+    listRequests(queryObj, searchID);
 }
 
 /**
@@ -264,7 +272,7 @@ function buildQuery(titleFilterString, getCancelled, getSubmitted, getResolved)
  *
  * @param {Object}  [queryObj]  Object to pass to form/query
  */
-function listRequests(queryObj)
+function listRequests(queryObj, thisSearchID)
 {
     $('#searchResults').hide();
     $('#errorMessage').hide();
@@ -278,24 +286,27 @@ function listRequests(queryObj)
                 CSRFToken: '<!--{$CSRFToken}-->'},
         cache: false
     }).done(function(data) {
-        if(Object.keys(data).length)
+        if(thisSearchID === searchID)
         {
-            $.each(data, function( index, value ) {
-                requestsRow = '<tr class="requestRow">';
-                requestsRow += '<td><a href="index.php?a=printview&amp;recordID='+value.recordID+'">'+value.recordID+'</a></td>';
-                requestsRow += '<td>'+value.categoryNames[0]+'</td>';
-                requestsRow += '<td>'+(value.service == null ? '' : value.service)+'</td>';
-                requestsRow += '<td>'+value.title+'</td>';
-                requestsRow += '<td><input type="checkbox" name="massActionRequest" class="massActionRequest" value="'+value.recordID+'"></td>';
-                requestsRow += '</tr>';
-                $('table#requests').append(requestsRow);
-            });
-            $('#searchResults').show();
-        }
-        else
-        {
-            $('#errorMessage').html('No Results');
-            $('#errorMessage').show();
+            if(Object.keys(data).length)
+            {
+                $.each(data, function( index, value ) {
+                    requestsRow = '<tr class="requestRow">';
+                    requestsRow += '<td><a href="index.php?a=printview&amp;recordID='+value.recordID+'">'+value.recordID+'</a></td>';
+                    requestsRow += '<td>'+value.categoryNames[0]+'</td>';
+                    requestsRow += '<td>'+(value.service == null ? '' : value.service)+'</td>';
+                    requestsRow += '<td>'+value.title+'</td>';
+                    requestsRow += '<td><input type="checkbox" name="massActionRequest" class="massActionRequest" value="'+value.recordID+'"></td>';
+                    requestsRow += '</tr>';
+                    $('table#requests').append(requestsRow);
+                });
+                $('#searchResults').show();
+            }
+            else
+            {
+                $('#errorMessage').html('No Results');
+                $('#errorMessage').show();
+            }
         }
     }).fail(function (jqXHR, error, errorThrown) {
         console.log(jqXHR);
@@ -401,7 +412,7 @@ function updateProgress(recordID, success)
             alert(alertMessage);
         }
 
-        doSearch();
+        debouncedSearch();
         setProgress(successfulActionRecordIDs.length + ' successes and ' + failedActionRecordIDs.length + ' failures of ' + totalActions + ' total.');
         
         $('button.takeAction').removeAttr("disabled");
@@ -417,6 +428,26 @@ function setProgress(message)
 {
     $('div.progress').html(message);
 }
+
+
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+function debounce(func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		var later = function() {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
+};
 </script>
 <div id="massActionContainer">
     <h1>Mass Action</h1>
