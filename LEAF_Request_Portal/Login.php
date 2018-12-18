@@ -199,6 +199,8 @@ class Login
                 // try to browser detect, since SSO implementation varies
                 if (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0
+                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') > 0
+                    || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
                 {
                     header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/auth_domain/?r=' . base64_encode($_SERVER['REQUEST_URI']));
