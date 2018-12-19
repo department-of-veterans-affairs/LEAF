@@ -88,7 +88,7 @@ class Shortener
         if(!isset($resReport[0])) {
             return '';
         }
-
+        session_write_close();
         header('Location: ' . $this->siteRoot . $resReport[0]['data']);
     }
 

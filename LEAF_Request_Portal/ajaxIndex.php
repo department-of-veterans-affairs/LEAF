@@ -11,6 +11,7 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
+include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include 'Login.php';
 include 'db_mysql.php';
@@ -55,7 +56,7 @@ switch ($action) {
         $form = new Form($db, $login);
         $recordID = $form->newForm($_SESSION['userID']);
         if (is_numeric($recordID))
-        {
+        {   session_write_close();
             header('Location: index.php?a=view&recordID=' . $recordID);
             exit();
         }

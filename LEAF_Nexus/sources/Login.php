@@ -35,7 +35,15 @@ class Session implements \SessionHandlerInterface
 
     public function __construct($db)
     {
-        $this->db = $db;
+        if(defined('DIRECTORY_HOST')) {
+            $this->db = new \DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
+            if(!$this->db->isConnected()) {
+                $this->db = $db;
+            }
+        }
+        else {
+            $this->db = $db;
+        }
     }
 
     public function close()
@@ -216,6 +224,8 @@ class Login
                 // try to browser detect, since SSO implementation varies
                 if (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0
+                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') > 0
+                    || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
                 {
                     header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/auth_domain/?r=' . base64_encode($_SERVER['REQUEST_URI']));
