@@ -651,11 +651,19 @@
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'orgchart_employee' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
+            <button id="btn_removeEmployee_<!--{$indicator.indicatorID}-->" class="buttonNorm" style="display: none">Unassign Employee</button>
             <div id="empSel_<!--{$indicator.indicatorID}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none"></input>
             
             <script>
             $(function() {
+                if($('#<!--{$indicator.indicatorID|strip_tags}-->').val() != '') {
+                    $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').css('display', 'inline');
+                    $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').on('click', function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
+                        $('#empSel_<!--{$indicator.indicatorID}-->').css('display', 'none');
+                    });
+                }
                 function importFromNational(empSel) {
                     if(empSel.selection != '') {
                         var selectedUserName = empSel.selectionData[empSel.selection].userName;
@@ -667,8 +675,6 @@
                             	$('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
                             }
                         });
-                    } else {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
                     }
                 }
 
