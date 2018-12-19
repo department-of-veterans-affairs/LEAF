@@ -15,6 +15,7 @@
 */
 error_reporting(E_ALL & ~E_NOTICE);
 
+include '../globals.php';
 include '../../libs/smarty/Smarty.class.php';
 include '../Login.php';
 include '../db_mysql.php';
