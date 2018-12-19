@@ -5,10 +5,10 @@ var CSRFToken = '<!--{$CSRFToken}-->';
 var sites = [
     {
         url: './',
-        name: 'Demo 1 Site',
+        name: ' Demo 1 Site',
         backgroundColor: '#112e51',
         fontColor: 'white',
-        icon: '../libs/dynicons/?img=internet-web-browser.svg&w=76'
+        icon: 'internet-web-browser.svg'
     },
     {
         url: '../../LEAF_demo/LEAF_Request_Portal/',
@@ -27,21 +27,35 @@ function renderInbox() {
     }
 
     $('#loading').slideUp();
-    $('#inbox').fadeIn();
+    $('#inboxContainer').fadeIn();
+}
+
+function getIcon(icon, name) {
+    if(icon != '') {
+        if(icon.indexOf('/') != -1) {
+            icon = '<img src="'+ icon +'" alt="icon for '+ name +'" style="vertical-align: middle" />';
+        }
+        else {
+            icon = '<img src="../libs/dynicons/?img='+ icon +'&w=76" alt="icon for '+ name +'" style="vertical-align: middle" />';
+        }
+    }
+    return icon;
 }
 
 function buildDepInbox(res, depID, site) {
     var hash = Sha1.hash(site.url);
     var dependencyName = res[depID].dependencyDesc;
     if(String(depID).substr(0,2) == '-1') {
-        dependencyName = res[depID].approverName;
+        dependencyName = res[depID].approverName != null ? res[depID].approverName : 'Person designated by requestor';
     }
 
-    var icon = site.icon == '' ? '' : '<img src="'+ site.icon +'" alt="icon for '+ site.name +'" style="vertical-align: middle" />';
+    var icon = getIcon(site.icon, site.name);
     if(document.getElementById('siteContainer'+ hash) == null) {
-        $('#inbox').append('<div id="siteContainer'+ hash +'" style="border-left: 4px solid '+ site.backgroundColor +'; margin: auto; width: 75%">'
-                           + '<div style="font-weight: bold; font-size: 200%; line-height: 240%; background-color: '+ site.backgroundColor +'; color: '+ site.fontColor +'; ">' + icon + ' ' + site.name + '</div>'
-                           + '</div>');
+        $('#indexSites').append('<li style="font-size: 120%; line-height: 150%"><a href="#'+ hash +'">' + site.name + '</a></li>');
+        $('#inbox').append('<div id="siteContainer'+ hash +'" style="border-left: 4px solid '+ site.backgroundColor +'; margin: 0px auto 8px">'
+                            + '<a name="'+ hash +'" />'
+                            + '<div style="font-weight: bold; font-size: 200%; line-height: 240%; background-color: '+ site.backgroundColor +'; color: '+ site.fontColor +'; ">' + icon + ' ' + site.name + '</div>'
+                            + '</div>');
     }
 
     $('#siteContainer'+ hash).append('<div id="depContainer'+ hash +'_' + depID + '" style="border: 1px solid black; background-color: '+ res[depID].dependencyBgColor +'; cursor: pointer; margin: 4px">'
@@ -111,8 +125,18 @@ function buildDepInbox(res, depID, site) {
     ]);
 
     var tGridData = [];
+    var hasServices = false;
     for(var i in res[depID].records) {
+        if(res[depID].records[i].service != null) {
+            hasServices = true;
+        }
         tGridData.push(res[depID].records[i]);
+    }
+    // remove service column if there's no services
+    if(hasServices == false) {
+        var tHeaders = formGrid.headers();
+        tHeaders.splice(1, 1);
+        formGrid.setHeaders(tHeaders);
     }
     formGrid.setData(tGridData);
     formGrid.sort('recordID', 'desc');
@@ -212,11 +236,30 @@ $(function() {
         }
     }, 250);
 
+    setInterval(function() {
+        var scrollPos = $(window).scrollTop();
+        if(scrollPos > 120) {
+            $('#index').css({
+                'position': 'absolute',
+                'top': scrollPos
+            });
+        }
+        else {
+            $('#index').css({
+                'position': 'inline',
+                'top': 120
+            });
+        }
+    }, 100);
+
     $('#headerTab').html('My Inbox');
 });
 
 </script>
-
+<style>
+/*responsive grid*/
+.group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_4_of_4{width:100%}.span_3_of_4{width:74.6%}.span_2_of_4{width:49.2%}.span_1_of_4{width:23.8%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_4,.span_2_of_4,.span_3_of_4,.span_4_of_4{width:100%}}
+</style>
 <div id="genericDialog" style="visibility: hidden; display: none">
     <div>
         <div id="genericDialogbutton_cancelchange" style="display: none"></div>
@@ -227,6 +270,17 @@ $(function() {
 </div>
 
 <div id="loading" class="card" style="text-align: center; padding: 16px; font-size: 140%"><img src="images/largespinner.gif" alt="loading indicator" style="vertical-align: middle" /> Loading...</div>
-<div id="inbox" style="display: none">
+<div id="inboxContainer" style="display: none">
     <button id="btn_expandAll" class="buttonNorm" style="float: right">Expand all sections</button>
+    <div class="section group">
+        <div class="col span_1_of_4">
+            <div id="index">Jump to section:
+                <ul id="indexSites"></ul>
+            </div>
+        </div>
+        <div id="inbox" class="col span_3_of_4">
+        </div>
+    </div>
+
+    
 </div>
