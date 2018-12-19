@@ -11,6 +11,7 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
+include '../globals.php';
 include '../Login.php';
 include '../db_mysql.php';
 include '../db_config.php';
