@@ -73,6 +73,7 @@ function buildDepInbox(res, depID, site) {
     });
     
     var formGrid = new LeafFormGrid('depList'+ hash +'_' + depID);
+    formGrid.disableVirtualHeader(); // TODO: figure out why headers aren't sized correctly
     formGrid.setDataBlob(res);
     formGrid.setHeaders([
         {name: 'Type', indicatorID: 'type', editable: false, callback: function(data, blob) {
