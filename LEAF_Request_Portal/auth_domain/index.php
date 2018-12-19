@@ -49,7 +49,7 @@ if (isset($_SERVER['REMOTE_USER']) && (!isset(Config::$leafSecure) || Config::$l
     if (count($res) > 0)
     {
         $_SESSION['userID'] = $user;
-
+        session_write_close();
         header('Location: ' . $redirect);
         exit();
     }
@@ -98,7 +98,7 @@ if (isset($_SERVER['REMOTE_USER']) && (!isset(Config::$leafSecure) || Config::$l
 
             // redirect as usual
             $_SESSION['userID'] = $res[0]['userName'];
-
+            session_write_close();
             header('Location: ' . $redirect);
             exit();
         }

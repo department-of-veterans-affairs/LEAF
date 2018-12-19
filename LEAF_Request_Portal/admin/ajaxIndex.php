@@ -123,7 +123,7 @@ switch ($action) {
            $result = $formStack->importForm();
 
         if ($result === true)
-        {
+        {   session_write_close();
             header('Location: ./?a=form');
             exit();
         }
@@ -138,7 +138,7 @@ switch ($action) {
            $system = new System($db, $login);
            $result = $system->newFile();
            if ($result === true)
-           {
+           {   session_write_close();
                header('Location: ./?a=mod_file_manager');
                exit();
            }
