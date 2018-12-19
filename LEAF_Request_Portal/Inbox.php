@@ -219,6 +219,7 @@ class Inbox
                             }
                         }
 
+                        $backupIds = [];
                         if (isset($this->cache["getInbox_employeeBackups_{$empUID}"]))
                         {
                             $backupIds = $this->cache["getInbox_employeeBackups_{$empUID}"];
