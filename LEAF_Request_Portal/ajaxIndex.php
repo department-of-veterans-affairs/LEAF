@@ -55,7 +55,7 @@ switch ($action) {
         $form = new Form($db, $login);
         $recordID = $form->newForm($_SESSION['userID']);
         if (is_numeric($recordID))
-        {
+        {   session_write_close();
             header('Location: index.php?a=view&recordID=' . $recordID);
             exit();
         }
