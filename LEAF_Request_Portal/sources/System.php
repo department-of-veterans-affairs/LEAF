@@ -490,13 +490,23 @@ class System
         return $data;
     }
 
+    private function isReservedFilename($file)
+    {
+        if($file == 'example'
+            || substr($file, 0, 5) == 'LEAF_'
+        ) {
+            return true;
+        }
+        return false;
+    }
+
     public function setReportTemplate($in)
     {
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
         if ($template != $in
-            || $template == 'example')
+            || $this->isReservedFilename($template))
         {
-            return 0;
+            return 'Reserved filenames: LEAF_*, example';
         }
         $template .= '.tpl';
         if (!$this->login->checkGroup(1))
@@ -515,7 +525,7 @@ class System
     {
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
         if ($template != $in
-            || $template == 'example')
+            || $this->isReservedFilename($template))
         {
             return 0;
         }
