@@ -208,6 +208,7 @@ class Inbox
                         if (!isset($this->cache['getInbox_currUserIsABackup']))
                         {
                             // see if the current user is a backup for anyone
+                            $nexusDB = $this->login->getNexusDB();
                             $vars4 = array(':empId' => $this->login->getEmpUID());
                             $isBackup = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE backupEmpUID =:empId', $vars4);
                             if(count($isBackup) > 0) {
