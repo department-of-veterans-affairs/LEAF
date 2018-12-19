@@ -7,7 +7,7 @@
     Generic database access for MySQL databases
     Date: September 4, 2007
 
-*/
+ */
 
 class DB
 {
@@ -29,28 +29,34 @@ class DB
 
     private $limit = '';
 
+    private $isConnected = false;
+
     // Connect to the database
-    public function __construct($host, $user, $pass, $database)
+    public function __construct($host, $user, $pass, $database, $abortOnError = false)
     {
         $this->dbHost = $host;
         $this->dbUser = $user;
         $this->dbName = $database;
 
+        $this->isConnected = true;
         try
         {
             $this->db = new PDO(
                 "mysql:host={$this->dbHost};dbname={$this->dbName}",
-                            $this->dbUser,
+                $this->dbUser,
                 $pass,
                 array()
             );
         }
         catch (PDOException $e)
         {
-            echo '<div style="background-color: white; line-height: 200%; position: absolute; top: 50%; height: 200px; width: 750px; margin-top: -100px; left: 20%; font-size: 200%"><img src="../libs/dynicons/?img=edit-clear.svg&w=96" alt="Server Maintenance" style="float: left" /> Database connection error.<br />Please try again in 15 minutes.</div>';
-            echo '<!-- Database Error: ' . $e->getMessage() . ' -->';
             trigger_error('DB conn: ' . $e->getMessage());
-            exit();
+            if(!$abortOnError) {
+                echo '<div style="background-color: white; line-height: 200%; position: absolute; top: 50%; height: 200px; width: 750px; margin-top: -100px; left: 20%; font-size: 200%"><img src="../libs/dynicons/?img=edit-clear.svg&w=96" alt="Server Maintenance" style="float: left" /> Database connection error.<br />Please try again in 15 minutes.</div>';
+                echo '<!-- Database Error: ' . $e->getMessage() . ' -->';
+                exit();
+            }
+            $this->isConnected = false;
         }
         unset($pass);
     }
@@ -258,6 +264,11 @@ class DB
     public function getLastInsertID()
     {
         return $this->db->lastInsertId();
+    }
+
+    public function isConnected()
+    {
+        return $this->isConnected;
     }
 
     public function disableDebug()

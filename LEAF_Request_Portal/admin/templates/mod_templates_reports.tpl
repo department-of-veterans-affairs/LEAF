@@ -83,6 +83,7 @@ function newReport() {
             	filename: file},
             success: function(res) {
             	if(res == 'CreateOK') {
+                    updateFileList();
             		loadContent(file);
             	}
             	else {
@@ -122,6 +123,15 @@ function runReport() {
 	window.open('../report.php?a='+ currentFile);
 }
 
+function isExcludedFile(file) {
+    if(file == 'example'
+        || file.substr(0, 5) == 'LEAF_'
+    ) {
+        return true;
+    }
+    return false;
+}
+
 var currentFile = '';
 function loadContent(file) {
 	currentFile = file;
@@ -132,7 +142,7 @@ function loadContent(file) {
 	
 	$('#reportURL').html('URL: <a href="'+ reportURL +'" target="_blank">'+ reportURL +'</a>');
 	$('#controls').css('visibility', 'visible');
-    if(file == 'example') {
+    if(isExcludedFile(file)) {
     	$('#controls').css('visibility', 'hidden');
     }
 
@@ -153,6 +163,30 @@ function updateEditorSize() {
     codeWidth = $('#codeArea').width() - 30;
     $('#codeContainer').css('width', codeWidth + 'px');
     $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
+}
+
+function updateFileList() {
+	$.ajax({
+		type: 'GET',
+		url: '../api/system/reportTemplates',
+		success: function(res) {
+            var buffer = '<ul>';
+            var bufferExamples = '<br /><br /><b>Examples:</b><br /><ul>';
+			for(var i in res) {
+				file = res[i].replace('.tpl', '');
+				if(!isExcludedFile(file)) {
+					buffer += '<li onclick="loadContent(\''+ file +'\');"><a href="#">' + file + '</a></li>';
+                }
+                else {
+                    bufferExamples += '<li onclick="loadContent(\''+ file +'\');"><a href="#">' + file + '</a></li>';
+                }
+			}
+            buffer += '</ul>';
+            bufferExamples += '</ul>';
+			$('#fileList').html(buffer + bufferExamples);
+		},
+		cache: false
+	});
 }
 
 var codeEditor = null;
@@ -183,24 +217,8 @@ $(function() {
     $(window).on('resize', function() {
         updateEditorSize();
     });
-	
-	$.ajax({
-		type: 'GET',
-		url: '../api/system/reportTemplates',
-		success: function(res) {
-			var buffer = '<ul>';
-			for(var i in res) {
-				file = res[i].replace('.tpl', '');
-				if(file != 'example') {
-					buffer += '<li onclick="loadContent(\''+ file +'\');"><a href="#">' + file + '</a></li>';
-				}
-			}
-			buffer += '</ul>';
-			$('#fileList').html(buffer);
-		},
-		cache: false
-	});
-	
+
+    updateFileList();
 	loadContent('example');
 });
 </script>
