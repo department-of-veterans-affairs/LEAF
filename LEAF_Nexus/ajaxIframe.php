@@ -17,6 +17,7 @@ if (false)
     exit();
 }
 
+include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include './sources/Login.php';
 include 'db_mysql.php';
