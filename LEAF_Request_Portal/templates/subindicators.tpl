@@ -407,6 +407,22 @@
                 <!--{/if}-->
                 </span>
             </fieldset>
+            <!--{if $indicator.required == 1}-->
+            <script>
+                formRequired.id<!--{$indicator.indicatorID}--> = {
+                    setRequired: function() {
+                        var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
+                        var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
+                        var newFiles = iFrameDOM.find('.newFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->');
+                        
+                        return oldFiles.length === 0 && newFiles.length === 0;
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }
+                };
+            </script>
+            <!--{/if}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'image' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <fieldset>
@@ -453,6 +469,22 @@
                 <!--{/if}-->
                 </span>
             </fieldset>
+            <!--{if $indicator.required == 1}-->
+            <script>
+                formRequired.id<!--{$indicator.indicatorID}--> = {
+                    setRequired: function() {
+                        var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
+                        var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
+                        var newFiles = iFrameDOM.find('.newFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->');
+                        
+                        return oldFiles.length === 0 && newFiles.length === 0;
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }
+                };
+            </script>
+            <!--{/if}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'table' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <!--{foreach from=$indicator.options item=option}-->
