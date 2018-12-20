@@ -47,7 +47,7 @@ class FormEditor
     	        ':html' => $package['html'],
     	        ':htmlPrint' => $package['htmlPrint'],
     	        ':required' => $package['required'],
-                ':is_sensitive' => $package['is_sensitive'],
+                ':is_sensitive' => $package['is_sensitive'] ?? 0,
     	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
     	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive, sort, timeAdded, disabled)
@@ -65,7 +65,7 @@ class FormEditor
     	        ':html' => $package['html'],
     	        ':htmlPrint' => $package['htmlPrint'],
     	        ':required' => $package['required'],
-    	        ':is_sensitive' => $package['is_sensitive'], //
+    	        ':is_sensitive' => $package['is_sensitive'] ?? 0,
     	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
     	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive, sort, timeAdded, disabled)
