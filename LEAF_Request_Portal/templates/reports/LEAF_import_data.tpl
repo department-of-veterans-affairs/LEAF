@@ -1,24 +1,24 @@
 <style>
-    #import_data_main {
+    #import_data_existing_form, #import_data_new_form, #uploadBox, #toggler {
         padding: 20px;
     }
 
-    #category_indicators thead tr {
+    #category_indicators thead tr, #new_form_indicators thead tr {
         background-color: rgb(185, 185, 185);
     }
 
-    #category_indicators thead tr th {
+    #category_indicators thead tr th, #new_form_indicators thead tr th {
         padding: 7px;
     }
 
-    #category_indicators td {
+    #category_indicators td, #new_form_indicators td {
         padding: 7px;
     }
 </style>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@1eb1ec/dist/xlsx.full.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@64798fd/shim.js"></script>
 <div id="status" style="background-color: black; color: white; font-weight: bold; font-size: 140%"></div>
-<div id="import_data_main">
+<div id="uploadBox">
     <h4>Choose a Spreadsheet</h4>
     The first row of the file must be headers for the columns.
     </br>
@@ -26,34 +26,59 @@
     <input id="sheetUpload" type="file"></input>
 
     <br />
-    <div id="import_info" style="display: none">
-        <h4>Select a Form</h4>
-        <select id="category_select"></select>
+    <br />
+</div>
+<div id="toggler" style="display: none">
+    <input id="newFormToggler" name="toggle" onclick="toggleImport(event)" type="radio">New Form</input>
+    <input id="existingFormToggler" name="toggle" onclick="toggleImport(event)" type="radio">Existing Form</input>
+</div>
+<div id="import_data_new_form" style="display: none;">
+    <h4>Create a Form</h4>
+    <button id="import_btn_new" type="button">Import</button>
+    <br/><br/>
+    <label for="formTitleInput"><b>Title of Form</b></label>
+    <input type="text" id="formTitleInput" />
+    This will be the title for the custom form.
+    <br/><br/>
+    <label for="formDescription"><b>Description of Form</b></label>
+    <input type="text" id="formDescription" />
+    (Optional) Enter a short description.
+    <br/><br/>
+    <span id="formWorkflowSelect">
+    </span>
+    <br/><br/>
+    <label for="titleInputNew"><b>Title of Requests</b></label>
+    <input type="text" id="titleInputNew" />
+    This will be the title for all imported requests.
+    <br/><br/>
+</div>
+<div id="import_data_existing_form" style="display: none;">
+    <h4>Select a Form</h4>
+    <select id="category_select"></select>
 
-        <button id="import_btn" type="button">Import</button>
+    <button id="import_btn_existing" type="button">Import</button>
 
-        <br/><br/>
+    <br/><br/>
 
-        <label for="titleInput"><b>Title of Requests</b></label>
-        <input type="text" id="titleInput" />
-        This will be the title for all imported requests.
+    <label for="titleInputExisting"><b>Title of Requests</b></label>
+    <input type="text" id="titleInputExisting" />
+    This will be the title for all imported requests.
 
-        <br/><br/>
+    <br/><br/>
 
-        <table id="category_indicators">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Format</th>
-                    <th>Description</th>
-                    <th>Required</th>
-                    <th>Sheet Column</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+    <table id="category_indicators">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Format</th>
+                <th>Description</th>
+                <th>Required</th>
+                <th>Sheet Column</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
 
 <script>
@@ -71,12 +96,68 @@
     var categorySelect = $('#category_select');
     var categoryIndicators = $('#category_indicators tbody');
     var fileSelect = $('#file_select');
-    var importBtn = $('#import_btn');
-    var importInfo = $('#import_info');
-    var titleInput = $('#titleInput');
+    var importBtnExisting = $('#import_btn_existing');
+    var importBtnNew = $('#import_btn_new');
+    var titleInputExisting = $('#titleInputExisting');
+    var titleInputNew = $('#titleInputNew');
+    var formTitle = $('#formTitleInput');
+    var formDescription = $('#formDescription');
+    var newForm = $('#import_data_new_form');
+    var existingForm = $('#import_data_existing_form');
+    var toggler = $('#toggler');
 
     var currentIndicators = [];
     var sheet_data = {};
+
+    function toggleImport(e) {
+        if(e.target.id === "newFormToggler") {
+            newForm.css('display', 'block');
+            existingForm.css('display', 'none');
+        } else if (e.target.id === "existingFormToggler") {
+            newForm.css('display', 'none');
+            existingForm.css('display', 'block');
+        }
+    }
+
+    function buildFormat(spreadSheet) {
+        $('#new_form_indicators').remove();
+        var table =
+            '<table id="new_form_indicators" style="text-align: center;">' +
+            '   <thead>' +
+            '       <tr>' +
+            '           <th> Sheet Column </th>' +
+            '           <th> Name </th>' +
+            '           <th> Format </th>' +
+            '           <th> Required </th>' +
+            '           <th> Sensitive </th>' +
+            '       </tr>' +
+            '   <thead>' +
+            '<tbody>';
+        $.each(spreadSheet.headers, function(key, value) {
+            table +=
+                '<tr>' +
+                '   <td>' + key + '</td>' +
+                '   <td>' + value + '</td>' +
+                '   <td>' +
+                '       <select>' +
+                '           <option value="text">Single line text</option>' +
+                '           <option value="textarea">Multi-line text</option>' +
+                '           <option value="number">Numeric</option>' +
+                '           <option value="currency">Currency</option>' +
+                '           <option value="date">Date</option>' +
+                '           <option value="currency">Currency</option>' +
+                '           <option value="orgchart_group">Orgchart group</option>' +
+                '           <option value="orgchart_position">Orgchart position</option>' +
+                '           <option value="orgchart_employee">Orgchart employee</option>' +
+                '       </select>' +
+                '   </td>' +
+                '   <td><input type="checkbox"></input></td>' +
+                '   <td><input type="checkbox"></input></td>' +
+                '</tr>';
+        });
+        table += '</tbody></table>';
+        newForm.append(table);
+    }
 
     function alphaToNum(alpha) {
 
@@ -175,9 +256,10 @@
         return row;
     }
 
-    function doStuff(initiator, requestData) {
+    function doStuff(categoryID, initiator, requestData) {
+        console.log(requestData);
         portalAPI.Forms.newRequest(
-            categorySelect.val(),
+            categoryID,
             requestData,
             function (recordID) {
 
@@ -209,7 +291,133 @@
     }
 
     $(function () {
-        importBtn.on('click', function () {
+
+        //builds select options of workflows
+        //if no workflows are found, prompts user to go make one
+        portalAPI.Workflow.getAllWorkflows(
+            function(msg) {
+                if(msg.length > 0) {
+                    var buffer = '<label for="workflowID"><b>Workflow of Form</b></label><select id="workflowID">';
+                    buffer += '<option value="0">No Workflow</option>';
+                    for(var i in msg) {
+                        buffer += '<option value="'+ msg[i].workflowID +'">'+ msg[i].description +' (ID: #'+ msg[i].workflowID +')</option>';
+                    }
+                    buffer += '</select>    This will be the workflow for the custom form.\n';
+                    $('#formWorkflowSelect').html(buffer);
+                }
+                else {
+                    $('#formWorkflowSelect').html('<span style="color: red">A workflow must be set up first</span>');
+                }
+            },
+            function (err) {
+                console.log(err);
+            }
+        );
+
+        importBtnNew.on('click', function() {
+            $('#status').html('Processing...'); // UI hint
+            var newFormIndicators = $('#new_form_indicators');
+            var workflowID = $('#workflowID > option:selected').val();
+            var formData = {"name": formTitle.val(), "description": formDescription.val()};
+            var indicators = [];
+            var initiators = {};
+
+            //creates custom form
+            portalAPI.FormEditor.createCustomForm(
+                formData.name,
+                formData.description,
+                function(categoryID) {
+                    portalAPI.FormEditor.assignFormWorkflow(
+                        categoryID.replace(/"/g,""),
+                        workflowID,
+                        function(msg){
+                            // console.log(msg);
+                        },
+                        function(err){
+                            console.log(err);
+                        }
+                    );
+
+                    //parses user's input and makes an indicator for each row of the table
+                    newFormIndicators.children('tbody').find('tr').each(function() {
+                        var indicatorObj = {};
+                        indicatorObj.name = $("td:eq(1)", this).html();
+                        indicatorObj.format = $("td:eq(2) > select > option:selected", this).val();
+                        indicatorObj.required = $("td:eq(3) > input", this).is(":checked") === true ? 1 : 0;
+                        indicatorObj.is_sensitive = $("td:eq(4) > input", this).is(":checked") === true ? 1 : 0;
+
+                        //creates indicator from indicatorObj
+                        portalAPI.FormEditor.createFormIndicator(
+                            indicatorObj.name,
+                            indicatorObj.format,
+                            categoryID.replace(/"/g,""),
+                            indicatorObj.required,
+                            indicatorObj.is_sensitive,
+                            function(indicatorID) {
+
+                                //adds indicators to array
+                                //when all indicators are parsed, moves on to next step of filling out requests
+                                indicators.push(indicatorID.replace(/"/g,""));
+                                if(indicators.length === newFormIndicators.children('tbody').find('tr').length){
+
+                                    // iterate through the sheet cells, which are organized by row
+                                    for (var i = 0; i < sheet_data.cells.length - 1; i++) {
+
+                                        // js-xlsx rows are 1-based instead of 0-based, so reads them as i+1
+                                        var row = sheet_data.cells[i + 1];
+                                        var requestData = new Object();
+                                        var changeToInitiator = null;
+                                        requestData['title'] = titleInputNew.val();
+                                        $.each(indicators, function( key, value ) {
+                                            var column = newFormIndicators.find('tbody > tr:eq(' + key.toString() + ') > td:first').html();
+                                            if (indicatorObj.format === 'orgchart_employee') {
+                                                nexusAPI.Employee.getByEmailNational(
+                                                    row[value],
+                                                    function (user) {
+                                                        var emp = user[Object.keys(user)[0]];
+                                                        if (emp !== undefined && emp !== null) {
+                                                            nexusAPI.Employee.importFromNational(
+                                                                emp.userName,
+                                                                false,
+                                                                function (results) {
+                                                                    requestData[value] = parseInt(results);
+                                                                    initiators[parseInt(results)] = emp.userName;
+                                                                    changeToInitiator = emp.userName;
+
+                                                                },
+                                                                function (err) {
+                                                                    console.log(err);
+                                                                }
+                                                            );
+                                                        }
+                                                    },
+                                                    function (err) {
+                                                        console.log(err);
+                                                    }
+                                                );
+                                            } else {
+                                                requestData[value] = sheet_data.cells[i + 1][column];
+                                            }
+                                        });
+                                        doStuff(categoryID.replace(/"/g,""), changeToInitiator, requestData);
+                                    }
+                                }
+                            },
+                            function(err) {
+                                console.log(err);
+                            }
+                        );
+                    });
+                },
+                function (err) {
+                    console.log(err);
+                }
+            );
+
+            $('#status').html('Data has been imported');
+        });
+
+        importBtnExisting.on('click', function () {
             $('#status').html('Processing...'); // UI hint
 
             var createCount = 0;
@@ -221,7 +429,7 @@
 
                 // js-xlsx rows are 1-based instead of 0-based, so reads them as i+1
                 var row = sheet_data.cells[i+1];
-                var requestData = {'title': titleInput.val()};
+                var requestData = {'title': titleInputExisting.val()};
                 var changeToInitiator = null;
 
 
@@ -289,28 +497,13 @@
                 payload.requestData = requestData;
 
                 (function (forceVarInScope) {
-                    doStuff(forceVarInScope.changeToInitiator, forceVarInScope.requestData);
+                    doStuff(categorySelect.val(), forceVarInScope.changeToInitiator, forceVarInScope.requestData);
                 })(payload);
 
             }
 
             $('#status').html('Data has been imported');
         });
-
-        // for now, the imported file must be uploaded through the File Manager
-        portalAPI.System.getFileList(
-            function (fileList) {
-                for (var i = 0; i < fileList.length; i++) {
-                    var opt = $(document.createElement('option'))
-                        .attr('value', fileList[i])
-                        .html(fileList[i]);
-                    fileSelect.append(opt);
-                }
-            },
-            function (error) {
-                console.log(error);
-            }
-        );
 
         portalAPI.Forms.getAllForms(
             function (results) {
@@ -387,7 +580,9 @@
                 }
                 catch (err) {
                     console.log(err);
-                    importInfo.attr('style', 'display: none;');
+                    toggler.attr('style', 'display: none;');
+                    existingForm.css('display', 'none');
+                    newForm.css('display', 'none');
                     alert('Unsupported file: could not read');
                     return;
                 }
@@ -398,7 +593,9 @@
 
                 // insures spreadsheet has filename
                 if(rawSheet === undefined){
-                    importInfo.attr('style', 'display: none;');
+                    toggler.attr('style', 'display: none;');
+                    existingForm.css('display', 'none');
+                    newForm.css('display', 'none');
                     alert('Unsupported file: file requires name');
                     return;
                 }
@@ -429,7 +626,8 @@
                 }
                 sheet_data.headers = headers;
                 sheet_data.cells = cells;
-                importInfo.attr('style', 'display: block;');
+                buildFormat(sheet_data);
+                toggler.attr('style', 'display: block;');
             };
             fileReader.readAsArrayBuffer(file);
         });
