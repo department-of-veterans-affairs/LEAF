@@ -339,7 +339,7 @@
                     );
 
                     //parses user's input and makes an indicator for each row of the table
-                    newFormIndicators.children('tbody').find('tr').each(function() {
+                    newFormIndicators.children('tbody').find('tr').each(function(index) {
                         var indicatorObj = {};
                         indicatorObj.name = $("td:eq(1)", this).html();
                         indicatorObj.format = $("td:eq(2) > select > option:selected", this).val();
@@ -386,13 +386,13 @@
 
                                                                 },
                                                                 function (err) {
-                                                                    console.log(err);
+                                                                    console.log("Error retrieving employee: " + err);
                                                                 }
                                                             );
                                                         }
                                                     },
                                                     function (err) {
-                                                        console.log(err);
+                                                        console.log("Error retrieving email: " + err);
                                                     }
                                                 );
                                             } else {
@@ -404,13 +404,13 @@
                                 }
                             },
                             function(err) {
-                                console.log(err);
+                                console.log("Could not create indicator at row " + index + ": " + err);
                             }
                         );
                     });
                 },
                 function (err) {
-                    console.log(err);
+                    console.log("Could not create custom form: " + err);
                 }
             );
 
