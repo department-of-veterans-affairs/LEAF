@@ -386,13 +386,13 @@
 
                                                                 },
                                                                 function (err) {
-                                                                    console.log("Error retrieving employee: " + err);
+                                                                    console.log("Error retrieving employee for indicator at row " + index + ": " + err);
                                                                 }
                                                             );
                                                         }
                                                     },
                                                     function (err) {
-                                                        console.log("Error retrieving email: " + err);
+                                                        console.log("Error retrieving email for indicator at row " + index + ": " + err);
                                                     }
                                                 );
                                             } else {
