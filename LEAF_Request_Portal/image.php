@@ -3,6 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+include 'globals.php';
 include 'db_mysql.php';
 include 'db_config.php';
 include 'Login.php';
