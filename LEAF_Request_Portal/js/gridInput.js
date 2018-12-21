@@ -78,7 +78,7 @@ function printTableInput(gridParameters, values, indicatorID, series){
                 var newCoordinates = gridBodyElement + ' > tr:eq(' + i + ') > td:eq(' + columnOrder.indexOf(values.columns[j]) + ')';
                 switch ($(newCoordinates).children().first().prop("tagName")) {
                     case 'SELECT':
-                        $(newCoordinates + ' > select > option[value=' + value + ']').attr('selected', 'selected');
+                        $(newCoordinates + ' > select').val(value);
                         break;
                     case 'TEXTAREA':
                         $(newCoordinates + ' > textarea').val(value);
