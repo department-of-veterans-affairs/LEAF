@@ -424,13 +424,13 @@
 
                                                                 },
                                                                 function (err) {
-                                                                    console.log("Error retrieving employee for indicator at row " + index + ": " + err);
+                                                                    console.log("Error retrieving employee on sheet row " + (i + 1) + " for indicator " + index + ": " + err);
                                                                 }
                                                             );
                                                         }
                                                     },
                                                     function (err) {
-                                                        console.log("Error retrieving email for indicator at row " + index + ": " + err);
+                                                        console.log("Error retrieving email for employee on sheet row "  + (i + 1) + " indicator " + index + ": " + err);
                                                     }
                                                 );
                                             } else {
@@ -443,6 +443,7 @@
                             },
                             function(err) {
                                 console.log("Could not create indicator at row " + index + ": " + err);
+                                alert("Error creating form.  See log for details.");
                             }
                         );
                     });
