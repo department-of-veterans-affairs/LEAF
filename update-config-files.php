@@ -274,7 +274,7 @@ for ($i = 0; $i <= $argc - 1; $i++)
         '{';
         foreach ($vars as $var)
         {
-            $src .= NEW_LINE . TAB . 'public ' . ($var[VAR_TYPE] ? $var[VAR_TYPE] . ' ' : $var['varType'] . ' ') . '$' . ($var[VAR_NAME] ? $var[VAR_NAME] : $var['varName']) . ' = ' . ($var[VAR_VALUE] ? $var[VAR_VALUE] : $var['varValue']) . ';' . ' ' .
+            $src .= NEW_LINE . TAB . 'public ' . ($var[VAR_TYPE] ? $var[VAR_TYPE] . ' ' : $var['varType'] . ' ') . '$' . ($var[VAR_NAME] ? $var[VAR_NAME] : $var['varName']) . ' = ' . ($var['varValue'] ? $var['varValue'] : $var[VAR_VALUE]) . ';' . ' ' .
             formatComments(wordwrap(($var['varComment'] ? $var['varComment'] : ''), WORD_WRAP));
         }
         $src .= NEW_LINE . NEW_LINE . ' }';
@@ -307,14 +307,14 @@ for ($i = 0; $i <= $argc - 1; $i++)
             {
                 $dbConfig[] = array(
             'comment' => formatComments(wordwrap(($var['varComment'] ? $var['varComment'] : ''), WORD_WRAP)),
-            'var' => NEW_LINE . TAB . 'public ' . ($var[VAR_TYPE] ? $var[VAR_TYPE] . ' ' : $var['varType'] . ' ') . '$' . ($var[VAR_NAME] ? $var[VAR_NAME] : $var['varName']) . ' = ' . ($var[VAR_VALUE] ? $var[VAR_VALUE] : $var['varValue']) . ';' . ' ',
+            'var' => NEW_LINE . TAB . 'public ' . ($var[VAR_TYPE] ? $var[VAR_TYPE] . ' ' : $var['varType'] . ' ') . '$' . ($var[VAR_NAME] ? $var[VAR_NAME] : $var['varName']) . ' = ' . ($var['varValue'] ? $var['varValue'] : $var[VAR_VALUE]) . ';' . ' ',
               );
             }
             else
             {
                 $config[] = array(
             'comment' => formatComments(wordwrap(($var['varComment'] ? $var['varComment'] : ''), WORD_WRAP)),
-            'var' => NEW_LINE . TAB . 'public ' . ($var[VAR_TYPE] ? $var[VAR_TYPE] . ' ' : $var['varType'] . ' ') . '$' . ($var[VAR_NAME] ? $var[VAR_NAME] : $var['varName']) . ' = ' . ($var[VAR_VALUE] ? $var[VAR_VALUE] : $var['varValue']) . ';' . ' ',
+            'var' => NEW_LINE . TAB . 'public ' . ($var[VAR_TYPE] ? $var[VAR_TYPE] . ' ' : $var['varType'] . ' ') . '$' . ($var[VAR_NAME] ? $var[VAR_NAME] : $var['varName']) . ' = ' . ($var['varValue'] ? $var['varValue'] : $var[VAR_VALUE]) . ';' . ' ',
               );
             }
         }
