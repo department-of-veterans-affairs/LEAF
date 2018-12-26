@@ -165,7 +165,7 @@ function addHeader(column) {
 	                    	&& blob[data.recordID].recordsDependencies[depID] != undefined) {
 	                        var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
 	                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-	                        
+
 	                        if(tDepHeader[depID] == 0) {
 	                        	headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
 	                            $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
@@ -180,14 +180,14 @@ function addHeader(column) {
                 stepID = column.substr(7);
                 tStepHeader[stepID] = 0;
                 leafSearch.getLeafFormQuery().join('stepFulfillment');
-    
+
                 headers.push({name: 'Checkpoint Date', indicatorID: column, editable: false, callback: function(stepID) {
                     return function(data, blob) {
                         if(blob[data.recordID].stepFulfillment != undefined
                             && blob[data.recordID].stepFulfillment[stepID] != undefined) {
                             var date = new Date(blob[data.recordID].stepFulfillment[stepID].time * 1000);
                             $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-                            
+
                             if(tStepHeader[stepID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
                                 $('#' + headerID).html(blob[data.recordID].stepFulfillment[stepID].step);
@@ -281,17 +281,19 @@ function loadSearchPrereqs() {
                 var i = groupNames[k].categoryID;
                 var associatedCategories = groupIDmap[i].categoryID;
                 if(groupIDmap[i].parentCategoryID != '') {
-                    associatedCategories += ' ' + groupIDmap[i].parentCategoryID; 
+                    associatedCategories += ' ' + groupIDmap[i].parentCategoryID;
                 }
                 if(groupIDmap[i].parentStaples != null) {
                     for(var j in groupIDmap[i].parentStaples) {
                         associatedCategories += ' ' + groupIDmap[i].parentStaples[j];
                     }
                 }
-                
+
                 var categoryLabel = groupNames[k].categoryName;
                 if(groupIDmap[i].parentCategoryID != '') {
-                    categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
+                    if(groupIDmap[groupIDmap[i].parentCategoryID]){
+                      categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
+                  }
                 }
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(var j in groupList[i]) {
@@ -302,7 +304,7 @@ function loadSearchPrereqs() {
             }
 
             buffer += '</div>';
-            
+
             $('#indicatorList').html(buffer);
 
             $('#indicatorList').css('height', $(window).height() - 240);
@@ -314,7 +316,7 @@ function loadSearchPrereqs() {
             	$(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
             		'font-weight': 'bold'});
             });
-            
+
             $.ajax({
             	type: 'GET',
             	url: './api/workflow/steps',
@@ -328,7 +330,7 @@ function loadSearchPrereqs() {
                     }
                     buffer += '<div id="legacyDependencies"></div>'; // backwards compat
                     buffer += '</div>';
-                    
+
                     $('#indicatorList').append(buffer);
 
                     $.ajax({
@@ -376,18 +378,18 @@ function loadSearchPrereqs() {
 }
 
 function editLabels_down(id) {
-    var row = $('#sortID_' + id); 
+    var row = $('#sortID_' + id);
     row.next().after(row);
 }
 
 function editLabels_up(id) {
-    var row = $('#sortID_' + id); 
+    var row = $('#sortID_' + id);
     row.prev().before(row);
 }
 
 function editLabels() {
 	dialog.setTitle('Edit Labels');
-	
+
 	var buffer = '<table id="labelSorter">';
 
 	if (Object.keys(indicatorSort).length !== 0) {
@@ -609,14 +611,14 @@ $(function() {
     $('#' + leafSearch.getPrefixID() + 'advancedOptionsClose').css('visibility', 'hidden');
     $('#' + leafSearch.getPrefixID() + 'advancedOptions>legend').css('display', 'none');
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').html('Next Step <img src="../libs/dynicons/?img=go-next.svg&w=32" alt="next step" />');
-    
+
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').off();
-    
+
     // Step 1
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').on('click', function() {
     	$('#step_2').fadeIn(400);
     	$('#step_1').slideUp(400);
-    	
+
     	// hide data fields that don't match forms selected by the user
     	leafSearch.generateQuery();
     	var tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
@@ -656,7 +658,7 @@ $(function() {
 
         if(isNewQuery) {
             leafSearch.generateQuery();
-            
+
             if(!isSearchingDeleted(leafSearch)) {
             	leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
             }
@@ -706,7 +708,7 @@ $(function() {
     	headers.sort(sortHeaders);
     	selectedIndicators.sort(sortHeaders);
 
-    	
+
     	grid.setHeaders(headers);
 
     	leafSearch.getLeafFormQuery().onSuccess(function(res) {
@@ -717,7 +719,7 @@ $(function() {
             for(var i in res) {
                 tGridData.push(res[i]);
             }
-            
+
             if(<!--{$version}--> >= 3) {
                 grid.setData(tGridData);
                 grid.sort('recordID', 'desc');
@@ -734,7 +736,7 @@ $(function() {
 
     	// get data
     	leafSearch.getLeafFormQuery().execute();
-    	
+
     	// create save link once
     	if(!extendedToolbar) {
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
@@ -744,7 +746,7 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify report" /> Modify Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=32" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
             extendedToolbar = true;
-            
+
             $('#editReport').on('click', function() {
             	grid.stop();
             	isNewQuery = true;
@@ -789,7 +791,7 @@ $(function() {
     		url = window.location.href;
     	}
     });
-    
+
     <!--{if $query != '' && $indicators != ''}-->
     function loadReport() {
         var inQuery;
@@ -842,7 +844,7 @@ $(function() {
 
         	leafSearch.getLeafFormQuery().setQuery(inQuery);
         	if(!isSearchingDeleted(leafSearch)) {
-                inQuery.terms.pop();        		
+                inQuery.terms.pop();
         	}
         	leafSearch.renderPreviousAdvancedSearch(inQuery.terms);
         	headers = headers.concat(inIndicators);
@@ -875,7 +877,7 @@ $(function() {
     }
     if(typeof window.history.pushState != 'function') {
     	window.history.pushState = function(a, b, c) {
-    		
+
     	}
     }
 });
