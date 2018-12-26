@@ -172,7 +172,7 @@
                             });
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos').addClass('buttonNorm noprint');
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos').css('margin-top', '8px');
-    
+
                             if(data[3].data != '') {
                                 for(i in data[3].data) {
                                     $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').append('<br />Position Description: <a class="printResponse" target="_blank" href="<!--{$orgchartPath}-->/file.php?categoryID=2&UID=<!--{$indicator.value}-->&indicatorID=3&file=' + encodeURIComponent(data[3].data[i]) +'">'+ data[3].data[i] +'</a>');
