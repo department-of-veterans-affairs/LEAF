@@ -27,28 +27,9 @@
         padding: 8px; 
         font-size: 12px;
     }
-    #searchBar {
-        display: inline-flex;
-        padding-bottom: 16px;
-        text-align: center;
-        width: 95%;
-    }
-    #searchBar input {
-        height: 35px;
-        width: 95%;
-        font-size: large;
-    }
-    #searchBar .searchIcon {
-        margin-left: 8px;
-        margin-top: 8px;
-        cursor: pointer;
-        height: 25px;
-        width: 25px;
-    }
 </style>
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-<script src="../libs/jsapi/portal/model/FormQuery.js" type="text/javascript"></script>
-<script src="../libs/jsapi/portal/LEAFPortalAPI.js" type="text/javascript"></script>
+<script src="./js/formSearch.js"></script>
 <script>
 
 var processedRequests = 0;
@@ -59,13 +40,11 @@ var successfulActionRecordIDs = [];
 var failedActionRecordIDs = [];
 var dialog_confirm;
 var searchID = '';
-var debouncedSearch;
+var leafSearch;
+var isLeafSearchInit = false;
+var extraTerms;
 
 $(document).ready(function(){
-
-    debouncedSearch = debounce(function() {
-        doSearch();
-    }, 300);
 
     chooseAction();
 
@@ -75,14 +54,9 @@ $(document).ready(function(){
         chooseAction();
     });
 
-    $('select#filter').change(debouncedSearch);
-
-    $(document).on('keyup', "#searchRequestsInput", function() {
-        if (event.keyCode !== 9 && event.keyCode !== 16) {//don't search when entering with tab, or shift-tab
-            debouncedSearch();
-        }
+    $('select#filter').change(function(){
+        doSearch();
     });
-
     $("button.takeAction").click(function() {
         dialog_confirm.setContent('<img src="../../../libs/dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to perform this action?');
 
@@ -100,6 +74,15 @@ $(document).ready(function(){
     $(document).on('change', 'input.massActionRequest', function() { 
         $('input#selectAllRequests').prop('checked', false);
     });
+
+    leafSearch = new LeafFormSearch('searchRequestsContainer');
+    leafSearch.setRootURL('./');
+    leafSearch.setSearchFunc(function(search) {
+        extraTerms = search;
+        doSearch();
+    });
+
+    //leafSearch.init();
 });
 
 function chooseAction()
@@ -108,7 +91,12 @@ function chooseAction()
     if($('select#action').val() !== '')
     {
         $('#searchRequestsContainer').show();
-        debouncedSearch();
+        if(!isLeafSearchInit)
+        {
+            isLeafSearchInit = true;
+            leafSearch.init();
+        }
+        doSearch();
     }
     else
     {
@@ -155,7 +143,6 @@ function lockInSelections()
 {
     actionValue = $('select#action').val();
     filterValue = $('select#filter').val();
-    titleSearchString = $('#searchRequestsInput').val();
 }
 
 /**
@@ -207,7 +194,7 @@ function doSearch()
             getResolved = '';
             break;
     }
-    var queryObj = buildQuery(titleSearchString, getCancelled, getSubmitted, getResolved);
+    var queryObj = buildQuery(getCancelled, getSubmitted, getResolved);
     searchID = Math.floor((Math.random() * 1000000000));
     listRequests(queryObj, searchID);
 }
@@ -215,25 +202,18 @@ function doSearch()
 /**
  * Builds query object to pass to form/query
  *
- * @param {string}  [titleFilterString] String to compare requests titles to in search.
  * @param {string}  [getCancelled]      '','true', or 'false' whether to filter by cancelled, then whether request is('true') or isn't('false') cancelled 
  * @param {string}  [getSubmitted]      '','true', or 'false' whether to filter by submitted, then whether request is('true') or isn't('false') cancelled 
  * @param {string}  [getResolved]       '','true', or 'false' whether to filter by resolved, then whether request is('true') or isn't('false') cancelled 
- * 
+ *
  * @return {Object} query object to pass to form/query.
  */
-function buildQuery(titleFilterString, getCancelled, getSubmitted, getResolved)
+function buildQuery(getCancelled, getSubmitted, getResolved)
 {
     var requestQuery = {"terms":[],
                         "joins":["service", "recordsDependencies", "categoryName", "status"],
                         "sort":{}
                         };
-    
-
-    if(titleFilterString.trim())
-    {
-        requestQuery.terms.push({"id":"title","operator":"LIKE","match":"*"+titleFilterString.trim()+"*"});
-    }
 
     if(getCancelled === 'true')
     {
@@ -264,6 +244,24 @@ function buildQuery(titleFilterString, getCancelled, getSubmitted, getResolved)
     {
         requestQuery.terms.push({"id":"stepID","operator":"!=","match":"resolved"});
     }
+
+    //handle extraTerms
+    var isJSON = true;
+    var advSearch = {};
+    try {
+        advSearch = $.parseJSON(extraTerms);
+    }
+    catch(err) {
+        isJSON = false;
+    }
+
+    if(isJSON) {
+        requestQuery.terms = $.merge(requestQuery.terms, advSearch);
+    }
+    else if(typeof(extraTerms) === 'string'){
+        requestQuery.terms.push({"id":"title","operator":"LIKE","match":"*"+extraTerms.trim()+"*"});
+    }
+
     return requestQuery;
 }
 
@@ -412,7 +410,7 @@ function updateProgress(recordID, success)
             alert(alertMessage);
         }
 
-        debouncedSearch();
+        doSearch();
         setProgress(successfulActionRecordIDs.length + ' successes and ' + failedActionRecordIDs.length + ' failures of ' + totalActions + ' total.');
         
         $('button.takeAction').removeAttr("disabled");
@@ -428,26 +426,6 @@ function setProgress(message)
 {
     $('div.progress').html(message);
 }
-
-
-// Returns a function, that, as long as it continues to be invoked, will not
-// be triggered. The function will be called after it stops being called for
-// N milliseconds. If `immediate` is passed, trigger the function on the
-// leading edge, instead of the trailing.
-function debounce(func, wait, immediate) {
-	var timeout;
-	return function() {
-		var context = this, args = arguments;
-		var later = function() {
-			timeout = null;
-			if (!immediate) func.apply(context, args);
-		};
-		var callNow = immediate && !timeout;
-		clearTimeout(timeout);
-		timeout = setTimeout(later, wait);
-		if (callNow) func.apply(context, args);
-	};
-};
 </script>
 <div id="massActionContainer">
     <h1>Mass Action</h1>
@@ -466,12 +444,7 @@ function debounce(func, wait, immediate) {
         <select id="filter" name="filter"></select>
     </div>
 
-    <div id="searchRequestsContainer">
-        <div id="searchBar">
-            <img class="searchIcon" src="../libs/dynicons/?img=search.svg&amp;w=16" alt="search icon">&nbsp;
-            <input id="searchRequestsInput" type="text" placeholder="Search by Title of Request">
-        </div>
-    </div>
+    <div id="searchRequestsContainer"></div>
     <img id="iconBusy" src="./images/indicator.gif" class="employeeSelectorIcon" alt="busy">
     <div id="searchResults">
         <button class="buttonNorm takeAction" style="text-align: center; font-weight: bold; white-space: normal">Take Action</button>
