@@ -390,7 +390,7 @@ var PortalFormEditorAPI = function (baseAPIURL) {
          * Assigns workflow to form
          *
          * @param categoryID    string              name of form
-         * @param workflowID    int                 description of form
+         * @param workflowID    int                 workflow associated with form
          * @param onSuccess     function(success)   callback containing categoryID if action succeeded
          * @param onFail        function(err)       callback when action contains an error
          */
