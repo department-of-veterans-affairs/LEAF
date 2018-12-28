@@ -22,7 +22,7 @@
 <div id="uploadBox">
     <h4>Choose a Spreadsheet</h4>
     The first row of the file must be headers for the columns.
-    </br>
+    <br/>
 
     <input id="sheet_upload" type="file"></input>
 
@@ -142,7 +142,7 @@
             '   <thead>' +
             '<tbody>';
         $.each(spreadSheet.headers, function(key, value) {
-            var requiredCheckbox = blankIndicators.includes(key) === false ? '<input type="checkbox"></input>' : '<input type="checkbox" onclick="return false;" disabled="disabled" title="Cannot set as required when a row in this column is blank."></input>';
+            var requiredCheckbox = blankIndicators.indexOf(key) === -1 ? '<input type="checkbox"></input>' : '<input type="checkbox" onclick="return false;" disabled="disabled" title="Cannot set as required when a row in this column is blank."></input>';
             table +=
                 '<tr>' +
                 '   <td>' + key + '</td>' +
@@ -276,7 +276,7 @@
         return row;
     }
 
-    function doStuff(categoryID, initiator, requestData) {
+    function makeRequests(categoryID, initiator, requestData) {
         console.log(requestData);
         portalAPI.Forms.newRequest(
             categoryID,
@@ -304,25 +304,37 @@
                 }
 
                 if (createdRequests + failedRequests === (sheet_data.cells.length - 1)) {
-                    urlTitle = "Requests have been generated for each row of the imported spreadsheet";
-                    urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*' + nameOfSheet + '*"},{"id":"deleted","operator":"=","match":0}],"joins":["service"],"sort":{}}';
-                    urlIndicatorsJSON = '[{"indicatorID":"","name":"","sort":0},{"indicatorID":"title","name":"","sort":0}]';
-
-                    urlTitle = encodeURIComponent(btoa(urlTitle));
-                    urlQuery = encodeURIComponent(LZString.compressToBase64(urlQueryJSON));
-                    urlIndicators = encodeURIComponent(LZString.compressToBase64(urlIndicatorsJSON));
-
-                    $('#status').html('Data has been imported');
-                    requestStatus.html(
-                        'Import Successful! ' + createdRequests + ' requests made, ' + failedRequests + ' failures.</br></br>' +
-                        '<a class="buttonNorm" role="button" href="./?a=reports&v=3&title=' + urlTitle + '&query=' + urlQuery + '&indicators=' + urlIndicators + '">View Report<\a>'
-                    );
+                    generateReport();
+                    createdRequests = 0;
+                    failedRequests = 0;
                 }
             },
             function (error) {
                 alert('Error importing row: ' + i);
                 console.log(error);
+                failedRequests++;
+                if (createdRequests + failedRequests === (sheet_data.cells.length - 1)) {
+                    generateReport();
+                    createdRequests = 0;
+                    failedRequests = 0;
+                }
             }
+        );
+    }
+
+    function generateReport() {
+        urlTitle = "Requests have been generated for each row of the imported spreadsheet";
+        urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*' + nameOfSheet + '*"},{"id":"deleted","operator":"=","match":0}],"joins":["service"],"sort":{}}';
+        urlIndicatorsJSON = '[{"indicatorID":"","name":"","sort":0},{"indicatorID":"title","name":"","sort":0}]';
+
+        urlTitle = encodeURIComponent(btoa(urlTitle));
+        urlQuery = encodeURIComponent(LZString.compressToBase64(urlQueryJSON));
+        urlIndicators = encodeURIComponent(LZString.compressToBase64(urlIndicatorsJSON));
+
+        $('#status').html('Data has been imported');
+        requestStatus.html(
+            'Import Completed! ' + createdRequests + ' requests made, ' + failedRequests + ' failures.<br/><br/>' +
+            '<a class="buttonNorm" role="button" href="./?a=reports&v=3&title=' + urlTitle + '&query=' + urlQuery + '&indicators=' + urlIndicators + '">View Report<\a>'
         );
     }
 
@@ -437,7 +449,7 @@
                                                 requestData[value] = sheet_data.cells[i + 1][column];
                                             }
                                         });
-                                        doStuff(categoryID.replace(/"/g,""), changeToInitiator, requestData);
+                                        makeRequests(categoryID.replace(/"/g,""), changeToInitiator, requestData);
                                     }
                                 }
                             },
@@ -535,7 +547,7 @@
                 payload.requestData = requestData;
 
                 (function (forceVarInScope) {
-                    doStuff(categorySelect.val(), forceVarInScope.changeToInitiator, forceVarInScope.requestData);
+                    makeRequests(categorySelect.val(), forceVarInScope.changeToInitiator, forceVarInScope.requestData);
                 })(payload);
 
             }
