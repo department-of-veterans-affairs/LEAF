@@ -276,6 +276,22 @@
         return row;
     }
 
+    function generateReport() {
+        urlTitle = "Requests have been generated for each row of the imported spreadsheet";
+        urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*' + nameOfSheet + '*"},{"id":"deleted","operator":"=","match":0}],"joins":["service"],"sort":{}}';
+        urlIndicatorsJSON = '[{"indicatorID":"","name":"","sort":0},{"indicatorID":"title","name":"","sort":0}]';
+
+        urlTitle = encodeURIComponent(btoa(urlTitle));
+        urlQuery = encodeURIComponent(LZString.compressToBase64(urlQueryJSON));
+        urlIndicators = encodeURIComponent(LZString.compressToBase64(urlIndicatorsJSON));
+
+        $('#status').html('Data has been imported');
+        requestStatus.html(
+            'Import Completed! ' + createdRequests + ' requests made, ' + failedRequests + ' failures.<br/><br/>' +
+            '<a class="buttonNorm" role="button" href="./?a=reports&v=3&title=' + urlTitle + '&query=' + urlQuery + '&indicators=' + urlIndicators + '">View Report<\a>'
+        );
+    }
+
     function makeRequests(categoryID, initiator, requestData) {
         console.log(requestData);
         portalAPI.Forms.newRequest(
@@ -286,7 +302,7 @@
                 // recordID is the recordID of the newly created request, it's 0 if there was an error
                 if (recordID > 0) {
                     createdRequests++;
-                    requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed');
+                    requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests + ' failures.');
 
                     //if (changeToInitiator !== undefined && changeToInitiator != null) {
                     // set the initiator so they can see the request associated with their availability
@@ -313,28 +329,16 @@
                 alert('Error importing row: ' + i);
                 console.log(error);
                 failedRequests++;
+                requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests + ' failures.');
+                if (failedRequests === (sheet_data.cells.length - 1)) {
+                    requestStatus.html('All requests failed!  See log for details.');
+                }
                 if (createdRequests + failedRequests === (sheet_data.cells.length - 1)) {
                     generateReport();
                     createdRequests = 0;
                     failedRequests = 0;
                 }
             }
-        );
-    }
-
-    function generateReport() {
-        urlTitle = "Requests have been generated for each row of the imported spreadsheet";
-        urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*' + nameOfSheet + '*"},{"id":"deleted","operator":"=","match":0}],"joins":["service"],"sort":{}}';
-        urlIndicatorsJSON = '[{"indicatorID":"","name":"","sort":0},{"indicatorID":"title","name":"","sort":0}]';
-
-        urlTitle = encodeURIComponent(btoa(urlTitle));
-        urlQuery = encodeURIComponent(LZString.compressToBase64(urlQueryJSON));
-        urlIndicators = encodeURIComponent(LZString.compressToBase64(urlIndicatorsJSON));
-
-        $('#status').html('Data has been imported');
-        requestStatus.html(
-            'Import Completed! ' + createdRequests + ' requests made, ' + failedRequests + ' failures.<br/><br/>' +
-            '<a class="buttonNorm" role="button" href="./?a=reports&v=3&title=' + urlTitle + '&query=' + urlQuery + '&indicators=' + urlIndicators + '">View Report<\a>'
         );
     }
 
