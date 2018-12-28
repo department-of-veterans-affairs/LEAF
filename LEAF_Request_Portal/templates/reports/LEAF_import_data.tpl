@@ -332,8 +332,7 @@
                 requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests + ' failures.');
                 if (failedRequests === (sheet_data.cells.length - 1)) {
                     requestStatus.html('All requests failed!  See log for details.');
-                }
-                if (createdRequests + failedRequests === (sheet_data.cells.length - 1)) {
+                }else if (createdRequests + failedRequests === (sheet_data.cells.length - 1)) {
                     generateReport();
                     createdRequests = 0;
                     failedRequests = 0;
