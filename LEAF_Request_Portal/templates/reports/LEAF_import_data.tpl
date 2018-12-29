@@ -208,7 +208,7 @@
     }
 
     function searchBlankRow(e) {
-        if (blankIndicators.includes($(e.target).val())) {
+        if (blankIndicators.indexOf($(e.target).val()) > -1) {
             $(e.target).val("-1");
             alert('Column can\'t be selected because it contains blank entries.');
         }
