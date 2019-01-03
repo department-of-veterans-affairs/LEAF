@@ -4,6 +4,7 @@
  */
 
 set_time_limit(90);
+include '../globals.php';
 include '../config.php';
 include '../sources/Login.php';
 include '../db_mysql.php';
