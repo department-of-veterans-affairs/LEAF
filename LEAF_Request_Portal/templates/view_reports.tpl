@@ -290,10 +290,8 @@ function loadSearchPrereqs() {
                 }
 
                 var categoryLabel = groupNames[k].categoryName;
-                if(groupIDmap[i].parentCategoryID != '') {
-                    if(groupIDmap[groupIDmap[i].parentCategoryID]){
-                      categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
-                  }
+                if(groupIDmap[i].parentCategoryID != '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
+                    categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(var j in groupList[i]) {
