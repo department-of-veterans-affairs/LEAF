@@ -4,7 +4,8 @@
 var LEAFNexusAPI = function () {
     var baseURL = './api/?a=',
         Employee = NexusEmployeeAPI(baseURL),
-        Groups = NexusGroupsAPI(this.baseURL),
+        Groups = NexusGroupsAPI(baseURL),
+        Positions = NexusPositionsAPI(baseURL),
 
         /**
          * Get the base URL for the LEAF Nexus API (e.g. "/LEAF_Nexus/api/?a=")
@@ -19,11 +20,15 @@ var LEAFNexusAPI = function () {
         setBaseURL = function (baseAPIURL) {
             baseURL = baseAPIURL;
             Employee.setBaseAPIURL(baseURL);
+            Groups.setBaseAPIURL(baseURL);
+            Positions.setBaseAPIURL(baseURL);
         },
 
         setCSRFToken = function (token) {
             csrfToken = token;
             Employee.setCSRFToken(csrfToken);
+            Groups.setCSRFToken(csrfToken);
+            Positions.setCSRFToken(csrfToken);
         };
 
     return {
@@ -31,7 +36,8 @@ var LEAFNexusAPI = function () {
         setBaseURL: setBaseURL,
         setCSRFToken: setCSRFToken,
         Employee: Employee,
-        Groups: Groups
+        Groups: Groups,
+        Positions: Positions
     };
 };
 
@@ -143,6 +149,9 @@ var NexusGroupsAPI = function (baseAPIURL) {
     var apiBaseURL = baseAPIURL,
         apiURL = apiBaseURL + 'group',
 
+        // used for POST requests
+        csrfToken = '',
+
         /**
          * Get the URL for the LEAF Nexus Groups API
          */
@@ -155,6 +164,40 @@ var NexusGroupsAPI = function (baseAPIURL) {
          */
         getBaseAPIURL = function () {
             return apiBaseURL;
+        },
+
+        setCSRFToken = function (token) { csrfToken = token; },
+
+        /**
+         * Set the base URL for the LEAF Portal API
+         *
+         * @param baseAPIURL string the base URL for the Portal API
+         */
+        setBaseAPIURL = function (baseAPIURL) {
+            apiBaseURL = baseAPIURL;
+            apiURL = baseAPIURL + 'group';
+        },
+
+        /**
+         * Search for groups based on name.
+         *
+         * @param group        string                 The group to search
+         * @param onSuccess    function(employees)   the callback containing all fetched users
+         * @param onFail       function(error)     callback when query fails
+         */
+        searchGroups = function (group, onSuccess, onFail) {
+            var fetchURL = apiBaseURL + 'group/search&q=' + group + '&noLimit=0';
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: "json",
+                async: false,
+                cache: false
+            })
+                .done(onSuccess)
+                .fail(onFail);
+            // .always(function () {});
         },
 
         /**
@@ -199,6 +242,78 @@ var NexusGroupsAPI = function (baseAPIURL) {
     return {
         getAPIURL: getBaseAPIURL,
         getBaseAPIURL: getBaseAPIURL,
+        setBaseAPIURL: setBaseAPIURL,
+        setCSRFToken: setCSRFToken,
+        searchGroups: searchGroups,
         listGroupEmployeesDetailed: listGroupEmployeesDetailed
+    };
+};
+
+/**
+ * API for working the Nexus Positions
+ * 
+ * @param baseAPIURL    string  the base URL for the LEAF Nexus API (e.g. "/LEAF_Nexus/api/?a=") 
+ */
+var NexusPositionsAPI = function (baseAPIURL) {
+    var apiBaseURL = baseAPIURL,
+        apiURL = apiBaseURL + 'position',
+
+        // used for POST requests
+        csrfToken = '',
+
+        /**
+         * Get the URL for the LEAF Nexus Positions API
+         */
+        getAPIURL = function () {
+            return apiURL;
+        },
+
+        /**
+         * Get the base URL for the LEAF Nexus API
+         */
+        getBaseAPIURL = function () {
+            return apiBaseURL;
+        },
+
+        setCSRFToken = function (token) { csrfToken = token; },
+
+        /**
+         * Set the base URL for the LEAF Portal API
+         *
+         * @param baseAPIURL string the base URL for the Portal API
+         */
+        setBaseAPIURL = function (baseAPIURL) {
+            apiBaseURL = baseAPIURL;
+            apiURL = baseAPIURL + 'position';
+        },
+
+        /**
+         * Search for Positions based on name.
+         *
+         * @param position        string                 The position to search
+         * @param onSuccess    function(employees)   the callback containing all fetched users
+         * @param onFail       function(error)     callback when query fails
+         */
+        searchPositions = function (position, onSuccess, onFail) {
+            var fetchURL = apiBaseURL + 'position/search&q=' + position + '&noLimit=0';
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: "json",
+                async: false,
+                cache: false
+            })
+                .done(onSuccess)
+                .fail(onFail);
+            // .always(function () {});
+        };
+
+    return {
+        getAPIURL: getBaseAPIURL,
+        getBaseAPIURL: getBaseAPIURL,
+        setBaseAPIURL: setBaseAPIURL,
+        setCSRFToken: setCSRFToken,
+        searchPositions: searchPositions,
     };
 };
