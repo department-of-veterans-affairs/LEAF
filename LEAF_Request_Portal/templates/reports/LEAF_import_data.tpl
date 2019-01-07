@@ -75,6 +75,7 @@
                 <th>Format</th>
                 <th>Description</th>
                 <th>Required</th>
+                <th>Sensitive</th>
                 <th>Sheet Column</th>
             </tr>
         </thead>
@@ -286,6 +287,10 @@
 
         var indicatorRequired = $(document.createElement('td'))
             .html(indicator.required === "1" ? "YES" : "NO")
+            .appendTo(row);
+
+        var indicatorSensitive = $(document.createElement('td'))
+            .html(indicator.is_sensitive === "1" ? "YES" : "NO")
             .appendTo(row);
 
         var columnSelect = $(document.createElement('td'))
