@@ -3,10 +3,10 @@
         width: 800px;
         margin: auto;
     }
-    #filterContainer, #searchRequestsContainer, #searchResults, #errorMessage, #iconBusy {
+    #searchRequestsContainer, #searchResults, #errorMessage, #iconBusy {
         display: none;
     }
-    #filterContainer, #actionContainer {
+    #actionContainer {
         padding-bottom: 5px;
     }
     #iconBusy{
@@ -35,7 +35,6 @@
 var processedRequests = 0;
 var totalActions = 0;
 var actionValue = '';
-var filterValue = '';
 var successfulActionRecordIDs = [];
 var failedActionRecordIDs = [];
 var dialog_confirm;
@@ -54,9 +53,6 @@ $(document).ready(function(){
         chooseAction();
     });
 
-    $('select#filter').change(function(){
-        doSearch();
-    });
     $("button.takeAction").click(function() {
         dialog_confirm.setContent('<img src="../../../libs/dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to perform this action?');
 
@@ -87,7 +83,6 @@ $(document).ready(function(){
 
 function chooseAction()
 {
-    setUpFilterSelector();
     if($('select#action').val() !== '')
     {
         $('#searchRequestsContainer').show();
@@ -108,93 +103,30 @@ function chooseAction()
 }
 
 /**
- * When an action is selected, the filter dropdown must be refreshed. 
- * This sets the options based on the action chosen.
- */
-function setUpFilterSelector()
-{
-    //clear old options
-    $('select#filter option').remove();
-
-    switch($('select#action').val()) {
-        case 'cancel':
-            $('select#filter').append('<option value="">-Select-</option>');
-            $('select#filter').append('<option value="unsubmitted">unsubmitted</option>');
-            $('select#filter').append('<option value="submitted">submitted</option>');
-            $('select#filter').append('<option value="submitted-incomplete">submitted and incomplete</option>');
-            $('select#filter').append('<option value="submitted-complete">submitted and complete</option>');
-            $('#filterContainer').show();
-            break;
-        case 'restore':
-            $('select#filter').append('<option value="">-Select-</option>');
-            $('select#filter').append('<option value="unsubmitted">unsubmitted</option>');
-            $('select#filter').append('<option value="submitted">submitted</option>');
-            $('#filterContainer').show();
-            break;
-        default:
-            $('#filterContainer').hide();
-    }
-}
-
-/**
- * Sets the selected action, filter, and search string to gloabal variables
- */
-function lockInSelections()
-{
-    actionValue = $('select#action').val();
-    filterValue = $('select#filter').val();
-}
-
-/**
  * Sets up and builds the search query, passing it along to listRequests
  */
 function doSearch()
 {
     var getCancelled = '';
     var getSubmitted = '';
-    var getResolved = '';
 
-    var filterGetSubmitted = '';
-    var filterGetResolved = '';
     $('input#selectAllRequests').prop('checked', false);
     setProgress("");
-    lockInSelections();
-
-    switch(filterValue) {
-        case 'unsubmitted':
-            filterGetSubmitted = 'false';
-            break;
-        case 'submitted':
-            filterGetSubmitted = 'true';
-            break;
-        case 'submitted-incomplete':
-            filterGetSubmitted = 'true';
-            filterGetResolved = 'false';
-            break;
-        case 'submitted-complete':
-            filterGetSubmitted = 'true';
-            filterGetResolved = 'true';
-            break;
-    }
+    actionValue = $('select#action').val();//lock in selection
 
     switch(actionValue) {
         case 'submit':
             getCancelled = 'false';
             getSubmitted = 'false';
-            getResolved = '';
             break;
         case 'cancel':
             getCancelled = 'false';
-            getSubmitted = filterGetSubmitted;
-            getResolved = filterGetResolved;
             break;
         case 'restore':
             getCancelled = 'true';
-            getSubmitted = filterGetSubmitted;
-            getResolved = '';
             break;
     }
-    var queryObj = buildQuery(getCancelled, getSubmitted, getResolved);
+    var queryObj = buildQuery(getCancelled, getSubmitted);
     searchID = Math.floor((Math.random() * 1000000000));
     listRequests(queryObj, searchID);
 }
@@ -204,11 +136,10 @@ function doSearch()
  *
  * @param {string}  [getCancelled]      '','true', or 'false' whether to filter by cancelled, then whether request is('true') or isn't('false') cancelled 
  * @param {string}  [getSubmitted]      '','true', or 'false' whether to filter by submitted, then whether request is('true') or isn't('false') cancelled 
- * @param {string}  [getResolved]       '','true', or 'false' whether to filter by resolved, then whether request is('true') or isn't('false') cancelled 
  *
  * @return {Object} query object to pass to form/query.
  */
-function buildQuery(getCancelled, getSubmitted, getResolved)
+function buildQuery(getCancelled, getSubmitted)
 {
     var requestQuery = {"terms":[],
                         "joins":["service", "recordsDependencies", "categoryName", "status"],
@@ -224,25 +155,9 @@ function buildQuery(getCancelled, getSubmitted, getResolved)
         requestQuery.terms.push({"id":"stepID","operator":"!=","match":"deleted"});
     }
 
-    if(getSubmitted === 'true')
-    {
-        requestQuery.terms.push({"id":"stepID","operator":"=","match":"submitted"});
-    }
-    else if(getSubmitted === 'false')
+    if(getSubmitted === 'false')
     {
         requestQuery.terms.push({"id":"stepID","operator":"!=","match":"submitted"});
-    }
-
-    //when filtering by resolved (either = or !=), 
-    //form/query also makes sure that: requests ARE submitted and AREN'T cancelled
-    //so, here we make sure that these are already the case
-    if(getResolved === 'true' && getSubmitted === 'true' && getCancelled === 'false')
-    {
-        requestQuery.terms.push({"id":"stepID","operator":"=","match":"resolved"});
-    }
-    else if(getResolved === 'false' && getSubmitted === 'true' && getCancelled === 'false')
-    {
-        requestQuery.terms.push({"id":"stepID","operator":"!=","match":"resolved"});
     }
 
     //handle extraTerms
@@ -437,11 +352,6 @@ function setProgress(message)
             <option value="restore">Restore</option>
             <option value="submit">Submit</option>
         </select>
-    </div>
-
-    <div id="filterContainer">
-        <label for="filter"> Show Only </label>
-        <select id="filter" name="filter"></select>
     </div>
 
     <div id="searchRequestsContainer"></div>
