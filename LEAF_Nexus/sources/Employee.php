@@ -460,7 +460,16 @@ class Employee extends Data
                         {$this->limit}";
 
             $vars = array(':firstName' => $this->metaphone_query($firstName), ':lastName' => $this->metaphone_query($lastName));
-            $result = $this->db->prepared_query($sql, $vars);
+            $phoneticResult = $this->db->prepared_query($sql, $vars);
+
+            foreach ($phoneticResult as $res)
+            {  // Prune matches
+                if (levenshtein(strtolower($phoneticResult['lastName']), trim(strtolower($lastName), '*')) <= $this->maxStringDiff
+                    && levenshtein(strtolower($phoneticResult['firstName']), trim(strtolower($firstName), '*')) <= $this->maxStringDiff)
+                {
+                    $result[] = $res;
+                }
+            }
         }
 
         return $result;
@@ -664,6 +673,12 @@ class Employee extends Data
                 }
 
                 $searchResult = $this->lookupName($last, $first, $middle);
+                if (count($res) <= $this->deepSearch)
+                {
+                    $this->log[] = 'Trying Deeper search';
+                    $input = trim('*' . $input);
+                    $searchResult = array_merge($searchResult, $this->searchDeeper($input));
+                }
 
                 break;
             // Format: First Last
