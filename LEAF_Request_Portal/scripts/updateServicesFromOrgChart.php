@@ -9,7 +9,6 @@ include_once $currDir . '/../globals.php';
 include_once $currDir . '/../db_mysql.php';
 include_once $currDir . '/../db_config.php';
 include_once $currDir . '/../Login.php';
-include_once $currDir . '/../globals.php';
 
 $db_config = new DB_Config();
 $config = new Config();
