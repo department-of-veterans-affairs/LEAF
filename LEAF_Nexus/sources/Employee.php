@@ -43,7 +43,7 @@ class Employee extends Data
 
     private $maxStringDiff = 3;         // Max number of letter differences for a name (# of typos allowed)
 
-    private $deepSearch = 10;           // Threshold for deeper search (min # of results
+    private $deepSearch = 3;           // Threshold for deeper search (min # of results before searching deeper)
 
     public function initialize()
     {
@@ -621,6 +621,10 @@ class Employee extends Data
         return $res;
     }
 
+    private function searchDeeper($input) {
+        return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
+    }
+
     public function search($input, $indicatorID = '')
     {
         $input = html_entity_decode($input, ENT_QUOTES);
@@ -679,16 +683,16 @@ class Employee extends Data
                 }
                 $res = $this->lookupName($last, $first, $middle);
                 // Check if the user reversed the names
-                if (count($res) < $this->deepSearch)
+                if (count($res) <= $this->deepSearch)
                 {
                     $this->log[] = 'Trying Reversed First/Last name';
                     $res = array_merge($res, $this->lookupName($first, $last));
                     // Try to look for service
-                    if (count($res) == 0)
+                    if (count($res) <= $this->deepSearch)
                     {
-                        $this->log[] = 'Trying Service search';
+                        $this->log[] = 'Trying Deeper search';
                         $input = trim('*' . $input);
-                        //$res = array_merge($res, $this->lookupService($input));
+                        $res = array_merge($res, $this->searchDeeper($input));
                     }
                 }
                 $searchResult = $res;
@@ -739,16 +743,16 @@ class Employee extends Data
                 }
                 $res = $this->lookupLastName($input);
                 // Check first names if theres few hits for last names
-                if (count($res) < $this->deepSearch)
+                if (count($res) <= $this->deepSearch)
                 {
                     $this->log[] = 'Extra search on first names';
                     $res = array_merge($res, $this->lookupFirstName($input));
                     // Try to look for service
-                    if (count($res) == 0)
+                    if (count($res) <= $this->deepSearch)
                     {
-                        $this->log[] = 'Trying Service search';
+                        $this->log[] = 'Trying Deeper search';
                         $input = trim('*' . $input);
-                        //$res = array_merge($res, $this->lookupService($input));
+                        $res = array_merge($res, $this->searchDeeper($input));
                     }
                 }
                 $searchResult = $res;
