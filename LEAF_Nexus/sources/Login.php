@@ -256,6 +256,58 @@ class Login
             return true;
         }
 
+        // try to copy the user from the national DB
+        $globalDB = new \DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $vars = array(':userName' => $_SESSION['userID']);
+        $res = $globalDB->prepared_query('SELECT * FROM employee
+											LEFT JOIN employee_data USING (empUID)
+											WHERE userName=:userName
+    											AND indicatorID = 6
+                                                AND deleted=0', $vars);
+        // add user to local DB
+        if (count($res) > 0)
+        {
+            $vars = array(':firstName' => $res[0]['firstName'],
+                    ':lastName' => $res[0]['lastName'],
+                    ':middleName' => $res[0]['middleName'],
+                    ':userName' => $res[0]['userName'],
+                    ':phoFirstName' => $res[0]['phoneticFirstName'],
+                    ':phoLastName' => $res[0]['phoneticLastName'],
+                    ':domain' => $res[0]['domain'],
+                    ':lastUpdated' => time(), );
+            $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
+        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
+    								ON DUPLICATE KEY UPDATE deleted=0', $vars);
+            $empUID = $this->db->getLastInsertID();
+
+            if ($empUID == 0)
+            {
+                $vars = array(':userName' => $res[0]['userName']);
+                $empUID = $this->db->prepared_query('SELECT empUID FROM employee
+                                                   WHERE userName=:userName', $vars)[0]['empUID'];
+            }
+
+            $vars = array(':empUID' => $empUID,
+                    ':indicatorID' => 6,
+                    ':data' => $res[0]['data'],
+                    ':author' => 'viaLogin',
+                    ':timestamp' => time(),
+            );
+            $this->db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
+											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
+    										ON DUPLICATE KEY UPDATE data=:data', $vars);
+
+            $this->name = "{$res[0]['firstName']} {$res[0]['lastName']}";
+            $this->userID = $res[0]['userName'];
+            $this->empUID = $empUID;
+            $this->domain = $res[0]['domain'];
+            $this->setSession();
+
+            $this->isLogin = true;
+            return true;
+        }
+
+        // fallback to guest mode if there's no match
         $this->name = "Guest: {$_SESSION['userID']}";
         $this->userID = $_SESSION['userID'];
         $this->isLogin = true;
@@ -263,8 +315,6 @@ class Login
         $this->setSession();
 
         return true;
-
-        return false;
     }
 
     public function logout()
