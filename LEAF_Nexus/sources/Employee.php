@@ -412,7 +412,14 @@ class Employee extends Data
             $vars = array(':firstName' => metaphone($firstName));
             if ($vars[':firstName'] != '')
             {
-                $result = $this->db->prepared_query($sql, $vars);
+                $phoneticResult = $this->db->prepared_query($sql, $vars);
+                foreach ($phoneticResult as $res)
+                {  // Prune matches
+                    if (levenshtein(strtolower($res['firstName']), trim(strtolower($firstName), '*')) <= $this->maxStringDiff)
+                    {
+                        $result[] = $res;
+                    }
+                }
             }
         }
 
