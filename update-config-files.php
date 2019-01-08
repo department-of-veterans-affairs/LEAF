@@ -56,7 +56,7 @@ for ($i = 0; $i <= $argc - 1; $i++)
           'uploadDir' => array('varName' => 'uploadDir', 'varValue' => '', 'varComment' => 'Directory for user uploads. using backslashes (/), with trailing slash', 'varType' => ''),
           'leafSecure' => array('varName' => 'leafSecure', 'varValue' => '', 'varComment' => '', 'varType' => ''),
           'orgchartPath' => array('varName' => 'orgchartPath', 'varValue' => '', 'varComment' => 'HTTP Path to orgchart with no trailing slash', 'varType' => ''),
-          'orgchartImportTags' => array('varName' => 'orgchartImportTags', 'varValue' => "array('')", 'varComment' => 'Import org chart groups if they match these tags', 'varType' => ''),
+          'orgchartImportTags' => array('varName' => 'orgchartImportTags', 'varValue' => "", 'varComment' => 'Import org chart groups if they match these tags', 'varType' => ''),
           'descriptionID' => array('varName' => 'descriptionID', 'varValue' => '', 'varComment' => 'indicator ID for description field', 'varType' => ''),
           'emailPrefix' => array('varName' => 'emailPrefix', 'varValue' => '', 'varComment' => 'Email prefix', 'varType' => ''),
           'emailCC' => array('varName' => 'emailCC', 'varValue' => '', 'varComment' => 'CCed for every email', 'varType' => ''),
@@ -98,13 +98,12 @@ for ($i = 0; $i <= $argc - 1; $i++)
           'adminLogonName' => array('varName' => 'adminLogonName', 'varValue' => '', 'varComment' => 'Administrator\'s logon name', 'varType' => ''),
           'adPath' => array('varName' => 'adPath', 'varValue' => '', 'varComment' => 'Active directory paths', 'varType' => ''),
           'uploadDir' => array('varName' => 'uploadDir', 'varValue' => '', 'varComment' => 'Directory for user uploads. using backslashes (/), with trailing slash', 'varType' => ''),
-          'ERM_Sites' => array('varName' => 'ERM_Sites', 'varValue' => "array('')", 'varComment' => 'URL to ERM sites with trailing slash', 'varType' => ''),
+          'ERM_Sites' => array('varName' => 'ERM_Sites', 'varValue' => "", 'varComment' => 'URL to ERM sites with trailing slash', 'varType' => ''),
           'leafSecure' => array('varName' => 'leafSecure', 'varValue' => 'false', 'varComment' => 'leafSecure', 'varType' => ''),
           'dbHost' => array('varName' => 'dbHost', 'varValue' => '', 'varComment' => '', 'varType' => ''),
           'dbName' => array('varName' => 'dbName', 'varValue' => '', 'varComment' => '', 'varType' => ''),
           'dbUser' => array('varName' => 'dbUser', 'varValue' => '', 'varComment' => '', 'varType' => ''),
           'dbPass' => array('varName' => 'dbPass', 'varValue' => '', 'varComment' => '', 'varType' => ''),
-          'myNewVar' => array('varName' => 'myNewVar', 'varValue' => "'myNewValue'", 'varComment' => 'my new comment', 'varType' => 'static'),
         );
 
         $nexusConfigs = rGlob('./config.php');
