@@ -286,10 +286,10 @@ switch ($action) {
             $form = new Form($db, $login);
             if ($form->doModify($_GET['recordID']))
             {
-                $body .= "<b>{$uploadedFilename}</b> has been attached!";
                 $recordID = (int)$_GET['recordID'];
                 $series = (int)$_POST['series'];
                 $indicatorID = (int)$_POST['indicatorID'];
+                $body .= "<span class='newFile_".$recordID."_".$indicatorID."_".$series."'><b>{$uploadedFilename}</b> has been attached!</span>";
 
                 $t_form->assign('message', $body);
                 $t_form->assign('recordID', $recordID);
