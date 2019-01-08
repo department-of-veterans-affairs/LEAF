@@ -184,6 +184,7 @@ function buildQuery(getCancelled, getSubmitted)
  * Looks up requests based on filter/searchbar and builds table with the results
  *
  * @param {Object}  [queryObj]  Object to pass to form/query
+ * @param {Integer} [thisSearchID]  When done() is called, this param is compared to the global searchID. If they are not equal, then the results are not processed.
  */
 function listRequests(queryObj, thisSearchID)
 {
