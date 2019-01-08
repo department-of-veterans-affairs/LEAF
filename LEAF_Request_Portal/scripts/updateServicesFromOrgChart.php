@@ -5,6 +5,7 @@
 
 $currDir = dirname(__FILE__);
 
+include_once $currDir . '/../globals.php';
 include_once $currDir . '/../db_mysql.php';
 include_once $currDir . '/../db_config.php';
 include_once $currDir . '/../Login.php';
@@ -19,14 +20,11 @@ $login->setBaseDir('../');
 $login->loginUser();
 
 include_once $currDir . '/../' . Config::$orgchartPath . '/config.php';
-//include_once $currDir . '/../' . Config::$orgchartPath . '/Login.php';
 include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Employee.php';
 include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Group.php';
 include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Position.php';
 include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
-//$oc_config = new Orgchart\Config();
-//$oc_login = new Orgchart\Login($db_phonebook, $db);
 $employee = new Orgchart\Employee($db_phonebook, $login);
 $group = new Orgchart\Group($db_phonebook, $login);
 $position = new Orgchart\Position($db_phonebook, $login);

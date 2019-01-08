@@ -244,8 +244,6 @@ class Login
         $this->setSession();
 
         return true;
-
-        return false;
     }
 
     public function logout()
