@@ -509,6 +509,7 @@ function showJSONendpoint() {
                            + '<option value="csv">CSV</option>'
                            + '<option value="xml">XML</option>'
                            + '<option value="debug">Plaintext</option>'
+                           + '<option value="x-visualstudio">Visual Studio (testing)</option>'
                            + '</select>'
                            + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
 			               + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
