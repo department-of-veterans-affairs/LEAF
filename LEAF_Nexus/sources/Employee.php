@@ -519,7 +519,8 @@ class Employee extends Data
         $res = $this->db->prepared_query("SELECT * FROM {$this->dataTable}
     						LEFT JOIN {$this->tableName} USING ({$this->dataTableUID})
     						WHERE indicatorID = :indicatorID
-    						AND data LIKE :query", $vars);
+                                AND data LIKE :query
+                                AND deleted=0", $vars);
 
         return $res;
     }
