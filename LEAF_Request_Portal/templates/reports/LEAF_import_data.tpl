@@ -622,7 +622,6 @@
                                             requestData[parseInt(indicator.indicatorID)] = parseInt(grp.groupID);
                                         } else {
                                             requestData['failed'] = indicatorColumn + (i + 1) + ': Group ' + row[indicatorColumn] + ' not found.';
-                                            console.log();
                                         }
                                     },
                                     function (err) {
