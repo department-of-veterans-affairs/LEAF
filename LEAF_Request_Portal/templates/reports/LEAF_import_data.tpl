@@ -131,7 +131,7 @@
         }
     }
 
-    function checkFormat(e, column) {
+    function checkFormatNew(e, column) {
         if ($(e.target).val() === 'orgchart_employee') {
             for (var i = 0; i < sheet_data.cells.length - 1; i++) {
                 var value = sheet_data.cells[i+1][column].toString();
@@ -139,6 +139,16 @@
                     alert('The column for employees should be either an email, username, or "Last name, First Name".');
                     break;
                 }
+            }
+        }
+    }
+
+    function checkFormatExisting(column) {
+        for (var i = 0; i < sheet_data.cells.length - 1; i++) {
+            var value = sheet_data.cells[i+1][column].toString();
+            if (value.indexOf('@va.gov') === -1 && value.indexOf(' ') === -1 && value.indexOf(',') === -1 && value.indexOf('VHA') === -1 && value.indexOf('VACO') === -1) {
+                alert('The column for employees should be either an email, username, or "Last name, First Name".');
+                break;
             }
         }
     }
@@ -164,7 +174,7 @@
                 '   <td>' + key + '</td>' +
                 '   <td>' + value + '</td>' +
                 '   <td>' +
-                '       <select onchange="checkFormat(event, \'' + key + '\')">' +
+                '       <select onchange="checkFormatNew(event, \'' + key + '\')">' +
                 '           <option value="text">Single line text</option>' +
                 '           <option value="textarea">Multi-line text</option>' +
                 '           <option value="number">Numeric</option>' +
@@ -232,7 +242,7 @@
 
     // build the select input with options for the given indicator
     // the indicatorID corresponds to the select input id
-    function buildSheetSelect(indicatorID, sheetData, required) {
+    function buildSheetSelect(indicatorID, sheetData, required, format) {
         var select = $(document.createElement('select'))
             .attr('id', indicatorID + '_sheet_column')
             .attr('class', 'indicator_column_select');
@@ -256,6 +266,9 @@
                 .html(keys[i] + ': ' + sheetData.headers[keys[i]]);
 
             select.append(option);
+        }
+        if (format === "orgchart_employee") {
+            select.attr('onchange', 'checkFormatExisting($("option:selected", this).val());');
         }
 
         return select;
@@ -294,7 +307,7 @@
             .appendTo(row);
 
         var columnSelect = $(document.createElement('td'))
-            .append(buildSheetSelect(indicator.indicatorID, sheet_data, indicator.required))
+            .append(buildSheetSelect(indicator.indicatorID, sheet_data, indicator.required, indicator.format))
             .appendTo(row);
 
         return row;
