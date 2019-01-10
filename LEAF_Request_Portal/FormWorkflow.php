@@ -595,7 +595,7 @@ class FormWorkflow
 
                             switch($condition['targetValueType']) 
                             {
-                                case 'daysSinceSubmit':
+                                case 'daysSinceSubmit'://get # of days since submit to now
                                     $vars = array(':recordID' => $this->recordID);
                                     $submittedRes = $this->db->prepared_query('SELECT submitted
                                                                                 FROM records
@@ -639,17 +639,17 @@ class FormWorkflow
 
                             }
 
-                            //if this condition returns false (condition met), set conditional set to false and break loop
+                            //if this condition returns false (condition not met), mark conditional set to false and break loop
                             if(!$result)
                             {
                                 $resultForConditionSet = false;
                                 break;
                             }
-                        }//foreach($conditionsRes as $condition)
+                        }
                         
-                        //if conditional set returns true(all conditions met), 
+                        //if conditional set returns true(all conditions met), then
                         //set next step to the step associated with this conditional set 
-                        //and break loop (it is assumed that one of the conditional sets will be met)
+                        //and break loop 
                         if($resultForConditionSet)
                         {
                             $nextStepID = $conditionSet['toStepID'];
