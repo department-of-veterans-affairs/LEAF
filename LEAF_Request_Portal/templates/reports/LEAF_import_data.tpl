@@ -742,7 +742,7 @@
 
         importBtnNew.on('click', function () {
             if (nameOfSheet === 'Sheet1' && formTitle.val() === '') {
-                return alert('Form title is required for .csv files');
+                return alert('Form title is required for this type of sheet.');
             }
             if (titleInputNew.val() === '') {
                 return alert('Request title is required.');
