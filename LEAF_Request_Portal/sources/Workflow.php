@@ -780,7 +780,7 @@ class Workflow
     public function getUserActions()
     {
         $vars = array();
-        $res = $this->db->prepared_query("SELECT * FROM actions WHERE actionType NOT IN ('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit') AND NOT (deleted = 1)", $vars);
+        $res = $this->db->prepared_query("SELECT * FROM actions WHERE actionType NOT IN ('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit', 'conditional') AND NOT (deleted = 1)", $vars);
 
         return $res;
     }

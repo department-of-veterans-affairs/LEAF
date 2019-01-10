@@ -560,6 +560,104 @@ class FormWorkflow
             // continue if the step and action is valid
             if (isset($res2[0]))
             {
+                $nextStepID = $res2[0]['nextStepID'];
+                //for conditional actions, set $nextStepIDfind to the appropriate next step
+                if($actionType === 'conditional')
+                {
+                    //get workflow_condition_sets by $actionable['stepID'], ordered by precedence
+                    $vars = array(':stepID' => $actionable['stepID'], );
+                    $workflowConditionSetsRes = $this->db->prepared_query('SELECT * 
+                                                                            FROM workflow_condition_sets
+                                                                            WHERE fromStepID=:stepID
+                                                                            ORDER BY precedence', $vars);
+                    
+                    //evaluate each conditional set
+                    foreach($workflowConditionSetsRes as $conditionSet)
+                    {
+                        //get all workflow_conditions for this set
+                        $vars = array(':workflowConditionSetID' => $conditionSet['workflowConditionSetID'], );
+                        $conditionsRes = $this->db->prepared_query('SELECT * 
+                                                                    FROM workflow_conditions
+                                                                    WHERE workflowConditionSetID=:workflowConditionSetID', $vars);
+                        
+                        $resultForConditionSet = true;
+                        //evaluate each conditional set
+                        foreach($conditionsRes as $condition)
+                        {
+                            //get dataValue, from Data table
+                            $vars = array(':indicatorID' => $condition['indicatorID'], 
+                                            ':recordID' => $this->recordID);
+                            $dataRes = $this->db->prepared_query('SELECT data
+                                                                        FROM data
+                                                                        WHERE indicatorID=:indicatorID
+                                                                        AND recordID=:recordID', $vars);
+                            $dataValue = isset($dataRes[0]) ? $dataRes[0]['data'] : '';
+
+                            switch($condition['targetValueType']) 
+                            {
+                                case 'daysSinceSubmit':
+                                    $vars = array(':recordID' => $this->recordID);
+                                    $submittedRes = $this->db->prepared_query('SELECT submitted
+                                                                                FROM records
+                                                                                WHERE recordID=:recordID', $vars);
+                                    $submittedTimestamp = isset($submittedRes[0]) ? $submittedRes[0]['submitted'] : 0;
+                                    $submittedDatetime = new DateTime();
+                                    $submittedDatetime->setTimestamp((int)$submittedTimestamp);
+                                    $currentDatetime = new DateTime();
+                                    $currentDatetime->setTimestamp(time());
+                                    $interval = date_diff($submittedDatetime, $currentDatetime);
+                                    $targetValue = $interval->format('%a');
+                                    break;
+                                case 'int':
+                                    $targetValue = (int)$condition['targetValue'];
+                                    break;
+                                case 'string':
+                                default:
+                                    $targetValue = $condition['targetValue'];
+                            }
+
+                            switch($condition['comparator'])
+                            {
+                                case '!==':
+                                    $result = $dataValue !== $targetValue;
+                                    break;
+                                case '>':
+                                    $result = $dataValue > $targetValue;
+                                    break;
+                                case '>=':
+                                    $result = $dataValue >= $targetValue;
+                                    break;
+                                case '<':
+                                    $result = $dataValue < $targetValue;
+                                    break;
+                                case '<=':
+                                    $result = $dataValue <= $targetValue;
+                                    break;
+                                case '===':
+                                default:
+                                    $result = $dataValue === $targetValue;
+
+                            }
+
+                            //if this condition returns false (condition met), set conditional set to false and break loop
+                            if(!$result)
+                            {
+                                $resultForConditionSet = false;
+                                break;
+                            }
+                        }//foreach($conditionsRes as $condition)
+                        
+                        //if conditional set returns true(all conditions met), 
+                        //set next step to the step associated with this conditional set 
+                        //and break loop (it is assumed that one of the conditional sets will be met)
+                        if($resultForConditionSet)
+                        {
+                            $nextStepID = $conditionSet['toStepID'];
+                            break;
+                        }
+                    }
+                }
+                
                 $this->db->beginTransaction();
                 // write dependency information
                 $vars2 = array(':recordID' => $this->recordID,
@@ -612,7 +710,7 @@ class FormWorkflow
                 $numUnfilledDeps = count($res3);
 
                 // Trigger events if the next step is the same as the original step (eg: same-step loop)
-                if ($actionable['stepID'] == $res2[0]['nextStepID'])
+                if ($actionable['stepID'] == $nextStepID)
                 {
                     $status = $this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment);
                     if (count($status['errors']) > 0)
@@ -643,7 +741,7 @@ class FormWorkflow
                 								   ON DUPLICATE KEY UPDATE fulfillmentTime=:time', $vars2);
 
                     // if the next step is to end it, then update the record's workflow's state
-                    if ($res2[0]['nextStepID'] == 0)
+                    if ($nextStepID == 0)
                     {
                         $vars2 = array(':recordID' => $this->recordID);
                         $this->db->prepared_query('DELETE FROM records_workflow_state
@@ -653,7 +751,7 @@ class FormWorkflow
                     {
                         $vars2 = array(':recordID' => $this->recordID,
                                        ':stepID' => $actionable['stepID'],
-                                       ':nextStepID' => $res2[0]['nextStepID'],
+                                       ':nextStepID' => $nextStepID,
                                        ':blockingStepID' => 0, );
                         $this->db->prepared_query('UPDATE records_workflow_state SET
 	                                                    stepID=:nextStepID,
@@ -662,7 +760,7 @@ class FormWorkflow
 	                                                        AND stepID=:stepID', $vars2);
 
                         // reset records_dependencies for the next step
-                        $this->resetRecordsDependency($res2[0]['nextStepID']);
+                        $this->resetRecordsDependency($nextStepID);
                     }
 
                     // make sure the step is available
