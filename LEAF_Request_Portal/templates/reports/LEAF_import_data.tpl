@@ -734,8 +734,8 @@
             }
             dialog_confirm.setContent('Are you sure you want to submit ' + (sheet_data.cells.length - 1) + ' requests?');
             dialog_confirm.setSaveHandler(function () {
-                importExisting();
                 dialog_confirm.hide();
+                importExisting();
             });
             dialog_confirm.show();
         });
@@ -752,8 +752,8 @@
             }
             dialog_confirm.setContent('Are you sure you want to submit ' + (sheet_data.cells.length - 1) + ' requests?');
             dialog_confirm.setSaveHandler(function () {
-                importNew();
                 dialog_confirm.hide();
+                importNew();
             });
             dialog_confirm.show();
         });
