@@ -133,19 +133,13 @@
 
     function checkFormatNew(e, column) {
         if ($(e.target).val() === 'orgchart_employee') {
-            for (var i = 0; i < sheet_data.cells.length - 1; i++) {
-                var value = sheet_data.cells[i+1][column].toString();
-                if (value.indexOf('@va.gov') === -1 && value.indexOf(' ') === -1 && value.indexOf(',') === -1 && value.indexOf('VHA') === -1 && value.indexOf('VACO') === -1) {
-                    alert('The column for employees should be either an email, username, or "Last name, First Name".');
-                    break;
-                }
-            }
+            checkFormatExisting(column);
         }
     }
 
     function checkFormatExisting(column) {
-        for (var i = 0; i < sheet_data.cells.length - 1; i++) {
-            var value = sheet_data.cells[i+1][column].toString();
+        for (var i = 1; i < sheet_data.cells.length; i++) {
+            var value = sheet_data.cells[i][column].toString();
             if (value.indexOf('@va.gov') === -1 && value.indexOf(' ') === -1 && value.indexOf(',') === -1 && value.indexOf('VHA') === -1 && value.indexOf('VACO') === -1) {
                 alert('The column for employees should be either an email, username, or "Last name, First Name".');
                 break;
@@ -466,13 +460,12 @@
                                     indicators.sort();
 
                                     // iterate through the sheet cells, which are organized by row
-                                    for (var i = 0; i < sheet_data.cells.length - 1; i++) {
+                                    for (var i = 1; i < sheet_data.cells.length; i++) {
 
-                                        // js-xlsx rows are 1-based instead of 0-based, so reads them as i+1
-                                        var row = sheet_data.cells[i + 1];
+                                        var row = sheet_data.cells[i];
                                         var requestData = new Object();
                                         var changeToInitiator = null;
-                                        requestData['title'] = titleInputNew.val() + '_' + (i + 1);
+                                        requestData['title'] = titleInputNew.val() + '_' + i;
                                         $.each(indicators, function( key, value ) {
                                             var currentCol = newFormIndicators.find('tbody > tr:eq(' + key.toString() + ') > td:first').html();
                                             var currentFormat = newFormIndicators.find('tbody > tr:eq(' + key.toString() + ') > td:eq(2) > select > option:selected').val();
@@ -491,21 +484,21 @@
                                                                         if (results.length > 0) {
                                                                             requestData[value] = parseInt(results);
                                                                         } else {
-                                                                            requestData['failed'] = currentCol + (i + 1) + ': Employee ' + sheetEmp + ' not found.';
+                                                                            requestData['failed'] = currentCol + i + ': Employee ' + sheetEmp + ' not found.';
                                                                         }
 
                                                                     },
                                                                     function (err) {
                                                                         console.log(err);
-                                                                        requestData['failed'] = currentCol + (i + 1) + ": Error retrieving employee on sheet row " + (i + 1) + " for indicator " + index;
+                                                                        requestData['failed'] = currentCol + i + ": Error retrieving employee on sheet row " + i + " for indicator " + index;
                                                                     }
                                                                 );
                                                             } else {
-                                                                requestData['failed'] = currentCol + (i + 1) + ': Employee ' + sheetEmp + ' not found.';
+                                                                requestData['failed'] = currentCol + i + ': Employee ' + sheetEmp + ' not found.';
                                                             }
                                                         },
                                                         function (err) {
-                                                            requestData['failed'] = currentCol + (i + 1) + ": Error retrieving email for employee on sheet row " + (i + 1) + " indicator " + index;
+                                                            requestData['failed'] = currentCol + i + ": Error retrieving email for employee on sheet row " + i + " indicator " + index;
                                                             console.log(err);
                                                         }
                                                     );
@@ -519,11 +512,11 @@
                                                                 var grp = groups[Object.keys(groups)[0]];
                                                                 requestData[value] = parseInt(grp.groupID);
                                                             } else {
-                                                                requestData['failed'] = currentCol + (i + 1) + ': Group ' + sheetGroup + ' not found.';
+                                                                requestData['failed'] = currentCol + i + ': Group ' + sheetGroup + ' not found.';
                                                             }
                                                         },
                                                         function (err) {
-                                                            requestData['failed'] = currentCol + (i + 1) + ": Error retrieving group on sheet row " + (i + 1) + " indicator " + index;
+                                                            requestData['failed'] = currentCol + i + ": Error retrieving group on sheet row " + i + " indicator " + index;
                                                             console.log(err);
                                                         }
                                                     );
@@ -537,17 +530,17 @@
                                                                 var pos = positions[Object.keys(positions)[0]];
                                                                 requestData[value] = parseInt(pos.positionID);
                                                             } else {
-                                                                requestData['failed'] = currentCol + (i + 1) + ': Group ' + sheetPosition + ' not found.';
+                                                                requestData['failed'] = currentCol + i + ': Group ' + sheetPosition + ' not found.';
                                                             }
                                                         },
                                                         function (err) {
-                                                            requestData['failed'] = currentCol + (i + 1) + ": Error retrieving group on sheet row " + (i + 1) + " indicator " + index;
+                                                            requestData['failed'] = currentCol + i + ": Error retrieving group on sheet row " + i + " indicator " + index;
                                                             console.log(err);
                                                         }
                                                     );
                                                     break;
                                                 default:
-                                                    requestData[value] = sheet_data.cells[i + 1][currentCol];
+                                                    requestData[value] = sheet_data.cells[i][currentCol];
                                                     break;
                                             }
 
@@ -578,17 +571,17 @@
             requestStatus.html('Parsing sheet data...');
 
             // iterate through the sheet cells, which are organized by row
-            for (var i = 0; i < sheet_data.cells.length - 1; i++) {
+            for (var i = 1; i < sheet_data.cells.length; i++) {
 
-                // js-xlsx rows are 1-based instead of 0-based, so reads them as i+1
-                var row = sheet_data.cells[i+1];
-                var requestData = {'title': titleInputExisting.val() + '_' + (i + 1)};
+                // js-xlsx rows are 1-based instead of 0-based, so reads them as i + 1
+                var row = sheet_data.cells[i];
+                var requestData = {'title': titleInputExisting.val() + '_' + i};
                 var changeToInitiator = null;
 
                 // currentIndicators are the indicators of the form chosen in the form select
                 for (var j = 0; j < currentIndicators.length; j++) {
                     if (j === 0) {
-                        requestStatus.html('Processing questions for row ' + (i + 1) + '...');
+                        requestStatus.html('Processing questions for row ' + i + '...');
                     }
 
                     function processIndicator(indicator) {
@@ -608,20 +601,20 @@
                                                     if (results.length > 0) {
                                                         requestData[parseInt(indicator.indicatorID)] = parseInt(results);
                                                     } else {
-                                                        requestData['failed'] = indicatorColumn + (i + 1) + ': Employee ' + row[indicatorColumn] + ' not found.';
+                                                        requestData['failed'] = indicatorColumn + i + ': Employee ' + row[indicatorColumn] + ' not found.';
                                                     }
 
                                                 },
                                                 function (err) {
-                                                    requestData['failed'] = indicatorColumn + (i + 1) + ": Error retrieving employee on sheet row " + (i + 1) + " for indicator " + indicator;
+                                                    requestData['failed'] = indicatorColumn + i + ": Error retrieving employee on sheet row " + i + " for indicator " + indicator;
                                                     console.log(err);
                                                 });
                                         } else {
-                                            requestData['failed'] = indicatorColumn + (i + 1) + ': Employee ' + row[indicatorColumn] + ' not found.';
+                                            requestData['failed'] = indicatorColumn + i + ': Employee ' + row[indicatorColumn] + ' not found.';
                                         }
                                     },
                                     function (error) {
-                                        requestData['failed'] = indicatorColumn + (i + 1) + ": Error retrieving employee on sheet row " + (i + 1) + " for indicator " + indicator;;
+                                        requestData['failed'] = indicatorColumn + i + ": Error retrieving employee on sheet row " + i + " for indicator " + indicator;;
                                         console.log(error);
                                     }
                                 );
@@ -634,11 +627,11 @@
                                             var grp = groups[Object.keys(groups)[0]];
                                             requestData[parseInt(indicator.indicatorID)] = parseInt(grp.groupID);
                                         } else {
-                                            requestData['failed'] = indicatorColumn + (i + 1) + ': Group ' + row[indicatorColumn] + ' not found.';
+                                            requestData['failed'] = indicatorColumn + i + ': Group ' + row[indicatorColumn] + ' not found.';
                                         }
                                     },
                                     function (err) {
-                                        requestData['failed'] = indicatorColumn + (i + 1) + ": Error retrieving group on sheet row " + (i + 1) + " indicator " + indicator;
+                                        requestData['failed'] = indicatorColumn + i + ": Error retrieving group on sheet row " + i + " indicator " + indicator;
                                         console.log(err);
                                     }
                                 );
@@ -651,11 +644,11 @@
                                             var pos = positions[Object.keys(positions)[0]];
                                             requestData[parseInt(indicator.indicatorID)] = parseInt(pos.positionID);
                                         } else {
-                                            requestData['failed'] = indicatorColumn + (i + 1) + ': Position ' + row[indicatorColumn] + ' not found.';
+                                            requestData['failed'] = indicatorColumn + i + ': Position ' + row[indicatorColumn] + ' not found.';
                                         }
                                     },
                                     function (err) {
-                                        requestData['failed'] = indicatorColumn + (i + 1) + ": Error retrieving position on sheet row " + (i + 1) + " indicator " + indicator;
+                                        requestData['failed'] = indicatorColumn + i + ": Error retrieving position on sheet row " + i + " indicator " + indicator;
                                         console.log(err);
                                     }
                                 );
@@ -856,8 +849,12 @@
                 sheet_data = {};
                 sheet_data.headers = headers;
                 sheet_data.cells = cells;
-                buildFormat(sheet_data);
-                toggler.attr('style', 'display: block;');
+                if (cells.length > 0) {
+                    buildFormat(sheet_data);
+                    toggler.attr('style', 'display: block;');
+                } else {
+                    alert('This spreadsheet has no data');
+                }
             };
             fileReader.readAsArrayBuffer(file);
         });
