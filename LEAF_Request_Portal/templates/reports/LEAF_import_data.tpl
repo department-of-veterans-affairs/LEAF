@@ -573,7 +573,6 @@
             // iterate through the sheet cells, which are organized by row
             for (var i = 1; i < sheet_data.cells.length; i++) {
 
-                // js-xlsx rows are 1-based instead of 0-based, so reads them as i + 1
                 var row = sheet_data.cells[i];
                 var requestData = {'title': titleInputExisting.val() + '_' + i};
                 var changeToInitiator = null;
