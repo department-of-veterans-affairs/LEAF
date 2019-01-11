@@ -378,6 +378,7 @@
                 '<br/><br/>' +
                 'Failed to import values: <br/>' + failedRequests.join("<br/>"));
             $('#status').html('Import has failed');
+            failedRequests = new Array();
         } else if (createdRequests + failedRequests.length === (sheet_data.cells.length - 1)) {
             generateReport(title);
             createdRequests = 0;
