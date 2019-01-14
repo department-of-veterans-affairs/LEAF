@@ -173,7 +173,8 @@ switch ($action) {
             'js/formQuery.js',
             'js/jsdiff.js',
             '../libs/js/LEAF/XSSHelpers.js',
-            '../libs/jsapi/portal/LEAFPortalAPI.js'
+            '../libs/jsapi/portal/LEAFPortalAPI.js',
+            'https://unpkg.com/jspdf@latest/dist/jspdf.min.js'
         ));
 
         $recordIDToPrint = (int)$_GET['recordID'];
