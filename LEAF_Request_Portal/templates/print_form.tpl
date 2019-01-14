@@ -37,6 +37,7 @@
         <!--{else}-->
         <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> <span>Delete Bookmark</span></button>
         <!--{/if}-->
+        <button class="tools" onclick="printForm();" ><img src="../libs/dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" title="Print this Form" style="vertical-align: middle" /> Print this Form</button>
         <br />
         <br />
         <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
@@ -264,6 +265,78 @@ var bookmarkStatus = 0;
 <!--{else}-->
 var bookmarkStatus = 1;
 <!--{/if}-->
+
+function printForm() {
+    var doc = new jsPDF();
+    var printAnswers = false;
+
+    var specialElementHandlers = {
+        '#editor': function (element, renderer) {
+            return true;
+        }
+    };
+
+    var width = doc.internal.pageSize.getWidth();
+    var height = doc.internal.pageSize.getHeight();
+
+    var margin = {
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0
+    };
+
+    var source = $('#formcontent').clone();
+    source.find('img').remove();
+    $('#requestInfo').find('tr').each(function() {
+        source.find('#requestTitle').append('<div>' + $(this).text() + '</div>');
+    });
+    // source.find('#requestTitle').append($('#requestInfo').find('tr').text());
+    source.find('#requestInfo').remove();
+    source.find('div.printmainlabel').each(function() {
+        var sensitive = $(this).find('.sensitiveIndicator').length > 0 ? '<span style="color: red"> *Sensitive</span>' : '';
+        var required = $(this).find('.required').length > 0 ? '<span style="color: red"> *Required</span>' : '';
+        // $(this).find('.sensitiveIndicator').remove();
+        // console.log($(this).html());
+        var text = sensitive === '' ? $('.printResponse', this).text() : $('.sensitiveIndicator', this).find('.printResponse').text();
+        var test = printAnswers ? text + '</br></br>' : '</br></br></br></br></br></br></br></br></br></br>';
+        $(this).replaceWith(
+            // ' '
+            '<div>' +
+            '<span><b>' + $('.printcounter', this).text() + ':</b>&nbsp;' + $('.printheading > span', this).text() + '</span>' + sensitive + ' ' + required +
+            '<div>' + test + '</div>' +
+            '</div>'
+        );
+        // specialElementHandlers['#' + $(this).attr('id')] = function (element, renderer) {
+        //     return doc.line(0, 0, width, height);
+        // };
+    });
+    // doc.line(15, 15, 50, 15); // horizontal line
+    // doc.setLineWidth(1);
+
+    // source += '<br/>' + $('#requestInfo > table > tbody > tr:eq(1)').html();
+    // source += '<br/>' + $('#requestInfo > table > tbody > tr:eq(2)').html();
+
+    // $('span.printsubheading').each(function() {
+    //     source += $(this).html();
+    // });
+
+    // $('div.sensitiveIndicatorMaskToggle').each(function() {
+    //     specialElementHandlers['#' + $(this).attr('id')] = function (element, renderer) {
+    //         return true;
+    //     }
+    // });
+
+    doc.fromHTML(source.html(), 15, 0, {
+        'width': width,
+        'height': height,
+        'elementHandlers': specialElementHandlers
+    },
+    function(a){
+        doc.save('saveInCallback.pdf');
+    }, margin);
+}
+
 function toggleBookmark() {
     if(bookmarkStatus == 0) {
         addBookmark();
