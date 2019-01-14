@@ -476,14 +476,17 @@
                                                     nexusAPI.Employee.getByEmailNational(
                                                         sheetEmp,
                                                         function (user) {
-                                                            var emp = user[Object.keys(user)[0]];
-                                                            if (emp !== undefined && emp !== null) {
+                                                            var res = Object.keys(user);
+                                                            var emp = user[res[0]];
+                                                            if (emp !== undefined && emp !== null && res.length === 1) {
                                                                 nexusAPI.Employee.importFromNational(
                                                                     emp.userName,
                                                                     false,
                                                                     function (results) {
-                                                                        if (results.length > 0) {
+                                                                        if (results.length === 1) {
                                                                             requestData[value] = parseInt(results);
+                                                                        } else if (results.length > 1) {
+                                                                            requestData['failed'] = currentCol + i + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
                                                                         } else {
                                                                             requestData['failed'] = currentCol + i + ': Employee ' + sheetEmp + ' not found.';
                                                                         }
@@ -494,6 +497,8 @@
                                                                         requestData['failed'] = currentCol + i + ": Error retrieving employee on sheet row " + i + " for indicator " + index;
                                                                     }
                                                                 );
+                                                            } else if (res.length > 1) {
+                                                                requestData['failed'] = currentCol + i + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
                                                             } else {
                                                                 requestData['failed'] = currentCol + i + ': Employee ' + sheetEmp + ' not found.';
                                                             }
@@ -509,9 +514,11 @@
                                                     nexusAPI.Groups.searchGroups(
                                                         sheetGroup,
                                                         function (groups) {
-                                                            if (groups.length > 0) {
+                                                            if (groups.length === 1) {
                                                                 var grp = groups[Object.keys(groups)[0]];
                                                                 requestData[value] = parseInt(grp.groupID);
+                                                            } else if (groups.length > 1) {
+                                                                requestData['failed'] = currentCol + i + ': Multiple groups found for ' + sheetGroup + '.  Make sure that the name is exact.';
                                                             } else {
                                                                 requestData['failed'] = currentCol + i + ': Group ' + sheetGroup + ' not found.';
                                                             }
@@ -527,11 +534,13 @@
                                                     nexusAPI.Positions.searchPositions(
                                                         sheetPosition,
                                                         function (positions) {
-                                                            if (positions.length > 0) {
+                                                            if (positions.length === 1) {
                                                                 var pos = positions[Object.keys(positions)[0]];
                                                                 requestData[value] = parseInt(pos.positionID);
+                                                            } else if (positions.length > 1) {
+                                                                requestData['failed'] = currentCol + i + ': Multiple positions found for ' + sheetPosition + '.  Make sure that the name is exact.';
                                                             } else {
-                                                                requestData['failed'] = currentCol + i + ': Group ' + sheetPosition + ' not found.';
+                                                                requestData['failed'] = currentCol + i + ': Position ' + sheetPosition + ' not found.';
                                                             }
                                                         },
                                                         function (err) {
@@ -592,14 +601,17 @@
                                 nexusAPI.Employee.getByEmailNational(
                                     row[indicatorColumn],
                                     function (user) {
-                                        var emp = user[Object.keys(user)[0]];
-                                        if (emp != undefined && emp != null) {
+                                        var res = Object.keys(user);
+                                        var emp = user[res[0]];
+                                        if (emp != undefined && emp != null && res.length === 1) {
                                             nexusAPI.Employee.importFromNational(
                                                 emp.userName,
                                                 false,
                                                 function (results) {
-                                                    if (results.length > 0) {
+                                                    if (results.length === 1) {
                                                         requestData[parseInt(indicator.indicatorID)] = parseInt(results);
+                                                    } else if (results.length > 1) {
+                                                        requestData['failed'] = indicatorColumn + i + ': Multiple employees found for ' + row[indicatorColumn] + '.  Make sure it is in the correct format.';
                                                     } else {
                                                         requestData['failed'] = indicatorColumn + i + ': Employee ' + row[indicatorColumn] + ' not found.';
                                                     }
@@ -609,6 +621,8 @@
                                                     requestData['failed'] = indicatorColumn + i + ": Error retrieving employee on sheet row " + i + " for indicator " + indicator;
                                                     console.log(err);
                                                 });
+                                        } else if (res.length > 1) {
+                                            requestData['failed'] = indicatorColumn + i + ': Multiple employees found for ' + row[indicatorColumn] + '.  Make sure it is in the correct format.';
                                         } else {
                                             requestData['failed'] = indicatorColumn + i + ': Employee ' + row[indicatorColumn] + ' not found.';
                                         }
@@ -623,9 +637,11 @@
                                 nexusAPI.Groups.searchGroups(
                                     row[indicatorColumn],
                                     function (groups) {
-                                        if (groups.length > 0) {
+                                        if (groups.length === 1) {
                                             var grp = groups[Object.keys(groups)[0]];
                                             requestData[parseInt(indicator.indicatorID)] = parseInt(grp.groupID);
+                                        } else if (groups.length > 1) {
+                                            requestData['failed'] = indicatorColumn + i + ': Multiple groups found for ' + row[indicatorColumn] + '.  Make sure that the name is exact.';
                                         } else {
                                             requestData['failed'] = indicatorColumn + i + ': Group ' + row[indicatorColumn] + ' not found.';
                                         }
@@ -640,9 +656,11 @@
                                 nexusAPI.Positions.searchPositions(
                                     row[indicatorColumn],
                                     function (positions) {
-                                        if (positions.length > 0) {
+                                        if (positions.length === 1) {
                                             var pos = positions[Object.keys(positions)[0]];
                                             requestData[parseInt(indicator.indicatorID)] = parseInt(pos.positionID);
+                                        } else if (positions.length > 1) {
+                                            requestData['failed'] = indicatorColumn + i + ': Multiple positions found for ' + row[indicatorColumn] + '.  Make sure that the name is exact.';
                                         } else {
                                             requestData['failed'] = indicatorColumn + i + ': Position ' + row[indicatorColumn] + ' not found.';
                                         }
