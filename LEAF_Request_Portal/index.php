@@ -174,6 +174,8 @@ switch ($action) {
             'js/jsdiff.js',
             '../libs/js/LEAF/XSSHelpers.js',
             '../libs/jsapi/portal/LEAFPortalAPI.js',
+            'https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js',
+            'https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js',
             'https://unpkg.com/jspdf@latest/dist/jspdf.min.js'
         ));
 
