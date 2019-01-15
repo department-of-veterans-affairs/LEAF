@@ -50,7 +50,7 @@
     <br/><br/>
     <label for="title_input_new"><b>Title of Requests</b></label>
     <input type="text" id="title_input_new" />
-    This will be the title for all imported requests.
+    (Required) This will be the title for all imported requests.
     <br/><br/>
 </div>
 <div id="import_data_existing_form" style="display: none;">
@@ -63,7 +63,7 @@
 
     <label for="title_input_existing"><b>Title of Requests</b></label>
     <input type="text" id="title_input_existing" />
-    This will be the title for all imported requests.
+    (Required) This will be the title for all imported requests.
 
     <br/><br/>
 
@@ -75,6 +75,7 @@
                 <th>Format</th>
                 <th>Description</th>
                 <th>Required</th>
+                <th>Sensitive</th>
                 <th>Sheet Column</th>
             </tr>
         </thead>
@@ -82,6 +83,7 @@
     </table>
 </div>
 <div id="request_status" style="padding: 20px;"></div>
+<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 
 <script>
     var CSRFToken = '<!--{$CSRFToken}-->';
@@ -112,10 +114,12 @@
     var nameOfSheet = '';
 
     var createdRequests = 0;
-    var failedRequests = 0;
+    var failedRequests = [];
     var currentIndicators = [];
     var blankIndicators = [];
     var sheet_data = {};
+    var dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+
 
     function toggleImport(e) {
         if(e.target.id === "newFormToggler") {
@@ -124,6 +128,22 @@
         } else if (e.target.id === "existingFormToggler") {
             newForm.css('display', 'none');
             existingForm.css('display', 'block');
+        }
+    }
+
+    function checkFormatNew(e, column) {
+        if ($(e.target).val() === 'orgchart_employee') {
+            checkFormatExisting(column);
+        }
+    }
+
+    function checkFormatExisting(column) {
+        for (var i = 1; i < sheet_data.cells.length; i++) {
+            var value = sheet_data.cells[i][column].toString();
+            if (value.indexOf('@va.gov') === -1 && value.indexOf(' ') === -1 && value.indexOf(',') === -1 && value.indexOf('VHA') === -1 && value.indexOf('VACO') === -1) {
+                alert('The column for employees should be either an email, username, or "Last name, First Name".');
+                break;
+            }
         }
     }
 
@@ -140,7 +160,7 @@
             '           <th> Sensitive </th>' +
             '       </tr>' +
             '   <thead>' +
-            '<tbody>';
+            '   <tbody>';
         $.each(spreadSheet.headers, function(key, value) {
             var requiredCheckbox = blankIndicators.indexOf(key) === -1 ? '<input type="checkbox"></input>' : '<input type="checkbox" onclick="return false;" disabled="disabled" title="Cannot set as required when a row in this column is blank."></input>';
             table +=
@@ -148,7 +168,7 @@
                 '   <td>' + key + '</td>' +
                 '   <td>' + value + '</td>' +
                 '   <td>' +
-                '       <select>' +
+                '       <select onchange="checkFormatNew(event, \'' + key + '\')">' +
                 '           <option value="text">Single line text</option>' +
                 '           <option value="textarea">Multi-line text</option>' +
                 '           <option value="number">Numeric</option>' +
@@ -216,7 +236,7 @@
 
     // build the select input with options for the given indicator
     // the indicatorID corresponds to the select input id
-    function buildSheetSelect(indicatorID, sheetData, required) {
+    function buildSheetSelect(indicatorID, sheetData, required, format) {
         var select = $(document.createElement('select'))
             .attr('id', indicatorID + '_sheet_column')
             .attr('class', 'indicator_column_select');
@@ -241,12 +261,19 @@
 
             select.append(option);
         }
+        if (format === "orgchart_employee") {
+            select.attr('onchange', 'checkFormatExisting($("option:selected", this).val());');
+        }
 
         return select;
     }
 
     // build the table row and data (<tr> and <td>) for the given indicator
     function buildIndicatorRow(indicator) {
+        if (indicator.format === '') {
+            return '';
+        }
+
         var row = $(document.createElement('tr'));
 
         var iid = $(document.createElement('td'))
@@ -269,16 +296,20 @@
             .html(indicator.required === "1" ? "YES" : "NO")
             .appendTo(row);
 
+        var indicatorSensitive = $(document.createElement('td'))
+            .html(indicator.is_sensitive === "1" ? "YES" : "NO")
+            .appendTo(row);
+
         var columnSelect = $(document.createElement('td'))
-            .append(buildSheetSelect(indicator.indicatorID, sheet_data, indicator.required))
+            .append(buildSheetSelect(indicator.indicatorID, sheet_data, indicator.required, indicator.format))
             .appendTo(row);
 
         return row;
     }
 
-    function generateReport() {
+    function generateReport(title) {
         urlTitle = "Requests have been generated for each row of the imported spreadsheet";
-        urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*' + nameOfSheet + '*"},{"id":"deleted","operator":"=","match":0}],"joins":["service"],"sort":{}}';
+        urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*' + title + '*"},{"id":"deleted","operator":"=","match":0}],"joins":["service"],"sort":{}}';
         urlIndicatorsJSON = '[{"indicatorID":"","name":"","sort":0},{"indicatorID":"title","name":"","sort":0}]';
 
         urlTitle = encodeURIComponent(btoa(urlTitle));
@@ -287,58 +318,72 @@
 
         $('#status').html('Data has been imported');
         requestStatus.html(
-            'Import Completed! ' + createdRequests + ' requests made, ' + failedRequests + ' failures.<br/><br/>' +
+            'Import Completed! ' + createdRequests + ' requests made, ' + failedRequests.length + ' failures.<br/><br/>' +
             '<a class="buttonNorm" role="button" href="./?a=reports&v=3&title=' + urlTitle + '&query=' + urlQuery + '&indicators=' + urlIndicators + '">View Report<\a>'
         );
+        if (failedRequests.length > 0) {
+            requestStatus.append(
+                '<br/><br/>' +
+                'Failed to import values: <br/>' + failedRequests.join("<br/>"))
+        }
     }
 
     function makeRequests(categoryID, initiator, requestData) {
         console.log(requestData);
-        portalAPI.Forms.newRequest(
-            categoryID,
-            requestData,
-            function (recordID) {
+        var title = $('input[name="toggle"]:checked').attr('id') === 'newFormToggler' ? titleInputNew.val() : titleInputExisting.val();
 
-                // recordID is the recordID of the newly created request, it's 0 if there was an error
-                if (recordID > 0) {
-                    createdRequests++;
-                    requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests + ' failures.');
+        if (requestData['failed'] !== undefined) {
+            failedRequests.push(requestData['failed']);
+            console.log(failedRequests);
+        } else {
+            portalAPI.Forms.newRequest(
+                categoryID,
+                requestData,
+                function (recordID) {
 
-                    //if (changeToInitiator !== undefined && changeToInitiator != null) {
-                    // set the initiator so they can see the request associated with their availability
-                    portalAPI.Forms.setInitiator(
-                        recordID,
-                        initiator,
-                        function (results) {},
-                        function (err) {
-                            console.log(err);
-                        });
-                    //}
-                } else {
-                    console.log('Error creating request for the following data: ' + requestData);
-                    failedRequests++;
-                }
+                    // recordID is the recordID of the newly created request, it's 0 if there was an error
+                    if (recordID > 0) {
+                        createdRequests++;
+                        requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
 
-                if (createdRequests + failedRequests === (sheet_data.cells.length - 1)) {
-                    generateReport();
-                    createdRequests = 0;
-                    failedRequests = 0;
+                        //if (changeToInitiator !== undefined && changeToInitiator != null) {
+                        // set the initiator so they can see the request associated with their availability
+                        portalAPI.Forms.setInitiator(
+                            recordID,
+                            initiator,
+                            function (results) {},
+                            function (err) {
+                                console.log(err);
+                            });
+                        //}
+                    } else {
+                        failedRequests.push('Error creating request for the following data: ' + requestData);
+                    }
+                    if (createdRequests + failedRequests.length === (sheet_data.cells.length - 1)) {
+                        generateReport(title);
+                        createdRequests = 0;
+                        failedRequests = new Array();
+                    }
+                },
+                function (error) {
+                    console.log(error);
+                    failedRequests.push(requestData);
+                    requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
                 }
-            },
-            function (error) {
-                alert('Error importing row: ' + i);
-                console.log(error);
-                failedRequests++;
-                requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests + ' failures.');
-                if (failedRequests === (sheet_data.cells.length - 1)) {
-                    requestStatus.html('All requests failed!  See log for details.');
-                }else if (createdRequests + failedRequests === (sheet_data.cells.length - 1)) {
-                    generateReport();
-                    createdRequests = 0;
-                    failedRequests = 0;
-                }
-            }
-        );
+            );
+        }
+        if (failedRequests.length === (sheet_data.cells.length - 1)) {
+            requestStatus.html('All requests failed!  See log for details.');
+            requestStatus.append(
+                '<br/><br/>' +
+                'Failed to import values: <br/>' + failedRequests.join("<br/>"));
+            $('#status').html('Import has failed');
+            failedRequests = new Array();
+        } else if (createdRequests + failedRequests.length === (sheet_data.cells.length - 1)) {
+            generateReport(title);
+            createdRequests = 0;
+            failedRequests = new Array();
+        }
     }
 
     $(function () {
@@ -353,7 +398,7 @@
                     for(var i in msg) {
                         buffer += '<option value="'+ msg[i].workflowID +'">'+ msg[i].description +' (ID: #'+ msg[i].workflowID +')</option>';
                     }
-                    buffer += '</select>    This will be the workflow for the custom form.\n';
+                    buffer += '</select>    (Required) This will be the workflow for the custom form.\n';
                     $('#formWorkflowSelect').html(buffer);
                 }
                 else {
@@ -365,20 +410,21 @@
             }
         );
 
-        importBtnNew.on('click', function() {
+        function importNew() {
             $('#status').html('Processing...'); // UI hint
             var newFormIndicators = $('#new_form_indicators');
             var workflowID = $('#workflowID > option:selected').val();
-            var formData = {"name": formTitle.val(), "description": formDescription.val()};
+            var formName = formTitle.val() === '' ? nameOfSheet : formTitle.val();
+            var formData = {"name": formName, "description": formDescription.val()};
             var indicators = [];
             var initiators = {};
+            requestStatus.html('Making custom form...');
 
             //creates custom form
             portalAPI.FormEditor.createCustomForm(
                 formData.name,
                 formData.description,
                 function(categoryID) {
-                    requestStatus.html('Making custom form...');
                     portalAPI.FormEditor.assignFormWorkflow(
                         categoryID.replace(/"/g,""),
                         workflowID,
@@ -392,7 +438,7 @@
 
                     //parses user's input and makes an indicator for each row of the table
                     newFormIndicators.children('tbody').find('tr').each(function(index) {
-                        var indicatorObj = {};
+                        var indicatorObj = new Object();
                         indicatorObj.name = $("td:eq(1)", this).html();
                         indicatorObj.format = $("td:eq(2) > select > option:selected", this).val();
                         indicatorObj.required = $("td:eq(3) > input", this).is(":checked") === true ? 1 : 0;
@@ -405,52 +451,109 @@
                             categoryID.replace(/"/g,""),
                             indicatorObj.required,
                             indicatorObj.is_sensitive,
+                            false,
                             function(indicatorID) {
 
                                 //adds indicators to array
                                 //when all indicators are parsed, moves on to next step of filling out requests
                                 indicators.push(indicatorID.replace(/"/g,""));
                                 if(indicators.length === newFormIndicators.children('tbody').find('tr').length){
+                                    indicators.sort();
 
                                     // iterate through the sheet cells, which are organized by row
-                                    for (var i = 0; i < sheet_data.cells.length - 1; i++) {
+                                    for (var i = 1; i < sheet_data.cells.length; i++) {
 
-                                        // js-xlsx rows are 1-based instead of 0-based, so reads them as i+1
-                                        var row = sheet_data.cells[i + 1];
+                                        var row = sheet_data.cells[i];
                                         var requestData = new Object();
                                         var changeToInitiator = null;
-                                        var title = titleInputNew.val() === '' ? titleInputNew.val() : titleInputNew.val() + '_';
-                                        requestData['title'] = title + nameOfSheet +'_' + (i + 1);
+                                        requestData['title'] = titleInputNew.val() + '_' + i;
                                         $.each(indicators, function( key, value ) {
-                                            var column = newFormIndicators.find('tbody > tr:eq(' + key.toString() + ') > td:first').html();
-                                            if (indicatorObj.format === 'orgchart_employee') {
-                                                nexusAPI.Employee.getByEmailNational(
-                                                    row[value],
-                                                    function (user) {
-                                                        var emp = user[Object.keys(user)[0]];
-                                                        if (emp !== undefined && emp !== null) {
-                                                            nexusAPI.Employee.importFromNational(
-                                                                emp.userName,
-                                                                false,
-                                                                function (results) {
-                                                                    requestData[value] = parseInt(results);
-                                                                    initiators[parseInt(results)] = emp.userName;
-                                                                    changeToInitiator = emp.userName;
+                                            var currentCol = newFormIndicators.find('tbody > tr:eq(' + key.toString() + ') > td:first').html();
+                                            var currentFormat = newFormIndicators.find('tbody > tr:eq(' + key.toString() + ') > td:eq(2) > select > option:selected').val();
+                                            switch (currentFormat) {
+                                                case 'orgchart_employee':
+                                                    var sheetEmp = row[currentCol] !== undefined && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                                    nexusAPI.Employee.getByEmailNational(
+                                                        sheetEmp,
+                                                        function (user) {
+                                                            var res = Object.keys(user);
+                                                            var emp = user[res[0]];
+                                                            if (emp !== undefined && emp !== null && res.length === 1) {
+                                                                nexusAPI.Employee.importFromNational(
+                                                                    emp.userName,
+                                                                    false,
+                                                                    function (results) {
+                                                                        if (results.length === 1) {
+                                                                            requestData[value] = parseInt(results);
+                                                                        } else if (results.length > 1) {
+                                                                            requestData['failed'] = currentCol + i + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
+                                                                        } else {
+                                                                            requestData['failed'] = currentCol + i + ': Employee ' + sheetEmp + ' not found.';
+                                                                        }
 
-                                                                },
-                                                                function (err) {
-                                                                    console.log("Error retrieving employee on sheet row " + (i + 1) + " for indicator " + index + ": " + err);
-                                                                }
-                                                            );
+                                                                    },
+                                                                    function (err) {
+                                                                        console.log(err);
+                                                                        requestData['failed'] = currentCol + i + ": Error retrieving employee on sheet row " + i + " for indicator " + index;
+                                                                    }
+                                                                );
+                                                            } else if (res.length > 1) {
+                                                                requestData['failed'] = currentCol + i + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
+                                                            } else {
+                                                                requestData['failed'] = currentCol + i + ': Employee ' + sheetEmp + ' not found.';
+                                                            }
+                                                        },
+                                                        function (err) {
+                                                            requestData['failed'] = currentCol + i + ": Error retrieving email for employee on sheet row " + i + " indicator " + index;
+                                                            console.log(err);
                                                         }
-                                                    },
-                                                    function (err) {
-                                                        console.log("Error retrieving email for employee on sheet row "  + (i + 1) + " indicator " + index + ": " + err);
-                                                    }
-                                                );
-                                            } else {
-                                                requestData[value] = sheet_data.cells[i + 1][column];
+                                                    );
+                                                    break;
+                                                case 'orgchart_group':
+                                                    var sheetGroup = row[currentCol] !== undefined && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                                    nexusAPI.Groups.searchGroups(
+                                                        sheetGroup,
+                                                        function (groups) {
+                                                            if (groups.length === 1) {
+                                                                var grp = groups[Object.keys(groups)[0]];
+                                                                requestData[value] = parseInt(grp.groupID);
+                                                            } else if (groups.length > 1) {
+                                                                requestData['failed'] = currentCol + i + ': Multiple groups found for ' + sheetGroup + '.  Make sure that the name is exact.';
+                                                            } else {
+                                                                requestData['failed'] = currentCol + i + ': Group ' + sheetGroup + ' not found.';
+                                                            }
+                                                        },
+                                                        function (err) {
+                                                            requestData['failed'] = currentCol + i + ": Error retrieving group on sheet row " + i + " indicator " + index;
+                                                            console.log(err);
+                                                        }
+                                                    );
+                                                    break;
+                                                case 'orgchart_position':
+                                                    var sheetPosition = row[currentCol] !== undefined && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                                    nexusAPI.Positions.searchPositions(
+                                                        sheetPosition,
+                                                        function (positions) {
+                                                            if (positions.length === 1) {
+                                                                var pos = positions[Object.keys(positions)[0]];
+                                                                requestData[value] = parseInt(pos.positionID);
+                                                            } else if (positions.length > 1) {
+                                                                requestData['failed'] = currentCol + i + ': Multiple positions found for ' + sheetPosition + '.  Make sure that the name is exact.';
+                                                            } else {
+                                                                requestData['failed'] = currentCol + i + ': Position ' + sheetPosition + ' not found.';
+                                                            }
+                                                        },
+                                                        function (err) {
+                                                            requestData['failed'] = currentCol + i + ": Error retrieving group on sheet row " + i + " indicator " + index;
+                                                            console.log(err);
+                                                        }
+                                                    );
+                                                    break;
+                                                default:
+                                                    requestData[value] = sheet_data.cells[i][currentCol];
+                                                    break;
                                             }
+
                                         });
                                         makeRequests(categoryID.replace(/"/g,""), changeToInitiator, requestData);
                                     }
@@ -468,58 +571,108 @@
                 }
             );
 
-        });
+        }
 
-        importBtnExisting.on('click', function () {
+        function importExisting() {
             $('#status').html('Processing...'); // UI hint
 
             // who the request initiator will be changed to
             var initiators = {};
+            requestStatus.html('Parsing sheet data...');
 
             // iterate through the sheet cells, which are organized by row
-            for (var i = 0; i < sheet_data.cells.length - 1; i++) {
+            for (var i = 1; i < sheet_data.cells.length; i++) {
 
-                // js-xlsx rows are 1-based instead of 0-based, so reads them as i+1
-                var row = sheet_data.cells[i+1];
-                var title = titleInputExisting.val() === '' ? titleInputExisting.val() : titleInputExisting.val() + '_';
-                var requestData = {'title': title + nameOfSheet +'_' + (i + 1)};
+                var row = sheet_data.cells[i];
+                var requestData = {'title': titleInputExisting.val() + '_' + i};
                 var changeToInitiator = null;
-
 
                 // currentIndicators are the indicators of the form chosen in the form select
                 for (var j = 0; j < currentIndicators.length; j++) {
+                    if (j === 0) {
+                        requestStatus.html('Processing questions for row ' + i + '...');
+                    }
+
                     function processIndicator(indicator) {
 
                         var indicatorColumn = $('#' + indicator.indicatorID + '_sheet_column').val();
+                        switch (indicator.format) {
+                            case 'orgchart_employee':
+                                nexusAPI.Employee.getByEmailNational(
+                                    row[indicatorColumn],
+                                    function (user) {
+                                        var res = Object.keys(user);
+                                        var emp = user[res[0]];
+                                        if (emp != undefined && emp != null && res.length === 1) {
+                                            nexusAPI.Employee.importFromNational(
+                                                emp.userName,
+                                                false,
+                                                function (results) {
+                                                    if (results.length === 1) {
+                                                        requestData[parseInt(indicator.indicatorID)] = parseInt(results);
+                                                    } else if (results.length > 1) {
+                                                        requestData['failed'] = indicatorColumn + i + ': Multiple employees found for ' + row[indicatorColumn] + '.  Make sure it is in the correct format.';
+                                                    } else {
+                                                        requestData['failed'] = indicatorColumn + i + ': Employee ' + row[indicatorColumn] + ' not found.';
+                                                    }
 
-                        if (indicator.format == 'orgchart_employee') {
-                            nexusAPI.Employee.getByEmailNational(
-                                row[indicatorColumn],
-                                function (user) {
-                                    var emp = user[Object.keys(user)[0]];
-                                    if (emp != undefined && emp != null) {
-                                        nexusAPI.Employee.importFromNational(
-                                            emp.userName,
-                                            false,
-                                            function (results) {
-                                                requestData[parseInt(indicator.indicatorID)] = parseInt(results);
-                                                initiators[parseInt(results)] = emp.userName;
-                                                if (parseInt(indicator.indicatorID) == 137) {
-                                                    changeToInitiator = emp.userName;
-                                                }
-
-                                            },
-                                            function (err) {
-                                                console.log(err);
-                                            });
+                                                },
+                                                function (err) {
+                                                    requestData['failed'] = indicatorColumn + i + ": Error retrieving employee on sheet row " + i + " for indicator " + indicator;
+                                                    console.log(err);
+                                                });
+                                        } else if (res.length > 1) {
+                                            requestData['failed'] = indicatorColumn + i + ': Multiple employees found for ' + row[indicatorColumn] + '.  Make sure it is in the correct format.';
+                                        } else {
+                                            requestData['failed'] = indicatorColumn + i + ': Employee ' + row[indicatorColumn] + ' not found.';
+                                        }
+                                    },
+                                    function (error) {
+                                        requestData['failed'] = indicatorColumn + i + ": Error retrieving employee on sheet row " + i + " for indicator " + indicator;;
+                                        console.log(error);
                                     }
-                                },
-                                function (error) {
-                                    console.log(error);
-                                }
-                            );
-                        } else {
-                            requestData[parseInt(indicator.indicatorID)] = row[indicatorColumn];
+                                );
+                                break;
+                            case 'orgchart_group':
+                                nexusAPI.Groups.searchGroups(
+                                    row[indicatorColumn],
+                                    function (groups) {
+                                        if (groups.length === 1) {
+                                            var grp = groups[Object.keys(groups)[0]];
+                                            requestData[parseInt(indicator.indicatorID)] = parseInt(grp.groupID);
+                                        } else if (groups.length > 1) {
+                                            requestData['failed'] = indicatorColumn + i + ': Multiple groups found for ' + row[indicatorColumn] + '.  Make sure that the name is exact.';
+                                        } else {
+                                            requestData['failed'] = indicatorColumn + i + ': Group ' + row[indicatorColumn] + ' not found.';
+                                        }
+                                    },
+                                    function (err) {
+                                        requestData['failed'] = indicatorColumn + i + ": Error retrieving group on sheet row " + i + " indicator " + indicator;
+                                        console.log(err);
+                                    }
+                                );
+                                break;
+                            case 'orgchart_position':
+                                nexusAPI.Positions.searchPositions(
+                                    row[indicatorColumn],
+                                    function (positions) {
+                                        if (positions.length === 1) {
+                                            var pos = positions[Object.keys(positions)[0]];
+                                            requestData[parseInt(indicator.indicatorID)] = parseInt(pos.positionID);
+                                        } else if (positions.length > 1) {
+                                            requestData['failed'] = indicatorColumn + i + ': Multiple positions found for ' + row[indicatorColumn] + '.  Make sure that the name is exact.';
+                                        } else {
+                                            requestData['failed'] = indicatorColumn + i + ': Position ' + row[indicatorColumn] + ' not found.';
+                                        }
+                                    },
+                                    function (err) {
+                                        requestData['failed'] = indicatorColumn + i + ": Error retrieving position on sheet row " + i + " indicator " + indicator;
+                                        console.log(err);
+                                    }
+                                );
+                                break;
+                            default:
+                                requestData[parseInt(indicator.indicatorID)] = row[indicatorColumn];
                         }
                     }
 
@@ -556,7 +709,7 @@
             }
 
             $('#status').html('Data has been imported');
-        });
+        }
 
         portalAPI.Forms.getAllForms(
             function (results) {
@@ -597,7 +750,37 @@
                     }
                 }
             }
-        };
+        }
+
+        importBtnExisting.on('click', function () {
+            if (titleInputExisting.val() === '') {
+                return alert('Request title is required.');
+            }
+            dialog_confirm.setContent('Are you sure you want to submit ' + (sheet_data.cells.length - 1) + ' requests?');
+            dialog_confirm.setSaveHandler(function () {
+                dialog_confirm.hide();
+                importExisting();
+            });
+            dialog_confirm.show();
+        });
+
+        importBtnNew.on('click', function () {
+            if (nameOfSheet === 'Sheet1' && formTitle.val() === '') {
+                return alert('Form title is required for this type of sheet.');
+            }
+            if (titleInputNew.val() === '') {
+                return alert('Request title is required.');
+            }
+            if ($('#workflowID').val() === '0') {
+                return alert('Form workflow is required.');
+            }
+            dialog_confirm.setContent('Are you sure you want to submit ' + (sheet_data.cells.length - 1) + ' requests?');
+            dialog_confirm.setSaveHandler(function () {
+                dialog_confirm.hide();
+                importNew();
+            });
+            dialog_confirm.show();
+        });
 
         categorySelect.on('change', function () {
             categoryIndicators.html('');
@@ -684,8 +867,12 @@
                 sheet_data = {};
                 sheet_data.headers = headers;
                 sheet_data.cells = cells;
-                buildFormat(sheet_data);
-                toggler.attr('style', 'display: block;');
+                if (cells.length > 0) {
+                    buildFormat(sheet_data);
+                    toggler.attr('style', 'display: block;');
+                } else {
+                    alert('This spreadsheet has no data');
+                }
             };
             fileReader.readAsArrayBuffer(file);
         });
