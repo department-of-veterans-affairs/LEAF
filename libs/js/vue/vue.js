@@ -1912,7 +1912,7 @@
       try {
         return fn.apply(null, arguments)
       } finally {
-        useMacroTask = false;    
+        useMacroTask = false;
       }
     })
   }

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="../../favicon.ico">
+  <link href="../../../libs/uswds-1.6.9/css/uswds.min.css" rel="stylesheet">
+  <link href="../../../libs/uswds-1.6.9/css/bootstrap-grid.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+
+  <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="leaf-app">
+<header class="usa-header usa-header-extended" role="banner">
+  <div class="usa-navbar">
+  <div class="navbar-brand">
+      <img src="img/VA-logo.png" class="logo animated bounceIn" alt="valogo">
+      <a href="#" title="Home"aria-label="Home" class="animated bounceIn">VA</a>
+      <span class="vertical-divider"></span>
+      <a href="#" title="NAVAHCS LEAF Site" aria-label="NAVAHCS LEAF Site">
+         NAVAHCS LEAF Site <span class="sub-title">Prescott, Arizona</span>
+      </a>
+  </div>
+  <button class="usa-menu-btn">Menu</button>
+</div>
+
+  <nav role="navigation" class="usa-nav">
+    <div class="usa-nav-inner">
+      <button class="usa-nav-close">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="usa-nav-secondary">
+
+  <ul class="usa-nav-primary usa-accordion">
+
+    <li>
+      <a href="#" class="usa-nav-link">
+        <span>Home</span>
+      </a>
+    </li>
+
+    <li>
+      <a href="#" class="usa-nav-link">
+        <span>Admin</span>
+      </a>
+    </li>
+    <li><button class="usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="extended-nav-section-one">
+      <span>User: Dastan R</span>
+    </button>
+    <ul id="extended-nav-section-one" class="usa-nav-submenu">
+      <li>
+          <a href="#">Settings</a>
+        </li><li>
+          <a href="#">Profile</a>
+        </li><li>
+          <a href="#">Logout</a>
+        </li>
+      </ul>
+    </li>
+    <li><a class="usa-nav-link btn-help" href="#">
+        <span><i class="fas fa-question"></i> LEAF Help</span></a>
+    </li>
+
+  </ul>
+</div>
+</div>
+  </nav>
+</header>
+<div class="usa-overlay"></div>
+<main id="main-content">
+    <div class="conatiner">
+      <div class="row mr-3">
+      <div class="col col-sm-12 col-md-2 col-lg-2">
+      <nav>
+        <ul class="usa-sidenav-list">
+        <li><a href="#" class="usa-current">Admin Home</a></li>
+        <li><a href="#">User Access Groups</a></li>
+        <li><a href="#">Service Chief</a></li>
+        <li><a href="#">Site Settings</a></li>
+        <li><a href="#">Form Editor</a></li>
+        <li><a href="#">Workflow Editor</a></li>
+        <li><a href="#">LEAF Library</a></li>
+        <li><a href="#">Report Builder</a></li>
+        <li><a href="javascript:void(0)" v-on:click="isShowing = !isShowing">Advanced</a>
+          <ul class="usa-sidenav-sub_list" v-if="isShowing">
+            <li><a href="#">Template Editor</a></li>
+            <li><a href="#">Sync Services</a></li>
+            <li><a href="#">LEAF Programmer</a></li>
+            <li><a href="#">Search Database</a></li>
+            <li><a href="#">File Manager</a></li>
+            <li><a href="#">Update Database</a></li>
+          </ul>
+        </li>
+        </ul>
+    </nav>
+      </div>
+      <div class="col-8 col-sm-12 col-md-10 col-lg-8">
+        <div class="dashboard">
+
+          <div class="usa-grid-full">
+          <div class="usa-width-one-fourth-custom">
+            <h4>Dashboard</h4>
+            <a href="#">LEAF Library</a>
+          </div>
+          <div class="usa-width-one-fourth-custom">
+            <h4 class="stat-h4">LEAF Requests</h4>
+            <span class="stat-numbers"><b>1,684</b></span>
+            <p>In the last 7 days</p>
+          </div>
+          <div class="usa-width-one-fourth-custom">
+            <h4 class="stat-h4">Request Response Time</h4>
+            <span class="stat-numbers"><b>16h 21min</b></span>
+            <p>Averge of 216 requests</p>
+          </div>
+          <div class="usa-width-one-fourth-custom">
+            <h4 class="stat-h4">Top 3 Types</h4>
+            <a href="#" class="stat-links">Equipment</a><br/>
+            <a href="#" class="stat-links">Transfer</a><br/>
+            <a href="#" class="stat-links">Form</a>
+          </div>
+          <div class="usa-width-one-fourth-custom">
+            <h4 class="stat-h4">Go To Reports</h4>
+            <a href="#">Report Link</a><br/>
+            <a href="#">Average Sample</a><br/>
+            <a href="#">User Report</a><br />
+            <a href="#">Data Site Report</a><br/>
+            <a href="#">HCS Study III</a><br/>
+            <a href="#">LEAf Usage Example</a>
+          </div>
+          </div>
+        </div>
+
+        <div class="time-line">
+          <h4>Line Chart</h4>
+          <line-chart></line-chart>
+        </div>
+
+      </div>
+      <div class="col col-sm-12 col-md-12 col-lg-2">
+        <div class="contact-information">
+          <h4>Contact Information</h4>
+            <p>Admin Superuser</p>
+            <p>Email</p>
+            <p>Phone</p>
+            <br />
+            <br />
+            <h4>Coaches Roster</h4>
+
+            <p>Sample Test</p>
+            <p>Content TBD</p>
+            <p>Roster Example</p>
+          </div>
+          <div class="leaf-community">
+            <h4>LEAF Community</h4>
+            <p>Sample Test</p>
+            <p>Content TBD</p>
+            <p>Roster Example</p>
+            </div>
+      </div>
+      </div>
+    </div>
+</main>
+</div>
+  <script src="../../../libs/uswds-1.6.9/js/uswds.min.js"></script>
+  <script src="../../../libs/js/vue/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+  <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
