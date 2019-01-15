@@ -265,6 +265,16 @@ var bookmarkStatus = 0;
 <!--{else}-->
 var bookmarkStatus = 1;
 <!--{/if}-->
+function formatSubQuestions(doc, shift, element) {
+    var sub = $(element).clone();
+    var depth = ($(element).parents('.printformblock').length - 2) * 10;
+    sub.find('.printRespose').remove();
+    doc.setFillColor(220,220,220);
+    doc.rect(10 + depth, 30 + shift, 1000, 9, 'F');
+    doc.setTextColor(0,0,0);
+    doc.setFontStyle("normal");
+    doc.text(sub.find('.printsubheading > span:first').text(), 14 + depth, 37 + shift);
+}
 
 function printForm() {
     var doc = new jsPDF();
@@ -285,56 +295,104 @@ function printForm() {
         right: 0,
         bottom: 0
     };
+    // doc.margins_doc(margin);
+    // var shiftWindow = 0;
+    var questionsPerPage = 5;
+    var questionNum = 0;
+    var requestTitle = $('#requestTitle').clone();
+    requestTitle.find('img').remove();
+    requestTitle.find('br').remove();
+    requestTitle.find('span').remove();
+    doc.text(requestTitle.text(), 10, 10);
+    doc.setTextColor(80,80,80);
+    doc.setFontStyle("italic");
+    doc.text($('#requestTitle > span').text(), 10, 17);
+    doc.setTextColor(0,0,0);
+    doc.setFontStyle("normal");
+    doc.text($('#requestInfo > table > tbody > tr:eq(1) > td:eq(0)').text() + ' ' + $('#requestInfo > table > tbody > tr:eq(1) > td:eq(1)').text(), 200, 10, null, null, 'right');
+    doc.text($('#requestInfo > table > tbody > tr:eq(2) > td:eq(0)').text() + ' ' + $('#requestInfo > table > tbody > tr:eq(2) > td:eq(1)').text(), 200, 17, null, null, 'right');
 
-    var source = $('#formcontent').clone();
-    source.find('img').remove();
-    $('#requestInfo').find('tr').each(function() {
-        source.find('#requestTitle').append('<div>' + $(this).text() + '</div>');
+    $('div.printmainlabel').each(function() {
+        var sensitive = $(this).find('.sensitiveIndicator').length > 0 ? ' *Sensitive' : '';
+        var required = $(this).find('.required').length > 0 ? ' *Required' : '';
+        if (questionNum === questionsPerPage) {
+            doc.addPage();
+            questionNum = 0;
+        }
+
+        var shift = 50 * questionNum;
+        doc.setDrawColor(0);
+        doc.setFillColor(0);
+        doc.rect(0, 30 + shift, 1000, 10, 'F');
+        doc.setDrawColor(0);
+        doc.setFillColor(220,220,220);
+        doc.rect(10, 31 + shift, 1000, 9, 'F');
+        doc.setTextColor(0,0,0);
+        doc.setFontStyle("normal");
+        doc.text($('.printheading', this).find('.printsubheading').text(), 14, 37 + shift);
+        doc.text(sensitive + required, 200, 37 + shift, null, null, 'right');
+        doc.setTextColor(255,255,255);
+        doc.setFontStyle("bold");
+        doc.text($('.printcounter', this).text(), 3, 37 + shift);
+        $('.printsubblock', this).each(function() {
+            shift += 50;
+            formatSubQuestions(doc, shift, this, questionNum);
+            questionNum++;
+        });
+        questionNum++;
     });
-    // source.find('#requestTitle').append($('#requestInfo').find('tr').text());
-    source.find('#requestInfo').remove();
-    source.find('div.printmainlabel').each(function() {
-        var sensitive = $(this).find('.sensitiveIndicator').length > 0 ? '<span style="color: red"> *Sensitive</span>' : '';
-        var required = $(this).find('.required').length > 0 ? '<span style="color: red"> *Required</span>' : '';
-        // $(this).find('.sensitiveIndicator').remove();
-        // console.log($(this).html());
-        var text = sensitive === '' ? $('.printResponse', this).text() : $('.sensitiveIndicator', this).find('.printResponse').text();
-        var test = printAnswers ? text + '</br></br>' : '</br></br></br></br></br></br></br></br></br></br>';
-        $(this).replaceWith(
-            // ' '
-            '<div>' +
-            '<span><b>' + $('.printcounter', this).text() + ':</b>&nbsp;' + $('.printheading > span', this).text() + '</span>' + sensitive + ' ' + required +
-            '<div>' + test + '</div>' +
-            '</div>'
-        );
-        // specialElementHandlers['#' + $(this).attr('id')] = function (element, renderer) {
-        //     return doc.line(0, 0, width, height);
-        // };
-    });
-    // doc.line(15, 15, 50, 15); // horizontal line
-    // doc.setLineWidth(1);
+    // doc.text()
 
-    // source += '<br/>' + $('#requestInfo > table > tbody > tr:eq(1)').html();
-    // source += '<br/>' + $('#requestInfo > table > tbody > tr:eq(2)').html();
-
-    // $('span.printsubheading').each(function() {
-    //     source += $(this).html();
+    // var source = $('#formcontent').clone();
+    // source.find('img').remove();
+    // $('#requestInfo').find('tr').each(function() {
+    //     source.find('#requestTitle').append('<div>' + $(this).text() + '</div>');
     // });
-
-    // $('div.sensitiveIndicatorMaskToggle').each(function() {
-    //     specialElementHandlers['#' + $(this).attr('id')] = function (element, renderer) {
-    //         return true;
-    //     }
+    // // source.find('#requestTitle').append($('#requestInfo').find('tr').text());
+    // source.find('#requestInfo').remove();
+    // source.find('div.printmainlabel').each(function() {
+    //     var sensitive = $(this).find('.sensitiveIndicator').length > 0 ? '<span style="color: red"> *Sensitive</span>' : '';
+    //     var required = $(this).find('.required').length > 0 ? '<span style="color: red"> *Required</span>' : '';
+    //     // $(this).find('.sensitiveIndicator').remove();
+    //     // console.log($(this).html());
+    //     var text = sensitive === '' ? $('.printResponse', this).text() : $('.sensitiveIndicator', this).find('.printResponse').text();
+    //     var test = printAnswers ? text + '</br></br>' : '</br></br></br></br></br></br></br></br></br></br>';
+    //     $(this).replaceWith(
+    //         // ' '
+    //         '<div>' +
+    //         '<span><b>' + $('.printcounter', this).text() + ':</b>&nbsp;' + $('.printheading > span', this).text() + '</span>' + sensitive + ' ' + required +
+    //         '<div>' + test + '</div>' +
+    //         '</div>'
+    //     );
+    //     // specialElementHandlers['#' + $(this).attr('id')] = function (element, renderer) {
+    //     //     return doc.line(0, 0, width, height);
+    //     // };
     // });
-
-    doc.fromHTML(source.html(), 15, 0, {
-        'width': width,
-        'height': height,
-        'elementHandlers': specialElementHandlers
-    },
-    function(a){
-        doc.save('saveInCallback.pdf');
-    }, margin);
+    // // doc.line(15, 15, 50, 15); // horizontal line
+    // // doc.setLineWidth(1);
+    //
+    // // source += '<br/>' + $('#requestInfo > table > tbody > tr:eq(1)').html();
+    // // source += '<br/>' + $('#requestInfo > table > tbody > tr:eq(2)').html();
+    //
+    // // $('span.printsubheading').each(function() {
+    // //     source += $(this).html();
+    // // });
+    //
+    // // $('div.sensitiveIndicatorMaskToggle').each(function() {
+    // //     specialElementHandlers['#' + $(this).attr('id')] = function (element, renderer) {
+    // //         return true;
+    // //     }
+    // // });
+    //
+    // doc.fromHTML(source.html(), 15, 0, {
+    //     'width': width,
+    //     'height': height,
+    //     'elementHandlers': specialElementHandlers
+    // },
+    // function(a){
+    //     doc.save('saveInCallback.pdf');
+    // }, margin);
+    doc.save('savedForm.pdf');
 }
 
 function toggleBookmark() {
