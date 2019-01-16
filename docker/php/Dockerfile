@@ -2,8 +2,8 @@ FROM php:7-apache
 MAINTAINER Nick Ciardiello <nick.ciardiello@ablevets.com>
 
 RUN apt-get update
-RUN apt-get install mysql-server
-RUN apt-get install vim
+RUN yes | apt-get install mysql-server
+RUN yes | apt-get install vim
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
 COPY /docker/php/000-default.conf /etc/apache2/sites-enabled/
