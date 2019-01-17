@@ -136,7 +136,7 @@ class FormWorkflow
                         //check if the requester has any backups
                         //get nexus db
                         $nexusDB = $this->login->getNexusDB();
-                        $vars4 = array(':empId' => $empUID);
+                        $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
                         if ($empUID == $this->login->getEmpUID())
@@ -465,7 +465,7 @@ class FormWorkflow
                     $empUID = $resEmpUID[$resPerson[0]['indicatorID_for_assigned_empUID']]['value'];
 
                     $nexusDB = $this->login->getNexusDB();
-                    $vars4 = array(':empId' => $empUID);
+                    $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                     $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
                     if ($empUID != $this->login->getEmpUID())
@@ -890,10 +890,10 @@ class FormWorkflow
 
                             //check if the requester has any backups
                             $nexusDB = $this->login->getNexusDB();
-                            $vars4 = array(':empId' => $empUID);
+                            $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                             $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
-                            if ($empUID > 0)
+                            if ($empUID != 0)
                             {
                                 $tmp = $dir->lookupEmpUID($empUID);
                                 $email->addRecipient($tmp[0]['Email']);

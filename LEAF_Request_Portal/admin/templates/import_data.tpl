@@ -166,7 +166,7 @@
                                             false,
                                             function (results) {
                                                 changeToInitiator = emp.userName;
-                                                requestData[parseInt(indicator.indicatorID)] = parseInt(emp.empUID);
+                                                requestData[parseInt(indicator.indicatorID)] = emp.empUID;
                                             },
                                             function (err) {
                                                 console.log(err);

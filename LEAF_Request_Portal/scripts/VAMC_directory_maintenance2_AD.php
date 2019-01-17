@@ -11,6 +11,10 @@
     + Multiple data sources
     + Buffered inserts for low memory usage
 */
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 class VAMC_Directory_maintenance_AD
 {
     private $sortBy = 'Lname';          // Sort by... ?
@@ -349,12 +353,12 @@ class VAMC_Directory_maintenance_AD
         {
             $pFirst = metaphone($emp['Fname']);
             $pLast = metaphone($emp['Lname']);
-            $vars = array("first" => $pFirst, "empUID" => $emp['EmpID']);
+            $vars = array("first" => $pFirst, "empUID" => XSSHelpers::xscrub($emp['EmpID']));
             $sql = "UPDATE {$this->tableName} SET PhoneticFname = ':first' WHERE EmpID = :empUID";
             $query = $this->db->prepared_query($sql, $vars);
             // $query->execute();
 
-            $vars2 = array("last" => $pLast, "empUID" => $emp['EmpID']);
+            $vars2 = array("last" => $pLast, "empUID" => XSSHelpers::xscrub($emp['EmpID']));
             $sql = "UPDATE {$this->tableName} SET PhoneticLname = ':last' WHERE EmpID = :empUID";
             $query2 = $this->db->prepared_query($sql, $vars2);
             // $query->execute();

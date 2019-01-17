@@ -1560,7 +1560,7 @@ class Form
 
                 //check if the requester has any backups
                 $nexusDB = $this->login->getNexusDB();
-                $vars4 = array(':empId' => $empUID);
+                $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                 $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
                 if ($empUID == $this->login->getEmpUID())

@@ -245,19 +245,13 @@ function createGroup() {
 		                                        dataType: 'json',
 		                                        data: {CSRFToken: '<!--{$CSRFToken}-->'},
 		                                        success: function(empUID) {
-		                                            if(!isNaN(empUID)) {
-		                                                $.ajax({ // add employee to the position
-		                                                    type: 'POST',
-		                                                    url: '../api/position/' + positionID + '/employee',
-		                                                    data: {CSRFToken: CSRFToken,
-		                                                        isActing: $('#isActing').prop('checked') ? 1 : 0,
-		                                                        empUID: empUID}
-		                                                })
-		                                            }
-		                                            else {
-		                                                alert(response);
-		                                                dialog.hide();
-		                                            }
+                                                    $.ajax({ // add employee to the position
+                                                        type: 'POST',
+                                                        url: '../api/position/' + positionID + '/employee',
+                                                        data: {CSRFToken: CSRFToken,
+                                                            isActing: $('#isActing').prop('checked') ? 1 : 0,
+                                                            empUID: empUID}
+                                                    });
 		                                        },
 		                                        cache: false
 		                                    })
@@ -438,19 +432,13 @@ function createService(parentGroupID) {
                                                         dataType: 'json',
                                                         data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                                         success: function(empUID) {
-                                                            if(!isNaN(empUID)) {
-                                                                $.ajax({ // add employee to the position
-                                                                    type: 'POST',
-                                                                    url: '../api/position/' + positionID + '/employee',
-                                                                    data: {CSRFToken: CSRFToken,
-                                                                        isActing: $('#isActing').prop('checked') ? 1 : 0,
-                                                                        empUID: empUID}
-                                                                })
-                                                            }
-                                                            else {
-                                                                alert(response);
-                                                                dialog.hide();
-                                                            }
+                                                            $.ajax({ // add employee to the position
+                                                                type: 'POST',
+                                                                url: '../api/position/' + positionID + '/employee',
+                                                                data: {CSRFToken: CSRFToken,
+                                                                    isActing: $('#isActing').prop('checked') ? 1 : 0,
+                                                                    empUID: empUID}
+                                                            });
                                                         },
                                                         cache: false
                                                     })
