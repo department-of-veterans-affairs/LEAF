@@ -462,7 +462,6 @@ var PortalFormEditorAPI = function (baseAPIURL) {
                 method: 'POST',
                 url: postURL,
                 dataType: "text",
-                async: async,
                 data: {
                     "name": name,
                     "format": format,

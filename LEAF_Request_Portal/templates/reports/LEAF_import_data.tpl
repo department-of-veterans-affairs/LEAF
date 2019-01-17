@@ -388,7 +388,6 @@
     $(function () {
 
         //builds select options of workflows
-        //if no workflows are found, prompts user to go make one
         portalAPI.Workflow.getAllWorkflows(
             function(msg) {
                 if(msg.length > 0) {
@@ -397,11 +396,8 @@
                     for(var i in msg) {
                         buffer += '<option value="'+ msg[i].workflowID +'">'+ msg[i].description +' (ID: #'+ msg[i].workflowID +')</option>';
                     }
-                    buffer += '</select>    (Required) This will be the workflow for the custom form.\n';
+                    buffer += '</select>    This will be the workflow for the custom form.\n';
                     $('#formWorkflowSelect').html(buffer);
-                }
-                else {
-                    $('#formWorkflowSelect').html('<span style="color: red">A workflow must be set up first</span>');
                 }
             },
             function (err) {
@@ -424,18 +420,20 @@
                 formData.name,
                 formData.description,
                 function(categoryID) {
+                    if (workflowID > 0) {
+                        portalAPI.FormEditor.assignFormWorkflow(
+                            categoryID.replace(/"/g, ""),
+                            workflowID,
+                            function (msg) {
+                                requestStatus.html('Workflow assigned...');
+                                // console.log(msg);
+                            },
+                            function (err) {
+                                console.log(err);
+                            }
+                        );
+                    }
                     requestStatus.html('Form created, adding questions...');
-                    portalAPI.FormEditor.assignFormWorkflow(
-                        categoryID.replace(/"/g,""),
-                        workflowID,
-                        function(msg){
-                            requestStatus.html('Workflow assigned...');
-                            // console.log(msg);
-                        },
-                        function(err){
-                            console.log(err);
-                        }
-                    );
 
                     //parses user's input and makes an indicator for each row of the table
                     newFormIndicators.children('tbody').find('tr').each(function(index) {
