@@ -485,7 +485,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
-        $t_form->assign('empUID', (int)$login->getEmpUID());
+        $t_form->assign('empUID', XSSHelpers::xscrub($login->getEmpUID()));
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('is_service_chief', (bool)$login->isServiceChief());
         $t_form->assign('is_quadrad', (bool)$login->isQuadrad() || (bool)$login->checkGroup(1));

@@ -153,7 +153,7 @@ switch ($action) {
                                            'css/groupSelector.css',
                                            'css/positionSelector.css', ));
 
-        $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
+        $empUID = isset($_GET['empUID']) ? XSSHelpers::xscrub($_GET['empUID']) : 0;
         if ($empUID != 0)
         {
             require 'sources/Employee.php';
@@ -283,7 +283,7 @@ switch ($action) {
         $main->assign('javascripts', array('js/employeeSelector.js', 'js/dialogController.js', 'js/orgchartForm.js'));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                                            'css/view_employee.css', ));
-        $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
+        $empUID = isset($_GET['empUID']) ? XSSHelpers::xscrub($_GET['empUID']) : 0;
 
         require 'sources/Employee.php';
         $employee = new Orgchart\Employee($db, $login);

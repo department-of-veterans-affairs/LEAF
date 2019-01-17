@@ -13,6 +13,10 @@ include '../globals.php';
 include '../Login.php';
 include '../db_mysql.php';
 include '../db_config.php';
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -85,7 +89,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
                                                             WHERE userName=:userName', $vars)[0]['empUID'];
             }
 
-            $vars = array(':empUID' => $empUID,
+            $vars = array(':empUID' => XSSHelpers::xscrub($empUID),
                           ':indicatorID' => 6,
                           ':data' => $res[0]['data'],
                           ':author' => 'viaLogin',

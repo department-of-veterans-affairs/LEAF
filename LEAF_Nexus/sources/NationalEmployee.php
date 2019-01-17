@@ -12,6 +12,10 @@
 namespace Orgchart;
 
 require_once 'NationalData.php';
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 
 class NationalEmployee extends NationalData
 {
@@ -111,7 +115,7 @@ class NationalEmployee extends NationalData
                     WHERE empUID = :empUID
                     	AND deleted = 0";
 
-        $vars = array(':empUID' => $empUID);
+        $vars = array(':empUID' => XSSHelpers::xscrub($empUID));
         $result = $this->db->prepared_query($sql, $vars);
 
         return $result;

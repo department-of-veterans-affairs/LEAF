@@ -159,22 +159,17 @@ function assignBackup() {
                 url: './api/employee/import/_' + selectedUserName,
                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(empUID) {
-                    if(!isNaN(empUID)) {
-                        $.ajax({
-                            type: 'POST',
-                            url: './api/?a=employee/<!--{$empUID}-->/backup',
-                            data: {backupEmpUID: empUID,
-                                CSRFToken: '<!--{$CSRFToken}-->'},
-                            success: function(response) {
-                                getBackupInfo();
-                                dialog.hide();
-                            },
-                            cache: false
-                        });
-                    }
-                    else {
-                        alert(empUID);
-                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: './api/?a=employee/<!--{$empUID}-->/backup',
+                        data: {backupEmpUID: empUID,
+                            CSRFToken: '<!--{$CSRFToken}-->'},
+                        success: function(response) {
+                            getBackupInfo();
+                            dialog.hide();
+                        },
+                        cache: false
+                    });
                 }
             });
         }

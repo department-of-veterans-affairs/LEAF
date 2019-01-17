@@ -11,6 +11,11 @@
 
 ini_set('session.gc_maxlifetime', 2592000);
 
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
+
 // Sanitize all $_GET input
 if (count($_GET) > 0)
 {
@@ -233,7 +238,7 @@ class Login
                                                                     WHERE userName=:userName', $vars)[0]['empUID'];
                     }
         
-                    $vars = array(':empUID' => $empUID,
+                    $vars = array(':empUID' => XSSHelpers::xscrub($empUID),
                             ':indicatorID' => 6,
                             ':data' => $res[0]['data'],
                             ':author' => 'viaLogin',
@@ -431,7 +436,7 @@ class Login
      */
     public function getMembership()
     {
-        $empUID = (int)$this->empUID;
+        $empUID = XSSHelpers::xscrub($this->empUID);
 
         if (isset($this->cache['getMembership_' . $empUID]))
         {
@@ -440,16 +445,16 @@ class Login
 
         $membership = array();
         // inherit permissions if employee is a backup for someone else
-        $vars = array(':empUID' => $empUID);
+        $vars = array(':empUID' => XSSHelpers::xscrub($empUID));
         $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
                                             WHERE backupEmpUID=:empUID
         										AND approved=1', $vars);
-        $temp = (int)$empUID;
+        $temp = XSSHelpers::xscrub($empUID);
         if (count($res) > 0)
         {
             foreach ($res as $item)
             {
-                $var = (int)$item['empUID'];
+                $var = XSSHelpers::xscrub($item['empUID']);
                 $temp .= ",{$var}";
                 $membership['inheritsFrom'][] = $var;
             }

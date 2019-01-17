@@ -11,6 +11,10 @@
 
 require_once 'form.php';
 
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 class Inbox
 {
     public $form;
@@ -209,7 +213,7 @@ class Inbox
                         {
                             // see if the current user is a backup for anyone
                             $nexusDB = $this->login->getNexusDB();
-                            $vars4 = array(':empId' => $this->login->getEmpUID());
+                            $vars4 = array(':empId' => XSSHelpers::xscrub($this->login->getEmpUID()));
                             $isBackup = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE backupEmpUID =:empId', $vars4);
                             if(count($isBackup) > 0) {
                                 $this->cache['getInbox_currUserIsABackup'] = true;
@@ -227,7 +231,7 @@ class Inbox
                         else if($this->cache['getInbox_currUserIsABackup'])
                         {
                             $nexusDB = $this->login->getNexusDB();
-                            $vars4 = array(':empId' => $empUID);
+                            $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                             $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
                             $this->cache["getInbox_employeeBackups_{$empUID}"] = $backupIds;
                         }
@@ -434,7 +438,7 @@ class Inbox
 
                         //check if the requester has any backups
                         $nexusDB = $this->login->getNexusDB();
-                        $vars4 = array(':empId' => $empUID);
+                        $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
                         if ($empUID == $this->login->getEmpUID())
