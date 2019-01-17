@@ -334,7 +334,6 @@
 
         if (requestData['failed'] !== undefined) {
             failedRequests.push(requestData['failed']);
-            console.log(failedRequests);
         } else {
             portalAPI.Forms.newRequest(
                 categoryID,
@@ -368,10 +367,10 @@
                 function (error) {
                     console.log(error);
                     failedRequests.push(requestData);
-                    requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
                 }
             );
         }
+        requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
         if (failedRequests.length === (sheet_data.cells.length - 1)) {
             requestStatus.html('All requests failed!  See log for details.');
             requestStatus.append(
@@ -425,10 +424,12 @@
                 formData.name,
                 formData.description,
                 function(categoryID) {
+                    requestStatus.html('Form created, adding questions...');
                     portalAPI.FormEditor.assignFormWorkflow(
                         categoryID.replace(/"/g,""),
                         workflowID,
                         function(msg){
+                            requestStatus.html('Workflow assigned...');
                             // console.log(msg);
                         },
                         function(err){
@@ -451,13 +452,14 @@
                             categoryID.replace(/"/g,""),
                             indicatorObj.required,
                             indicatorObj.is_sensitive,
-                            false,
                             function(indicatorID) {
 
                                 //adds indicators to array
                                 //when all indicators are parsed, moves on to next step of filling out requests
                                 indicators.push(indicatorID.replace(/"/g,""));
+                                requestStatus.html(indicators.length.toString() + ' out of ' + newFormIndicators.children('tbody').find('tr').length + ' questions added.');
                                 if(indicators.length === newFormIndicators.children('tbody').find('tr').length){
+                                    requestStatus.html('Filling out form...');
                                     indicators.sort();
 
                                     // iterate through the sheet cells, which are organized by row
@@ -770,9 +772,6 @@
             }
             if (titleInputNew.val() === '') {
                 return alert('Request title is required.');
-            }
-            if ($('#workflowID').val() === '0') {
-                return alert('Form workflow is required.');
             }
             dialog_confirm.setContent('Are you sure you want to submit ' + (sheet_data.cells.length - 1) + ' requests?');
             dialog_confirm.setSaveHandler(function () {
