@@ -450,6 +450,7 @@
                             categoryID.replace(/"/g,""),
                             indicatorObj.required,
                             indicatorObj.is_sensitive,
+                            false,
                             function(indicatorID) {
 
                                 //adds indicators to array
