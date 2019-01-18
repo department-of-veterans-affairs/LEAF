@@ -354,7 +354,9 @@ class VAMC_Directory_maintenance_AD
                 $pq->execute();
                 echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
 
-                $lastEmpUID = $this->db->lastInsertId();
+                $vars = array(':userName' => $this->users[$key]['loginName']);
+                $lastEmpUID = $db->prepared_query('SELECT empUID FROM employee
+                                                   WHERE userName=:userName', $vars)[0]['empUID'];
                 if ($pq->errorCode() != '00000')
                 {
                     print_r($pq->errorInfo());

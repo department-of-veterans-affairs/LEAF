@@ -67,7 +67,8 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
         // add user to local DB
         if (count($res) > 0)
         {
-            $vars = array(':firstName' => $res[0]['firstName'],
+            $vars = array(':empUID' => $res[0]['empUID'],
+                    ':firstName' => $res[0]['firstName'],
                     ':lastName' => $res[0]['lastName'],
                     ':middleName' => $res[0]['middleName'],
                     ':userName' => $res[0]['userName'],
@@ -75,19 +76,11 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
                     ':lastUpdated' => time(), );
-            $db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
-        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
+            $db->prepared_query('INSERT INTO employee (empUID, firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
+        							VALUES (:empUID, :firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
 									ON DUPLICATE KEY UPDATE deleted=0', $vars);
-            $empUID = $db->getLastInsertID();
 
-            if ($empUID == 0)
-            {
-                $vars = array(':userName' => $res[0]['userName']);
-                $empUID = $db->prepared_query('SELECT empUID FROM employee
-                                                    WHERE userName=:userName', $vars)[0]['empUID'];
-            }
-
-            $vars = array(':empUID' => XSSHelpers::xscrub($empUID),
+            $vars = array(':empUID' => XSSHelpers::xscrub($res[0]['empUID']),
                           ':indicatorID' => 6,
                           ':data' => $res[0]['data'],
                           ':author' => 'viaLogin',
