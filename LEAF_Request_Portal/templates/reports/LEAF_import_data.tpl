@@ -447,7 +447,7 @@
 
                         //creates indicator from indicatorObj
                         //when all indicators are parsed, moves on to next step of filling out requests
-                        if (index < newFormIndicators.children('tbody').find('tr').length) {
+                        if (index < indicatorTableRows.length) {
                             portalAPI.FormEditor.createFormIndicator(
                                 indicatorObj.name,
                                 indicatorObj.format,
