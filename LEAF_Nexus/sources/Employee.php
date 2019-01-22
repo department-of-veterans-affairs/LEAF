@@ -89,7 +89,7 @@ class Employee extends Data
      * @throws Exception
      * @return int New employee ID
      */
-    public function addNew($firstName, $lastName, $middleName = '', $userName = '', $bypassAdmin = false)
+    public function addNew($empUID, $firstName, $lastName, $middleName = '', $userName = '', $bypassAdmin = false)
     {
         if (strlen($firstName) == 0 || strlen($lastName) == 0)
         {
@@ -106,18 +106,19 @@ class Employee extends Data
             $userName = 'NOACCOUNT-' . random_int(7, 9999999);
         }
 
-        $vars = array(':firstName' => $this->sanitizeInput($firstName),
+        $vars = array(':empUID' => $this->sanitizeInput($empUID),
+                      ':firstName' => $this->sanitizeInput($firstName),
                       ':lastName' => $this->sanitizeInput($lastName),
                       ':middleName' => $this->sanitizeInput($middleName),
                       ':userName' => $this->sanitizeInput($userName),
                       ':phoFirstName' => metaphone($this->sanitizeInput($firstName)),
                       ':phoLastName' => metaphone($this->sanitizeInput($lastName)),
                       ':lastUpdated' => time(), );
-        $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, lastUpdated)
-        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :lastUpdated)
+        $this->db->prepared_query('INSERT INTO employee (empUID, firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, lastUpdated)
+        							VALUES (:empUID, :firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :lastUpdated)
         							ON DUPLICATE KEY UPDATE deleted=0', $vars);
 
-        $empUID = $this->lookupLogin($this->sanitizeInput($userName))[0]['empUID'];
+        $empUID = $this->sanitizeInput($empUID);
 
         return $empUID == 0 ? 'Error adding employee. Already added?' : $empUID;
     }
@@ -158,7 +159,7 @@ class Employee extends Data
 
         try
         {
-            $empUID = $this->addNew($res[0]['firstName'], $res[0]['lastName'], $res[0]['middleName'], $res[0]['userName'], true);
+            $empUID = $this->addNew($res[0]['empUID'], $res[0]['firstName'], $res[0]['lastName'], $res[0]['middleName'], $res[0]['userName'], true);
 
             if ($empUID !== 'Error adding employee. Already added?')
             {
