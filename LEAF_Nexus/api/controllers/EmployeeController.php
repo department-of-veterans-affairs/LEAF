@@ -67,7 +67,7 @@ class EmployeeController extends RESTfulResponse
         $this->index['POST']->register('employee/new', function ($args) use ($employee) {
             try
             {
-                return $employee->addNew($_POST['firstName'], $_POST['lastName'], $_POST['middleName'], $_POST['userName']);
+                return $employee->addNew($_POST['empUID'], $_POST['firstName'], $_POST['lastName'], $_POST['middleName'], $_POST['userName']);
             }
             catch (Exception $e)
             {
