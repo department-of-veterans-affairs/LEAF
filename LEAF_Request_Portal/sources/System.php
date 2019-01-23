@@ -81,23 +81,23 @@ class System
         $resEmp = $position->getEmployees($leaderGroupID);
         foreach ($resEmp as $emp)
         {
-            if ($emp['userName'] != '')
+            if ($emp['empUID'] != '')
             {
-                $vars = array(':userID' => $emp['userName'],
+                $vars = array(':empUID' => $emp['empUID'],
                         ':serviceID' => $service['groupID'], );
 
-                $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
-                                    VALUES (:serviceID, :userID)', $vars);
+                $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, empUID)
+                                    VALUES (:serviceID, :empUID)', $vars);
 
                 // include the backups of employees
                 $backups = $employee->getBackups($emp['empUID']);
                 foreach ($backups as $backup)
                 {
-                    $vars = array(':userID' => $backup['userName'],
+                    $vars = array(':empUID' => $backup['empUID'],
                             ':serviceID' => $service['groupID'], );
 
-                    $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
-                                    VALUES (:serviceID, :userID)', $vars);
+                    $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, empUID)
+                                    VALUES (:serviceID, :empUID)', $vars);
                 }
             }
         }
@@ -115,10 +115,12 @@ class System
 		    												AND active=1', $vars);
             foreach ($resChief as $chief)
             {
-                $vars = array(':userID' => $chief['userID'],
+                $empRes = $employee->lookupEmpUID($chief['empUID']);
+                $vars = array(':empUID' => $chief['empUID'],
+                              ':userID' => $empRes[0]['userID'],
                               ':groupID' => $quadID, );
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-	                                   		 VALUES (:userID, :groupID)', $vars);
+                $this->db->prepared_query('INSERT INTO users (empUID, userID, groupID)
+                                                VALUES (:empUID, :userID, :groupID)', $vars);
             }
         }
 
@@ -183,21 +185,23 @@ class System
         {
             if ($emp['userName'] != '')
             {
-                $vars = array(':userID' => $emp['userName'],
+                $vars = array(':empUID' => $emp['empUID'],
+                        ':userID' => $emp['userName'],
                         ':groupID' => $groupID, );
 
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+                $this->db->prepared_query('INSERT INTO users (empUID, userID, groupID)
+										VALUES (:empUID, :userID, :groupID)', $vars);
 
                 // include the backups of employees
                 $backups = $employee->getBackups($emp['empUID']);
                 foreach ($backups as $backup)
                 {
-                    $vars = array(':userID' => $backup['userName'],
+                    $vars = array(':empUID' => $backup['empUID'],
+                            ':userID' => $backup['userName'],
                             ':groupID' => $groupID, );
 
-                    $this->db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+                    $this->db->prepared_query('INSERT INTO users (empUID, userID, groupID)
+										VALUES (:empUID, :userID, :groupID)', $vars);
                 }
             }
         }

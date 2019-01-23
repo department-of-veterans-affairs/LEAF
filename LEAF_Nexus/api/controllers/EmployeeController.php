@@ -27,15 +27,15 @@ class EmployeeController extends RESTfulResponse
             return $this->API_VERSION;
         });
 
-        $this->index['GET']->register('employee/[digit]', function ($args) use ($employee) {
-            return $employee->getSummary((int)$args[0]);
+        $this->index['GET']->register('employee/[text]', function ($args) use ($employee) {
+            return $employee->getSummary($args[0]);
         });
 
-        $this->index['GET']->register('employee/[digit]/backup', function ($args) use ($employee) {
+        $this->index['GET']->register('employee/[text]/backup', function ($args) use ($employee) {
             return $employee->getBackups($args[0]);
         });
 
-        $this->index['GET']->register('employee/[digit]/backupFor', function ($args) use ($employee) {
+        $this->index['GET']->register('employee/[text]/backupFor', function ($args) use ($employee) {
             return $employee->getBackupsFor($args[0]);
         });
 
@@ -74,7 +74,7 @@ class EmployeeController extends RESTfulResponse
                 return $e->getMessage();
             }
         });
-        $this->index['POST']->register('employee/[digit]', function ($args) use ($employee) {
+        $this->index['POST']->register('employee/[text]', function ($args) use ($employee) {
             try
             {
                 return $employee->modify($args[0]);
@@ -84,7 +84,7 @@ class EmployeeController extends RESTfulResponse
                 return $e->getMessage();
             }
         });
-        $this->index['POST']->register('employee/[digit]/backup', function ($args) use ($employee) {
+        $this->index['POST']->register('employee/[text]/backup', function ($args) use ($employee) {
             try
             {
                 return $employee->setBackup($args[0], $_POST['backupEmpUID']);
@@ -94,7 +94,7 @@ class EmployeeController extends RESTfulResponse
                 return $e->getMessage();
             }
         });
-        $this->index['POST']->register('employee/[digit]/activate', function ($args) use ($employee) {
+        $this->index['POST']->register('employee/[text]/activate', function ($args) use ($employee) {
             try
             {
                 return $employee->enableAccount($args[0]);
@@ -127,7 +127,7 @@ class EmployeeController extends RESTfulResponse
             return print_r($args, true) . print_r($_GET, true);
         });
 
-        $this->index['DELETE']->register('employee/[digit]', function ($args) use ($employee) {
+        $this->index['DELETE']->register('employee/[text]', function ($args) use ($employee) {
             try
             {
                 return $employee->disableAccount($args[0]);
@@ -138,7 +138,7 @@ class EmployeeController extends RESTfulResponse
             }
         });
 
-        $this->index['DELETE']->register('employee/[digit]/backup/[digit]', function ($args) use ($employee) {
+        $this->index['DELETE']->register('employee/[text]/backup/[text]', function ($args) use ($employee) {
             try
             {
                 return $employee->removeBackup($args[0], $args[1]);

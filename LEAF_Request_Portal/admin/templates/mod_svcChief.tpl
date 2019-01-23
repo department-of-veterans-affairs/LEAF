@@ -102,11 +102,11 @@ function populateMembers(groupID, members) {
     }
 }
 
-function addUser(groupID, userID) {
+function addUser(groupID, empUID) {
     $.ajax({
         type: 'POST',
         url: "../api/service/" + groupID + "/members",
-        data: {'userID': userID,
+        data: {'empUID': empUID,
                'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
             getMembers(groupID);
@@ -114,10 +114,10 @@ function addUser(groupID, userID) {
     });
 }
 
-function removeUser(groupID, userID) {
+function removeUser(groupID, empUID) {
     $.ajax({
         type: 'DELETE',
-        url: "../api/service/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
+        url: "../api/service/" + groupID + "/members/_" + empUID + '&CSRFToken=<!--{$CSRFToken}-->',
         success: function(response) {
             getMembers(groupID);
         }
@@ -151,12 +151,12 @@ function initiateWidget(serviceID) {
                             removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove Override</span>';
                         }
                         $('#employee_table').append('<tr><td>'+ res[i].Lname + ', ' + res[i].Fname + managedBy +'</td><td>'+ removeButton +'</td></tr>');
-                        $('#removeMember_' + counter).on('click', function(userID) {
+                        $('#removeMember_' + counter).on('click', function(empUID) {
                             return function() {
-                                removeUser(serviceID, userID);
+                                removeUser(serviceID, empUID);
                                 dialog.hide();
                             };
-                        }(res[i].userName));
+                        }(res[i].empUID));
                         counter++;
                     }
 
@@ -183,13 +183,14 @@ function initiateWidget(serviceID) {
                     dialog.setSaveHandler(function() {
                         if(empSel.selection != '') {
                             var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                            var selectedEmpUID = empSel.selectionData[empSel.selection].empUID;
                             $.ajax({
                                 type: 'POST',
                                 url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
                                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                 success: function(res) {
                                     if(!isNaN(res)) {
-                                        addUser(serviceID, selectedUserName);
+                                        addUser(serviceID, selectedEmpUID);
                                     }
                                     else {
                                         alert(res);

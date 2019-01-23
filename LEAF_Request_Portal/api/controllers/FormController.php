@@ -188,7 +188,7 @@ class FormController extends RESTfulResponse
 
         // Expects POST input: $_POST['service'], title, priority, num(categoryID), CSRFToken
         $this->index['POST']->register('form/new', function ($args) use ($form, $login) {
-            return $form->newForm($login->getUserID());
+            return $form->newForm($login->getEmpUID());
         });
 
         $this->index['POST']->register('form/[digit]', function ($args) use ($form) {

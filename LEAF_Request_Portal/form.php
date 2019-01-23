@@ -206,6 +206,7 @@ class Form
 
         $output = array(
             'userName' => $this->login->getUserID(),
+            'empUID' => $this->login->getEmpUID(),
             'timestamp' => time(),
             'formId' => $form['items'][0]['children'][0]['type'],
             'recordId' => $recordID,
@@ -305,7 +306,7 @@ class Form
     }
 
     // Expects POST input: $_POST['service'], title, priority, num(categoryID)
-    public function newForm($userID)
+    public function newForm($empUID)
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
@@ -367,12 +368,12 @@ class Form
 
         $vars = array(':date' => time(),
                       ':serviceID' => $serviceID,
-                      ':userID' => $userID,
+                      ':empUID' => XSSHelpers::xscrub($empUID),
                       ':title' => XSSHelpers::sanitizer($_POST['title']),
                       ':priority' => $_POST['priority'], );
 
-        $this->db->prepared_query('INSERT INTO records (date, serviceID, userID, title, priority)
-                                    VALUES (:date, :serviceID, :userID, :title, :priority)', $vars);
+        $this->db->prepared_query('INSERT INTO records (date, serviceID, empUID, title, priority)
+                                    VALUES (:date, :serviceID, :empUID, :title, :priority)', $vars);
 
         $recordID = $this->db->getLastInsertID(); // note this doesn't work with all DBs (eg. with transactions, MySQL should be ok)
 
@@ -567,7 +568,7 @@ class Form
         // get request initiator
         $vars = array(':recordID' => (int)$recordID);
         $resInitiator = $this->db->prepared_query(
-            'SELECT userID FROM records
+            'SELECT empUID FROM records
                 WHERE recordID=:recordID',
             $vars
         );
@@ -578,7 +579,7 @@ class Form
 
 
         $res = $this->db->prepared_query(
-            'SELECT h.recordID, h.indicatorID, h.series, h.data, h.timestamp, h.userID, i.is_sensitive 
+            'SELECT h.recordID, h.indicatorID, h.series, h.data, h.timestamp, h.empUID, i.is_sensitive 
                 FROM data_history h
                     LEFT JOIN indicator_mask USING (indicatorID)
                     LEFT JOIN indicators i USING (indicatorID)
@@ -595,7 +596,7 @@ class Form
         $res2 = array();
         foreach ($res as $line)
         {
-            $user = $dir->lookupLogin($line['userID']);
+            $user = $dir->lookupEmpUID($line['empUID']);
 
             // if 'groupID' is set, this means there is an entry for it in the `indicator_mask`
             // database table and the access permissions for that indicator needs to be checked
@@ -604,7 +605,7 @@ class Form
                 $groups = $this->login->getMembership();
 
                 // check if logged in user is request initiator
-                if ($this->login->getUserID() != $resInitiator[0]['userID'])
+                if ($this->login->getEmpUID() != $resInitiator[0]['empUID'])
                 {
                     // the user does not need permission to view the indicator data, so the data
                     // must be masked
@@ -614,7 +615,7 @@ class Form
                     }
                 }
             }
-            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
+            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['empUID'];
             $line['name'] = $name;
             $res2[] = $line;
         }
@@ -699,13 +700,13 @@ class Form
 
         // actionID 4 = delete
         $vars = array(':recordID' => $recordID,
-                      ':userID' => $this->login->getUserID(),
+                      ':empUID' => $this->login->getEmpUID(),
                       ':dependencyID' => 0,
                       ':actionType' => 'deleted',
                       ':actionTypeID' => 4,
                       ':time' => time(), );
-        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
+        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, empUID, dependencyID, actionType, actionTypeID, time)
+                                            VALUES (:recordID, :empUID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
 
         // delete state
         $vars = array(':recordID' => $recordID);
@@ -795,7 +796,7 @@ class Form
     public function getRecordInfo($recordID)
     {
         $vars = array(':recordID' => (int)$recordID,
-                      ':bookmarkID' => 'bookmark_' . $this->login->getUserID(), );
+                      ':bookmarkID' => 'bookmark_' . $this->login->getEmpUID(), );
 
         $res = $this->db->prepared_query('SELECT * FROM records
                                             LEFT JOIN services USING (serviceID)
@@ -849,8 +850,8 @@ class Form
 
         require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
-        $user = $dir->lookupLogin($res[0]['userID']);
-        $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
+        $user = $dir->lookupEmpUID($res[0]['empUID']);
+        $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['empUID'];
 
         $data = array('name' => $name,
                       'service' => $res[0]['service'],
@@ -883,10 +884,10 @@ class Form
             return $this->cache['owner_' . $recordID];
         }
         $vars = array(':recordID' => (int)$recordID);
-        $res = $this->db->prepared_query('SELECT userID FROM records WHERE recordID=:recordID', $vars);
-        $this->cache['owner_' . $recordID] = $res[0]['userID'];
+        $res = $this->db->prepared_query('SELECT empUID FROM records WHERE recordID=:recordID', $vars);
+        $this->cache['owner_' . $recordID] = $res[0]['empUID'];
 
-        return $res[0]['userID'];
+        return $res[0]['empUID'];
     }
 
     // return last status from cached value
@@ -986,16 +987,17 @@ class Form
                       ':series' => $series,
                       ':data' => trim($_POST[$key]),
                       ':timestamp' => time(),
-                      ':userID' => $this->login->getUserID(), );
-        $res = $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
-                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
-                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
+                      ':empUID' => $this->login->getEmpUID(), );
+        $res = $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, empUID)
+                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :empUID)
+                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, empUID=:empUID', $vars);
 
         if (!$duplicate)
         {
-            $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
-                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
+            $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, empUID)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :empUID)', $vars);
         }
+
         return 1;
     }
 
@@ -1220,14 +1222,14 @@ class Form
 
         // write history data, actionID 6 = filled dependency
         $vars = array(':recordID' => $recordID,
-                      ':userID' => $this->login->getUserID(),
+                      ':empUID' => $this->login->getEmpUID(),
                       ':dependencyID' => 5,
                       ':actionType' => 'submit',
                       ':actionTypeID' => 6,
                       ':time' => time(),
                       ':comment' => '', );
-        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars);
+        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, empUID, dependencyID, actionType, actionTypeID, time, comment)
+                                            VALUES (:recordID, :empUID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars);
 
         // populate dependency data using new workflow system
         $vars = array(':recordID' => $recordID);
@@ -1381,14 +1383,14 @@ class Form
         else
         {
             $vars = array(':recordID' => (int)$recordID);
-            $resRecords = $this->db->prepared_query('SELECT userID, isWritableUser, isWritableGroup FROM records
+            $resRecords = $this->db->prepared_query('SELECT empUID, isWritableUser, isWritableGroup FROM records
                                                 WHERE recordID=:recordID', $vars);
             $this->cache["resRecords_{$recordID}"] = $resRecords;
         }
 
         // give the requestor access if the record explictly gives them write access
         if ($resRecords[0]['isWritableUser'] == 1
-            && $this->login->getUserID() == $resRecords[0]['userID'])
+            && $this->login->getEmpUID() == $resRecords[0]['empUID'])
         {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
 
@@ -1406,11 +1408,11 @@ class Form
         if (count($multipleCategories) <= 1)
         {
             $vars = array(':categoryID' => XSSHelpers::xscrub($categoryID),
-                          ':userID' => $this->login->getUserID(), );
+                          ':empUID' => $this->login->getEmpUID(), );
             $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
                                                         LEFT JOIN users USING (groupID)
                                                         WHERE categoryID=:categoryID
-                                                            AND userID=:userID
+                                                            AND empUID=:empUID
             												AND writable=1', $vars);
 
             if (count($resCategoryPrivs) > 0)
@@ -1425,11 +1427,11 @@ class Form
             foreach ($multipleCategories as $category)
             {
                 $vars = array(':categoryID' => $category,
-                              ':userID' => $this->login->getUserID(), );
+                              ':empUID' => $this->login->getEmpUID(), );
                 $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
                                                         LEFT JOIN users USING (groupID)
                                                         WHERE categoryID=:categoryID
-                                                            AND userID=:userID
+                                                            AND empUID=:empUID
             												AND writable=1', $vars);
 
                 if (count($resCategoryPrivs) > 0)
@@ -1443,7 +1445,7 @@ class Form
 
         // grant permissions to whoever currently "has" the form (whoever is the current approver)
         $vars = array(':recordID' => (int)$recordID);
-        $resRecordPrivs = $this->db->prepared_query('SELECT recordID, groupID, dependencyID, records.userID, serviceID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID FROM records_workflow_state
+        $resRecordPrivs = $this->db->prepared_query('SELECT recordID, groupID, dependencyID, records.empUID, serviceID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID FROM records_workflow_state
         												LEFT JOIN step_dependencies USING (stepID)
         												LEFT JOIN workflow_steps USING (stepID)
         												LEFT JOIN dependency_privs USING (dependencyID)
@@ -1579,10 +1581,10 @@ class Form
                 break;
             case -2: // dependencyID -2 : requestor followup
                 $varsPerson = array(':recordID' => (int)$details['recordID']);
-                $resPerson = $this->db->prepared_query('SELECT userID FROM records
+                $resPerson = $this->db->prepared_query('SELECT empUID FROM records
                												WHERE recordID=:recordID', $varsPerson);
 
-                if ($resPerson[0]['userID'] == $this->login->getUserID())
+                if ($resPerson[0]['empUID'] == $this->login->getEmpUID())
                 {
                     return true;
                 }
@@ -1662,7 +1664,7 @@ class Form
             // get a list of records which have categories marked as need-to-know
             $vars = array();
             $query = "
-                SELECT recordID, categoryID, dependencyID, groupID, serviceID, userID, 
+                SELECT recordID, categoryID, dependencyID, groupID, serviceID, empUID, 
                         indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID 
                     FROM records
                     LEFT JOIN category_count USING (recordID)
@@ -1701,7 +1703,7 @@ class Form
             if ($t_needToKnowRecords != '')
             {
                 $vars = array();
-                $res2 = $this->db->prepared_query("SELECT recordID, dependencyID, groupID, serviceID, userID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID FROM records
+                $res2 = $this->db->prepared_query("SELECT recordID, dependencyID, groupID, serviceID, empUID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID FROM records
 													LEFT JOIN category_count USING (recordID)
 													LEFT JOIN categories USING (categoryID)
 													LEFT JOIN workflows USING (workflowID)
@@ -1768,7 +1770,7 @@ class Form
                 $temp[$dep['recordID']] = $this->hasDependencyAccess($dep['dependencyID'], $dep) ? 1 : 0;
 
                 // request initiator
-                if ($dep['userID'] == $this->login->getUserID())
+                if ($dep['empUID'] == $this->login->getEmpUID())
                 {
                     $temp[$dep['recordID']] = 1;
                 }
@@ -1808,7 +1810,7 @@ class Form
             return 0;
         }
 
-        if (is_numeric($recordID) && ($this->getOwnerID($recordID) == $this->login->getUserID()))
+        if (is_numeric($recordID) && ($this->getOwnerID($recordID) == $this->login->getEmpUID()))
         {
             return 0;
         }
@@ -2051,14 +2053,14 @@ class Form
                     case 'orgchart_position':
                         $positionTitle = $this->position->getTitle($item['data']);
                         $positionData = $this->position->getAllData($item['data']);
-                        
+
                         $item['dataOrgchart'] = $positionData;
                         $item['dataOrgchart']['positionID'] = $item['data'];
                         $item['data'] = "{$positionTitle} ({$positionData[2]['data']}-{$positionData[13]['data']}-{$positionData[14]['data']})";
                         break;
                     case 'orgchart_group':
                         $groupTitle = $this->group->getTitle($item['data']);
-                        
+
                         $item['data'] = $groupTitle;
                         break;
                     default:
@@ -2086,6 +2088,7 @@ class Form
                             $item['gridInput'] = array_merge($values, array("format" => $format));
                             $item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
                         }
+
                         break;
                 }
 
@@ -2151,8 +2154,8 @@ class Form
         $total = count($res);
         for ($i = 0; $i < $total; $i++)
         {
-            $user = $dir->lookupLogin($res[$i]['userID']);
-            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
+            $user = $dir->lookupEmpUID($res[$i]['empUID']);
+            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['empUID'];
             $res[$i]['name'] = $name;
         }
 
@@ -2182,10 +2185,10 @@ class Form
         $vars = array(':recordID' => (int)$recordID,
                       ':tag' => XSSHelpers::xscrub($tag),
                       ':timestamp' => time(),
-                      ':userID' => $this->login->getUserID(), );
+                      ':empUID' => $this->login->getEmpUID(), );
 
-        $res = $this->db->prepared_query('INSERT INTO tags (recordID, tag, timestamp, userID)
-                                            VALUES (:recordID, :tag, :timestamp, :userID)
+        $res = $this->db->prepared_query('INSERT INTO tags (recordID, tag, timestamp, empUID)
+                                            VALUES (:recordID, :tag, :timestamp, :empUID)
                                             ON DUPLICATE KEY UPDATE timestamp=:timestamp', $vars);
     }
 
@@ -2197,9 +2200,9 @@ class Form
         }
         $vars = array(':recordID' => (int)$recordID,
                       ':tag' => XSSHelpers::xscrub($tag),
-                      ':userID' => $this->login->getUserID(), );
+                      ':empUID' => $this->login->getEmpUID(), );
 
-        $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID AND userID=:userID AND tag=:tag', $vars);
+        $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID AND empUID=:empUID AND tag=:tag', $vars);
     }
 
     // deletes old tags, inserts new ones
@@ -2210,8 +2213,8 @@ class Form
             return 0;
         }
         $vars = array(':recordID' => (int)$recordID,
-                      ':userID' => $this->login->getUserID(), );
-        $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID AND userID=:userID', $vars);
+                      ':empUID' => $this->login->getEmpUID(), );
+        $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID AND empUID=:empUID', $vars);
 
         $tags = explode(' ', trim($input));
         foreach ($tags as $tag)
@@ -2282,7 +2285,7 @@ class Form
         }
     }
 
-    public function setInitiator($recordID, $userID)
+    public function setInitiator($recordID, $empUID)
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
@@ -2292,30 +2295,30 @@ class Form
         if ($this->login->checkGroup(1))
         {
             $vars = array(':recordID' => (int)$recordID,
-                          ':userID' => $userID, );
+                          ':empUID' => $empUID, );
             $res = $this->db->prepared_query('UPDATE records SET
-                                            	userID=:userID
+                                            	empUID=:empUID
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
-            $user = $dir->lookupLogin($userID);
-            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
+            $user = $dir->lookupEmpUID($empUID);
+            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $empUID;
 
             $comment = "Initiator changed to {$name}";
             $vars2 = array(':recordID' => (int)$recordID,
-                ':userID' => $this->login->getUserID(),
+                ':empUID' => $this->login->getEmpUID(),
                 ':dependencyID' => 0,
                 ':actionType' => 'changeInitiator',
                 ':actionTypeID' => 8,
                 ':time' => time(),
                 ':comment' => $comment, );
-            $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+            $this->db->prepared_query('INSERT INTO action_history (recordID, empUID, dependencyID, actionType, actionTypeID, time, comment)
+                                            VALUES (:recordID, :empUID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
 
-            return $userID;
+            return $empUID;
         }
     }
 
@@ -2846,7 +2849,7 @@ class Form
 
         if ($joinInitiatorNames)
         {
-            $joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
+            $joins .= "LEFT JOIN (SELECT empUID, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.empUID = lj_OCinitiatorNames.empUID ";
         }
 
         $res = $this->db->prepared_query('SELECT * FROM records
@@ -2927,15 +2930,15 @@ class Form
                 $recordIDs .= $item['recordID'] . ',';
             }
             $recordIDs = trim($recordIDs, ',');
-            $res2 = $this->db->prepared_query('SELECT recordID, stepID, userID, time, description, actionTextPasttense, comment FROM action_history
+            $res2 = $this->db->prepared_query('SELECT recordID, stepID, empUID, time, description, actionTextPasttense, comment FROM action_history
     											LEFT JOIN dependencies USING (dependencyID)
     											LEFT JOIN actions USING (actionType)
     											WHERE recordID IN (' . $recordIDs . ')
                                                 ORDER BY time', array());
             foreach ($res2 as $item)
             {
-                $user = $dir->lookupLogin($item['userID']);
-                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
+                $user = $dir->lookupEmpUID($item['empUID']);
+                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['empUID'];
                 $item['approverName'] = $name;
 
                 $data[$item['recordID']]['action_history'][] = $item;
@@ -3128,7 +3131,7 @@ class Form
         $vars = array(
             ':recordID' => $recordID,
         );
-        
+
         $res = $this->db->prepared_query(
             'SELECT indicatorID, name, format
                 FROM category_count
@@ -3384,11 +3387,11 @@ class Form
     public function getRecordsByCategory($categoryID)
     {
         $vars = array(':categoryID'=>XSSHelpers::xscrub($categoryID));
-        $data = $this->db->prepared_query('SELECT recordID, title, userID, categoryID, submitted 
+        $data = $this->db->prepared_query('SELECT recordID, title, empUID, categoryID, submitted 
                                             FROM records
                                             JOIN category_count USING (recordID)
                                             WHERE categoryID=:categoryID', $vars);
-        
+
         return $data;
     }
 }

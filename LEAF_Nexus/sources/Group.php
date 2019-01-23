@@ -156,7 +156,7 @@ class Group extends Data
 
         // Give admin to the person creating the group
         // If available, add their position instead of empUID
-        $vars = array(':empUID' => XSSHelpers::xscrub($this->login->getEmpUID()));
+        $vars = array(':empUID' => \XSSHelpers::xscrub($this->login->getEmpUID()));
         $res = $this->db->prepared_query('SELECT * FROM relation_position_employee
                                             WHERE empUID=:empUID', $vars);
 
@@ -175,7 +175,7 @@ class Group extends Data
         {
             $vars = array(':groupID' => $groupID,
                           ':categoryID' => 'employee',
-                          ':UID' => XSSHelpers::xscrub($this->login->getEmpUID()), );
+                          ':UID' => \XSSHelpers::xscrub($this->login->getEmpUID()), );
             $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
                                             	VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
         }
@@ -811,7 +811,7 @@ class Group extends Data
         $this->updateLastModified();
 
         $vars = array(':groupID' => $groupID,
-                      ':employeeID' => XSSHelpers::xscrub($employeeID), );
+                      ':employeeID' => \XSSHelpers::xscrub($employeeID), );
         $this->db->prepared_query('INSERT INTO relation_group_employee (groupID, empUID)
                                     VALUES (:groupID, :employeeID)', $vars);
 
@@ -831,7 +831,7 @@ class Group extends Data
             return 0;
         }
         $vars = array(':groupID' => $groupID,
-                      ':empUID' => XSSHelpers::xscrub($empUID), );
+                      ':empUID' => \XSSHelpers::xscrub($empUID), );
         $this->db->prepared_query('DELETE FROM relation_group_employee
                                     WHERE empUID=:empUID AND groupID=:groupID', $vars);
         $this->updateLastModified();

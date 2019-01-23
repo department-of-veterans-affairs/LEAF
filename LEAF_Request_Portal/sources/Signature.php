@@ -30,15 +30,15 @@ class Signature
             ':stepID' => $stepID,
             ':dependencyID' => $dependencyID,
             ':message' => $message,
-            ':userID' => $this->login->getUserID(),
+            ':empUID' => $this->login->getEmpUID(),
             ':timestamp' => time()
         );
 
         $res = $this->db->prepared_query(
             'INSERT INTO 
-                signatures (signature, recordID, stepID, dependencyID, message, userID, timestamp)
-                VALUES (:signature, :recordID, :stepID, :dependencyID, :message, :userID, :timestamp)
-                ON DUPLICATE KEY UPDATE signature=:signature, message=:message, userID=:userID, timestamp=:timestamp',
+                signatures (signature, recordID, stepID, dependencyID, message, empUID, timestamp)
+                VALUES (:signature, :recordID, :stepID, :dependencyID, :message, :empUID, :timestamp)
+                ON DUPLICATE KEY UPDATE signature=:signature, message=:message, empUID=:empUID, timestamp=:timestamp',
             $vars
         );
 
@@ -125,13 +125,13 @@ class Signature
             );
 
             $nexusDB = $this->login->getNexusDB();
-            $vars = array(':userName' => $res[0]['userID']);
+            $vars = array(':empUID' => $res[0]['empUID']);
             $res2 = $nexusDB->prepared_query(
                 'SELECT * FROM employee 
                 LEFT JOIN employee_data 
                 USING (empUID) 
                 WHERE indicatorID=6 AND 
-                userName=:userName;', $vars);
+                empUID=:empUID;', $vars);
 
             array_push($res[0], $res2[0]);
             array_push($returnArray, $res[0]);

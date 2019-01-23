@@ -61,7 +61,7 @@ class GroupController extends RESTfulResponse
         $this->index['DELETE']->register('group/[digit]/position/[digit]', function ($args) use ($group) {
             return $group->removePosition($args[0], $args[1]);
         });
-        $this->index['DELETE']->register('group/[digit]/employee/[digit]', function ($args) use ($group) {
+        $this->index['DELETE']->register('group/[digit]/employee/[text]', function ($args) use ($group) {
             return $group->removeEmployee($args[0], $args[1]);
         });
         $this->index['DELETE']->register('group/[digit]/tag', function ($args) use ($group) {

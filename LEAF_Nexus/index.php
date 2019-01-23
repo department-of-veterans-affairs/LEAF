@@ -164,6 +164,7 @@ switch ($action) {
             $t_form->assign('summary', $summary);
             $t_form->assign('groups', $employee->listGroups($empUID));
             $t_form->assign('userID', $_SESSION['userID']);
+            $t_form->assign('empUID', $_SESSION['empUID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
             $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
@@ -212,6 +213,7 @@ switch ($action) {
             $t_form->assign('numEmployees', count($summary['employeeList']));
             //$t_form->assign('tags', $position->getAllTags($positionID));
             $t_form->assign('userID', $_SESSION['userID']);
+            $t_form->assign('empUID', $_SESSION['empUID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $login->getDomain());
             $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
@@ -291,6 +293,7 @@ switch ($action) {
         $t_form->assign('empUID', $empUID);
         $t_form->assign('summary', $employee->getSummary($empUID));
         $t_form->assign('userID', $_SESSION['userID']);
+        $t_form->assign('empUID', $_SESSION['empUID']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch('browse_employee.tpl'));
@@ -518,7 +521,7 @@ switch ($action) {
             require 'sources/Position.php';
             $position = new Orgchart\Position($db, $login);
 
-            $currentEmployee = $employee->lookupLogin($login->getUserID());
+            $currentEmployee = $employee->lookupEmpUID($login->getEmpUID());
             $t_form->assign('employee', $currentEmployee);
 
             $employeePositions = $employee->getPositions($currentEmployee[0]['empUID']);
@@ -551,6 +554,7 @@ switch ($action) {
                                                'css/view_group.css', ));
 
             $t_form->assign('userID', $_SESSION['userID']);
+            $t_form->assign('empUID', $_SESSION['empUID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
 

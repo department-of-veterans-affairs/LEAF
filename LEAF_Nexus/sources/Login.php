@@ -237,6 +237,7 @@ class Login
             }
 
             $_SESSION['userID'] = 'SYSTEM';
+            $_SESSION['empUID'] = '';
         }
 
         $var = array(':userID' => $_SESSION['userID']);
@@ -280,7 +281,7 @@ class Login
         							VALUES (:empUID, :firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
     								ON DUPLICATE KEY UPDATE deleted=0', $vars);
 
-            $vars = array(':empUID' => XSSHelpers::xscrub($res[0]['empUID']),
+            $vars = array(':empUID' => \XSSHelpers::xscrub($res[0]['empUID']),
                     ':indicatorID' => 6,
                     ':data' => $res[0]['data'],
                     ':author' => 'viaLogin',
@@ -303,6 +304,7 @@ class Login
         // fallback to guest mode if there's no match
         $this->name = "Guest: {$_SESSION['userID']}";
         $this->userID = $_SESSION['userID'];
+        $this->empUID = '';
         $this->isLogin = true;
         $this->isInDB = false;
         $this->setSession();
@@ -335,7 +337,7 @@ class Login
     {
         if ($empUID == null)
         {
-            $empUID = XSSHelpers::xscrub($this->empUID);
+            $empUID = \XSSHelpers::xscrub($this->empUID);
         }
 
         if (isset($this->cache['getMembership_' . $empUID]))
@@ -345,17 +347,17 @@ class Login
 
         $membership = array();
         // inherit permissions if employee is a backup for someone else
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID));
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
         $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
                                             WHERE backupEmpUID=:empUID
         										AND approved=1', $vars);
-        $temp = XSSHelpers::xscrub($empUID);
+        $temp = \XSSHelpers::xscrub($empUID);
         if (count($res) > 0)
         {
             foreach ($res as $item)
             {
                 //casting as an int to prevent sql injection
-                $scrubEmpUID = XSSHelpers::xscrub($item['empUID']);
+                $scrubEmpUID = \XSSHelpers::xscrub($item['empUID']);
                 $temp .= ",{$scrubEmpUID}";
                 $membership['inheritsFrom'][] = $scrubEmpUID;
             }
@@ -411,7 +413,7 @@ class Login
      */
     public function getIndicatorPrivileges($indicatorIDs, $dataTableUID = '', $UID = 0)
     {
-        $UID = (int)$UID;
+        $UID = \XSSHelpers::xscrub($UID);
         $cacheHash = 'getIndicatorPrivileges' . implode('-', $indicatorIDs) . $dataTableUID . $UID;
         if (isset($this->cache[$cacheHash]))
         {
@@ -555,6 +557,7 @@ class Login
     {
         $_SESSION['name'] = $this->name;
         $_SESSION['userID'] = $this->userID;
+        $_SESSION['empUID'] = $this->empUID;
         $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : bin2hex(random_bytes(32));
     }
 }

@@ -332,7 +332,7 @@ class Position extends Data
 
         $this->updateLastModified();
 
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID),
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID),
                       ':positionID' => $positionID,
                       ':isActing' => ($isActing ? 1 : 0),
         );
@@ -359,7 +359,7 @@ class Position extends Data
             return 0;
         }
 
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID),
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID),
                       ':positionID' => $positionID, );
         $this->db->prepared_query('DELETE FROM relation_position_employee
                                         WHERE positionID=:positionID AND empUID=:empUID', $vars);

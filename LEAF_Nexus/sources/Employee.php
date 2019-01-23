@@ -169,7 +169,7 @@ class Employee extends Data
                 if ($res[0]['data'][5]['data'] != '')
                 {
                     // Phone
-                    $vars = array(':UID' => XSSHelpers::xscrub($empUID),
+                    $vars = array(':UID' => \XSSHelpers::xscrub($empUID),
                                   ':indicatorID' => 5,
                                   ':data' => trim($res[0]['data'][5]['data']),
                                   ':timestamp' => time(),
@@ -180,7 +180,7 @@ class Employee extends Data
                 }
 
                 // Email
-                $vars = array(':UID' => XSSHelpers::xscrub($empUID),
+                $vars = array(':UID' => \XSSHelpers::xscrub($empUID),
                               ':indicatorID' => 6,
                               ':data' => trim($res[0]['data'][6]['data']),
                               ':timestamp' => time(),
@@ -192,7 +192,7 @@ class Employee extends Data
                 if ($res[0]['data'][8]['data'] != '')
                 {
                     // Room
-                    $vars = array(':UID' => XSSHelpers::xscrub($empUID),
+                    $vars = array(':UID' => \XSSHelpers::xscrub($empUID),
                             ':indicatorID' => 8,
                             ':data' => trim($res[0]['data'][8]['data']),
                             ':timestamp' => time(),
@@ -205,7 +205,7 @@ class Employee extends Data
                 if ($res[0]['data'][23]['data'] != '')
                 {
                     // AD Title
-                    $vars = array(':UID' => XSSHelpers::xscrub($empUID),
+                    $vars = array(':UID' => \XSSHelpers::xscrub($empUID),
                                   ':indicatorID' => 23,
                                   ':data' => trim($res[0]['data'][23]['data']),
                                   ':timestamp' => time(),
@@ -237,7 +237,7 @@ class Employee extends Data
             throw new Exception('Administrator access required to disable accounts');
         }
 
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID),
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID),
                       ':time' => time(),
         );
         $res = $this->db->prepared_query('UPDATE employee
@@ -260,7 +260,7 @@ class Employee extends Data
             throw new Exception('Administrator access required to enable accounts');
         }
 
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID),
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID),
                 ':time' => 0,
         );
         $res = $this->db->prepared_query('UPDATE employee
@@ -278,7 +278,7 @@ class Employee extends Data
     public function getSummary($empUID)
     {
         $data = array();
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID));
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
         $res = $this->db->prepared_query('SELECT * FROM employee
                                             LEFT JOIN relation_position_employee USING (empUID)
                                             WHERE empUID=:empUID', $vars);
@@ -298,7 +298,7 @@ class Employee extends Data
      */
     public function getPositions($empUID)
     {
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID));
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
         $res = $this->db->prepared_query('SELECT * FROM relation_position_employee
                                             WHERE empUID=:empUID', $vars);
 
@@ -336,7 +336,7 @@ class Employee extends Data
                     WHERE empUID = :empUID
                     	AND deleted = 0";
 
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID));
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
         $result = $this->db->prepared_query($sql, $vars);
         $this->cache["lookupEmpUID_{$empUID}"] = $result;
 
@@ -529,7 +529,7 @@ class Employee extends Data
         {
             return $this->cache["getBackups_{$empUID}"];
         }
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID));
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
         $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
     										LEFT JOIN employee ON
     											relation_employee_backup.backupEmpUID = employee.empUID 
@@ -550,7 +550,7 @@ class Employee extends Data
         {
             return $this->cache["getBackupsFor_{$empUID}"];
         }
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID));
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
         $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
     										LEFT JOIN employee USING (empUID)
     										WHERE relation_employee_backup.backupEmpUID=:empUID', $vars);
@@ -574,9 +574,9 @@ class Employee extends Data
             throw new Exception('Administrator access required to add new employees');
         }
 
-        $vars = array(':empUID' => XSSHelpers::xscrub($primaryEmpUID),
-                      ':backupEmpUID' => XSSHelpers::xscrub($backupEmpUID),
-                      ':approver' => $this->login->getUserID(), );
+        $vars = array(':empUID' => \XSSHelpers::xscrub($primaryEmpUID),
+                      ':backupEmpUID' => \XSSHelpers::xscrub($backupEmpUID),
+                      ':approver' => \XSSHelpers::xscrub($this->login->getEmpUID()), );
         $res = $this->db->prepared_query('INSERT INTO relation_employee_backup (empUID, backupEmpUID, approved, approverUserName)
 											VALUES (:empUID, :backupEmpUID, 1, :approver)', $vars);
 
@@ -597,8 +597,8 @@ class Employee extends Data
             throw new Exception('Administrator access required to add new employees');
         }
 
-        $vars = array(':empUID' => XSSHelpers::xscrub($primaryEmpUID),
-                      ':backupEmpUID' => XSSHelpers::xscrub($backupEmpUID), );
+        $vars = array(':empUID' => \XSSHelpers::xscrub($primaryEmpUID),
+                      ':backupEmpUID' => \XSSHelpers::xscrub($backupEmpUID), );
         $res = $this->db->prepared_query('DELETE FROM relation_employee_backup
 											WHERE empUID=:empUID AND backupEmpUID=:backupEmpUID', $vars);
 
@@ -612,7 +612,7 @@ class Employee extends Data
      */
     public function listGroups($empUID)
     {
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID));
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
         $res = $this->db->prepared_query('SELECT * FROM relation_group_employee
                                             LEFT JOIN groups USING (groupID)
                                             WHERE empUID=:empUID', $vars);
