@@ -261,7 +261,7 @@ var PortalFormsAPI = function (baseAPIURL) {
          * Set the initiator of the given record.
          * 
          * @param recordID  int                 the record ID to change
-         * @param initiator string              the username to set as initiator
+         * @param initiator string              the empUID to set as initiator
          * @param onSuccess function(results)   callback containing the results object
          * @param onFail    function(err)       callback when query fails
          */

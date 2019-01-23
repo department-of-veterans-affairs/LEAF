@@ -115,7 +115,7 @@ class NationalEmployee extends NationalData
                     WHERE empUID = :empUID
                     	AND deleted = 0";
 
-        $vars = array(':empUID' => XSSHelpers::xscrub($empUID));
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
         $result = $this->db->prepared_query($sql, $vars);
 
         return $result;

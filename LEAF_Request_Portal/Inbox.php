@@ -263,7 +263,7 @@ class Inbox
 
                             $user = $this->dir->lookupEmpUID($empUID);
 
-                            $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
+                            $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['empUID'];
                             $out[$res[$i]['dependencyID']]['approverName'] = $approverName;
                         }
                     }
@@ -271,7 +271,7 @@ class Inbox
                     // dependencyID -2 is for requestor followup
                     if ($res[$i]['dependencyID'] == -2)
                     {
-                        if ($res[$i]['userID'] == $this->login->getUserID())
+                        if ($res[$i]['empUID'] == $this->login->getEmpUID())
                         {
                             $res[$i]['hasAccess'] = true;
                             $out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
@@ -379,13 +379,13 @@ class Inbox
      */
     public function getInboxStatus()
     {
-        $vars = array(':userID' => $this->login->getUserID());
+        $vars = array(':empUID' => $this->login->getEmpUID());
         $res = $this->db->prepared_query('SELECT COUNT(*) FROM records_workflow_state
         									  LEFT JOIN step_dependencies USING (stepID)
         									  LEFT JOIN dependency_privs USING (dependencyID)
         									  LEFT JOIN users USING (groupID)
         									  LEFT JOIN records_dependencies USING (recordID, dependencyID)
-        									  WHERE userID=:userID
+        									  WHERE empUID=:empUID
         										AND filled=0', $vars);
 
         // if the initial search is empty, check for special cases (service chief, quadrad)
@@ -456,7 +456,7 @@ class Inbox
 
                         break;
                     case -2: // dependencyID -2 is for requestor followup
-                        if ($record['userID'] == $this->login->getUserID())
+                        if ($record['empUID'] == $this->login->getEmpUID())
                         {
                             return 1;
                         }
@@ -487,12 +487,12 @@ class Inbox
      */
     public function getInboxCount()
     {
-        $vars = array(':userID' => $this->login->getUserID());
+        $vars = array(':empUID' => $this->login->getEmpUID());
         $res = $this->db->prepared_query('SELECT COUNT(*) FROM records_workflow_state
         									  LEFT JOIN step_dependencies USING (stepID)
         									  LEFT JOIN dependency_privs USING (dependencyID)
         									  LEFT JOIN users USING (groupID)
-        									  WHERE userID=:userID', $vars);
+        									  WHERE empUID=:empUID', $vars);
 
         // if the initial search is empty, check for special cases (service chief, quadrad)
         if ($res[0]['COUNT(*)'] == 0)

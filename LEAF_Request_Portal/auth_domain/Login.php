@@ -204,6 +204,7 @@ class Login
             if (count($res) > 0)
             {
                 $_SESSION['userID'] = $user;
+                $_SESSION['empUID'] = $res[0]['empUID'];
             }
             else
             {
@@ -243,6 +244,7 @@ class Login
         
                     // redirect as usual
                     $_SESSION['userID'] = $res[0]['userName'];
+                    $_SESSION['empUID'] = $res[0]['empUID'];
                 }
                 else
                 {
@@ -293,8 +295,8 @@ class Login
     {
         if (!isset($this->cache['checkGroup']))
         {
-            $var = array(':userID' => $this->userID);
-            $result = $this->userDB->prepared_query('SELECT * FROM users WHERE userID=:userID', $var);
+            $var = array(':empUID' => $this->empUID);
+            $result = $this->userDB->prepared_query('SELECT * FROM users WHERE empUID=:empUID', $var);
 
             foreach ($result as $group)
             {
@@ -328,9 +330,9 @@ class Login
             return $this->cache["isInService$groupID"];
         }
 
-        $var = array(':userID' => $this->userID,
+        $var = array(':empUID' => $this->empUID,
                      ':groupID' => $groupID, );
-        $result = $this->userDB->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID
+        $result = $this->userDB->prepared_query('SELECT * FROM service_chiefs WHERE empUID=:empUID
         											AND serviceID=:groupID
         											AND active=1', $var);
 
@@ -352,9 +354,9 @@ class Login
             return $this->cache['isServiceChief'];
         }
 
-        $var = array(':userID' => $this->userID);
+        $var = array(':empUID' => $this->empUID);
         $result = $this->userDB->prepared_query('SELECT * FROM service_chiefs
-                                            WHERE userID=:userID
+                                            WHERE empUID=:empUID
         										AND active=1', $var);
 
         if (isset($result[0]))
@@ -374,11 +376,11 @@ class Login
         {
             return $this->cache['getQuadradGroupID'];
         }
-        $var = array(':userID' => $this->userID);
+        $var = array(':empUID' => $this->empUID);
         $result = $this->userDB->prepared_query('SELECT * FROM groups
                                             LEFT JOIN users USING (groupID)
                                             WHERE parentGroupID=-1
-                                                AND userID=:userID', $var);
+                                                AND empUID=:empUID', $var);
 
         $buffer = '';
         foreach ($result as $group)
@@ -406,11 +408,11 @@ class Login
             return $this->cache['isQuadrad'];
         }
 
-        $var = array(':userID' => $this->userID);
+        $var = array(':empUID' => $this->empUID);
         $result = $this->userDB->prepared_query('SELECT * FROM groups
                                             LEFT JOIN users USING (groupID)
                                             WHERE parentGroupID=-1
-                                                AND userID=:userID', $var);
+                                                AND empUID=:empUID', $var);
 
         if (isset($result[0]))
         {
@@ -481,9 +483,9 @@ class Login
         $membership['empUID'][$empUID] = 1;
 
         // incorporate groups from local DB
-        $vars = array(':userName' => $this->userID);
+        $vars = array(':empUID' => $this->empUID);
         $res = $this->userDB->prepared_query('SELECT * FROM users
-												WHERE userID = :userName', $vars);
+												WHERE empUID = :empUID', $vars);
         if (count($res) > 0)
         {
             foreach ($res as $item)
@@ -491,9 +493,9 @@ class Login
                 $membership['groupID'][$item['groupID']] = 1;
             }
         }
-        $vars = array(':userName' => $this->userID);
+        $vars = array(':empUID' => $this->empUID);
         $res = $this->userDB->prepared_query('SELECT * FROM service_chiefs
-												WHERE userID = :userName
+												WHERE empUID = :empUID
 													AND active=1', $vars);
         if (count($res) > 0)
         {
@@ -515,6 +517,7 @@ class Login
     {
         $_SESSION['name'] = $this->name;
         $_SESSION['userID'] = $this->userID;
+        $_SESSION['empUID'] = $this->empUID;
         $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : bin2hex(random_bytes(32));
     }
 }

@@ -54,7 +54,7 @@ switch ($action) {
     case 'newform':
         require 'form.php';
         $form = new Form($db, $login);
-        $recordID = $form->newForm($_SESSION['userID']);
+        $recordID = $form->newForm($_SESSION['empUID']);
         if (is_numeric($recordID))
         {   session_write_close();
             header('Location: index.php?a=view&recordID=' . $recordID);
@@ -524,7 +524,7 @@ switch ($action) {
         }
         require 'form.php';
         $form = new Form($db, $login);
-        $form->addTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
+        $form->addTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getEmpUID()));
 
         break;
     case 'removebookmark':
@@ -534,7 +534,7 @@ switch ($action) {
         }
         require 'form.php';
         $form = new Form($db, $login);
-        $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
+        $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getEmpUID()));
 
         break;
     default:

@@ -82,10 +82,10 @@ class Service
     {
         if (is_numeric($groupID) && $member != '')
         {
-            $vars = array(':userID' => $member,
+            $vars = array(':empUID' => $member,
                     ':groupID' => $groupID, );
-            $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, locallyManaged)
-                                                   VALUES (:groupID, :userID, 1)', $vars);
+            $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, empUID, locallyManaged)
+                                                   VALUES (:groupID, :empUID, 1)', $vars);
 
             // check if this service is also an ELT
             $vars = array(':groupID' => $groupID);
@@ -94,10 +94,13 @@ class Service
             // if so, update groups table
             if ($res[0]['groupID'] == $groupID)
             {
-                $vars = array(':userID' => $member,
+                $dir = new VAMC_Directory();
+                $empRes = $dir->lookupEmpUID($member);
+                $vars = array(':empUID' => $member,
+                              ':userID' => $empRes[0]['userID'],
                               ':groupID' => $groupID, );
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-												VALUES (:userID, :groupID)', $vars);
+                $this->db->prepared_query('INSERT INTO users (empUID, userID, groupID)
+												VALUES (:empUID, :userID, :groupID)', $vars);
             }
         }
 
@@ -108,22 +111,22 @@ class Service
     {
         if (is_numeric($groupID) && $member != '')
         {
-            $vars = array(':userID' => $member,
+            $vars = array(':empUID' => $member,
                           ':groupID' => $groupID, );
-            $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
+            $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE empUID=:empUID AND serviceID=:groupID', $vars);
 
             if ($res[0]['locallyManaged'] == 1)
             {
-                $vars = array(':userID' => $member,
+                $vars = array(':empUID' => $member,
                         ':groupID' => $groupID, );
-                $res = $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
+                $res = $this->db->prepared_query('DELETE FROM service_chiefs WHERE empUID=:empUID AND serviceID=:groupID', $vars);
             }
             else
             {
-                $vars = array(':userID' => $member,
+                $vars = array(':empUID' => $member,
                         ':groupID' => $groupID, );
                 $res = $this->db->prepared_query('UPDATE service_chiefs SET active=0, locallyManaged=1
-    												WHERE userID=:userID AND serviceID=:groupID', $vars);
+    												WHERE empUID=:empUID AND serviceID=:groupID', $vars);
             }
 
             // check if this service is also an ELT
@@ -133,10 +136,10 @@ class Service
             // if so, update groups table
             if ($res[0]['groupID'] == $groupID)
             {
-                $vars = array(':userID' => $member,
+                $vars = array(':empUID' => $member,
                         ':groupID' => $groupID, );
                 $this->db->prepared_query('DELETE FROM users
-    										WHERE userID=:userID
+    										WHERE empUID=:empUID
     											AND groupID=:groupID', $vars);
             }
         }
@@ -151,7 +154,7 @@ class Service
             return;
         }
         $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE serviceID=:groupID ORDER BY userID', $vars);
+        $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE serviceID=:groupID ORDER BY empUID', $vars);
 
         $members = array();
         if (count($res) > 0)
@@ -160,7 +163,7 @@ class Service
             $dir = new VAMC_Directory();
             foreach ($res as $member)
             {
-                $dirRes = $dir->lookupLogin($member['userID']);
+                $dirRes = $dir->lookupEmpUID($member['empUID']);
 
                 if (isset($dirRes[0]))
                 {
