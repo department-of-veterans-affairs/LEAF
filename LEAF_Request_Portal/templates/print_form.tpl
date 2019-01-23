@@ -278,7 +278,6 @@ function formatSubQuestions(doc, shift, element) {
 
 function printForm() {
     var doc = new jsPDF();
-    var printAnswers = false;
 
     var specialElementHandlers = {
         '#editor': function (element, renderer) {
@@ -295,10 +294,8 @@ function printForm() {
         right: 0,
         bottom: 0
     };
-    // doc.margins_doc(margin);
-    // var shiftWindow = 0;
-    var questionsPerPage = 5;
-    var questionNum = 0;
+
+    var indicatorData = [];
     var requestTitle = $('#requestTitle').clone();
     requestTitle.find('img').remove();
     requestTitle.find('br').remove();
@@ -312,87 +309,145 @@ function printForm() {
     doc.text($('#requestInfo > table > tbody > tr:eq(1) > td:eq(0)').text() + ' ' + $('#requestInfo > table > tbody > tr:eq(1) > td:eq(1)').text(), 200, 10, null, null, 'right');
     doc.text($('#requestInfo > table > tbody > tr:eq(2) > td:eq(0)').text() + ' ' + $('#requestInfo > table > tbody > tr:eq(2) > td:eq(1)').text(), 200, 17, null, null, 'right');
 
-    $('div.printmainlabel').each(function() {
-        var sensitive = $(this).find('.sensitiveIndicator').length > 0 ? ' *Sensitive' : '';
-        var required = $(this).find('.required').length > 0 ? ' *Required' : '';
-        if (questionNum === questionsPerPage) {
-            doc.addPage();
-            questionNum = 0;
+    function cleanTags(input) {
+        input = input.replace(/(<li>)/ig,"-");
+        input = input.replace(/(<([^>]+)>)/ig,"\n");
+        return input;
+    }
+
+    function makePdf(data) {
+        var shift = 30;
+        var blank = true;
+        var lMargin=15; //left margin in mm
+        var rMargin=15; //right margin in mm
+        var pdfInMM=140;  // width of A4 in mm
+
+        function makeEntry(indicator, depth) {
+            var required = Number(indicator.required) === 1 ? ' *' : '';
+            var number = depth === 0 ? indicator.indicatorID + ': ' : '';
+            if (depth === 0) {
+                shift += 10;
+                doc.setTextColor(255);
+                doc.setDrawColor(0);
+                doc.setFillColor(100,150,205);
+            } else {
+                doc.setDrawColor(0);
+                doc.setFillColor(150, 200, 255);
+            }
+
+            if (shift > height - 30) {
+                doc.addPage();
+                shift = 30;
+            }
+
+            var value = !blank ? cleanTags(indicator.value) : '';
+            var lines = (value.match(/\n/g) || []).length;
+
+            switch (indicator.format) {
+                case 'date':
+                case 'text':
+                    doc.rect(20, shift, 50, 8, 'FD');
+                    doc.rect(70, shift, 120, 8);
+                    doc.text(number + indicator.name + required, 21, shift + 6);
+                    doc.setTextColor(0);
+                    doc.text(value, 75, shift + 6);
+                    shift += 8;
+                    break;
+                case 'textarea':
+                    var test = doc.splitTextToSize(value, (pdfInMM-lMargin-rMargin));
+                    lines = Object.keys(test).length;
+                    var fitSize = !blank ? lines * 6 : 60;
+                    var page = 0;
+                    doc.rect(20, shift, 50, fitSize - 6, 'FD');
+                    doc.rect(70, shift, 120, fitSize - 6);
+                    doc.text(number + indicator.name + required, 21, shift + 6);
+                    doc.setTextColor(0);
+                    if (!blank) {
+                        for (var i = 0; i < test.length; i++) {
+                            if (shift >= height - 30) {
+                                doc.addPage();
+                                if (depth === 0) {
+                                    doc.setTextColor(255);
+                                    doc.setDrawColor(0);
+                                    doc.setFillColor(100,150,205);
+                                } else {
+                                    doc.setDrawColor(0);
+                                    doc.setFillColor(150, 200, 255);
+                                }
+                                page++;
+                                shift = 10;
+                                fitSize = fitSize - (6 * i) + (i * page) + 20;
+                                doc.rect(20, shift, 50, fitSize - 6, 'FD');
+                                doc.rect(70, shift, 120, fitSize - 6);
+                            }
+                            doc.setTextColor(0);
+                            doc.text(test[i], 75, shift + 3);
+                            shift += 6;
+                        }
+                    }
+                    if (page > 0) {
+                        shift += 30;
+                    }
+
+                    break;
+                default:
+                    if (depth > 0) {
+                        doc.setDrawColor(0);
+                        doc.setFillColor(200,200,200);
+                    }
+                    doc.rect(20, shift, 170, 8, 'FD');
+                    doc.text(number + indicator.name + required, 105, shift + 6, null, null, 'center');
+                    shift += 8;
+                    break;
+            }
+            if (indicator.child !== undefined && indicator.child !== null) {
+                $.each(indicator.child, function() {
+                    makeEntry(this, depth + 1);
+                });
+            }
         }
-
-        var shift = 50 * questionNum;
-        doc.setDrawColor(0);
-        doc.setFillColor(0);
-        doc.rect(0, 30 + shift, 1000, 10, 'F');
-        doc.setDrawColor(0);
-        doc.setFillColor(220,220,220);
-        doc.rect(10, 31 + shift, 1000, 9, 'F');
-        doc.setTextColor(0,0,0);
-        doc.setFontStyle("normal");
-        doc.text($('.printheading', this).find('.printsubheading').text(), 14, 37 + shift);
-        doc.text(sensitive + required, 200, 37 + shift, null, null, 'right');
-        doc.setTextColor(255,255,255);
-        doc.setFontStyle("bold");
-        doc.text($('.printcounter', this).text(), 3, 37 + shift);
-        $('.printsubblock', this).each(function() {
-            shift += 50;
-            formatSubQuestions(doc, shift, this, questionNum);
-            questionNum++;
+        $.each(data, function() {
+            makeEntry(this, 0);
         });
-        questionNum++;
-    });
-    // doc.text()
 
-    // var source = $('#formcontent').clone();
-    // source.find('img').remove();
-    // $('#requestInfo').find('tr').each(function() {
-    //     source.find('#requestTitle').append('<div>' + $(this).text() + '</div>');
-    // });
-    // // source.find('#requestTitle').append($('#requestInfo').find('tr').text());
-    // source.find('#requestInfo').remove();
-    // source.find('div.printmainlabel').each(function() {
-    //     var sensitive = $(this).find('.sensitiveIndicator').length > 0 ? '<span style="color: red"> *Sensitive</span>' : '';
-    //     var required = $(this).find('.required').length > 0 ? '<span style="color: red"> *Required</span>' : '';
-    //     // $(this).find('.sensitiveIndicator').remove();
-    //     // console.log($(this).html());
-    //     var text = sensitive === '' ? $('.printResponse', this).text() : $('.sensitiveIndicator', this).find('.printResponse').text();
-    //     var test = printAnswers ? text + '</br></br>' : '</br></br></br></br></br></br></br></br></br></br>';
-    //     $(this).replaceWith(
-    //         // ' '
-    //         '<div>' +
-    //         '<span><b>' + $('.printcounter', this).text() + ':</b>&nbsp;' + $('.printheading > span', this).text() + '</span>' + sensitive + ' ' + required +
-    //         '<div>' + test + '</div>' +
-    //         '</div>'
-    //     );
-    //     // specialElementHandlers['#' + $(this).attr('id')] = function (element, renderer) {
-    //     //     return doc.line(0, 0, width, height);
-    //     // };
-    // });
-    // // doc.line(15, 15, 50, 15); // horizontal line
-    // // doc.setLineWidth(1);
-    //
-    // // source += '<br/>' + $('#requestInfo > table > tbody > tr:eq(1)').html();
-    // // source += '<br/>' + $('#requestInfo > table > tbody > tr:eq(2)').html();
-    //
-    // // $('span.printsubheading').each(function() {
-    // //     source += $(this).html();
-    // // });
-    //
-    // // $('div.sensitiveIndicatorMaskToggle').each(function() {
-    // //     specialElementHandlers['#' + $(this).attr('id')] = function (element, renderer) {
-    // //         return true;
-    // //     }
-    // // });
-    //
-    // doc.fromHTML(source.html(), 15, 0, {
-    //     'width': width,
-    //     'height': height,
-    //     'elementHandlers': specialElementHandlers
-    // },
-    // function(a){
-    //     doc.save('saveInCallback.pdf');
-    // }, margin);
-    doc.save('savedForm.pdf');
+        doc.text('* = required field', 170, shift + 6, null, null, 'right');
+        doc.save('savedForm.pdf');
+    }
+    var indicatorCount = 0;
+    var index = 1;
+    var indicators = new Object();
+    function getIndicatorData(indicator) {
+        $.ajax({
+            method: 'GET',
+            url: './api/form/' + recordID + '/rawIndicator/' + indicator.indicatorID + '/' + indicator.series,
+            dataType: 'json',
+            cache: false
+        }).done(function(res) {
+            if (index === indicatorCount) {
+                makePdf(indicatorData);
+            } else {
+                if ("parentID" in res[index] && res[index].parentID === null) {
+                    indicatorData.push(res[index]);
+                }
+                index++;
+                getIndicatorData(indicators[index][1]);
+            }
+        }).fail(function(err) {
+            console.log(err);
+        });
+    }
+    $.ajax({
+        method: 'GET',
+        url: './api/form/' + recordID + '/data',
+        dataType: 'json',
+        cache: false
+    }).done(function(res) {
+        indicatorCount = Object.keys(res).length;
+        indicators = res;
+        getIndicatorData(indicators[index][1]);
+    }).fail(function(err) {
+        console.log(err);
+    });
 }
 
 function toggleBookmark() {
