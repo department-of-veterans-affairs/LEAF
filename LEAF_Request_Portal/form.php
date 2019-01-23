@@ -578,7 +578,7 @@ class Form
 
 
         $res = $this->db->prepared_query(
-            'SELECT h.recordID, h.indicatorID, h.series, h.data, h.timestamp, h.userID, i.is_sensitive 
+            'SELECT h.recordID, h.indicatorID, h.series, h.data, h.timestamp, h.userID, i.is_sensitive
                 FROM data_history h
                     LEFT JOIN indicator_mask USING (indicatorID)
                     LEFT JOIN indicators i USING (indicatorID)
@@ -1662,8 +1662,8 @@ class Form
             // get a list of records which have categories marked as need-to-know
             $vars = array();
             $query = "
-                SELECT recordID, categoryID, dependencyID, groupID, serviceID, userID, 
-                        indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID 
+                SELECT recordID, categoryID, dependencyID, groupID, serviceID, userID,
+                        indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID
                     FROM records
                     LEFT JOIN category_count USING (recordID)
                     LEFT JOIN categories USING (categoryID)
@@ -2032,7 +2032,7 @@ class Form
                             $parsedDate = strtotime($item['data']);
                             if ($parsedDate !== false)
                             {
-                                $item['data'] = date('n/j/o', $parsedDate);
+                                $item['data'] = date('n/j/y', $parsedDate);
                             }
                         }
                         break;
@@ -2051,14 +2051,14 @@ class Form
                     case 'orgchart_position':
                         $positionTitle = $this->position->getTitle($item['data']);
                         $positionData = $this->position->getAllData($item['data']);
-                        
+
                         $item['dataOrgchart'] = $positionData;
                         $item['dataOrgchart']['positionID'] = $item['data'];
                         $item['data'] = "{$positionTitle} ({$positionData[2]['data']}-{$positionData[13]['data']}-{$positionData[14]['data']})";
                         break;
                     case 'orgchart_group':
                         $groupTitle = $this->group->getTitle($item['data']);
-                        
+
                         $item['data'] = $groupTitle;
                         break;
                     default:
@@ -3128,7 +3128,7 @@ class Form
         $vars = array(
             ':recordID' => $recordID,
         );
-        
+
         $res = $this->db->prepared_query(
             'SELECT indicatorID, name, format
                 FROM category_count
@@ -3137,7 +3137,7 @@ class Form
                 AND format IN ("' . implode('","', $formats) . '")',
             $vars
             );
-        
+
         return $res;
     }
 
@@ -3384,11 +3384,11 @@ class Form
     public function getRecordsByCategory($categoryID)
     {
         $vars = array(':categoryID'=>XSSHelpers::xscrub($categoryID));
-        $data = $this->db->prepared_query('SELECT recordID, title, userID, categoryID, submitted 
+        $data = $this->db->prepared_query('SELECT recordID, title, userID, categoryID, submitted
                                             FROM records
                                             JOIN category_count USING (recordID)
                                             WHERE categoryID=:categoryID', $vars);
-        
+
         return $data;
     }
 }
