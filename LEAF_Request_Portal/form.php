@@ -2032,7 +2032,7 @@ class Form
                             $parsedDate = strtotime($item['data']);
                             if ($parsedDate !== false)
                             {
-                                $item['data'] = date('n/j/y', $parsedDate);
+                                $item['data'] = date('n/j/Y', $parsedDate);
                             }
                         }
                         break;
