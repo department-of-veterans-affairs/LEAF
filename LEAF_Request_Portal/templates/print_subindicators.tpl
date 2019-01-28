@@ -26,9 +26,6 @@
             <!--{else}-->
                 <div id="PHindicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" class="printheading">
             <!--{/if}-->
-            <!--{if $indicator.required == 1}-->
-                <span class="required" style="display: none"></span>
-            <!--{/if}-->
             <div style="float: right">
             <!--{if $date < $indicator.timestamp && $date > 0}-->
                 <img src="../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button" onkeypress="if (event.keyCode==13){ getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->); }"/>&nbsp;
