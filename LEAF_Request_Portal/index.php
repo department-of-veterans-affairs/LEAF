@@ -223,12 +223,6 @@ switch ($action) {
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
         $main->assign('qrcodeURL', urlencode($qrcodeURL));
-        // Read image path, convert to base64 encoding
-        $imageData = base64_encode(file_get_contents($qrcodeURL));
-
-        // Format the image SRC:  data:{mime};base64,{data};
-        $src = 'data: '.mime_content_type($image).';base64,'.$imageData;
-        $main->assign('qrcodeDataURL', urlencode($src));
 
         switch ($action) {
             default:
