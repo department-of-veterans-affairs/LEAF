@@ -452,18 +452,16 @@ var PortalFormEditorAPI = function (baseAPIURL) {
          * @param categoryID    string                  form to associate indicator
          * @param required      int                  1 means required, 0 means not required
          * @param is_sensitive  int                  1 means sensitive, 0 means not sensitive
-         * @param async         boolean              sets async or not, used to wait until indicator is made
          * @param onSuccess     function(success)   callback containing categoryID if action succeeded
          * @param onFail        function(err)       callback when action contains an error
          */
-        createFormIndicator = function (name, format, categoryID, required, is_sensitive, async, onSuccess, onFail) {
+        createFormIndicator = function (name, format, categoryID, required, is_sensitive, onSuccess, onFail) {
             var postURL = apiURL + '/newIndicator';
 
             $.ajax({
                 method: 'POST',
                 url: postURL,
                 dataType: "text",
-                async: async,
                 data: {
                     "name": name,
                     "format": format,
