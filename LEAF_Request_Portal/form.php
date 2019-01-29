@@ -2034,7 +2034,7 @@ class Form
                             $parsedDate = strtotime($item['data']);
                             if ($parsedDate !== false)
                             {
-                                $item['data'] = date('n/j/o', $parsedDate);
+                                $item['data'] = date('n/j/Y', $parsedDate);
                             }
                         }
                         break;
@@ -3140,7 +3140,7 @@ class Form
                 AND format IN ("' . implode('","', $formats) . '")',
             $vars
             );
-        
+
         return $res;
     }
 

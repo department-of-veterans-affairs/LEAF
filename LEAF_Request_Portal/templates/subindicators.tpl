@@ -290,7 +290,7 @@
             <script type="text/javascript">
             formValidator.id<!--{$indicator.indicatorID}--> = {
                     setValidator: function() {
-                    	return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');                 
+                    	return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                     },
                     setValidatorError: function() {
                     	$('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
@@ -683,10 +683,9 @@
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'orgchart_employee' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
-            <button id="btn_removeEmployee_<!--{$indicator.indicatorID}-->" class="buttonNorm" style="display: none">Unassign Employee</button>
             <div id="empSel_<!--{$indicator.indicatorID}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none"></input>
-            
+
             <script>
             $(function() {
                 if($('#<!--{$indicator.indicatorID|strip_tags}-->').val() != '') {
