@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="../../favicon.ico">
+  <link href="../../../libs/uswds-1.6.9/css/uswds.min.css" rel="stylesheet">
+  <link href="../../../libs/uswds-1.6.9/css/bootstrap-grid.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+
+  <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="leaf-app">
+<header class="usa-header usa-header-extended" role="banner">
+  <div class="usa-navbar">
+  <div class="navbar-brand">
+      <img src="img/VA-logo.png" class="logo animated bounceIn" alt="valogo">
+      <a href="#" title="Home"aria-label="Home" class="animated bounceIn">VA</a>
+      <span class="vertical-divider"></span>
+      <a href="#" title="NAVAHCS LEAF Site" aria-label="NAVAHCS LEAF Site">
+         NAVAHCS LEAF Site <span class="sub-title">Prescott, Arizona</span>
+      </a>
+  </div>
+  <button class="usa-menu-btn">Menu</button>
+</div>
+
+  <nav role="navigation" class="usa-nav">
+    <div class="usa-nav-inner">
+      <button class="usa-nav-close">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="usa-nav-secondary">
+
+  <ul class="usa-nav-primary usa-accordion">
+
+    <li>
+      <a href="#" class="usa-nav-link">
+        <span>Home</span>
+      </a>
+    </li>
+
+    <li>
+      <a href="#" class="usa-nav-link">
+        <span>Admin</span>
+      </a>
+    </li>
+    <li><button class="usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="extended-nav-section-one">
+      <span>User: Dastan R</span>
+    </button>
+    <ul id="extended-nav-section-one" class="usa-nav-submenu">
+      <li>
+          <a href="#">Settings</a>
+        </li><li>
+          <a href="#">Profile</a>
+        </li><li>
+          <a href="#">Logout</a>
+        </li>
+      </ul>
+    </li>
+    <li><a class="usa-nav-link btn-help" href="#">
+        <span><i class="fas fa-question"></i> LEAF Help</span></a>
+    </li>
+
+  </ul>
+</div>
+</div>
+  </nav>
+</header>
+<div class="usa-overlay"></div>
+<main id="main-content">
+    <div class="conatiner">
+      <div class="row mr-3">
+      <div class="col col-sm-12 col-md-2 col-lg-2">
+      <nav>
+        <ul class="usa-sidenav-list">
+        <li><a href="#" class="usa-current">Forms Home</a></li>
+        <li><a href="#">Form Library</a></li>
+        <li><a href="#">Import Form</a></li>
+        <li><a href="#">Site Settings</a></li>
+        <li><a href="#">Restore Fields</a></li>
+        </ul>
+    </nav>
+    <div class="icon-key">
+      <h4>Icon Key</h2>
+        <p><i class="fas fa-eye-slash"></i><span>Hidden</span></p>
+        <p><i class="fas fa-lock"></i><span>Locked</span></p>
+        <p><i class="fas fa-paperclip"></i><span>Attachment</span></p>
+        <p><i class="fas fa-bookmark"></i><span>Need to Know</span></p>
+    </div>
+      </div>
+      <div class="col-8 col-sm-12 col-md-10 col-lg-10">
+        <ul class="usa-accordion-bordered">
+            <li>
+              <div>
+              <button class="usa-accordion-button"
+                aria-expanded="true"
+                aria-controls="b-a1">
+                Active Forms
+              </button>
+              <button class="usa-button create-form-btn"><i class="fas fa-plus"></i> Create Form</button>
+            </div>
+              <div id="b-a1" class="usa-accordion-content">
+                <div class="row">
+                <div class="col">
+                <div class="card">
+                  <h4><a href="#">6550 Process</a></h4>
+                  <div class="card-icons">
+                    <a href="#"><i class="fas fa-paperclip"></i></a>
+                    <a href="#"><i class="fas fa-lock"></i></a>
+                  </div>
+                  <div class="card-body">
+                    <p>Authotization for all IT Service Acquisitions</p>
+                  </div>
+                  <div class="card-footer">
+                    <b>Workflow:</b> <span>IT Service</span>
+                  </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="card">
+                <h4><a href="#">Business Card Request</a></h4>
+                <div class="card-icons">
+                  <a href="#"><i class="fas fa-eye-slash"></i></a>
+                </div>
+                <div class="card-body">
+                  <p>Request order business cards</p>
+                </div>
+                <div class="card-footer">
+                  <b>Workflow:</b> <span>Business Cards</span>
+                  <br />
+                  <b>Stapled Forms:</b> <span>Sample Form A</span>
+                </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card">
+              <h4><a href="#">Gov Vehicle Request</a></h4>
+              <div class="card-icons">
+                <a href="#"><i class="fas fa-bookmark"></i></a>
+              </div>
+              <div class="card-body">
+                <p>Employee GOV Requests - NOTE: Volunteer <br />
+                  drivers contact Fleet Services x6414
+                </p>
+              </div>
+              <div class="card-footer">
+                <b>Workflow:</b> <span>Vehicle Request</span>
+              </div>
+          </div>
+        </div>
+        </div>
+        </div>
+      </li>
+      <li>
+        <button class="usa-accordion-button"
+          aria-expanded="true"
+          aria-controls="b-a2">
+          Not in Use / No Workflow Forms
+        </button>
+        <div id="b-a2" class="usa-accordion-content" aria-hidden="false">
+            <div class="row">
+              <div class="col-4">
+                <div class="card">
+                  <h4><a href="#">6550 Process</a></h4>
+                  <div class="card-icons">
+                    <a href="#"><i class="fas fa-paperclip"></i></a>
+                    <a href="#"><i class="fas fa-lock"></i></a>
+                  </div>
+                  <div class="card-body">
+                    <h4><b>John Doe</b></h4>
+                    <p>Architect & Engineer</p>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+          </ul>
+      </div>
+      </div>
+    </div>
+</main>
+</div>
+  <script src="../../../libs/uswds-1.6.9/js/uswds.min.js"></script>
+  <script src="../../../libs/js/vue/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+  <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
