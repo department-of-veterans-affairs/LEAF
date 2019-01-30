@@ -224,7 +224,7 @@ class Login
                 // try to browser detect, since SSO implementation varies
                 if (/*strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
                     || */strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0
-                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') > 0
+                    /*|| strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') > 0*/
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
                 {
