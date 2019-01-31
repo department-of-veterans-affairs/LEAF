@@ -45,6 +45,7 @@ class TruncateTables extends AbstractSeed
         $this->table('service_chiefs')->truncate();
         $this->table('sessions')->truncate();
         $this->table('settings')->truncate();
+        $this->table('signatures')->truncate();
         $this->table('step_dependencies')->truncate();
         $this->table('tags')->truncate();
         $this->table('users')->truncate();
