@@ -32,13 +32,13 @@ final class FormControllerTest extends DatabaseTest
         $results = self::$reqClient->get(array('a' => 'form/1/dataforsigning'));
 
         $this->assertNotNull($results);
-        $this->assertTrue(isset($results['form_id']));
-        $this->assertTrue(isset($results['record_id']));
+        $this->assertTrue(isset($results['formId']));
+        $this->assertTrue(isset($results['recordId']));
         $this->assertTrue(isset($results['indicators']));
 
-        $this->assertEquals('form_f4687', $results['form_id']);
-        $this->assertEquals('1', $results['record_id']);
-        $this->assertEquals('', $results['limit_category']);
+        $this->assertEquals('form_f4687', $results['formId']);
+        $this->assertEquals('1', $results['recordId']);
+        $this->assertEquals('', $results['limitCategory']);
 
         $indicators = $results['indicators'];
         $this->assertEquals(7, sizeof($indicators));
@@ -51,7 +51,7 @@ final class FormControllerTest extends DatabaseTest
         $this->assertEquals('A Very Simple Form', $ind1['name']);
         $this->assertNull($ind1['parentID']);
         $this->assertEquals('0', $ind1['required']);
-        $this->assertEquals('0', $ind1['is_sensitive']);
+        $this->assertEquals('1', $ind1['is_sensitive']);
         $this->assertTrue($ind1['isEmpty']);
         $this->assertEquals('', $ind1['format']);
 
@@ -62,7 +62,7 @@ final class FormControllerTest extends DatabaseTest
         $this->assertEquals('First Name', $ind2['description']);
         $this->assertNull($ind2['parentID']);
         $this->assertEquals('1', $ind2['required']);
-        $this->assertEquals('1', $ind2['is_sensitive']);
+        $this->assertEquals('0', $ind2['is_sensitive']);
         $this->assertFalse($ind2['isEmpty']);
         $this->assertEquals('text', $ind2['format']);
         $this->assertEquals('1520268869', $ind2['timestamp']);
@@ -223,19 +223,19 @@ final class FormControllerTest extends DatabaseTest
         $this->assertEquals('2', $indicators[0]['indicatorID']);
         $this->assertEquals('First Name', $indicators[0]['name']);
         $this->assertEquals('text', $indicators[0]['format']);
-        
+
         $this->assertEquals('3', $indicators[1]['indicatorID']);
         $this->assertEquals('Last Name', $indicators[1]['name']);
         $this->assertEquals('text', $indicators[1]['format']);
-        
+
         $this->assertEquals('4', $indicators[2]['indicatorID']);
         $this->assertEquals('Occupation', $indicators[2]['name']);
         $this->assertEquals('text', $indicators[2]['format']);
-        
+
         $this->assertEquals('5', $indicators[3]['indicatorID']);
         $this->assertEquals('Hobbies', $indicators[3]['name']);
         $this->assertEquals('textarea', $indicators[3]['format']);
-        
+
         $this->assertEquals('7', $indicators[4]['indicatorID']);
         $this->assertEquals('Masked', $indicators[4]['name']);
         $this->assertEquals('text', $indicators[4]['format']);
