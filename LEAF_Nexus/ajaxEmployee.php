@@ -22,7 +22,10 @@ include 'db_mysql.php';
 include 'config.php';
 include './sources/Exception.php';
 include './sources/Employee.php';
-
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 $config = new Orgchart\Config();
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
@@ -44,7 +47,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $uid = isset($_GET['empUID']) && is_numeric($_GET['empUID']) ? $_GET['empUID'] : 0;
+        $uid = isset($_GET['empUID']) ? $_GET['empUID'] : 0;
 
         $t_form->assign('form', $employee->getAllData($_GET['empUID']));
         $t_form->assign('uid', $uid);
@@ -59,7 +62,7 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
-            if (is_numeric($_GET['indicatorID']) && is_numeric($_GET['empUID']))
+            if (is_numeric($_GET['indicatorID']))
             {
                 $t_form->assign('uid', $_GET['empUID']);
                 $t_form->assign('categoryID', $employee->getDataTableCategoryID());
@@ -75,8 +78,8 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('form', $employee->getAllData((int)$_GET['empUID'], (int)$_GET['indicatorID']));
-        $t_form->assign('UID', (int)$_GET['empUID']);
+        $t_form->assign('form', $employee->getAllData(XSSHelpers::xscrub($_GET['empUID']), (int)$_GET['indicatorID']));
+        $t_form->assign('UID', XSSHelpers::xscrub($_GET['empUID']));
         $t_form->assign('categoryID', $employee->getDataTableCategoryID());
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->display('ajaxForm.tpl');

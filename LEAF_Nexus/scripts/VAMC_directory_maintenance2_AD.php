@@ -11,6 +11,11 @@
     + Multiple data sources
     + Buffered inserts for low memory usage
 */
+
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 class VAMC_Directory_maintenance_AD
 {
     private $sortBy = 'Lname';          // Sort by... ?
@@ -268,28 +273,28 @@ class VAMC_Directory_maintenance_AD
                             ON DUPLICATE KEY UPDATE data=:data";
 
                 $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
+                $pq3->bindParam(':empUID', XSSHelpers::xscrub($res[0]['empUID']));
                 $id = 6;
                 $pq3->bindParam(':indicatorID', $id);
                 $pq3->bindParam(':data', $this->users[$key]['email']);
                 $pq3->execute();
 
                 $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
+                $pq3->bindParam(':empUID', XSSHelpers::xscrub($res[0]['empUID']));
                 $id = 5;
                 $pq3->bindParam(':indicatorID', $id);
                 $pq3->bindParam(':data', $this->users[$key]['phone']);
                 $pq3->execute();
 
                 $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
+                $pq3->bindParam(':empUID', XSSHelpers::xscrub($res[0]['empUID']));
                 $id = 8;
                 $pq3->bindParam(':indicatorID', $id);
                 $pq3->bindParam(':data', $this->users[$key]['roomNum']);
                 $pq3->execute();
 
                 $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
+                $pq3->bindParam(':empUID', XSSHelpers::xscrub($res[0]['empUID']));
                 $id = 23;
                 $pq3->bindParam(':indicatorID', $id);
                 $pq3->bindParam(':data', $this->users[$key]['title']);
@@ -299,7 +304,7 @@ class VAMC_Directory_maintenance_AD
                 if ($this->users[$key]['phone'] != $this->users[$key]['mobile'])
                 {
                     $pq3 = $this->db->prepare($sql);
-                    $pq3->bindParam(':empUID', $res[0]['empUID']);
+                    $pq3->bindParam(':empUID', XSSHelpers::xscrub($res[0]['empUID']));
                     $id = 16;
                     $pq3->bindParam(':indicatorID', $id);
                     $pq3->bindParam(':data', $this->users[$key]['mobile']);
@@ -349,7 +354,9 @@ class VAMC_Directory_maintenance_AD
                 $pq->execute();
                 echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
 
-                $lastEmpUID = $this->db->lastInsertId();
+                $vars = array(':userName' => $this->users[$key]['loginName']);
+                $lastEmpUID = $db->prepared_query('SELECT empUID FROM employee
+                                                   WHERE userName=:userName', $vars)[0]['empUID'];
                 if ($pq->errorCode() != '00000')
                 {
                     print_r($pq->errorInfo());
@@ -361,7 +368,7 @@ class VAMC_Directory_maintenance_AD
                             ON DUPLICATE KEY UPDATE data=:data";
 
                 $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $lastEmpUID);
+                $pq3->bindParam(':empUID', XSSHelpers::xscrub($lastEmpUID));
                 $id = 6;
                 $pq3->bindParam(':indicatorID', $id);
                 $pq3->bindParam(':data', $this->users[$key]['email']);

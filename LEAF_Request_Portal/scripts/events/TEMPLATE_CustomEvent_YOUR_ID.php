@@ -62,12 +62,12 @@ class CustomEvent_[YOUR EVENT ID]
                 								WHERE serviceID=:serviceID
         											AND active=1', $vars);
         foreach($chiefs as $chief) {
-            $dirRes = $this->dir->lookupLogin($chief['userID']);
+            $dirRes = $this->dir->lookupEmpUID($chief['empUID']);
             $this->email->addRecipient($dirRes[0]['Email']);
         }
 
         // email original requestor
-        $tmp = $this->dir->lookupLogin($record[0]['userID']);
+        $tmp = $this->dir->lookupEmpUID($record[0]['empUID']);
         $this->email->addRecipient($tmp[0]['Email']);
 
         $this->email->sendMail();

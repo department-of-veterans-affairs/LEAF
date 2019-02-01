@@ -61,17 +61,17 @@ class View
                 $packet['description'] = 'Action';
             }
             $packet['comment'] = $tmp['comment'];
-            if ($tmp['userID'] != '')
+            if ($tmp['empUID'] != '')
             {
-                $user = $dir->lookupLogin($tmp['userID']);
-                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
+                $user = $dir->lookupEmpUID($tmp['empUID']);
+                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['empUID'];
                 $packet['userName'] = $name;
             }
             $result[] = $packet;
         }
 
         $vars = array(':recordID' => $recordID);
-        $res = $this->db->prepared_query('SELECT signatureID, signature, recordID, stepID, dependencyID, userID, timestamp, stepTitle FROM signatures
+        $res = $this->db->prepared_query('SELECT signatureID, signature, recordID, stepID, dependencyID, empUID, timestamp, stepTitle FROM signatures
                                             LEFT JOIN workflow_steps USING (stepID)
 	    									WHERE recordID=:recordID', $vars);
 
@@ -82,10 +82,10 @@ class View
             $packet['description'] = $tmp['stepTitle'] . ': Digitally Signed';
             $packet['comment'] = 'Signature Hash: ' . $tmp['signature'];
 
-            if ($tmp['userID'] != '')
+            if ($tmp['empUID'] != '')
             {
-                $user = $dir->lookupLogin($tmp['userID']);
-                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
+                $user = $dir->lookupEmpUID($tmp['empUID']);
+                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['empUID'];
                 $packet['userName'] = $name;
             }
             $result[] = $packet;
@@ -105,9 +105,9 @@ class View
         return $result;
     }
 
-    public function buildViewBookmarks($userID)
+    public function buildViewBookmarks($empUID)
     {
-        $var = array(':bookmarkID' => 'bookmark_' . $userID);
+        $var = array(':bookmarkID' => 'bookmark_' . $empUID);
 
         $res = $this->db->prepared_query('SELECT * FROM tags
         									LEFT JOIN records USING (recordID)
