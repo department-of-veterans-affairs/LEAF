@@ -605,12 +605,12 @@ function admin_changeInitiator() {
 
         empSel.setSelectHandler(function() {
         	if(empSel.selectionData[empSel.selection] != undefined) {
-        		$('#changeInitiator').val(empSel.selectionData[empSel.selection].userName);
+        		$('#changeInitiator').val(empSel.selectionData[empSel.selection].empUID);
         	}
         });
         empSel.setResultHandler(function() {
         	if(empSel.selectionData[empSel.selection] != undefined) {
-                $('#changeInitiator').val(empSel.selectionData[empSel.selection].userName);
+                $('#changeInitiator').val(empSel.selectionData[empSel.selection].empUID);
             }
         });
         empSel.initialize();

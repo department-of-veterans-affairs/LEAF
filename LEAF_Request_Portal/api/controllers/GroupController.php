@@ -64,7 +64,7 @@ class GroupController extends RESTfulResponse
         });
 
         $this->index['POST']->register('group/[digit]/members', function ($args) use ($group) {
-            return $group->addMember($_POST['userID'], $args[0]);
+            return $group->addMember($_POST['empUID'], $args[0]);
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

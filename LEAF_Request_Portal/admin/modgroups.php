@@ -27,14 +27,14 @@ foreach ($groups as $group)
     echo '<li>' . XSSHelpers::xscrub($group['name']) . ' (groupID#: ' . XSSHelpers::xscrub($group['groupID']) . ')';
 
     $vars = array('groupID' => $group['groupID']);
-    $users = $db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $vars);
+    $users = $db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY empUID', $vars);
     echo '<ul>';
     foreach ($users as $user)
     {
-        $dirdata = $dir->lookupLogin($user['userID']);
+        $dirdata = $dir->lookupEmpUID($user['empUID']);
         if (!isset($dirdata[0]))
         {
-            $sanitizeUser = htmlentities($user['userID']);
+            $sanitizeUser = htmlentities($user['empUID']);
             echo "<li style='color: red; font-weight: bold'>NOT FOUND: {$sanitizeUser}</li>";
         }
         else

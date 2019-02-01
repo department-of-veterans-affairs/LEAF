@@ -388,7 +388,7 @@ abstract class Data
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
                         $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
-                        // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
+                        // $sanitizedFileName = \XSSHelpers::scrubFilename($sanitizedFileName);
                         if (!is_dir(Config::$uploadDir))
                         {
                             mkdir(Config::$uploadDir, 755, true);
@@ -484,7 +484,7 @@ abstract class Data
                               ':indicatorID' => $key,
                               ':data' => trim($_POST[$key]),
                               ':timestamp' => time(),
-                              ':author' => $this->login->getUserID(), );
+                              ':author' => $this->login->getEmpUID(), );
                 $res = $this->db->prepared_query("INSERT INTO {$this->dataTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
                                                                 VALUES (:UID, :indicatorID, :data, :timestamp, :author)
                                                                 ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);

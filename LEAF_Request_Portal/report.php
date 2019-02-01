@@ -84,7 +84,7 @@ switch ($action) {
         $form = new Form($db, $login);
         $o_login = $t_login->fetch('login.tpl');
 
-        $currentEmployee = $form->employee->lookupLogin($login->getUserID());
+        $currentEmployee = $form->employee->lookupEmpUID($login->getEmpUID());
         $employeePositions = $form->employee->getPositions($currentEmployee[0]['empUID']);
         $resolvedService = $form->position->getService($employeePositions[0]['positionID']);
 

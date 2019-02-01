@@ -146,7 +146,7 @@ class PositionController extends RESTfulResponse
                 return $e->getMessage();
             }
         });
-        $this->index['DELETE']->register('position/[digit]/employee/[digit]', function ($args) use ($position) {
+        $this->index['DELETE']->register('position/[digit]/employee/[text]', function ($args) use ($position) {
             return $position->removeEmployee($args[0], $args[1]);
         });
 

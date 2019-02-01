@@ -237,6 +237,7 @@ class Login
             }
 
             $_SESSION['userID'] = 'SYSTEM';
+            $_SESSION['empUID'] = '';
         }
 
         $var = array(':userID' => $_SESSION['userID']);
@@ -267,7 +268,8 @@ class Login
         // add user to local DB
         if (count($res) > 0)
         {
-            $vars = array(':firstName' => $res[0]['firstName'],
+            $vars = array(':empUID' => $res[0]['empUID'],
+                    ':firstName' => $res[0]['firstName'],
                     ':lastName' => $res[0]['lastName'],
                     ':middleName' => $res[0]['middleName'],
                     ':userName' => $res[0]['userName'],
@@ -275,19 +277,11 @@ class Login
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
                     ':lastUpdated' => time(), );
-            $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
-        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
+            $this->db->prepared_query('INSERT INTO employee (empUID, firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
+        							VALUES (:empUID, :firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
     								ON DUPLICATE KEY UPDATE deleted=0', $vars);
-            $empUID = $this->db->getLastInsertID();
 
-            if ($empUID == 0)
-            {
-                $vars = array(':userName' => $res[0]['userName']);
-                $empUID = $this->db->prepared_query('SELECT empUID FROM employee
-                                                   WHERE userName=:userName', $vars)[0]['empUID'];
-            }
-
-            $vars = array(':empUID' => $empUID,
+            $vars = array(':empUID' => \XSSHelpers::xscrub($res[0]['empUID']),
                     ':indicatorID' => 6,
                     ':data' => $res[0]['data'],
                     ':author' => 'viaLogin',
@@ -310,6 +304,7 @@ class Login
         // fallback to guest mode if there's no match
         $this->name = "Guest: {$_SESSION['userID']}";
         $this->userID = $_SESSION['userID'];
+        $this->empUID = '';
         $this->isLogin = true;
         $this->isInDB = false;
         $this->setSession();
@@ -342,7 +337,7 @@ class Login
     {
         if ($empUID == null)
         {
-            $empUID = (int)$this->empUID;
+            $empUID = \XSSHelpers::xscrub($this->empUID);
         }
 
         if (isset($this->cache['getMembership_' . $empUID]))
@@ -352,17 +347,17 @@ class Login
 
         $membership = array();
         // inherit permissions if employee is a backup for someone else
-        $vars = array(':empUID' => $empUID);
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
         $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
                                             WHERE backupEmpUID=:empUID
         										AND approved=1', $vars);
-        $temp = (int)$empUID;
+        $temp = \XSSHelpers::xscrub($empUID);
         if (count($res) > 0)
         {
             foreach ($res as $item)
             {
                 //casting as an int to prevent sql injection
-                $scrubEmpUID = (int)$item['empUID'];
+                $scrubEmpUID = \XSSHelpers::xscrub($item['empUID']);
                 $temp .= ",{$scrubEmpUID}";
                 $membership['inheritsFrom'][] = $scrubEmpUID;
             }
@@ -418,7 +413,7 @@ class Login
      */
     public function getIndicatorPrivileges($indicatorIDs, $dataTableUID = '', $UID = 0)
     {
-        $UID = (int)$UID;
+        $UID = \XSSHelpers::xscrub($UID);
         $cacheHash = 'getIndicatorPrivileges' . implode('-', $indicatorIDs) . $dataTableUID . $UID;
         if (isset($this->cache[$cacheHash]))
         {
@@ -562,6 +557,7 @@ class Login
     {
         $_SESSION['name'] = $this->name;
         $_SESSION['userID'] = $this->userID;
+        $_SESSION['empUID'] = $this->empUID;
         $_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : bin2hex(random_bytes(32));
     }
 }

@@ -12,6 +12,10 @@
 namespace Orgchart;
 
 require_once 'Data.php';
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 
 class Position extends Data
 {
@@ -310,12 +314,12 @@ class Position extends Data
     /**
      * Add employee
      * @param int $positionID
-     * @param int $empUID
+     * @param string $empUID
      * @return string
      */
     public function addEmployee($positionID, $empUID, $isActing = 0)
     {
-        if (!is_numeric($positionID) || !is_numeric($empUID))
+        if (!is_numeric($positionID))
         {
             return 0;
         }
@@ -328,7 +332,7 @@ class Position extends Data
 
         $this->updateLastModified();
 
-        $vars = array(':empUID' => $empUID,
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID),
                       ':positionID' => $positionID,
                       ':isActing' => ($isActing ? 1 : 0),
         );
@@ -341,11 +345,11 @@ class Position extends Data
     /**
      * Remove employee
      * @param int $positionID
-     * @param int $empUID
+     * @param string $empUID
      */
     public function removeEmployee($positionID, $empUID)
     {
-        if (!is_numeric($positionID) || !is_numeric($empUID))
+        if (!is_numeric($positionID))
         {
             return 0;
         }
@@ -355,7 +359,7 @@ class Position extends Data
             return 0;
         }
 
-        $vars = array(':empUID' => $empUID,
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID),
                       ':positionID' => $positionID, );
         $this->db->prepared_query('DELETE FROM relation_position_employee
                                         WHERE positionID=:positionID AND empUID=:empUID', $vars);
