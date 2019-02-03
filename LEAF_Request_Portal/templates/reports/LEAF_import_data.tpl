@@ -116,7 +116,7 @@
     var createdRequests = 0;
     var failedRequests = [];
     var currentIndicators = [];
-    var testIndicators = [];
+    var indicatorArray = [];
     var blankIndicators = [];
     var sheet_data = {};
     var dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
@@ -305,7 +305,7 @@
         var columnSelect = $(document.createElement('td'))
             .append(buildSheetSelect(indicator.indicatorID, sheet_data, indicator.required, indicator.format))
             .appendTo(row);
-        testIndicators.push({'indicatorID': indicator.indicatorID, 'format': indicator.format});
+        indicatorArray.push({'indicatorID': indicator.indicatorID, 'format': indicator.format});
 
         return row;
     }
@@ -623,7 +623,7 @@
                     completed++;
                     answerQuestions();
                 }
-                if (completed === testIndicators.length) {
+                if (completed === indicatorArray.length) {
                     completed = 0;
                     titleIndex++;
                     makeRequests(categorySelect.val(), changeToInitiator, requestData);
@@ -636,12 +636,12 @@
                     }
                 } else {
                     var row = sheet_data.cells[titleIndex];
-                    var indicatorColumn = $('#' + testIndicators[completed].indicatorID + '_sheet_column').val();
+                    var indicatorColumn = $('#' + indicatorArray[completed].indicatorID + '_sheet_column').val();
                     if (indicatorColumn === "-1") {
                         nextQuestion();
                     } else {
-                        var currentIndicator = testIndicators[completed].indicatorID;
-                        var currentFormat = testIndicators[completed].format;
+                        var currentIndicator = indicatorArray[completed].indicatorID;
+                        var currentFormat = indicatorArray[completed].format;
                         switch (currentFormat) {
                             case 'orgchart_employee':
                                 var sheetEmp = row[indicatorColumn] !== undefined && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
@@ -815,7 +815,7 @@
                 function (results) {
                     console.log(results);
                     currentIndicators = results;
-                    testIndicators = new Array();
+                    indicatorArray = new Array();
 
                     for (var i = 0; i < results.length; i++) {
                         var indicator = results[i];
