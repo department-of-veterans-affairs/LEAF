@@ -108,10 +108,10 @@ var NexusEmployeeAPI = function (baseAPIURL) {
          * Import a user from the National Orgchart into the local Nexus
          *
          * @param parameters               object                   parameters that impact XHR
-         * @param userName  string              the userName to import
+         * @param userName                  string              the userName to import
          * @param parameters.onSuccess    function(employees)   the callback containing all fetched users
          * @param parameters.onFail       function(error)     callback when query fails
-         * @param parameters.async       function(error)     determines synchronicity
+         * @param parameters.async       boolean     determines synchronicity
          */
         importFromNational = function(parameters, userName) {
             var fetchURL = apiURL + '/import/_' + userName;
@@ -187,7 +187,7 @@ var NexusGroupsAPI = function (baseAPIURL) {
          * @param group                    string                 The group to search
          * @param parameters.onSuccess    function(employees)   the callback containing all fetched users
          * @param parameters.onFail       function(error)     callback when query fails
-         * @param parameters.async       function(error)     determines synchronicity
+         * @param parameters.async       boolean     determines synchronicity
          */
         searchGroups = function (parameters, group) {
             var fetchURL = apiBaseURL + 'group/search&q=' + group + '&noLimit=0';
@@ -298,7 +298,7 @@ var NexusPositionsAPI = function (baseAPIURL) {
          * @param position                  string                 The position to search
          * @param parameters.onSuccess    function(employees)   the callback containing all fetched users
          * @param parameters.onFail       function(error)     callback when query fails
-         * @param parameters.async       function(error)     determines synchronicity
+         * @param parameters.async       boolean                determines synchronicity
          */
         searchPositions = function (parameters, position) {
             var fetchURL = apiBaseURL + 'position/search&q=' + position + '&noLimit=0';
