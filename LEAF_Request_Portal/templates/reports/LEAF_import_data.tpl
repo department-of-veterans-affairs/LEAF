@@ -134,7 +134,6 @@
 
     function checkFormatNew(e, column) {
         if ($(e.target).val() === 'orgchart_employee') {
-            console.log(column);
             checkFormatExisting(column);
         }
     }
