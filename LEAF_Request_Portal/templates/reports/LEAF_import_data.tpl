@@ -304,6 +304,7 @@
         var columnSelect = $(document.createElement('td'))
             .append(buildSheetSelect(indicator.indicatorID, sheet_data, indicator.required, indicator.format))
             .appendTo(row);
+
         indicatorArray.push({'indicatorID': indicator.indicatorID, 'format': indicator.format});
 
         return row;
