@@ -886,7 +886,6 @@
                                 headers[columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
                             }
                         } else if (typeof (rawSheet[columnNames[j] + (i + 1).toString()]) === "undefined") {
-                            console.log(typeof (rawSheet[columnNames[j] + (i + 1).toString()]));
                             cells[i.toString()][columnNames[j]] = '';
                             blankIndicators.push(columnNames[j]);
                         } else {
