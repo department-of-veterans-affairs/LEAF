@@ -477,7 +477,9 @@
                             var requestData = new Object();
                             var changeToInitiator = null;
                             requestData['title'] = titleInputNew.val() + '_' + titleIndex;
-                            var indicatorArray = Object.values(indicators);
+                            var indicatorArray = Object.keys(indicators).map(function(e) {
+                                return indicators[e]
+                            });
 
                             // iterate through the sheet cells, which are organized by row
                             function answerQuestions() {
