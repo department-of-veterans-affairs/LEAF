@@ -96,10 +96,10 @@
           </nav>
           <div class="icon-key">
             <h4>Icon Key</h4>
-              <p><i class="fas fa-eye-slash"></i><span>Hidden</span></p>
-              <p><i class="fas fa-lock"></i><span>Locked</span></p>
-              <p><i class="fas fa-paperclip"></i><span>Attachment</span></p>
-              <p><i class="fas fa-bookmark"></i><span>Need to Know</span></p>
+            <p><i class="fas fa-eye-slash"></i><span>Hidden</span></p>
+            <p><i class="fas fa-lock"></i><span>Locked</span></p>
+            <p><i class="fas fa-paperclip"></i><span>Attachment</span></p>
+            <p><i class="fas fa-bookmark"></i><span>Need to Know</span></p>
           </div>
         </div>
         <div class="col-8 col-sm-12 col-md-10 col-lg-10">
@@ -111,7 +111,9 @@
                         aria-controls="m-a1">
                   Active Forms
                 </button>
-                <button class="usa-button create-form-btn"><i class="fas fa-plus"></i> Create Form</button>
+                <button class="usa-button create-form-btn" @click="showCreateFormModal()">
+                  <i class="fas fa-plus"></i> Create Form
+                </button>
               </div>
               <div id="m-a1" class="usa-accordion-content">
                 <div class="row">
@@ -190,6 +192,19 @@
               </div>
             </li>
           </ul>
+        </div>
+      </div>
+      <div class="usa-grid-full">
+        <div id="create-form-modal" v-if="displayCreateFormModal" class="create-form-modal" tabindex="-1" role="dialog">
+          <form class="usa-form">
+            <legend>New Form</legend>
+            <label for="input-text-form-name">Form Name</label>
+            <input id="input-text-form-name" name="input-text-form-name" type="text">
+            <label for="input-text-form-description">Form Description</label>
+            <input id="input-text-form-description" name="input-text-form-description" type="text">
+            <button id="create-form-cancel-btn" class="usa-button">Cancel</button>
+            <button id="create-form-submit-btn" class="usa-button">Create New Form</button>
+          </form>
         </div>
       </div>
     </div>

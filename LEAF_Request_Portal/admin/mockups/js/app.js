@@ -13,18 +13,22 @@ Vue.component('line-chart', {
     }, {responsive: true, maintainAspectRatio: false})
   }
 
-})
+});
 
 
 var app = new Vue({
   // app initial state
   el: '.leaf-app',
   data: {
-    isShowing:false
+    isShowing:false,
+    displayCreateFormModal: false
   },
   methods: {
     showAlert: function(event){
       alert('How can I help you!');
+    },
+    showCreateFormModal: function(){
+      this.displayCreateFormModal = !this.displayCreateFormModal;
     }
   }
 });
