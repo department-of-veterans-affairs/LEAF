@@ -331,7 +331,7 @@
         }
     }
 
-    function makeRequests(categoryID, initiator, requestData) {
+    function makeRequests(categoryID, requestData) {
         console.log(requestData);
         var title = $('input[name="toggle"]:checked').attr('id') === 'newFormToggler' ? titleInputNew.val() : titleInputExisting.val();
 
@@ -347,17 +347,6 @@
                     if (recordID > 0) {
                         createdRequests++;
                         requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
-
-                        /*if (changeToInitiator !== undefined && changeToInitiator != null) { */
-                        /* set the initiator so they can see the request associated with their availability */
-                        portalAPI.Forms.setInitiator(
-                            recordID,
-                            initiator,
-                            function (results) {},
-                            function (err) {
-                                console.log(err);
-                            });
-                        /*} */
                     } else {
                         failedRequests.push('Error creating request for the following data: ' + requestData);
                     }
@@ -415,7 +404,6 @@
             var formName = formTitle.val() === '' ? nameOfSheet : formTitle.val();
             var formData = {"name": formName, "description": formDescription.val()};
             var indicators = [];
-            var initiators = {};
             requestStatus.html('Making custom form...');
 
             /* creates custom form */
@@ -475,7 +463,6 @@
                             var titleIndex = 1;
                             var completed = 0;
                             var requestData = new Object();
-                            var changeToInitiator = null;
                             requestData['title'] = titleInputNew.val() + '_' + titleIndex;
                             var indicatorArray = Object.keys(indicators).map(function(e) {
                                 return indicators[e]
@@ -490,7 +477,7 @@
                                 if (completed === indicatorArray.length) {
                                     completed = 0;
                                     titleIndex++;
-                                    makeRequests(categoryID.replace(/"/g, ""), changeToInitiator, requestData);
+                                    makeRequests(categoryID.replace(/"/g, ""), requestData);
                                     if (titleIndex < sheet_data.cells.length) {
 
                                         /* clears requestData object and assigns new title */
@@ -608,15 +595,12 @@
         }
 
         function importExisting() {
-            $('#status').html('Processing...'); /* UI hint
+            $('#status').html('Processing...'); /* UI hint */
 
-            /* who the request initiator will be changed to */
-            var initiators = {};
             requestStatus.html('Parsing sheet data...');
             var titleIndex = 1;
             var completed = 0;
             var requestData = new Object();
-            var changeToInitiator = null;
             requestData['title'] = titleInputExisting.val() + '_' + titleIndex;
 
             /* iterate through the sheet cells, which are organized by row */
@@ -628,7 +612,7 @@
                 if (completed === indicatorArray.length) {
                     completed = 0;
                     titleIndex++;
-                    makeRequests(categorySelect.val(), changeToInitiator, requestData);
+                    makeRequests(categorySelect.val(), requestData);
                     if (titleIndex < sheet_data.cells.length) {
 
                         /* clears requestData object and assigns new title */
