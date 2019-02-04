@@ -140,7 +140,7 @@
 
     function checkFormatExisting(column) {
         for (var i = 1; i < sheet_data.cells.length; i++) {
-            var value = sheet_data.cells[i] !== undefined && sheet_data.cells[i][column] !== undefined ? sheet_data.cells[i][column].toString() : '';
+            var value = typeof sheet_data.cells[i] !== "undefined" && typeof sheet_data.cells[i][column] !== "undefined" ? sheet_data.cells[i][column].toString() : '';
             if (value.indexOf('@va.gov') === -1 && value.indexOf(' ') === -1 && value.indexOf(',') === -1 && value.indexOf('VHA') === -1 && value.indexOf('VACO') === -1) {
                 alert('The column for employees should be either an email, username, or "Last name, First Name".');
                 break;
@@ -334,7 +334,7 @@
         console.log(requestData);
         var title = $('input[name="toggle"]:checked').attr('id') === 'newFormToggler' ? titleInputNew.val() : titleInputExisting.val();
 
-        if (requestData['failed'] !== undefined) {
+        if (typeof requestData['failed'] !== "undefined") {
             failedRequests.push(requestData['failed']);
         } else {
             portalAPI.Forms.newRequest(
@@ -501,12 +501,12 @@
                                     var currentFormat = newFormIndicators.find('tbody > tr:eq(' + completed + ') > td:eq(2) > select > option:selected').val();
                                     switch (currentFormat) {
                                         case 'orgchart_employee':
-                                            var sheetEmp = row[currentCol] !== undefined && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                            var sheetEmp = typeof row[currentCol] !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
                                             nexusAPI.Employee.getByEmailNational({
                                                 'onSuccess': function (user) {
                                                     var res = Object.keys(user);
                                                     var emp = user[res[0]];
-                                                    if (emp !== undefined && emp !== null && res.length === 1) {
+                                                    if (typeof emp !== "undefined" && emp !== null && res.length === 1) {
                                                         nexusAPI.Employee.importFromNational({
                                                             'onSuccess': function (results) {
                                                                 if (results.length === 1) {
@@ -542,7 +542,7 @@
                                             }, sheetEmp);
                                             break;
                                         case 'orgchart_group':
-                                            var sheetGroup = row[currentCol] !== undefined && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                            var sheetGroup = typeof row[currentCol] !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
                                             nexusAPI.Groups.searchGroups({
                                                 'onSuccess': function (groups) {
                                                     if (groups.length === 1) {
@@ -564,7 +564,7 @@
                                             }, sheetGroup);
                                             break;
                                         case 'orgchart_position':
-                                            var sheetPosition = row[currentCol] !== undefined && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                            var sheetPosition = typeof row[currentCol] !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
                                             nexusAPI.Positions.searchPositions({
                                                 'onSuccess': function (positions) {
                                                     if (positions.length === 1) {
@@ -643,12 +643,12 @@
                         var currentFormat = indicatorArray[completed].format;
                         switch (currentFormat) {
                             case 'orgchart_employee':
-                                var sheetEmp = row[indicatorColumn] !== undefined && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
+                                var sheetEmp = typeof row[indicatorColumn] !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
                                 nexusAPI.Employee.getByEmailNational({
                                     'onSuccess': function (user) {
                                         var res = Object.keys(user);
                                         var emp = user[res[0]];
-                                        if (emp !== undefined && emp !== null && res.length === 1) {
+                                        if (typeof emp !== "undefined" && emp !== null && res.length === 1) {
                                             nexusAPI.Employee.importFromNational({
                                                 'onSuccess': function (results) {
                                                     if (results.length === 1) {
@@ -684,7 +684,7 @@
                                 }, sheetEmp);
                                 break;
                             case 'orgchart_group':
-                                var sheetGroup = row[indicatorColumn] !== undefined && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
+                                var sheetGroup = typeof row[indicatorColumn] !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
                                 nexusAPI.Groups.searchGroups({
                                     'onSuccess': function (groups) {
                                         if (groups.length === 1) {
@@ -706,7 +706,7 @@
                                     }, sheetGroup);
                                 break;
                             case 'orgchart_position':
-                                var sheetPosition = row[indicatorColumn] !== undefined && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
+                                var sheetPosition = typeof row[indicatorColumn] !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
                                 nexusAPI.Positions.searchPositions({
                                     'onSuccess': function (positions) {
                                         if (positions.length === 1) {
@@ -766,10 +766,10 @@
 
         //  build the rows for the given indicator data, also processes its children if present
         function buildRows(indicator) {
-            if (indicator !== undefined && indicator !== null) {
+            if (typeof indicator !== "undefined" && indicator !== null) {
                 categoryIndicators.append(buildIndicatorRow(indicator));
 
-                if (indicator.child != undefined && indicator.child != null) {
+                if (typeof indicator.child !== "undefined" && indicator.child != null) {
                     var children = Object.keys(indicator.child);
                     for (var i = 0; i < children.length; i++) {
                         var child = indicator.child[children[i]];
@@ -857,7 +857,7 @@
                 var rawSheet = returnedJSON.Sheets[nameOfSheet];
 
                 // insures spreadsheet has filename
-                if(rawSheet === undefined){
+                if(typeof rawSheet === "undefined"){
                     toggler.attr('style', 'display: none;');
                     existingForm.css('display', 'none');
                     newForm.css('display', 'none');
@@ -877,12 +877,12 @@
                     }
                     for (var j = 0; j < columnNames.length; j++) {
                         if (i === 0){
-                            if (rawSheet[columnNames[j] + (i + 1).toString()] === undefined) {
+                            if (typeof rawSheet[columnNames[j] + (i + 1).toString()] === "undefined") {
                                 console.log('Header at column ' + columnNames[j] + ' is ' + rawSheet[columnNames[j] + (i + 1).toString()]);
                             } else {
                                 headers[columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
                             }
-                        } else if (rawSheet[columnNames[j] + (i + 1).toString()] === undefined) {
+                        } else if (typeof rawSheet[columnNames[j] + (i + 1).toString()] === "undefined") {
                             cells[i.toString()][columnNames[j]] = '';
                             blankIndicators.push(columnNames[j]);
                         } else {
