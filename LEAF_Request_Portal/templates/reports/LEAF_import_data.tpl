@@ -140,7 +140,7 @@
 
     function checkFormatExisting(column) {
         for (var i = 1; i < sheet_data.cells.length; i++) {
-            var value = typeof sheet_data.cells[i] !== "undefined" && typeof sheet_data.cells[i][column] !== "undefined" ? sheet_data.cells[i][column].toString() : '';
+            var value = typeof (sheet_data.cells[i]) !== "undefined" && typeof (sheet_data.cells[i][column]) !== "undefined" ? sheet_data.cells[i][column].toString() : '';
             if (value.indexOf('@va.gov') === -1 && value.indexOf(' ') === -1 && value.indexOf(',') === -1 && value.indexOf('VHA') === -1 && value.indexOf('VACO') === -1) {
                 alert('The column for employees should be either an email, username, or "Last name, First Name".');
                 break;
@@ -235,8 +235,8 @@
         }
     }
 
-    // build the select input with options for the given indicator
-    // the indicatorID corresponds to the select input id
+    /* build the select input with options for the given indicator
+    the indicatorID corresponds to the select input id */
     function buildSheetSelect(indicatorID, sheetData, required, format) {
         var select = $(document.createElement('select'))
             .attr('id', indicatorID + '_sheet_column')
@@ -246,14 +246,14 @@
             select.attr('onchange', 'searchBlankRow(event);');
         }
 
-        // "blank" option
+        /* "blank" option */
         var option = $(document.createElement('option'))
             .attr('value', '-1')
             .html('');
 
         select.append(option);
 
-        // the value of each option is the column header, which is the key of the sheetData.headers object
+        /* the value of each option is the column header, which is the key of the sheetData.headers object */
         var keys = Object.keys(sheetData.headers);
         for (var i = 0; i < keys.length; i++) {
             var option = $(document.createElement('option'))
@@ -269,7 +269,7 @@
         return select;
     }
 
-    // build the table row and data (<tr> and <td>) for the given indicator
+    /* build the table row and data (<tr> and <td>) for the given indicator */
     function buildIndicatorRow(indicator) {
         if (indicator.format === '') {
             return '';
@@ -335,7 +335,7 @@
         console.log(requestData);
         var title = $('input[name="toggle"]:checked').attr('id') === 'newFormToggler' ? titleInputNew.val() : titleInputExisting.val();
 
-        if (typeof requestData['failed'] !== "undefined") {
+        if (typeof (requestData['failed']) !== "undefined") {
             failedRequests.push(requestData['failed']);
         } else {
             portalAPI.Forms.newRequest(
@@ -343,13 +343,13 @@
                 requestData,
                 function (recordID) {
 
-                    // recordID is the recordID of the newly created request, it's 0 if there was an error
+                    /* recordID is the recordID of the newly created request, it's 0 if there was an error */
                     if (recordID > 0) {
                         createdRequests++;
                         requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
 
-                        //if (changeToInitiator !== undefined && changeToInitiator != null) {
-                        // set the initiator so they can see the request associated with their availability
+                        /*if (changeToInitiator !== undefined && changeToInitiator != null) { */
+                        /* set the initiator so they can see the request associated with their availability */
                         portalAPI.Forms.setInitiator(
                             recordID,
                             initiator,
@@ -357,7 +357,7 @@
                             function (err) {
                                 console.log(err);
                             });
-                        //}
+                        /*} */
                     } else {
                         failedRequests.push('Error creating request for the following data: ' + requestData);
                     }
@@ -390,7 +390,7 @@
 
     $(function () {
 
-        //builds select options of workflows
+        /*builds select options of workflows */
         portalAPI.Workflow.getAllWorkflows(
             function(msg) {
                 if(msg.length > 0) {
@@ -409,7 +409,7 @@
         );
 
         function importNew() {
-            $('#status').html('Processing...'); // UI hint
+            $('#status').html('Processing...'); /* UI hint */
             var newFormIndicators = $('#new_form_indicators');
             var workflowID = $('#workflowID > option:selected').val();
             var formName = formTitle.val() === '' ? nameOfSheet : formTitle.val();
@@ -418,7 +418,7 @@
             var initiators = {};
             requestStatus.html('Making custom form...');
 
-            //creates custom form
+            /* creates custom form */
             portalAPI.FormEditor.createCustomForm(
                 formData.name,
                 formData.description,
@@ -429,7 +429,7 @@
                             workflowID,
                             function (msg) {
                                 requestStatus.html('Workflow assigned...');
-                                // console.log(msg);
+                                /* console.log(msg); */
                             },
                             function (err) {
                                 console.log(err);
@@ -440,7 +440,7 @@
                     var formCreationIndex = 0;
                     var indicatorTableRows = newFormIndicators.children('tbody').find('tr');
 
-                    //parses user's input and makes an indicator for each row of the table
+                    /* parses user's input and makes an indicator for each row of the table */
                     function makeIndicator() {
                         var indicatorObj = new Object();
                         indicatorObj.name = $("td:eq(1)", indicatorTableRows[formCreationIndex]).html();
@@ -448,8 +448,8 @@
                         indicatorObj.required = $("td:eq(3) > input", indicatorTableRows[formCreationIndex]).is(":checked") === true ? 1 : 0;
                         indicatorObj.is_sensitive = $("td:eq(4) > input", indicatorTableRows[formCreationIndex]).is(":checked") === true ? 1 : 0;
 
-                        //creates indicator from indicatorObj
-                        //when all indicators are parsed, moves on to next step of filling out requests
+                        /* creates indicator from indicatorObj */
+                        /* when all indicators are parsed, moves on to next step of filling out requests */
                         if (formCreationIndex < indicatorTableRows.length) {
                             portalAPI.FormEditor.createFormIndicator(
                                 indicatorObj.name,
@@ -458,7 +458,7 @@
                                 indicatorObj.required,
                                 indicatorObj.is_sensitive,
                                 function (indicatorID) {
-                                    //adds index by 1, pushes indicator to array, makes next indicator
+                                    /* adds index by 1, pushes indicator to array, makes next indicator */
                                     formCreationIndex++;
                                     indicators.push(indicatorID.replace(/"/g, ""));
                                     requestStatus.html(indicators.length.toString() + ' out of ' + indicatorTableRows.length + ' questions added.');
@@ -481,7 +481,7 @@
                                 return indicators[e]
                             });
 
-                            // iterate through the sheet cells, which are organized by row
+                            /* iterate through the sheet cells, which are organized by row */
                             function answerQuestions() {
                                 function nextQuestion() {
                                     completed++;
@@ -493,7 +493,7 @@
                                     makeRequests(categoryID.replace(/"/g, ""), changeToInitiator, requestData);
                                     if (titleIndex < sheet_data.cells.length) {
 
-                                        // clears requestData object and assigns new title
+                                        /* clears requestData object and assigns new title */
                                         requestData = {};
                                         requestData['title'] = titleInputNew.val() + '_' + titleIndex;
                                         answerQuestions();
@@ -504,12 +504,12 @@
                                     var currentFormat = newFormIndicators.find('tbody > tr:eq(' + completed + ') > td:eq(2) > select > option:selected').val();
                                     switch (currentFormat) {
                                         case 'orgchart_employee':
-                                            var sheetEmp = typeof row[currentCol] !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                            var sheetEmp = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
                                             nexusAPI.Employee.getByEmailNational({
                                                 'onSuccess': function (user) {
                                                     var res = Object.keys(user);
                                                     var emp = user[res[0]];
-                                                    if (typeof emp !== "undefined" && emp !== null && res.length === 1) {
+                                                    if (typeof (emp) !== "undefined" && emp !== null && res.length === 1) {
                                                         nexusAPI.Employee.importFromNational({
                                                             'onSuccess': function (results) {
                                                                 if (results.length === 1) {
@@ -545,7 +545,7 @@
                                             }, sheetEmp);
                                             break;
                                         case 'orgchart_group':
-                                            var sheetGroup = typeof row[currentCol] !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                            var sheetGroup = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
                                             nexusAPI.Groups.searchGroups({
                                                 'onSuccess': function (groups) {
                                                     if (groups.length === 1) {
@@ -567,7 +567,7 @@
                                             }, sheetGroup);
                                             break;
                                         case 'orgchart_position':
-                                            var sheetPosition = typeof row[currentCol] !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                            var sheetPosition = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
                                             nexusAPI.Positions.searchPositions({
                                                 'onSuccess': function (positions) {
                                                     if (positions.length === 1) {
@@ -608,9 +608,9 @@
         }
 
         function importExisting() {
-            $('#status').html('Processing...'); // UI hint
+            $('#status').html('Processing...'); /* UI hint
 
-            // who the request initiator will be changed to
+            /* who the request initiator will be changed to */
             var initiators = {};
             requestStatus.html('Parsing sheet data...');
             var titleIndex = 1;
@@ -619,7 +619,7 @@
             var changeToInitiator = null;
             requestData['title'] = titleInputExisting.val() + '_' + titleIndex;
 
-            // iterate through the sheet cells, which are organized by row
+            /* iterate through the sheet cells, which are organized by row */
             function answerQuestions() {
                 function nextQuestion() {
                     completed++;
@@ -631,7 +631,7 @@
                     makeRequests(categorySelect.val(), changeToInitiator, requestData);
                     if (titleIndex < sheet_data.cells.length) {
 
-                        // clears requestData object and assigns new title
+                        /* clears requestData object and assigns new title */
                         requestData = {};
                         requestData['title'] = titleInputExisting.val() + '_' + titleIndex;
                         answerQuestions();
@@ -646,12 +646,12 @@
                         var currentFormat = indicatorArray[completed].format;
                         switch (currentFormat) {
                             case 'orgchart_employee':
-                                var sheetEmp = typeof row[indicatorColumn] !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
+                                var sheetEmp = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
                                 nexusAPI.Employee.getByEmailNational({
                                     'onSuccess': function (user) {
                                         var res = Object.keys(user);
                                         var emp = user[res[0]];
-                                        if (typeof emp !== "undefined" && emp !== null && res.length === 1) {
+                                        if (typeof (emp) !== "undefined" && emp !== null && res.length === 1) {
                                             nexusAPI.Employee.importFromNational({
                                                 'onSuccess': function (results) {
                                                     if (results.length === 1) {
@@ -687,7 +687,7 @@
                                 }, sheetEmp);
                                 break;
                             case 'orgchart_group':
-                                var sheetGroup = typeof row[indicatorColumn] !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
+                                var sheetGroup = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
                                 nexusAPI.Groups.searchGroups({
                                     'onSuccess': function (groups) {
                                         if (groups.length === 1) {
@@ -709,7 +709,7 @@
                                     }, sheetGroup);
                                 break;
                             case 'orgchart_position':
-                                var sheetPosition = typeof row[indicatorColumn] !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
+                                var sheetPosition = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
                                 nexusAPI.Positions.searchPositions({
                                     'onSuccess': function (positions) {
                                         if (positions.length === 1) {
@@ -744,7 +744,7 @@
 
         portalAPI.Forms.getAllForms(
             function (results) {
-                // build a select options for each form
+                /* build a select options for each form */
                 var opt = $(document.createElement('option'))
                     .attr('value', '-1')
                     .html('');
@@ -767,12 +767,12 @@
         );
 
 
-        //  build the rows for the given indicator data, also processes its children if present
+        /*  build the rows for the given indicator data, also processes its children if present */
         function buildRows(indicator) {
-            if (typeof indicator !== "undefined" && indicator !== null) {
+            if (typeof (indicator) !== "undefined" && indicator !== null) {
                 categoryIndicators.append(buildIndicatorRow(indicator));
 
-                if (typeof indicator.child !== "undefined" && indicator.child != null) {
+                if (typeof (indicator.child) !== "undefined" && indicator.child != null) {
                     var children = Object.keys(indicator.child);
                     for (var i = 0; i < children.length; i++) {
                         var child = indicator.child[children[i]];
@@ -841,7 +841,7 @@
                 var cells = [];
                 var data = new Uint8Array(e.target.result);
 
-                // passes file through js-xlsx library
+                /* passes file through js-xlsx library */
                 try {
                     var returnedJSON = XLSX.read(data, {type: 'array'});
                 }
@@ -855,12 +855,12 @@
                 }
                 nameOfSheet = returnedJSON.SheetNames[0];
 
-                // conforms js-xlsx schema to LEAFPortalApi.js schema
-                // sheet data is stored in the Sheets property under filename
+                /* conforms js-xlsx schema to LEAFPortalApi.js schema
+                sheet data is stored in the Sheets property under filename */
                 var rawSheet = returnedJSON.Sheets[nameOfSheet];
 
-                // insures spreadsheet has filename
-                if(typeof rawSheet === "undefined"){
+                /* insures spreadsheet has filename */
+                if(typeof (rawSheet) === "undefined"){
                     toggler.attr('style', 'display: none;');
                     existingForm.css('display', 'none');
                     newForm.css('display', 'none');
@@ -868,24 +868,25 @@
                     return;
                 }
 
-                // reads layout of sheet
+                /* reads layout of sheet */
                 var columnNames = _buildColumnsArray(rawSheet['!ref']);
                 var rows = parseInt(rawSheet['!ref'].substring(rawSheet['!ref'].indexOf(':'), rawSheet['!ref'].length).replace(/:[A-Z]/g, '')) - 1;
                 var headers = new Object();
 
-                // converts schema
+                /* converts schema */
                 for(var i = 0; i <= rows; i++) {
                     if(i !== 0){
                         cells[i.toString()] = {};
                     }
                     for (var j = 0; j < columnNames.length; j++) {
                         if (i === 0){
-                            if (typeof rawSheet[columnNames[j] + (i + 1).toString()] === "undefined") {
+                            if (typeof (rawSheet[columnNames[j] + (i + 1).toString()]) === "undefined") {
                                 console.log('Header at column ' + columnNames[j] + ' is ' + rawSheet[columnNames[j] + (i + 1).toString()]);
                             } else {
                                 headers[columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
                             }
-                        } else if (typeof rawSheet[columnNames[j] + (i + 1).toString()] === "undefined") {
+                        } else if (typeof (rawSheet[columnNames[j] + (i + 1).toString()]) === "undefined") {
+                            console.log(typeof (rawSheet[columnNames[j] + (i + 1).toString()]));
                             cells[i.toString()][columnNames[j]] = '';
                             blankIndicators.push(columnNames[j]);
                         } else {
