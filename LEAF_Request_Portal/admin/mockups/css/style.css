@@ -275,3 +275,15 @@ a.stat-links{
   position: relative;
   top: -34px;
 }
+
+
+/* Form Editor */
+
+#form-editor-container{
+    border: solid;
+    padding: 1rem;
+}
+
+#form-editor-container #form-editor-layout .row{
+    margin-bottom: 2rem;
+}

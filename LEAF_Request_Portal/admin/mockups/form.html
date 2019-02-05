@@ -8,6 +8,7 @@
   <link rel="icon" href="../../favicon.ico">
   <link href="../../../libs/uswds-1.6.9/css/uswds.min.css" rel="stylesheet">
   <link href="../../../libs/uswds-1.6.9/css/bootstrap-grid.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../../libs/js/vue/vue-js-modal/styles.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
 
@@ -82,131 +83,132 @@
 
   <div class="usa-overlay"></div>
   <main id="main-content">
-    <div class="container">
-      <div class="row mr-3">
-        <div class="col col-sm-12 col-md-2 col-lg-2">
-          <nav>
-            <ul class="usa-sidenav-list">
-              <li><a href="#" class="usa-current">Forms Home</a></li>
-              <li><a href="#">Form Library</a></li>
-              <li><a href="#">Import Form</a></li>
-              <li><a href="#">Site Settings</a></li>
-              <li><a href="#">Restore Fields</a></li>
-            </ul>
-          </nav>
-          <div class="icon-key">
-            <h4>Icon Key</h4>
-            <p><i class="fas fa-eye-slash"></i><span>Hidden</span></p>
-            <p><i class="fas fa-lock"></i><span>Locked</span></p>
-            <p><i class="fas fa-paperclip"></i><span>Attachment</span></p>
-            <p><i class="fas fa-bookmark"></i><span>Need to Know</span></p>
-          </div>
-        </div>
-        <div class="col-8 col-sm-12 col-md-10 col-lg-10">
-          <ul class="usa-accordion-bordered" aria-multiselectable="true">
-            <li>
-              <div>
-                <button class="usa-accordion-button"
-                        aria-expanded="true"
-                        aria-controls="m-a1">
-                  Active Forms
-                </button>
-                <button class="usa-button create-form-btn" @click="showCreateFormModal()">
-                  <i class="fas fa-plus"></i> Create Form
-                </button>
-              </div>
-              <div id="m-a1" class="usa-accordion-content">
-                <div class="row">
-                  <div class="col">
-                    <div class="card">
-                      <h4><a href="#">6550 Process</a></h4>
-                      <div class="card-icons">
-                        <a href="#"><i class="fas fa-paperclip"></i></a>
-                        <a href="#"><i class="fas fa-lock"></i></a>
-                      </div>
-                      <div class="card-body">
-                        <p>Authotization for all IT Service Acquisitions</p>
-                      </div>
-                      <div class="card-footer">
-                        <b>Workflow:</b> <span>IT Service</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="card">
-                      <h4><a href="#">Business Card Request</a></h4>
-                      <div class="card-icons">
-                        <a href="#"><i class="fas fa-eye-slash"></i></a>
-                      </div>
-                      <div class="card-body">
-                        <p>Request order business cards</p>
-                      </div>
-                      <div class="card-footer">
-                        <b>Workflow:</b> <span>Business Cards</span>
-                        <br/>
-                        <b>Stapled Forms:</b> <span>Sample Form A</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="card">
-                      <h4><a href="#">Gov Vehicle Request</a></h4>
-                      <div class="card-icons">
-                        <a href="#"><i class="fas fa-bookmark"></i></a>
-                      </div>
-                      <div class="card-body">
-                        <p>Employee GOV Requests - NOTE: Volunteer <br/>
-                          drivers contact Fleet Services x6414
-                        </p>
-                      </div>
-                      <div class="card-footer">
-                        <b>Workflow:</b> <span>Vehicle Request</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li>
-              <button class="usa-accordion-button"
-                      aria-expanded="true"
-                      aria-controls="m-a2">
-                Not in Use / No Workflow Forms
-              </button>
-              <div id="m-a2" class="usa-accordion-content" aria-hidden="false">
-                <div class="row">
-                  <div class="col-4">
-                    <div class="card">
-                      <h4><a href="#">6550 Process</a></h4>
-                      <div class="card-icons">
-                        <a href="#"><i class="fas fa-paperclip"></i></a>
-                        <a href="#"><i class="fas fa-lock"></i></a>
-                      </div>
-                      <div class="card-body">
-                        <h4><b>John Doe</b></h4>
-                        <p>Architect & Engineer</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
+    <div class="row mr-3">
+      <div class="col col-sm-12 col-md-2 col-lg-2">
+        <nav>
+          <ul class="usa-sidenav-list">
+            <li><a href="#" class="usa-current">Forms Home</a></li>
+            <li><a href="#">Form Library</a></li>
+            <li><a href="#">Import Form</a></li>
+            <li><a href="#">Site Settings</a></li>
+            <li><a href="#">Restore Fields</a></li>
           </ul>
+        </nav>
+        <div class="icon-key">
+          <h4>Icon Key</h4>
+          <p><i class="fas fa-eye-slash"></i><span>Hidden</span></p>
+          <p><i class="fas fa-lock"></i><span>Locked</span></p>
+          <p><i class="fas fa-paperclip"></i><span>Attachment</span></p>
+          <p><i class="fas fa-bookmark"></i><span>Need to Know</span></p>
         </div>
       </div>
-      <div class="usa-grid-full">
-        <div id="create-form-modal" v-if="displayCreateFormModal" class="create-form-modal" tabindex="-1" role="dialog">
-          <form class="usa-form">
+      <div class="col-8 col-sm-12 col-md-10 col-lg-10">
+        <ul class="usa-accordion-bordered" aria-multiselectable="true">
+          <li>
+            <div>
+              <button class="usa-accordion-button"
+                      aria-expanded="true"
+                      aria-controls="m-a1">
+                Active Forms
+              </button>
+              <button class="usa-button create-form-btn" @click="showCreateFormModal()">
+                <i class="fas fa-plus"></i> Create Form
+              </button>
+            </div>
+            <div id="m-a1" class="usa-accordion-content">
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <h4><a href="#">6550 Process</a></h4>
+                    <div class="card-icons">
+                      <a href="#"><i class="fas fa-paperclip"></i></a>
+                      <a href="#"><i class="fas fa-lock"></i></a>
+                    </div>
+                    <div class="card-body">
+                      <p>Authotization for all IT Service Acquisitions</p>
+                    </div>
+                    <div class="card-footer">
+                      <b>Workflow:</b> <span>IT Service</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card">
+                    <h4><a href="#">Business Card Request</a></h4>
+                    <div class="card-icons">
+                      <a href="#"><i class="fas fa-eye-slash"></i></a>
+                    </div>
+                    <div class="card-body">
+                      <p>Request order business cards</p>
+                    </div>
+                    <div class="card-footer">
+                      <b>Workflow:</b> <span>Business Cards</span>
+                      <br/>
+                      <b>Stapled Forms:</b> <span>Sample Form A</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card">
+                    <h4><a href="#">Gov Vehicle Request</a></h4>
+                    <div class="card-icons">
+                      <a href="#"><i class="fas fa-bookmark"></i></a>
+                    </div>
+                    <div class="card-body">
+                      <p>Employee GOV Requests - NOTE: Volunteer <br/>
+                        drivers contact Fleet Services x6414
+                      </p>
+                    </div>
+                    <div class="card-footer">
+                      <b>Workflow:</b> <span>Vehicle Request</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <button class="usa-accordion-button"
+                    aria-expanded="true"
+                    aria-controls="m-a2">
+              Not in Use / No Workflow Forms
+            </button>
+            <div id="m-a2" class="usa-accordion-content" aria-hidden="false">
+              <div class="row">
+                <div class="col-4">
+                  <div class="card">
+                    <h4><a href="#">6550 Process</a></h4>
+                    <div class="card-icons">
+                      <a href="#"><i class="fas fa-paperclip"></i></a>
+                      <a href="#"><i class="fas fa-lock"></i></a>
+                    </div>
+                    <div class="card-body">
+                      <h4><b>John Doe</b></h4>
+                      <p>Architect & Engineer</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="usa-grid-full">
+      <modal name="create-form-modal" draggable="#create-form-modal-container" resizable>
+        <div id="create-form-modal-container">
+          <button style="float:right" @click="hideCreateFormModal()"><i class="fas fa-window-close"></i></button>
+          <form>
             <legend>New Form</legend>
             <label for="input-text-form-name">Form Name</label>
             <input id="input-text-form-name" name="input-text-form-name" type="text">
             <label for="input-text-form-description">Form Description</label>
             <input id="input-text-form-description" name="input-text-form-description" type="text">
-            <button id="create-form-cancel-btn" class="usa-button">Cancel</button>
+            <button id="create-form-cancel-btn" class="usa-button" type="button" @click="hideCreateFormModal()">Cancel</button>
             <button id="create-form-submit-btn" class="usa-button">Create New Form</button>
           </form>
         </div>
-      </div>
+      </modal>
     </div>
   </main>
 </div>
@@ -214,6 +216,7 @@
 <script src="../../../libs/js/vue/vue.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
 <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
+<script src="../../../libs/js/vue/vue-js-modal/index.js"></script>
 <script src="js/app.js"></script>
 </body>
 

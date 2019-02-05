@@ -1,3 +1,7 @@
+var VueJSModal = window['vue-js-modal'].default; // assigning hyphenated-plugin to variable
+
+Vue.use(VueJSModal);
+
 Vue.component('line-chart', {
   extends: VueChartJs.Line,
   mounted () {
@@ -28,7 +32,10 @@ var app = new Vue({
       alert('How can I help you!');
     },
     showCreateFormModal: function(){
-      this.displayCreateFormModal = !this.displayCreateFormModal;
+      this.$modal.show('create-form-modal');
+    },
+    hideCreateFormModal: function() {
+      this.$modal.hide('create-form-modal');
     }
   }
 });
