@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="../../favicon.ico">
+  <link href="../../../libs/uswds-1.6.9/css/uswds.min.css" rel="stylesheet">
+  <link href="../../../libs/uswds-1.6.9/css/bootstrap-grid.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="leaf-app">
+  <header class="usa-header usa-header-extended" role="banner">
+    <div class="usa-navbar">
+      <div class="navbar-brand">
+        <img src="img/VA-logo.png" class="logo animated bounceIn" alt="valogo">
+        <a href="#" title="Home" aria-label="Home" class="animated bounceIn">VA</a>
+        <span class="vertical-divider"></span>
+        <a href="#" title="NAVAHCS LEAF Site" aria-label="NAVAHCS LEAF Site">
+          NAVAHCS LEAF Site <span class="sub-title">Prescott, Arizona</span>
+        </a>
+      </div>
+      <button class="usa-menu-btn">Menu</button>
+    </div>
+
+    <nav role="navigation" class="usa-nav">
+      <div class="usa-nav-inner">
+        <button class="usa-nav-close">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="usa-nav-secondary">
+          <ul class="usa-nav-primary usa-accordion">
+            <li>
+              <a href="#" class="usa-nav-link">
+                <span>Home</span>
+              </a>
+            </li>
+
+            <li>
+              <a href="#" class="usa-nav-link">
+                <span>Admin</span>
+              </a>
+            </li>
+            <li>
+              <button class="usa-accordion-button usa-nav-link" aria-expanded="false"
+                      aria-controls="extended-nav-section-one">
+                <span>User: Dastan R</span>
+              </button>
+              <ul id="extended-nav-section-one" class="usa-nav-submenu">
+                <li>
+                  <a href="#">Settings</a>
+                </li>
+                <li>
+                  <a href="#">Profile</a>
+                </li>
+                <li>
+                  <a href="#">Logout</a>
+                </li>
+              </ul>
+            </li>
+            <li><a class="usa-nav-link btn-help" href="#">
+              <span><i class="fas fa-question"></i> LEAF Help</span></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <div class="usa-overlay"></div>
+  <main id="main-content">
+    <div class="row mr-3">
+      <div class="col col-sm-12 col-md-2 col-lg-2">
+        <nav>
+          <ul class="usa-sidenav-list">
+            <li><a href="#">Forms Home</a></li>
+            <li><a href="#" class="usa-current">Public Affairs Action Request</a></li>
+            <ul class="usa-sidenav-sub_list">
+              <li><a href="#">Form Properties</a></li>
+              <li><a href="#">Add Internal-Use</a></li>
+              <li><a href="#">Staple Other Form</a></li>
+              <li><a href="#">Export Form</a></li>
+              <li><a href="#">Delete This Form</a></li>
+            </ul>
+          </ul>
+        </nav>
+        <div class="icon-key">
+          <h4>Icon Key</h4>
+          <p><i class="fas fa-eye-slash"></i><span>Hidden</span></p>
+          <p><i class="fas fa-lock"></i><span>Locked</span></p>
+          <p><i class="fas fa-paperclip"></i><span>Attachment</span></p>
+          <p><i class="fas fa-bookmark"></i><span>Need to Know</span></p>
+        </div>
+      </div>
+
+      <div class="col-8 col-sm-12 col-md-10 col-lg-10">
+        <div id="form-editor-container">
+          <h4>Public Affairs Action Request <a href="#"><i class="fas fa-edit"></i></a>
+          </h4> <!-- Form Name -->
+          <p>To request photos, Sharepoint, intranet, PAO action.</p> <!-- Form description -->
+          <div id="form-editor-layout"> <!-- draggable container -->
+
+            <div v-for="(section,index) in sections" class="row">
+              <draggable class="col-4">
+                <div class="card">
+                  <h4>{{section.title}} <a href="#"><i class="fas fa-edit"></i></a></h4>
+                  <div class="card-icons">
+                    <a href="#"><i class="fas fa-times"></i></a>
+                  </div>
+                  <div class="card-body">
+                    <p>{{section.description}}</p>
+                    <div id="questions-container">
+                      <draggable :list="section.questions" >
+                        <!-- space to drag content into, a bunch of draggables -->
+                        <!-- adds question into questions list when dragged -->
+
+                        <div v-for="question in section.questions" class="row">
+                          <div class="card col">
+                            {{question.text}}
+                          </div>
+                        </div>
+                      </draggable>
+                    </div>
+                  </div>
+                </div>
+              </draggable>
+              <div class="col-4">
+                <div class="card"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+  </main>
+</div>
+
+<script src="../../../libs/uswds-1.6.9/js/uswds.min.js"></script>
+<script src="../../../libs/js/vue/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+<script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
+<!-- CDNJS :: Sortable (https://cdnjs.com/) -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.7.0/Sortable.min.js"></script>
+<!-- CDNJS :: Vue.Draggable (https://cdnjs.com/) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.15.0/vuedraggable.min.js"></script>
+<script src="js/formEditor.js"></script>
+</body>
+
+</html>

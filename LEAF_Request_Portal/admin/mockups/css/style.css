@@ -285,5 +285,15 @@ a.stat-links{
 }
 
 #form-editor-container #form-editor-layout .row{
-    margin-bottom: 2rem;
+    margin:0 0 2rem 0;
+}
+
+#questions-container {
+    min-height:3rem;
+    background:grey;
+    margin: 0.5rem;
+}
+
+#form-editor-layout #questions-container .row{
+    margin: 0;
 }
