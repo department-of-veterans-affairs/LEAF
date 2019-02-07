@@ -15,21 +15,30 @@ var question_defaults = {
 };
 
 var question_test = {
-	text: "Question Text",
-	inputType: "",
+	text: "Question Text1",
+	inputType: "text",
 	defaultAnswer: "",
 	required: false,
 	sensitive: false,
-	isNew: true
+	isNew: false
 };
 
 var question_test2 = {
 	text: "Question Text2",
-	inputType: "",
+	inputType: "textarea",
 	defaultAnswer: "",
 	required: false,
 	sensitive: false,
-	isNew: true
+	isNew: false
+};
+
+var question_test3 = {
+	text: "Question Text3",
+	inputType: "radio",
+	defaultAnswer: "",
+	required: false,
+	sensitive: false,
+	isNew: false
 };
 
 var vm = new Vue({
@@ -37,25 +46,15 @@ var vm = new Vue({
 	data: {
 		sections: [
 			{
+				id: "someHash",
 				title: "Nature of Action Request",
 				type: "section-card",
+				isNew: false,
 				description: "Select the type of request:",
-				questions: [question_test, question_test2, question_test]
+				questions: [question_test, question_test2, question_test3],
+				rawQuestions: [question_test, question_test2, question_defaults]
 			},
 			section_defaults
 		]
 	}
-	// list2: [[{
-	// 	name: "Juan"
-	// }, {
-	// 	name: "Edgard"
-	// }, {
-	// 	name: "Johnson"
-	// }], [{
-	// 	name: "Jan"
-	// }, {
-	// 	name: "Kees"
-	// }, {
-	// 	name: "Piet"
-	// }]] // embeded dragging elements
 });

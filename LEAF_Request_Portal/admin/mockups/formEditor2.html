@@ -111,39 +111,133 @@
           <h4>Public Affairs Action Request <a href="#"><i class="fas fa-edit"></i></a>
           </h4> <!-- Form Name -->
           <p>To request photos, Sharepoint, intranet, PAO action.</p> <!-- Form description -->
-          <div id="form-editor-layout"> <!-- draggable container -->
+          <div id="form-editor-layout" class="row"> <!-- draggable container -->
+            <draggable v-model="sections" class="col dragArea">
+              <div v-for="(section, index) in sections" class="row">
+                <div class="col-4" >
+                  <div class="card section" v-if="!section.isNew">
+                    <h4>{{section.title}} <a href="#"><i class="fas fa-edit"></i></a></h4>
+                    <div class="card-icons">
+                      <a href="#"><i class="fas fa-times"></i></a>
+                    </div>
+                    <div class="card-body">
+                      <p>{{section.description}}</p>
+                      <draggable id="questions-container"
+                                 v-if="(section.questions && section.questions.length > 0)"
+                                 :options='{group: "questions"}' class="flex-row no-gutters">
+                          <!-- space to drag content into, a bunch of draggables -->
+                          <!-- adds question into questions list when dragged -->
 
-            <div v-for="(section,index) in sections" class="row">
-              <draggable class="col-4">
-                <div class="card">
-                  <h4>{{section.title}} <a href="#"><i class="fas fa-edit"></i></a></h4>
-                  <div class="card-icons">
-                    <a href="#"><i class="fas fa-times"></i></a>
-                  </div>
-                  <div class="card-body">
-                    <p>{{section.description}}</p>
-                    <div id="questions-container">
-                      <draggable :list="section.questions" >
-                        <!-- space to drag content into, a bunch of draggables -->
-                        <!-- adds question into questions list when dragged -->
-
-                        <div v-for="question in section.questions" class="row">
-                          <div class="card col">
-                            {{question.text}}
+                          <div v-for="question in section.questions" class="col">
+                            <div class="card">
+                              <h4>{{question.text}} <a href="#"><i class="fas fa-edit"></i></a></h4>
+                              <div class="card-icons">
+                                <a href="#"><i class="fas fa-times"></i></a>
+                              </div>
+                              <div class="card-body">
+                                {{question.inputType}}
+                              </div>
+                            </div>
                           </div>
-                        </div>
                       </draggable>
                     </div>
                   </div>
+                  <div class="card section new-section" v-else>
+                    <div class="card-body">
+                     <h2>{{section.title}}</h2>
+                    </div>
+                  </div>
                 </div>
-              </draggable>
-              <div class="col-4">
-                <div class="card"></div>
+                <div class="col">
+                  <draggable class="row" :options='{group: "questions"}'>
+                    <div v-for="(question, index) in section.rawQuestions" class="col">
+                        <div class="card question" v-if="!question.isNew">
+                          <h4>{{question.text}} <a href="#"><i class="fas fa-edit"></i></a></h4>
+                          <div class="card-icons">
+                            <a href="#"><i class="fas fa-times"></i></a>
+                          </div>
+                          <div class="card-body">
+                            <p>{{question.text}}</p>
+                          </div>
+                        </div>
+                        <div class="card question new-question" v-else>
+                        <div class="card-body">
+                          <h3>{{question.text}}</h3>
+                        </div>
+                      </div>
+                    </div>
+                  </draggable>
+
+                </div>
+
               </div>
-            </div>
+            </draggable>
+            <!--<div v-for="(section,index) in sections" class="row">-->
+            <!--<draggable>-->
+            <!--<div class="card">-->
+            <!--<h4>{{section.title}} <a href="#"><i class="fas fa-edit"></i></a></h4>-->
+            <!--<div class="card-icons">-->
+            <!--<a href="#"><i class="fas fa-times"></i></a>-->
+            <!--</div>-->
+            <!--<div class="card-body">-->
+            <!--<p>{{section.description}}</p>-->
+            <!--<div id="questions-container">-->
+            <!--<draggable :list="section.questions">-->
+            <!--&lt;!&ndash; space to drag content into, a bunch of draggables &ndash;&gt;-->
+            <!--&lt;!&ndash; adds question into questions list when dragged &ndash;&gt;-->
+
+            <!--<div v-for="question in section.questions" class="row">-->
+            <!--<div class="card col">-->
+            <!--{{question.text}}-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</draggable>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</draggable>-->
+            <!--<draggable class="col-4">-->
+            <!--<div class="card">testes</div>-->
+            <!--</draggable>-->
+
+
+            <!--&lt;!&ndash;<div v-for="(question,index) in section.rawQuestions" class="col-4">{{question.text}}</div>&ndash;&gt;-->
+            <!--&lt;!&ndash;<draggable>&ndash;&gt;-->
+            <!--&lt;!&ndash;<div v-for="question in section.questions" class="col-4 card">&ndash;&gt;-->
+            <!--&lt;!&ndash;<h4>{{question.text}}</h4>&ndash;&gt;-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+            <!--&lt;!&ndash;</draggable>&ndash;&gt;-->
+            <!--</div>-->
+            <!--<div v-for="(section,index) in sections" class="row">-->
+            <!--<draggable class="col-4">-->
+            <!--<div class="card">-->
+            <!--<h4>{{section.title}} <a href="#"><i class="fas fa-edit"></i></a></h4>-->
+            <!--<div class="card-icons">-->
+            <!--<a href="#"><i class="fas fa-times"></i></a>-->
+            <!--</div>-->
+            <!--<div class="card-body">-->
+            <!--<p>{{section.description}}</p>-->
+            <!--<div id="questions-container">-->
+            <!--<draggable :list="section.questions" >-->
+            <!--&lt;!&ndash; space to drag content into, a bunch of draggables &ndash;&gt;-->
+            <!--&lt;!&ndash; adds question into questions list when dragged &ndash;&gt;-->
+
+            <!--<div v-for="question in section.questions" class="row">-->
+            <!--<div class="card col">-->
+            <!--{{question.text}}-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</draggable>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</draggable>-->
+            <!--<div class="col-4">-->
+            <!--<div class="card"></div>-->
+            <!--</div>-->
+            <!--</div>-->
           </div>
         </div>
-
       </div>
   </main>
 </div>
