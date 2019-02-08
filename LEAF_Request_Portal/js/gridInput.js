@@ -64,10 +64,14 @@ function printTableInput(gridParameters, values, indicatorID, series){
                 case 'text':
                     element = '<input value=""></input>';
                     break;
+                case 'date':
+                    element = '<input data-type="grid-date" value=""></input>';
+                    break;
                 default:
                     break;
             }
             $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td aria-label="' + gridParameters[j].name + '">' + element + '</td>');
+            $('input[data-type="grid-date"]').datepicker();
         }
 
         //assigns pre-existing values to cells based on its column
@@ -129,6 +133,10 @@ function addRow(gridParameters, indicatorID, series){
                 break;
             case 'text':
                 $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '"><input value=""></input></td>');
+                break;
+            case 'date':
+                $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '"><input data-type="grid-date" value=""></input></td>');
+                $('input[data-type="grid-date"]').datepicker();
                 break;
             default:
                 break;
