@@ -1,33 +1,32 @@
-var section_defaults = {
+var sectionDefaults = {
+	id: 0,
 	title: "+ Add Section",
-	isNew: true,
 	description: "",
 	questions: [],
 	rawQuestions: []
 };
 
-var question_defaults = {
+var questionDefaults = {
 	text: "+ Add Question",
-	inputType: "",
-	defaultAnswer: "",
-	required: false,
-	sensitive: false,
-	isNew: true
-};
-
-var question_test = {
-	text: "Question Text1",
-	inputType: "text",
+	type: "",
 	template: '',
-	defaultAnswer: "",
+	answer: "",
 	required: false,
-	sensitive: false,
-	isNew: false
+	sensitive: false
 };
 
-var question_test2 = {
+var questionTest = {
+	text: "Question Text1",
+	type: "text",
+	template: '',
+	answer: "",
+	required: false,
+	sensitive: false
+};
+
+var questionTest2 = {
 	text: "Request Format",
-	inputType: "radio",
+	type: "radio",
 	template: '<fieldset>' +
 		'<input type="radio" id="option-1" name="request_format" value="photography" checked>' +
 		'<label for="option-1">Photography</label>' +
@@ -37,60 +36,36 @@ var question_test2 = {
 		'<label for="option-3">Intranet Site</label>' +
 		'</fieldset>'
 	,
-	defaultAnswer: "",
+	answer: "",
 	required: false,
-	sensitive: false,
-	isNew: false
+	sensitive: false
 };
 
-var question_test3 = {
+var questionTest3 = {
 	text: "Question Text3",
-	inputType: "text",
-	template: '<input type="text"/>'
-	,
-	defaultAnswer: "",
+	type: "text",
+	template: '<input type="text"/>',
+	answer: "",
 	required: false,
-	sensitive: false,
-	isNew: false
+	sensitive: false
 };
+
 var mockData = [
 	{
-		id: "someHash",
+		id: 1,
 		title: "Nature of Action Request",
-		type: "section-card",
-		isNew: false,
 		description: "Select the type of request:",
 		questions: [],
-		rawQuestions: [question_test, question_test2, question_test3, question_defaults]
+		rawQuestions: [questionTest, questionTest2, questionTest3, questionDefaults]
 	},
-	section_defaults
+	sectionDefaults
 ];
-var test = {
-	title: "test title",
-	description: "test description",
-	editFormOpen: false,
-	questions: [],
-	rawQuestions: []
-};
-
-var test2 = {
-	title: "test title",
-	description: "test description",
-	editFormOpen: true,
-	questions: [],
-	rawQuestions: []
-};
-
-var state = {
-	sections: [test, test2]
-};
-
 
 var vm = new Vue({
 	el: ".leaf-app",
 	data: function () {
 		return {
 			sections: mockData
-		}
+		};
 	}
 });

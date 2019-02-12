@@ -1,6 +1,6 @@
-var question_test = {
+var questionTest = {
 	text: "Question Text1",
-	inputType: "text",
+	type: "text",
 	template: '',
 	answer: "",
 	required: false,
@@ -8,9 +8,9 @@ var question_test = {
 	multiInputOptions: []
 };
 
-var question_test2 = {
+var questionTest2 = {
 	text: "Request Format",
-	inputType: "radio",
+	type: "radio",
 	template: '<fieldset>' +
 		'<input type="radio" id="option-1" name="request_format" value="photography" checked>' +
 		'<label for="option-1">Photography</label>' +
@@ -26,15 +26,15 @@ var question_test2 = {
 	multiInputOptions: []
 };
 
-var question_test3 = {
+var questionTest3 = {
 	text: "Question Text3",
-	inputType: "text",
+	type: "text",
 	template: '<input type="text"/>'
 	,
-	defaultAnswer: "",
+	answer: "",
 	required: false,
 	sensitive: false,
-	isNew: false
+	multiInputOptions: []
 };
 
 var test = {
@@ -42,25 +42,7 @@ var test = {
 	title: "test title",
 	description: "test description",
 	editFormOpen: true,
-	questions: [question_test2,question_test3],
-	rawQuestions: []
-};
-
-var test2 = {
-	id: 1,
-	title: "test title",
-	description: "test description",
-	editFormOpen: true,
-	questions: [],
-	rawQuestions: []
-};
-
-var test2 = {
-	id: 1,
-	title: "test title",
-	description: "test description",
-	editFormOpen: true,
-	questions: [],
+	questions: [questionTest2, questionTest3],
 	rawQuestions: []
 };
 
@@ -92,6 +74,6 @@ var FormEditorStore = {
 				return section;
 			}
 		});
-		return i[0] || {}
+		return i[0] || {};
 	}
 };
