@@ -111,120 +111,64 @@
           <h4>Public Affairs Action Request <a href="#"><i class="fas fa-edit"></i></a>
           </h4> <!-- Form Name -->
           <p>To request photos, Sharepoint, intranet, PAO action.</p> <!-- Form description -->
-          <div id="form-editor-layout"> <!-- draggable container -->
-            <div class="row">
-              <div class="col-4">
-                <div class="card">
-                  <h4>Nature of Action Request <a href="#"><i class="fas fa-edit"></i></a></h4>
-                  <div class="card-icons">
-                    <a href="#"><i class="fas fa-times"></i></a>
+          <div id="form-editor-layout" class="row"> <!-- draggable container -->
+            <draggable v-model="sections" class="col dragArea">
+              <div v-for="(section, index) in sections" class="row">
+                <div class="col-4">
+                  <div class="card section" v-if="!section.isNew">
+                    <h4>{{section.title}} <a href="#"><i class="fas fa-edit"></i></a></h4>
+                    <div class="card-icons">
+                      <a href="#"><i class="fas fa-times"></i></a>
+                    </div>
+                    <div class="card-body">
+                      <p>{{section.description}}</p>
+                      <draggable id="questions-container"
+                                 :options='{group: "questions"}' class="flex-row no-gutters">
+                        <!-- space to drag content into, a bunch of draggables -->
+                        <!-- adds question into questions list when dragged -->
+
+                        <div v-for="(question,index) in section.questions" class="col">
+                          <div class="card">
+                            <h4>{{question.text}} <a href="#"><i class="fas fa-edit"></i></a></h4>
+                            <div class="card-icons">
+                              <a href="#"><i class="fas fa-times"></i></a>
+                            </div>
+                            <div class="card-body">
+                              <div v-html="question.template"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </draggable>
+                    </div>
                   </div>
-                  <div class="card-body">
-                    <p>Select the type of request:</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-4">
-                <div class="card">
-                  <h4>Request Format <a href="#"><i class="fas fa-edit"></i></a></h4>
-                  <div class="card-icons">
-                    <a href="#"><i class="fas fa-window-close"></i></a>
-                  </div>
-                  <div class="card-body">
-                    <fieldset>
-                      <input type="radio" id="option-1" name="request_format" value="photography" checked>
-                      <label for="option-1">Photography</label>
-                      <input type="radio" id="option-2" name="request_format" value="sharepoint site request">
-                      <label for="option-2">Sharepoint Site Request</label>
-                      <input type="radio" id="option-3" name="request_format" value="intranet site">
-                      <label for="option-3">Intranet Site</label>
-                    </fieldset>
-                  </div>
-                </div>
-              </div>
-              <div class="col-4">
-                <div class="card">
-                  <h4>Gov Vehicle Request <a href="#"><i class="fas fa-edit"></i></a></h4>
-                  <div class="card-icons">
-                    <a href="#"><i class="fas fa-times"></i></a>
-                  </div>
-                  <div class="card-body">
-                    <p>Employee GOV Requests - NOTE: Volunteer <br/>
-                      drivers contact Fleet Services x6414
-                    </p>
-                  </div>
-                  <div class="card-footer">
-                    <b>Workflow:</b> <span>Vehicle Request</span>
+                  <div class="card section new-section" v-else>
+                      <h3>{{section.title}}</h3>
                   </div>
                 </div>
-              </div>
-              <div class="col-4">
-                <div class="card new-question">
-                  <h4>+ Add Question</h4>
+                <div class="col">
+                  <draggable :options='{group: "questions"}' class="row" style="min-height: 150px"
+                             v-for="i in Math.ceil(section.rawQuestions.length / 3)">
+                    <div v-for="question in section.rawQuestions.slice((i - 1) * 3, i * 3)" class="col">
+                      <div class="card question" v-if="!question.isNew">
+                        <h4>{{question.text}} <a href="#"><i class="fas fa-edit"></i></a></h4>
+                        <div class="card-icons">
+                          <a href="#"><i class="fas fa-times"></i></a>
+                        </div>
+                        <div class="card-body">
+                          <div v-html="question.template"></div>
+                        </div>
+                      </div>
+                      <div class="card question new-question" v-else>
+                          <h3>{{question.text}}</h3>
+                      </div>
+                    </div>
+                  </draggable>
                 </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col-4">
-                <div class="card">
-                  <h4>6550 Process <a href="#"><i class="fas fa-edit"></i></a></h4>
-                  <div class="card-icons">
-                    <a href="#"><i class="fas fa-times"></i></a>
-                  </div>
-                  <div class="card-body">
-                    <p>Authorization for all IT Service Acquisitions</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-4">
-                <div class="card">
-                  <h4>Short question <a href="#"><i class="fas fa-edit"></i></a></h4>
-                  <div class="card-icons">
-                    <a href="#"><i class="fas fa-times"></i></a>
-                  </div>
-                  <div class="card-body">
-                    <p>short question</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-4">
-                <div class="card new-question">
-                  <h4>+ Add Question</h4>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-4">
-                <div class="card">
-                  <h4>Long Section Name Long Section Name Long Section Name Long Section Name <a href="#"><i
-                      class="fas fa-edit"></i></a></h4>
-                  <div class="card-icons">
-                    <a href="#"><i class="fas fa-times"></i></a>
-                  </div>
-                  <div class="card-body">
-                    <p>Long Section Description Long Section Description Long Section Description Long Section
-                      Description Long Section Description Long Section Description</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-4">
-                <div class="card new-question">
-                  <h4>+ Add Question</h4>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-4">
-                <div class="card">
-                  <h4>+ Add Section</h4>
-                </div>
-              </div>
-            </div>
+            </draggable>
           </div>
         </div>
       </div>
-
-    </div>
   </main>
 </div>
 
@@ -236,6 +180,11 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.7.0/Sortable.min.js"></script>
 <!-- CDNJS :: Vue.Draggable (https://cdnjs.com/) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.15.0/vuedraggable.min.js"></script>
+<script src="js/SectionForm.js"></script>
+<script src="js/ToggleableSection.js"></script>
+<script src="js/Section.js"></script>
+<script src="js/EditableSection.js"></script>
+<script src="js/EditableSectionList.js"></script>
 <script src="js/formEditor.js"></script>
 </body>
 

@@ -1,28 +1,11 @@
-var section_defaults = {
-	title: "+ Add Section",
-	isNew: true,
-	description: "",
-	questions: [],
-	rawQuestions: []
-};
-
-var question_defaults = {
-	text: "+ Add Question",
-	inputType: "",
-	defaultAnswer: "",
-	required: false,
-	sensitive: false,
-	isNew: true
-};
-
 var question_test = {
 	text: "Question Text1",
 	inputType: "text",
 	template: '',
-	defaultAnswer: "",
+	answer: "",
 	required: false,
 	sensitive: false,
-	isNew: false
+	multiInputOptions: []
 };
 
 var question_test2 = {
@@ -37,10 +20,10 @@ var question_test2 = {
 		'<label for="option-3">Intranet Site</label>' +
 		'</fieldset>'
 	,
-	defaultAnswer: "",
+	answer: "",
 	required: false,
 	sensitive: false,
-	isNew: false
+	multiInputOptions: []
 };
 
 var question_test3 = {
@@ -53,27 +36,18 @@ var question_test3 = {
 	sensitive: false,
 	isNew: false
 };
-var mockData = [
-	{
-		id: "someHash",
-		title: "Nature of Action Request",
-		type: "section-card",
-		isNew: false,
-		description: "Select the type of request:",
-		questions: [],
-		rawQuestions: [question_test, question_test2, question_test3, question_defaults]
-	},
-	section_defaults
-];
+
 var test = {
+	id: 1,
 	title: "test title",
 	description: "test description",
-	editFormOpen: false,
-	questions: [],
+	editFormOpen: true,
+	questions: [question_test2,question_test3],
 	rawQuestions: []
 };
 
 var test2 = {
+	id: 1,
 	title: "test title",
 	description: "test description",
 	editFormOpen: true,
@@ -81,16 +55,43 @@ var test2 = {
 	rawQuestions: []
 };
 
-var state = {
-	sections: [test, test2]
+var test2 = {
+	id: 1,
+	title: "test title",
+	description: "test description",
+	editFormOpen: true,
+	questions: [],
+	rawQuestions: []
 };
 
+var mockForm = {
+	name: 'Public Affairs Action Request',
+	description: 'To request photos, Sharepoint, intranet, PAO action.'
+};
 
-var vm = new Vue({
-	el: ".leaf-app",
-	data: function () {
-		return {
-			sections: mockData
-		}
+var FormEditorStore = {
+	state: {
+		form: mockForm,
+		sections: []
+	},
+	addSection: function(newSection) {
+		this.state.sections.push(newSection);
+	},
+	removeSectionById: function(id) {
+		var i = this.state.sections.map(function(item) {
+			return item.id === id;
+		});
+		this.state.sections.splice(i, 1);
+	},
+	removeSection: function(index) {
+		this.state.sections.splice(index, 1);
+	},
+	getSectionById: function(id) {
+		var i = this.state.sections.filter(function(section) {
+			if(section.id === id) {
+				return section;
+			}
+		});
+		return i[0] || {}
 	}
-});
+};

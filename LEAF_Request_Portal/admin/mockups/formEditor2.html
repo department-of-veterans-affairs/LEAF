@@ -87,7 +87,7 @@
         <nav>
           <ul class="usa-sidenav-list">
             <li><a href="#">Forms Home</a></li>
-            <li><a href="#" class="usa-current">Public Affairs Action Request</a></li>
+            <li><a href="#" class="usa-current">{{form.name}}</a></li>
             <ul class="usa-sidenav-sub_list">
               <li><a href="#">Form Properties</a></li>
               <li><a href="#">Add Internal-Use</a></li>
@@ -108,134 +108,14 @@
 
       <div class="col-8 col-sm-12 col-md-10 col-lg-10">
         <div id="form-editor-container">
-          <h4>Public Affairs Action Request <a href="#"><i class="fas fa-edit"></i></a>
+          <h4>{{form.name}} <a href="#"><i class="fas fa-edit"></i></a>
           </h4> <!-- Form Name -->
-          <p>To request photos, Sharepoint, intranet, PAO action.</p> <!-- Form description -->
-          <div id="form-editor-layout" class="row"> <!-- draggable container -->
-            <draggable v-model="sections" class="col dragArea">
-              <div v-for="(section, index) in sections" class="row">
-                <div class="col-4" >
-                  <div class="card section" v-if="!section.isNew">
-                    <h4>{{section.title}} <a href="#"><i class="fas fa-edit"></i></a></h4>
-                    <div class="card-icons">
-                      <a href="#"><i class="fas fa-times"></i></a>
-                    </div>
-                    <div class="card-body">
-                      <p>{{section.description}}</p>
-                      <draggable id="questions-container"
-                                 v-if="(section.questions && section.questions.length > 0)"
-                                 :options='{group: "questions"}' class="flex-row no-gutters">
-                          <!-- space to drag content into, a bunch of draggables -->
-                          <!-- adds question into questions list when dragged -->
-
-                          <div v-for="question in section.questions" class="col">
-                            <div class="card">
-                              <h4>{{question.text}} <a href="#"><i class="fas fa-edit"></i></a></h4>
-                              <div class="card-icons">
-                                <a href="#"><i class="fas fa-times"></i></a>
-                              </div>
-                              <div class="card-body">
-                                {{question.inputType}}
-                              </div>
-                            </div>
-                          </div>
-                      </draggable>
-                    </div>
-                  </div>
-                  <div class="card section new-section" v-else>
-                    <div class="card-body">
-                     <h2>{{section.title}}</h2>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <draggable class="row" :options='{group: "questions"}'>
-                    <div v-for="(question, index) in section.rawQuestions" class="col">
-                        <div class="card question" v-if="!question.isNew">
-                          <h4>{{question.text}} <a href="#"><i class="fas fa-edit"></i></a></h4>
-                          <div class="card-icons">
-                            <a href="#"><i class="fas fa-times"></i></a>
-                          </div>
-                          <div class="card-body">
-                            <p>{{question.text}}</p>
-                          </div>
-                        </div>
-                        <div class="card question new-question" v-else>
-                        <div class="card-body">
-                          <h3>{{question.text}}</h3>
-                        </div>
-                      </div>
-                    </div>
-                  </draggable>
-
-                </div>
-
-              </div>
+          <p>{{form.description}}</p> <!-- Form description -->
+          <div id="form-editor-layout" > <!-- draggable container -->
+            <draggable class="dragArea" :move="checkMove">
+              <editable-section v-for="(section, index) in state.sections" :key="section.id" :section="section"></editable-section>
+              <toggleable-section :sections="state.sections"></toggleable-section>
             </draggable>
-            <!--<div v-for="(section,index) in sections" class="row">-->
-            <!--<draggable>-->
-            <!--<div class="card">-->
-            <!--<h4>{{section.title}} <a href="#"><i class="fas fa-edit"></i></a></h4>-->
-            <!--<div class="card-icons">-->
-            <!--<a href="#"><i class="fas fa-times"></i></a>-->
-            <!--</div>-->
-            <!--<div class="card-body">-->
-            <!--<p>{{section.description}}</p>-->
-            <!--<div id="questions-container">-->
-            <!--<draggable :list="section.questions">-->
-            <!--&lt;!&ndash; space to drag content into, a bunch of draggables &ndash;&gt;-->
-            <!--&lt;!&ndash; adds question into questions list when dragged &ndash;&gt;-->
-
-            <!--<div v-for="question in section.questions" class="row">-->
-            <!--<div class="card col">-->
-            <!--{{question.text}}-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</draggable>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</draggable>-->
-            <!--<draggable class="col-4">-->
-            <!--<div class="card">testes</div>-->
-            <!--</draggable>-->
-
-
-            <!--&lt;!&ndash;<div v-for="(question,index) in section.rawQuestions" class="col-4">{{question.text}}</div>&ndash;&gt;-->
-            <!--&lt;!&ndash;<draggable>&ndash;&gt;-->
-            <!--&lt;!&ndash;<div v-for="question in section.questions" class="col-4 card">&ndash;&gt;-->
-            <!--&lt;!&ndash;<h4>{{question.text}}</h4>&ndash;&gt;-->
-            <!--&lt;!&ndash;</div>&ndash;&gt;-->
-            <!--&lt;!&ndash;</draggable>&ndash;&gt;-->
-            <!--</div>-->
-            <!--<div v-for="(section,index) in sections" class="row">-->
-            <!--<draggable class="col-4">-->
-            <!--<div class="card">-->
-            <!--<h4>{{section.title}} <a href="#"><i class="fas fa-edit"></i></a></h4>-->
-            <!--<div class="card-icons">-->
-            <!--<a href="#"><i class="fas fa-times"></i></a>-->
-            <!--</div>-->
-            <!--<div class="card-body">-->
-            <!--<p>{{section.description}}</p>-->
-            <!--<div id="questions-container">-->
-            <!--<draggable :list="section.questions" >-->
-            <!--&lt;!&ndash; space to drag content into, a bunch of draggables &ndash;&gt;-->
-            <!--&lt;!&ndash; adds question into questions list when dragged &ndash;&gt;-->
-
-            <!--<div v-for="question in section.questions" class="row">-->
-            <!--<div class="card col">-->
-            <!--{{question.text}}-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</draggable>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</draggable>-->
-            <!--<div class="col-4">-->
-            <!--<div class="card"></div>-->
-            <!--</div>-->
-            <!--</div>-->
           </div>
         </div>
       </div>
@@ -250,7 +130,17 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.7.0/Sortable.min.js"></script>
 <!-- CDNJS :: Vue.Draggable (https://cdnjs.com/) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.15.0/vuedraggable.min.js"></script>
-<script src="js/formEditor.js"></script>
+<script src="js/SectionForm.js"></script>
+<script src="js/ToggleableQuestion.js"></script>
+<script src="js/ToggleableSection.js"></script>
+<script src="js/Question.js"></script>
+<script src="js/QuestionForm.js"></script>
+<script src="js/EditableQuestion.js"></script>
+<script src="js/Section.js"></script>
+<script src="js/EditableSection.js"></script>
+<!--<script src="js/EditableSectionList.js"></script>-->
+<script src="js/stores/form-editor-store.js"></script>
+<script src="js/formEditor2.js"></script>
 </body>
 
 </html>
