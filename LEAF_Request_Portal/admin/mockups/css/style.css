@@ -302,17 +302,30 @@ a.stat-links{
 }
 
 .question {
-    background: #B5B5B5;
+    background: #d6d7d9;
 }
 
-.new-section, .new-question {
+.new-section {
     width: 100%;
     display: table;
-    border: slategrey dashed;
-    background-color: #f1f1f1;
+    border: black dashed;
 }
 
-.new-section h3, .new-question h3 {
+.new-question {
+    width: 100%;
+    display: table;
+    border: black dashed;
+    background: #f1f1f1;
+}
+
+.new-section h3 {
+    margin: 0;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    color:white;
+}
+.new-question h3 {
     margin: 0;
     display: table-cell;
     text-align: center;
