@@ -10,33 +10,28 @@ var section = Vue.component('section-form', {
 		}
 	},
 	template:
-		`<div class="col-4">
-			<div class="card section">\
-				<label for="input-text-section-title">Section Title</label>\
-				<input id="input-text-section-title"\
-					name="input-text-section-title"
-					type="text"
-					v-model.trim="title">\
-				<label for="input-text-section-description">Section Description\
-					<a href="#" style="float:right;">Advanced Formatting</a>
-				</label>\
-				<textarea\
-					id="textarea-section-description"\
-					name="textarea-section-description"\
-					type="textarea" style="max-width:100%"\
-					v-model="description"\
-					placeholder="Enter text to describe this form section"></textarea>\
-				<div class="container row no-gutters">\
-					<button class="col" @click="cancelEdit">Cancel</button>\
-					<button class="col" @click="onSubmit">Save</button>\
-				</div>\
-			</div>\
-		</div>`,
-	data() {
+		'<div class="col-4">' +
+			'<div class="card section">' +
+				'<label for="input-text-section-title">Section Title</label>' +
+				'<input id="input-text-section-title" name="input-text-section-title" ' +
+					'type="text" v-model.trim="title">' +
+				'<label for="input-text-section-description">Section Description' +
+					'<a href="#" style="float:right;">Advanced Formatting</a>' +
+				'</label>' +
+				'<textarea id="textarea-section-description" name="textarea-section-description" type="textarea" ' +
+					'v-model="description" placeholder="Enter text to describe this form section">' +
+				'</textarea>' +
+				'<div class="container row no-gutters">' +
+					'<button class="col" @click="cancelEdit">Cancel</button>' +
+					'<button class="col" @click="onSubmit">Save</button>' +
+				'</div>' +
+			'</div>' +
+		'</div>',
+	data: function() {
 		return {
 			title: this.section.title || '',
 			description: this.section.description || ''
-		}
+		};
 	},
 
 	methods: {

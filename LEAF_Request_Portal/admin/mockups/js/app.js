@@ -4,7 +4,7 @@ Vue.use(VueJSModal);
 
 Vue.component('line-chart', {
   extends: VueChartJs.Line,
-  mounted () {
+  mounted: function () {
     this.renderChart({
       labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
       datasets: [

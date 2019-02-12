@@ -197,16 +197,16 @@
     <div class="usa-grid-full">
       <modal name="create-form-modal" draggable="#create-form-modal-container" resizable>
         <div id="create-form-modal-container">
-          <button style="float:right" @click="hideCreateFormModal()"><i class="fas fa-window-close"></i></button>
-          <form>
-            <legend>New Form</legend>
-            <label for="input-text-form-name">Form Name</label>
-            <input id="input-text-form-name" name="input-text-form-name" type="text">
-            <label for="input-text-form-description">Form Description</label>
-            <input id="input-text-form-description" name="input-text-form-description" type="text">
-            <button id="create-form-cancel-btn" class="usa-button" type="button" @click="hideCreateFormModal()">Cancel</button>
-            <button id="create-form-submit-btn" class="usa-button">Create New Form</button>
-          </form>
+          <div class="container">
+            <form>
+              <legend>New Form</legend>
+              <label for="input-text-form-name">Form Name</label>
+              <input id="input-text-form-name" name="input-text-form-name" type="text">
+              <label for="input-text-form-description">Form Description</label>
+              <input id="input-text-form-description" name="input-text-form-description" type="text">
+              <button id="create-form-cancel-btn" class="usa-button" type="button" @click="hideCreateFormModal()">Cancel</button>
+              <button id="create-form-submit-btn" class="usa-button">Create New Form</button>
+            </form></div>
         </div>
       </modal>
     </div>

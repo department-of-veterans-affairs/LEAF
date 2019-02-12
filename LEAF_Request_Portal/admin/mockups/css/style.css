@@ -119,7 +119,7 @@
 h4{
   margin-top: 0.5em;
 }
-main#main-content {
+#main-content {
     margin-top: 20px;
     margin-left:20px;
     margin-right: 20px;
@@ -202,7 +202,7 @@ main#main-content {
   font-size:11px;
 }
 
-a.stat-links{
+stat-links{
   color: #4c2794;
   font-weight: bold;
   text-decoration: none;
@@ -224,24 +224,10 @@ a.stat-links{
   font-size: 15px;
 }
 
-.create-form-modal{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    background: white;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    border-radius: 6px;
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
-}
-
-
-
 /* utilites */
 .hide{
   display: none;
 }
-
-
 
 /* cards */
 .card {
@@ -289,14 +275,6 @@ a.stat-links{
     margin-bottom:2rem;
 }
 
-/*#form-editor-layout h3 {*/
-    /*margin: 0 -50% 0 0;*/
-    /*position: absolute;*/
-    /*top: 50%;*/
-    /*left: 50%;*/
-    /*transform: translate(-50%, -50%);*/
-/*}*/
-
 .section {
     background: #878685;
 }
@@ -309,6 +287,7 @@ a.stat-links{
     width: 100%;
     display: table;
     border: black dashed;
+    color:white;
 }
 
 .new-question {
@@ -318,27 +297,19 @@ a.stat-links{
     background: #f1f1f1;
 }
 
-.new-section h3 {
-    margin: 0;
+h3 {
     display: table-cell;
     text-align: center;
     vertical-align: middle;
-    color:white;
 }
-.new-question h3 {
-    margin: 0;
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
+textarea {
+    max-width: 100%;
+    min-width: 100%;
 }
 
 #questions-container {
     min-height:3rem;
     margin: 1rem;
-}
-
-.w-100 {
-    width: 100%!important;
 }
 
 .drag {

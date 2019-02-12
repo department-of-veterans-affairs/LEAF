@@ -1,4 +1,4 @@
-const NEW_SECTION_DEFAULTS = {
+var NEW_SECTION_DEFAULTS = {
 	isOpen: false,
 	section: {
 		title: '',
@@ -13,22 +13,16 @@ var toggleableSection = Vue.component('toggleable-section', {
 		sections: Array
 	},
 	template:
-		`<div class="row">\
-			<section-form\
-				v-if="isOpen"\ 
-				:create="true"\ 
-				v-model="section">\				
-			</section-form>\
-			<div v-else\
-				class="col-4">\
-				<div class="card section new-section"\
-					@click="handleFormOpen">\
-						<h3>+ Add Section</h3>\
-				</div>\
-			</div>\
-		</div>`
+		'<div class="row">' +
+			'<section-form v-if="isOpen" :create="true" v-model="section"></section-form>' +
+			'<div v-else class="col-4">' +
+				'<div class="card section new-section" @click="handleFormOpen">' +
+					'<h3>+ Add Section</h3>' +
+				'</div>' +
+			'</div>' +
+		'</div>'
 	,
-	data() {
+	data: function() {
 		return NEW_SECTION_DEFAULTS_CLONE;
 	},
 

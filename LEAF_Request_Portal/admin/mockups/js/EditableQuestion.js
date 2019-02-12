@@ -6,20 +6,14 @@ var editableQuestion = Vue.component('editable-question', {
 		}
 	},
 	template:
-		`<div class="col-6">
-			<question-form 
-				v-if="editFormOpen"
-				:question="question">
-			</question-form>
-			<question-pane
-				v-else 
-				:question="question">
-			</question-pane>
-		</div>`,
-	data() {
+		'<div class="col-6">' +
+			'<question-form v-if="editFormOpen":question="question"></question-form>' +
+			'<question-pane v-else :question="question"></question-pane>' +
+		'</div>',
+	data: function() {
 		return {
 			editFormOpen: this.editFormOpen || false
-		}
+		};
 	},
 	methods: {
 		updateQuestion: function(text, type, answer, required, sensitive) {

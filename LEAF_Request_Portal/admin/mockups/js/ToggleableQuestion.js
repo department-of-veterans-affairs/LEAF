@@ -1,4 +1,4 @@
-const NEW_QUESTION_DEFAULTS = {
+var NEW_QUESTION_DEFAULTS = {
 	isOpen: false,
 	question: {
 		title: '',
@@ -16,21 +16,14 @@ var toggleableQuestion = Vue.component('toggleable-question', {
 		}
 	},
 	template:
-		`<div class="col-6">\
-			<question-form\
-				v-if="isOpen"\
-				:create="true"\
-				:sectionId="sectionId"
-				v-model="question">\
-			</question-form>\
-			<div v-else 
-				class="card question new-question"\
-				@click="handleFormOpen">\
-					<h3>+ Add Question</h3>\
-			</div>\
-		</div>`
+		'<div class="col-6">' +
+			'<question-form v-if="isOpen" :create="true" :sectionId="sectionId" v-model="question"></question-form>' +
+			'<div v-else class="card question new-question" @click="handleFormOpen">' +
+				'<h3>+ Add Question</h3>' +
+			'</div>' +
+		'</div>'
 	,
-	data() {
+	data: function() {
 		return NEW_QUESTION_DEFAULTS_CLONE;
 	},
 
