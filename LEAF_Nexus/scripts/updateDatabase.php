@@ -16,13 +16,9 @@ $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../db_mysql.php';
 include_once $currDir . '/../config.php';
-include_once $currDir . '/../sources/Login.php';
 
 $config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-$login = new Orgchart\Login($db, $db);
-$login->setBaseDir('../');
-$login->loginUser();
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
 if (!isset($res[0]) || !is_numeric($res[0]['data']))
