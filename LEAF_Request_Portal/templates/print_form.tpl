@@ -568,9 +568,11 @@ function admin_changeForm() {
                 		}
                 	});
                 	$('.admin_changeForm').icheck('updated');
-                }
+                },
+                cache: false
             });
-        }
+        },
+        cache: false
     });
 }
 
