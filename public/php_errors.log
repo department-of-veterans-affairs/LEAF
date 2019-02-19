@@ -1,0 +1,9 @@
+[15-Feb-2019 13:34:01 UTC] PHP Fatal error:  Class 'RequestPortal\Http\Controllers\Controller' not found in C:\Users\n\src\cdit\leaf_laravel2\RequestPortal\app\Http\Controllers\RequestsController.php on line 19
+[15-Feb-2019 15:08:32 UTC] PHP Warning:  Uncaught ErrorException: require(C:\Users\n\src\cdit\leaf_laravel2\RequestPortal/routes/web2.php): failed to open stream: No such file or directory in C:\Users\n\src\cdit\leaf_laravel2\vendor\laravel\framework\src\Illuminate\Routing\Router.php:417
+Stack trace:
+#0 C:\Users\n\src\cdit\leaf_laravel2\vendor\laravel\framework\src\Illuminate\Routing\Router.php(417): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(2, 'require(C:\\User...', 'C:\\Users\\n\\src\\...', 417, Array)
+#1 C:\Users\n\src\cdit\leaf_laravel2\vendor\laravel\framework\src\Illuminate\Routing\Router.php(417): require()
+#2 C:\Users\n\src\cdit\leaf_laravel2\vendor\laravel\framework\src\Illuminate\Routing\Router.php(373): Illuminate\Routing\Router->loadRoutes('C:\\Users\\n\\src\\...')
+#3 C:\Users\n\src\cdit\leaf_laravel2\vendor\laravel\framework\src\Illuminate\Routing\RouteRegistrar.php(121): Illuminate\Routing\Router->group(Array, 'C:\\Users\\n\\src\\...')
+#4 C:\Users\n\src\cdit\leaf_laravel2\RequestPortal\app\Providers\RequestPortalRou in C:\Users\n\src\cdit\leaf_laravel2\vendor\laravel\framework\src\Illuminate\Routing\Router.php on line 417
+[15-Feb-2019 15:08:33 UTC] PHP Fatal error:  Illuminate\Routing\Router::loadRoutes(): Failed opening required 'C:\Users\n\src\cdit\leaf_laravel2\RequestPortal/routes/web2.php' (include_path='.;C:\php\pear') in C:\Users\n\src\cdit\leaf_laravel2\vendor\laravel\framework\src\Illuminate\Routing\Router.php on line 417
