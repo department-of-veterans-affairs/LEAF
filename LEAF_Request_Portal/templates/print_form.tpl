@@ -273,12 +273,10 @@ function printForm() {
 
     var width = doc.internal.pageSize.getWidth();
     var height = doc.internal.pageSize.getHeight();
+    var verticalShift = 17;
 
     var indicatorData = [];
-    var requestTitle = $('#requestTitle').clone();
-    requestTitle.find('img').remove();
-    requestTitle.find('br').remove();
-    requestTitle.find('span').remove();
+    var requestInfo = new Object();
     var homeQR = document.createElement('img');
     var homeURL = encodeURIComponent($('a[href="./"]')[0].href);
     homeQR.setAttribute('class', 'print nodisplay');
@@ -311,17 +309,23 @@ function printForm() {
         }
     }
 
+    function decodeHTMLEntities (str) {
+        return $("<div/>").html(str).text();
+    }
+
     function makePdf(data) {
-        var verticalShift = 30;
         var makeCount = 0;
         var numInRow = 0;
-        var horizontalShift = 20;
-        var maxWidth = 170;
+        var horizontalShift = 10;
+        var maxWidth = 190;
         var subCount = 1;
         var lineSpacing = doc.getFontSize() * 1.28 * 25.4 / 72;
         var page = 1;
         var htmlPattern = new RegExp('<([^>]+)>');
         var date = new Date().toJSON().slice(0,10).replace(/-/g,'/');
+
+        // set to true for first sub question of each header
+        var subShift = true;
 
         doc.setFont("Helvetica");
         doc.setFontSize(12);
@@ -329,11 +333,15 @@ function printForm() {
         function pageFooter(isLast) {
             var originalColor = doc.getTextColor();
             doc.setTextColor(0);
-            doc.line(20, height - 10, width - 20, height - 10);
+            doc.line(10, height - 10, width - 10, height - 10);
             doc.setFontSize(10);
             doc.setFont("times");
-            doc.text($('#requestTitle > span').text(), 20, height - 7);
-            doc.text(page.toString(), 188, height - 7);
+            if (requestInfo['workflows'].length > 1) {
+                doc.text("Multiple forms", 10, height - 7);
+            } else {
+                doc.text(requestInfo['workflows'][0][0]['categoryName'], 10, height - 7);
+            }
+            doc.text(page.toString(), 198, height - 7);
             if (!isLast) {
                 doc.text('Continued on the next page.', 105, height - 7, null, null, 'center');
                 page++;
@@ -348,8 +356,8 @@ function printForm() {
         function subNewRow() {
             numInRow = 0;
             verticalShift += 12;
-            horizontalShift = 20;
-            maxWidth = 170;
+            horizontalShift = 10;
+            maxWidth = 190;
         }
 
         function makeEntry(indicator, parentID, depth, numAtLevel) {
@@ -360,6 +368,7 @@ function printForm() {
             var fitSize = 0;
             var start = 0;
             var sizeOfOption = 0;
+
             if (depth === 0) {
                 verticalShift += 10;
                 doc.setTextColor(255);
@@ -368,14 +377,14 @@ function printForm() {
                 doc.setTextColor(0);
             }
 
-            if (verticalShift > height - 70) {
+            if (verticalShift > height - 15) {
                 pageFooter(false);
                 doc.addPage();
-                verticalShift = 30;
+                verticalShift = 10;
             }
 
             doc.setFillColor(30, 70, 125);
-            var value = htmlPattern.test(indicator.value) ? cleanTagsAndWhitespace(indicator.value) : indicator.value;
+            var value = htmlPattern.test(indicator.value.toString()) ? decodeHTMLEntities(cleanTagsAndWhitespace(indicator.value)) : decodeHTMLEntities(indicator.value);
             var splitText = doc.splitTextToSize(value, 140);
             var lines = 1;
 
@@ -389,13 +398,13 @@ function printForm() {
                 if (title.length > value.length) {
                     sizeOfBox = title.length * 3.5;
                 } else {
-                    sizeOfBox = value.length > 0 ? value.length * 3.5 : numInRow * 170/numAtLevel;
+                    sizeOfBox = value.length > 0 ? value.length * 3.5 : numInRow * 190 / numAtLevel;
                 }
                 if (sizeOfBox > maxWidth) {
                     if (title.length > value.length) {
                         sizeOfBox = title.length * 3.5;
                     } else {
-                        sizeOfBox = value.length > 0 ? value.length * 3.5 : numInRow * 170/numAtLevel;
+                        sizeOfBox = value.length > 0 ? value.length * 3.5 : numInRow * 190 / numAtLevel;
                     }
                     subNewRow();
                 }
@@ -415,21 +424,29 @@ function printForm() {
             }
 
             function textHeader() {
+                var header = number + ': ' + decodeHTMLEntities(indicator.name) + required;
+                var boxIndent = header.length * 3.5;
                 doc.setFillColor(30, 70, 125);
-                doc.rect(20, verticalShift, 170, 8, 'FD');
-                doc.rect(20, verticalShift + 8, 170, 8);
-                doc.text(number + ': ' + indicator.name + required, 21, verticalShift + 6);
+                doc.rect(10, verticalShift, 200 - boxIndent, 8, 'FD');
+                doc.setFillColor(255);
+                doc.rect(boxIndent, verticalShift, 200 - boxIndent, 8, 'FD');
+                doc.text(header, 11, verticalShift + 6);
+                doc.setFillColor(30, 70, 125);
                 doc.setTextColor(0);
                 if (!blank && typeof (value) !== "undefined") {
                     doc.setFont("times");
-                    doc.text(value, 21, verticalShift + 14);
+                    doc.text(value, boxIndent + 1, verticalShift + 6);
                 }
                 doc.setFont("Helvetica");
-                verticalShift += 16;
+                verticalShift += 4;
             }
 
             if (depth > 0) {
-                var title = number + ': ' + indicator.name;
+                var title = number + ': ' + decodeHTMLEntities(indicator.name);
+                if (subShift) {
+                    verticalShift += 4;
+                    subShift = false;
+                }
                 switch (indicator.format) {
                     case 'orgchart_employee':
                         value = value !== '' ? cleanTagsAndWhitespace($('#data_' + indicator.indicatorID + '_' + indicator.series).find('a').html()) : '';
@@ -454,13 +471,13 @@ function printForm() {
                         textSub();
                         break;
                     case 'textarea':
-                        if (maxWidth !== 170) {
+                        if (maxWidth !== 190) {
                             subNewRow();
                         }
                         fitSize = !blank ? lines * lineSpacing : 60;
                         start = verticalShift;
                         doc.setFontSize(8);
-                        doc.text(title + required, 21, verticalShift + 3);
+                        doc.text(title + required, 11, verticalShift + 3);
                         doc.setFontSize(12);
                         if (!blank && typeof (value) !== "undefined") {
                             doc.setFont("times");
@@ -471,32 +488,32 @@ function printForm() {
                                     doc.setTextColor(255);
                                     doc.setDrawColor(0);
                                     doc.setFillColor(30, 70, 125);
-                                    verticalShift = 30;
+                                    verticalShift = 10;
                                     fitSize = (splitText.length - i) * lineSpacing;
-                                    doc.rect(20, verticalShift, 170, fitSize + 20, 'FD');
-                                    doc.rect(25, verticalShift + 8, 120, fitSize + 8, 'FD');
+                                    doc.rect(10, verticalShift, 190, fitSize + 20, 'FD');
+                                    doc.rect(15, verticalShift + 8, 130, fitSize + 8, 'FD');
                                     doc.setFontSize(8);
                                     doc.setFont("helvetica");
-                                    doc.text(indicator.name + ' continued' + required, 21, verticalShift + 6);
+                                    doc.text(decodeHTMLEntities(indicator.name) + ' continued' + required, 11, verticalShift + 6);
                                     doc.setFontSize(12);
                                     doc.setFont("times");
                                 }
                                 doc.setTextColor(0);
-                                doc.text(splitText[i], 30, verticalShift + 16);
+                                doc.text(splitText[i], 15, verticalShift + 16);
                                 verticalShift += lineSpacing;
                             }
                         } else {
                             verticalShift += 5 * lineSpacing;
                         }
                         doc.setFont("Helvetica");
-                        doc.rect(20, start, 170, verticalShift - start + 16);
+                        doc.rect(10, start, 190, verticalShift - start + 16);
                         verticalShift += 2.19 * lineSpacing;
                         break;
                     case 'radio':
                     case 'dropdown':
                     case 'checkbox':
                     case 'checkboxes':
-                        $.each(indicator.options, function() {
+                        $.each(indicator.options, function () {
                             sizeOfBox += this.length * 3.5 + 20;
                         });
                         doc.setFontSize(8);
@@ -510,7 +527,7 @@ function printForm() {
                         for (var i = 0; i < indicator.options.length; i++) {
                             sizeOfOption = indicator.options[i].length * 2.5;
                             sizeOfBox += sizeOfOption;
-                            doc.text(indicator.options[i], horizontalShift + 2, verticalShift + 10.5);
+                            doc.text(decodeHTMLEntities(indicator.options[i]), horizontalShift + 2, verticalShift + 10.5);
                             doc.rect(sizeOfOption + horizontalShift, verticalShift + 6, 5, 5);
                             if (!blank && indicator.value.indexOf(indicator.options[i]) > -1) {
                                 doc.text('x', sizeOfOption + horizontalShift + 4, verticalShift + 10.5);
@@ -523,13 +540,13 @@ function printForm() {
                         numInRow++;
                         break;
                     default:
-                        if (maxWidth !== 170) {
+                        if (maxWidth !== 190) {
                             subNewRow();
                         }
-                        doc.rect(20, verticalShift, 170, 12, 'FD');
+                        doc.rect(10, verticalShift, 190, 12, 'FD');
                         doc.setTextColor(255);
                         doc.setFont("helvetica");
-                        doc.text(number + ': ' + indicator.name + required, 21, verticalShift + 8);
+                        doc.text(number + ': ' + decodeHTMLEntities(indicator.name) + required, 11, verticalShift + 8);
                         subNewRow();
                 }
             } else {
@@ -559,11 +576,11 @@ function printForm() {
                     case 'textarea':
                         fitSize = !blank ? lines * 2 * lineSpacing : 60;
                         doc.setFillColor(30, 70, 125);
-                        doc.rect(20, verticalShift, 170, 8, 'FD');
+                        doc.rect(10, verticalShift, 190, 8, 'FD');
                         if (fitSize >= height - 70) {
-                            doc.rect(20, verticalShift + 8, 170, height - 12 - (verticalShift + 8));
+                            doc.rect(10, verticalShift + 8, 190, height - 12 - (verticalShift + 8));
                         }
-                        doc.text(number + ': ' + indicator.name + required, 21, verticalShift + 6);
+                        doc.text(number + ': ' + decodeHTMLEntities(indicator.name) + required, 11, verticalShift + 6);
                         doc.setTextColor(0);
                         start = verticalShift + 8;
                         verticalShift += lineSpacing;
@@ -576,14 +593,15 @@ function printForm() {
                                     doc.setTextColor(255);
                                     doc.setDrawColor(0);
                                     doc.setFillColor(30, 70, 125);
-                                    verticalShift = 30;
-                                    start = 30;
+                                    verticalShift = 10;
+                                    start = 10;
                                     fitSize = (splitText.length - i) * lineSpacing;
-                                    doc.rect(20, verticalShift, 170, 8, 'FD');
-                                    doc.text(indicator.name + ' continued' + required, 21, verticalShift + 6);
+                                    doc.rect(10, verticalShift, 190, 8, 'FD');
+                                    doc.text(decodeHTMLEntities(indicator.name) + ' continued' + required, 11, verticalShift + 6);
+                                    doc.setFont("times");
                                 }
                                 doc.setTextColor(0);
-                                doc.text(splitText[i], 30, verticalShift + (2 * lineSpacing));
+                                doc.text(splitText[i], 15, verticalShift + (2 * lineSpacing));
                                 verticalShift += lineSpacing;
                             }
                             verticalShift += 2 * lineSpacing;
@@ -591,36 +609,47 @@ function printForm() {
                             verticalShift += 5 * lineSpacing;
                         }
                         doc.setFont("Helvetica");
-                        doc.rect(20, start, 170, verticalShift - start);
+                        doc.rect(10, start, 190, verticalShift - start);
                         break;
                     case 'radio':
                     case 'dropdown':
                     case 'checkbox':
                     case 'checkboxes':
-                        doc.setFillColor(30, 70, 125);
-                        doc.rect(20, verticalShift, 170, 16, 'FD');
-                        doc.setTextColor(255);
-                        doc.text(number + ': ' + indicator.name + required, 21, verticalShift + 6);
+                        var header = number + ': ' + decodeHTMLEntities(indicator.name) + required;
+                        horizontalShift = header.length * 3.5;
+                        doc.rect(10, verticalShift + 4, horizontalShift, 8, 'FD');
+                        doc.text(header, 11, verticalShift + 10);
+                        start = verticalShift + 4;
+                        horizontalShift += 4;
+                        doc.setTextColor(0);
+                        doc.setFont("times");
                         for (var i = 0; i < indicator.options.length; i++) {
-                            sizeOfOption = indicator.options[i].length * 2.5;
-                            doc.text(indicator.options[i], horizontalShift + 2, verticalShift + 12.5);
-                            doc.rect(sizeOfOption + horizontalShift + 3, verticalShift + 8, 5, 5, 'F');
-                            if (!blank && indicator.value.indexOf(indicator.options[i]) > -1) {
-                                doc.setTextColor(0);
-                                doc.text('x', sizeOfOption + horizontalShift + 4, verticalShift + 12.5);
-                                doc.setTextColor(255);
+                            sizeOfOption = indicator.options[i].length * 2.5 + 10;
+                            if (horizontalShift + sizeOfOption > maxWidth) {
+                                verticalShift += 16;
+                                horizontalShift = 10;
                             }
-                            horizontalShift += 20;
+                            horizontalShift += sizeOfOption;
+                            doc.rect(horizontalShift - 5, verticalShift + 6, 5, 5);
+                            if (!blank && indicator.value.indexOf(indicator.options[i]) > -1) {
+                                doc.setFont("helvetica");
+                                doc.text('x', horizontalShift - 3.5, verticalShift + 9.5);
+                                doc.setFont("times");
+                            }
+                            horizontalShift += 7;
+                            doc.text(decodeHTMLEntities(indicator.options[i]), horizontalShift - sizeOfOption, verticalShift + 10.5);
                         }
-                        horizontalShift = 20;
-                        doc.setFillColor(30, 70, 125);
+                        doc.setFont("helvetica");
                         verticalShift += 16;
+                        doc.rect(10, start, 190, verticalShift - start);
+                        verticalShift += -4;
+                        horizontalShift = 10;
                         break;
                     default:
-                        doc.rect(20, verticalShift, 170, 8, 'FD');
+                        doc.rect(10, verticalShift, 190, 8, 'FD');
                         doc.setFont("helvetica");
-                        doc.text(number + ': ' + indicator.name + required, 21, verticalShift + 6);
-                        verticalShift += 8;
+                        doc.text(number + ': ' + decodeHTMLEntities(indicator.name) + required, 11, verticalShift + 6);
+                        verticalShift += 4;
                         break;
                 }
             }
@@ -633,20 +662,60 @@ function printForm() {
                 subCount = storedSubCount;
             }
         }
-        $.each(data, function() {
+
+        $.each(data, function () {
             makeEntry(this, null, 0, 0);
+            verticalShift += -4;
+            subShift = true;
             if (this.child !== undefined && this.child !== null) {
                 makeCount = 0;
                 subNewRow();
             }
         });
+
+        verticalShift += 16;
+        doc.text('* = required field', 200, verticalShift, null, null, 'right');
+
+        if (typeof (requestInfo['signatures']) !== "undefined" && requestInfo['signatures'].length > 0) {
+            doc.text("Signatures:", 10, verticalShift);
+            verticalShift += 14;
+            $.each(requestInfo['signatures'], function () {
+                if (verticalShift > height - 15) {
+                    pageFooter(false);
+                    doc.addPage();
+                    doc.text("Signatures continued:", 10, 15);
+                    verticalShift = 30;
+                }
+
+                if (typeof (this['signed']) !== "undefined") {
+                    doc.setFontStyle("italic");
+                    doc.setFontType("times");
+                    var signedDate = new Date(Number(this['signed']['timestamp']) * 1000).toJSON().slice(0, 10).replace(/-/g, '/');
+                    doc.text(this['signed']['userID'] + " " + signedDate, 10, verticalShift - 5);
+                    doc.setFontType("helvetica");
+                    doc.setFontStyle("normal");
+                }
+                doc.line(10, verticalShift - 4, 90, verticalShift - 4);
+                doc.text(this['stepTitle'], 10, verticalShift);
+                verticalShift += 14;
+            });
+        }
+
         pageFooter(true);
 
-        doc.text('* = required field', 170, verticalShift + 10, null, null, 'right');
-        doc.save(requestTitle.text().replace(/(?:\r\n|\r|\n)/g, "").trim() + ' - ' + $('#requestTitle > span').text() +'.pdf');
+        if (blank) {
+            if (requestInfo['workflows'].length > 1) {
+                doc.save('MultipleForms.pdf');
+            } else {
+                doc.text(requestInfo['workflows'][0][0]['categoryName'] + '.pdf', 20, height - 7);
+            }
+        } else {
+            doc.save(requestInfo['title'] + '.pdf');
+        }
     }
+
     var indicatorCount = 0;
-    var index = 1;
+    var index = 0;
     var indicators = new Object();
     var blankIndicators = 0;
     function checkBlankChild(indicator) {
@@ -671,53 +740,261 @@ function printForm() {
             url: './api/form/' + recordID + '/rawIndicator/' + indicator.indicatorID + '/' + indicator.series,
             dataType: 'json',
             cache: false
-        }).done(function(res) {
+        }).done(function (res) {
+            if ("parentID" in res[Object.keys(indicators)[index]] && res[Object.keys(indicators)[index]].parentID === null) {
+                indicatorData.push(res[Object.keys(indicators)[index]]);
+                if (res[Object.keys(indicators)[index]].value.length === 0) {
+                    blankIndicators++;
+                }
+                if (typeof (res[Object.keys(indicators)[index]].child) !== "undefined" && res[Object.keys(indicators)[index]].child !== null) {
+                    checkBlankChild(res[Object.keys(indicators)[index]].child);
+                }
+            }
+            index++;
             if (index === indicatorCount) {
                 blank = blankIndicators === indicatorCount;
+                var submitted = Number(requestInfo['submitted']) > 0;
+                var approved = typeof (requestInfo['approved']) !== "undefined";
 
-                if (!blank) {
-                    doc.setTextColor(80,80,80);
+                if (!blank || submitted) {
+                    doc.text(requestInfo['title'], 35, verticalShift);
+                    doc.text($('span#headerTab').text(), 200, verticalShift, null, null, 'right');
+                    verticalShift += 7;
+                    doc.text('Initiated by ' + requestInfo['name'], 200, 24, null, null, 'right');
+                    doc.setTextColor(80, 80, 80);
                     doc.setFontStyle("italic");
-                    doc.text($('#requestTitle > span').text(), 45, 24);
-                    doc.text($('#headerLabel').text(), 45, 31);
-                    doc.setTextColor(0,0,0);
+                    $.each(requestInfo['workflows'], function () {
+                        doc.text(this[0]['categoryName'], 35, verticalShift);
+                        verticalShift += 7
+                    });
+                    doc.text($('#headerLabel').text(), 35, verticalShift);
+                    doc.setTextColor(0, 0, 0);
                     doc.setFontType('normal');
-                    doc.text(requestTitle.text(), 45, 17);
-                    doc.text($('span#headerTab').text(), 190, 17, null, null, 'right');
-                    doc.text($('#requestInfo > table > tbody > tr:eq(1) > td:eq(0)').text() + ' ' + $('#requestInfo > table > tbody > tr:eq(1) > td:eq(1)').text(), 190, 24, null, null, 'right');
-                    if ($('#requestInfo > table > tbody > tr:eq(2) > td:eq(1)').text() === "Not submitted") {
-                        doc.text($('#requestInfo > table > tbody > tr:eq(2) > td:eq(1)').text(), 190, 31, null, null, 'right');
+                    if (!submitted) {
+                        doc.text("Not submitted", 200, verticalShift, null, null, 'right');
                     } else {
-                        doc.text($('#requestInfo > table > tbody > tr:eq(2) > td:eq(0)').text() + ' ' + $('#requestInfo > table > tbody > tr:eq(2) > td:eq(1)').text(), 190, 31, null, null, 'right');
+                        var submitTime = new Date(Number(requestInfo['submitted']) * 1000).toJSON().slice(0, 10).replace(/-/g, '/');
+                        doc.text("Submitted " + submitTime, 200, verticalShift, null, null, 'right');
+                        if (approved) {
+                            var approveTime = new Date(Number(requestInfo['approved']['time']) * 1000).toJSON().slice(0, 10).replace(/-/g, '/');
+                            verticalShift += 7;
+                            doc.text(requestInfo['approved']['description'] + ": Approved " + approveTime, 200, verticalShift, null, null, 'right');
+                        }
                     }
-                    doc.addImage(getBase64Image($('img[alt="QR code"]')[0]), 'PNG', 18.5, 8, 25, 25);
+                    doc.addImage(getBase64Image($('img[alt="QR code"]')[0]), 'PNG', 8.5, 8, 25, 25);
                 } else {
-                    doc.text($('#requestTitle > span').text(), 45, 24);
-                    doc.setTextColor(80,80,80);
+                    doc.setFontSize(8);
+                    doc.text("Name:", 150, verticalShift);
+                    doc.line(160, verticalShift, 200, verticalShift);
+                    doc.text("Date:", 152, verticalShift + 7);
+                    doc.line(160, verticalShift + 7, 200, verticalShift + 7);
+                    doc.setFontSize(12);
+                    $.each(requestInfo['workflows'], function () {
+                        doc.text(this[0]['categoryName'], 35, verticalShift);
+                        verticalShift += 7
+                    });
+                    doc.setTextColor(80, 80, 80);
                     doc.setFontStyle("italic");
-                    doc.text($('#headerLabel').text(), 45, 31);
-                    doc.setTextColor(0,0,0);
+                    doc.text($('#headerLabel').text(), 35, verticalShift);
+                    doc.setTextColor(0, 0, 0);
                     doc.setFontType('normal');
-                    doc.addImage(getBase64Image(homeQR), 'PNG', 18.5, 8, 25, 25);
+                    doc.addImage(getBase64Image(homeQR), 'PNG', 8.5, 8, 25, 25);
                 }
                 makePdf(indicatorData);
             } else {
-                if ("parentID" in res[index] && res[index].parentID === null) {
-                    indicatorData.push(res[index]);
-                    if (res[index].value.length === 0) {
-                        blankIndicators++;
-                    }
-                    if (typeof (res[index].child) !== "undefined" && res[index].child !== null) {
-                        checkBlankChild(res[index].child);
-                    }
-                }
-                index++;
-                getIndicatorData(indicators[index][1]);
+                getIndicatorData(indicators[Object.keys(indicators)[index]][1]);
             }
-        }).fail(function(err) {
+        }).fail(function (err) {
             console.log(err);
         });
     }
+
+    function getApproved() {
+        var fetchURL = './api/formWorkflow/' + recordID + '/lastAction';
+
+        $.ajax({
+            method: 'GET',
+            url: fetchURL,
+            dataType: "json",
+            cache: false
+        })
+            .done(
+                function (res) {
+                    if (res !== null && res['actionType'] === "approve") {
+                        requestInfo['approved'] = {
+                            'time': res['time'],
+                            'description': res['description']
+                        };
+                    }
+                    getIndicatorData(indicators[Object.keys(indicators)[index]][1]);
+                }
+            )
+            .fail(
+                function (err) {
+                    alert('Unable to get approval details.');
+                    console.log(err);
+                    getIndicatorData(indicators[Object.keys(indicators)[index]][1]);
+                }
+            );
+    }
+
+    function getWorkflowState() {
+        if (requestInfo['submitted'] > 0) {
+            var fetchURL = './api/formWorkflow/' + recordID + '/currentStep';
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: "json",
+                cache: false
+            })
+                .done(
+                    function (res) {
+                        if (res === null) {
+                            requestInfo['completed'] = true;
+                        }
+                        getApproved();
+                    }
+                )
+                .fail(
+                    function (err) {
+                        alert('Unable to get workflow details.');
+                        console.log(err);
+                        getApproved();
+                    }
+                );
+        } else {
+            getIndicatorData(indicators[Object.keys(indicators)[index]][1]);
+        }
+    }
+
+    function getSigned() {
+        var fetchURL = './api/signature/' + recordID;
+
+        $.ajax({
+            method: 'GET',
+            url: fetchURL,
+            dataType: "json",
+            cache: false
+        })
+            .done(
+                function (res) {
+                    $.each(requestInfo['signatures'], function (i) {
+                        $.each(res, function () {
+                            if (this.stepID === requestInfo['signatures'][i]['stepID']) {
+                                requestInfo['signatures'][i]['signed'] = {
+                                    'timestamp': this.timestamp,
+                                    'userID': this.userID
+                                };
+                            }
+                        });
+                    });
+                    getWorkflowState();
+                }
+            )
+            .fail(
+                function (err) {
+                    alert('Unable to get form details.');
+                    console.log(err);
+                }
+            );
+    }
+
+    function getSignatures(iteration) {
+        var processed = iteration;
+        if (processed === requestInfo['workflows'].length) {
+            getSigned();
+        } else {
+            var test = requestInfo['workflows'][iteration][0]['workflowID'];
+            var fetchURL = './api/workflow/' + test;
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: "json",
+                cache: false
+            })
+                .done(
+                    function (res) {
+                        $.each(res, function () {
+                            if (typeof (this['requiresDigitalSignature']) !== "undefined" && this['requiresDigitalSignature'] === "1") {
+                                requestInfo['signatures'].push({
+                                    'stepID': this.stepID,
+                                    'stepTitle': this.stepTitle
+                                });
+                            }
+                        });
+                        processed++;
+                        getSignatures(processed);
+                    }
+                )
+                .fail(
+                    function (err) {
+                        alert('Unable to get form details.');
+                        console.log(err);
+                    }
+                );
+        }
+    }
+
+    function getWorkflowID(categoryIDs, iteration) {
+        var processed = iteration;
+        if (processed === categoryIDs.length) {
+            requestInfo['signatures'] = [];
+            getSignatures(0);
+        } else {
+            var fetchURL = './api/form/_' + categoryIDs[processed] + '/workflow';
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: "json",
+                cache: false
+            })
+                .done(
+                    function (res) {
+                        processed++;
+                        requestInfo['workflows'].push(res);
+                        getWorkflowID(categoryIDs, processed);
+                    }
+                )
+                .fail(
+                    function (err) {
+                        alert('Unable to get form details.');
+                        console.log(err);
+                    }
+                );
+        }
+    }
+
+    function getFormInfo() {
+        var fetchURL = './api/form/' + recordID + '/recordinfo';
+
+        $.ajax({
+            method: 'GET',
+            url: fetchURL,
+            dataType: "json",
+            cache: false
+        })
+            .done(
+                function (res) {
+                    requestInfo['title'] = res['title'];
+                    requestInfo['name'] = res['name'];
+                    requestInfo['date'] = res['date'];
+                    requestInfo['submitted'] = res['submitted'];
+                    requestInfo['categories'] = Object.keys(res['categories']);
+                    requestInfo['workflows'] = [];
+                    getWorkflowID(requestInfo['categories'], 0);
+                }
+            )
+            .fail(
+                function (err) {
+                    alert('Unable to get form details.');
+                    console.log(err);
+                }
+            );
+    }
+
     $.ajax({
         method: 'GET',
         url: './api/form/' + recordID + '/data',
@@ -726,7 +1003,7 @@ function printForm() {
     }).done(function(res) {
         indicatorCount = Object.keys(res).length;
         indicators = res;
-        getIndicatorData(indicators[index][1]);
+        getFormInfo();
     }).fail(function(err) {
         console.log(err);
     });
