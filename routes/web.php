@@ -3,6 +3,11 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+
+ Route::get('/', function () {
+     return view('home');
+ });
+
 Route::get('/login', function () {
     return view('login');
 });
