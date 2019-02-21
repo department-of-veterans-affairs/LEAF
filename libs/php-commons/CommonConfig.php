@@ -28,6 +28,7 @@ class CommonConfig
                                             'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif', 'svg',
                                             'vsd',
                                             'rtf',
+                                            'json',
                                             'js',
                                             'css',
                                             'pub',
