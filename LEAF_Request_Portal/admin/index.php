@@ -73,6 +73,8 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
     $main->assign('status', 'You appear to be using Microsoft Internet Explorer version 6. Some portions of this website may not display correctly unless you use Internet Explorer version 10 or higher.');
 }
 
+$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+
 $main->assign('logo', '<img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
 $t_login->assign('name', $login->getName());
@@ -312,7 +314,12 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-
+        if (!class_exists('CommonConfig'))
+        {
+            require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
+        }
+        $commonConfig = new CommonConfig();
+        $t_form->assign('fileExtensions', $commonConfig->fileManagerWhitelist);
         if ($login->checkGroup(1))
         {
             $main->assign('body', $t_form->fetch('admin_upload_file.tpl'));
@@ -335,12 +342,6 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('javascripts', array('../../libs/js/LEAF/XSSHelpers.js'));
 
-        $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-        $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-        $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-        $t_form->assign('requestLabel', XSSHelpers::sanitizeHTMLRich($settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel']));
-        $t_form->assign('timeZone', XSSHelpers::sanitizeHTMLRich($settings['timeZone'] == '' ? 'America/New_York' : $settings['timeZone']));
-
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
         $t_form->assign('importTags', $config::$orgchartImportTags);
@@ -358,11 +359,6 @@ switch ($action) {
             $main->assign('useUI', true);
             //   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-
-            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-            $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-            $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-            $t_form->assign('requestLabel', XSSHelpers::sanitizeHTMLRich($settings['requestLabel'] == '' ? 'Request' : $settings['requestLabel']));
             $t_form->assign('importTags', $config::$orgchartImportTags);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
             $main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl')));
@@ -449,7 +445,6 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
 $main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 $main->assign('revision', XSSHelpers::xscrub($settings['version']));
