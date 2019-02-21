@@ -18,7 +18,6 @@ ALTER TABLE `position_data_history` CHANGE `author` `author` varchar(36) NOT NUL
 
 ALTER TABLE `relation_employee_backup` CHANGE `approverUserName` `approverUserName` varchar(36);
 
-DELIMITER #
 CREATE TRIGGER `employee_new_empUID`
 BEFORE INSERT ON `employee` 
 FOR EACH ROW 
@@ -27,9 +26,6 @@ BEGIN
         SET NEW.empUID = UUID(); 
     END IF;
 END;
-#
-DELIMITER ;
 
 UPDATE `settings` SET `data` = '5205' WHERE `settings`.`setting` = 'dbversion';
-
 COMMIT;
