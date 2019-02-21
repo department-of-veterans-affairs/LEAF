@@ -21,21 +21,21 @@ class RequestsController extends Controller
 {
     /**
      * Records Repository
-     * 
+     *
      * @var RecordsRepository
      */
     protected $records;
 
     /**
      * Service Repository
-     * 
+     *
      * @var ServiceRepository
      */
     protected $services;
 
     /**
      * Forms Repository
-     * 
+     *
      * @var FormsRepository
      */
     protected $forms;
@@ -62,14 +62,14 @@ class RequestsController extends Controller
 
     public function isCategory($categoryID)
     {
-        if (isset($this->cache['isCategory_' . $categoryID]))
+        if (isset($this->cache['isCategory_' . $categoryID])) 
         {
             return $this->cache['isCategory_' . $categoryID];
         }
 
         $res = $this->forms->getCountById($categoryID);
 
-        if ($res != 0)
+        if ($res != 0) 
         {
             $this->cache['isCategory_' . $categoryID] = 1;
             return true;
@@ -104,7 +104,7 @@ class RequestsController extends Controller
 
     /**
      * Store a newly created request
-     * 
+     *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
@@ -117,15 +117,15 @@ class RequestsController extends Controller
         $keys = $request->input();
 
         $countCategories = 0;
-        foreach (array_keys($keys) as $key)
+        foreach (array_keys($keys) as $key) 
         {
-            if (strpos($key, 'num') === 0)
+            if (strpos($key, 'num') === 0) 
             {
                 $countCategories++;
             }
         }
 
-        if ($countCategories == 0)
+        if ($countCategories == 0) 
         {
             // TODO: redirect to error page saying "Error: No forms selected. Please Select a form and try again."
             return redirect("/welcome");
@@ -135,10 +135,10 @@ class RequestsController extends Controller
         $serviceID = $res != null ? $res->serviceID : null;
 
         if (!is_numeric($serviceID)) {
-            if ($service == 0)
+            if ($service == 0) 
             {
                 $serviceID = 0;
-            }
+            } 
             else 
             {
                 // TODO: redirect to error page saying "Error: Service ID is not synchronized to Org. Chart."
@@ -155,9 +155,9 @@ class RequestsController extends Controller
             return false;
         }
 
-        foreach (array_keys($keys) as $key)
+        foreach (array_keys($keys) as $key) 
         {
-            if (strpos($key, 'num') === 0)
+            if (strpos($key, 'num') === 0) 
             {
                 // Check how many copies of the form are needed
                 $tCount = is_numeric($keys[$key]) ? $keys[$key] : 1;
@@ -165,13 +165,13 @@ class RequestsController extends Controller
                 if ($tCount >= 1) {
                     $categoryID = strtolower(substr($key, 3));
 
-                    if($this->isCategory($categoryID))
+                    if($this->isCategory($categoryID)) 
                     {
                         $this->forms->createFormCount($recordID, $categoryID, $tCount);
 
                         $res = $this->forms->getStapledForms($categoryID);
 
-                        foreach($res as $merged)
+                        foreach($res as $merged) 
                         {
                             $this->forms->createFormCount($recordID, $merged->stapledCategoryID, $tCount);
                         }
@@ -185,7 +185,7 @@ class RequestsController extends Controller
         ]);
     }
 
-    public function updateIndicator(Request $request, $route, $recordId, $indicatorId) 
+    public function updateIndicator(Request $request, $route, $recordId, $indicatorId)
     {
         // series will always be 1 (for now)
         $series = 1;
@@ -203,5 +203,10 @@ class RequestsController extends Controller
         }
 
         return 0;
+    }
+
+    public function delete($route, $id)
+    {
+       return $this->records->delete($id);
     }
 }

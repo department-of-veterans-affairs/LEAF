@@ -4,6 +4,26 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script>
+            function deleteRequest(recordID)
+            {
+                $.ajax({
+                    type: 'DELETE',
+                    url: "/portal/{{$visn}}/requests/"+recordID,
+                    data: { '_token':'{{ csrf_token() }}' },
+                    cache: false
+                }).done(function(data) {
+                    location.reload();
+                }).fail(function (jqXHR, error, errorThrown) {
+                    console.log(jqXHR);
+                    console.log(error);
+                    console.log(errorThrown);
+                }).always(function () {
+
+                });
+            }
+        </script>
         <title>LEAF Test</title>
     </head>
 
@@ -33,6 +53,7 @@
                             <th>deleted</th>
                             <th>is writable user</th>
                             <th>is writable group</th>
+                            <th>delete</th>
                         </thead>
                         <tbody>
                             @foreach ($records as $record)
@@ -48,6 +69,7 @@
                                     <td>{{ $record->deleted}}</td>
                                     <td>{{ $record->isWritableUser}}</td>
                                     <td>{{ $record->isWritableGroup}}</td>
+                                    <td><button onclick="deleteRequest({{ $record->recordID }})">Delete</button></td>
                                 </tr>
                             @endforeach
                         </tbody>

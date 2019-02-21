@@ -9,18 +9,16 @@ use RequestPortal\Data\Repositories\Contracts\RecordsRepository;
 
 class RecordsDao extends CachedDbDao implements RecordsRepository
 {
-
     protected $tableName = "records";
 
     /**
      * Create a new Record
-     * 
+     *
      * @var Record
      */
     public function create($record)
     {
-        if ($record instanceof Record)
-        {
+        if ($record instanceof Record) {
             return $this->getConn()->insertGetId([
                 'date' => $record->date,
                 'serviceID' => $record->serviceID,
@@ -28,9 +26,7 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
                 'title' => $record->title,
                 'priority' => $record->priority
             ]);
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
@@ -43,5 +39,10 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
     public function getById($recordId)
     {
         return $this->getConn()->where('recordID', $recordId)->get();
+    }
+
+    public function delete($recordId)
+    {
+        return $this->getConn()->where('recordID', $recordId)->update(['deleted' => time()]);
     }
 }
