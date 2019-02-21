@@ -232,8 +232,9 @@
         <script>
             // fix for IE scroll bar
             $('#xhrIndicator_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').css('max-width', parseInt($('.printmainlabel').css('width')) * .85 + 'px');
+            var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
             $(function() {
-                printTableOutput(<!--{$indicator.options[0]}-->, <!--{$indicator.value|json_encode}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
+                gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.output(<!--{$indicator.value|json_encode}-->);
             })
         </script>
         <!--{/if}-->
