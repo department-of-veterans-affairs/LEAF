@@ -1,14 +1,30 @@
 <?php
 ini_set('display_errors', 1); // Set to 1 to display errors
 
-$tempFolder = './';
-
+include '../globals.php';
 include '../db_mysql.php';
 include '../db_config.php';
 
 $db_config = new DB_Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+
+$res = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+
+$protocol = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+$siteRootURL = $protocol . HTTP_HOST;
+$relativePath = trim(str_replace($siteRootURL, '', $res['national_linkedPrimary']));
+echo $relativePath . '<br />';
+echo $res['national_linkedPrimary'] . '<br />';
+echo __DIR__ . '<br />';
+echo $_SERVER['DOCUMENT_ROOT'] . $relativePath;
+$tempFolder = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'files/temp/';
+exit();
+
+if($res['siteType'] != 'national_subordinate') {
+    echo "ERROR: This is not a national subordinate site.";
+    exit();
+}
 
 echo "Running Importer on {$db_config->dbName}...<br />\n";
 $db->enableDebug();

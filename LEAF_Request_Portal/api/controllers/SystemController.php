@@ -85,6 +85,10 @@ class SystemController extends RESTfulResponse
             return $system->getFileList();
         });
 
+        $this->index['GET']->register('system/settings', function ($args) use ($system) {
+            return $system->getSettings();
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
@@ -134,6 +138,18 @@ class SystemController extends RESTfulResponse
 
         $this->index['POST']->register('system/settings/timeZone', function ($args) use ($system) {
             return $system->setTimeZone();
+        });
+
+        $this->index['POST']->register('system/settings/siteType', function ($args) use ($system) {
+            return $system->setSiteType();
+        });
+
+        $this->index['POST']->register('system/settings/national_linkedSubordinateList', function ($args) use ($system) {
+            return $system->setNationalLinkedSubordinateList();
+        });
+
+        $this->index['POST']->register('system/settings/national_linkedPrimary', function ($args) use ($system) {
+            return $system->setNationalLinkedPrimary();
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
