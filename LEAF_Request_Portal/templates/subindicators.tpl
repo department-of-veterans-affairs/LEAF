@@ -54,13 +54,15 @@
                 </tbody>
             </table>
             </div>
-            <button type="button" class="buttonNorm" id="addRowBtn" title="Grid input add row" alt="Grid input add row" aria-label="Grid input add row" onclick="addRow(options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)"><img src="../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
+            <button type="button" class="buttonNorm" id="addRowBtn" title="Grid input add row" alt="Grid input add row" aria-label="Grid input add row" onclick="gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow()"><img src="../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
             <script>
-                var options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = <!--{$indicator.options[0]}-->;
-                var values_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = <!--{$indicator.value|json_encode}-->;
+                var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
 
                 $(function() {
-                    printTableInput(options_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, values_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->, <!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->);
+                    gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.input(<!--{$indicator.value|json_encode}-->);
+                    if (typeof (<!--{$indicator.value|json_encode}-->.cells) === "undefined") {
+                        gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow();
+                    }
                 });
 
                 <!--{if $indicator.required == 1}-->
