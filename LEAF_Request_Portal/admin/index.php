@@ -415,6 +415,7 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
             $t_form->assign('orgchartPath', Config::$orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+            $t_form->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
 
             $main->assign('javascripts', array('../../libs/js/jquery/jquery.min.js',
                                            '../../libs/js/jquery/jquery-ui.custom.min.js',

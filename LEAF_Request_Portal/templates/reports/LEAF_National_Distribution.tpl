@@ -1,33 +1,35 @@
 <!--{if $empMembership['groupID'][1]}-->
-
 <style>
 li {
     padding: 8px;
 }
 </style>
+<div id="loadingIndicator"><h1>Loading...</h1></div>
+<div id="errors"></div>
+<div id="ui_container" style="display: none">
+    <h2>
+        This utility is used to deploy nationally standardized changes to associated LEAF sites.
+    </h2>
 
-<h2>
-    This dashboard is used to distribute centrally maintained CCU configurations to all national CCU sites.
-</h2>
+    <ol>
+        <li><button id="prepare">Prepare Package</button></li>
+        <li><button id="test" disabled="disabled">Distribute Package to Test site</button>
+            <br />Test site: <a id="testURL" href="#" target="_blank">Loading link...</a>
+        </li>
+        <li><button id="distribute" disabled="disabled">Distribute Package to Production sites</button><div id="prodStatus"></div></li>
+    </ol>
 
-<ol>
-    <li><button id="prepare">Prepare Package</button></li>
-    <li><button id="test" disabled="disabled">Distribute Package to Test site</button>
-        <br />Test site: <a href="https://URL/NATIONAL/CCU/TEST/standard/" target="_blank">https://URL/NATIONAL/CCU/TEST/standard/</a>
-    </li>
-    <li><button id="distribute" disabled="disabled">Distribute Package to Production sites</button><div id="prodStatus"></div></li>
-</ol>
-
-Server Log (please copy/paste and save this somewhere after running all steps):<br />
-<textarea id="outputLog" rows='20' cols='80'></textarea>
-
+    Server Log (please copy/paste and save this after running all steps):<br />
+    <textarea id="outputLog" rows='20' cols='80'></textarea>
+</div>
 <script>
 
+var sites;
 $(function() {
 
     $('#prepare').on('click', function() {
         $.ajax({
-            url: './utils/exportStandardConfig.php',
+            url: './utils/LEAF_exportStandardConfig.php',
             dataType: 'text',
             success: function(res) {
                 $('#outputLog').val($('#outputLog').val() + res);
@@ -39,51 +41,87 @@ $(function() {
 
     $('#test').on('click', function() {
         $.ajax({
-            url: '../../TEST/standard/utils/importStandardConfig.php',
+            url: sites[0] + 'utils/LEAF_importStandardConfig.php',
             dataType: 'text',
             success: function(res) {
-                $('#outputLog').val($('#outputLog').val() + res);
+                $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to test site..." + res);
                 $('#distribute').attr('disabled', false);
                 $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
             }
         });
     });
 
-    var sites = ['VISN1/New',
-                'VISN2/New',
-                'VISN4/New',
-                'VISN5/New',
-                'VISN6/New',
-                'VISN7/New',
-                'VISN8/New',
-                'VISN9/New',
-                'VISN10/New',
-                'VISN12/New',
-                'VISN15/New',
-                'VISN16/New',
-                'VISN17/New',
-                'VISN19/New',
-                'VISN20/New',
-                'VISN21/New',
-                'VISN22/New',
-                'VISN23/New',
-                'WMC/NATIONAL'];
-
     $('#distribute').on('click', function() {
         for(var i in sites) {
             $.ajax({
-                url: '../../'+ sites[i] +'/utils/importStandardConfig.php',
+                url: sites[i] + 'utils/LEAF_importStandardConfig.php',
                 dataType: 'text',
                 async: false,
                 success: function(res) {
-                    $('#outputLog').val($('#outputLog').val() + res);
+                    $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to all sites..." + res);
                     $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
-                    $('#prodStatus').append('Pushed to ' + sites[i] + '. ');
+                    if(res.indexOf('ERROR') != -1) {
+                        $('#prodStatus').append('Pushed to ' + sites[i] + '.<br />');
+                    }
+                    else {
+                        $('#prodStatus').append('Error Pushing to ' + sites[i]);
+                    }
+                    
                 },
                 error: function(xhr, error, errorThrown) {
                     $('#prodStatus').append('Error Pushing to ' + sites[i] + ' ('+ errorThrown +'). ');
                 }
             });
+        }
+    });
+
+
+    var sitesLoaded = 0;
+    var siteErrors = 0;
+    $.ajax({
+        type: 'GET',
+        url: './api/system/settings',
+        cache: false
+    })
+    .then(function(res) {
+        if(res.siteType != 'national_primary') {
+            $('#ui_container').html('<h1>This site is not configured as a primary national distribution site.</h1>');
+            $('#loadingIndicator').slideUp();
+            $('#ui_container').fadeIn();
+        }
+        else {
+            sites = res.national_linkedSubordinateList.split(/\n/).filter(function(site) {
+                return site != "" ? true : false;
+            });
+            sites.forEach(function(site, i) {
+                site = site.trim();
+                sites[i] = site.trim();
+                $.ajax({
+                    type: 'GET',
+                    url: site + 'api/form/version',
+                    success: function() {
+                        sitesLoaded++;
+                    },
+                    error: function(xhr, status, errMsg) {
+                        sitesLoaded++;
+                        siteErrors++;
+                        $('#errors').append('<span style="font-size: 140%; color: red">Error. ' + errMsg + ': '+ site + '</span><br />');
+                    },
+                    cache: false
+                });
+            });
+
+            $('#testURL').html(sites[0]);
+            $('#testURL').attr('href', sites[0]);
+            var checkLoaded = setInterval(function() {
+                if(sitesLoaded == sites.length) {
+                    clearInterval(checkLoaded);
+                    $('#loadingIndicator').slideUp();
+                    if(siteErrors == 0) {
+                        $('#ui_container').fadeIn();
+                    }
+                }
+            }, 500);
         }
     });
 });
