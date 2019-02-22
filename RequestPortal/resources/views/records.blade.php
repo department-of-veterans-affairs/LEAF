@@ -57,6 +57,7 @@
                         </thead>
                         <tbody>
                             @foreach ($records as $record)
+                                @if ($record->deleted == 0)
                                 <tr>
                                     <td>{{ $record->recordID }}</td>
                                     <td>{{ $record->date}}</td>
@@ -71,6 +72,7 @@
                                     <td>{{ $record->isWritableGroup}}</td>
                                     <td><button onclick="deleteRequest({{ $record->recordID }})">Delete</button></td>
                                 </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>
