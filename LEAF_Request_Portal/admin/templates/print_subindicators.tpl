@@ -74,7 +74,6 @@
 
 <!--{if $indicator.format == 'grid'}-->
     <!--{$indicator.format}-->
-    <script type="text/javascript" src="../js/gridInput.js"></script>
     </br></br>
     <div id="grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="width: 100%; max-width: 100%;">
     </div>

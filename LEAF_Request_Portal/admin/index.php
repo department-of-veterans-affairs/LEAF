@@ -165,6 +165,7 @@ switch ($action) {
                                             '../../libs/js/codemirror/addon/display/fullscreen.js',
                                             '../../libs/js/LEAF/XSSHelpers.js',
                                             '../../libs/jsapi/portal/LEAFPortalAPI.js',
+                                            '../js/gridInput.js',
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
                                             '../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
