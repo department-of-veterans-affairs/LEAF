@@ -18,12 +18,12 @@ Route::middleware('IsAuth')->group(function () {
             ), function () {
                 Route::delete('/', 'RequestsController@delete')->name('request.delete');
                 Route::post('/restore', 'RequestsController@restore')->name('request.restore');
-                Route::get('/form', 'RequestsController@getById')->name('request.form');
-                Route::get('/form/json', 'RequestsController@getById')->name('request.form.json');
-                /*Route::post('/form/add/{categoryID}', 'RequestsController@getById')->name('request.detail'); //TODO
-                Route::post('/form/update/{categoryIDS}', 'RequestsController@getById')->name('request.detail'); //TODO
+                Route::get('/form', 'RequestsController@getForm')->name('request.form');
+                Route::get('/form/json', 'RequestsController@getFormJson')->name('request.form.json');
+                Route::post('/form/add/{categoryID}', 'RequestsController@addToCategoryCount')->name('request.addToCategoryCount'); 
+                Route::post('/form/update', 'RequestsController@switchCategoryCount')->name('request.switchCategoryCount');
 
-                Route::post('/bookmark', 'RequestsController@getById')->name('request.detail'); //TODO
+                /* Route::post('/bookmark', 'RequestsController@getById')->name('request.detail'); //TODO
                 Route::delete('/bookmark', 'RequestsController@getById')->name('request.detail'); //TODO
                 Route::get('/data', 'RequestsController@getById')->name('request.detail'); //TODO
                 Route::get('/dataforsigning', 'RequestsController@getById')->name('request.detail'); //TODO

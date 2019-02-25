@@ -13,6 +13,8 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
 {
     protected $tableName = 'records';
 
+    protected $cache = array();
+
     /**
      * Create a new Record
      *
@@ -25,7 +27,7 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
             return $this->getConn()->insertGetId(array(
                 'date' => $record->date,
                 'serviceID' => $record->serviceID,
-                'userID' => $record->userID,
+                'empUID' => $record->empUID,
                 'title' => $record->title,
                 'priority' => $record->priority,
             ));
@@ -56,15 +58,13 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
      * Check if need to know mode is enabled for any form, or a specific form
      * @param int $recordID
      * @return boolean
-     * 
-     * TODO caching
      */
     public function isNeedToKnow($recordID = null)
     {
-        // if (isset($this->cache['isNeedToKnow_' . $recordID]))
-        // {
-        //     return $this->cache['isNeedToKnow_' . $recordID];
-        // }
+        if (isset($this->cache['isNeedToKnow_' . $recordID]))
+        {
+            return $this->cache['isNeedToKnow_' . $recordID];
+        }
         if ($recordID == null)
         {
             $res = $this->getConnForTable('categories')
@@ -72,7 +72,7 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
             ->get();
             if (count($res) == 0)
             {
-                //$this->cache['isNeedToKnow_' . $recordID] = false;
+                $this->cache['isNeedToKnow_' . $recordID] = false;
 
                 return false;
             }
@@ -86,13 +86,13 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
 
             if (count($res) == 0)
             {
-                //$this->cache['isNeedToKnow_' . $recordID] = false;
+                $this->cache['isNeedToKnow_' . $recordID] = false;
 
                 return false;
             }
         }
 
-        //$this->cache['isNeedToKnow_' . $recordID] = true;
+        $this->cache['isNeedToKnow_' . $recordID] = true;
 
         return true;
     }
@@ -107,23 +107,25 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
         if ($limitCategory == null)
         {
             // pull category counts
-            $vars = array(':recordID' => $recordID);
-            $res2 = $this->db->prepared_query('SELECT * FROM category_count
-                                                    LEFT JOIN categories USING (categoryID)
-                                                    WHERE recordID = :recordID
-                                                        AND count > 0
-                                                    ORDER BY sort', $vars);
+            $res2 = $this->getConnForTable('category_count')
+                ->leftJoin('categories', 'category_count.categoryID', '=', 'categories.categoryID')
+                ->where([['recordID', $recordID],['count', '>', 0]])
+                ->orderBy('sort', 'asc')
+                ->get()
+                ->toArray();
         }
         else
         {
-            $vars = array(':categoryID' => XSSHelpers::xscrub($limitCategory));
-            $res2 = $this->db->prepared_query('SELECT * FROM categories
-                                                    WHERE categoryID = :categoryID', $vars);
+            $res2 = $this->getConnForTable('categories')
+                ->where('categoryID', $limitCategory)
+                ->get()
+                ->toArray();
             $res2[0]['count'] = 1;
         }
 
         foreach ($res2 as $catType)
         {
+            $catType = (array) $catType;
             for ($i = 1; $i <= $catType['count']; $i++)
             {
                 $tmp['name'] = $catType['count'] > 1
@@ -140,10 +142,70 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
         return $json;
     }
 
+    public function buildFormJSONStructure($categoryID, $series = 1)
+    {
+        $categoryID = ($categoryID == null) ? 'general' : $categoryID;
+
+        if (!isset($this->cache["categoryID{$categoryID}_indicators"]))
+        {
+            $res = $this->getConnForTable('indicators')
+                ->where([['categoryID', $categoryID],['disabled', 0]])
+                ->wherenull('parentID')
+                ->orderBy('sort', 'asc')
+                ->get()
+                ->toArray();
+            
+            $this->cache["categoryID{$categoryID}_indicators"] = $res;
+        }
+        else
+        {
+            $res = $this->cache["categoryID{$categoryID}_indicators"];
+        }
+
+        $indicators = array();
+        $counter = 1;
+        foreach ($res as $ind)
+        {
+            $ind = (array) $ind;
+            $desc = $ind['description'] != '' ? $ind['description'] : $ind['name'];
+            $indicator['name'] = "$series.$counter: " . strip_tags($desc);
+            $indicator['desc'] = strip_tags($desc);
+            $indicator['type'] = $categoryID;
+            $indicator['jsonIdx'] = $ind['indicatorID'] . '.' . $series;
+            $indicator['series'] = $series;
+            $indicator['format'] = $ind['format'];
+            $indicator['indicatorID'] = $ind['indicatorID'];
+            $indicators[] = $indicator;
+            $counter++;
+        }
+
+        return $indicators;
+    }
+
     public function getFormJSON($recordID)
     {
         $json = $this->getForm($recordID);
 
         return json_encode($json);
+    }
+
+    public function addToCategoryCount($recordID, $categoryID)
+    {
+        $res = $this->getConnForTable('category_count')
+            ->updateOrInsert(['recordID' => $recordID, 'categoryID' => $categoryID], ['count' => 1]);
+    }
+
+    public function switchCategoryCount($recordID, $categories)
+    {
+        $this->getConnForTable('category_count')
+            ->where('recordID', $recordID)
+            ->update(['count' => 0]);
+
+        foreach ($categories as $category)
+        {
+            $this->addFormType($recordID, $category);
+        }
+
+        return 1;
     }
 }

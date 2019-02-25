@@ -8,5 +8,5 @@ interface PortalUsersRepository
     public function getById($userID);
     public function isAdmin($userID);
     public function getEmpUID($userID);
-    //public function getMembership($userID);
+    public function getMembership($userID);
 }

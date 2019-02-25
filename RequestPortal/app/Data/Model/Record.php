@@ -13,7 +13,7 @@ class Record
 
     public $serviceID;
 
-    public $userID;
+    public $empUID;
 
     public $title;
 
@@ -32,7 +32,7 @@ class Record
     public function __construct(
         $date,
         $serviceID,
-        $userID,
+        $empUID,
         $title,
         $priority = 0,
         $recordID = null,
@@ -45,7 +45,7 @@ class Record
         $this->recordID = $recordID;
         $this->date = $date;
         $this->serviceID = $serviceID;
-        $this->userID = $userID;
+        $this->empUID = $empUID;
         $this->title = $title;
         $this->priority = $priority;
         $this->lastStatus = $lastStatus;

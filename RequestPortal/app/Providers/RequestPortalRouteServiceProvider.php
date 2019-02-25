@@ -30,6 +30,7 @@ class RequestPortalRouteServiceProvider extends ServiceProvider
         Route::pattern('indicatorID', '[0-9]+');
         Route::pattern('requestID', '[0-9]+');
         Route::pattern('serviceID', '[0-9]+');
+        Route::pattern('categoryID', '[a-zA-Z0-9]+');
 
         parent::boot();
     }
