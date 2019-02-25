@@ -10,10 +10,10 @@ class FormsDao extends CachedDbDao implements FormsRepository
 {
     protected $tableName = "categories";
 
-    public function createFormCount($recordId, $categoryId, $count)
+    public function createFormCount($recordID, $categoryId, $count)
     {
         return $this->getConnForTable('category_count')->insertGetId([
-            'recordID' => $recordId,
+            'recordID' => $recordID,
             'categoryID' => $categoryId,
             'count' => $count
         ]);

@@ -36,6 +36,7 @@ class IsAuth
     public function handle($request, Closure $next)
     {
         session(['userID' => 'tester']);
+        session(['groupID' => '1']);
 
         // $db_config = new DB_Config();
         // $config = new Config();

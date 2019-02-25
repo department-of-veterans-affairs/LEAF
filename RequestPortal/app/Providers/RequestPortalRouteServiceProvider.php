@@ -1,13 +1,15 @@
 <?php
+/*
+ * As a work of the United States government, this project is in the public domain within the United States.
+ */
 
 namespace RequestPortal\Providers;
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Route;
 
 class RequestPortalRouteServiceProvider extends ServiceProvider
 {
-
     /**
      * This namespace is applied to your controller routes.
      *
@@ -39,7 +41,7 @@ class RequestPortalRouteServiceProvider extends ServiceProvider
      */
     public function map()
     {
-        // $this->mapApiRoutes();
+        $this->mapApiRoutes();
         $this->mapWebRoutes();
     }
 
@@ -54,9 +56,9 @@ class RequestPortalRouteServiceProvider extends ServiceProvider
     {
         // Middleware is defined in app\Http\Kernel.php
         Route::middleware('dbweb')
-             ->prefix('portal')
-             ->namespace($this->namespace)
-             ->group(base_path('RequestPortal/routes/web.php'));
+            ->prefix('portal')
+            ->namespace($this->namespace)
+            ->group(base_path('RequestPortal/routes/web.php'));
     }
 
     /**
@@ -68,10 +70,9 @@ class RequestPortalRouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes()
     {
-        Route::prefix('api')
-             ->middleware('api')
-             ->namespace($this->namespace)
-             ->group(base_path('RequestPortal/routes/api.php'));
+        Route::prefix('api/portal')
+            ->middleware('api')
+            ->namespace($this->namespace)
+            ->group(base_path('RequestPortal/routes/api.php'));
     }
-
 }

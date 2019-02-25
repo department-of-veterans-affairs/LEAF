@@ -18,7 +18,7 @@
 
             <div class="row">
                 <div class="col">
-                    <form method="POST" action="new">
+                    <form method="POST" action="{{ route('request.store', $visn) }}">
                         @csrf
                         <div class="form-group">
                             <label for="title">Title</label>
