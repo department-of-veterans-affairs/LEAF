@@ -14,7 +14,7 @@ Route::middleware('IsAuth')->group(function () {
         ), function () {
             Route::post('/new', 'RequestsController@store')->name('request.store');
             Route::group(array(
-                'prefix' => '/{requestId}',
+                'prefix' => '/{requestID}',
             ), function () {
                 Route::delete('/', 'RequestsController@delete')->name('request.delete');
                 Route::post('/restore', 'RequestsController@restore')->name('request.restore');
@@ -51,7 +51,7 @@ Route::middleware('IsAuth')->group(function () {
                 Route::get('/indicator/{indicatorID}/raw/{parseTemplate}', 'RequestsController@getById')->name('request.detail'); //TODO
                 Route::get('/indicator/{indicatorID_list}/customData', 'RequestsController@getById')->name('request.detail'); //TODO*/
 
-                Route::post('/indicator/{indicatorId}', 'RequestsController@updateIndicator');
+                Route::post('/indicator/{indicatorID}', 'RequestsController@updateIndicator');
             });
         });
     });

@@ -27,9 +27,9 @@ class RequestPortalRouteServiceProvider extends ServiceProvider
     public function boot()
     {
         // Common request parameter patterns
-        Route::pattern('indicatorId', '[0-9]+');
-        Route::pattern('requestId', '[0-9]+');
-        Route::pattern('serviceId', '[0-9]+');
+        Route::pattern('indicatorID', '[0-9]+');
+        Route::pattern('requestID', '[0-9]+');
+        Route::pattern('serviceID', '[0-9]+');
 
         parent::boot();
     }

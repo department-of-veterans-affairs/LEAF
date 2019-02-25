@@ -10,28 +10,28 @@ class FormsDao extends CachedDbDao implements FormsRepository
 {
     protected $tableName = "categories";
 
-    public function createFormCount($recordID, $categoryId, $count)
+    public function createFormCount($recordID, $categoryID, $count)
     {
         return $this->getConnForTable('category_count')->insertGetId([
             'recordID' => $recordID,
-            'categoryID' => $categoryId,
+            'categoryID' => $categoryID,
             'count' => $count
         ]);
     }
 
-    public function getCountById($formId)
+    public function getCountById($formID)
     {
-        return $this->getConn()->where('categoryID', $formId)->count();
+        return $this->getConn()->where('categoryID', $formID)->count();
     }
 
-    public function getById($formId)
+    public function getById($formID)
     {
-        return $this->getConn()->where('categoryID', $formId)->first();
+        return $this->getConn()->where('categoryID', $formID)->first();
         
     }
 
-    public function getStapledForms($categoryId)
+    public function getStapledForms($categoryID)
     {
-        return $this->getConnForTable('category_staples')->where('categoryID', $categoryId)->get();
+        return $this->getConnForTable('category_staples')->where('categoryID', $categoryID)->get();
     }
 }

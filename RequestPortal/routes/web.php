@@ -16,7 +16,7 @@ Route::middleware('IsAuth')->group(function () {
         ), function () {
             Route::get('/', 'RequestsController@getAll')->name('request.show');
             Route::get('/create', 'RequestsController@create')->name('request.create');
-            Route::get('/{requestId}', 'RequestsController@getById')->name('request.detail');
+            Route::get('/{requestID}', 'RequestsController@getById')->name('request.detail');
 
             
         });

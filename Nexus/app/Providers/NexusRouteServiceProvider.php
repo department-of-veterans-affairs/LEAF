@@ -25,7 +25,7 @@ class NexusRouteServiceProvider extends ServiceProvider
     public function boot()
     {
         // Common request parameter patterns
-        // Route::pattern('serviceId', '[0-9]+');
+        // Route::pattern('serviceID', '[0-9]+');
 
         parent::boot();
     }

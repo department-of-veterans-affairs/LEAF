@@ -192,11 +192,11 @@ class RequestsController extends Controller
         }
 
         return redirect()->route('request.detail', array(
-            'visn' => $route, 'requestId' => $recordID,
+            'visn' => $route, 'requestID' => $recordID,
         ));
     }
 
-    public function updateIndicator(Request $request, $route, $recordID, $indicatorId)
+    public function updateIndicator(Request $request, $route, $recordID, $indicatorID)
     {
         // series will always be 1 (for now)
         $series = 1;
@@ -459,15 +459,15 @@ class RequestsController extends Controller
 
                 //check if the requester has any backups
                 $nexusDB = $this->login->getNexusDB();
-                $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
-                $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
+                $vars4 = array(':empUID' => XSSHelpers::xscrub($empUID));
+                $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empUID', $vars4);
 
                 if ($empUID == $this->login->getEmpUID())
                 {
                     return true;
                 }
                     //check and provide access to backups
-                    foreach ($backupIds as $row)
+                    foreach ($backupIDs as $row)
                     {
                         if ($row['backupEmpUID'] == $this->login->getEmpUID())
                         {
