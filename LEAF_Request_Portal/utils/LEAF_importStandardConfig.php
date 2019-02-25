@@ -14,15 +14,15 @@ $res = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $protocol = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
 $siteRootURL = $protocol . HTTP_HOST;
 $relativePath = trim(str_replace($siteRootURL, '', $res['national_linkedPrimary']));
-echo $relativePath . '<br />';
-echo $res['national_linkedPrimary'] . '<br />';
-echo __DIR__ . '<br />';
-echo $_SERVER['DOCUMENT_ROOT'] . $relativePath;
 $tempFolder = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'files/temp/';
-exit();
 
 if($res['siteType'] != 'national_subordinate') {
     echo "ERROR: This is not a national subordinate site.";
+    exit();
+}
+
+if(!file_exists($tempFolder . 'actions.sql')) {
+    echo "ERROR: Primary site files missing.";
     exit();
 }
 
