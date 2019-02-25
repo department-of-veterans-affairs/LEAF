@@ -60,7 +60,7 @@ $(function() {
                 success: function(res) {
                     $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to all sites..." + res);
                     $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
-                    if(res.indexOf('ERROR') != -1) {
+                    if(res.indexOf('ERROR') == -1) {
                         $('#prodStatus').append('Pushed to ' + sites[i] + '.<br />');
                     }
                     else {
