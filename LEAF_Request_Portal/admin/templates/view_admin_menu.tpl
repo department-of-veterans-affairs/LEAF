@@ -56,6 +56,16 @@
     </span>
 </a>
 
+<!--{if $siteType == 'national_primary'}-->
+<a href="../report.php?a=LEAF_National_Distribution" role="button">
+    <span class="menuButton" style="background-color: #574d68" >
+        <img class="menuIcon" src="../../libs/dynicons/?img=network-wireless.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
+        <span class="menuText" style="color: white">Site Distribution</span><br />
+        <span class="menuDesc" style="color: white">Roll-out changes to subordinate sites</span>
+    </span>
+</a>
+<!--{/if}-->
+
 </div>
 <hr style="clear: both; visibility: hidden; margin-bottom: 100px"/>
 <div class="menu">
