@@ -67,7 +67,7 @@
     <span class="menuButton" style="background-color: #574d68" >
         <img class="menuIcon" src="../../libs/dynicons/?img=network-wireless.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
         <span class="menuText" style="color: white">Site Distribution</span><br />
-        <span class="menuDesc" style="color: white">Roll-out changes to subordinate sites</span>
+        <span class="menuDesc" style="color: white">Deploy changes to subordinate sites</span>
     </span>
 </a>
 <!--{/if}-->
