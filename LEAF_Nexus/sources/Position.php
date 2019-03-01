@@ -821,7 +821,7 @@ class Position extends Data
      */
     public function togglePermission($positionID, $categoryID, $UID, $permissionType)
     {
-        if (!is_numeric($positionID) || !is_numeric($UID))
+        if (!is_numeric($positionID))
         {
             return;
         }
@@ -854,7 +854,7 @@ class Position extends Data
      */
     public function addPermission($positionID, $categoryID, $UID, $permissionType)
     {
-        if (!is_numeric($positionID) || !is_numeric($UID))
+        if (!is_numeric($positionID))
         {
             return;
         }

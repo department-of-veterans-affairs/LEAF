@@ -480,7 +480,7 @@ class Login
         {
             $resIndicatorID = (int)$item['indicatorID'];
             $resCategoryID = \XSSHelpers::xscrub($item['categoryID']);
-            $resUID = (int)$item['UID'];
+            $resUID = \XSSHelpers::xscrub($item['UID']);
             $resRead = (int)$item['read'];
             $resWrite = (int)$item['write'];
             $resGrant = (int)$item['grant'];

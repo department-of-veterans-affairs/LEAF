@@ -334,7 +334,7 @@ abstract class Data
 
     public function getFileHash($categoryID, $uid, $indicatorID, $fileName)
     {
-        if (!is_numeric($categoryID) || !is_numeric($uid) || !is_numeric($indicatorID))
+        if (!is_numeric($categoryID) || !is_numeric($indicatorID))
         {
             return '';
         }
@@ -354,10 +354,6 @@ abstract class Data
      */
     public function modify($UID)
     {
-        if (!is_numeric($UID))
-        {
-            throw new Exception($this->dataTableDescription . ' ID required');
-        }
         if (!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
             throw new Exception($this->dataTableDescription . ' invalid token');
@@ -598,7 +594,7 @@ abstract class Data
      */
     public function deleteAttachment($categoryID, $UID, $indicatorID, $file)
     {
-        if (!is_numeric($categoryID) || !is_numeric($UID) || !is_numeric($indicatorID) || $file == '')
+        if (!is_numeric($categoryID) || !is_numeric($indicatorID) || $file == '')
         {
             return 0;
         }

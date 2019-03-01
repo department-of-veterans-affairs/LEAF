@@ -54,7 +54,7 @@ class Indicators
      */
     public function togglePermission($indicatorID, $categoryID, $UID, $permissionType)
     {
-        if (!is_numeric($indicatorID) || !is_numeric($UID))
+        if (!is_numeric($indicatorID))
         {
             return;
         }
@@ -87,7 +87,7 @@ class Indicators
      */
     public function addPermission($indicatorID, $categoryID, $UID, $permissionType)
     {
-        if (!is_numeric($indicatorID) || !is_numeric($UID))
+        if (!is_numeric($indicatorID))
         {
             return;
         }

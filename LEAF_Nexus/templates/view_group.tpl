@@ -241,7 +241,6 @@ function addEmployeePosition() {
                             data: {empUID: res,
                                 CSRFToken: '<!--{$CSRFToken}-->'},
                             success: function(response) {
-                                alert(response);
                                 window.location.reload();
                             },
                             cache: false

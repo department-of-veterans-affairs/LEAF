@@ -34,7 +34,7 @@
     <!--{foreach from=$permissions item=permission}-->
         <tr style="background-color: <!--{cycle values='#e0e0e0,#c4c4c4'}-->">
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->" style="font-size: 14px; font-weight: bold"><img src="images/largespinner.gif" alt="loading..." /> Loading <!--{$permission.categoryID|strip_tags}-->...</td>
-            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_read" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', <!--{$permission.UID|strip_tags}-->, 'read')">
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_read" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', '<!--{$permission.UID|strip_tags}-->', 'read')">
                 <div class="buttonNorm">
                 <!--{if $permission.read == 1}-->
                 <img src="../libs/dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
@@ -43,7 +43,7 @@
                 <!--{/if}-->
                 </div>
             </td>
-            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_write" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', <!--{$permission.UID|strip_tags}-->, 'write')">
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_write" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', '<!--{$permission.UID|strip_tags}-->', 'write')">
                 <div class="buttonNorm">
                 <!--{if $permission.write == 1}-->
                 <img src="../libs/dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
@@ -52,7 +52,7 @@
                 <!--{/if}-->
                 </div>
             </td>
-            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_grant" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', <!--{$permission.UID|strip_tags}-->, 'grant')">
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_grant" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', '<!--{$permission.UID|strip_tags}-->', 'grant')">
                 <div class="buttonNorm">
                 <!--{if $permission.grant == 1}-->
                 <img src="../libs/dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
@@ -194,7 +194,7 @@ function togglePermission(categoryID, UID, type)
 {
     $.ajax({
     	type: 'POST',
-        url: "./api/position/<!--{$positionID}-->/permission/_" + categoryID + "/" + UID + "/_" + type + "/toggle",
+        url: "./api/position/<!--{$positionID}-->/permission/_" + categoryID + "/_" + UID + "/_" + type + "/toggle",
         data: {CSRFToken: '<!--{$CSRFToken}-->'},
         dataType: 'json',
         success: function(response) {
@@ -217,7 +217,7 @@ var dialog;
 $(function() {
 	<!--{foreach from=$permissions item=permission}-->
     $.ajax({
-        url: "./api/<!--{$permission.categoryID}-->/<!--{$permission.UID}-->",
+        url: "./api/<!--{$permission.categoryID}-->/_<!--{$permission.UID}-->",
         dataType: 'json',
         success: function(response) {
             if(response != '') {
