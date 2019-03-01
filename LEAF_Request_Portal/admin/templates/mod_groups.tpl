@@ -153,12 +153,7 @@ function getGroupList() {
                                     url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
                                     data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                     success: function(res) {
-                                        if(!isNaN(res)) {
                                             addAdmin(selectedEmpUID);
-                                        }
-                                        else {
-                                            alert(res);
-                                        }
                                     }
                                 });
                             }
