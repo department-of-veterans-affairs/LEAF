@@ -62,12 +62,12 @@ final class SignatureControllerTest extends DatabaseTest
                 'message' => $unsanitized,
             );
 
-            $res = self::$client->postEncodedForm('?a=signature/create', $testPost);
+            $res = self::$client->post(array('a' => 'signature/create'), $testPost);
             $this->assertNotNull($res);
             $this->assertSame("$id", $res);
             $res = self::$db->query("SELECT * FROM signatures WHERE recordID = $recordID");
             $this->assertTrue(array_key_exists(0, $res));
-            $this->assertSame("$id", $res[0]['id']);
+            $this->assertSame("$id", $res[0]['signatureID']);
             $this->assertSame($sanitized, $res[0]['signature']);
             $this->assertSame("$recordID", $res[0]['recordID']);
             $this->assertSame($sanitized, $res[0]['message']);
@@ -92,9 +92,9 @@ final class SignatureControllerTest extends DatabaseTest
             '<img>Testing</img>' => '&lt;img&gt;Testing&lt;/img&gt;',
             '<col>Testing</col>' => '&lt;col&gt;Testing&lt;/col&gt;',
             'Over<br />Under' => 'Over<br />Under',
-            '<font color="red">Testing</font>' => '&lt;font color=&quot;red&quot;&gt;Testing&lt;/font&gt;',
+            //'<font color="red">Testing</font>' => '&lt;font color=&quot;red&quot;&gt;Testing&lt;/font&gt;',
             '<table>Test</table>' => '<table class="table">Test</table>',
-            '<span>Testing</span>' => '&lt;span&gt;Testing&lt;/span&gt;'
+            //'<span>Testing</span>' => '&lt;span&gt;Testing&lt;/span&gt;'
         );
 
         //tags that conform to <TAG></TAG>
@@ -124,12 +124,12 @@ final class SignatureControllerTest extends DatabaseTest
                 'message' => $unsanitized,
             );
 
-            $res = self::$client->postEncodedForm('?a=signature/create', $testPost);
+            $res = self::$client->post(array('a' => 'signature/create'), $testPost);
             $this->assertNotNull($res);
             $this->assertSame("$id", $res);
             $res = self::$db->query("SELECT * FROM signatures WHERE recordID = $recordID");
             $this->assertTrue(array_key_exists(0, $res));
-            $this->assertSame("$id", $res[0]['id']);
+            $this->assertSame("$id", $res[0]['signatureID']);
             $this->assertSame($sanitized, $res[0]['signature']);
             $this->assertSame("$recordID", $res[0]['recordID']);
             $this->assertSame($sanitized, $res[0]['message']);
@@ -145,12 +145,12 @@ final class SignatureControllerTest extends DatabaseTest
                 'message' => "<$tag>Testing</$tag>",
             );
 
-            $res = self::$client->postEncodedForm('?a=signature/create', $testPost);
+            $res = self::$client->post(array('a' => 'signature/create'), $testPost);
             $this->assertNotNull($res);
             $this->assertSame("$id", $res);
             $res = self::$db->query("SELECT * FROM signatures WHERE recordID = $recordID");
             $this->assertTrue(array_key_exists(0, $res));
-            $this->assertSame("$id", $res[0]['id']);
+            $this->assertSame("$id", $res[0]['signatureID']);
             $this->assertSame("<$tag>Testing</$tag>", $res[0]['signature']);
             $this->assertSame("$recordID", $res[0]['recordID']);
             $this->assertSame("<$tag>Testing</$tag>", $res[0]['message']);
@@ -166,12 +166,12 @@ final class SignatureControllerTest extends DatabaseTest
                 'message' => "<$tag>Testing",
             );
 
-            $res = self::$client->postEncodedForm('?a=signature/create', $testPost);
+            $res = self::$client->post(array('a' => 'signature/create'), $testPost);
             $this->assertNotNull($res);
             $this->assertSame("$id", $res);
             $res = self::$db->query("SELECT * FROM signatures WHERE recordID = $recordID");
             $this->assertTrue(array_key_exists(0, $res));
-            $this->assertSame("$id", $res[0]['id']);
+            $this->assertSame("$id", $res[0]['signatureID']);
             $this->assertSame("<$tag>Testing</$tag>", $res[0]['signature']);
             $this->assertSame("$recordID", $res[0]['recordID']);
             $this->assertSame("<$tag>Testing</$tag>", $res[0]['message']);
@@ -187,15 +187,15 @@ final class SignatureControllerTest extends DatabaseTest
                 'message' => "Testing</$tag>",
             );
 
-            $res = self::$client->postEncodedForm('?a=signature/create', $testPost);
+            $res = self::$client->post(array('a' => 'signature/create'), $testPost);
             $this->assertNotNull($res);
             $this->assertSame("$id", $res);
             $res = self::$db->query("SELECT * FROM signatures WHERE recordID = $recordID");
             $this->assertTrue(array_key_exists(0, $res));
-            $this->assertSame("$id", $res[0]['id']);
-            $this->assertSame("Testing</$tag>", $res[0]['signature']);
+            $this->assertSame("$id", $res[0]['signatureID']);
+            $this->assertSame("<$tag>Testing</$tag>", $res[0]['signature']);
             $this->assertSame("$recordID", $res[0]['recordID']);
-            $this->assertSame("Testing</$tag>", $res[0]['message']);
+            $this->assertSame("<$tag>Testing</$tag>", $res[0]['message']);
             $id++;
             $recordID++;
         }
@@ -208,12 +208,12 @@ final class SignatureControllerTest extends DatabaseTest
                 'message' => "<$tag>New Testing",
             );
 
-            $res = self::$client->postEncodedForm('?a=signature/create', $testPost);
+            $res = self::$client->post(array('a' => 'signature/create'), $testPost);
             $this->assertNotNull($res);
             $this->assertSame("$id", $res);
             $res = self::$db->query("SELECT * FROM signatures WHERE recordID = $recordID");
             $this->assertTrue(array_key_exists(0, $res));
-            $this->assertSame("$id", $res[0]['id']);
+            $this->assertSame("$id", $res[0]['signatureID']);
             $this->assertSame("<$tag>New Testing</$tag>", $res[0]['signature']);
             $this->assertSame("$recordID", $res[0]['recordID']);
             $this->assertSame("<$tag>New Testing</$tag>", $res[0]['message']);
@@ -229,15 +229,15 @@ final class SignatureControllerTest extends DatabaseTest
                 'message' => "New Testing</$tag>",
             );
 
-            $res = self::$client->postEncodedForm('?a=signature/create', $testPost);
+            $res = self::$client->post(array('a' => 'signature/create'), $testPost);
             $this->assertNotNull($res);
             $this->assertSame("$id", $res);
             $res = self::$db->query("SELECT * FROM signatures WHERE recordID = $recordID");
             $this->assertTrue(array_key_exists(0, $res));
-            $this->assertSame("$id", $res[0]['id']);
-            $this->assertSame("New Testing</$tag>", $res[0]['signature']);
+            $this->assertSame("$id", $res[0]['signatureID']);
+            $this->assertSame("<$tag>New Testing</$tag>", $res[0]['signature']);
             $this->assertSame("$recordID", $res[0]['recordID']);
-            $this->assertSame("New Testing</$tag>", $res[0]['message']);
+            $this->assertSame("<$tag>New Testing</$tag>", $res[0]['message']);
             $id++;
             $recordID++;
         }
