@@ -189,12 +189,7 @@ function initiateWidget(serviceID) {
                                 url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
                                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                 success: function(res) {
-                                    if(!isNaN(res)) {
                                         addUser(serviceID, selectedEmpUID);
-                                    }
-                                    else {
-                                        alert(res);
-                                    }
                                 }
                             });
                         }
