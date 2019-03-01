@@ -531,6 +531,7 @@
             };
             <!--{/if}-->
             $(function() {
+                var grpSel;
                 if(typeof groupSelector == 'undefined') {
                     $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/groupSelector.css" />');
                     $.ajax({
