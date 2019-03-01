@@ -123,7 +123,7 @@ class PositionController extends RESTfulResponse
 
             return $position->addPermission($args[0], 'group', $_POST['groupID'], $type);
         });
-        $this->index['POST']->register('position/[digit]/permission/[text]/[digit]/[text]/toggle', function ($args) use ($position) {
+        $this->index['POST']->register('position/[digit]/permission/[text]/[text]/[text]/toggle', function ($args) use ($position) {
             //$positionID, $categoryID, $UID, $permissionType
             return $position->togglePermission($args[0], $position->sanitizeInput($args[1]), $args[2], $args[3]);
         });
