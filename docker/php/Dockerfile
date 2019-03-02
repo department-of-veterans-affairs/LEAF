@@ -2,7 +2,7 @@ FROM php:7-apache
 MAINTAINER Nick Ciardiello <nick.ciardiello@ablevets.com>
 
 RUN apt-get update
-RUN yes | apt-get install mysql-server
+RUN yes | apt-get install mysql-client
 RUN yes | apt-get install vim
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
