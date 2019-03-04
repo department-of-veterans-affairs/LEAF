@@ -302,7 +302,6 @@ function printForm() {
         if (typeof (input) !== "undefined" && input !== null) {
             input = input.replace(/(<li>)/ig, "- ");
             input = input.replace(/(<\/li>)/ig, "\n");
-            input = input.replace(/(<([^>]+)>)/ig, "");
             return input.trim();
         } else {
             return '';
@@ -323,6 +322,7 @@ function printForm() {
         var page = 1;
         var htmlPattern = new RegExp('<([^>]+)>');
         var date = new Date().toJSON().slice(0,10).replace(/-/g,'/');
+        var checkBoxShift = 0;
 
         // set to true for first sub question of each header
         var subShift = true;
@@ -360,13 +360,14 @@ function printForm() {
             maxWidth = 190;
         }
 
-        function makeEntry(indicator, parentID, depth, numAtLevel) {
+        function makeEntry(indicator, parentIndex, depth, numAtLevel, index) {
             var required = Number(indicator.required) === 1 ? ' *' : '';
-            var number = depth === 0 ? indicator.indicatorID : parentID + '.' + subCount;
+            var number = depth === 0 ? index : parentIndex + '.' + subCount;
             var storedSubCount = subCount;
             var sizeOfBox = 0;
             var fitSize = 0;
-            var start = 0;
+            var verticalStart = 0;
+            var horizontalStart = 0;
             var sizeOfOption = 0;
 
             if (depth === 0) {
@@ -377,7 +378,7 @@ function printForm() {
                 doc.setTextColor(0);
             }
 
-            if (verticalShift > height - 15) {
+            if (verticalShift > height - 40) {
                 pageFooter(false);
                 doc.addPage();
                 verticalShift = 10;
@@ -424,27 +425,31 @@ function printForm() {
             }
 
             function textHeader() {
+                verticalShift += -4;
                 var header = number + ': ' + decodeHTMLEntities(indicator.name) + required;
-                var boxIndent = header.length * 3.5;
+                var headerSplit = doc.splitTextToSize(header, 40);
+                var shiftHeaderText = headerSplit.length * 8;
                 doc.setFillColor(30, 70, 125);
-                doc.rect(10, verticalShift, 200 - boxIndent, 8, 'FD');
+                doc.rect(10, verticalShift, 190, shiftHeaderText, 'FD');
                 doc.setFillColor(255);
-                doc.rect(boxIndent, verticalShift, 200 - boxIndent, 8, 'FD');
-                doc.text(header, 11, verticalShift + 6);
+                doc.rect(50, verticalShift, 150, shiftHeaderText, 'FD');
+                for (var i = 0; i < headerSplit.length; i++) {
+                    doc.text(headerSplit[i], 11, verticalShift + 6 + 8*i);
+                }
                 doc.setFillColor(30, 70, 125);
                 doc.setTextColor(0);
                 if (!blank && typeof (value) !== "undefined") {
                     doc.setFont("times");
-                    doc.text(value, boxIndent + 1, verticalShift + 6);
+                    doc.text(value, 51, verticalShift + 6);
                 }
                 doc.setFont("Helvetica");
-                verticalShift += 4;
+                verticalShift += headerSplit.length * 8;
             }
 
             if (depth > 0) {
                 var title = number + ': ' + decodeHTMLEntities(indicator.name);
                 if (subShift) {
-                    verticalShift += 4;
+                    // verticalShift += 4;
                     subShift = false;
                 }
                 switch (indicator.format) {
@@ -475,14 +480,14 @@ function printForm() {
                             subNewRow();
                         }
                         fitSize = !blank ? lines * lineSpacing : 60;
-                        start = verticalShift;
+                        verticalStart = verticalShift;
                         doc.setFontSize(8);
                         doc.text(title + required, 11, verticalShift + 3);
                         doc.setFontSize(12);
                         if (!blank && typeof (value) !== "undefined") {
                             doc.setFont("times");
                             for (var i = 0; i < splitText.length; i++) {
-                                if (verticalShift >= height - 30) {
+                                if (verticalShift >= height - 40) {
                                     pageFooter(false);
                                     doc.addPage();
                                     doc.setTextColor(255);
@@ -506,8 +511,8 @@ function printForm() {
                             verticalShift += 5 * lineSpacing;
                         }
                         doc.setFont("Helvetica");
-                        doc.rect(10, start, 190, verticalShift - start + 16);
-                        verticalShift += 2.19 * lineSpacing;
+                        doc.rect(10, verticalStart, 190, verticalShift - verticalStart + 16);
+                        verticalShift += 2.17 * (lineSpacing + 2);
                         break;
                     case 'radio':
                     case 'dropdown':
@@ -518,21 +523,43 @@ function printForm() {
                         });
                         doc.setFontSize(8);
 
-                        if (sizeOfBox > maxWidth) {
+                        if (sizeOfBox > maxWidth && maxWidth !== 190) {
                             subNewRow();
                         }
-                        doc.rect(horizontalShift, verticalShift, maxWidth, 12);
+                        checkBoxShift = 0;
+                        $.each(indicator.options, function() {
+                            checkBoxShift = this.length > checkBoxShift ? this.length : checkBoxShift;
+                        });
+                        checkBoxShift = checkBoxShift * 3.5 > 20 ? checkBoxShift * 3.5 : 20;
                         doc.text(title + required, horizontalShift + 1, verticalShift + 3);
                         doc.setFontSize(12);
+                        if (maxWidth > 190) {
+                            horizontalShift = 15;
+                        } else {
+                            horizontalStart = horizontalShift;
+                        }
+                        verticalStart = verticalShift;
+                        horizontalShift += 5;
                         for (var i = 0; i < indicator.options.length; i++) {
-                            sizeOfOption = indicator.options[i].length * 2.5;
-                            sizeOfBox += sizeOfOption;
-                            doc.text(decodeHTMLEntities(indicator.options[i]), horizontalShift + 2, verticalShift + 10.5);
-                            doc.rect(sizeOfOption + horizontalShift, verticalShift + 6, 5, 5);
-                            if (!blank && indicator.value.indexOf(indicator.options[i]) > -1) {
-                                doc.text('x', sizeOfOption + horizontalShift + 4, verticalShift + 10.5);
+                            if (horizontalShift > 160) {
+                                subNewRow();
+                                horizontalShift += 5;
                             }
-                            horizontalShift += 20;
+                            doc.rect(horizontalShift, verticalShift + 6, 5, 5);
+                            if (!blank && indicator.value.indexOf(indicator.options[i]) > -1) {
+                                doc.text('x', horizontalShift + 1.5, verticalShift + 9.5);
+                            }
+                            sizeOfOption = indicator.options[i].length * 2.5;
+                            doc.setFont("times");
+                            doc.text(decodeHTMLEntities(indicator.options[i]), horizontalShift + 6, verticalShift + 10.5);
+                            doc.setFont("Helvetica");
+                            horizontalShift += checkBoxShift;
+                            sizeOfBox += sizeOfOption;
+                        }
+                        if (verticalStart === verticalShift) {
+                            doc.rect(horizontalStart, verticalStart, maxWidth, 12);
+                        } else {
+                            doc.rect(10, verticalStart, maxWidth, 12 + verticalShift - verticalStart);
                         }
                         maxWidth = maxWidth - sizeOfBox;
                         horizontalShift += sizeOfBox;
@@ -574,6 +601,7 @@ function printForm() {
                         textHeader();
                         break;
                     case 'textarea':
+                        verticalShift += -4;
                         fitSize = !blank ? lines * 2 * lineSpacing : 60;
                         doc.setFillColor(30, 70, 125);
                         doc.rect(10, verticalShift, 190, 8, 'FD');
@@ -582,19 +610,19 @@ function printForm() {
                         }
                         doc.text(number + ': ' + decodeHTMLEntities(indicator.name) + required, 11, verticalShift + 6);
                         doc.setTextColor(0);
-                        start = verticalShift + 8;
+                        verticalStart = verticalShift + 8;
                         verticalShift += lineSpacing;
                         if (!blank && typeof (value) !== "undefined") {
                             doc.setFont("times");
                             for (var i = 0; i < splitText.length; i++) {
-                                if (verticalShift >= height - 30) {
+                                if (verticalShift >= height - 40) {
                                     pageFooter(false);
                                     doc.addPage();
                                     doc.setTextColor(255);
                                     doc.setDrawColor(0);
                                     doc.setFillColor(30, 70, 125);
                                     verticalShift = 10;
-                                    start = 10;
+                                    verticalStart = 10;
                                     fitSize = (splitText.length - i) * lineSpacing;
                                     doc.rect(10, verticalShift, 190, 8, 'FD');
                                     doc.text(decodeHTMLEntities(indicator.name) + ' continued' + required, 11, verticalShift + 6);
@@ -609,40 +637,89 @@ function printForm() {
                             verticalShift += 5 * lineSpacing;
                         }
                         doc.setFont("Helvetica");
-                        doc.rect(10, start, 190, verticalShift - start);
+                        doc.rect(10, verticalStart, 190, verticalShift - verticalStart);
                         break;
                     case 'radio':
                     case 'dropdown':
                     case 'checkbox':
                     case 'checkboxes':
+                        verticalShift += -4;
                         var header = number + ': ' + decodeHTMLEntities(indicator.name) + required;
-                        horizontalShift = header.length * 3.5;
-                        doc.rect(10, verticalShift + 4, horizontalShift, 8, 'FD');
-                        doc.text(header, 11, verticalShift + 10);
-                        start = verticalShift + 4;
-                        horizontalShift += 4;
+                        var headerSplit = doc.splitTextToSize(header, 40);
+                        var shiftHeaderText = headerSplit.length * 8;
+                        checkBoxShift = 0;
+                        $.each(indicator.options, function() {
+                            checkBoxShift = this.length > checkBoxShift ? this.length : checkBoxShift;
+                        });
+                        checkBoxShift = checkBoxShift * 3.5 > 20 ? checkBoxShift * 3.5 : 20;
+                        horizontalShift = 60;
+                        verticalStart = verticalShift + 4;
                         doc.setTextColor(0);
                         doc.setFont("times");
                         for (var i = 0; i < indicator.options.length; i++) {
-                            sizeOfOption = indicator.options[i].length * 2.5 + 10;
-                            if (horizontalShift + sizeOfOption > maxWidth) {
+                            if (horizontalShift > maxWidth) {
                                 verticalShift += 16;
-                                horizontalShift = 10;
+                                horizontalShift = 60;
                             }
-                            horizontalShift += sizeOfOption;
-                            doc.rect(horizontalShift - 5, verticalShift + 6, 5, 5);
-                            if (!blank && indicator.value.indexOf(indicator.options[i]) > -1) {
+                            if (verticalShift >= height - 40) {
                                 doc.setFont("helvetica");
-                                doc.text('x', horizontalShift - 3.5, verticalShift + 9.5);
+                                doc.setFillColor(30, 70, 125);
+                                if (verticalShift - verticalStart > shiftHeaderText) {
+                                    doc.rect(10, verticalStart, 190, verticalShift - verticalStart);
+                                    doc.rect(10, verticalStart, 40, verticalShift - verticalStart, 'FD');
+                                } else {
+                                    doc.rect(10, verticalStart, 190, shiftHeaderText);
+                                    doc.rect(10, verticalStart, 40, shiftHeaderText, 'FD');
+                                    verticalShift += shiftHeaderText;
+                                }
+                                doc.setTextColor(255);
+                                doc.setFillColor(30, 70, 125);
+                                doc.setFillColor(255);
+                                for (var i = 0; i < headerSplit.length; i++) {
+                                    doc.text(headerSplit[i], 11, verticalStart + 6 + 8*i);
+                                }
+                                doc.setTextColor(0);
                                 doc.setFont("times");
+                                pageFooter(false);
+                                doc.addPage();
+                                doc.setTextColor(255);
+                                doc.setDrawColor(0);
+                                doc.setFillColor(30, 70, 125);
+                                verticalShift = 10;
+                                verticalStart = 10;
+                                header = decodeHTMLEntities(indicator.name) + ' continued' + required;
+                                headerSplit = doc.splitTextToSize(header, 38);
+                                shiftHeaderText = headerSplit.length * 8;
                             }
-                            horizontalShift += 7;
-                            doc.text(decodeHTMLEntities(indicator.options[i]), horizontalShift - sizeOfOption, verticalShift + 10.5);
+                            doc.rect(horizontalShift - 5, verticalShift + 6, 5, 5);
+                            doc.setTextColor(0);
+                            doc.setFont("helvetica");
+                            if (!blank && indicator.value.indexOf(indicator.options[i]) > -1) {
+                                doc.text('x', horizontalShift - 3.5, verticalShift + 9.5);
+                            }
+                            doc.setFont("times");
+                            doc.text(decodeHTMLEntities(indicator.options[i]), horizontalShift + 1, verticalShift + 10.5);
+                            horizontalShift += checkBoxShift;
                         }
                         doc.setFont("helvetica");
                         verticalShift += 16;
-                        doc.rect(10, start, 190, verticalShift - start);
-                        verticalShift += -4;
+                        doc.setFillColor(30, 70, 125);
+                        if (verticalShift - verticalStart > shiftHeaderText) {
+                            doc.rect(10, verticalStart, 190, verticalShift - verticalStart);
+                            doc.rect(10, verticalStart, 40, verticalShift - verticalStart, 'FD');
+                        } else {
+                            doc.rect(10, verticalStart, 190, shiftHeaderText);
+                            doc.rect(10, verticalStart, 40, shiftHeaderText, 'FD');
+                            verticalShift += shiftHeaderText;
+                        }
+                        doc.setTextColor(255);
+                        doc.setFillColor(30, 70, 125);
+                        doc.setFillColor(255);
+                        for (var i = 0; i < headerSplit.length; i++) {
+                            doc.text(headerSplit[i], 11, verticalStart + 6 + 8*i);
+                        }
+                        doc.setTextColor(0);
+                        // verticalShift += -4;
                         horizontalShift = 10;
                         break;
                     default:
@@ -657,14 +734,14 @@ function printForm() {
                 subCount = 0;
                 $.each(indicator.child, function () {
                     subCount += 1;
-                    makeEntry(this, number, depth + 1, Object.keys(indicator.child).length);
+                    makeEntry(this, number, depth + 1, Object.keys(indicator.child).length, index);
                 });
                 subCount = storedSubCount;
             }
         }
 
-        $.each(data, function () {
-            makeEntry(this, null, 0, 0);
+        $.each(data, function (i) {
+            makeEntry(this, null, 0, 0, i + 1);
             verticalShift += -4;
             subShift = true;
             if (this.child !== undefined && this.child !== null) {
@@ -691,7 +768,7 @@ function printForm() {
                     doc.setFontStyle("italic");
                     doc.setFontType("times");
                     var signedDate = new Date(Number(this['signed']['timestamp']) * 1000).toJSON().slice(0, 10).replace(/-/g, '/');
-                    doc.text(this['signed']['userID'] + " " + signedDate, 10, verticalShift - 5);
+                    doc.text(this['signed']['userID'] + " on " + signedDate, 10, verticalShift - 5);
                     doc.setFontType("helvetica");
                     doc.setFontStyle("normal");
                 }
@@ -707,7 +784,7 @@ function printForm() {
             if (requestInfo['workflows'].length > 1) {
                 doc.save('MultipleForms.pdf');
             } else {
-                doc.text(requestInfo['workflows'][0][0]['categoryName'] + '.pdf', 20, height - 7);
+                doc.save(requestInfo['workflows'][0][0]['categoryName'] + '.pdf');
             }
         } else {
             doc.save(requestInfo['title'] + '.pdf');
