@@ -1,10 +1,10 @@
 ## Docker Setup
 
-1. `cd docker`
-1. `docker-compose up`
-1. `docker-compose exec leaf-php-fpm composer install` to install app dependencies
-1. To generate a unique app key run `docker-compose exec leaf-php-fpm php artisan key:generate`
-1. Create the `leaf_routes` database: `docker-compose exec leaf-php-fpm php artisan db:routes:create`
+* `cd docker`
+* `docker-compose up`
+* `docker-compose exec leaf-php-fpm composer install` to install app dependencies
+* To generate a unique app key run `docker-compose exec leaf-php-fpm php artisan key:generate`
+* Create the `leaf_routes` database: `docker-compose exec leaf-php-fpm php artisan db:routes:create`
 
 ## Laravel Setup
 
