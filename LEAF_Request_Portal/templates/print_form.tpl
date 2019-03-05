@@ -521,7 +521,9 @@ function printForm() {
                                 verticalShift += lineSpacing;
                             }
                         } else {
-                            verticalShift += 5 * lineSpacing;
+                            if (verticalShift + (5 * lineSpacing) >= height - 40) {
+                                verticalShift = height - 40;
+                            }
                         }
                         doc.setFont("Helvetica");
                         doc.rect(10, verticalStart, 190, verticalShift - verticalStart + 16);
@@ -534,6 +536,7 @@ function printForm() {
                         $.each(indicator.options, function () {
                             sizeOfBox += this.length * 3.5 + 20;
                         });
+                        sizeOfBox = sizeOfBox > title.length * 3.5 ? sizeOfBox : title.length * 3.5;
                         doc.setFontSize(8);
 
                         if (sizeOfBox > maxWidth && maxWidth !== 190) {
@@ -646,9 +649,17 @@ function printForm() {
                                 doc.text(splitText[i], 15, verticalShift + (2 * lineSpacing));
                                 verticalShift += lineSpacing;
                             }
-                            verticalShift += 2 * lineSpacing;
+                            if (verticalShift + (2 * lineSpacing) > height - 40) {
+                                verticalShift = height - 40;
+                            } else {
+                                verticalShift += 2 * lineSpacing;
+                            }
                         } else {
-                            verticalShift += 5 * lineSpacing;
+                            if (verticalShift + (5 * lineSpacing) > height - 40) {
+                                verticalShift = height - 40;
+                            } else {
+                                verticalShift += 5 * lineSpacing;
+                            }
                         }
                         doc.setFont("Helvetica");
                         doc.rect(10, verticalStart, 190, verticalShift - verticalStart);
@@ -732,6 +743,7 @@ function printForm() {
                         }
                         doc.setTextColor(0);
                         horizontalShift = 10;
+                        verticalShift += -4;
                         break;
                     default:
                         doc.rect(10, verticalShift, 190, 8, 'FD');
