@@ -831,7 +831,7 @@ function printForm() {
             if (index === indicatorCount) {
                 blank = blankIndicators === indicatorCount;
                 var submitted = Number(requestInfo['submitted']) > 0;
-                var approved = typeof (requestInfo['approved']) !== "undefined";
+                var actionCompleted = typeof (requestInfo['lastAction']) !== "undefined";
 
                 if (!blank || submitted) {
                     doc.text(requestInfo['title'], 35, verticalShift);
@@ -852,10 +852,10 @@ function printForm() {
                     } else {
                         var submitTime = new Date(Number(requestInfo['submitted']) * 1000).toJSON().slice(0, 10).replace(/-/g, '/');
                         doc.text("Submitted " + submitTime, 200, verticalShift, null, null, 'right');
-                        if (approved) {
-                            var approveTime = new Date(Number(requestInfo['approved']['time']) * 1000).toJSON().slice(0, 10).replace(/-/g, '/');
+                        if (actionCompleted) {
+                            var actionTime = new Date(Number(requestInfo['lastAction']['time']) * 1000).toJSON().slice(0, 10).replace(/-/g, '/');
                             verticalShift += 7;
-                            doc.text(requestInfo['approved']['description'] + ": Approved " + approveTime, 200, verticalShift, null, null, 'right');
+                            doc.text(requestInfo['lastAction']['description'] + ': ' + requestInfo['lastAction']['action'] + ' by ' + requestInfo['lastAction']['userID'] + ' ' + actionTime, 200, verticalShift, null, null, 'right');
                         }
                     }
                     doc.addImage(getBase64Image($('img[alt="QR code"]')[0]), 'PNG', 8.5, 8, 25, 25);
@@ -886,7 +886,7 @@ function printForm() {
         });
     }
 
-    function getApproved() {
+    function getLastAction() {
         var fetchURL = './api/formWorkflow/' + recordID + '/lastAction';
 
         $.ajax({
@@ -897,10 +897,12 @@ function printForm() {
         })
             .done(
                 function (res) {
-                    if (res !== null && res['actionType'] === "approve") {
-                        requestInfo['approved'] = {
+                    if (res !== null && res['actionType'] !== null) {
+                        requestInfo['lastAction'] = {
+                            'action': res['actionTextPasttense'],
                             'time': res['time'],
-                            'description': res['description']
+                            'description': res['description'],
+                            'userID': res['userID']
                         };
                     }
                     getIndicatorData(indicators[Object.keys(indicators)[index]][1]);
@@ -930,14 +932,14 @@ function printForm() {
                         if (res === null) {
                             requestInfo['completed'] = true;
                         }
-                        getApproved();
+                        getLastAction();
                     }
                 )
                 .fail(
                     function (err) {
                         alert('Unable to get workflow details.');
                         console.log(err);
-                        getApproved();
+                        getLastAction();
                     }
                 );
         } else {
