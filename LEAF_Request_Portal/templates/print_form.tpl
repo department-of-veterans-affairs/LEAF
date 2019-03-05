@@ -449,7 +449,7 @@ function printForm() {
             if (depth > 0) {
                 var title = number + ': ' + decodeHTMLEntities(indicator.name);
                 if (subShift) {
-                    // verticalShift += 4;
+                    verticalShift += 4;
                     subShift = false;
                 }
                 switch (indicator.format) {
