@@ -383,6 +383,10 @@ function printForm() {
             var verticalStart = 0;
             var horizontalStart = 0;
             var sizeOfOption = 0;
+            var format = indicator.format;
+            if (format === 'text' && indicator.value.length > 250) {
+                format = 'textarea';
+            }
 
             if (depth === 0) {
                 verticalShift += 10;
@@ -400,7 +404,7 @@ function printForm() {
 
             doc.setFillColor(30, 70, 125);
             var value = htmlPattern.test(indicator.value.toString()) ? decodeHTMLEntities(cleanTagsAndWhitespace(indicator.value)) : decodeHTMLEntities(indicator.value);
-            var splitText = doc.splitTextToSize(value, 140);
+            var splitText = doc.splitTextToSize(value, 200);
             var lines = 1;
 
             $.each(splitText, function(i) {
@@ -464,7 +468,7 @@ function printForm() {
                     verticalShift += 4;
                     subShift = false;
                 }
-                switch (indicator.format) {
+                switch (format) {
                     case 'orgchart_employee':
                         value = value !== '' ? cleanTagsAndWhitespace($('#data_' + indicator.indicatorID + '_' + indicator.series).find('a').html()) : '';
                         textSub();
@@ -501,18 +505,15 @@ function printForm() {
                             doc.setFont("times");
                             for (var i = 0; i < splitText.length; i++) {
                                 if (verticalShift >= height - 40) {
+                                    doc.rect(10, verticalStart, 190, height - 20 - verticalStart);
                                     pageFooter(false);
                                     doc.addPage();
-                                    doc.setTextColor(255);
-                                    doc.setDrawColor(0);
-                                    doc.setFillColor(30, 70, 125);
                                     verticalShift = 10;
+                                    verticalStart = verticalShift;
                                     fitSize = (splitText.length - i) * lineSpacing;
-                                    doc.rect(10, verticalShift, 190, fitSize + 20, 'FD');
-                                    doc.rect(15, verticalShift + 8, 130, fitSize + 8, 'FD');
                                     doc.setFontSize(8);
                                     doc.setFont("helvetica");
-                                    doc.text(titleContinued, 11, verticalShift + 6);
+                                    doc.text(titleContinued, 11, verticalShift + 3);
                                     doc.setFontSize(12);
                                     doc.setFont("times");
                                 }
@@ -521,7 +522,7 @@ function printForm() {
                                 verticalShift += lineSpacing;
                             }
                         } else {
-                            if (verticalShift + (5 * lineSpacing) >= height - 40) {
+                            if (verticalShift + (5 * lineSpacing) > height - 40) {
                                 verticalShift = height - 40;
                             }
                         }
@@ -593,7 +594,7 @@ function printForm() {
                         subNewRow();
                 }
             } else {
-                switch (indicator.format) {
+                switch (format) {
                     case 'orgchart_employee':
                         value = value !== '' ? cleanTagsAndWhitespace($('#data_' + indicator.indicatorID + '_' + indicator.series).find('a').html()) : '';
                         textHeader();
@@ -663,6 +664,9 @@ function printForm() {
                         }
                         doc.setFont("Helvetica");
                         doc.rect(10, verticalStart, 190, verticalShift - verticalStart);
+                        if (typeof (indicator.child) !== "undefined" && indicator.child !== null) {
+                            verticalShift += -4;
+                        }
                         break;
                     case 'radio':
                     case 'dropdown':
