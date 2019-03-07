@@ -9,16 +9,22 @@ function buildUpdateScriptFromNationalOGForNexus($nationalDbInfo)
     );
     $nationalEmployeeData = $db->query('select employee.* from employee order By employee.lastUpdated');
 
-    $sql = "UPDATE employee
-            SET empUID = CASE";
+    $nexusSQL = "UPDATE employee
+                    SET empUID = CASE";
+
+    $portalSQL = "UPDATE users
+                    SET empUID = CASE";
     foreach($nationalEmployeeData as $natEmp)
     {
-        $sql .= "\nWHEN userName = '".$natEmp['userName']."' THEN '".$natEmp['empUID']."'";
-
+        $nexusSQL .= PHP_EOL."WHEN userName = '".$natEmp['userName']."' THEN '".$natEmp['empUID']."'";
+        $portalSQL .= PHP_EOL."WHEN userID = '".$natEmp['userName']."' THEN '".$natEmp['empUID']."'";
     }
-    $sql .= "\nEND;";
+    $nexusSQL .= PHP_EOL."ELSE userName
+                    END;";
+    $portalSQL .= PHP_EOL."ELSE userID
+                    END;";
 
-    return $sql;
+    return ['nexusImport' => $nexusSQL, 'portalImport' => $portalSQL];
 }
 
 
@@ -35,7 +41,7 @@ function updateNexus($dbInfo, $nationalEmpUIDImport='')
         //empUID's
         'employee_data' => ['empUID','author'],
         'employee_data_history' => ['empUID','author'],
-        'employee_privileges' => ['empUID'],
+        'employee_privileges' => ['empUID', 'UID'],
         'relation_employee_backup' => ['empUID','backupEmpUID','approverUserName'],
         'relation_group_employee' => ['empUID'],
         'relation_position_employee' => ['empUID'],
@@ -43,6 +49,10 @@ function updateNexus($dbInfo, $nationalEmpUIDImport='')
         'group_data_history' => ['author'],
         'position_data' => ['author'],
         'position_data_history' => ['author'],
+
+        'group_privileges' => ['UID'],
+        'indicator_privileges' => ['UID'],
+        'position_privileges' => ['UID'],
     ];
     $db->beginTransaction();
     try
@@ -101,7 +111,7 @@ function updateNexus($dbInfo, $nationalEmpUIDImport='')
                             SET $column = CASE";
                 foreach ($employeesKeyedByOldEmpUIDs as $employee)
                 {
-                    if($column === 'empUID' || $column === 'backupEmpUID')
+                    if($column === 'empUID' || $column === 'backupEmpUID' || $column === 'UID')
                     {
                         $originalValue = $employee['oldEmpUID'];
                     }
@@ -109,11 +119,22 @@ function updateNexus($dbInfo, $nationalEmpUIDImport='')
                     {
                         $originalValue = $employee['userName'];
                     }
-                    $sql5 .= "\nWHEN $column = '$originalValue' THEN '".$employee['empUID']."'";
+                    $sql5 .= PHP_EOL."WHEN $column = '$originalValue' THEN '".$employee['empUID']."'";
                 }
 
-                $sql5 .= "\nEND;";
-                $sql5ToPrint .= "\n".$sql5;
+                if($column != 'UID')
+                {
+                    $sql5 .= PHP_EOL."ELSE $column
+                                END;";
+                }
+                else
+                {
+                    $sql5 .= PHP_EOL."ELSE $column
+                                END
+                                WHERE categoryID = 'employee'";
+                }
+                
+                $sql5ToPrint .= PHP_EOL.$sql5;
                 $db->exec($sql5);
             }
         }
@@ -121,29 +142,139 @@ function updateNexus($dbInfo, $nationalEmpUIDImport='')
         $sql6 = 'ALTER TABLE employee DROP COLUMN oldEmpUID;
                 SET FOREIGN_KEY_CHECKS=1;';
         $db->exec($sql6);
-        // echo $sql1 . "\n";
-        // echo $sql2 . "\n";
-        // echo $sql3 . "\n";
-        // echo $sql4 . "\n";
-        // echo $sql5ToPrint . "\n";
-        // echo $sql6 . "\n";
         $db->commit();
     }
     catch(Exception $e) 
     {
         echo $e->getMessage();
+        echo $sql1 . PHP_EOL;
+        echo $sql2 . PHP_EOL;
+        echo $sql3 . PHP_EOL;
+        echo $sql4 . PHP_EOL;
+        echo $sql5ToPrint . PHP_EOL;
+        echo $sql6 . PHP_EOL;
         $db->rollBack();
     }
 }
 
+function updatePortal($dbInfo, $nationalEmpUIDImport)
+{
+    $db = new PDO(
+        "mysql:host={$dbInfo['dbHost']};dbname={$dbInfo['dbName']}",
+        $dbInfo['dbUser'],
+        $dbInfo['dbPass'],
+        array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
+    );
+    $tablesWithEmpUID = [
+        //empUID's
+        'action_history' => ['empUID'], 
+        'approvals' => ['empUID'], 
+        'data' => ['empUID'], 
+        'data_extended' => ['empUID'], 
+        'data_history' => ['empUID'], 
+        'notes' => ['empUID'], 
+        'records' => ['empUID'], 
+        'service_chiefs' => ['empUID'], 
+        'signatures' => ['empUID'], 
+        'tags' => ['empUID'], 
+    ];
+    $db->beginTransaction();
+    try
+    {
+        $sql1 = 'SET FOREIGN_KEY_CHECKS=0;';
+        $db->exec($sql1);
+        $db->exec($nationalEmpUIDImport);
+        $sql3 = 'select * from users;';
+        $res = $db->query($sql3);
+
+        $employeesKeyedByOldEmpUIDs = array();
+        foreach ($res as $employeeData)
+        {
+            $employee = ['userID' => $employeeData['userID'], 'empUID' => $employeeData['empUID']];
+
+            //add empUID to list
+            $employeesKeyedByOldEmpUIDs[] = $employee;
+        }
+        $sql5ToPrint = '';
+        foreach ($tablesWithEmpUID as $table => $columns)
+        {
+            foreach ($columns as $column)
+            {
+                $sql5 = "UPDATE $table
+                            SET $column = CASE";
+                foreach ($employeesKeyedByOldEmpUIDs as $employee)
+                {
+                    
+                    $originalValue = $employee['userID'];
+                    $sql5 .= PHP_EOL."WHEN $column = '$originalValue' THEN '".$employee['empUID']."'";
+
+                }
+                $sql5 .= PHP_EOL."ELSE $column
+                            END;";
+                
+                $sql5ToPrint .= PHP_EOL.$sql5;
+                $db->exec($sql5);
+            }
+        }
+        
+        $sql6 = 'SET FOREIGN_KEY_CHECKS=1;';
+        $db->exec($sql6);
+        $db->commit();
+    }
+    catch(Exception $e) 
+    {
+        echo $e->getMessage();
+        echo $sql1 . PHP_EOL;
+        echo $sql2 . PHP_EOL;
+        echo $sql3 . PHP_EOL;
+        echo $sql4 . PHP_EOL;
+        echo $sql5ToPrint . PHP_EOL;
+        echo $sql6 . PHP_EOL;
+        $db->rollBack();
+    }
+}
+function progressBar($done, $total) {
+    $perc = floor(($done / $total) * 100);
+    $left = 100 - $perc;
+    $write = sprintf("\033[0G\033[2K[%'={$perc}s>%-{$left}s] - $perc%% - $done/$total", "", "");
+    fwrite(STDERR, $write);
+}
+
+
 $nationalOG = ['dbHost' => 'localhost', 'dbName' => 'UUID_national', 'dbUser' => 'testuser', 'dbPass' => 'testuserpass'];
+
 //do national
+echo "Updating National Org Chart: ";
 updateNexus($nationalOG);
 //build update script for individual nexus
 $nationalEmpUIDImport = buildUpdateScriptFromNationalOGForNexus($nationalOG);
-//do individual
-updateNexus(['dbHost' => 'localhost', 'dbName' => 'UUID_local_nexus', 'dbUser' => 'testuser', 'dbPass' => 'testuserpass'], $nationalEmpUIDImport);
+printf("\033[0G\033[2K"."Updating National Org Chart: Done");
 
-//do I base deletedusers off of national only?
-//what if newer user isnt present in the local(sp?) nexus
+$localNexusArray = [
+    ['dbHost' => 'localhost', 'dbName' => 'UUID_local_nexus', 'dbUser' => 'testuser', 'dbPass' => 'testuserpass'],
+    ['dbHost' => 'localhost', 'dbName' => 'UUID_local_nexus_2', 'dbUser' => 'testuser', 'dbPass' => 'testuserpass'],
+];
+$localPortalArray = [
+    ['dbHost' => 'localhost', 'dbName' => 'UUID_portal', 'dbUser' => 'testuser', 'dbPass' => 'testuserpass'],
+    ['dbHost' => 'localhost', 'dbName' => 'UUID_portal_2', 'dbUser' => 'testuser', 'dbPass' => 'testuserpass'],
+    
+];
+
+//do individual nexi
+echo PHP_EOL.PHP_EOL."updating local nexi".PHP_EOL;
+foreach($localNexusArray as $key => $connectionDetails)
+{
+    progressBar($key+1, count($localNexusArray));
+    updateNexus($connectionDetails, $nationalEmpUIDImport['nexusImport']);
+}
+
+//do portal
+echo PHP_EOL.PHP_EOL."updating portals".PHP_EOL;
+foreach($localPortalArray as $key => $connectionDetails)
+{
+    progressBar($key+1, count($localPortalArray));
+    updatePortal($connectionDetails, $nationalEmpUIDImport['portalImport']);
+}
+
+echo PHP_EOL.PHP_EOL."Finished";
 ?>
