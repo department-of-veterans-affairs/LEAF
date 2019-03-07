@@ -384,7 +384,7 @@ function printForm() {
             var horizontalStart = 0;
             var sizeOfOption = 0;
             var format = indicator.format;
-            if (format === 'text' && indicator.value.length > 250) {
+            if (format === 'text' && indicator.value.length > 100) {
                 format = 'textarea';
             }
 
@@ -433,7 +433,7 @@ function printForm() {
                 doc.setFontSize(12);
                 if (!blank && typeof (value) !== "undefined") {
                     doc.setFont("times");
-                    doc.text(value, horizontalShift + 2, verticalShift + 10);
+                    doc.text(value.substring(0, 100), horizontalShift + 2, verticalShift + 10);
                 }
                 doc.setFont("Helvetica");
                 maxWidth = maxWidth - sizeOfBox;
@@ -457,7 +457,7 @@ function printForm() {
                 doc.setTextColor(0);
                 if (!blank && typeof (value) !== "undefined") {
                     doc.setFont("times");
-                    doc.text(value, 51, verticalShift + 6);
+                    doc.text(value.substring(0, 100), 51, verticalShift + 6);
                 }
                 doc.setFont("Helvetica");
                 verticalShift += depth === 0 && typeof (indicator.child) !== "undefined" && indicator.child !== null ? headerSplit.length * 8 - 4 : headerSplit.length * 8;
@@ -518,7 +518,7 @@ function printForm() {
                                     doc.setFont("times");
                                 }
                                 doc.setTextColor(0);
-                                doc.text(splitText[i], 15, verticalShift + 16);
+                                doc.text(splitText[i].substring(0, 100), 15, verticalShift + 16);
                                 verticalShift += lineSpacing;
                             }
                         } else {
@@ -647,7 +647,7 @@ function printForm() {
                                     doc.setFont("times");
                                 }
                                 doc.setTextColor(0);
-                                doc.text(splitText[i], 15, verticalShift + (2 * lineSpacing));
+                                doc.text(splitText[i].substring(0, 100), 15, verticalShift + (2 * lineSpacing));
                                 verticalShift += lineSpacing;
                             }
                             if (verticalShift + (2 * lineSpacing) > height - 40) {
