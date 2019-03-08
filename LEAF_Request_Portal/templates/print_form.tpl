@@ -712,7 +712,7 @@ function printForm() {
                         }
                         verticalShift += headerSplit.length * 8;
                         makeTable();
-                        verticalShift = doc.previousAutoTable.finalY - 4;
+                        verticalShift = doc.previousAutoTable.finalY - 3.5;
                         break;
                     case 'orgchart_employee':
                         value = value !== '' ? cleanTagsAndWhitespace($('#data_' + indicator.indicatorID + '_' + indicator.series).find('a').html()) : '';
@@ -946,7 +946,9 @@ function printForm() {
 
         for (var i = 0; i < children.length; i++) {
             var child = indicator[children[i]];
-            if (child.value.length === 0) {
+            if (child.value.length === 0
+                || typeof (child.value.cells) === "undefined"
+                || child.value.cells === null) {
                 blankIndicators++;
             }
 
@@ -966,7 +968,9 @@ function printForm() {
         }).done(function (res) {
             if ("parentID" in res[Object.keys(indicators)[index]] && res[Object.keys(indicators)[index]].parentID === null) {
                 indicatorData.push(res[Object.keys(indicators)[index]]);
-                if (res[Object.keys(indicators)[index]].value.length === 0) {
+                if (res[Object.keys(indicators)[index]].value.length === 0
+                    || typeof(res[Object.keys(indicators)[index]].value.cells) === "undefined"
+                    || res[Object.keys(indicators)[index]].value.cells === null) {
                     blankIndicators++;
                 }
                 if (typeof (res[Object.keys(indicators)[index]].child) !== "undefined" && res[Object.keys(indicators)[index]].child !== null) {
