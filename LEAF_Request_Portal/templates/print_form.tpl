@@ -952,11 +952,6 @@ function printForm() {
 
         for (var i = 0; i < children.length; i++) {
             var child = indicator[children[i]];
-            if (child.value.length === 0
-                || typeof (child.value.cells) === "undefined"
-                || child.value.cells === null) {
-                blankIndicators++;
-            }
             switch (child.format) {
                 case 'grid':
                     if (typeof(child.value.cells) === "undefined"
