@@ -3,7 +3,6 @@
 /public/storage
 /public/php_errors.log
 /storage/*.key
-/vendor
 .env
 .phpunit.result.cache
 .vscode
