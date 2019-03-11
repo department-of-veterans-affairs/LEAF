@@ -496,6 +496,7 @@ function printForm() {
                     startY: verticalShift,
                     styles: {
                         font: "helvetica",
+                        fontStyle: "normal",
                         fillColor: [30, 70, 125],
                         overflow: 'linebreak',
                         overflowColumns: false,
