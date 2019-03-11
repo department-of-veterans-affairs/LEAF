@@ -6,6 +6,8 @@ RUN yes | apt-get install mysql-client
 RUN yes | apt-get install vim
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
+COPY /docker/php/certs/leaf-dev.crt /etc/ssl/certs/
+COPY /docker/php/certs/leaf-dev.key /etc/ssl/certs/
 COPY /docker/php/000-default.conf /etc/apache2/sites-enabled/
 COPY /docker/php/apache2.conf /etc/apache2/
 COPY /LEAF_Nexus/ /var/www/html/LEAF_Nexus/
