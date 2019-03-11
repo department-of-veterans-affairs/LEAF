@@ -14,16 +14,18 @@ php_errors.log
 
 /vendor/dnoegel/php-xdg-base-dir/tests
 /vendor/dragonmantank/cron-expression/tests
+/vendor/filp
 /vendor/fzaninotto/faker
 /vendor/hamcrest/hamcrest-php/tests
 /vendor/jakub-onderka
 /vendor/laravel/slack-notification-channel
 /vendor/lcobucci/jwt/test
 /vendor/mockery
-/vendor/monolog/doc
-/vendor/monolog/tests
+/vendor/monolog/monolog/doc
+/vendor/monolog/monolog/tests
 /vendor/nexmo
 /vendor/nikic
+/vendor/paragonie/random_compat/other/build_phar.php
 /vendor/phar-io
 /vendor/phpdocumentor
 /vendor/phpspec
