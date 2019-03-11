@@ -628,8 +628,12 @@ function printForm() {
                                 doc.text(splitText[i], 15, verticalShift + 16);
                                 verticalShift += lineSpacing;
                             }
-                        } else if (verticalShift + (5 * lineSpacing) > height - 40) {
-                            verticalShift = height - 40;
+                        } else {
+                            if (verticalShift + (5 * lineSpacing) > height - 40) {
+                                verticalShift = height - 40;
+                            } else {
+                                verticalShift += 5 * lineSpacing;
+                            }
                         }
                         doc.setFont("Helvetica");
                         doc.rect(10, verticalStart, 190, verticalShift - verticalStart + 16);
