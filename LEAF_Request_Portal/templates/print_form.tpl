@@ -875,7 +875,10 @@ function printForm() {
                         doc.rect(10, verticalShift, 190, 8, 'FD');
                         doc.setFont("helvetica");
                         doc.text(title, 11, verticalShift + 6);
-                        verticalShift += 4;
+                        verticalShift += 8;
+                        if (typeof (indicator.child) !== "undefined" && indicator.child !== null) {
+                            verticalShift += -4;
+                        }
                         break;
                 }
             }
@@ -954,6 +957,18 @@ function printForm() {
                 || child.value.cells === null) {
                 blankIndicators++;
             }
+            switch (child.format) {
+                case 'grid':
+                    if (typeof(child.value.cells) === "undefined"
+                        || child.value.cells === null) {
+                        blankIndicators++;
+                    }
+                    break;
+                default:
+                    if (child.value.length === 0) {
+                        blankIndicators++;
+                    }
+            }
 
             // process the children of the children...
             if (typeof (child.child) !== "undefined" && child.child != null) {
@@ -971,10 +986,17 @@ function printForm() {
         }).done(function (res) {
             if ("parentID" in res[Object.keys(indicators)[index]] && res[Object.keys(indicators)[index]].parentID === null) {
                 indicatorData.push(res[Object.keys(indicators)[index]]);
-                if (res[Object.keys(indicators)[index]].value.length === 0
-                    || typeof(res[Object.keys(indicators)[index]].value.cells) === "undefined"
-                    || res[Object.keys(indicators)[index]].value.cells === null) {
-                    blankIndicators++;
+                switch (res[Object.keys(indicators)[index]].format) {
+                    case 'grid':
+                        if (typeof(res[Object.keys(indicators)[index]].value.cells) === "undefined"
+                            || res[Object.keys(indicators)[index]].value.cells === null) {
+                            blankIndicators++;
+                        }
+                        break;
+                    default:
+                        if (res[Object.keys(indicators)[index]].value.length === 0) {
+                            blankIndicators++;
+                        }
                 }
                 if (typeof (res[Object.keys(indicators)[index]].child) !== "undefined" && res[Object.keys(indicators)[index]].child !== null) {
                     checkBlankChild(res[Object.keys(indicators)[index]].child);
