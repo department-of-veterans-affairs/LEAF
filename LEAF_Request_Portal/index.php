@@ -174,10 +174,10 @@ switch ($action) {
             'js/jsdiff.js',
             '../libs/js/LEAF/XSSHelpers.js',
             '../libs/jsapi/portal/LEAFPortalAPI.js',
-            'https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js',
-            'https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js',
-            'https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js',
-            'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.0.13/jspdf.plugin.autotable.min.js'
+            '../libs/js/es6-promise/es6-promise.min.js',
+            '../libs/js/es6-promise/es6-promise.auto.min.js',
+            '../libs/js/jspdf/jspdf.min.js',
+            '../libs/js/jspdf/jspdf.plugin.autotable.min.js'
         ));
 
         $recordIDToPrint = (int)$_GET['recordID'];
