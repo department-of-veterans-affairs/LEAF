@@ -3265,6 +3265,7 @@ class Form
                 $child[$idx]['series'] = $series;
                 $child[$idx]['name'] = $field['name'];
                 $child[$idx]['default'] = $field['default'];
+                $child[$idx]['description'] = $field['description'];
                 $child[$idx]['html'] = $field['html'];
                 $child[$idx]['htmlPrint'] = $field['htmlPrint'];
                 if($parseTemplate) {
