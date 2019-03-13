@@ -492,7 +492,8 @@ class System
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
         if ($template != $in
             || $template == 'example'
-            || $template == '')
+            || $template == ''
+            || preg_match('/^LEAF_/i', $template) === 1)
         {
             return 'Invalid or reserved name.';
         }
