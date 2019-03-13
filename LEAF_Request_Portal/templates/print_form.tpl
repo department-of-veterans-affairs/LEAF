@@ -32,12 +32,12 @@
         <!--{/if}-->
         <button class="tools" onclick="viewHistory()" ><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="vertical-align: middle" /> View History</button>
         <button class="tools" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" ><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" style="vertical-align: middle"/> Write Email</button>
+        <button class="tools" onclick="printForm();" ><img src="../libs/dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" title="Print this Form" style="vertical-align: middle" /> Print to PDF <span style="font-style: italic; background-color: white; color: red; border: 1px solid black; padding: 4px">BETA</span></button>
         <!--{if $bookmarked == ''}-->
         <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" style="vertical-align: middle" /> <span>Add Bookmark</span></button>
         <!--{else}-->
         <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> <span>Delete Bookmark</span></button>
         <!--{/if}-->
-        <button class="tools" onclick="printForm();" ><img src="../libs/dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" title="Print this Form" style="vertical-align: middle" /> Print this Form</button>
         <br />
         <br />
         <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
@@ -939,7 +939,7 @@ function printForm() {
                 doc.save(requestInfo['workflows'][0][0]['categoryName'] + '.pdf');
             }
         } else {
-            doc.save(requestInfo['title'] + '.pdf');
+            doc.save('Request #'+ recordID + ' - ' + requestInfo['title'] + '.pdf');
         }
     }
 
