@@ -548,7 +548,6 @@ function printForm() {
                 // returns focus to last page
                 doc.setPage(doc.internal.getNumberOfPages());
                 doc.setTextColor(0);
-                doc.setFillColor(0);
                 doc.setDrawColor(0);
             }
 
