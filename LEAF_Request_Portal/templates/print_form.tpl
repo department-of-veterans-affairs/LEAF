@@ -32,7 +32,7 @@
         <!--{/if}-->
         <button class="tools" onclick="viewHistory()" ><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="vertical-align: middle" /> View History</button>
         <button class="tools" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" ><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" style="vertical-align: middle"/> Write Email</button>
-        <button class="tools" onclick="printForm();" ><img src="../libs/dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" title="Print this Form" style="vertical-align: middle" /> Print to PDF <span style="font-style: italic; background-color: white; color: red; border: 1px solid black; padding: 4px">BETA</span></button>
+        <button class="tools" onclick="printForm();" id="btn_printForm"><img src="../libs/dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" title="Print this Form" style="vertical-align: middle" /> Print to PDF <span style="font-style: italic; background-color: white; color: red; border: 1px solid black; padding: 4px">BETA</span></button>
         <!--{if $bookmarked == ''}-->
         <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" style="vertical-align: middle" /> <span>Add Bookmark</span></button>
         <!--{else}-->
@@ -267,6 +267,9 @@ var bookmarkStatus = 1;
 <!--{/if}-->
 
 function printForm() {
+    var buttonHtml = $('#btn_printForm').html();
+    $('#btn_printForm').html('Loading...');
+
     var doc = new jsPDF({lineHeight: 1.3});
     doc.page = 0;
     doc.setFontSize(12);
@@ -276,7 +279,6 @@ function printForm() {
     var height = doc.internal.pageSize.getHeight();
     var verticalShift = 17;
 
-    var indicatorData = [];
     var requestInfo = new Object();
     var homeQR = document.createElement('img');
     var homeURL = encodeURIComponent($('a[href="./"]')[0].href);
@@ -318,6 +320,8 @@ function printForm() {
     }
 
     function makePdf(data) {
+        $('#btn_printForm').html(buttonHtml);
+
         var makeCount = 0;
         var numInRow = 0;
         var horizontalShift = 10;
@@ -549,7 +553,6 @@ function printForm() {
                 // returns focus to last page
                 doc.setPage(doc.internal.getNumberOfPages());
                 doc.setTextColor(0);
-                doc.setFillColor(0);
                 doc.setDrawColor(0);
             }
 
@@ -944,13 +947,13 @@ function printForm() {
     }
 
     var indicatorCount = 0;
-    var index = 0;
     var indicators = new Object();
     var blankIndicators = 0;
     function checkBlankChild(indicator) {
         var children = Object.keys(indicator);
 
         for (var i = 0; i < children.length; i++) {
+            indicatorCount++;
             var child = indicator[children[i]];
             switch (child.format) {
                 case 'grid':
@@ -971,93 +974,92 @@ function printForm() {
             }
         }
     }
+    function checkBlank() {
+        $.each(indicators, function() {
+            indicatorCount++;
+            switch (this.format) {
+                case 'grid':
+                    if (typeof(this.value.cells) === "undefined"
+                        || this.value.cells === null) {
+                        blankIndicators++;
+                    }
+                    break;
+                default:
+                    if (this.value.length === 0) {
+                        blankIndicators++;
+                    }
+            }
+            if (typeof (this.child) !== "undefined" && this.child !== null) {
+                checkBlankChild(this.child);
+            }
+        });
+    }
 
-    function getIndicatorData(indicator) {
+    function getIndicatorData() {
         $.ajax({
             method: 'GET',
-            url: './api/form/' + recordID + '/rawIndicator/' + indicator.indicatorID + '/' + indicator.series,
+            url: './api/form/' + recordID + '/data/tree',
             dataType: 'json',
             cache: false
         }).done(function (res) {
-            if ("parentID" in res[Object.keys(indicators)[index]] && res[Object.keys(indicators)[index]].parentID === null) {
-                indicatorData.push(res[Object.keys(indicators)[index]]);
-                switch (res[Object.keys(indicators)[index]].format) {
-                    case 'grid':
-                        if (typeof(res[Object.keys(indicators)[index]].value.cells) === "undefined"
-                            || res[Object.keys(indicators)[index]].value.cells === null) {
-                            blankIndicators++;
-                        }
-                        break;
-                    default:
-                        if (res[Object.keys(indicators)[index]].value.length === 0) {
-                            blankIndicators++;
-                        }
-                }
-                if (typeof (res[Object.keys(indicators)[index]].child) !== "undefined" && res[Object.keys(indicators)[index]].child !== null) {
-                    checkBlankChild(res[Object.keys(indicators)[index]].child);
-                }
-            }
-            index++;
-            if (index === indicatorCount) {
-                blank = blankIndicators === indicatorCount;
-                var submitted = Number(requestInfo['submitted']) > 0;
-                var actionCompleted = typeof (requestInfo['lastAction']) !== "undefined";
-
-                if (!blank || submitted) {
-                    doc.text(requestInfo['title'], 35, verticalShift);
-                    doc.text($('span#headerTab').text(), 200, verticalShift, null, null, 'right');
-                    verticalShift += 7;
-                    doc.text('Initiated by ' + requestInfo['name'], 200, 24, null, null, 'right');
-                    doc.setTextColor(80, 80, 80);
-                    doc.setFontStyle("italic");
-                    $.each(requestInfo['workflows'], function () {
-                        doc.text(this[0]['categoryName'], 35, verticalShift);
-                        verticalShift += 7
-                    });
-                    doc.text($('#headerLabel').text(), 35, verticalShift);
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFontType('normal');
-                    if (!submitted) {
-                        doc.text("Not submitted", 200, verticalShift, null, null, 'right');
-                    } else {
-                        var submitTime = new Date(Number(requestInfo['submitted']) * 1000);
-                        doc.text("Submitted " + getDate(submitTime), 200, verticalShift, null, null, 'right');
-                        if (actionCompleted && requestInfo['lastAction']['action'] !== 'Submitted') {
-                            var actionTime = new Date(Number(requestInfo['lastAction']['time']) * 1000);
-                            verticalShift += 14;
-                            doc.rect(10, verticalShift, 190, 8);
-                            doc.text(requestInfo['lastAction']['description']
-                                + ' ' + requestInfo['lastAction']['action']
-                                + ' by ' + requestInfo['lastAction']['userID']
-                                + ' ' + getDate(actionTime), 11, verticalShift + 6);
-                            verticalShift += 8;
-                        }
-                    }
-                    doc.addImage(getBase64Image($('img[alt="QR code"]')[0]), 'PNG', 8.5, 8, 25, 25);
+            indicators = res;
+            checkBlank();
+            blank = blankIndicators === indicatorCount;
+            var submitted = Number(requestInfo['submitted']) > 0;
+            var actionCompleted = typeof (requestInfo['lastAction']) !== "undefined";
+            if (!blank || submitted) {
+                doc.text(requestInfo['title'], 35, verticalShift);
+                doc.text($('span#headerTab').text(), 200, verticalShift, null, null, 'right');
+                verticalShift += 7;
+                doc.text('Initiated by ' + requestInfo['name'], 200, 24, null, null, 'right');
+                doc.setTextColor(80, 80, 80);
+                doc.setFontStyle("italic");
+                $.each(requestInfo['workflows'], function () {
+                    doc.text(this[0]['categoryName'], 35, verticalShift);
+                    verticalShift += 7
+                });
+                doc.text($('#headerLabel').text(), 35, verticalShift);
+                doc.setTextColor(0, 0, 0);
+                doc.setFontType('normal');
+                if (!submitted) {
+                    doc.text("Not submitted", 200, verticalShift, null, null, 'right');
                 } else {
-                    doc.setFontSize(8);
-                    doc.text("Name:", 150, verticalShift);
-                    doc.line(160, verticalShift, 200, verticalShift);
-                    doc.text("Date:", 152, verticalShift + 7);
-                    doc.line(160, verticalShift + 7, 200, verticalShift + 7);
-                    doc.setFontSize(12);
-                    $.each(requestInfo['workflows'], function () {
-                        doc.text(this[0]['categoryName'], 35, verticalShift);
-                        verticalShift += 7
-                    });
-                    doc.setTextColor(80, 80, 80);
-                    doc.setFontStyle("italic");
-                    doc.text($('#headerLabel').text(), 35, verticalShift);
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFontType('normal');
-                    doc.addImage(getBase64Image(homeQR), 'PNG', 8.5, 8, 25, 25);
+                    var submitTime = new Date(Number(requestInfo['submitted']) * 1000);
+                    doc.text("Submitted " + getDate(submitTime), 200, verticalShift, null, null, 'right');
+                    if (actionCompleted && requestInfo['lastAction']['action'] !== 'Submitted') {
+                        var actionTime = new Date(Number(requestInfo['lastAction']['time']) * 1000);
+                        verticalShift += 14;
+                        doc.rect(10, verticalShift, 190, 8);
+                        doc.text(requestInfo['lastAction']['description']
+                            + ' ' + requestInfo['lastAction']['action']
+                            + ' by ' + requestInfo['lastAction']['userID']
+                            + ' ' + getDate(actionTime), 11, verticalShift + 6);
+                        verticalShift += 8;
+                    }
                 }
-                makePdf(indicatorData);
+                doc.addImage(getBase64Image($('img[alt="QR code"]')[0]), 'PNG', 8.5, 8, 25, 25);
             } else {
-                getIndicatorData(indicators[Object.keys(indicators)[index]][1]);
+                doc.setFontSize(8);
+                doc.text("Name:", 150, verticalShift);
+                doc.line(160, verticalShift, 200, verticalShift);
+                doc.text("Date:", 152, verticalShift + 7);
+                doc.line(160, verticalShift + 7, 200, verticalShift + 7);
+                doc.setFontSize(12);
+                $.each(requestInfo['workflows'], function () {
+                    doc.text(this[0]['categoryName'], 35, verticalShift);
+                    verticalShift += 7
+                });
+                doc.setTextColor(80, 80, 80);
+                doc.setFontStyle("italic");
+                doc.text($('#headerLabel').text(), 35, verticalShift);
+                doc.setTextColor(0, 0, 0);
+                doc.setFontType('normal');
+                doc.addImage(getBase64Image(homeQR), 'PNG', 8.5, 8, 25, 25);
             }
+            makePdf(indicators);
         }).fail(function (err) {
             console.log(err);
+            alert("Could not retrieve indicator data");
         });
     }
 
@@ -1080,14 +1082,14 @@ function printForm() {
                             'userID': res['userID']
                         };
                     }
-                    getIndicatorData(indicators[Object.keys(indicators)[index]][1]);
+                    getIndicatorData();
                 }
             )
             .fail(
                 function (err) {
                     alert('Unable to get approval details.');
                     console.log(err);
-                    getIndicatorData(indicators[Object.keys(indicators)[index]][1]);
+                    getIndicatorData();
                 }
             );
     }
@@ -1118,7 +1120,7 @@ function printForm() {
                     }
                 );
         } else {
-            getIndicatorData(indicators[Object.keys(indicators)[index]][1]);
+            getIndicatorData();
         }
     }
 
@@ -1154,13 +1156,13 @@ function printForm() {
             );
     }
 
-    function getSignatures(iteration) {
-        var processed = iteration;
+    function getSignatures(index) {
+        var processed = index;
         if (processed === requestInfo['workflows'].length) {
             getSigned();
         } else {
-            var test = requestInfo['workflows'][iteration][0]['workflowID'];
-            var fetchURL = './api/workflow/' + test;
+            var workflowID = requestInfo['workflows'][processed][0]['workflowID'];
+            var fetchURL = './api/workflow/' + workflowID;
 
             $.ajax({
                 method: 'GET',
@@ -1191,8 +1193,8 @@ function printForm() {
         }
     }
 
-    function getWorkflowID(categoryIDs, iteration) {
-        var processed = iteration;
+    function getWorkflowID(categoryIDs, index) {
+        var processed = index;
         if (processed === categoryIDs.length) {
             requestInfo['signatures'] = [];
             getSignatures(0);
@@ -1248,19 +1250,7 @@ function printForm() {
                 }
             );
     }
-
-    $.ajax({
-        method: 'GET',
-        url: './api/form/' + recordID + '/data',
-        dataType: 'json',
-        cache: false
-    }).done(function(res) {
-        indicatorCount = Object.keys(res).length;
-        indicators = res;
-        getFormInfo();
-    }).fail(function(err) {
-        console.log(err);
-    });
+    getFormInfo();
 }
 
 function toggleBookmark() {
