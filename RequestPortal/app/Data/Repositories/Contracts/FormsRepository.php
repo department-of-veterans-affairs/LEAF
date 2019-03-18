@@ -4,8 +4,8 @@ namespace RequestPortal\Data\Repositories\Contracts;
 
 interface FormsRepository
 {
-    public function createFormCount($recordId, $categoryId, $count);
-    public function getById($formId);
-    public function getCountById($formId);
-    public function getStapledForms($categoryId);
+    public function createFormCount($recordID, $categoryID, $count);
+    public function getById($formID);
+    public function getCountById($formID);
+    public function getStapledForms($categoryID);
 }

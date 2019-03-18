@@ -6,22 +6,19 @@
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('IsAuth')->group(function () {
-
-    Route::group([
+    Route::group(array(
         'prefix' => '{visn}',
-        'where' => ['visn' => '^(?!api).+'],
-    ], function () {
-
-        Route::group([
+        'where' => array('visn' => '^(?!api).+'),
+    ), function () {
+        Route::get('/debug', 'RequestsController@debug')->name('request.debug');
+        Route::group(array(
             'prefix' => '/requests',
-        ], function () {
-
+        ), function () {
             Route::get('/', 'RequestsController@getAll')->name('request.show');
-            Route::post('/new', 'RequestsController@store')->name('request.store');
             Route::get('/create', 'RequestsController@create')->name('request.create');
+            Route::get('/{requestID}', 'RequestsController@getById')->name('request.detail');
 
-            Route::get('/{requestId}', 'RequestsController@getById')->name('request.detail');
-            Route::post('/{requestId}/indicator/{indicatorId}', 'RequestsController@updateIndicator');
+            
         });
     });
 });

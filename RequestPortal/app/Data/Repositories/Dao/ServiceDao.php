@@ -10,9 +10,9 @@ class ServiceDao extends CachedDbDao implements ServiceRepository
 {
     protected $tableName = "services";
 
-    public function getById($serviceId)
+    public function getById($serviceID)
     {
-        return $this->getConn()->where('serviceID', $serviceId)->first();
+        return $this->getConn()->where('serviceID', $serviceID)->first();
     }
 
     public function getByName($serviceName)

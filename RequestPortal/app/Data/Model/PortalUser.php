@@ -4,7 +4,9 @@ namespace RequestPortal\Data\Model;
 
 class PortalUser
 {
-    public $id;
+    public $empUID;
 
-    public $groupId;
+    public $userID;
+
+    public $groupID;
 }
