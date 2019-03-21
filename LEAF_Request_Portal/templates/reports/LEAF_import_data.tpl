@@ -865,7 +865,7 @@
 
                 /* reads layout of sheet */
                 var columnNames = _buildColumnsArray(rawSheet['!ref']);
-                var rows = parseInt(rawSheet['!ref'].substring(rawSheet['!ref'].indexOf(':'), rawSheet['!ref'].length).replace(/:[A-Z]/g, '')) - 1;
+                var rows = parseInt(rawSheet['!ref'].substring(rawSheet['!ref'].indexOf(':'), rawSheet['!ref'].length).replace(/:[A-Z]+/g, '')) - 1;
                 var headers = new Object();
 
                 /* converts schema */
