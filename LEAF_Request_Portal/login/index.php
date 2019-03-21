@@ -16,7 +16,7 @@ $db_config = new DB_Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
-$settings['subheading'] = XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']);
+$settings['subHeading'] = XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 
 function getBaseDir()
 {
@@ -40,7 +40,7 @@ function getBaseDir()
 <div id="header">
     <div>
       <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
-      <span id="headerLabel"><?php echo htmlentities($settings['subheading']); ?></span>
+      <span id="headerLabel"><?php echo htmlentities($settings['subHeading']); ?></span>
       <span id="headerDescription"><?php echo htmlentities($settings['heading']); ?></span>
     </div>
     <span id="headerTab">Secure Login</span>

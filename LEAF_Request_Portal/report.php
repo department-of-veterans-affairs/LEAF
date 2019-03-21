@@ -160,7 +160,7 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $main->assign('title', $settings['heading'] == '' ? $config->title : $settings['heading']);
-$main->assign('city', $settings['subheading'] == '' ? $config->city : $settings['subheading']);
+$main->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 $main->assign('revision', $settings['version']);
 
 if (!isset($_GET['iframe']))
