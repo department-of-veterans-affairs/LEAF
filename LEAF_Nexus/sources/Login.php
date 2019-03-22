@@ -370,7 +370,7 @@ class Login
                                             LEFT JOIN relation_position_employee USING (empUID)
                                             LEFT JOIN relation_group_employee USING (empUID)
                                             LEFT JOIN relation_group_position USING (positionID)
-                                            WHERE empUID IN ({$temp})", array());
+                                            WHERE empUID IN (:empUID)", $vars);
         if (count($res) > 0)
         {
             foreach ($res as $item)

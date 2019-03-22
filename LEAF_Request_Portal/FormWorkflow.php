@@ -893,7 +893,7 @@ class FormWorkflow
                             $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                             $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
-                            if ($empUID != 0)
+                            if ($empUID !== 0)
                             {
                                 $tmp = $dir->lookupEmpUID($empUID);
                                 $email->addRecipient($tmp[0]['Email']);
