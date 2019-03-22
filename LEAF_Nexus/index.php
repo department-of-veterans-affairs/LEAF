@@ -154,7 +154,7 @@ switch ($action) {
                                            'css/positionSelector.css', ));
 
         $empUID = isset($_GET['empUID']) ? XSSHelpers::xscrub($_GET['empUID']) : 0;
-        if ($empUID != 0)
+        if ($empUID !== 0)
         {
             require 'sources/Employee.php';
             $employee = new Orgchart\Employee($db, $login);
