@@ -245,8 +245,8 @@ class VAMC_Directory_maintenance_AD
     public function importData()
     {
         $time = time();
-        $sql = 'INSERT INTO employee (userName, lastName, firstName, middleName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
-                    VALUES (:loginName, :lname, :fname, :midIni, :phoneticFname, :phoneticLname, :domain, :lastUpdated)';
+        $sql = 'INSERT INTO employee (empUID, userName, lastName, firstName, middleName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
+                    VALUES (uuid(), :loginName, :lname, :fname, :midIni, :phoneticFname, :phoneticLname, :domain, :lastUpdated)';
 
         $pq = $this->db->prepare($sql);
         $count = 0;

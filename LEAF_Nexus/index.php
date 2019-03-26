@@ -154,7 +154,7 @@ switch ($action) {
                                            'css/positionSelector.css', ));
 
         $empUID = isset($_GET['empUID']) ? XSSHelpers::xscrub($_GET['empUID']) : 0;
-        if ($empUID != 0)
+        if ($empUID !== 0)
         {
             require 'sources/Employee.php';
             $employee = new Orgchart\Employee($db, $login);
@@ -383,7 +383,7 @@ switch ($action) {
         }
 
         $t_form->assign('indicatorID', (int)$_GET['indicatorID']);
-        $t_form->assign('UID', (int)$_GET['UID']);
+        $t_form->assign('UID', XSSHelpers::xscrub($_GET['UID']));
         $t_form->assign('indicator', $indicatorArray);
         $t_form->assign('permissions', $privilegesArray);
         $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
