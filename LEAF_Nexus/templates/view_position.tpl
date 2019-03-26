@@ -179,12 +179,7 @@ function addEmployee() {
             	url: './api/employee/import/_' + selectedUserName,
             	data: {CSRFToken: '<!--{$CSRFToken}-->'},
             	success: function(res) {
-            		if(!isNaN(res)) {
             			assocEmployeePosition(res);
-            		}
-            		else {
-            			alert(res);
-            		}
             	}
             });
     	}

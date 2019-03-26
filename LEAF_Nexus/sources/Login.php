@@ -370,7 +370,7 @@ class Login
                                             LEFT JOIN relation_position_employee USING (empUID)
                                             LEFT JOIN relation_group_employee USING (empUID)
                                             LEFT JOIN relation_group_position USING (positionID)
-                                            WHERE empUID IN ({$temp})", array());
+                                            WHERE empUID IN (:empUID)", $vars);
         if (count($res) > 0)
         {
             foreach ($res as $item)
@@ -480,7 +480,7 @@ class Login
         {
             $resIndicatorID = (int)$item['indicatorID'];
             $resCategoryID = \XSSHelpers::xscrub($item['categoryID']);
-            $resUID = (int)$item['UID'];
+            $resUID = \XSSHelpers::xscrub($item['UID']);
             $resRead = (int)$item['read'];
             $resWrite = (int)$item['write'];
             $resGrant = (int)$item['grant'];

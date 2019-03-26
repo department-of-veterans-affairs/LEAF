@@ -308,7 +308,7 @@ abstract class NationalData
 
     public function getFileHash($categoryID, $uid, $indicatorID, $fileName)
     {
-        if (!is_numeric($categoryID) || !is_numeric($uid) || !is_numeric($indicatorID))
+        if (!is_numeric($categoryID) || !is_numeric($indicatorID))
         {
             return '';
         }

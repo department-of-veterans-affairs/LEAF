@@ -51,8 +51,8 @@ class IndicatorControllerTest extends DatabaseTest
         $this->assertEquals('0', $indicator[2]['grant']);
 
         //toggle write and grant on
-        self::$client->post(array('a' => 'indicator/6/permission/_group/14/_write/toggle'), array());
-        self::$client->post(array('a' => 'indicator/6/permission/_group/14/_grant/toggle'), array());
+        self::$client->post(array('a' => 'indicator/6/permission/_group/_14/_write/toggle'), array());
+        self::$client->post(array('a' => 'indicator/6/permission/_group/_14/_grant/toggle'), array());
 
         //checks to see that the toggle was successful
         $indicator = self::$client->get(array('a' => 'indicator/6/permissions'));
@@ -61,8 +61,8 @@ class IndicatorControllerTest extends DatabaseTest
         $this->assertEquals('1', $indicator[2]['grant']);
 
         //toggle write and grant off
-        self::$client->post(array('a' => 'indicator/6/permission/_group/14/_write/toggle'), array());
-        self::$client->post(array('a' => 'indicator/6/permission/_group/14/_grant/toggle'), array());
+        self::$client->post(array('a' => 'indicator/6/permission/_group/_14/_write/toggle'), array());
+        self::$client->post(array('a' => 'indicator/6/permission/_group/_14/_grant/toggle'), array());
 
         //checks to see that the toggle was successful
         $indicator = self::$client->get(array('a' => 'indicator/6/permissions'));

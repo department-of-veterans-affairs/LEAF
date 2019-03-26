@@ -235,7 +235,6 @@ function addEmployeePosition() {
                 url: './api/employee/import/_' + selectedUserName,
                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
-                    if(!isNaN(res)) {
                         $.ajax({
                             type: 'POST',
                             url: './api/?a=group/<!--{$groupID}-->/employee',
@@ -246,10 +245,6 @@ function addEmployeePosition() {
                             },
                             cache: false
                         });
-                    }
-                    else {
-                        alert(res);
-                    }
                 }
             });
         }
