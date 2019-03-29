@@ -698,8 +698,7 @@
                     });
                 }
                 function importFromNational(empSel) {
-                    if(empSel.selection != '') {
-                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                        var selectedUserName = empSel.selection !== '' ? empSel.selectionData[empSel.selection].userName : '';
                         $.ajax({
                             type: 'POST',
                             url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
@@ -708,7 +707,6 @@
                             	$('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
                             }
                         });
-                    }
                 }
 
             	var empSel;
