@@ -149,7 +149,6 @@ var gridInput = function(gridParameters, indicatorID, series) {
             $(gridBodyElement + ' > tr:last').append('<td><img role="button" tabindex="0" onkeydown="gridInput_' + indicatorID + '_' + series + '.triggerClick(event);" onclick="gridInput_' + indicatorID + '_' + series + '.deleteRow(event)" src="../libs/dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" /></td><td><img role="button" tabindex="0" onkeydown="gridInput_' + indicatorID + '_' + series + '.triggerClick(event);" onclick="gridInput_' + indicatorID + '_' + series + '.moveUp(event)" src="../libs/dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="cursor: pointer" /></br></br><img role="button" tabindex="0" onkeydown="gridInput_' + indicatorID + '_' + series + '.triggerClick(event);" onclick="gridInput_' + indicatorID + '_' + series + '.moveDown(event)" style="display: none" src="../libs/dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="cursor: pointer" /></td>');
         }
         $('#tableStatus').attr('aria-label', 'Row number ' + $(gridBodyElement).children().length + ' added, ' + $(gridBodyElement).children().length + ' total.');
-        $(gridBodyElement + ' > tr:last > td:first').children().focus();
     }
     // click function for 508 compliance
     function triggerClick(event){
