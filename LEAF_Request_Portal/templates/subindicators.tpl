@@ -698,15 +698,15 @@
                     });
                 }
                 function importFromNational(empSel) {
-                        var selectedUserName = empSel.selection !== '' ? empSel.selectionData[empSel.selection].userName : '';
-                        $.ajax({
-                            type: 'POST',
-                            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-                            data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                            success: function(res) {
-                            	$('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
-                            }
-                        });
+                    var selectedUserName = empSel.selection !== '' ? empSel.selectionData[empSel.selection].userName : '';
+                    $.ajax({
+                        type: 'POST',
+                        url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                        data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                        success: function(res) {
+                            $('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
+                        }
+                    });
                 }
 
             	var empSel;
