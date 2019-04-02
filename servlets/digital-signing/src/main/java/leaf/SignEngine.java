@@ -24,7 +24,6 @@ public class SignEngine {
             String aliasString = "Aliases: ";
             while (aliases.hasMoreElements()) {
                 String element = aliases.nextElement();
-                logger.info(element);
                 X509Certificate x509Certificate = (X509Certificate) keyStore.getCertificate(element);
                 boolean[] keyUsage = x509Certificate.getKeyUsage();
                 if (keyUsage != null) {
@@ -34,7 +33,6 @@ public class SignEngine {
                     if ((keyUsage[0] && keyUsage[1]) || element.contains("Digital Signature")) alias = element;
                 }
             }
-            logger.info(aliasString);
             logger.info("Using alias \"" + alias + "\"");
             PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, null);
             Signature signature = Signature.getInstance("SHA256withRSA", "SunMSCAPI");
