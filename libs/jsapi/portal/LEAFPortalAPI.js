@@ -3,6 +3,7 @@
  */
 var LEAFRequestPortalAPI = function () {
     var baseURL = './api/?a=',
+        Export = PortalExportAPI(baseURL),
         Forms = PortalFormsAPI(baseURL),
         FormEditor = PortalFormEditorAPI(baseURL),
         Import = PortalImportAPI(baseURL),
@@ -29,6 +30,7 @@ var LEAFRequestPortalAPI = function () {
          */
         setBaseURL = function (urlBase) {
             baseURL = urlBase;
+            Export.setBaseAPIURL(baseURL);
             Forms.setBaseAPIURL(baseURL);
             FormEditor.setBaseAPIURL(baseURL);
             Import.setBaseAPIURL(baseURL);
@@ -39,6 +41,7 @@ var LEAFRequestPortalAPI = function () {
 
         setCSRFToken = function (token) {
             csrfToken = token;
+            Export.setCSRFToken(token);
             Forms.setCSRFToken(token);
             FormEditor.setCSRFToken(token);
             Import.setCSRFToken(token);
@@ -51,7 +54,7 @@ var LEAFRequestPortalAPI = function () {
         getBaseURL: getBaseURL,
         setBaseURL: setBaseURL,
         setCSRFToken: setCSRFToken,
-
+        Export: Export,
         Forms: Forms,
         FormEditor: FormEditor,
         Import: Import,
@@ -637,6 +640,69 @@ var PortalImportAPI = function (baseAPIURL) {
         getAPIURL: getAPIURL,
         getBaseAPIURL: getBaseAPIURL,
         parseXLS: parseXLS,
+        setBaseAPIURL: setBaseAPIURL,
+        setCSRFToken: setCSRFToken,
+    };
+};
+
+var PortalExportAPI = function (baseAPIURL) {
+    var apiBaseURL = baseAPIURL,
+        apiURL = baseAPIURL + 'export',
+
+        // used for POST requests
+        csrfToken = '',
+
+        /**
+         * Get the URL for the LEAF Portal Signatures API
+         */
+        getAPIURL = function () { return apiURL; },
+
+        /**
+         * Get the base URL for the LEAF Portal API
+         *
+         * @return string   the base LEAF Portal API URL used in this Forms API
+         */
+        getBaseAPIURL = function () { return apiBaseURL; },
+
+        /**
+         * Set the base URL for the LEAF Portal API
+         *
+         * @param baseAPIURL string the base URL for the Portal API
+         */
+        setBaseAPIURL = function (baseAPIURL) {
+            apiBaseURL = baseAPIURL;
+            apiURL = baseAPIURL + 'export';
+        },
+
+        /**
+         * Set the CSRFToken for POST requests
+         */
+        setCSRFToken = function (token) { csrfToken = token; },
+
+        /**
+         * Exports a XLS-formatted spreadsheet with data.
+         *
+         * @param onSuccess     function(result)    callback when operation succeeds
+         * @param onFail        function(error)     callback when operation fails
+         */
+        exportXLS = function(onSuccess, onFail) {
+
+            var fetchURL = apiURL + '/xls';
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: "json",
+                cache: false
+            })
+                .done(onSuccess)
+                .fail(onFail);
+        };
+
+    return {
+        getAPIURL: getAPIURL,
+        getBaseAPIURL: getBaseAPIURL,
+        exportXLS: exportXLS,
         setBaseAPIURL: setBaseAPIURL,
         setCSRFToken: setCSRFToken,
     };

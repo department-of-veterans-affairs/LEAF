@@ -433,15 +433,15 @@ switch ($action) {
         break;
     case 'reports':
         $main->assign('stylesheets', array('css/report.css'));
-           $main->assign('javascripts', array('js/form.js',
-               'js/formGrid.js',
-               'js/formQuery.js',
-               'js/formSearch.js',
-               'js/workflow.js',
-               'js/lz-string/lz-string.min.js',
-               '../libs/js/LEAF/XSSHelpers.js',
-           ));
-           $main->assign('useUI', true);
+        $main->assign('javascripts', array('js/form.js',
+            'js/formGrid.js',
+            'js/formQuery.js',
+            'js/formSearch.js',
+            'js/workflow.js',
+            'js/lz-string/lz-string.min.js',
+            '../libs/js/LEAF/XSSHelpers.js',
+        ));
+        $main->assign('useUI', true);
 
         $o_login = $t_login->fetch('login.tpl');
 
@@ -459,10 +459,10 @@ switch ($action) {
 
         $main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl')));
 
-           $o_login = $t_login->fetch('login.tpl');
-           $tabText = 'Report Builder';
+        $o_login = $t_login->fetch('login.tpl');
+        $tabText = 'Report Builder';
 
-           break;
+        break;
     case 'logout':
         $login->logout();
 

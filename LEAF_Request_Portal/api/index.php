@@ -87,6 +87,12 @@ if ($login->checkGroup(1))
         $importController = new ImportController($db, $login);
         $importController->handler($action);
     });
+
+    $controllerMap->register('export', function() use ($db, $login, $action) {
+        require 'controllers/ExportController.php';
+        $exportController = new ExportController($db, $login);
+        $exportController->handler($action);
+    });
 }
 
 $controllerMap->register('form', function () use ($db, $login, $action) {
