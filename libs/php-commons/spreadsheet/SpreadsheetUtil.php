@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../loaders/Psr_autoloader.php';
 require_once __DIR__ . '/../../loaders/PhpSpreadsheet_autoloader.php';
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 /**
  * Utility class for working with Spreadsheets
@@ -72,5 +73,60 @@ class SpreadsheetUtil
         $result['cells'] = $cells;
 
         return $result;
+    }
+
+    // Write functions
+
+    /**
+     * Write file into a php output
+     *
+     * @param spreadsheet Spreadsheet data to write to file
+     * @param fileType String of file export type (i.e xls, xlsx, csv, etc.) case-sensitive
+     * @return null if errors writing file
+     */
+    public static function writeSpreadsheetToFile($spreadsheet, $fileType)
+    {
+        try {
+            $writer = IOFactory::createWriter($spreadsheet, $fileType);
+            $writer->save('php://output');
+        }
+        catch (Exception $e)
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Create a spreadsheet/workbook from data into a PHPOffice\PhpSpreadsheet\Spreadsheet
+     *
+     * @param data the data to create spreadsheet with
+     * @return the Spreadsheet object
+     */
+    public static function createSpreadsheet($data = null): Spreadsheet
+    {
+        /** Create a new Spreadsheet Object **/
+        $spreadsheet = new Spreadsheet();
+
+        if (!isset($data)) {
+            return $spreadsheet;
+        }
+
+//        $spreadsheet->setActiveSheetIndex(0)
+//            ->setCellValue('A1', 'Hello')
+//            ->setCellValue('B2', 'world!')
+//            ->setCellValue('C1', 'Hello')
+//            ->setCellValue('D2', 'world!');
+
+//        $spreadsheet->getProperties()->setCreator('Maarten Balliauw')
+//            ->setLastModifiedBy('Maarten Balliauw')
+//            ->setTitle('Office 2007 XLSX Test Document')
+//            ->setSubject('Office 2007 XLSX Test Document')
+//            ->setDescription('Test document for Office 2007 XLSX, generated using PHP classes.')
+//            ->setKeywords('office 2007 openxml php')
+//            ->setCategory('Test result file');
+
+        $spreadsheet->getActiveSheet()->setTitle('Simple');
+
+        return $spreadsheet;
     }
 }

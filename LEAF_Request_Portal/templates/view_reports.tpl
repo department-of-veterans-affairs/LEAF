@@ -579,6 +579,20 @@ function showJSONendpoint() {
 	dialog_message.show();
 }
 
+function exportSpreadsheet() {
+    var download = document.createElement('a');
+    download.setAttribute('href', 'api/export/xls');
+    download.style.display = 'none';
+
+    document.body.appendChild(download);
+    if (navigator.msSaveOrOpenBlob) {
+        navigator.msSaveOrOpenBlob(new Blob(['test'], {type: 'application/vnd.ms-excel'}));
+    } else {
+        download.click();
+    }
+    document.body.removeChild(download);
+}
+
 var url, urlQuery, urlIndicators;
 var leafSearch;
 var headers = [];
@@ -739,7 +753,7 @@ $(function() {
 
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '460px');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify report" /> Modify Report</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" id="" onclick=""><img src="../libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Icon of Spreadsheet" /> Export Spreadsheet</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" id="export-xls-btn" onclick="exportSpreadsheet()"><img src="../libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Icon of Spreadsheet" /> Export Spreadsheet</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=32" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
             extendedToolbar = true;
 

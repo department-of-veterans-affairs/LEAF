@@ -37,9 +37,14 @@ class ExportController extends RESTfulResponse
         $this->index['GET'] = new ControllerMap();
 
         $this->index['GET']->register('export/xls', function () {
-            $results ='';
-
-            return $results;
+            $fileName = '"Export_'. date('U') . '.xls"';
+            header('Content-Type: application/vnd.ms-excel');
+            header('Cache-Control: max-age=1');
+            header('Content-Disposition: attachment; filename=' . $fileName);
+            $spreadsheet = SpreadSheetUtil::createSpreadsheet("");
+            // fileType is case sensitive
+            SpreadSheetUtil::writeSpreadsheetToFile($spreadsheet, 'Xls');
+            return "";
         });
 
         $this->index['GET']->register('export/csv', function() {
