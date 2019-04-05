@@ -99,10 +99,10 @@ class SpreadsheetUtil
     /**
      * Create a spreadsheet/workbook from data into a PHPOffice\PhpSpreadsheet\Spreadsheet
      *
-     * @param data the data to create spreadsheet with
-     * @return the Spreadsheet object
+     * @param data array the data to create spreadsheet with
+     * @return Spreadsheet the generated Spreadsheet object
      */
-    public static function createSpreadsheet($data = null): Spreadsheet
+    public static function createSpreadsheet($data): Spreadsheet
     {
         /** Create a new Spreadsheet Object **/
         $spreadsheet = new Spreadsheet();
@@ -111,21 +111,19 @@ class SpreadsheetUtil
             return $spreadsheet;
         }
 
-//        $spreadsheet->setActiveSheetIndex(0)
-//            ->setCellValue('A1', 'Hello')
-//            ->setCellValue('B2', 'world!')
-//            ->setCellValue('C1', 'Hello')
-//            ->setCellValue('D2', 'world!');
+        $spreadsheet->getProperties()->setTitle($data[0]['name']);
 
-//        $spreadsheet->getProperties()->setCreator('Maarten Balliauw')
-//            ->setLastModifiedBy('Maarten Balliauw')
-//            ->setTitle('Office 2007 XLSX Test Document')
-//            ->setSubject('Office 2007 XLSX Test Document')
-//            ->setDescription('Test document for Office 2007 XLSX, generated using PHP classes.')
-//            ->setKeywords('office 2007 openxml php')
-//            ->setCategory('Test result file');
+        for($i = 0; $i < count($data); $i ++) {
+            // add new worksheet if needed
+            if ($i > 0) {
+                $spreadsheet->createSheet();
+            }
 
-        $spreadsheet->getActiveSheet()->setTitle('Simple');
+            $spreadsheet->getSheet($i)->setTitle($data[$i]['name']);
+            $tableData = $data[$i]['table'];
+
+            $spreadsheet->getSheet($i)->fromArray($tableData, NULL, 'A1');
+        }
 
         return $spreadsheet;
     }

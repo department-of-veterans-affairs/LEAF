@@ -579,37 +579,125 @@ function showJSONendpoint() {
 	dialog_message.show();
 }
 
+/**
+ * Exports current report into a .XLS spreadsheet file
+ */
 function exportSpreadsheet() {
+    /**
+     * Parses FormGrid/HTML Report data into exportable spreadsheet format
+     * Array(
+     *   Object(name: String, table: Array(Array)),
+     *   ...
+     * )
+     */
     function parseHTMLReportData() {
+        var records = grid.getCurrentData();
         // if report had no entries, no data to convert to spreadsheet
-        if (grid.getCurrentData().length == 0) {
+        if (records.length == 0) {
             return null;
         }
 
+        var gridIndicators = [];
+        var workbook = [];
+        var sheetName1 = 'Exported_' + now;
+        var sheet1 = {
+            name: sheetName1,
+            table: []
+        };
+
+        // traverses html elements to determine grid input indicator values
+        headers.forEach(function (value) {
+            if ($.isNumeric(value.indicatorID)) {
+                records.forEach(function (recValue) {
+                    var data = typeof (recValue.s1['id' + value.indicatorID]) !== 'undefined' ? recValue.s1['id' + value.indicatorID] : '';
+                    if (recValue.s1[data] !== undefined && data.search("gridInput")) {
+                        // add gridInput, if new, to list of grid indicators
+                        if (gridIndicators.indexOf(value) === -1) {
+                            gridIndicators.push(value);
+                        }
+                    }
+                });
+            }
+        });
+
+        // sheet 1 creation
+        var noGridHeaders = headers.filter(function (indicator) {
+            return gridIndicators.indexOf(indicator) < 0;
+        });
+
+        var sheet1Headers = noGridHeaders.map(function (indicator) {
+            return indicator.name;
+        });
+
+        sheet1Headers.unshift("UID");
+        sheet1.table.push(sheet1Headers);
+
+        records.forEach(function (record) {
+            var row = [record.recordID];
+            noGridHeaders.forEach(function (indicator) {
+                row.push($('#' + grid.getPrefixID() + record.recordID + '_' + indicator.indicatorID).text().trim());
+            });
+            sheet1.table.push(row);
+        });
+
+        workbook.push(sheet1);
+
+        // additional grid sheets
+        gridIndicators.forEach(function (indicator) {
+            var sheet = {
+                name: indicator.name + '_' + indicator.indicatorID,
+                table: []
+            };
+            var sheetHeaders = ['RecordID', 'tableRow'];
+            var addHeaders = true;
+            records.forEach(function (record) {
+                var data = typeof (record.s1['id' + indicator.indicatorID]) !== 'undefined' ? record.s1['id' + indicator.indicatorID] : '';
+                if (typeof record.s1[data] !== 'undefined') {
+                    if (addHeaders) {
+                        sheetHeaders = sheetHeaders.concat(record.s1[data].names);
+                        sheetHeaders.pop(); // removes ' ' at end of 'names' array
+                        addHeaders = false;
+                    }
+
+                    record.s1[data].cells.forEach(function (value, index) {
+                        var row = [record.recordID];
+                        row.push(index + 1); // tableRow
+                        row = row.concat(value);
+                        sheet.table.push(row);
+                    });
+                }
+            });
+
+            sheet.table.unshift(sheetHeaders);
+            workbook.push(sheet);
+        });
+
+        return workbook;
+
     }
 
+    var now = new Date().getTime();
     var spreadsheetData = parseHTMLReportData();
 
-    if (spreadsheetData === null) {
-        postSpreadsheet();
-    } else {
-        postSpreadsheet(spreadsheetData)
-    }
+    postSpreadsheet(spreadsheetData, now);
 }
 
-
-function postSpreadsheet(request) {
-    var now = new Date().getTime();
-    var fileName = 'Exported_' + now + '.xls'
+/**
+ * Makes request to endpoint with desired data to be generated
+ * @param request Array an array of worksheets
+ * @param time Date timestamp of when export began
+ */
+function postSpreadsheet(request, time) {
+    var fileName = 'Exported_' + time + '.xls';
     $.ajax({
         type: 'POST',
         data: {
             'spreadsheetData': request,
             CSRFToken: CSRFToken
         },
-        dataType:'json',
-        url: 'api/export/xls'
-    }).then(function(response) {
+        dataType: 'json',
+        url: './api/export/xls'
+    }).then(function (response) {
         var data = JSON.parse(response);
         var download = document.createElement('a');
 
@@ -619,7 +707,7 @@ function postSpreadsheet(request) {
         download.style.display = 'none';
 
         if (navigator.msSaveOrOpenBlob) {
-            navigator.msSaveOrOpenBlob(new Blob([a.file], {type: 'application/vnd.ms-excel'}, fileName));
+            navigator.msSaveOrOpenBlob(new Blob([data.file], {type: 'application/vnd.ms-excel'}, fileName));
         } else {
             download.click();
         }

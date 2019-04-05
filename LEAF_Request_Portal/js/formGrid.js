@@ -769,6 +769,14 @@ var LeafFormGrid = function(containerID, options) {
         return null;
     }
 
+    /**
+     * @memberOf LeafFormGrid
+     * Return prefixId to help obtain grid css selectors
+     */
+    function getPrefixID() {
+        return prefixID;
+    }
+
     return {
         getPrefixID: function() { return prefixID; },
         form: function() { return form; },
@@ -792,6 +800,7 @@ var LeafFormGrid = function(containerID, options) {
         getDefaultLimit: function() { return defaultLimit; },
         getDataByIndex: getDataByIndex,
         getDataByRecordID: getDataByRecordID,
+        getPrefixID: getPrefixID,
         disableVirtualHeader: function() { isRenderingVirtualHeader = false },
         stop: function() { isRenderingBody = false },
         setRootURL: function(url) { rootURL = url; }
