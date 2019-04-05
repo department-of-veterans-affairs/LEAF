@@ -437,6 +437,7 @@ switch ($action) {
                'js/formGrid.js',
                'js/formQuery.js',
                'js/formSearch.js',
+               'js/gridInput.js',
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
                '../libs/js/LEAF/XSSHelpers.js',
