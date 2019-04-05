@@ -29,29 +29,35 @@ class ExportController extends RESTfulResponse
         $this->login = $login;
     }
 
-    public function get($act)
+
+    public function post($act)
     {
-        $db = $this->db;
-        $login = $this->login;
+        $this->index['POST'] = new ControllerMap();
 
-        $this->index['GET'] = new ControllerMap();
+        $this->index['POST']->register('export/xls', function() {
+            $data = XSSHelpers::scrubObjectOrArray($_POST['spreadsheetData'], true);
 
-        $this->index['GET']->register('export/xls', function () {
-            $fileName = '"Export_'. date('U') . '.xls"';
-            header('Content-Type: application/vnd.ms-excel');
-            header('Cache-Control: max-age=1');
-            header('Content-Disposition: attachment; filename=' . $fileName);
-            $spreadsheet = SpreadSheetUtil::createSpreadsheet("");
-            // fileType is case sensitive
-            SpreadSheetUtil::writeSpreadsheetToFile($spreadsheet, 'Xls');
-            return "";
+            header('Content-Type: application/json');
+
+            // if $data is not set, return empty spreadsheet
+            if (!isset($data)) {
+                $spreadsheet = SpreadSheetUtil::createSpreadsheet();
+            } else {
+                $spreadsheet = SpreadsheetUtil::createSpreadsheet($data);
+            }
+
+            ob_start();
+            SpreadSheetUtil::writeSpreadsheetToFile($spreadsheet, 'Xls'); // fileType is case sensitive
+            $xlsData = ob_get_contents();
+            ob_end_clean();
+
+            $response = array(
+                'op' => 'ok',
+                'file' => "data:application/vnd.ms-excel;base64,".base64_encode($xlsData)
+            );
+            return json_encode($response);
         });
 
-        $this->index['GET']->register('export/csv', function() {
-//            $results = SpreadsheetUtil::
-//            return $results;
-        });
-
-        return $this->index['GET']->runControl($act['key'], $act['args']);
+        return $this->index['POST']->runControl($act['key'], $act['args']);
     }
 }

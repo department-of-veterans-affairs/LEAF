@@ -580,17 +580,51 @@ function showJSONendpoint() {
 }
 
 function exportSpreadsheet() {
-    var download = document.createElement('a');
-    download.setAttribute('href', 'api/export/xls');
-    download.style.display = 'none';
+    function parseHTMLReportData() {
+        // if report had no entries, no data to convert to spreadsheet
+        if (grid.getCurrentData().length == 0) {
+            return null;
+        }
 
-    document.body.appendChild(download);
-    if (navigator.msSaveOrOpenBlob) {
-        navigator.msSaveOrOpenBlob(new Blob(['test'], {type: 'application/vnd.ms-excel'}));
-    } else {
-        download.click();
     }
-    document.body.removeChild(download);
+
+    var spreadsheetData = parseHTMLReportData();
+
+    if (spreadsheetData === null) {
+        postSpreadsheet();
+    } else {
+        postSpreadsheet(spreadsheetData)
+    }
+}
+
+
+function postSpreadsheet(request) {
+    var now = new Date().getTime();
+    var fileName = 'Exported_' + now + '.xls'
+    $.ajax({
+        type: 'POST',
+        data: {
+            'spreadsheetData': request,
+            CSRFToken: CSRFToken
+        },
+        dataType:'json',
+        url: 'api/export/xls'
+    }).then(function(response) {
+        var data = JSON.parse(response);
+        var download = document.createElement('a');
+
+        document.body.appendChild(download);
+        download.setAttribute('href', data.file);
+        download.setAttribute('download', fileName);
+        download.style.display = 'none';
+
+        if (navigator.msSaveOrOpenBlob) {
+            navigator.msSaveOrOpenBlob(new Blob([a.file], {type: 'application/vnd.ms-excel'}, fileName));
+        } else {
+            download.click();
+        }
+        document.body.removeChild(download);
+    });
 }
 
 var url, urlQuery, urlIndicators;
