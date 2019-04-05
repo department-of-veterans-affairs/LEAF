@@ -707,7 +707,8 @@ function postSpreadsheet(request, time) {
         download.style.display = 'none';
 
         if (navigator.msSaveOrOpenBlob) {
-            navigator.msSaveOrOpenBlob(new Blob([data.file], {type: 'application/vnd.ms-excel'}, fileName));
+            var blob = new Blob([data.file], {type:'application/vnd.ms-excel'});
+            saveAs(blob, fileName);
         } else {
             download.click();
         }

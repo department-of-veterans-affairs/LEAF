@@ -439,6 +439,7 @@ switch ($action) {
             'js/formSearch.js',
             'js/workflow.js',
             'js/lz-string/lz-string.min.js',
+            '../libs/js/filesaver/FileSaver.min.js',
             '../libs/js/LEAF/XSSHelpers.js',
         ));
         $main->assign('useUI', true);
