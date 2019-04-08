@@ -37,7 +37,7 @@ class ExportController extends RESTfulResponse
         $this->index['POST']->register('export/xls', function() {
             $data = XSSHelpers::scrubObjectOrArray($_POST['spreadsheetData'], true);
 
-            header('Content-Type: application/json');
+//            header('Content-Type: application/json');
 
             // if $data is not set, return empty spreadsheet
             if (!isset($data)) {
@@ -55,7 +55,7 @@ class ExportController extends RESTfulResponse
                 'op' => 'ok',
                 'file' => "data:application/vnd.ms-excel;base64,".base64_encode($xlsData)
             );
-            return json_encode($response);
+            return $response;
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

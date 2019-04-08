@@ -695,10 +695,11 @@ function postSpreadsheet(request, time) {
             'spreadsheetData': request,
             CSRFToken: CSRFToken
         },
-        dataType: 'json',
+
         url: './api/export/xls'
     }).then(function (response) {
-        var data = JSON.parse(response);
+        // var data = JSON.parse(response);
+        var data = response;
         var download = document.createElement('a');
 
         document.body.appendChild(download);
