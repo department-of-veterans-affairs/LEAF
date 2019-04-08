@@ -38,6 +38,7 @@ public class Application extends AbstractVerticle {
             logger.info("SockJS Connection");
             ws.handler(request -> {
                 Sign sign = JsonSerializer.deserialize(request.toString());
+                logger.info("dataToSign: " + sign.getDataToSign());
                 String signature = SignEngine.getSignature(sign.getDataToSign());
                 String status = "SUCCESS";
                 if (signature.substring(0, 5).equals("ERROR")) status = "ERROR";
@@ -51,6 +52,7 @@ public class Application extends AbstractVerticle {
             logger.info("Insecure websocket connection opened");
             ws.handler(request -> {
                 Sign sign = JsonSerializer.deserialize(request.toString());
+                logger.info("dataToSign: " + sign.getDataToSign());
                 String signature = SignEngine.getSignature(sign.getDataToSign());
                 String status = "SUCCESS";
                 if (signature.substring(0, 5).equals("ERROR")) status = "ERROR";

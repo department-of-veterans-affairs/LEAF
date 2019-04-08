@@ -1,6 +1,17 @@
 package leaf;
 
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import java.util.Map;
+
 public class JsonSerializer {
+
+    private static Logger logger = LoggerFactory.getLogger(JsonSerializer.class);
+
 
     public static String serialize(String key, String message, String status) {
          return "{\"key\":\"" + key + "\",\"message\":\"" + message + "\",\"status\":\"" + status + "\"}";
@@ -8,15 +19,17 @@ public class JsonSerializer {
 
     public static Sign deserialize(String json) {
 
-        String strip = json.trim().substring(1, json.length() - 1).replace("\"", "");
-        String[] kvs = strip.split(",");
-        String key = "No key found", dataToSign = "No data to sign found";
-        for (String kv : kvs) {
-            String[] pair = kv.split(":");
-            if (pair[0].equals("key")) key = pair[1];
-            else if (pair[0].equals("dataToSign")) dataToSign = pair[1];
+        ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("javascript");
+
+        String script = "Java.asJSONCompatible(" + json + ")";
+        Map result = null;
+        try {
+            result = (Map) scriptEngine.eval(script);
+        } catch (ScriptException e) {
+            e.printStackTrace();
         }
-        return new Sign(key, dataToSign);
+        Map kvs = (Map) result;
+        return new Sign((String) kvs.get("key"), (String) kvs.get("dataToSign"));
     }
 
 }
