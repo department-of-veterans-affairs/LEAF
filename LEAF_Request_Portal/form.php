@@ -136,18 +136,19 @@ class Form
         return $fullForm;
     }
 
-    public function flattenFullFormData($data, &$output)
+    public function flattenFullFormData($data, &$output, $parentID = null)
     {
         foreach ($data as $key => $item)
         {
             if ($item['child'] == null)
             {
                 unset($item['child']);
+                $item['parentID'] = $parentID;
                 $output[$item['indicatorID']][$item['series']] = $item;
             }
             else
             {
-                $this->flattenFullFormData($item['child'], $output);
+                $this->flattenFullFormData($item['child'], $output, $item['indicatorID']);
                 unset($item['child']);
                 $output[$item['indicatorID']][$item['series']] = $item;
             }
@@ -3268,6 +3269,7 @@ class Form
                 $child[$idx]['series'] = $series;
                 $child[$idx]['name'] = $field['name'];
                 $child[$idx]['default'] = $field['default'];
+                $child[$idx]['description'] = $field['description'];
                 $child[$idx]['html'] = $field['html'];
                 $child[$idx]['htmlPrint'] = $field['htmlPrint'];
                 if($parseTemplate) {

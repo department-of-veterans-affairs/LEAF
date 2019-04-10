@@ -421,6 +421,57 @@ class System
         return 1;
     }
 
+    public function setSiteType()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $type = 'standard';
+        switch($_POST['siteType'])
+        {
+            case 'national_primary':
+                $type = 'national_primary';
+                break;
+            case 'national_subordinate':
+                $type = 'national_subordinate';
+                break;
+            default:
+                break;
+        }
+
+        $vars = array(':input' => $type);
+        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="siteType"', $vars);
+
+        return 1;
+    }
+
+    public function setNationalLinkedSubordinateList()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $vars = array(':input' => XSSHelpers::xscrub($_POST['national_linkedSubordinateList']));
+        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedSubordinateList"', $vars);
+
+        return 1;
+    }
+
+    public function setNationalLinkedPrimary()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $vars = array(':input' => XSSHelpers::xscrub($_POST['national_linkedPrimary']));
+        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedPrimary"', $vars);
+
+        return 1;
+    }
+
     public function getReportTemplateList()
     {
         if (!$this->login->checkGroup(1))
@@ -445,7 +496,8 @@ class System
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
         if ($template != $in
             || $template == 'example'
-            || $template == '')
+            || $template == ''
+            || preg_match('/^LEAF_/i', $template) === 1)
         {
             return 'Invalid or reserved name.';
         }
@@ -623,5 +675,10 @@ class System
                 return unlink(__DIR__ . '/../files/' . $in);
             }
         }
+    }
+
+    public function getSettings()
+    {
+        return $this->db->query_kv('SELECT * FROM settings', 'setting', 'data');
     }
 }

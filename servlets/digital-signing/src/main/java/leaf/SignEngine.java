@@ -1,25 +1,19 @@
 package leaf;
 
-import sun.security.pkcs11.SunPKCS11;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
-import javax.security.auth.callback.CallbackHandler;
-import java.io.ByteArrayInputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.security.InvalidKeyException;
+import javax.swing.*;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.PrivateKey;
-import java.security.ProviderException;
-import java.security.Security;
 import java.security.Signature;
+import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Formatter;
-import java.util.concurrent.TimeUnit;
 
 public class SignEngine {
 
-    private static SunPKCS11 provider;
+    private static Logger logger = LoggerFactory.getLogger(SignEngine.class);
 
     public static String getSignature(String data) {
         try {
@@ -27,11 +21,19 @@ public class SignEngine {
             keyStore.load(null, null);
             Enumeration<String> aliases = keyStore.aliases();
             String alias = "";
+            String aliasString = "Aliases: ";
             while (aliases.hasMoreElements()) {
                 String element = aliases.nextElement();
-                System.out.println("Enum element: " + element);
-                if (element.contains("Digital Signature")) alias = element;
+                X509Certificate x509Certificate = (X509Certificate) keyStore.getCertificate(element);
+                boolean[] keyUsage = x509Certificate.getKeyUsage();
+                if (keyUsage != null) {
+                    for (int i = 0; i < keyUsage.length; i++) {
+                        aliasString += "\n\t" + keyUsage[i];
+                    }
+                    if ((keyUsage[0] && keyUsage[1]) || element.contains("Digital Signature")) alias = element;
+                }
             }
+            logger.info("Using alias \"" + alias + "\"");
             PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, null);
             Signature signature = Signature.getInstance("SHA256withRSA", "SunMSCAPI");
             signature.initSign(privateKey);
@@ -41,19 +43,14 @@ public class SignEngine {
             Formatter formatter = new Formatter();
             for (byte b : signedBytes) formatter.format("%02x", b);
             return formatter.toString();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-            return "ERROR: Token not found or invalid PIN input";
-        } catch (ProviderException e) {
-            e.printStackTrace();
-            return "ERROR: No cryptography library found or user not logged in";
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-            return "ERROR: Invalid certificate for digital signatures";
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getLocalizedMessage());
             return "ERROR: " + e.getMessage();
         }
+    }
+
+    public static void showErrorMessage(String message) {
+        JOptionPane.showMessageDialog(null, message, "ERROR", JOptionPane.ERROR_MESSAGE);
     }
 
 }
