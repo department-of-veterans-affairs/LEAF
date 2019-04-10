@@ -278,6 +278,7 @@ class FormWorkflow
         {
             $vars = array(':actionID' => $res[0]['actionID']);
             $res = $this->db->prepared_query('SELECT * FROM action_history
+	    									LEFT JOIN users USING (empUID)
 	    									LEFT JOIN actions ON actions.actionType = action_history.actionType
 	    									LEFT JOIN category_count USING (recordID)
 	    									LEFT JOIN categories USING (categoryID)
