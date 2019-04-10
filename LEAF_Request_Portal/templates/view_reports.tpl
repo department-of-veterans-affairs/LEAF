@@ -115,17 +115,15 @@ function addHeader(column) {
         	break;
         case 'action_history':
             leafSearch.getLeafFormQuery().join('action_history');
-            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
             headers.push({name: 'Comment History', indicatorID: 'action_history', editable: false, callback: function(data, blob) {
                              var buffer = '<table style="min-width: 300px">';
                              var now = new Date();
 
                              for(var i in blob[data.recordID].action_history) {
                             	 var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                            	 var year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
-                                 var formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
+                                 var formattedDate = date.toLocaleDateString();
                                  if(blob[data.recordID].action_history[i]['comment'] != '') {
-                                     buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px">' + formattedDate + '</td><td>' + blob[data.recordID].action_history[i]['comment'] + '</td></tr>';
+                                     buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">' + formattedDate + '</td><td>' + blob[data.recordID].action_history[i]['comment'] + '.</td></tr>';
                                  }
                              }
                              buffer += '</table>';
@@ -134,20 +132,18 @@ function addHeader(column) {
             break;
         case 'approval_history':
             leafSearch.getLeafFormQuery().join('action_history');
-            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
             headers.push({name: 'Approval History', indicatorID: 'approval_history', editable: false, callback: function(data, blob) {
                              var buffer = '<table style="min-width: 300px">';
                              var now = new Date();
 
                              for(var i in blob[data.recordID].action_history) {
                                  var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                                 var year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
-                                 var formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
-                                 buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px">'
+                                 var formattedDate = date.toLocaleDateString();
+                                 buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
                                 	   + formattedDate + '</td><td>'
                                 	   + blob[data.recordID].action_history[i]['description']
                                 	   + ' ('+ blob[data.recordID].action_history[i]['approverName'] +'): '
-                                	   + blob[data.recordID].action_history[i]['actionTextPasttense'] + '</td></tr>';
+                                	   + blob[data.recordID].action_history[i]['actionTextPasttense'] + '.</td></tr>';
                              }
                              buffer += '</table>';
                              $('#'+data.cellContainerID).html(buffer);
@@ -509,6 +505,7 @@ function showJSONendpoint() {
                            + '<option value="csv">CSV</option>'
                            + '<option value="xml">XML</option>'
                            + '<option value="debug">Plaintext</option>'
+                           + '<option value="x-visualstudio">Visual Studio (testing)</option>'
                            + '</select>'
                            + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
 			               + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
