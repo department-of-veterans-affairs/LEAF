@@ -116,7 +116,7 @@ $(function() {
         $('#header_currentStatus').css('width', '100px');
 
         // UI for "show more results". After 150 results, "show all results"
-        if(Object.keys(res).length % 50 == 0) {
+        if(queryLimit % 50 == 0) {
             $('#searchContainer_getMoreResults').css('display', 'inline');
         }
         else {
