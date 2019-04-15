@@ -127,7 +127,7 @@ class Employee extends Data
     {
         if ($userName == '')
         {
-            return '';
+            return 'Invalid user';
         }
 
         // first see if the username already exists
