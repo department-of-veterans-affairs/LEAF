@@ -115,18 +115,6 @@ class Login
     {
         $this->db = $phonebookDB; //nexus DB
         $this->userDB = $userDB; // portal db
-
-        if (session_id() == '')
-        {
-            $sessionHandler = new Session($this->db);
-            session_set_save_handler($sessionHandler, true);
-            session_start();
-            $cookie = session_get_cookie_params();
-            $id = session_id();
-
-            $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
-            setcookie('PHPSESSID', $id, time() + 2592000, $cookie['path'], $cookie['domain'], $https, true);
-        }
     }
 
     public function register()
@@ -194,33 +182,51 @@ class Login
 
     public function loginUser()
     {
-        if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
-        {
-            if (php_sapi_name() != 'cli')
-            {
-                $protocol = 'http://';
-                if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-                {
-                    $protocol = 'https://';
-                }
+        //if auth cookie exists restore session
+        if($_COOKIE['PHPSESSID']){
 
-                // try to browser detect, since SSO implementation varies
-                if (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
-                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0
-                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') > 0
-                    || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
-                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
-                {
-                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/auth_domain/?r=' . base64_encode($_SERVER['REQUEST_URI']));
-                    exit();
-                }
+            $this->restoreSession();
 
-                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/login/?r=' . base64_encode($_SERVER['REQUEST_URI']));
-                exit();
-            }
+        // else redirect to auth domain to get Authenticated
+        }else{
 
-            $_SESSION['userID'] = 'SYSTEM';
+          $protocol = 'http://';
+          if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'){
+              $protocol = 'https://';
+          }
+
+          header('Location:' . $protocol . 'auth.leaf-dev.va.gov/?r=' . base64_encode($_SERVER['REQUEST_URI']));
+
         }
+
+        //
+        // if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
+        // {
+        //     if (php_sapi_name() != 'cli')
+        //     {
+        //         $protocol = 'http://';
+        //         if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+        //         {
+        //             $protocol = 'https://';
+        //         }
+        //
+        //         // try to browser detect, since SSO implementation varies
+        //         if (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
+        //             || strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0
+        //             || strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') > 0
+        //             || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
+        //             || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
+        //         {
+        //             header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/auth_domain/?r=' . base64_encode($_SERVER['REQUEST_URI']));
+        //             exit();
+        //         }
+        //
+        //         header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/login/?r=' . base64_encode($_SERVER['REQUEST_URI']));
+        //         exit();
+        //     }
+        //
+        //     $_SESSION['userID'] = 'SYSTEM';
+        // }
 
         $var = array(':userID' => $_SESSION['userID']);
         $result = $this->db->prepared_query('SELECT * FROM employee WHERE userName=:userID AND deleted = 0', $var);
@@ -235,6 +241,59 @@ class Login
             $this->isLogin = true;
 
             return true;
+        }else{
+          // try searching through national database
+          $user = $_SESSION['userID'];
+          $globalDB = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+          $vars = array(':userName' => $user);
+          $res = $globalDB->prepared_query('SELECT * FROM employee
+  											LEFT JOIN employee_data USING (empUID)
+  											WHERE userName=:userName
+      											AND indicatorID = 6
+  												AND deleted=0', $vars);
+          // add user to local DB
+          if (count($res) > 0)
+          {
+              $vars = array(':firstName' => $res[0]['firstName'],
+                      ':lastName' => $res[0]['lastName'],
+                      ':middleName' => $res[0]['middleName'],
+                      ':userName' => $res[0]['userName'],
+                      ':phoFirstName' => $res[0]['phoneticFirstName'],
+                      ':phoLastName' => $res[0]['phoneticLastName'],
+                      ':domain' => $res[0]['domain'],
+                      ':lastUpdated' => time(), );
+              $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
+          							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
+      								ON DUPLICATE KEY UPDATE deleted=0', $vars);
+              $empUID = $this->db->getLastInsertID();
+
+              if ($empUID == 0)
+              {
+                  $vars = array(':userName' => $res[0]['userName']);
+                  $empUID = $this->db->prepared_query('SELECT empUID FROM employee
+                                                     WHERE userName=:userName', $vars)[0]['empUID'];
+              }
+
+              $vars = array(':empUID' => $empUID,
+                      ':indicatorID' => 6,
+                      ':data' => $res[0]['data'],
+                      ':author' => 'viaLogin',
+                      ':timestamp' => time(),
+              );
+              $this->db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
+  											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
+      										ON DUPLICATE KEY UPDATE data=:data', $vars);
+
+                $this->name = "{$res[0]['firstName']} {$res[0]['lastName']}";
+                $this->userID = $res[0]['userName'];
+                $this->empUID = $res[0]['empUID'];
+                $this->isInDB = true;
+                $this->setSession();
+
+                $this->isLogin = true;
+                return true;
+          }
+
         }
 
         $this->name = "Guest: {$_SESSION['userID']}";
@@ -247,15 +306,15 @@ class Login
     }
 
     public function logout()
-    {
+    {   $rootDomain = '.leaf-dev.va.gov';
         $keys = array_keys($_SESSION);
         foreach ($keys as $key)
         {
             unset($_SESSION[$key]);
         }
         $cookie = session_get_cookie_params();
-        $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
-        setcookie('PHPSESSID', '', time() - 3600, $cookie['path'], $cookie['domain'], $https, true);
+        $https = isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' ? true : false;
+        setcookie('PHPSESSID', '', time() - 3600, $cookie['path'], $rootDomain, $https, true);
     }
 
     public function isLogin()
@@ -488,6 +547,15 @@ class Login
         $this->cache['getMembership_' . $empUID] = $membership;
 
         return $this->cache['getMembership_' . $empUID];
+    }
+
+    private function restoreSession(){
+      if (session_id() == ''){
+          ini_set('session.cookie_name', '.leaf-dev.va.gov');
+          $sessionHandler = new Session($this->db);
+          session_set_save_handler($sessionHandler, true);
+          session_start();
+      }
     }
 
     private function setSession()
