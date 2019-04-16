@@ -39,10 +39,12 @@ public class Application extends AbstractVerticle {
             ws.handler(request -> {
                 Sign sign = JsonSerializer.deserialize(request.toString());
                 logger.info("dataToSign: " + sign.getDataToSign());
-                String signature = SignEngine.getSignature(sign.getDataToSign());
-                String status = "SUCCESS";
-                if (signature.substring(0, 5).equals("ERROR")) status = "ERROR";
-                ws.write(Buffer.buffer(JsonSerializer.serialize(sign.getKey(), signature, status)));
+                SignEngine signEngine = new SignEngine();
+                String signature = signEngine.getSignature(sign.getDataToSign());
+                String publicKey = signEngine.getPublicKey().toString();
+                String status = (signature.substring(0, 5).equals("ERROR")) ? "ERROR" : "SUCCESS";
+                logger.info("Verified: " + signEngine.verify());
+                ws.write(Buffer.buffer(JsonSerializer.serialize(sign.getKey(), signature, status, publicKey)));
             });
         });
         router.route("/myapp/*").handler(sockJSHandler);
@@ -53,10 +55,12 @@ public class Application extends AbstractVerticle {
             ws.handler(request -> {
                 Sign sign = JsonSerializer.deserialize(request.toString());
                 logger.info("dataToSign: " + sign.getDataToSign());
-                String signature = SignEngine.getSignature(sign.getDataToSign());
-                String status = "SUCCESS";
-                if (signature.substring(0, 5).equals("ERROR")) status = "ERROR";
-                ws.writeFinalTextFrame(JsonSerializer.serialize(sign.getKey(), signature, status));
+                SignEngine signEngine = new SignEngine();
+                String signature = signEngine.getSignature(sign.getDataToSign());
+                String publicKey = signEngine.getPublicKey().toString();
+                String status = (signature.substring(0, 5).equals("ERROR")) ? "ERROR" : "SUCCESS";
+                logger.info("Verified: " + signEngine.verify());
+                ws.writeFinalTextFrame(JsonSerializer.serialize(sign.getKey(), signature, status, publicKey));
             });
         }).listen(8080);
         logger.info("Websocket server started on port 8080");
