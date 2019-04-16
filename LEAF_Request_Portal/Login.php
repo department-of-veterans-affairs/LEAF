@@ -551,7 +551,7 @@ class Login
 
     private function restoreSession(){
       if (session_id() == ''){
-          ini_set('session.cookie_name', '.leaf-dev.va.gov');
+          ini_set('session.cookie_domain', '.leaf-dev.va.gov');
           $sessionHandler = new Session($this->db);
           session_set_save_handler($sessionHandler, true);
           session_start();
