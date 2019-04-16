@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.Signature;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Formatter;
@@ -14,32 +15,35 @@ import java.util.Formatter;
 public class SignEngine {
 
     private static Logger logger = LoggerFactory.getLogger(SignEngine.class);
+    private byte[] signedBytes;
+    private String dataToSign;
+    private Certificate publicKey;
 
-    public static String getSignature(String data) {
+    SignEngine() {}
+
+    String getSignature(String data) {
+        dataToSign = data;
         try {
             KeyStore keyStore = KeyStore.getInstance("Windows-MY", "SunMSCAPI");
             keyStore.load(null, null);
             Enumeration<String> aliases = keyStore.aliases();
             String alias = "";
-            String aliasString = "Aliases: ";
             while (aliases.hasMoreElements()) {
                 String element = aliases.nextElement();
                 X509Certificate x509Certificate = (X509Certificate) keyStore.getCertificate(element);
                 boolean[] keyUsage = x509Certificate.getKeyUsage();
                 if (keyUsage != null) {
-                    for (int i = 0; i < keyUsage.length; i++) {
-                        aliasString += "\n\t" + keyUsage[i];
-                    }
                     if ((keyUsage[0] && keyUsage[1]) || element.contains("Digital Signature")) alias = element;
                 }
             }
             logger.info("Using alias \"" + alias + "\"");
             PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, null);
+            publicKey = keyStore.getCertificate(alias);
             Signature signature = Signature.getInstance("SHA256withRSA", "SunMSCAPI");
             signature.initSign(privateKey);
-            byte[] dataBytes = data.getBytes();
+            byte[] dataBytes = dataToSign.getBytes();
             signature.update(dataBytes);
-            byte[] signedBytes = signature.sign();
+            signedBytes = signature.sign();
             Formatter formatter = new Formatter();
             for (byte b : signedBytes) formatter.format("%02x", b);
             return formatter.toString();
@@ -49,7 +53,27 @@ public class SignEngine {
         }
     }
 
-    public static void showErrorMessage(String message) {
+    boolean verify() {
+        try {
+            Signature signature = Signature.getInstance("SHA256withRSA", "SunMSCAPI");
+            signature.initVerify(publicKey);
+            signature.update(dataToSign.getBytes());
+            return signature.verify(signedBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    Certificate getPublicKey() {
+        return publicKey;
+    }
+
+    byte[] getSignedBytes() { return getSignedBytes(); }
+
+    String getDataToSign() { return dataToSign; }
+
+    static void showErrorMessage(String message) {
         JOptionPane.showMessageDialog(null, message, "ERROR", JOptionPane.ERROR_MESSAGE);
     }
 
