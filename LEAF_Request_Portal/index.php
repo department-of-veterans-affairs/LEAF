@@ -261,7 +261,7 @@ switch ($action) {
         break;
     case 'inbox':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js'));
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
