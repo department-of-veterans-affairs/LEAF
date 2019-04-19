@@ -685,6 +685,7 @@
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'orgchart_employee' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
+            <div id="loadingIndicator_<!--{$indicator.indicatorID}-->" style="color: red; font-weight: bold; font-size: 140%"></div>
             <div id="empSel_<!--{$indicator.indicatorID}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none"></input>
 
@@ -698,15 +699,19 @@
                     });
                 }
                 function importFromNational(empSel) {
-                    var selectedUserName = empSel.selection !== '' ? empSel.selectionData[empSel.selection].userName : '';
-                    $.ajax({
-                        type: 'POST',
-                        url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-                        data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                        success: function(res) {
-                            $('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
-                        }
-                    });
+                    if(empSel.selection != '') {
+                        $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Please wait. Database busy. ***');
+                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                        $.ajax({
+                            type: 'POST',
+                            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                            data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                            success: function(res) {
+                                $('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
+                                $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('');
+                            }
+                        });
+                    }
                 }
 
             	var empSel;
