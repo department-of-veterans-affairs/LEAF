@@ -85,6 +85,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'textarea' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <textarea id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 97%; padding: 8px; font-size: 1.3em; font-family: monospace" rows="10"><!--{$indicator.value|sanitize}--></textarea>
+            <div id="trumbowyg_ui_hint" style="display: none">Press <b>SHIFT</b> + <b>ENTER</b> to add a line break.  Press <b>ENTER</b> to add a paragraph break.</div>
             <div id="textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->" style="text-align: right; font-size: 12px"><span class="link">formatting options</span></div>
             <script>
             $(function() {
@@ -101,6 +102,7 @@
                         btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'justifyLeft', 'justifyCenter', 'justifyRight', 'fullscreen']
                     });
                     $('#textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->').css('display', 'none');
+                    $('#trumbowyg_ui_hint').css('display', 'inline');
                 }
                 $('#textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->').on('click', function() {
                     useAdvancedEditor();
