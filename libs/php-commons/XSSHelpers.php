@@ -66,7 +66,7 @@ class XSSHelpers
         if (strpos($in, '<p>') === false
             && strpos($in, '<table') === false)
         {
-            $in = nl2br($in, true);
+            $in = str_replace(array("\n", "<br /><br />"), "<br />", $in);
         }
 
         // hard character limit of 65535
