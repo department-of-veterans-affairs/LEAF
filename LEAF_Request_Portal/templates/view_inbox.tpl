@@ -36,6 +36,7 @@ The following is a list of requests that are pending your action:
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script type="text/javascript" src="js/functions/toggleZoom.js"></script>
+<script type="text/javascript" src="../libs/js/LEAF/sensitiveIndicator.js"></script>
 <script type="text/javascript">
 /* <![CDATA[ */
 function toggleDepVisibilityKeypress(evt, depID) {
