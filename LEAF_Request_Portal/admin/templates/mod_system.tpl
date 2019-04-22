@@ -64,12 +64,12 @@ input {
             </div>
 
             <div class="item siteType national_primary" style="display: none">
-                    <label for="national_linkedSubordinateList">Nationally Standardized Subordinate Sites:<br /><span style="font-size: 12px; font-weight: normal">The first site in the list should be a TEST site.</span></label>
+                    <label for="national_linkedSubordinateList">Nationally Standardized Subordinate Sites:<br /><span style="font-size: 12px; font-weight: normal">The first site in the list should be a TEST site.<br />URLs must end with a trailing slash.</span></label>
                     <textarea id="national_linkedSubordinateList" cols="50" rows="5"></textarea>
             </div>
 
             <div class="item siteType national_subordinate" style="display: none">
-                    <label for="national_linkedPrimary">Nationally Standardized Primary Site:&nbsp;</label>
+                    <label for="national_linkedPrimary">Nationally Standardized Primary Site<span style="font-size: 12px; font-weight: normal">URLs must end with a trailing slash.</span></label>
                     <input id="national_linkedPrimary" type="text" />
             </div>
         </fieldset>
