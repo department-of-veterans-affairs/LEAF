@@ -716,6 +716,7 @@ var LeafFormGrid = function(containerID, options) {
 
             document.body.appendChild(download);
             if (navigator.msSaveOrOpenBlob) {
+                rows = "\uFEFF" + rows;
                 navigator.msSaveOrOpenBlob(new Blob([rows], {type: 'text/csv;charset=utf-8;'}), "Exported_" + now + ".csv");
             } else {
                 download.click();
