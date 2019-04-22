@@ -605,16 +605,33 @@ function exportSpreadsheet() {
             table: []
         };
 
+        var worksheets = {};
+
         // traverses html elements to determine grid input indicator values
         headers.forEach(function (value) {
             if ($.isNumeric(value.indicatorID)) {
+                var defaultSheetHeaders = ['RecordID', 'tableRow'];
                 records.forEach(function (recValue) {
                     var data = typeof (recValue.s1['id' + value.indicatorID]) !== 'undefined' ? recValue.s1['id' + value.indicatorID] : '';
                     if (recValue.s1[data] !== undefined && data.search("gridInput")) {
-                        // add gridInput, if new, to list of grid indicators
-                        if (gridIndicators.indexOf(value) === -1) {
+                        if (typeof worksheets[data] === 'undefined') { // add grid input indicator to sheets if new
                             gridIndicators.push(value);
+                            worksheets[data] = {
+                                name: value.name + '_' + value.indicatorID,
+                                table: []
+                            };
+
+                            var sheetHeaders = defaultSheetHeaders.concat(recValue.s1[data].names);
+                            sheetHeaders.pop(); // removes ' ' at end of 'names' array
+                            worksheets[data].table.push(sheetHeaders);
                         }
+
+                        recValue.s1[data].cells.forEach(function (value, index) {
+                            var row = [recValue.recordID];
+                            row.push(index + 1); // tableRow
+                            row = row.concat(value);
+                            worksheets[data].table.push(row);
+                        });
                     }
                 });
             }
@@ -642,34 +659,8 @@ function exportSpreadsheet() {
 
         workbook.push(sheet1);
 
-        // additional grid sheets
-        gridIndicators.forEach(function (indicator) {
-            var sheet = {
-                name: indicator.name + '_' + indicator.indicatorID,
-                table: []
-            };
-            var sheetHeaders = ['RecordID', 'tableRow'];
-            var addHeaders = true;
-            records.forEach(function (record) {
-                var data = typeof (record.s1['id' + indicator.indicatorID]) !== 'undefined' ? record.s1['id' + indicator.indicatorID] : '';
-                if (typeof record.s1[data] !== 'undefined') {
-                    if (addHeaders) {
-                        sheetHeaders = sheetHeaders.concat(record.s1[data].names);
-                        sheetHeaders.pop(); // removes ' ' at end of 'names' array
-                        addHeaders = false;
-                    }
-
-                    record.s1[data].cells.forEach(function (value, index) {
-                        var row = [record.recordID];
-                        row.push(index + 1); // tableRow
-                        row = row.concat(value);
-                        sheet.table.push(row);
-                    });
-                }
-            });
-
-            sheet.table.unshift(sheetHeaders);
-            workbook.push(sheet);
+        $.each(worksheets, function(key) {
+            workbook.push(worksheets[key]);
         });
 
         return workbook;
@@ -692,10 +683,10 @@ function postSpreadsheet(request, time) {
     $.ajax({
         type: 'POST',
         data: {
-            'spreadsheetData': request,
-            CSRFToken: CSRFToken
+            CSRFToken: CSRFToken,
+            'spreadsheetData': request
         },
-
+        dataType: 'json',
         url: './api/export/xls'
     }).then(function (response) {
         // var data = JSON.parse(response);
