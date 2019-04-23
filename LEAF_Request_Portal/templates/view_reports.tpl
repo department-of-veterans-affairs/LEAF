@@ -100,11 +100,25 @@ function addHeader(column) {
             }});
             break;
         case 'dateInitiated':
-            headers.push({name: 'Request Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
+            headers.push({name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
                 var date = new Date(blob[data.recordID].date * 1000);
                 $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
             }});
             break;
+        case 'dateResolved':
+            leafSearch.getLeafFormQuery().join('recordResolutionData');
+            headers.push({name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
+                if(blob[data.recordID].recordResolutionData != undefined) {
+                    var date = new Date(blob[data.recordID].recordResolutionData.fulfillmentTime * 1000);
+                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                }
+            }});
+            headers.push({name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
+                if(blob[data.recordID].recordResolutionData != undefined) {
+                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
+                }
+            }});
+        break;
         case 'actionButton':
         	headers.unshift({name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
                 $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
@@ -335,9 +349,11 @@ function loadSearchPrereqs() {
                             buffer2 = '';
                             buffer2 += '<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>';
 
-                            // Option to retrieve Date Request Initiated
+                            // Option to retrieve Date Request Initiated / Resolved
                             buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" />';
-                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Request Initiated</label></div>';
+                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Date Request Initiated</label></div>';
+                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" />';
+                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateResolved" title="Date request resolved"> Date Request Resolved</label></div>';
 
                             for(var i in res) {
                                 buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
