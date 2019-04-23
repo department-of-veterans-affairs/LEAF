@@ -58,7 +58,8 @@ class SignatureController extends RESTfulResponse
                 (int)$_POST['recordID'],
                 (int)$_POST['stepID'],
                 (int)$_POST['dependencyID'],
-                XSSHelpers::sanitizeHTML($_POST['message'])
+                XSSHelpers::sanitizeHTML($_POST['message']),
+                XSSHelpers::sanitizeHTML($_POST['signerPublicKey'])
             );
         });
 
