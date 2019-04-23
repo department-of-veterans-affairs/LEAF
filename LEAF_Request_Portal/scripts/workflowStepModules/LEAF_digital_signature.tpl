@@ -28,13 +28,14 @@ workflowStepModule[{{$stepID}}]['LEAF_digital_signature'] = (function() {
 						currRecordID,
 						function (json) {
 							var jsonStr = JSON.stringify(json);
-							Signer.sign(key, jsonStr, function (signedData) {
+							Signer.sign(key, jsonStr, function (signedData, signerPublicKey) {
 								portalAPI.Signature.create(
 									signedData,
 									currRecordID,
 									step.stepID,
 									step.dependencyID,
-									jsonStr,
+                                    jsonStr,
+                                    signerPublicKey,
 									function (id) {
 										completeAction();
 									},
