@@ -93,6 +93,7 @@ foreach ($res as $pos)
     //	$output[$pos['positionID']]['data']['Current FTE'] = ($data[17]['data'] / count($output[$pos['positionID']]['employeees']));
     $output[$pos['positionID']]['data']['FTE Ceiling'] = 0;
     $output[$pos['positionID']]['data']['Current FTE'] = 0;
+    $output[$pos['positionID']]['data']['HR Smart Position #'] = $data[26]['data'];
 
     // calculate FTE Ceiling. Includes support for one-to-many position-employee
     if (is_numeric($data[11]['data']) // fte ceiling
@@ -147,6 +148,7 @@ foreach ($res as $pos)
             $packet['fteCeiling'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
             $packet['currentFte'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
             $packet['pdNumber'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
+            $packet['hrSmartPosition'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
             $jsonOut[] = $packet;
         }
         else
@@ -183,6 +185,7 @@ foreach ($res as $pos)
             $packet['fteCeiling'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
             $packet['currentFte'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
             $packet['pdNumber'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
+            $packet['hrSmartPosition'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
             $jsonOut[] = $packet;
         }
     }
