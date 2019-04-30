@@ -681,7 +681,7 @@ class Employee extends Data
                 }
 
                 $searchResult = $this->lookupName($last, $first, $middle);
-                if (count($res) <= $this->deepSearch)
+                if (count($searchResult) <= $this->deepSearch)
                 {
                     $this->log[] = 'Trying Deeper search';
                     $input = trim('*' . $input);
