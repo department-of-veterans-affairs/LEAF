@@ -1,4 +1,50 @@
 #!/bin/bash
+###STUFF FROM OLD PIPELINE
+
+#./app.env
+source app.env
+
+
+#Rename globals.php
+cp $WORKSPACE/LEAF_Nexus/globals.php.example $WORKSPACE/LEAF_Nexus/globals.php
+
+#replace information in Leaf nexus globals.php
+sed -i "s/HOSTNAME/$HOSTNAME/g" $WORKSPACE/LEAF_Nexus/globals.php
+sed -i "s/DB_NAME/$DB_NAME/g" $WORKSPACE/LEAF_Nexus/globals.php
+sed -i "s/USERNAME/$USERNAME/g" $WORKSPACE/LEAF_Nexus/globals.php
+sed -i "s/PASSWORD/$PASSWORD/g" $WORKSPACE/LEAF_Nexus/globals.php
+
+#Rename config file
+cp $WORKSPACE/LEAF_Nexus/config-example.php $WORKSPACE/LEAF_Nexus/config.php
+
+#replace information in Leaf Nexus config.php
+sed -i  "s/SERVER_HOSTNAME/$SERVER_HOSTNAME/g" $WORKSPACE/LEAF_Nexus/config.php
+sed -i  "s/DATABASE_NAME/$DATABASE_NAME/g" $WORKSPACE/LEAF_Nexus/config.php
+sed -i  "s/DATABASE_USERNAME/$DATABASE_USERNAME/g" $WORKSPACE/LEAF_Nexus/config.php
+sed -i  "s/DATABASE_PASSWORD/$DATABASE_PASSWORD/g" $WORKSPACE/LEAF_Nexus/config.php
+sed -i  "s/CONFIG_USER/$CONFIG_USER/g" $WORKSPACE/LEAF_Nexus/config.php
+
+#Rename globals again
+cp $WORKSPACE/LEAF_Request_Portal/globals.php.example $WORKSPACE/LEAF_Request_Portal/globals.php
+
+#replace information in Leaf Request portal globls.php
+sed -i  "s/LRP_HOSTNAME/$LRP_HOSTNAME/g" $WORKSPACE/LEAF_Request_Portal/globals.php
+sed -i  "s/LRP_DB_NAME/$LRP_DB_NAME/g" $WORKSPACE/LEAF_Request_Portal/globals.php
+sed -i  "s/LRP_USERNAME/$LRP_USERNAME/g" $WORKSPACE/LEAF_Request_Portal/globals.php
+sed -i  "s/LRP_PASSWORD/$LRP_PASSWORD/g" $WORKSPACE/LEAF_Request_Portal/globals.php
+
+#Rename config file 
+cp $WORKSPACE/LEAF_Request_Portal/db_config-example.php $WORKSPACE/LEAF_Request_Portal/db_config.php
+
+#replace information in Leaf Reqeust portal dbconfig
+sed -i  "s/LRP_SERVER_HOSTNAME/$LRP_SERVER_HOSTNAME/g" $WORKSPACE/LEAF_Request_Portal/db_config.php
+sed -i  "s/LRP_DATABASE_NAME/$LRP_DATABASE_NAME/g" $WORKSPACE/LEAF_Request_Portal/db_config.php
+sed -i  "s/LRP_DATABASE_USERNAME/$LRP_DATABASE_USERNAME/g" $WORKSPACE/LEAF_Request_Portal/db_config.php
+sed -i  "s/LRP_DATABASE_PASSWORD/$LRP_DATABASE_PASSWORD/g" $WORKSPACE/LEAF_Request_Portal/db_config.php
+sed -i  "s/LRP_phoneSERVER_HOSTNAME/$LRP_phoneSERVER_HOSTNAME/g" $WORKSPACE/LEAF_Request_Portal/db_config.php
+sed -i  "s/LRP_phoneDATABASE_NAME/$LRP_phoneDATABASE_NAME/g" $WORKSPACE/LEAF_Request_Portal/db_config.php
+sed -i  "s/LRP_phoneDATABASE_USERNAME/$LRP_phoneDATABASE_USERNAME/g" $WORKSPACE/LEAF_Request_Portal/db_config.php
+sed -i  "s/LRP_phoneDATABASE_PASSWORD/$LRP_phoneDATABASE_PASSWORD/g" $WORKSPACE/LEAF_Request_Portal/db_config.php
 
 printf "\n\n\n\n**** RUNNING BUILD ********************\n\n"
 APPDATE=`date "+%B %d, %Y"`
