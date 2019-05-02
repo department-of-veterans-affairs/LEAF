@@ -11,7 +11,7 @@ public class JsonSerializer {
          return "{\"key\":\"" + key
                  + "\",\"message\":\"" + message
                  + "\",\"status\":\"" + status
-                 + "\",\"publicKey\":\"" + publicKey + "}";
+                 + "\",\"publicKey\":\"" + publicKey + "\"}";
     }
 
     public static Sign deserialize(String json) {

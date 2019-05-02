@@ -685,13 +685,14 @@ var PortalSignaturesAPI = function (baseAPIURL) {
         /**
          * Create a signature
          * 
-         * @param signature string          the signature footprint
-         * @param recordID  int             the id of the Record the Signature is associated with
-         * @param message   string          the message that was signed
-         * @param onSuccess function(id)    callback containing the id of the new signature
-         * @param onFail    function(err)   callback when operation fails
+         * @param signature         string          the signature footprint
+         * @param recordID          int             the id of the Record the Signature is associated with
+         * @param message           string          the message that was signed
+         * @param signerPublicKey   string          the signer's public key
+         * @param onSuccess         function(id)    callback containing the id of the new signature
+         * @param onFail            function(err)   callback when operation fails
          */
-        create = function (signature, recordID, stepID, dependencyID, message, onSuccess, onFail) {
+        create = function (signature, recordID, stepID, dependencyID, message, signerPublicKey, onSuccess, onFail) {
             $.ajax({
                 method: 'POST',
                 url: apiURL + '/create',
@@ -702,6 +703,7 @@ var PortalSignaturesAPI = function (baseAPIURL) {
                     "stepID": stepID,
                     "dependencyID": dependencyID,
                     "message": message,
+                    "signerPublicKey": signerPublicKey,
                     CSRFToken: csrfToken
                 }
             })
