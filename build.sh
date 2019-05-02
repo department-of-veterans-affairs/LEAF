@@ -143,5 +143,7 @@ printf "${ARTIFACT}==========================\n"
 printf "Building application artifact ${ARTIFACT}...\n\n"
 tar -C $STAGING_DIR -zcvf $ARTIFACT . || { echo "FATAL: Failed on 'Artifact tar''"; exit 1; }
 cp $ARTIFACT .
+pwd
+cp $ARTIFACT out/
 
 printf "\n\n\n\n**** COMPLETED BUILD ********************\n\n"
