@@ -59,7 +59,7 @@ pipeline {
                     steps {
                         container('fortify-18-20-con'){
                             sh """
-                                #$PATH_TO_FORTIFY/$FORTIFY_DRIVER
+                                $PATH_TO_FORTIFY/$FORTIFY_DRIVER
                             """
                         }
                     }
