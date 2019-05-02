@@ -186,7 +186,8 @@ function addHeader(column) {
             headers.push({name: 'Days since last action', indicatorID: 'daysSinceLastAction', editable: false, callback: function(data, blob) {
                 var daysSinceAction;
                 if(blob[data.recordID].action_history != undefined) {
-                    var lastAction = blob[data.recordID].action_history.pop();
+                    //var lastAction = blob[data.recordID].action_history.pop();
+                    var lastAction = blob[data.recordID].action_history[blob[data.recordID].action_history.length - 1];
                     var date = new Date(lastAction.time * 1000);
                     daysSinceAction = Math.round((today.getTime() - date.getTime()) / 86400000);
                     if(blob[data.recordID].submitted == 0) {
