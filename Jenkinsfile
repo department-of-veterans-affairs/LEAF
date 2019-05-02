@@ -43,7 +43,7 @@ pipeline {
                     load("${PATH_TO_TENABLE_WEB_ENV_FILE}")
                     load("${PATH_TO_BUILD_METRICS_ENV_FILE}")
                     load("${PATH_TO_FORTIFY_ENV_FILE}")
-                } //end script
+                } //end script 
             } //end steps
         } //end stage
 
@@ -74,9 +74,10 @@ pipeline {
                     steps {
                         container('maven') {
                             sh "./build.sh"
-                            sh "docker pull 553057676898.dkr.ecr.us-east-1.amazonaws.com/rhel7:latest"
-                            sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
-                            sh "jx step post build --image $DOCKER_REGISTRY/$ECR_REPO/$APP_NAME:$PREVIEW_VERSION"
+                            sh "export VERSION=$PREVIEW_VERSION && export APP_NAME=$APP_NAME-mysql && skaffold build -f docker/mysql/skaffold.yaml"
+                            sh "jx step post build --image $DOCKER_REGISTRY/$ECR_REPO/$APP_NAME-mysql:$PREVIEW_VERSION"
+                            sh "export VERSION=$PREVIEW_VERSION && export APP_NAME=$APP_NAME-php && skaffold build -f docker/php/skaffold.yaml"
+                            sh "jx step post build --image $DOCKER_REGISTRY/$ECR_REPO/$APP_NAME-php:$PREVIEW_VERSION"
 
                         }
                     }
