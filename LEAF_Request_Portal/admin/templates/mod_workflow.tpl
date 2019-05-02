@@ -864,6 +864,7 @@ function buildWorkflowIndicatorDropdown(stepID, steps) {
         cache: false
         })
         .then(function(indicatorList) {
+            var stapledInternalIndicators;
             for(var i in associatedCategories) {
                 for(var j in indicatorList) {
                     if((associatedCategories[i].categoryID == indicatorList[j].categoryID

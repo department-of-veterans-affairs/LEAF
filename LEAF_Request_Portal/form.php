@@ -3053,10 +3053,11 @@ class Form
 								    					AND categories.disabled = 0' . $orderBy, $vars);
 
         $dataStaples = array();
-        $resStaples = $this->db->prepared_query('SELECT * FROM category_staples', $vars);
+        $resStaples = $this->db->prepared_query('SELECT stapledCategoryID, category_staples.categoryID as categoryID, categories.categoryID as stapledSubCategoryID, categories.parentID FROM category_staples LEFT JOIN categories ON (stapledCategoryID = categories.parentID)', $vars);
         foreach ($resStaples as $stapled)
         {
             $dataStaples[$stapled['stapledCategoryID']][] = $stapled['categoryID'];
+            $dataStaples[$stapled['stapledSubCategoryID']][] = $stapled['categoryID'];
         }
 
         $data = array();
