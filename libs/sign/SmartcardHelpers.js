@@ -37,7 +37,7 @@ var Signer = function() {
             switch(response.status) {
                 case 'SUCCESS':
                     if(pendingSignatures[response.key] != undefined) {
-                        pendingSignatures[response.key](response.message);
+                        pendingSignatures[response.key](response.message, response.publicKey);
                     }
                     break;
                 case 'ERROR':
