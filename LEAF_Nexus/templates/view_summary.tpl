@@ -24,7 +24,7 @@ var parsedDataByService = {};
 $.ajax({
     type: 'GET',
     url: './utils/jsonExport_PDL.php',
-    timeout: 90000,
+    timeout: 240000,
     success: function(data) {
         for(var i in data) {
             parsedData.push({

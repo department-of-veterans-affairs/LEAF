@@ -118,7 +118,7 @@ switch ($action) {
     case 'view':
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/view.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
         $form = new Form($db, $login);
@@ -168,12 +168,17 @@ switch ($action) {
         $main->assign('useUI', true);
         $main->assign('javascripts', array(
             'js/form.js',
+            'js/gridInput.js',
             'js/workflow.js',
             'js/formGrid.js',
             'js/formQuery.js',
             'js/jsdiff.js',
             '../libs/js/LEAF/XSSHelpers.js',
             '../libs/jsapi/portal/LEAFPortalAPI.js',
+            '../libs/js/es6-promise/es6-promise.min.js',
+            '../libs/js/es6-promise/es6-promise.auto.min.js',
+            '../libs/js/jspdf/jspdf.min.js',
+            '../libs/js/jspdf/jspdf.plugin.autotable.min.js'
         ));
 
         $recordIDToPrint = (int)$_GET['recordID'];
@@ -432,6 +437,7 @@ switch ($action) {
                'js/formGrid.js',
                'js/formQuery.js',
                'js/formSearch.js',
+               'js/gridInput.js',
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
                '../libs/js/LEAF/XSSHelpers.js',
@@ -466,7 +472,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
-        $main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subheading']));
+        $main->assign('city', $settings['subHeading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subHeading']));
         $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
 
         $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
@@ -521,7 +527,7 @@ $main->assign('menu', $o_menu);
 $main->assign('tabText', XSSHelpers::sanitizeHTML($tabText));
 
 $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
-$main->assign('city', $settings['subheading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subheading']));
+$main->assign('city', $settings['subHeading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
 
 if (!isset($_GET['iframe']))
