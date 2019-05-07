@@ -9,3 +9,7 @@ const DIRECTORY_PASS = 'PASSWORD';
 
 const LEAF_NEXUS_URL = 'https://www.example.com/'; // trailing slash required
 const HTTP_HOST = 'www.example.com';
+
+const AUTH_URL = 'example.com/auth';
+
+const AUTH_TYPE = 'cookie';
