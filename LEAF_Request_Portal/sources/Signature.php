@@ -54,6 +54,7 @@ class Signature
         $res = $this->db->prepared_query(
             'SELECT * FROM 
                 signatures
+                LEFT JOIN users USING (empUID)
                 WHERE recordID=:recordID;',
             $vars
         );
