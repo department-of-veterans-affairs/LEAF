@@ -1,4 +1,0 @@
-AuthType Basic
-AuthName "Development login"
-AuthUserFile ./test_logins.txt
-Require valid-user

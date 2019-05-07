@@ -7,15 +7,12 @@ RUN yes | apt-get install vim
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 RUN docker-php-ext-install gd
 RUN a2enmod rewrite
+RUN a2enmod setenvif
 RUN a2enmod ssl
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/certs/leaf.key -out /etc/ssl/certs/leaf.pem -subj "/C=US/ST=VA/L=Chantilly/O=LEAF/OU=LEAF/CN=%"
 
 COPY /docker/php/000-default.conf /etc/apache2/sites-enabled/
 COPY /docker/php/apache2.conf /etc/apache2/
-COPY /LEAF_Nexus/ /var/www/html/LEAF_Nexus/
-COPY /LEAF_Request_Portal/ /var/www/html/LEAF_Request_Portal/
-COPY /libs/ /var/www/html/libs/
-COPY /index.html /var/www/html/index.html
 
 RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
