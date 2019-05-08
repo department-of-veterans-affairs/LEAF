@@ -1,4 +1,5 @@
-var printer = function(recordID) {
+var print;
+var printer = function() {
     function printForm(recordID) {
         var buttonHtml = $('#btn_printForm').html();
         $('#btn_printForm').html('Loading...');

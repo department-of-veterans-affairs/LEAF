@@ -677,7 +677,7 @@ $(function() {
     $('#progressBar').progressbar({max: 100});
 
     form = new LeafForm('formContainer');
-    var print = new printer(recordID);
+    print = new printer();
 
     $('#btn_printForm').on('click', function() {
         print.printForm(recordID);
