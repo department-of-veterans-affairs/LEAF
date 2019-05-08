@@ -56,6 +56,7 @@
 </div>
 <div id="body">
     <div id="content">
+        <div class="alert"><span>This site is not on the VA Enterprise Cloud. Do not enter PHI/PII</span></div>
         {if $status != ''}
         <div class="alert"><span>{$status}</span></div>
         {/if}
