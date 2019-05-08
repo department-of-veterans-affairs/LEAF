@@ -64,7 +64,6 @@ var printer = function(recordID) {
             var htmlPattern = new RegExp('<([^>]+)>');
             var date = new Date();
             var checkBoxShift = 0;
-            var headerSplit = [];
 
             // set to true for first sub question of each header
             var subShift = true;
@@ -123,8 +122,9 @@ var printer = function(recordID) {
                 var verticalStart = 0;
                 var horizontalStart = 0;
                 var sizeOfOption = 0;
+                var splitTitle = [];
                 var format = indicator.format;
-                if (format === 'text' && indicator.value.length > 100) {
+                if (format === 'text' && (indicator.value.length > 100 || title.length > 100)) {
                     format = 'textarea';
                 }
 
@@ -167,14 +167,23 @@ var printer = function(recordID) {
                         }
                         subNewRow();
                     }
-                    doc.rect(horizontalShift, verticalShift, maxWidth, 12);
+                    verticalStart = verticalShift;
                     doc.setFontSize(8);
-                    doc.text(title, horizontalShift + 1, verticalShift + 3);
+                    if (title.length > 190) {
+                        splitTitle = doc.splitTextToSize(title, 185);
+                        for (var i = 0; i < splitTitle.length; i++) {
+                            verticalShift += 3;
+                            doc.text(splitTitle[i], 11, verticalShift);
+                        }
+                    } else {
+                        doc.text(title, horizontalShift + 1, verticalShift + 3);
+                    }
                     doc.setFontSize(12);
                     if (!blank && typeof (value) !== "undefined") {
                         doc.setFont("times");
                         doc.text(value, horizontalShift + 2, verticalShift + 10);
                     }
+                    doc.rect(horizontalShift, verticalStart, maxWidth, verticalShift - verticalStart + 12);
                     doc.setFont("Helvetica");
                     maxWidth = maxWidth - sizeOfBox;
                     horizontalShift += sizeOfBox;
@@ -184,14 +193,14 @@ var printer = function(recordID) {
 
                 function textHeader() {
                     verticalShift += -4;
-                    headerSplit = doc.splitTextToSize(title, 40);
-                    var shiftHeaderText = headerSplit.length * 8;
+                    splitTitle = doc.splitTextToSize(title, 40);
+                    var shiftHeaderText = splitTitle.length * 8;
                     doc.setFillColor(30, 70, 125);
                     doc.rect(10, verticalShift, 190, shiftHeaderText, 'FD');
                     doc.setFillColor(255);
                     doc.rect(50, verticalShift, 150, shiftHeaderText, 'FD');
-                    for (var i = 0; i < headerSplit.length; i++) {
-                        doc.text(headerSplit[i], 11, verticalShift + 6 + 8 * i);
+                    for (var i = 0; i < splitTitle.length; i++) {
+                        doc.text(splitTitle[i], 11, verticalShift + 6 + 8 * i);
                     }
                     doc.setFillColor(30, 70, 125);
                     doc.setTextColor(0);
@@ -200,7 +209,7 @@ var printer = function(recordID) {
                         doc.text(value, 51, verticalShift + 6);
                     }
                     doc.setFont("Helvetica");
-                    verticalShift += depth === 0 && typeof (indicator.child) !== "undefined" && indicator.child !== null ? headerSplit.length * 8 - 4 : headerSplit.length * 8;
+                    verticalShift += depth === 0 && typeof (indicator.child) !== "undefined" && indicator.child !== null ? splitTitle.length * 8 - 4 : splitTitle.length * 8;
                 }
 
                 function makeTable() {
@@ -303,11 +312,11 @@ var printer = function(recordID) {
                                 title += ' (Use additional sheet if needed)';
                             }
                             verticalStart = verticalShift;
-                            headerSplit = doc.splitTextToSize(title, 180);
-                            for (var i = 0; i < headerSplit.length; i++) {
-                                doc.text(headerSplit[i], 11, verticalStart + 6 + 8 * i);
+                            splitTitle = doc.splitTextToSize(title, 180);
+                            for (var i = 0; i < splitTitle.length; i++) {
+                                doc.text(splitTitle[i], 11, verticalStart + 6 + 8 * i);
                             }
-                            verticalShift += headerSplit.length * 8;
+                            verticalShift += splitTitle.length * 8;
                             doc.rect(10, verticalStart, 190, verticalShift - verticalStart);
                             makeTable();
                             verticalShift = doc.previousAutoTable.finalY;
@@ -342,7 +351,15 @@ var printer = function(recordID) {
                             fitSize = !blank ? lines * lineSpacing : 60;
                             verticalStart = verticalShift;
                             doc.setFontSize(8);
-                            doc.text(title, 11, verticalShift + 3);
+                            if (title.length > 190) {
+                                splitTitle = doc.splitTextToSize(title, 185);
+                                for (var i = 0; i < splitTitle.length; i++) {
+                                    verticalShift += 3;
+                                    doc.text(splitTitle[i], 11, verticalShift);
+                                }
+                            } else {
+                                doc.text(title, horizontalShift + 1, verticalShift + 3);
+                            }
                             doc.setFontSize(12);
                             if (!blank && typeof (value) !== "undefined") {
                                 doc.setFont("times");
@@ -393,14 +410,22 @@ var printer = function(recordID) {
                                 checkBoxShift = this.length > checkBoxShift ? this.length : checkBoxShift;
                             });
                             checkBoxShift = checkBoxShift * 3.5 > 20 ? checkBoxShift * 3.5 : 20;
-                            doc.text(title, horizontalShift + 1, verticalShift + 3);
+                            verticalStart = verticalShift;
+                            if (title.length > 190) {
+                                splitTitle = doc.splitTextToSize(title, 185);
+                                for (var i = 0; i < splitTitle.length; i++) {
+                                    verticalShift += 3;
+                                    doc.text(splitTitle[i], 11, verticalShift);
+                                }
+                            } else {
+                                doc.text(title, horizontalShift + 1, verticalShift + 3);
+                            }
                             doc.setFontSize(12);
                             if (maxWidth > 190) {
                                 horizontalShift = 15;
                             } else {
                                 horizontalStart = horizontalShift;
                             }
-                            verticalStart = verticalShift;
                             horizontalShift += 5;
                             for (var i = 0; i < indicator.options.length; i++) {
                                 if (horizontalShift > 160) {
@@ -418,6 +443,7 @@ var printer = function(recordID) {
                                 horizontalShift += checkBoxShift;
                                 sizeOfBox += sizeOfOption;
                             }
+                            verticalShift += 4;
                             if (verticalStart === verticalShift) {
                                 doc.rect(horizontalStart, verticalStart, maxWidth, 12);
                             } else {
@@ -432,11 +458,33 @@ var printer = function(recordID) {
                             if (maxWidth !== 190) {
                                 subNewRow();
                             }
-                            doc.rect(10, verticalShift, 190, 12, 'FD');
+                            //default format is dark-blue header
                             doc.setTextColor(255);
                             doc.setFont("helvetica");
-                            doc.text(title, 11, verticalShift + 8);
-                            subNewRow();
+                            splitTitle = doc.splitTextToSize(title, 185);
+                            if (verticalShift + 8 + splitTitle.length * 8 >= height - 40) {
+                                doc.rect(10, verticalShift, 190, height - 30 - verticalShift, 'FD');
+                            } else {
+                                doc.rect(10, verticalShift, 190, splitTitle.length * 8, 'FD');
+                            }
+                            for (var i = 0; i < splitTitle.length; i++) {
+                                if (verticalShift >= height - 40) {
+                                    pageFooter(false);
+                                    doc.addPage();
+                                    doc.setFont("helvetica");
+                                    doc.setTextColor(255);
+                                    doc.setDrawColor(0);
+                                    doc.setFillColor(30, 70, 125);
+                                    verticalShift = 10;
+                                    if (verticalShift + 8 + (splitTitle.length - i) * 8 >= height - 40) {
+                                        doc.rect(10, verticalShift, 190, height - 30 - verticalShift, 'FD');
+                                    } else {
+                                        doc.rect(10, verticalShift, 190, 8 + (splitTitle.length - i) * 8, 'FD');
+                                    }
+                                }
+                                doc.text(splitTitle[i], 11, verticalShift + 6);
+                                verticalShift += 8;
+                            }
                     }
                 } else {
                     switch (format) {
@@ -444,12 +492,12 @@ var printer = function(recordID) {
                             if (blank) {
                                 title += ' (Use additional sheet if needed)';
                             }
-                            headerSplit = doc.splitTextToSize(title, 180);
-                            doc.rect(10, verticalShift, 190, headerSplit.length * 8, 'FD');
-                            for (var i = 0; i < headerSplit.length; i++) {
-                                doc.text(headerSplit[i], 11, verticalShift + 6 + 8 * i);
+                            splitTitle = doc.splitTextToSize(title, 180);
+                            doc.rect(10, verticalShift, 190, splitTitle.length * 8, 'FD');
+                            for (var i = 0; i < splitTitle.length; i++) {
+                                doc.text(splitTitle[i], 11, verticalShift + 6 + 8 * i);
                             }
-                            verticalShift += headerSplit.length * 8;
+                            verticalShift += splitTitle.length * 8;
                             makeTable();
                             verticalShift = doc.previousAutoTable.finalY - 3.5;
                             break;
@@ -480,18 +528,28 @@ var printer = function(recordID) {
                             verticalShift += -4;
                             fitSize = !blank ? lines * 2 * lineSpacing : 60;
                             doc.setFillColor(30, 70, 125);
-                            doc.rect(10, verticalShift, 190, 8, 'FD');
+                            if (title.length > 190) {
+                                splitTitle = doc.splitTextToSize(title, 185);
+                                doc.rect(10, verticalShift, 190, 8 * splitTitle.length + 4, 'FD');
+                                for (var i = 0; i < splitTitle.length; i++) {
+                                    verticalShift += 8;
+                                    doc.text(splitTitle[i], 11, verticalShift);
+                                }
+                                verticalShift += 4;
+                            } else {
+                                doc.rect(10, verticalShift, 190, 8, 'FD');
+                                doc.text(title, 11, verticalShift + 6);
+                            }
                             if (fitSize >= height - 70) {
                                 doc.rect(10, verticalShift + 8, 190, height - 12 - (verticalShift + 8));
                             }
-                            doc.text(title, 11, verticalShift + 6);
                             doc.setTextColor(0);
-                            verticalStart = verticalShift + 8;
-                            verticalShift += lineSpacing;
+                            verticalStart = verticalShift;
                             if (!blank && typeof (value) !== "undefined") {
                                 doc.setFont("times");
                                 for (var i = 0; i < splitText.length; i++) {
                                     if (verticalShift >= height - 40) {
+                                        doc.rect(10, verticalStart, 190, height - 20 - verticalStart);
                                         pageFooter(false);
                                         doc.addPage();
                                         doc.setTextColor(255);
@@ -531,39 +589,34 @@ var printer = function(recordID) {
                         case 'checkbox':
                         case 'checkboxes':
                             verticalShift += -4;
-                            headerSplit = doc.splitTextToSize(title, 40);
-                            var shiftHeaderText = headerSplit.length * 8;
+                            splitTitle = doc.splitTextToSize(title, 40);
+                            if (title.length > 190) {
+                                splitTitle = doc.splitTextToSize(title, 185);
+                                doc.rect(10, verticalShift, 190, 8 * splitTitle.length + 4, 'FD');
+                                for (var i = 0; i < splitTitle.length; i++) {
+                                    verticalShift += 8;
+                                    doc.text(splitTitle[i], 11, verticalShift);
+                                }
+                                verticalShift += 4;
+                            } else {
+                                doc.rect(10, verticalShift, 190, 8, 'FD');
+                                doc.text(title, 11, verticalShift + 6);
+                            }
                             checkBoxShift = 0;
                             $.each(indicator.options, function () {
                                 checkBoxShift = this.length > checkBoxShift ? this.length : checkBoxShift;
                             });
                             checkBoxShift = checkBoxShift * 3.5 > 20 ? checkBoxShift * 3.5 : 20;
-                            horizontalShift = 60;
-                            verticalStart = verticalShift + 4;
+                            horizontalShift = 20;
+                            verticalStart = verticalShift;
                             doc.setTextColor(0);
                             doc.setFont("times");
                             for (var i = 0; i < indicator.options.length; i++) {
                                 if (horizontalShift > maxWidth) {
                                     verticalShift += 16;
-                                    horizontalShift = 60;
+                                    horizontalShift = 20;
                                 }
                                 if (verticalShift >= height - 40) {
-                                    doc.setFont("helvetica");
-                                    doc.setFillColor(30, 70, 125);
-                                    if (verticalShift - verticalStart > shiftHeaderText) {
-                                        doc.rect(10, verticalStart, 190, verticalShift - verticalStart);
-                                        doc.rect(10, verticalStart, 40, verticalShift - verticalStart, 'FD');
-                                    } else {
-                                        doc.rect(10, verticalStart, 190, shiftHeaderText);
-                                        doc.rect(10, verticalStart, 40, shiftHeaderText, 'FD');
-                                        verticalShift += shiftHeaderText;
-                                    }
-                                    doc.setTextColor(255);
-                                    doc.setFillColor(30, 70, 125);
-                                    doc.setFillColor(255);
-                                    for (var i = 0; i < headerSplit.length; i++) {
-                                        doc.text(headerSplit[i], 11, verticalStart + 6 + 8 * i);
-                                    }
                                     doc.setTextColor(0);
                                     doc.setFont("times");
                                     pageFooter(false);
@@ -573,8 +626,27 @@ var printer = function(recordID) {
                                     doc.setFillColor(30, 70, 125);
                                     verticalShift = 10;
                                     verticalStart = 10;
-                                    headerSplit = doc.splitTextToSize(title, 38);
-                                    shiftHeaderText = headerSplit.length * 8;
+                                    splitTitle = doc.splitTextToSize(title, 38);
+                                    doc.setFont("helvetica");
+                                    doc.setFillColor(30, 70, 125);
+                                    if (title.length > 190) {
+                                        splitTitle = doc.splitTextToSize(title, 185);
+                                        doc.rect(10, verticalShift, 190, 8 * splitTitle.length + 4, 'FD');
+                                        for (var i = 0; i < splitTitle.length; i++) {
+                                            verticalShift += 8;
+                                            doc.text(splitTitle[i], 11, verticalShift);
+                                        }
+                                        verticalShift += 4;
+                                    } else {
+                                        doc.rect(10, verticalShift, 190, 8, 'FD');
+                                        doc.text(title, 11, verticalShift + 6);
+                                    }
+                                    doc.setTextColor(255);
+                                    doc.setFillColor(30, 70, 125);
+                                    doc.setFillColor(255);
+                                    for (var i = 0; i < splitTitle.length; i++) {
+                                        doc.text(splitTitle[i], 11, verticalStart + 6 + 8 * i);
+                                    }
                                 }
                                 doc.rect(horizontalShift - 5, verticalShift + 6, 5, 5);
                                 doc.setTextColor(0);
@@ -586,32 +658,39 @@ var printer = function(recordID) {
                                 doc.text(decodeHTMLEntities(indicator.options[i]), horizontalShift + 1, verticalShift + 10.5);
                                 horizontalShift += checkBoxShift;
                             }
-                            doc.setFont("helvetica");
                             verticalShift += 16;
-                            doc.setFillColor(30, 70, 125);
-                            if (verticalShift - verticalStart > shiftHeaderText) {
-                                doc.rect(10, verticalStart, 190, verticalShift - verticalStart);
-                                doc.rect(10, verticalStart, 40, verticalShift - verticalStart, 'FD');
-                            } else {
-                                doc.rect(10, verticalStart, 190, shiftHeaderText);
-                                doc.rect(10, verticalStart, 40, shiftHeaderText, 'FD');
-                                verticalShift += shiftHeaderText;
-                            }
-                            doc.setTextColor(255);
-                            doc.setFillColor(30, 70, 125);
-                            doc.setFillColor(255);
-                            for (var i = 0; i < headerSplit.length; i++) {
-                                doc.text(headerSplit[i], 11, verticalStart + 6 + 8 * i);
-                            }
-                            doc.setTextColor(0);
+                            doc.rect(10, verticalStart, 190, verticalShift - verticalStart);
+                            doc.setFont("helvetica");
                             horizontalShift = 10;
                             verticalShift += -4;
                             break;
                         default:
-                            doc.rect(10, verticalShift, 190, 8, 'FD');
+                            //default format is dark-blue header
                             doc.setFont("helvetica");
-                            doc.text(title, 11, verticalShift + 6);
-                            verticalShift += 8;
+                            splitTitle = doc.splitTextToSize(title, 185);
+                            if (verticalShift + 8 + splitTitle.length * 8 >= height - 40) {
+                                doc.rect(10, verticalShift, 190, height - 30 - verticalShift, 'FD');
+                            } else {
+                                doc.rect(10, verticalShift, 190, splitTitle.length * 8, 'FD');
+                            }
+                            for (var i = 0; i < splitTitle.length; i++) {
+                                if (verticalShift >= height - 40) {
+                                    pageFooter(false);
+                                    doc.addPage();
+                                    doc.setFont("helvetica");
+                                    doc.setTextColor(255);
+                                    doc.setDrawColor(0);
+                                    doc.setFillColor(30, 70, 125);
+                                    verticalShift = 10;
+                                    if (verticalShift + 8 + (splitTitle.length - i) * 8 >= height - 40) {
+                                        doc.rect(10, verticalShift, 190, height - 30 - verticalShift, 'FD');
+                                    } else {
+                                        doc.rect(10, verticalShift, 190, 8 + (splitTitle.length - i) * 8, 'FD');
+                                    }
+                                }
+                                doc.text(splitTitle[i], 11, verticalShift + 6);
+                                verticalShift += 8;
+                            }
                             if (typeof (indicator.child) !== "undefined" && indicator.child !== null) {
                                 verticalShift += -4;
                             }
