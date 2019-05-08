@@ -3,11 +3,7 @@
 set -e
 
 # Sleep to run after MySQL container start
-sleep 120
-
-printf '\n\nRunning updateDatabase scripts...'
-php /var/www/html/LEAF_Nexus/scripts/updateDatabase.php
-php /var/www/html/LEAF_Request_Portal/scripts/updateDatabase.php
+sleep 5
 
 if [ "${1#-}" != "$1" ]; then
 	set -- apache2-foreground "$@"
