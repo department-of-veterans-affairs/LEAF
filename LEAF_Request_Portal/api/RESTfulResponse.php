@@ -356,7 +356,7 @@ abstract class RESTfulResponse
         }
 
         $url = 'http://';
-        if ($_SERVER['SERVER_PORT'] == '443')
+        if ($_SERVER['HTTPS'] == 'on')
         {
             $url = 'https://';
         }
