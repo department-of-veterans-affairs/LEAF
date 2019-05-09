@@ -6,7 +6,7 @@
 include 'globals.php';
 include 'db_mysql.php';
 include 'db_config.php';
-include 'login.php';
+include 'Login.php';
 include 'form.php';
 
 $db_config = new DB_Config();
