@@ -43,7 +43,12 @@
       <span id="headerLabel">{$city|sanitize}</span>
       <span id="headerDescription">{$title|sanitize}</span>
     </div>
-    <span id="headerHelp">{$login|sanitize}</span>
+    <span id="headerHelp">
+        <div class="alert" style="display: inline">
+            <span>This site is not on the VA Enterprise Cloud. Do not enter PHI/PII.</span>
+        </div>
+        {$login|sanitize}
+    </span>
     <span id="headerLogin"></span>
     <span id="headerTab">{$emergency}{$tabText|sanitize}</span>
     <span id="headerTabImg"><img src="images/tab.png" alt="tab" /></span>
@@ -51,7 +56,6 @@
 </div>
 <div id="body">
     <div id="content">
-        <div class="alert"><span>This site is not on the VA Enterprise Cloud. Do not enter PHI/PII</span></div>
         {if $status != ''}
         <div class="alert"><span>{$status}</span></div>
         {/if}
