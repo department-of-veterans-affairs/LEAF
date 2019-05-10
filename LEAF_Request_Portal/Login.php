@@ -182,20 +182,38 @@ class Login
 
     public function loginUser()
     {
-        //if auth cookie exists restore session
-        if($_COOKIE['PHPSESSID']){
+        $authType = '/auth_domain/?r=';
+        $nonBrowserAuth = '/login/?r=';
 
-            $this->restoreSession();
-
-        // else redirect to auth domain to get Authenticated
-        }else{
-
-          $protocol = 'http://';
-          if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'){
-              $protocol = 'https://';
+        if(defined('AUTH_TYPE') && AUTH_TYPE == 'cookie') {
+            $authType = '/auth_cookie/?r=';
+            $nonBrowserAuth = '/auth_cookie/?r=';
           }
 
-          header('Location:' . $protocol . 'auth.leaf-dev.va.gov/?r=' . base64_encode($_SERVER['REQUEST_URI']));
+        if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
+        {
+            if (php_sapi_name() != 'cli')
+            {
+                $protocol = 'http://';
+                if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+                {
+                    $protocol = 'https://';
+                }
+
+                // try to browser detect, since SSO implementation varies
+                if (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
+                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0
+                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') > 0
+                    || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
+                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
+                {
+                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . $authType . base64_encode($_SERVER['REQUEST_URI']));
+                    exit();
+                }
+
+                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
+                exit();
+            }
 
         }
 

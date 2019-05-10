@@ -136,18 +136,19 @@ class Form
         return $fullForm;
     }
 
-    public function flattenFullFormData($data, &$output)
+    public function flattenFullFormData($data, &$output, $parentID = null)
     {
         foreach ($data as $key => $item)
         {
             if ($item['child'] == null)
             {
                 unset($item['child']);
+                $item['parentID'] = $parentID;
                 $output[$item['indicatorID']][$item['series']] = $item;
             }
             else
             {
-                $this->flattenFullFormData($item['child'], $output);
+                $this->flattenFullFormData($item['child'], $output, $item['indicatorID']);
                 unset($item['child']);
                 $output[$item['indicatorID']][$item['series']] = $item;
             }
@@ -2739,6 +2740,7 @@ class Form
         $joinRecords_Dependencies = false;
         $joinRecords_Step_Fulfillment = false;
         $joinActionHistory = false;
+        $joinRecordResolutionData = false;
         $joinInitiatorNames = false;
         if (isset($query['joins']))
         {
@@ -2772,6 +2774,10 @@ class Form
                         break;
                     case 'stepFulfillment':
                         $joinRecords_Step_Fulfillment = true;
+
+                        break;
+                    case 'recordResolutionData':
+                        $joinRecordResolutionData = true;
 
                         break;
                     case 'initiatorName':
@@ -2853,19 +2859,16 @@ class Form
     										' . $joins . '
                                             WHERE ' . $conditions . $sort . $limit, $vars);
         $data = array();
+        $recordIDs = '';
         foreach ($res as $item)
         {
             $data[$item['recordID']] = $item;
+            $recordIDs .= $item['recordID'] . ',';
         }
+        $recordIDs = trim($recordIDs, ',');
 
         if ($joinCategoryID)
         {
-            $recordIDs = '';
-            foreach ($res as $item)
-            {
-                $recordIDs .= $item['recordID'] . ',';
-            }
-            $recordIDs = trim($recordIDs, ',');
             $res2 = $this->db->prepared_query('SELECT * FROM category_count
     											LEFT JOIN categories USING (categoryID)
     											WHERE recordID IN (' . $recordIDs . ')
@@ -2880,12 +2883,6 @@ class Form
 
         if ($joinAllCategoryID)
         {
-            $recordIDs = '';
-            foreach ($res as $item)
-            {
-                $recordIDs .= $item['recordID'] . ',';
-            }
-            $recordIDs = trim($recordIDs, ',');
             $res2 = $this->db->prepared_query('SELECT * FROM category_count
     											LEFT JOIN categories USING (categoryID)
     											WHERE recordID IN (' . $recordIDs . ')
@@ -2899,12 +2896,6 @@ class Form
 
         if ($joinRecordsDependencies)
         {
-            $recordIDs = '';
-            foreach ($res as $item)
-            {
-                $recordIDs .= $item['recordID'] . ',';
-            }
-            $recordIDs = trim($recordIDs, ',');
             $res2 = $this->db->prepared_query('SELECT * FROM records_dependencies
     											LEFT JOIN dependencies USING (dependencyID)
     											WHERE recordID IN (' . $recordIDs . ')
@@ -2921,13 +2912,7 @@ class Form
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
-            $recordIDs = '';
-            foreach ($res as $item)
-            {
-                $recordIDs .= $item['recordID'] . ',';
-            }
-            $recordIDs = trim($recordIDs, ',');
-            $res2 = $this->db->prepared_query('SELECT recordID, stepID, userID, time, description, actionTextPasttense, comment FROM action_history
+            $res2 = $this->db->prepared_query('SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment FROM action_history
     											LEFT JOIN dependencies USING (dependencyID)
     											LEFT JOIN actions USING (actionType)
     											WHERE recordID IN (' . $recordIDs . ')
@@ -2942,14 +2927,30 @@ class Form
             }
         }
 
+        if($joinRecordResolutionData)
+        {
+            $conditions .= 'records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0 AND ';
+            $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+
+            $res2 = $this->db->prepared_query('SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime FROM records
+                    LEFT JOIN records_step_fulfillment USING (recordID)
+                    LEFT JOIN records_workflow_state USING (recordID)
+                    WHERE recordID IN (' . $recordIDs . ')
+                        AND records_workflow_state.stepID IS NULL
+                        AND submitted > 0
+                        AND deleted = 0', array());
+            foreach ($res2 as $item)
+            {
+                if($data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] == null
+                    || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] >= $item['fulfillmentTime']) {
+                    $data[$item['recordID']]['recordResolutionData']['lastStatus'] = $item['lastStatus'];
+                    $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] = $item['fulfillmentTime'];
+                }
+            }
+        }
+
         if ($joinRecords_Step_Fulfillment)
         {
-            $recordIDs = '';
-            foreach ($res as $item)
-            {
-                $recordIDs .= $item['recordID'] . ',';
-            }
-            $recordIDs = trim($recordIDs, ',');
             $res2 = $this->db->prepared_query('SELECT * FROM records_step_fulfillment
     											LEFT JOIN workflow_steps USING (stepID)
     											WHERE recordID IN (' . $recordIDs . ')', array());
@@ -3052,10 +3053,11 @@ class Form
 								    					AND categories.disabled = 0' . $orderBy, $vars);
 
         $dataStaples = array();
-        $resStaples = $this->db->prepared_query('SELECT * FROM category_staples', $vars);
+        $resStaples = $this->db->prepared_query('SELECT stapledCategoryID, category_staples.categoryID as categoryID, categories.categoryID as stapledSubCategoryID, categories.parentID FROM category_staples LEFT JOIN categories ON (stapledCategoryID = categories.parentID)', $vars);
         foreach ($resStaples as $stapled)
         {
             $dataStaples[$stapled['stapledCategoryID']][] = $stapled['categoryID'];
+            $dataStaples[$stapled['stapledSubCategoryID']][] = $stapled['categoryID'];
         }
 
         $data = array();
@@ -3265,6 +3267,7 @@ class Form
                 $child[$idx]['series'] = $series;
                 $child[$idx]['name'] = $field['name'];
                 $child[$idx]['default'] = $field['default'];
+                $child[$idx]['description'] = $field['description'];
                 $child[$idx]['html'] = $field['html'];
                 $child[$idx]['htmlPrint'] = $field['htmlPrint'];
                 if($parseTemplate) {

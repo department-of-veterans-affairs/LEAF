@@ -387,6 +387,99 @@ var PortalFormEditorAPI = function (baseAPIURL) {
         },
 
         /**
+         * Assigns workflow to form
+         *
+         * @param categoryID    string              name of form
+         * @param workflowID    int                 workflow associated with form
+         * @param onSuccess     function(success)   callback containing categoryID if action succeeded
+         * @param onFail        function(err)       callback when action contains an error
+         */
+        assignFormWorkflow = function (categoryID, workflowID, onSuccess, onFail) {
+            var postURL = apiURL + '/formWorkflow';
+
+            $.ajax({
+                method: 'POST',
+                url: postURL,
+                dataType: "text",
+                data: {
+                    "categoryID": categoryID,
+                    "workflowID": workflowID,
+                    CSRFToken: csrfToken
+                }
+            })
+                .done(function (msg) {
+                    onSuccess(msg);
+                })
+                .fail(function (err) {
+                    onFail(err);
+                });
+        },
+
+        /**
+         * Create custom form
+         *
+         * @param name          string                  name of form
+         * @param description   string                  description of form
+         * @param onSuccess     function(success)   callback containing categoryID if action succeeded
+         * @param onFail        function(err)       callback when action contains an error
+         */
+        createCustomForm = function (name, description, onSuccess, onFail) {
+            var postURL = apiURL + '/new';
+
+            $.ajax({
+                method: 'POST',
+                url: postURL,
+                dataType: "text",
+                data: {
+                    "name": name,
+                    "description": description,
+                    CSRFToken: csrfToken
+                }
+            })
+                .done(function (msg) {
+                    onSuccess(msg);
+                })
+                .fail(function (err) {
+                    onFail(err);
+                });
+        },
+
+        /**
+         * Add indicators to form
+         *
+         * @param name          string                  name of indicator
+         * @param format        string                  format of indicator
+         * @param categoryID    string                  form to associate indicator
+         * @param required      int                  1 means required, 0 means not required
+         * @param is_sensitive  int                  1 means sensitive, 0 means not sensitive
+         * @param onSuccess     function(success)   callback containing categoryID if action succeeded
+         * @param onFail        function(err)       callback when action contains an error
+         */
+        createFormIndicator = function (name, format, categoryID, required, is_sensitive, onSuccess, onFail) {
+            var postURL = apiURL + '/newIndicator';
+
+            $.ajax({
+                method: 'POST',
+                url: postURL,
+                dataType: "text",
+                data: {
+                    "name": name,
+                    "format": format,
+                    "categoryID": categoryID,
+                    "required": required,
+                    "is_sensitive": is_sensitive,
+                    CSRFToken: csrfToken
+                }
+            })
+                .done(function (msg) {
+                    onSuccess(msg);
+                })
+                .fail(function (err) {
+                    onFail(err);
+                });
+        },
+
+        /**
          * Get the access privileges for the given indicator
          * 
          * @param indicatorID   int                     the id of the indicator to retrieve privileges for
@@ -469,6 +562,9 @@ var PortalFormEditorAPI = function (baseAPIURL) {
     return {
         getAPIURL: getAPIURL,
         getBaseAPIURL: getBaseAPIURL,
+        assignFormWorkflow: assignFormWorkflow,
+        createCustomForm: createCustomForm,
+        createFormIndicator: createFormIndicator,
         getIndicator: getIndicator,
         getIndicatorEditor: getIndicatorEditor,
         getIndicatorPrivileges: getIndicatorPrivileges,
@@ -589,13 +685,14 @@ var PortalSignaturesAPI = function (baseAPIURL) {
         /**
          * Create a signature
          * 
-         * @param signature string          the signature footprint
-         * @param recordID  int             the id of the Record the Signature is associated with
-         * @param message   string          the message that was signed
-         * @param onSuccess function(id)    callback containing the id of the new signature
-         * @param onFail    function(err)   callback when operation fails
+         * @param signature         string          the signature footprint
+         * @param recordID          int             the id of the Record the Signature is associated with
+         * @param message           string          the message that was signed
+         * @param signerPublicKey   string          the signer's public key
+         * @param onSuccess         function(id)    callback containing the id of the new signature
+         * @param onFail            function(err)   callback when operation fails
          */
-        create = function (signature, recordID, stepID, dependencyID, message, onSuccess, onFail) {
+        create = function (signature, recordID, stepID, dependencyID, message, signerPublicKey, onSuccess, onFail) {
             $.ajax({
                 method: 'POST',
                 url: apiURL + '/create',
@@ -606,6 +703,7 @@ var PortalSignaturesAPI = function (baseAPIURL) {
                     "stepID": stepID,
                     "dependencyID": dependencyID,
                     "message": message,
+                    "signerPublicKey": signerPublicKey,
                     CSRFToken: csrfToken
                 }
             })
@@ -733,6 +831,29 @@ var PortalWorkflowAPI = function (baseAPIURL) {
         },
 
         /**
+         * Gets list of all workflows
+         *
+         * @param onSuccess             function(result)    callback when operation succeeds
+         * @param onFail                function(error)     callback when operation fails
+         */
+        getAllWorkflows = function (onSuccess, onFail) {
+            var fetchURL = apiURL;
+
+            $.ajax({
+                method: 'GET',
+                url: fetchURL,
+                dataType: 'json',
+                cache: false
+            })
+                .done(function(msg){
+                    onSuccess(msg);
+                })
+                .fail(function(err){
+                    onFail(err);
+                });
+        },
+
+        /**
          * Set whether a Step in the specified Workflow requires a Digital Signature
          * 
          * @param workflowID            int                 the Workflow ID
@@ -761,6 +882,7 @@ var PortalWorkflowAPI = function (baseAPIURL) {
         getBaseAPIURL: getBaseAPIURL,
         setBaseAPIURL: setBaseAPIURL,
         setCSRFToken: setCSRFToken,
+        getAllWorkflows: getAllWorkflows,
         setStepSignatureRequirement: setStepSignatureRequirement
     };
 };

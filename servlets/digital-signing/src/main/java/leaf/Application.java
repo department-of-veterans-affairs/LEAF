@@ -6,6 +6,9 @@ import io.vertx.core.VertxOptions;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.json.Json;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -13,11 +16,13 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 
 public class Application extends AbstractVerticle {
 
-    public static void main(String[] args) {
+    private static Logger logger = LoggerFactory.getLogger(Application.class);
 
+    private SignEngine signEngine;
+
+    public static void main(String[] args) {
         Runner.run(Application.class);
         timeout();
-
     }
 
     @Override
@@ -33,29 +38,35 @@ public class Application extends AbstractVerticle {
         options.setHeartbeatInterval(20000);
         SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
         sockJSHandler.socketHandler(ws -> {
-            System.out.println("SockJS Connection");
+            logger.info("SockJS Connection");
             ws.handler(request -> {
                 Sign sign = JsonSerializer.deserialize(request.toString());
-                String signature = SignEngine.getSignature(sign.getDataToSign());
-                String status = "SUCCESS";
-                if (signature.substring(0, 5).equals("ERROR")) status = "ERROR";
-                ws.write(Buffer.buffer(JsonSerializer.serialize(sign.getKey(), signature, status)));
+                logger.info("dataToSign: " + sign.getDataToSign());
+                SignEngine signEngine = new SignEngine();
+                String signature = signEngine.getSignature(sign.getDataToSign());
+                String certificateHex = signEngine.getCertificateHex();
+                String status = (signature.substring(0, 5).equals("ERROR")) ? "ERROR" : "SUCCESS";
+                logger.info("Verified: " + signEngine.verify());
+                ws.write(Buffer.buffer(JsonSerializer.serialize(sign.getKey(), signature, status, certificateHex)));
             });
         });
         router.route("/myapp/*").handler(sockJSHandler);
         server.requestHandler(router::accept).listen(8443);
-        System.out.println("Secure SockJS server started on port 8443");
+        logger.info("Secure SockJS server started on port 8443");
         vertx.createHttpServer().websocketHandler(ws -> {
-            System.out.println("Insecure websocket connection opened");
+            logger.info("Insecure websocket connection opened");
             ws.handler(request -> {
                 Sign sign = JsonSerializer.deserialize(request.toString());
-                String signature = SignEngine.getSignature(sign.getDataToSign());
-                String status = "SUCCESS";
-                if (signature.substring(0, 5).equals("ERROR")) status = "ERROR";
-                ws.writeFinalTextFrame(JsonSerializer.serialize(sign.getKey(), signature, status));
+                logger.info("dataToSign: " + sign.getDataToSign());
+                SignEngine signEngine = new SignEngine();
+                String signature = signEngine.getSignature(sign.getDataToSign());
+                String certificateHex = signEngine.getCertificateHex();
+                String status = (signature.substring(0, 5).equals("ERROR")) ? "ERROR" : "SUCCESS";
+                logger.info("Verified: " + signEngine.verify());
+                ws.writeFinalTextFrame(JsonSerializer.serialize(sign.getKey(), signature, status, certificateHex));
             });
         }).listen(8080);
-        System.out.println("Websocket server started on port 8080");
+        logger.info("Websocket server started on port 8080");
 
     }
 
@@ -65,7 +76,7 @@ public class Application extends AbstractVerticle {
                 Thread.sleep(43200000);
                 System.exit(0);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error(e.getLocalizedMessage());
             }
         });
         thread.start();

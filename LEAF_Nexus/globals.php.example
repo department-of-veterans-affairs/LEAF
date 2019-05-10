@@ -6,3 +6,8 @@ const DIRECTORY_HOST = 'HOSTNAME';
 const DIRECTORY_DB = 'DB_NAME';
 const DIRECTORY_USER = 'USERNAME';
 const DIRECTORY_PASS = 'PASSWORD';
+
+
+const AUTH_URL = 'example.com/auth';
+
+const AUTH_TYPE = 'cookie';

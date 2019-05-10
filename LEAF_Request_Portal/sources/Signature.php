@@ -22,7 +22,7 @@ class Signature
      * @param recordID  int     the id of the record the signature belongs to
      * @param message   string  the message that was signed
      */
-    public function create($signature, $recordID, $stepID, $dependencyID, $message)
+    public function create($signature, $recordID, $stepID, $dependencyID, $message, $signerPublicKey)
     {
         $vars = array(
             ':signature' => $signature,
@@ -30,15 +30,16 @@ class Signature
             ':stepID' => $stepID,
             ':dependencyID' => $dependencyID,
             ':message' => $message,
+            ':signerPublicKey' => $signerPublicKey,
             ':userID' => $this->login->getUserID(),
             ':timestamp' => time()
         );
 
         $res = $this->db->prepared_query(
             'INSERT INTO 
-                signatures (signature, recordID, stepID, dependencyID, message, userID, timestamp)
-                VALUES (:signature, :recordID, :stepID, :dependencyID, :message, :userID, :timestamp)
-                ON DUPLICATE KEY UPDATE signature=:signature, message=:message, userID=:userID, timestamp=:timestamp',
+                signatures (signature, recordID, stepID, dependencyID, message, signerPublicKey, userID, timestamp)
+                VALUES (:signature, :recordID, :stepID, :dependencyID, :message, :signerPublicKey, :userID, :timestamp)
+                ON DUPLICATE KEY UPDATE signature=:signature, message=:message, signerPublicKey=:signerPublicKey, userID=:userID, timestamp=:timestamp',
             $vars
         );
 

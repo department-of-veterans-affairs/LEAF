@@ -492,11 +492,13 @@ function newQuestion(parentIndicatorID) {
                                 <td>Required</td>\
                                 <td><input id="required" name="required" type="checkbox" /></td>\
                             </tr>\
-                        </table>\
-                        <table>\
                             <tr>\
                                 <td>Sensitive</td>\
                                 <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
+                            </tr>\
+                            <tr>\
+                                <td>Sort Priority</td>\
+                                <td><input id="sort" name="sort" type="number" style="width: 40px" /></td>\
                             </tr>\
                         </table>\
                 </fieldset>');
@@ -676,7 +678,18 @@ function newQuestion(parentIndicatorID) {
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
                 if(res != null) {
-//                      console.log('ok');
+                    if($('#sort').val() != '') {
+                        $.ajax({
+                            type: 'POST',
+                            url: '../api/?a=formEditor/' + res + '/sort',
+                            data: {sort: $('#sort').val(),
+                                CSRFToken: '<!--{$CSRFToken}-->'},
+                            success: function(res) {
+                                if(res != null) {
+                                }
+                            }
+                    })  ;
+                    }
                 }
                 dialog.hide();
                 openContent('ajaxIndex.php?a=printview&categoryID=' + currCategoryID);
@@ -780,7 +793,7 @@ function addCells(){
         '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" /></br>' +
         '<span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
         '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);">' +
-        '<option value="text">Single line input</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
+        '<option value="text">Single line input</option><option value="date">Date</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
     );
     $('#tableStatus').attr('aria-label', 'Column added, ' + $(gridBodyElement).children().length + ' total.');
     $(gridBodyElement + ' > div:last').focus();

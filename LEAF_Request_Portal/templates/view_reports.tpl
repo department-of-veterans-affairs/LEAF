@@ -57,6 +57,7 @@ function prepareEmail(link) {
 var tDepHeader = [];
 var tStepHeader = [];
 function addHeader(column) {
+    var today = new Date();
 	switch(column) {
 	    case 'title':
 	    	headers.push({name: 'Title', indicatorID: 'title', callback: function(data, blob) {
@@ -99,12 +100,43 @@ function addHeader(column) {
             	$('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
             }});
             break;
+        case 'dateCancelled':
+            leafSearch.getLeafFormQuery().join('action_history');
+            headers.push({name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
+                if(blob[data.recordID].deleted > 0) {
+                    var date = new Date(blob[data.recordID].deleted * 1000);
+                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                }
+            }});
+            headers.push({name: 'Cancelled By', indicatorID: 'cancelledBy', editable: false, callback: function(data, blob) {
+                if(blob[data.recordID].action_history != undefined) {
+                    var cancelData = blob[data.recordID].action_history.pop();
+                    if(cancelData.actionType == 'deleted') {
+                        $('#'+data.cellContainerID).html(cancelData.approverName);
+                    }
+                }
+            }});
+            break;
         case 'dateInitiated':
-            headers.push({name: 'Request Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
+            headers.push({name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
                 var date = new Date(blob[data.recordID].date * 1000);
                 $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
             }});
             break;
+        case 'dateResolved':
+            leafSearch.getLeafFormQuery().join('recordResolutionData');
+            headers.push({name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
+                if(blob[data.recordID].recordResolutionData != undefined) {
+                    var date = new Date(blob[data.recordID].recordResolutionData.fulfillmentTime * 1000);
+                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                }
+            }});
+            headers.push({name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
+                if(blob[data.recordID].recordResolutionData != undefined) {
+                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
+                }
+            }});
+        break;
         case 'actionButton':
         	headers.unshift({name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
                 $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
@@ -115,17 +147,15 @@ function addHeader(column) {
         	break;
         case 'action_history':
             leafSearch.getLeafFormQuery().join('action_history');
-            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
             headers.push({name: 'Comment History', indicatorID: 'action_history', editable: false, callback: function(data, blob) {
                              var buffer = '<table style="min-width: 300px">';
                              var now = new Date();
 
                              for(var i in blob[data.recordID].action_history) {
                             	 var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                            	 var year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
-                                 var formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
+                                 var formattedDate = date.toLocaleDateString();
                                  if(blob[data.recordID].action_history[i]['comment'] != '') {
-                                     buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px">' + formattedDate + '</td><td>' + blob[data.recordID].action_history[i]['comment'] + '</td></tr>';
+                                     buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">' + formattedDate + '</td><td>' + blob[data.recordID].action_history[i]['comment'] + '.</td></tr>';
                                  }
                              }
                              buffer += '</table>';
@@ -134,24 +164,40 @@ function addHeader(column) {
             break;
         case 'approval_history':
             leafSearch.getLeafFormQuery().join('action_history');
-            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
             headers.push({name: 'Approval History', indicatorID: 'approval_history', editable: false, callback: function(data, blob) {
                              var buffer = '<table style="min-width: 300px">';
                              var now = new Date();
 
                              for(var i in blob[data.recordID].action_history) {
                                  var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                                 var year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
-                                 var formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
-                                 buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px">'
+                                 var formattedDate = date.toLocaleDateString();
+                                 buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
                                 	   + formattedDate + '</td><td>'
                                 	   + blob[data.recordID].action_history[i]['description']
                                 	   + ' ('+ blob[data.recordID].action_history[i]['approverName'] +'): '
-                                	   + blob[data.recordID].action_history[i]['actionTextPasttense'] + '</td></tr>';
+                                	   + blob[data.recordID].action_history[i]['actionTextPasttense'] + '.</td></tr>';
                              }
                              buffer += '</table>';
                              $('#'+data.cellContainerID).html(buffer);
                          }});
+            break;
+        case 'days_since_last_action':
+            leafSearch.getLeafFormQuery().join('action_history');
+            headers.push({name: 'Days since last action', indicatorID: 'daysSinceLastAction', editable: false, callback: function(data, blob) {
+                var daysSinceAction;
+                if(blob[data.recordID].action_history != undefined) {
+                    var lastAction = blob[data.recordID].action_history[blob[data.recordID].action_history.length - 1];
+                    var date = new Date(lastAction.time * 1000);
+                    daysSinceAction = Math.round((today.getTime() - date.getTime()) / 86400000);
+                    if(blob[data.recordID].submitted == 0) {
+                        daysSinceAction = "Not Submitted";
+                    }
+                }
+                else {
+                    daysSinceAction = "Not Submitted";
+                }
+                $('#'+data.cellContainerID).html(daysSinceAction);
+            }});
             break;
 	    default:
 	    	if(column.substr(0, 6) == 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
@@ -234,6 +280,8 @@ function loadSearchPrereqs() {
             buffer += '<label class="checkable" style="width: 100px" for="indicators_action_history"> Comment History</label></div>';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_approval_history"> Approval History</label></div>';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" />';
+            buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_action"> Days since last action</label></div>';
             buffer += '</div>';
             var groupList = {};
             var groupNames = [];
@@ -339,9 +387,13 @@ function loadSearchPrereqs() {
                             buffer2 = '';
                             buffer2 += '<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>';
 
-                            // Option to retrieve Date Request Initiated
+                            // Option to retrieve Date Request Initiated / Resolved
+                            buffer2 += '<div id="option_dateCancelled" class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" />';
+                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateCancelled" title="Date request Cancelled"> Date Request Cancelled</label></div>';
                             buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" />';
-                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Request Initiated</label></div>';
+                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Date Request Initiated</label></div>';
+                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" />';
+                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateResolved" title="Date request resolved"> Date Request Resolved</label></div>';
 
                             for(var i in res) {
                                 buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
@@ -622,10 +674,19 @@ $(function() {
     	leafSearch.generateQuery();
     	var tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
     	var filteredCategories = [];
+        var showOptionCancelled = false;
+
     	for(var i in tTerms) {
     		if(tTerms[i].id == 'categoryID'
     			&& tTerms[i].operator == '=') {
     			filteredCategories.push(tTerms[i].match);
+    		}
+
+            // hide dateCancelled option unless it's being searched for
+            if(tTerms[i].id == 'stepID'
+    			&& tTerms[i].operator == '='
+                && tTerms[i].match == 'deleted') {
+    			showOptionCancelled = true;
     		}
     	}
     	if(filteredCategories.length > 0) {
@@ -637,6 +698,13 @@ $(function() {
     	else {
     		$('.category').css('display', 'inline');
     	}
+
+        if(showOptionCancelled) {
+            $('#option_dateCancelled').css('display', 'inline');
+        }
+        else {
+            $('#option_dateCancelled').css('display', 'none');
+        }
     });
 
     <!--{if $query == '' || $indicators == ''}-->
