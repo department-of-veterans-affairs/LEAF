@@ -11,6 +11,10 @@ RUN a2enmod setenvif
 
 COPY /docker/php/000-default.conf /etc/apache2/sites-enabled/
 COPY /docker/php/apache2.conf /etc/apache2/
+COPY /LEAF_Nexus/ /var/www/html/LEAF_Nexus/
+COPY /LEAF_Request_Portal/ /var/www/html/LEAF_Request_Portal/
+COPY /libs/ /var/www/html/libs/
+COPY /index.html /var/www/html/index.html
 
 RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
