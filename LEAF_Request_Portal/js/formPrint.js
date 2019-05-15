@@ -125,7 +125,7 @@ var printer = function() {
                 var sizeOfOption = 0;
                 var splitTitle = [];
                 var format = indicator.format;
-                if (format === 'text' && (indicator.value.length > 100 || title.length > 100)) {
+                if (format === 'text' && (indicator.value.length > 30 || title.length > 30)) {
                     format = 'textarea';
                 }
 
@@ -548,6 +548,7 @@ var printer = function() {
                             verticalStart = verticalShift;
                             if (!blank && typeof (value) !== "undefined") {
                                 doc.setFont("times");
+                                verticalShift += 4;
                                 for (var i = 0; i < splitText.length; i++) {
                                     if (verticalShift >= height - 40) {
                                         doc.rect(10, verticalStart, 190, height - 20 - verticalStart);
@@ -823,10 +824,18 @@ var printer = function() {
                 var submitted = Number(requestInfo['submitted']) > 0;
                 var actionCompleted = typeof (requestInfo['lastAction']) !== "undefined";
                 if (!blank || submitted) {
-                    doc.text(requestInfo['title'], 35, verticalShift);
+                    var splitRequestTitle = doc.splitTextToSize(requestInfo['title'], 150);
+                    if (splitRequestTitle[0].length > 40) {
+                        $.each(splitRequestTitle, function () {
+                            doc.text(this.toString(), 35, verticalShift);
+                            verticalShift += 7
+                        });
+                    } else {
+                        doc.text(splitRequestTitle[0].toString(), 35, verticalShift);
+                    }
                     doc.text($('span#headerTab').text(), 200, verticalShift, null, null, 'right');
                     verticalShift += 7;
-                    doc.text('Initiated by ' + requestInfo['name'], 200, 24, null, null, 'right');
+                    doc.text('Initiated by ' + requestInfo['name'], 200, verticalShift, null, null, 'right');
                     doc.setTextColor(80, 80, 80);
                     doc.setFontStyle("italic");
                     $.each(requestInfo['workflows'], function () {
