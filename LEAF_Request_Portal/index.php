@@ -172,6 +172,7 @@ switch ($action) {
             'js/workflow.js',
             'js/formGrid.js',
             'js/formQuery.js',
+            'js/formPrint.js',
             'js/jsdiff.js',
             '../libs/js/LEAF/XSSHelpers.js',
             '../libs/jsapi/portal/LEAFPortalAPI.js',
