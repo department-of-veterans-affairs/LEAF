@@ -18,6 +18,9 @@ services:
         code-network:
           aliases:
             - php
+      environment:
+        - REMOTE_USER=${REMOTE_USER}
+
   mysql:
     build:
       context: ../
