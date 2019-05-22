@@ -42,9 +42,11 @@
       <span id="headerDescription">{$title}</span>
     </div>
     <span id="headerHelp">
+        {if $onPrem === true}
         <div class="alert" style="display: inline">
             <span>This site is not on the VA Enterprise Cloud. Do not enter PHI/PII.</span>
         </div>
+        {/if}
         {$login}
     </span>
     <span id="headerLogin"></span>

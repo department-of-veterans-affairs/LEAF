@@ -30,6 +30,8 @@ class Config
     //toggle LEAF-Secure on and off, default is off
     public static $leafSecure = false;
 
+    public static $onPrem = false;         //used to display on-prem banner warning
+
     public static $uploadDir = './UPLOADS/';
 
     // Directory for user uploads
