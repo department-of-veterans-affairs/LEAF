@@ -440,6 +440,7 @@ switch ($action) {
 }
 
 $main->assign('login', $t_login->fetch('login.tpl'));
+$main->assign('onPrem', Config::$onPrem);
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $o_menu = $t_menu->fetch('menu.tpl');

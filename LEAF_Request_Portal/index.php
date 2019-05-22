@@ -519,6 +519,7 @@ switch ($action) {
 }
 
 $main->assign('login', $t_login->fetch('login.tpl'));
+$main->assign('onPrem', Config::$onPrem);
 $t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
