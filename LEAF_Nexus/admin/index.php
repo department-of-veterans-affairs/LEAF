@@ -253,7 +253,8 @@ switch ($action) {
 $memberships = $login->getMembership();
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
 $main->assign('login', $t_login->fetch('login.tpl'));
-$main->assign('onPrem', Orgchart\Config::$onPrem);
+$onPrem = (isset(Orgchart\Config::$onPrem) && Orgchart\Config::$onPrem);
+$main->assign('onPrem', $onPrem);
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
