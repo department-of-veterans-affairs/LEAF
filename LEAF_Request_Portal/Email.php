@@ -174,7 +174,7 @@ class Email
         }
         else
         {
-            exec("php mailer/mailer.php {$emailQueueName} > /dev/null &");
+            exec("php {$currDir}/mailer/mailer.php {$emailQueueName} > /dev/null &");
         }
     }
 
