@@ -524,6 +524,12 @@ $(function() {
 
     $('#header').css('background-image', "url('images/gradient_admin.png')");
     $('#editor_toolbar').appendTo('#headerTab');
+    $('#xhrDialog').on('keydown', function(e) {
+		if(e.keyCode == 13) { // enter key
+            e.preventDefault();
+			$('#xhrDialog button#button_save').click();
+		}
+	});
 });
 
 /* ]]> */
