@@ -282,7 +282,7 @@ function createGroup() {
             data: {title: $('#groupName').val(),
                    CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
-                if(possibleErrors.includes(res)) {
+                if(possibleErrors.indexOf(res) != -1) {
                     alert(res);
                     dialog.hide();
                 }
