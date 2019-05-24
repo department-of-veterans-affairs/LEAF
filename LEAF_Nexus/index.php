@@ -570,7 +570,7 @@ switch ($action) {
 }
 
 $memberships = $login->getMembership();
-$onPrem = (isset(Orgchart\Config::$onPrem) && Orgchart\Config::$onPrem);
+$onPrem = !isset(Orgchart\Config::$onPrem) ? true : Orgchart\Config::$onPrem;
 $main->assign('onPrem', $onPrem);
 $t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
