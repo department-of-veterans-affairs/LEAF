@@ -89,6 +89,9 @@ abstract class RESTfulResponse
             case 'json':
             default:
                 header('Content-type: application/json');
+
+                $out = mb_convert_encoding($out, 'UTF-8', 'UTF-8'); //Fix for Malformed UTF-8 characters, possibly incorrectly encoded error
+                                                                    //to debug json dump json_last_error();
                 $jsonOut = json_encode($out);
 
                 if ($_SERVER['REQUEST_METHOD'] === 'GET')
