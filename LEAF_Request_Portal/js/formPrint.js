@@ -634,9 +634,9 @@ var printer = function() {
                                     if (title.length > 190) {
                                         splitTitle = doc.splitTextToSize(title, 185);
                                         doc.rect(10, verticalShift, 190, 8 * splitTitle.length + 4, 'FD');
-                                        for (var i = 0; i < splitTitle.length; i++) {
+                                        for (var j = 0; j < splitTitle.length; j++) {
                                             verticalShift += 8;
-                                            doc.text(splitTitle[i], 11, verticalShift);
+                                            doc.text(splitTitle[j], 11, verticalShift);
                                         }
                                         verticalShift += 4;
                                     } else {
@@ -646,8 +646,8 @@ var printer = function() {
                                     doc.setTextColor(255);
                                     doc.setFillColor(30, 70, 125);
                                     doc.setFillColor(255);
-                                    for (var i = 0; i < splitTitle.length; i++) {
-                                        doc.text(splitTitle[i], 11, verticalStart + 6 + 8 * i);
+                                    for (var j = 0; j < splitTitle.length; j++) {
+                                        doc.text(splitTitle[j], 11, verticalStart + 6 + 8 * j);
                                     }
                                 }
                                 doc.rect(horizontalShift - 5, verticalShift + 6, 5, 5);
