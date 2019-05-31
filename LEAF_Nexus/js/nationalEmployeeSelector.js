@@ -182,10 +182,11 @@ nationalEmployeeSelector.prototype.search = function() {
 	    var txt = $('#' + this.prefixID + 'input').val().replace(/<[^>]*>/g, '');
 	    var domain = $('#' + this.prefixID + 'domain').val().replace(/<[^>]*>/g, '');
 		
-	    if(txt != "" && txt != undefined && (txt != this.q || domain != this.qDomain)) {
+	    if (txt != undefined && (txt != this.q || domain != this.qDomain)) {
 	    	this.q = txt;
-	    	this.qDomain = domain;
-
+			this.qDomain = domain;
+			
+			if(txt != "") {
 	    	if(this.currRequest != null) {
 	    		this.currRequest.abort();
 	    	}
@@ -322,7 +323,6 @@ nationalEmployeeSelector.prototype.search = function() {
 	        this.currRequest = $.ajax(ajaxOptions);
 	    }
 	    else if(txt == "") {
-	    	this.q = txt;
 	    	$('#' + this.prefixID + 'result').html('');
 	    	this.numResults = 0;
 	    	this.selection = '';
@@ -330,7 +330,8 @@ nationalEmployeeSelector.prototype.search = function() {
         		this.resultHandler();
         	}
 	        this.showNotBusy();
-	    }
+		}
+	}
 	    else {
 	    	this.showNotBusy();
 	    }
