@@ -187,18 +187,18 @@ nationalEmployeeSelector.prototype.search = function() {
 			this.qDomain = domain;
 			
 			if(txt != "") {
-	    	if(this.currRequest != null) {
-	    		this.currRequest.abort();
-	    	}
+				if(this.currRequest != null) {
+					this.currRequest.abort();
+				}
 
-            // search local directory, since an empUID query implies that the user already exists in the local dir.
-            var apiOption = "national/employee/search";
-            if(this.q.substr(0, 1) == '#') {
-                apiOption = "employee/search";
-            }
-            var announceID = this.prefixID;
+				// search local directory, since an empUID query implies that the user already exists in the local dir.
+				var apiOption = "national/employee/search";
+				if(this.q.substr(0, 1) == '#') {
+					apiOption = "employee/search";
+				}
+				var announceID = this.prefixID;
 
-	    	var ajaxOptions = {
+				var ajaxOptions = {
 		            url: this.apiPath + apiOption,
 		            dataType: 'json',
 			    	data: {q: this.q,
@@ -315,23 +315,23 @@ nationalEmployeeSelector.prototype.search = function() {
 		            },
 		            cache: false
 		        };
-	    	var t = this;
-	    	if(this.useJSONP == 1) {
-	    		ajaxOptions.url += '&format=jsonp';
-	    		ajaxOptions.dataType = 'jsonp';
-	    	}
-	        this.currRequest = $.ajax(ajaxOptions);
-	    }
-	    else if(txt == "") {
-	    	$('#' + this.prefixID + 'result').html('');
-	    	this.numResults = 0;
-	    	this.selection = '';
-	    	if(this.resultHandler != null) {
-        		this.resultHandler();
-        	}
-	        this.showNotBusy();
+				var t = this;
+				if(this.useJSONP == 1) {
+					ajaxOptions.url += '&format=jsonp';
+					ajaxOptions.dataType = 'jsonp';
+				}
+				this.currRequest = $.ajax(ajaxOptions);
+			}
+			else if(txt == "") {
+				$('#' + this.prefixID + 'result').html('');
+				this.numResults = 0;
+				this.selection = '';
+				if(this.resultHandler != null) {
+					this.resultHandler();
+				}
+				this.showNotBusy();
+			}
 		}
-	}
 	    else {
 	    	this.showNotBusy();
 	    }
