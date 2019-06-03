@@ -529,7 +529,7 @@ $(function() {
             e.preventDefault();
             $('#xhrDialog button#button_save').click();
         }
-	});
+    });
 });
 
 /* ]]> */
