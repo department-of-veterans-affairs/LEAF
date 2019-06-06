@@ -203,13 +203,28 @@ class Inbox
                         $empUID = $resEmpUID['data'];
                         $res[$i]['dependencyID'] = '-1_' . $empUID;
 
-                        //check if the requester has any backups
+                        //check if the person designated has any backups
                         $backupIds = null;
+                        if (!isset($this->cache['getInbox_currUserIsABackup']))
+                        {
+                            // see if the current user is a backup for anyone
+                            $nexusDB = $this->login->getNexusDB();
+                            $vars4 = array(':empId' => $this->login->getEmpUID());
+                            $isBackup = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE backupEmpUID =:empId', $vars4);
+                            if(count($isBackup) > 0) {
+                                $this->cache['getInbox_currUserIsABackup'] = true;
+                            }
+                            else {
+                                $this->cache['getInbox_currUserIsABackup'] = false;
+                            }
+                        }
+
+                        $backupIds = [];
                         if (isset($this->cache["getInbox_employeeBackups_{$empUID}"]))
                         {
                             $backupIds = $this->cache["getInbox_employeeBackups_{$empUID}"];
                         }
-                        else
+                        else if($this->cache['getInbox_currUserIsABackup'])
                         {
                             $nexusDB = $this->login->getNexusDB();
                             $vars4 = array(':empId' => $empUID);

@@ -43,7 +43,7 @@ class Employee extends Data
 
     private $maxStringDiff = 3;         // Max number of letter differences for a name (# of typos allowed)
 
-    private $deepSearch = 10;           // Threshold for deeper search (min # of results
+    private $deepSearch = 3;           // Threshold for deeper search (min # of results before searching deeper)
 
     public function initialize()
     {
@@ -412,7 +412,14 @@ class Employee extends Data
             $vars = array(':firstName' => metaphone($firstName));
             if ($vars[':firstName'] != '')
             {
-                $result = $this->db->prepared_query($sql, $vars);
+                $phoneticResult = $this->db->prepared_query($sql, $vars);
+                foreach ($phoneticResult as $res)
+                {  // Prune matches
+                    if (levenshtein(strtolower($res['firstName']), trim(strtolower($firstName), '*')) <= $this->maxStringDiff)
+                    {
+                        $result[] = $res;
+                    }
+                }
             }
         }
 
@@ -460,7 +467,16 @@ class Employee extends Data
                         {$this->limit}";
 
             $vars = array(':firstName' => $this->metaphone_query($firstName), ':lastName' => $this->metaphone_query($lastName));
-            $result = $this->db->prepared_query($sql, $vars);
+            $phoneticResult = $this->db->prepared_query($sql, $vars);
+
+            foreach ($phoneticResult as $res)
+            {  // Prune matches
+                if (levenshtein(strtolower($phoneticResult['lastName']), trim(strtolower($lastName), '*')) <= $this->maxStringDiff
+                    && levenshtein(strtolower($phoneticResult['firstName']), trim(strtolower($firstName), '*')) <= $this->maxStringDiff)
+                {
+                    $result[] = $res;
+                }
+            }
         }
 
         return $result;
@@ -503,7 +519,8 @@ class Employee extends Data
         $res = $this->db->prepared_query("SELECT * FROM {$this->dataTable}
     						LEFT JOIN {$this->tableName} USING ({$this->dataTableUID})
     						WHERE indicatorID = :indicatorID
-    						AND data LIKE :query", $vars);
+                                AND data LIKE :query
+                                AND deleted=0", $vars);
 
         return $res;
     }
@@ -621,6 +638,10 @@ class Employee extends Data
         return $res;
     }
 
+    private function searchDeeper($input) {
+        return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
+    }
+
     public function search($input, $indicatorID = '')
     {
         $input = html_entity_decode($input, ENT_QUOTES);
@@ -660,6 +681,12 @@ class Employee extends Data
                 }
 
                 $searchResult = $this->lookupName($last, $first, $middle);
+                if (count($searchResult) <= $this->deepSearch)
+                {
+                    $this->log[] = 'Trying Deeper search';
+                    $input = trim('*' . $input);
+                    $searchResult = array_merge($searchResult, $this->searchDeeper($input));
+                }
 
                 break;
             // Format: First Last
@@ -679,16 +706,16 @@ class Employee extends Data
                 }
                 $res = $this->lookupName($last, $first, $middle);
                 // Check if the user reversed the names
-                if (count($res) < $this->deepSearch)
+                if (count($res) <= $this->deepSearch)
                 {
                     $this->log[] = 'Trying Reversed First/Last name';
                     $res = array_merge($res, $this->lookupName($first, $last));
                     // Try to look for service
-                    if (count($res) == 0)
+                    if (count($res) <= $this->deepSearch)
                     {
-                        $this->log[] = 'Trying Service search';
+                        $this->log[] = 'Trying Deeper search';
                         $input = trim('*' . $input);
-                        //$res = array_merge($res, $this->lookupService($input));
+                        $res = array_merge($res, $this->searchDeeper($input));
                     }
                 }
                 $searchResult = $res;
@@ -739,16 +766,16 @@ class Employee extends Data
                 }
                 $res = $this->lookupLastName($input);
                 // Check first names if theres few hits for last names
-                if (count($res) < $this->deepSearch)
+                if (count($res) <= $this->deepSearch)
                 {
                     $this->log[] = 'Extra search on first names';
                     $res = array_merge($res, $this->lookupFirstName($input));
                     // Try to look for service
-                    if (count($res) == 0)
+                    if (count($res) <= $this->deepSearch)
                     {
-                        $this->log[] = 'Trying Service search';
+                        $this->log[] = 'Trying Deeper search';
                         $input = trim('*' . $input);
-                        //$res = array_merge($res, $this->lookupService($input));
+                        $res = array_merge($res, $this->searchDeeper($input));
                     }
                 }
                 $searchResult = $res;

@@ -16,7 +16,7 @@ $config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
-$settings['subheading'] = XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']);
+$settings['subHeading'] = XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 
 function getBaseDir()
 {
@@ -40,7 +40,7 @@ function getBaseDir()
 <div id="header">
     <div>
       <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
-      <span id="headerLabel"><?php echo htmlentities($settings['subheading']); ?></span>
+      <span id="headerLabel"><?php echo htmlentities($settings['subHeading']); ?></span>
       <span id="headerDescription"><?php echo htmlentities($settings['heading']); ?></span>
     </div>
     <span id="headerTab">Secure Login</span>
@@ -60,9 +60,16 @@ When logging into this system, you agree to the following:<br />
     This information system is provided for U.S. Government-authorized use only. Unauthorized or improper use of this system may result in disciplinary action, as well as civil and criminal penalties.<br /><br />
 
     <a href="<?php echo '//' . $_SERVER['SERVER_NAME'] . ':444' . getBaseDir() . 'auth_token/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?>"><div class="buttonNorm" style="text-align: center">Login with your VA PIV card<img src="../../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Icon for Login" title="Icon for Login" /></div></a><br />
-    <a href="<?php echo '//' . $_SERVER['SERVER_NAME'] . getBaseDir() . 'auth_domain/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?>"><div class="buttonNorm" style="text-align: center">Login with Username and Password</div></a>
+    <?php if (!isset(Orgchart\Config::$leafSecure) || Orgchart\Config::$leafSecure == false)
+    {
+        echo '<a href="//' . $_SERVER['SERVER_NAME'] . getBaseDir() . 'auth_domain/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8') . '"><div class="buttonNorm" style="text-align: center">Login with Username and Password</div></a>';
+    }
+    ?>
 
 </div>
 
+<div class="noprint" id="footer">
+    <br /><br />Powered by VA LEAF</a>
+</div>
 </body>
 </html>

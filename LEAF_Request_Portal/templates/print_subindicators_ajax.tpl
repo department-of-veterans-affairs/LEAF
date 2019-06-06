@@ -1,4 +1,37 @@
 <!--{**}-->
+        <!--{if $indicator.is_sensitive == 1}-->
+            <div class="sensitiveIndicatorMaskToggle">
+                <input type="checkbox" id="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" onClick="toggleStayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(); toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, this.checked);">
+                <label for="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" title="Show Sensitive Data" alt="Show Sensitive Data"  tabindex="0" onkeydown="if (event.keyCode==13){ this.click();}"></label>
+            </div>
+            <span class="sensitiveIndicator-masked" id="<!--{$indicator.indicatorID|strip_tags}-->_masked">
+                **********
+            </span>
+            <script>
+                var stayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}--> = false;
+                $("#<!--{$indicator.indicatorID|strip_tags}-->_masked").on({
+                    mouseenter: function () {
+                        if (stayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}--> === false) {
+                            $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked', true);
+                            toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked'));
+                        }
+                    }
+                });
+                $("#data_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").on({
+                    mouseleave: function () {
+                        if (stayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}--> === false) {
+                            $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked', false);
+                            toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, $("#sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->").prop('checked'));
+                        }
+                    }
+                });
+
+                function toggleStayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->() {
+                    stayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}--> = !stayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->;
+                }
+
+            </script>
+        <!--{/if}-->
         <!--{if $indicator.format == 'textarea'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
                 <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'|sanitize}-->
@@ -139,7 +172,7 @@
                             });
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos').addClass('buttonNorm noprint');
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos').css('margin-top', '8px');
-    
+
                             if(data[3].data != '') {
                                 for(i in data[3].data) {
                                     $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').append('<br />Position Description: <a class="printResponse" target="_blank" href="<!--{$orgchartPath}-->/file.php?categoryID=2&UID=<!--{$indicator.value}-->&indicatorID=3&file=' + encodeURIComponent(data[3].data[i]) +'">'+ data[3].data[i] +'</a>');
@@ -182,5 +215,26 @@
         <!--{if $indicator.format == 'raw_data'}-->
             <textarea class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="display: none"><!--{$indicator.value|sanitize}--></textarea>
             <!--{$indicator.htmlPrint}-->
+        <!--{/if}-->
+        <!--{if $indicator.is_sensitive == 1}-->
+            <div style="clear:both;"></div>
+        <!--{/if}-->
+        <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
+        <div class="printResponse" style="overflow-x: scroll; -ms-overflow-x: scroll;" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
+            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output" style="word-wrap:break-word; text-align: center;">
+                <thead>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <script>
+            // fix for IE scroll bar
+            $('#xhrIndicator_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').css('max-width', parseInt($('.printmainlabel').css('width')) * .85 + 'px');
+            var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
+            $(function() {
+                gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.output(<!--{$indicator.value|json_encode}-->);
+            })
+        </script>
         <!--{/if}-->
         <!--{include file="print_subindicators.tpl" form=$indicator.child depth=$depth+4 recordID=$recordID}-->

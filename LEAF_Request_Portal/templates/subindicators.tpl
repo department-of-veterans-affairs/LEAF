@@ -22,7 +22,7 @@
         <div class="mainlabel">
             <div>
             <span>
-                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}--><br />
+                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: red;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
             </span>
             </div>
                 <!--{else}-->
@@ -34,6 +34,7 @@
                         <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
                     <!--{/if}-->
             </span>
+            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: red; background-repeat: no-repeat; background-image: url(/libs/dynicons/?img=eye_invisible.svg&w=16); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
                 <!--{/if}-->
         </div>
         <div class="response blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
@@ -41,6 +42,46 @@
             <span class="text">
                 [protected data]
             </span>
+        <!--{/if}-->
+        <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
+            <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
+            <div class="tableinput">
+            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input" style="word-wrap:break-word; table-layout: fixed; height: 100%; display: table">
+                <thead>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            </div>
+            <button type="button" class="buttonNorm" id="addRowBtn" title="Grid input add row" alt="Grid input add row" aria-label="Grid input add row" onclick="gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow()"><img src="../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
+            <script>
+                var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
+
+                $(function() {
+                    gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.input(<!--{$indicator.value|json_encode}-->);
+                    if (typeof (<!--{$indicator.value|json_encode}-->.cells) === "undefined") {
+                        gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow();
+                    }
+                });
+
+                <!--{if $indicator.required == 1}-->
+                formRequired.id<!--{$indicator.indicatorID}--> = {
+                    setRequired:  function() {
+                        var gridElement = '#grid_' + <!--{$indicator.indicatorID}--> + '_' + <!--{$indicator.series}--> + '_input > tbody';
+                        for(var i = 0; i < $(gridElement).find('tr').length; i++){
+                            for(var j = 0; j < $(gridElement + ' > tr:eq(0)').find('td').length; j++){
+                                if($(gridElement + ' > tr:eq(' + i + ') > td:eq(' + j + ')').find('textarea').length > 0 && $(gridElement + ' > tr:eq(' + i + ') > td:eq(' + j + ') > textarea').val().trim() === ''){
+                                    return true
+                                }
+                            }
+                        }
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }
+                };
+                <!--{/if}-->
+            </script>
         <!--{/if}-->
         <!--{if $indicator.format == 'textarea' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <textarea id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 97%; padding: 8px; font-size: 1.3em; font-family: monospace" rows="10"><!--{$indicator.value|sanitize}--></textarea>
@@ -250,7 +291,7 @@
             <script type="text/javascript">
             formValidator.id<!--{$indicator.indicatorID}--> = {
                     setValidator: function() {
-                    	return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');                 
+                    	return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                     },
                     setValidatorError: function() {
                     	$('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
@@ -367,6 +408,22 @@
                 <!--{/if}-->
                 </span>
             </fieldset>
+            <!--{if $indicator.required == 1}-->
+            <script>
+                formRequired.id<!--{$indicator.indicatorID}--> = {
+                    setRequired: function() {
+                        var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
+                        var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
+                        var newFiles = iFrameDOM.find('.newFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->');
+                        
+                        return oldFiles.length === 0 && newFiles.length === 0;
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }
+                };
+            </script>
+            <!--{/if}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'image' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <fieldset>
@@ -413,6 +470,22 @@
                 <!--{/if}-->
                 </span>
             </fieldset>
+            <!--{if $indicator.required == 1}-->
+            <script>
+                formRequired.id<!--{$indicator.indicatorID}--> = {
+                    setRequired: function() {
+                        var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
+                        var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
+                        var newFiles = iFrameDOM.find('.newFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->');
+                        
+                        return oldFiles.length === 0 && newFiles.length === 0;
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }
+                };
+            </script>
+            <!--{/if}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'table' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <!--{foreach from=$indicator.options item=option}-->
@@ -458,6 +531,7 @@
             };
             <!--{/if}-->
             $(function() {
+                var grpSel;
                 if(typeof groupSelector == 'undefined') {
                     $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/groupSelector.css" />');
                     $.ajax({
@@ -611,24 +685,32 @@
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'orgchart_employee' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
+            <div id="loadingIndicator_<!--{$indicator.indicatorID}-->" style="color: red; font-weight: bold; font-size: 140%"></div>
             <div id="empSel_<!--{$indicator.indicatorID}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none"></input>
-            
+
             <script>
             $(function() {
+                if($('#<!--{$indicator.indicatorID|strip_tags}-->').val() != '') {
+                    $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').css('display', 'inline');
+                    $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').on('click', function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
+                        $('#empSel_<!--{$indicator.indicatorID}-->').css('display', 'none');
+                    });
+                }
                 function importFromNational(empSel) {
                     if(empSel.selection != '') {
+                        $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Please wait. Database busy. ***');
                         var selectedUserName = empSel.selectionData[empSel.selection].userName;
                         $.ajax({
                             type: 'POST',
                             url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
                             data: {CSRFToken: '<!--{$CSRFToken}-->'},
                             success: function(res) {
-                            	$('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
+                                $('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
+                                $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('');
                             }
                         });
-                    } else {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
                     }
                 }
 

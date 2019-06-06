@@ -55,14 +55,13 @@
                 <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags}-->"><!--{$indicator.name|sanitizeRichtext|strip_tags|indent:$depth:""}--></span>
             <!--{/if}-->
             <!--{if $date < $indicator.timestamp && $date > 0}-->
-                &nbsp;<img src="../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button" onkeypress="if (event.keyCode==13){ getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->); }/>
+                &nbsp;<img src="../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button" onkeypress="if (event.keyCode==13){ getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->); }"/>
             <!--{/if}-->
         <!--{/if}-->
             </div>
-            <div class="printResponse" id="xhrIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->">
+            <div class="printResponse<!--{if $indicator.is_sensitive == 1}--> sensitiveIndicator<!--{/if}-->" id="xhrIndicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->">
 
                 <!--{include file="print_subindicators_ajax.tpl"}-->
-
             </div><!-- end print reponse -->
         </div><!-- end print sublabel -->
         </div><!-- end print block -->

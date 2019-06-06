@@ -11,6 +11,7 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
+include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include 'Login.php';
 include 'db_mysql.php';
@@ -55,8 +56,9 @@ switch ($action) {
         $form = new Form($db, $login);
         $recordID = $form->newForm($_SESSION['userID']);
         if (is_numeric($recordID))
-        {
+        {   session_write_close();
             header('Location: index.php?a=view&recordID=' . $recordID);
+            exit();
         }
         else
         {
@@ -200,7 +202,7 @@ switch ($action) {
         $t_form->assign('requestLabel', $requestLabel);
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        
+
         if ($parallelProcessing)
         {
             $t_form->display(customTemplate('submitForm_parallel_processing.tpl'));
@@ -284,10 +286,10 @@ switch ($action) {
             $form = new Form($db, $login);
             if ($form->doModify($_GET['recordID']))
             {
-                $body .= "<b>{$uploadedFilename}</b> has been attached!";
                 $recordID = (int)$_GET['recordID'];
                 $series = (int)$_POST['series'];
                 $indicatorID = (int)$_POST['indicatorID'];
+                $body .= "<span class='newFile_".$recordID."_".$indicatorID."_".$series."'><b>{$uploadedFilename}</b> has been attached!</span>";
 
                 $t_form->assign('message', $body);
                 $t_form->assign('recordID', $recordID);

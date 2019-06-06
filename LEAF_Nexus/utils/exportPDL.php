@@ -3,7 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-set_time_limit(90);
+set_time_limit(240);
+include '../globals.php';
 include '../config.php';
 include '../sources/Login.php';
 include '../db_mysql.php';

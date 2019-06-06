@@ -35,7 +35,7 @@
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
-    <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
+    <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
 <body class="claro">
 <div id="header">
@@ -47,7 +47,14 @@
       <span id="headerLabel">{$city}</span>
       <span id="headerDescription">{$title}</span>
     </div>
-    <span id="headerHelp">{$login}</span>
+    <span id="headerHelp">
+        {if $onPrem === true}
+        <div class="alert" style="display: inline">
+            <span>This site is not on the VA Enterprise Cloud. Do not enter PHI/PII.</span>
+        </div>
+        {/if}
+        {$login}
+    </span>
     <span id="headerLogin"></span>
     <span id="headerTab">{$emergency}{$tabText}</span>
     <span id="headerTabImg"><img src="../images/tab.png" alt="tab" /></span>

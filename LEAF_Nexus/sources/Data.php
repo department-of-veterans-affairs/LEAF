@@ -16,7 +16,10 @@ if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
-
+if (!class_exists('CommonConfig'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
+}
 abstract class Data
 {
     protected $db;
@@ -350,16 +353,8 @@ abstract class Data
         // Check for file uploads
         if (is_array($_FILES))
         {
-            $fileExtensionWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
-                                            'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
-                                            'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm', 'ppts',
-                                            'ai', 'eps',
-                                            'pdf',
-                                            'txt',
-                                            'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif',
-                                            'vsd',
-                                            'rtf',
-                                            'mht', 'htm', 'html', 'msg', 'xml', );
+            $commonConfig = new \CommonConfig();
+            $fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
             $fileIndicators = array_keys($_FILES);
             $fileHasher = new \FileHasher($this->db);
             foreach ($fileIndicators as $indicator)

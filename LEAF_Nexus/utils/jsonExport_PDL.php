@@ -3,7 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-set_time_limit(90);
+set_time_limit(240);
+include '../globals.php';
 include '../config.php';
 include '../sources/Login.php';
 include '../db_mysql.php';
@@ -29,20 +30,22 @@ $position = new Orgchart\Position($db, $login);
 $tag = new Orgchart\Tag($db, $login);
 
 // check for cached result
-
-$cache = $db->query_kv('SELECT * FROM cache WHERE cacheID="jsonExport_PDL.php" OR cacheID="lastModified"', 'cacheID', array('data', 'cacheTime'));
-if (isset($cache['jsonExport_PDL.php'])
-    && isset($cache['lastModified'])
-    && $cache['jsonExport_PDL.php']['cacheTime'] > $cache['lastModified']['data']
-    ) {
-    header('Content-type: application/json');
-
-    $scrubCache = json_decode($cache['jsonExport_PDL.php']['data']);
-    if(json_last_error() == JSON_ERROR_NONE) { // validate JSON object
-        $scrubCache = XSSHelpers::scrubObjectOrArray($scrubCache);
-        echo json_encode($scrubCache);
+if(!isset($_GET['cache'])
+    && $_GET['cache'] == 0) {
+    $cache = $db->query_kv('SELECT * FROM cache WHERE cacheID="jsonExport_PDL.php" OR cacheID="lastModified"', 'cacheID', array('data', 'cacheTime'));
+    if (isset($cache['jsonExport_PDL.php'])
+        && isset($cache['lastModified'])
+        && $cache['jsonExport_PDL.php']['cacheTime'] > $cache['lastModified']['data']
+        ) {
+        header('Content-type: application/json');
+    
+        $scrubCache = json_decode($cache['jsonExport_PDL.php']['data']);
+        if(json_last_error() == JSON_ERROR_NONE) { // validate JSON object
+            $scrubCache = XSSHelpers::scrubObjectOrArray($scrubCache);
+            echo json_encode($scrubCache);
+        }
+        exit();
     }
-    exit();
 }
 
 header('Content-type: application/json');
@@ -92,6 +95,7 @@ foreach ($res as $pos)
     //	$output[$pos['positionID']]['data']['Current FTE'] = ($data[17]['data'] / count($output[$pos['positionID']]['employeees']));
     $output[$pos['positionID']]['data']['FTE Ceiling'] = 0;
     $output[$pos['positionID']]['data']['Current FTE'] = 0;
+    $output[$pos['positionID']]['data']['HR Smart Position #'] = $data[26]['data'];
 
     // calculate FTE Ceiling. Includes support for one-to-many position-employee
     if (is_numeric($data[11]['data']) // fte ceiling
@@ -131,11 +135,13 @@ foreach ($res as $pos)
             {
                 $packet['employee'] = XSSHelpers::xscrub("{$emp['lastName']}, {$emp['firstName']}");
                 $packet['employeeUserName'] = XSSHelpers::xscrub($emp['userName']);
+                $packet['employeeUID'] = (int)$emp['empUID'];
             }
             else
             {
                 $packet['employee'] = '';
                 $packet['employeeUserName'] = '';
+                $packet['employeeUID'] = '';
             }
 
             $packet['supervisor'] = XSSHelpers::xscrub($supervisorName);
@@ -146,6 +152,7 @@ foreach ($res as $pos)
             $packet['fteCeiling'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
             $packet['currentFte'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
             $packet['pdNumber'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
+            $packet['hrSmartPosition'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
             $jsonOut[] = $packet;
         }
         else
@@ -174,6 +181,7 @@ foreach ($res as $pos)
             $packet['positionTitle'] = XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']);
             $packet['employee'] = '';
             $packet['employeeUserName'] = '';
+            $packet['employeeUID'] = '';
             $packet['supervisor'] = XSSHelpers::xscrub($supervisorName);
             $packet['service'] = XSSHelpers::xscrub($output[$pos['positionID']]['service']);
             $packet['payPlan'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
@@ -182,8 +190,29 @@ foreach ($res as $pos)
             $packet['fteCeiling'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
             $packet['currentFte'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
             $packet['pdNumber'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
+            $packet['hrSmartPosition'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
             $jsonOut[] = $packet;
         }
+    }
+}
+
+// add email addresses
+$uniqueEmps = [];
+foreach($jsonOut as $item) {
+    if($item['employeeUID'] != '') {
+        $uniqueEmps[$item['employeeUID']] = $item['employeeUID'];
+    }
+}
+$empUID_list = implode(',', $uniqueEmps);
+$vars = [];
+$empEmails = $db->query_kv("SELECT * FROM employee_data
+            WHERE indicatorID = 6 AND empUID IN ({$empUID_list})", 'empUID', 'data', $vars);
+foreach($jsonOut as $key => $item) {
+    if($item['employeeUID'] != '') {
+        $jsonOut[$key]['employeeEmail'] = $empEmails[$item['employeeUID']];
+    }
+    else {
+        $jsonOut[$key]['employeeEmail'] = '';
     }
 }
 

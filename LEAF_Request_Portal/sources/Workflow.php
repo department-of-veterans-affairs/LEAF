@@ -41,9 +41,21 @@ class Workflow
         $vars = array(':workflowID' => $this->workflowID);
         $res = $this->db->prepared_query('SELECT * FROM workflow_steps
                                             LEFT JOIN workflows USING (workflowID)
+                                            LEFT JOIN step_modules USING (stepID)
         									WHERE workflowID=:workflowID', $vars);
 
-        return $res;
+        $out = [];
+        foreach($res as $item) {
+            $out[$item['stepID']] = $item;
+            unset($out[$item['stepID']]['moduleName']);
+            unset($out[$item['stepID']]['moduleConfig']);
+            if($item['moduleName'] != '') {
+                $out[$item['stepID']]['stepModules'][] = array('moduleName' => $item['moduleName'],
+                                                               'moduleConfig' => $item['moduleConfig']);
+            }
+        }
+
+        return $out;
     }
 
     public function deleteStep($stepID)
@@ -105,6 +117,16 @@ class Workflow
 
     public function getCategories()
     {
+        $vars = array(':workflowID' => $this->workflowID);
+        $res = $this->db->prepared_query("SELECT * FROM categories
+                                                WHERE workflowID = :workflowID
+        										ORDER BY categoryName", $vars);
+
+        return $res;
+    }
+
+    public function getAllCategories()
+    {
         $res = $this->db->prepared_query("SELECT * FROM categories
                                                 WHERE workflowID>0 AND parentID=''
         											AND disabled = 0
@@ -113,7 +135,7 @@ class Workflow
         return $res;
     }
 
-    public function getCategoriesUnabridged()
+    public function getAllCategoriesUnabridged()
     {
         $res = $this->db->prepared_query("SELECT * FROM categories
                                                 WHERE parentID=''
@@ -236,7 +258,7 @@ class Workflow
     public function getActions()
     {
         $vars = array();
-        $res = $this->db->prepared_query('SELECT * FROM actions ORDER BY actionText', $vars);
+        $res = $this->db->prepared_query('SELECT * FROM actions WHERE deleted=0 ORDER BY actionText', $vars);
 
         return $res;
     }
@@ -311,6 +333,71 @@ class Workflow
     										WHERE stepID=:stepID', $vars);
 
         return 1;
+    }
+
+    /**
+     * Set an inline indicator for a particular step
+     *
+     * @param int $stepID
+     * @param int $indicatorID
+     *
+     * @return int
+     */
+    public function setStepInlineIndicator($stepID, $indicatorID) {
+        $indicatorID = (int)$indicatorID;
+        if(!$this->login->checkGroup(1)) {
+            return 'Admin access required.';
+        }
+
+        if($indicatorID < 1) {
+            $vars = array(
+                ':stepID' => (int)$stepID
+            );
+            $res = $this->db->prepared_query(
+                'DELETE FROM step_modules
+                    WHERE stepID = :stepID
+                        AND moduleName="LEAF_workflow_indicator"',
+                $vars);
+        }
+        else {
+            $vars = array(
+                ':stepID' => (int)$stepID,
+                ':config' => json_encode(array('indicatorID' => $indicatorID))
+            );
+            $res = $this->db->prepared_query(
+                'INSERT INTO step_modules (stepID, moduleName, moduleConfig)
+                    VALUES (:stepID, "LEAF_workflow_indicator", :config)
+                    ON DUPLICATE KEY UPDATE moduleConfig=:config',
+                $vars);
+        }
+
+        return 1;
+    }
+
+    /**
+     * Set whether the specified step for the current Workflow requires a digital signature.
+     * Uses the workflowID that was set with setWorkflowID(workflowID).
+     *
+     * @param int $stepID 				the step id to require a signature for
+     * @param int $requiresSignature 	whether a signature is required
+     *
+     * @return int if the query was successful
+     */
+    public function requireDigitalSignature($stepID, $requireSignature) {
+        if(!$this->login->checkGroup(1)) {
+            return 'Admin access required.';
+        }
+
+        $vars = array(
+            ':stepID' => (int)$stepID,
+            ':requiresSignature' => $requireSignature
+        );
+
+        $res = $this->db->prepared_query(
+            'UPDATE `workflow_steps` SET `requiresDigitalSignature` = :requiresSignature WHERE `stepID` = :stepID',
+            $vars);
+
+        return $res > 0;
     }
 
     public function linkDependency($stepID, $dependencyID)
@@ -688,4 +775,85 @@ class Workflow
 
         return $routeData;
     }
+
+    //returns user created actions
+    public function getUserActions()
+    {
+        $vars = array();
+        $res = $this->db->prepared_query("SELECT * FROM actions WHERE actionType NOT IN ('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit') AND NOT (deleted = 1)", $vars);
+
+        return $res;
+    }
+
+    //returns action
+    public function getAction($actionType)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $vars = array(':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($actionType)));
+
+        $action = $this->db->prepared_query('SELECT * FROM actions WHERE actionType=:actionType AND NOT (deleted = 1)', $vars);
+        return $action;
+    }
+
+    //edit action
+    public function editAction($actionType)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $systemAction = array('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit');
+
+        if (in_array($actionType, $systemAction))
+        {
+            return 'System Action cannot be edited.';
+        }
+
+        $alignment = 'right';
+        if ($_POST['fillDependency'] < 1)
+        {
+            $alignment = 'left';
+        }
+
+        $vars = array(
+                ':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($actionType)),
+                ':actionText' => strip_tags($_POST['actionText']),
+                ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
+                ':actionIcon' => $_POST['actionIcon'],
+                ':actionAlignment' => $alignment,
+                ':sort' => 0,
+                ':fillDependency' => $_POST['fillDependency'],
+        );
+
+        $this->db->prepared_query('UPDATE actions SET actionText=:actionText, actionTextPasttense=:actionTextPasttense, actionIcon=:actionIcon, actionAlignment=:actionAlignment, sort=:sort, fillDependency=:fillDependency WHERE actionType=:actionType AND NOT (deleted = 1)', $vars);
+
+        return 1;
+    }
+
+    //removes an action
+    public function removeAction($actionType)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $systemAction = array('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit');
+
+        if (in_array($actionType, $systemAction))
+        {
+            return 'System Action cannot be removed.';
+        }
+
+        $vars = array(':actionType' => strip_tags($actionType), ':deleted' => 1);
+
+        $this->db->prepared_query('UPDATE actions SET deleted=:deleted WHERE actionType=:actionType', $vars);
+
+        return 1;
+    }
+
 }

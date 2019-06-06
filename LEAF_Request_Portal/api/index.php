@@ -143,6 +143,18 @@ $controllerMap->register('telemetry', function () use ($db, $login, $action) {
     $TelemetryController->handler($action);
 });
 
+$controllerMap->register('signature', function() use ($db, $login, $action) {
+    require 'controllers/SignatureController.php';
+    $SignatureController = new SignatureController($db, $login);
+    $SignatureController->handler($action);
+});
+
+$controllerMap->register('open', function() use ($db, $login, $action) {
+    require 'controllers/OpenController.php';
+    $SignatureController = new OpenController($db, $login);
+    $SignatureController->handler($action);
+});
+
 $controllerMap->runControl($key);
 
 //echo '<br />' . memory_get_peak_usage();

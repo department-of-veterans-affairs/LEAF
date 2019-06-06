@@ -5,6 +5,7 @@
 
 require '../VAMC_Directory.php';
 
+include '../globals.php';
 include '../db_mysql.php';
 include '../db_config.php';
 

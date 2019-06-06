@@ -32,10 +32,11 @@
         <!--{/if}-->
         <button class="tools" onclick="viewHistory()" ><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="vertical-align: middle" /> View History</button>
         <button class="tools" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" ><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" style="vertical-align: middle"/> Write Email</button>
+        <button class="tools" id="btn_printForm"><img src="../libs/dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" title="Print this Form" style="vertical-align: middle" /> Print to PDF <span style="font-style: italic; background-color: white; color: red; border: 1px solid black; padding: 4px">BETA</span></button>
         <!--{if $bookmarked == ''}-->
-        <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" style="vertical-align: middle" /> Add Bookmark</button>
+        <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" style="vertical-align: middle" /> <span>Add Bookmark</span></button>
         <!--{else}-->
-        <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> Delete Bookmark</button>
+        <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> <span>Delete Bookmark</span></button>
         <!--{/if}-->
         <br />
         <br />
@@ -86,6 +87,7 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script type="text/javascript" src="js/functions/toggleZoom.js"></script>
+<script type="text/javascript" src="../libs/js/LEAF/sensitiveIndicator.js"></script>
 <script type="text/javascript">
 var currIndicatorID;
 var currSeries;
@@ -263,16 +265,17 @@ var bookmarkStatus = 0;
 <!--{else}-->
 var bookmarkStatus = 1;
 <!--{/if}-->
+
 function toggleBookmark() {
     if(bookmarkStatus == 0) {
         addBookmark();
         bookmarkStatus = 1;
-        $('#tool_bookmarkText').empty().html('Delete Bookmark');
+        $('#tool_bookmarkText span').empty().html('Delete Bookmark');
     }
     else {
         removeBookmark();
         bookmarkStatus = 0;
-        $('#tool_bookmarkText').empty().html('Add Bookmark');
+        $('#tool_bookmarkText span').empty().html('Add Bookmark');
     }
 }
 
@@ -440,7 +443,13 @@ function changeService() {
 
 function admin_changeStep() {
     dialog.setTitle('Change Step');
-    dialog.setContent('Set to this step: <br /><div id="changeStep"></div><br /><br />Comments:<br /><textarea id="changeStep_comment" type="text" style="width: 90%; padding: 4px" aria-label="Comments"></textarea>');
+    dialog.setContent('Set to this step: <br /><div id="changeStep"></div><br /><br />'
+                + 'Comments:<br /><textarea id="changeStep_comment" type="text" style="width: 90%; padding: 4px" aria-label="Comments"></textarea>'
+                + '<br /><br />'
+                + '<fieldset>'
+                + '<legend>Advanced Options</legend>'
+                + '<input id="showAllSteps" type="checkbox" /><label for="showAllSteps">Show steps from other workflows</label>'
+                + '</fieldset>');
     dialog.show();
     dialog.indicateBusy();
     $.ajax({
@@ -466,14 +475,24 @@ function admin_changeStep() {
                 			|| workflows[res[i].workflowID] != undefined) {
                             steps += '<option value="'+ res[i].stepID +'">' + res[i].description + ': ' + res[i].stepTitle +'</option>';
                             stepCounter++;
-                            steps2 += '<option value="'+ res[i].stepID +'">' + res[i].description + ' - ' + res[i].stepTitle +'</option>';
                 		}
+                        steps2 += '<option value="'+ res[i].stepID +'">' + res[i].description + ' - ' + res[i].stepTitle +'</option>';
                 	}
                 	if(stepCounter == 0) {
                 		steps += steps2;
                 	}
                 	steps += '</select>';
                     $('#changeStep').html(steps);
+
+                    $('#showAllSteps').on('click', function() {
+                        if($('#showAllSteps').is(':checked')) {
+                            $('#newStep').html(steps2);
+                        }
+                        else {
+                            $('#newStep').html(steps);
+                        }
+                        $('#newStep').trigger('chosen:updated');
+                    });
                     $('.chosen').chosen({disable_search_threshold: 6});
                     dialog.indicateIdle();
                     dialog.setSaveHandler(function() {
@@ -551,9 +570,11 @@ function admin_changeForm() {
                 		}
                 	});
                 	$('.admin_changeForm').icheck('updated');
-                }
+                },
+                cache: false
             });
-        }
+        },
+        cache: false
     });
 }
 
@@ -656,6 +677,11 @@ $(function() {
     $('#progressBar').progressbar({max: 100});
 
     form = new LeafForm('formContainer');
+    print = new printer();
+
+    $('#btn_printForm').on('click', function() {
+        print.printForm(recordID);
+    });
     form.setRecordID(<!--{$recordID|strip_tags|escape}-->);
 
     workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');

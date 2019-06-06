@@ -76,7 +76,7 @@ class FormWorkflow
 
         $steps = array();
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query('SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID FROM records_workflow_state
+        $res = $this->db->prepared_query('SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
         									LEFT JOIN records USING (recordID)
         									LEFT JOIN workflow_steps USING (stepID)
         									LEFT JOIN step_dependencies USING (stepID)
@@ -201,6 +201,8 @@ class FormWorkflow
                     {
                         $res[$i]['description'] = $tGroup[0]['name'];
                     }
+
+                    $res[$i]['description'] ?? 'Warning: Group Name has not been imported in the User Access Group';
                 }
 
                 foreach ($res2 as $group)
@@ -213,14 +215,23 @@ class FormWorkflow
                     }
                 }
 
-                // load related js assets from shared steps
                 if (!isset($steps[$res[$i]['dependencyID']]))
                 {
                     $steps[$res[$i]['dependencyID']] = $res[$i];
                 }
+
+                // load related js assets from shared steps
                 if ($res[$i]['jsSrc'] != '' && file_exists(dirname(__FILE__) . '/scripts/custom_js/' . $res[$i]['jsSrc']))
                 {
                     $steps[$res[$i]['dependencyID']]['jsSrcList'][] = 'scripts/custom_js/' . $res[$i]['jsSrc'];
+                }
+
+                // load step modules
+                $varsSm = array(':stepID' => $res[$i]['stepID']);
+                $resSm = $this->db->prepared_query('SELECT moduleName, moduleConfig FROM step_modules
+                                                        WHERE stepID=:stepID', $varsSm);
+                foreach($resSm as $module) {
+                    $steps[$res[$i]['dependencyID']]['stepModules'][] = $module;
                 }
             }
 
@@ -320,6 +331,52 @@ class FormWorkflow
     }
 
     /**
+     * Get the last action made to the request with a summary of events
+     */
+    public function getLastActionSummary()
+    {
+        $lastActionData = $this->getLastAction();
+        // check access
+        if($lastActionData === 0) {
+            return 0;
+        }
+
+        $vars = array(':recordID' => $this->recordID);
+        $res = $this->db->prepared_query('SELECT signatureID, signature, recordID, stepID, dependencyID, userID, timestamp, stepTitle, workflowID FROM signatures
+                                            LEFT JOIN workflow_steps USING (stepID)
+	    									WHERE recordID=:recordID', $vars);
+
+        if(count($res) > 0) {
+            require_once 'VAMC_Directory.php';
+            $dir = new VAMC_Directory;
+
+            $signedSteps = [];
+            foreach($res as $key => $sig) {
+                $signer = $dir->lookupLogin($sig['userID']);
+                $res[$key]['name'] = "{$signer[0]['firstName']} {$signer[0]['lastName']}";
+                $signedSteps[$res[$key]['stepID']] = 1;
+            }
+
+            $stepsPendingSigs = [];
+            $vars = array(':workflowID' => $res[0]['workflowID']);
+            $resWorkflow = $this->db->prepared_query('SELECT * FROM workflow_steps
+                                                        WHERE workflowID=:workflowID
+                                                            AND requiresDigitalSignature = 1', $vars);
+            foreach($resWorkflow as $step) {
+                if(!isset($signedSteps[$step['stepID']])) {
+                    $stepPendingSigs[] = $step['stepTitle'];
+                }
+            }
+        }
+
+        $output = [];
+        $output['lastAction'] = $lastActionData;
+        $output['signatures'] = $res;
+        $output['stepsPendingSignature'] = $stepPendingSigs;
+        return $output;
+    }
+
+    /**
      * Retrieves actions associated with a dependency
      * @param int $workflowID
      * @param int $stepID
@@ -349,7 +406,7 @@ class FormWorkflow
     {
         if (!is_numeric($dependencyID))
         {
-            return array('status' => 0, 'errors' => array('invalid ID'));
+            return array('status' => 0, 'errors' => array('Invalid ID: dependencyID'));
         }
 
         $errors = array();

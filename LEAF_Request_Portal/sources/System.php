@@ -13,6 +13,10 @@ if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
+if (!class_exists('CommonConfig'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
+}
 
 class System
 {
@@ -22,22 +26,7 @@ class System
 
     private $login;
 
-    private $fileExtensionWhitelist = array( // for file manager
-                'doc', 'docx', 'docm', 'dotx', 'dotm',
-                'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
-                'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm',
-                'ai', 'eps',
-                'pdf',
-                'txt',
-                'html',
-                'png', 'jpg', 'bmp', 'gif', 'tif', 'svg',
-                'vsd',
-                'rtf',
-                'js',
-                'css',
-                'pub',
-                'msg', 'ics',
-    );
+    private $fileExtensionWhitelist;
 
     public function __construct($db, $login)
     {
@@ -46,6 +35,8 @@ class System
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
+        $commonConfig = new CommonConfig();
+        $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
     }
 
     public function updateService($serviceID)
@@ -211,6 +202,19 @@ class System
             }
         }
 
+        //if the group is removed, also remove the category_privs
+        $vars = array(':groupID' => $groupID);
+        $res = $this->db->prepared_query('SELECT *
+                                            FROM category_privs
+                                            LEFT JOIN groups USING (groupID)
+                                            WHERE category_privs.groupID = :groupID
+                                            AND groups.groupID is null;', $vars);
+        if(count($res) > 0)
+        {
+            $this->db->prepared_query('DELETE FROM category_privs WHERE groupID=:groupID', $vars);
+        }
+
+
         return "groupID: {$groupID} updated";
     }
 
@@ -246,6 +250,8 @@ class System
     								WHERE groupID > 1
         							ORDER BY name ASC', array());
     }
+
+
 
     public function addAction()
     {
@@ -411,6 +417,57 @@ class System
         return 1;
     }
 
+    public function setSiteType()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $type = 'standard';
+        switch($_POST['siteType'])
+        {
+            case 'national_primary':
+                $type = 'national_primary';
+                break;
+            case 'national_subordinate':
+                $type = 'national_subordinate';
+                break;
+            default:
+                break;
+        }
+
+        $vars = array(':input' => $type);
+        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="siteType"', $vars);
+
+        return 1;
+    }
+
+    public function setNationalLinkedSubordinateList()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $vars = array(':input' => XSSHelpers::xscrub($_POST['national_linkedSubordinateList']));
+        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedSubordinateList"', $vars);
+
+        return 1;
+    }
+
+    public function setNationalLinkedPrimary()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $vars = array(':input' => XSSHelpers::xscrub($_POST['national_linkedPrimary']));
+        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedPrimary"', $vars);
+
+        return 1;
+    }
+
     public function getReportTemplateList()
     {
         if (!$this->login->checkGroup(1))
@@ -435,7 +492,8 @@ class System
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
         if ($template != $in
             || $template == 'example'
-            || $template == '')
+            || $template == ''
+            || preg_match('/^LEAF_/i', $template) === 1)
         {
             return 'Invalid or reserved name.';
         }
@@ -484,13 +542,23 @@ class System
         return $data;
     }
 
+    private function isReservedFilename($file)
+    {
+        if($file == 'example'
+            || substr($file, 0, 5) == 'LEAF_'
+        ) {
+            return true;
+        }
+        return false;
+    }
+
     public function setReportTemplate($in)
     {
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
         if ($template != $in
-            || $template == 'example')
+            || $this->isReservedFilename($template))
         {
-            return 0;
+            return 'Reserved filenames: LEAF_*, example';
         }
         $template .= '.tpl';
         if (!$this->login->checkGroup(1))
@@ -509,7 +577,7 @@ class System
     {
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
         if ($template != $in
-            || $template == 'example')
+            || $this->isReservedFilename($template))
         {
             return 0;
         }
@@ -554,8 +622,8 @@ class System
     public function newFile()
     {
         $in = $_FILES['file']['name'];
-        // $fileName = XSSHelpers::scrubFilename($in);
-        $fileName = $in;
+        $fileName = XSSHelpers::scrubFilename($in);
+        $fileName = XSSHelpers::xscrub($fileName);
         if ($fileName != $in
                 || $fileName == 'index.html'
                 || $fileName == '')
@@ -576,7 +644,6 @@ class System
             return 'Admin access required';
         }
 
-        // XSSHelpers::scrubFilename($_FILES['file']['tmp_name']) . '   ' . __DIR__ . '/../files/' . $fileName;
         move_uploaded_file($_FILES['file']['tmp_name'], __DIR__ . '/../files/' . $fileName);
 
         return true;
@@ -604,5 +671,10 @@ class System
                 return unlink(__DIR__ . '/../files/' . $in);
             }
         }
+    }
+
+    public function getSettings()
+    {
+        return $this->db->query_kv('SELECT * FROM settings', 'setting', 'data');
     }
 }

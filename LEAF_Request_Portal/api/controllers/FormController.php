@@ -103,6 +103,10 @@ class FormController extends RESTfulResponse
             return $form->getFullFormData($args[0]);
         });
 
+        $this->index['GET']->register('form/[digit]/data/tree', function ($args) use ($form) {
+            return $form->getFullForm((int)$args[0], null);
+        });
+
         $this->index['GET']->register('form/[digit]/dataforsigning', function ($args) use ($form) {
             return $form->getFullFormDataForSigning($args[0]);
         });
@@ -138,7 +142,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['GET']->register('form/indicator/list', function ($args) use ($form) {
-            return $form->getIndicatorList($_GET['sort']);
+            return $form->getIndicatorList($_GET['sort'], $_GET['includeHeadings'], $_GET['forms']);
         });
 
         $this->index['GET']->register('form/indicator/list/disabled', function ($args) use ($form) {
@@ -168,6 +172,10 @@ class FormController extends RESTfulResponse
 
         $this->index['GET']->register('form/[digit]/recordinfo', function ($args) use ($form) {
             return $form->getRecordInfo($args[0]);
+        });
+
+        $this->index['GET']->register('form/[text]/records', function ($args) use ($form) {
+            return $form->getRecordsByCategory($args[0]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);

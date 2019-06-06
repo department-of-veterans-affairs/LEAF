@@ -45,6 +45,12 @@ class WorkflowController extends RESTfulResponse
             return $workflow->getSteps();
         });
 
+        $this->index['GET']->register('workflow/[digit]/categories', function ($args) use ($workflow) {
+            $workflow->setWorkflowID($args[0]);
+
+            return $workflow->getCategories();
+        });
+
         $this->index['GET']->register('workflow/[digit]/route', function ($args) use ($workflow) {
             $workflow->setWorkflowID($args[0]);
 
@@ -64,11 +70,11 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['GET']->register('workflow/categories', function ($args) use ($workflow) {
-            return $workflow->getCategories();
+            return $workflow->getAllCategories();
         });
 
         $this->index['GET']->register('workflow/categoriesUnabridged', function ($args) use ($workflow) {
-            return $workflow->getCategoriesUnabridged();
+            return $workflow->getAllCategoriesUnabridged();
         });
 
         $this->index['GET']->register('workflow/dependencies', function ($args) use ($workflow) {
@@ -83,12 +89,20 @@ class WorkflowController extends RESTfulResponse
             return $workflow->getActions();
         });
 
+        $this->index['GET']->register('workflow/userActions', function ($args) use ($workflow) {
+            return $workflow->getUserActions();
+        });
+
         $this->index['GET']->register('workflow/events', function ($args) use ($workflow) {
             return $workflow->getAllEvents();
         });
 
         $this->index['GET']->register('workflow/steps', function ($args) use ($workflow) {
             return $workflow->getAllSteps();
+        });
+
+        $this->index['GET']->register('workflow/action/[text]', function ($args) use ($login, $workflow) {
+            return $workflow->getAction($args[0]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -161,6 +175,14 @@ class WorkflowController extends RESTfulResponse
             return $workflow->setDynamicGroupApprover((int)$args[0], (int)$_POST['indicatorID']);
         });
 
+        $this->index['POST']->register('workflow/step/[digit]/inlineIndicator', function($args) use ($workflow) {
+            return $workflow->setStepInlineIndicator($args[0], (int)$_POST['indicatorID']);
+        });
+
+        $this->index['POST']->register('workflow/step/[digit]/requiresig', function($args) use ($workflow) {
+            return $workflow->requireDigitalSignature($args[0], (int)$_POST['requiresSig']);
+        });
+
         $this->index['POST']->register('workflow/dependencies', function ($args) use ($workflow) {
             return $workflow->addDependency(XSSHelpers::xscrub($_POST['description']));
         });
@@ -177,6 +199,10 @@ class WorkflowController extends RESTfulResponse
             $workflow->setWorkflowID((int)$args[0]);
 
             return $workflow->linkEvent((int)$args[1], XSSHelpers::xscrub($args[2]), XSSHelpers::xscrub($_POST['eventID']));
+        });
+
+        $this->index['POST']->register('workflow/editAction/[text]', function ($args) use ($db, $login, $workflow) {
+            return $workflow->editAction($args[0]);
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
@@ -218,6 +244,10 @@ class WorkflowController extends RESTfulResponse
 
         $this->index['DELETE']->register('workflow/step/[digit]', function ($args) use ($workflow) {
             return $workflow->deleteStep($args[0]);
+        });
+
+        $this->index['DELETE']->register('workflow/action/[text]', function ($args) use ($db, $login, $workflow) {
+            return $workflow->removeAction($args[0]);
         });
 
         return $this->index['DELETE']->runControl($act['key'], $act['args']);

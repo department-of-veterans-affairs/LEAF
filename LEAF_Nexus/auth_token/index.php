@@ -46,8 +46,9 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
     if (count($res) > 0)
     {
         $_SESSION['userID'] = $res[0]['userName'];
-
+        session_write_close();
         header('Location: ' . $redirect);
+        exit();
     }
     else
     {
@@ -94,8 +95,9 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
 
             // redirect as usual
             $_SESSION['userID'] = $res[0]['userName'];
-
+            session_write_close();
             header('Location: ' . $redirect);
+            exit();
         }
         else
         {

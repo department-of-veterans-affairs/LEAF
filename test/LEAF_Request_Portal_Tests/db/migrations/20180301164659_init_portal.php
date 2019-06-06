@@ -64,6 +64,9 @@ class InitPortal extends AbstractMigration
         $this->execute('DROP TABLE IF EXISTS workflows');
         $this->execute('DROP TABLE IF EXISTS workflow_routes');
         $this->execute('DROP TABLE IF EXISTS workflow_steps');
+        $this->execute('DROP TABLE IF EXISTS signatures');
+        $this->execute('DROP TABLE IF EXISTS short_links');
+        $this->execute('DROP TABLE IF EXISTS step_modules');
 
         // Stop ignoring foreign key checks
         // ENSURE THIS GETS SET BACK TO 1

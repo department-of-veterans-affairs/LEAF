@@ -25,7 +25,7 @@
 
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%"></div>
-    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" value="Untitled Report" />
+    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
 </div>
 <div id="results" style="display: none">Loading...</div>
 
@@ -48,8 +48,8 @@ function loadWorkflow(recordID, prefixID) {
     dialog_message.show();
 }
 
-function prepareEmail() {
-	mailtoHref = 'mailto:?subject=' + $('#reportTitle').val() + '&body=Report%20Link:%20'+ encodeURIComponent(url +'&title='+ btoa($('#reportTitle').val())) +'%0A%0A';
+function prepareEmail(link) {
+	mailtoHref = 'mailto:?subject=Report%20for&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
     $('body').append($('<iframe id="ie9workaround" src="' + mailtoHref + '"/>'));
     $('#ie9workaround').remove();
 }
@@ -57,6 +57,7 @@ function prepareEmail() {
 var tDepHeader = [];
 var tStepHeader = [];
 function addHeader(column) {
+    var today = new Date();
 	switch(column) {
 	    case 'title':
 	    	headers.push({name: 'Title', indicatorID: 'title', callback: function(data, blob) {
@@ -99,12 +100,43 @@ function addHeader(column) {
             	$('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
             }});
             break;
+        case 'dateCancelled':
+            leafSearch.getLeafFormQuery().join('action_history');
+            headers.push({name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
+                if(blob[data.recordID].deleted > 0) {
+                    var date = new Date(blob[data.recordID].deleted * 1000);
+                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                }
+            }});
+            headers.push({name: 'Cancelled By', indicatorID: 'cancelledBy', editable: false, callback: function(data, blob) {
+                if(blob[data.recordID].action_history != undefined) {
+                    var cancelData = blob[data.recordID].action_history.pop();
+                    if(cancelData.actionType == 'deleted') {
+                        $('#'+data.cellContainerID).html(cancelData.approverName);
+                    }
+                }
+            }});
+            break;
         case 'dateInitiated':
-            headers.push({name: 'Request Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
+            headers.push({name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
                 var date = new Date(blob[data.recordID].date * 1000);
                 $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
             }});
             break;
+        case 'dateResolved':
+            leafSearch.getLeafFormQuery().join('recordResolutionData');
+            headers.push({name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
+                if(blob[data.recordID].recordResolutionData != undefined) {
+                    var date = new Date(blob[data.recordID].recordResolutionData.fulfillmentTime * 1000);
+                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                }
+            }});
+            headers.push({name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
+                if(blob[data.recordID].recordResolutionData != undefined) {
+                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
+                }
+            }});
+        break;
         case 'actionButton':
         	headers.unshift({name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
                 $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
@@ -115,17 +147,15 @@ function addHeader(column) {
         	break;
         case 'action_history':
             leafSearch.getLeafFormQuery().join('action_history');
-            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
             headers.push({name: 'Comment History', indicatorID: 'action_history', editable: false, callback: function(data, blob) {
                              var buffer = '<table style="min-width: 300px">';
                              var now = new Date();
 
                              for(var i in blob[data.recordID].action_history) {
                             	 var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                            	 var year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
-                                 var formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
+                                 var formattedDate = date.toLocaleDateString();
                                  if(blob[data.recordID].action_history[i]['comment'] != '') {
-                                     buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px">' + formattedDate + '</td><td>' + blob[data.recordID].action_history[i]['comment'] + '</td></tr>';
+                                     buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">' + formattedDate + '</td><td>' + blob[data.recordID].action_history[i]['comment'] + '.</td></tr>';
                                  }
                              }
                              buffer += '</table>';
@@ -134,24 +164,40 @@ function addHeader(column) {
             break;
         case 'approval_history':
             leafSearch.getLeafFormQuery().join('action_history');
-            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
             headers.push({name: 'Approval History', indicatorID: 'approval_history', editable: false, callback: function(data, blob) {
                              var buffer = '<table style="min-width: 300px">';
                              var now = new Date();
 
                              for(var i in blob[data.recordID].action_history) {
                                  var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                                 var year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
-                                 var formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
-                                 buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px">'
+                                 var formattedDate = date.toLocaleDateString();
+                                 buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
                                 	   + formattedDate + '</td><td>'
                                 	   + blob[data.recordID].action_history[i]['description']
                                 	   + ' ('+ blob[data.recordID].action_history[i]['approverName'] +'): '
-                                	   + blob[data.recordID].action_history[i]['actionTextPasttense'] + '</td></tr>';
+                                	   + blob[data.recordID].action_history[i]['actionTextPasttense'] + '.</td></tr>';
                              }
                              buffer += '</table>';
                              $('#'+data.cellContainerID).html(buffer);
                          }});
+            break;
+        case 'days_since_last_action':
+            leafSearch.getLeafFormQuery().join('action_history');
+            headers.push({name: 'Days since last action', indicatorID: 'daysSinceLastAction', editable: false, callback: function(data, blob) {
+                var daysSinceAction;
+                if(blob[data.recordID].action_history != undefined) {
+                    var lastAction = blob[data.recordID].action_history[blob[data.recordID].action_history.length - 1];
+                    var date = new Date(lastAction.time * 1000);
+                    daysSinceAction = Math.round((today.getTime() - date.getTime()) / 86400000);
+                    if(blob[data.recordID].submitted == 0) {
+                        daysSinceAction = "Not Submitted";
+                    }
+                }
+                else {
+                    daysSinceAction = "Not Submitted";
+                }
+                $('#'+data.cellContainerID).html(daysSinceAction);
+            }});
             break;
 	    default:
 	    	if(column.substr(0, 6) == 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
@@ -165,7 +211,7 @@ function addHeader(column) {
 	                    	&& blob[data.recordID].recordsDependencies[depID] != undefined) {
 	                        var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
 	                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-	                        
+
 	                        if(tDepHeader[depID] == 0) {
 	                        	headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
 	                            $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
@@ -180,14 +226,14 @@ function addHeader(column) {
                 stepID = column.substr(7);
                 tStepHeader[stepID] = 0;
                 leafSearch.getLeafFormQuery().join('stepFulfillment');
-    
+
                 headers.push({name: 'Checkpoint Date', indicatorID: column, editable: false, callback: function(stepID) {
                     return function(data, blob) {
                         if(blob[data.recordID].stepFulfillment != undefined
                             && blob[data.recordID].stepFulfillment[stepID] != undefined) {
                             var date = new Date(blob[data.recordID].stepFulfillment[stepID].time * 1000);
                             $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-                            
+
                             if(tStepHeader[stepID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
                                 $('#' + headerID).html(blob[data.recordID].stepFulfillment[stepID].step);
@@ -234,6 +280,8 @@ function loadSearchPrereqs() {
             buffer += '<label class="checkable" style="width: 100px" for="indicators_action_history"> Comment History</label></div>';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_approval_history"> Approval History</label></div>';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" />';
+            buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_action"> Days since last action</label></div>';
             buffer += '</div>';
             var groupList = {};
             var groupNames = [];
@@ -281,16 +329,16 @@ function loadSearchPrereqs() {
                 var i = groupNames[k].categoryID;
                 var associatedCategories = groupIDmap[i].categoryID;
                 if(groupIDmap[i].parentCategoryID != '') {
-                    associatedCategories += ' ' + groupIDmap[i].parentCategoryID; 
+                    associatedCategories += ' ' + groupIDmap[i].parentCategoryID;
                 }
                 if(groupIDmap[i].parentStaples != null) {
                     for(var j in groupIDmap[i].parentStaples) {
                         associatedCategories += ' ' + groupIDmap[i].parentStaples[j];
                     }
                 }
-                
+
                 var categoryLabel = groupNames[k].categoryName;
-                if(groupIDmap[i].parentCategoryID != '') {
+                if(groupIDmap[i].parentCategoryID != '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
                     categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
@@ -302,7 +350,7 @@ function loadSearchPrereqs() {
             }
 
             buffer += '</div>';
-            
+
             $('#indicatorList').html(buffer);
 
             $('#indicatorList').css('height', $(window).height() - 240);
@@ -314,7 +362,7 @@ function loadSearchPrereqs() {
             	$(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
             		'font-weight': 'bold'});
             });
-            
+
             $.ajax({
             	type: 'GET',
             	url: './api/workflow/steps',
@@ -328,7 +376,7 @@ function loadSearchPrereqs() {
                     }
                     buffer += '<div id="legacyDependencies"></div>'; // backwards compat
                     buffer += '</div>';
-                    
+
                     $('#indicatorList').append(buffer);
 
                     $.ajax({
@@ -339,9 +387,13 @@ function loadSearchPrereqs() {
                             buffer2 = '';
                             buffer2 += '<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>';
 
-                            // Option to retrieve Date Request Initiated
+                            // Option to retrieve Date Request Initiated / Resolved
+                            buffer2 += '<div id="option_dateCancelled" class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" />';
+                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateCancelled" title="Date request Cancelled"> Date Request Cancelled</label></div>';
                             buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" />';
-                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Request Initiated</label></div>';
+                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Date Request Initiated</label></div>';
+                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" />';
+                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateResolved" title="Date request resolved"> Date Request Resolved</label></div>';
 
                             for(var i in res) {
                                 buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
@@ -376,18 +428,18 @@ function loadSearchPrereqs() {
 }
 
 function editLabels_down(id) {
-    var row = $('#sortID_' + id); 
+    var row = $('#sortID_' + id);
     row.next().after(row);
 }
 
 function editLabels_up(id) {
-    var row = $('#sortID_' + id); 
+    var row = $('#sortID_' + id);
     row.prev().before(row);
 }
 
 function editLabels() {
 	dialog.setTitle('Edit Labels');
-	
+
 	var buffer = '<table id="labelSorter">';
 
 	if (Object.keys(indicatorSort).length !== 0) {
@@ -464,19 +516,122 @@ function sortHeaders(a, b) {
     return 0;
 }
 
+function openShareDialog() {
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    var reportLink = document.URL.substr(document.URL.lastIndexOf('/') + 1);
+
+    dialog_message.setTitle('Share Report');
+    dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
+                            + '<br /><textarea id="reportLink" style="width: 95%; height: 100px">'+ pwd + reportLink +'</textarea>'
+                            + '<button id="prepareEmail" type="button" class="buttonNorm"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="Email report" /> Email Report</button> '
+                            + '<br /><br /><p>Access rules are automatically applied based on the form and workflow configuration.</p>');
+    dialog_message.show();
+    $('#reportLink').on('click', function() {
+        $('#reportLink').select();
+    })
+
+    $('#prepareEmail').on('click', function() {
+        prepareEmail($('#reportLink').html());
+    });
+
+    $.ajax({
+        type: 'POST',
+        url: './api/open/report',
+        data: {data: reportLink,
+            CSRFToken: CSRFToken}
+    })
+    .then(function(res) {
+        $('#reportLink').html(pwd + 'open?report=' + res);
+    });
+}
+
 function showJSONendpoint() {
-	var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
-	var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-	var urlEncoded = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + encodeURIComponent(JSON.stringify(leafSearch.getLeafFormQuery().getQuery())); 
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
+	var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
 
 	dialog_message.setTitle('Data Endpoints');
-	dialog_message.setContent('<p>These endpoints provide a live data source for custom dashboards or automated programs.</p>'
-			               + '<b>JSON:</b><br /><textarea style="width: 95%; height: 100px">'+ jsonPath +'</textarea><br />For JSONP, append <b>&amp;format=jsonp</b>'
-			               + '<br /><br /><b>HTML Table:</b><br /><textarea id="encodedTable" style="width: 95%; height: 100px">'+ urlEncoded +'&format=htmltable</textarea>'
-			               + '<br /><a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>');
-	$('#encodedTable').on('click', function() {
-		$('#encodedTable').select();
-	});
+    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
+                           + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
+                           + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
+                           + '<select id="format">'
+                           + '<option value="json">JSON</option>'
+                           + '<option value="htmltable">HTML Table</option>'
+                           + '<option value="jsonp">JSON-P</option>'
+                           + '<option value="csv">CSV</option>'
+                           + '<option value="xml">XML</option>'
+                           + '<option value="debug">Plaintext</option>'
+                           + '<option value="x-visualstudio">Visual Studio (testing)</option>'
+                           + '</select>'
+                           + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
+			               + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
+                           + '<br /><br />'
+                           + '<fieldset>'
+                           + '<legend>Options</legend>'
+                           + '<input id="msCompatMode" type="checkbox" /><label for="msCompatMode">Use compatibility mode (Excel, Access, etc.)</label>'
+                           + '</fieldset>');
+
+    $('#msCompatMode').on('click', function() {
+        $('#shortenLink').click();
+    });
+
+    function setExportFormat() {
+        if($('#shortenLink').css('display') == 'none') {
+            $('#exportFormat').html('?');
+        }
+        else {
+            $('#exportFormat').html('&');
+        }
+        switch($('#format').val()) {
+            case 'json':
+                $('#exportFormat').html('');
+                break;
+            default:
+                $('#exportFormat').append('format=' + $('#format').val());
+                break;
+        }
+    }
+
+    $('#format').on('change', function() {
+        setExportFormat();
+    });
+
+    $('#expandLink').on('click', function() {
+        $('#expandLink').css('display', 'none');
+        $('#shortenLink').css('display', 'inline');
+        $('#exportPath').html(jsonPath);
+        $('#exportPath').off();
+        setExportFormat();
+    });
+
+    $('#shortenLink').on('click', function() {
+        $('#shortenLink').css('display', 'none');
+        $('#exportPath').on('focus', function() {
+		    document.execCommand("selectAll", false, null);
+	    });
+        $.ajax({
+            type: 'POST',
+            url: './api/open/form/query',
+            data: {data: queryString,
+                CSRFToken: CSRFToken}
+        })
+        .then(function(res) {
+            if($('#msCompatMode').is(':checked')) {
+                $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'auth_domain/api/open/form/query/_' + res);
+                $('#expandLink').css('display', 'none');
+            }
+            else {
+                $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
+                $('#expandLink').css('display', 'inline');
+            }
+            setExportFormat();
+        });
+    });
+
+    // set defaults for IE
+    if (navigator.msSaveOrOpenBlob) {
+        $('#msCompatMode').click();
+    }
 	dialog_message.show();
 }
 
@@ -488,6 +643,13 @@ var isNewQuery = false;
 var dialog, dialog_message;
 var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
+
+var version = 3;
+/* URL formats
+    * v1 - base64
+    * v2 - lz-string in base64
+    * v3 - uses getData() from formQuery.js
+*/
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
@@ -500,22 +662,31 @@ $(function() {
     $('#' + leafSearch.getPrefixID() + 'advancedOptionsClose').css('visibility', 'hidden');
     $('#' + leafSearch.getPrefixID() + 'advancedOptions>legend').css('display', 'none');
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').html('Next Step <img src="../libs/dynicons/?img=go-next.svg&w=32" alt="next step" />');
-    
+
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').off();
-    
+
     // Step 1
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').on('click', function() {
     	$('#step_2').fadeIn(400);
     	$('#step_1').slideUp(400);
-    	
+
     	// hide data fields that don't match forms selected by the user
     	leafSearch.generateQuery();
     	var tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
     	var filteredCategories = [];
+        var showOptionCancelled = false;
+
     	for(var i in tTerms) {
     		if(tTerms[i].id == 'categoryID'
     			&& tTerms[i].operator == '=') {
     			filteredCategories.push(tTerms[i].match);
+    		}
+
+            // hide dateCancelled option unless it's being searched for
+            if(tTerms[i].id == 'stepID'
+    			&& tTerms[i].operator == '='
+                && tTerms[i].match == 'deleted') {
+    			showOptionCancelled = true;
     		}
     	}
     	if(filteredCategories.length > 0) {
@@ -527,6 +698,13 @@ $(function() {
     	else {
     		$('.category').css('display', 'inline');
     	}
+
+        if(showOptionCancelled) {
+            $('#option_dateCancelled').css('display', 'inline');
+        }
+        else {
+            $('#option_dateCancelled').css('display', 'none');
+        }
     });
 
     <!--{if $query == '' || $indicators == ''}-->
@@ -547,7 +725,7 @@ $(function() {
 
         if(isNewQuery) {
             leafSearch.generateQuery();
-            
+
             if(!isSearchingDeleted(leafSearch)) {
             	leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
             }
@@ -597,7 +775,7 @@ $(function() {
     	headers.sort(sortHeaders);
     	selectedIndicators.sort(sortHeaders);
 
-    	
+
     	grid.setHeaders(headers);
 
     	leafSearch.getLeafFormQuery().onSuccess(function(res) {
@@ -608,7 +786,7 @@ $(function() {
             for(var i in res) {
                 tGridData.push(res[i]);
             }
-            
+
             if(<!--{$version}--> >= 3) {
                 grid.setData(tGridData);
                 grid.sort('recordID', 'desc');
@@ -625,17 +803,17 @@ $(function() {
 
     	// get data
     	leafSearch.getLeafFormQuery().execute();
-    	
+
     	// create save link once
     	if(!extendedToolbar) {
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="prepareEmail()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="email report" /> Email Report</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '460px');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify report" /> Modify Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=32" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
             extendedToolbar = true;
-            
+
             $('#editReport').on('click', function() {
             	grid.stop();
             	isNewQuery = true;
@@ -657,12 +835,7 @@ $(function() {
 
     	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
-    	var version = 3;
-    	/* URL formats
-    	 * v1 - base64
-    	 * v2 - lz-string in base64
-    	 * v3 - uses getData() from formQuery.js
-    	*/
+
     	if(isNewQuery) {
     		baseURL = '';
     		if(window.location.href.indexOf('&') == -1) {
@@ -672,6 +845,9 @@ $(function() {
     			baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
     		}
             url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
+            if($('#reportTitle').val() != '') {
+                url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+            }
             window.history.pushState('', '', url);
             $('#reportTitle').on('keyup', function() {
                 url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
@@ -682,7 +858,7 @@ $(function() {
     		url = window.location.href;
     	}
     });
-    
+
     <!--{if $query != '' && $indicators != ''}-->
     function loadReport() {
         var inQuery;
@@ -694,6 +870,17 @@ $(function() {
         title = title.replace(/>/g, '&gt;');
         $('#reportTitleDisplay').html(title);
         $('#reportTitle').css('display', 'none');
+        $('#reportTitle').off();
+        $('#reportTitle').val(title);
+        $('#reportTitleDisplay').on('click', function() {
+            $('#reportTitleDisplay').css('display', 'none');
+            $('#reportTitle').css('display', 'inline');
+            $('#reportTitle').on('keyup', function() {
+                baseURL = window.location.href.substr(0, window.location.href.indexOf('&title='));
+                url = baseURL + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+                window.history.pushState('', '', url);
+            });
+        });
         try {
         	if(<!--{$version}--> >= 2) {
         	    var query = '<!--{$query|escape:"html"}-->';
@@ -724,7 +911,7 @@ $(function() {
 
         	leafSearch.getLeafFormQuery().setQuery(inQuery);
         	if(!isSearchingDeleted(leafSearch)) {
-                inQuery.terms.pop();        		
+                inQuery.terms.pop();
         	}
         	leafSearch.renderPreviousAdvancedSearch(inQuery.terms);
         	headers = headers.concat(inIndicators);
@@ -757,7 +944,7 @@ $(function() {
     }
     if(typeof window.history.pushState != 'function') {
     	window.history.pushState = function(a, b, c) {
-    		
+
     	}
     }
 });

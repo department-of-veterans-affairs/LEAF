@@ -15,6 +15,7 @@
 */
 error_reporting(E_ALL & ~E_NOTICE);
 
+include '../globals.php';
 include '../../libs/smarty/Smarty.class.php';
 include '../Login.php';
 include '../db_mysql.php';
@@ -123,8 +124,9 @@ switch ($action) {
            $result = $formStack->importForm();
 
         if ($result === true)
-        {
+        {   session_write_close();
             header('Location: ./?a=form');
+            exit();
         }
         else
         {
@@ -137,8 +139,9 @@ switch ($action) {
            $system = new System($db, $login);
            $result = $system->newFile();
            if ($result === true)
-           {
+           {   session_write_close();
                header('Location: ./?a=mod_file_manager');
+               exit();
            }
            else
            {

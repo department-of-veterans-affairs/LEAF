@@ -61,6 +61,7 @@ class XSSHelpers
      */
     public static function sanitizer($in, $allowedTags = array(), $encoding = 'UTF-8')
     {
+        $errorReportingLevel = error_reporting(E_ALL ^ E_WARNING);//turn off errors for the next few lines
         // replace linebreaks with <br /> if there's no html <p>'s
         if (strpos($in, '<p>') === false
             && strpos($in, '<table') === false)
@@ -78,6 +79,7 @@ class XSSHelpers
         {
             $in = strip_tags($in, '<br>');
         }
+        error_reporting($errorReportingLevel);//turn errors back on
 
         $pattern = array();
         $replace = array();
@@ -310,19 +312,13 @@ class XSSHelpers
     /**
      * Sanitize everything in an Object or Array
      *
-     * @param    string  $stringToScrub the string to be sanitized
+     * @param    object  $objectToScrub the string to be sanitized
      *
-     * @return   string  the sanitized string
+     * @return   object  the sanitized object
      */
     public static function scrubObjectOrArray($objectToScrub)
     {
-        $objectToScrubCopy = $objectToScrub;
-        if(is_object($objectToScrub))
-        {
-            $objectToScrubCopy = clone $objectToScrub;
-        }
-
-        foreach($objectToScrubCopy as $key => &$value)
+         foreach($objectToScrub as $key => &$value)
         {
             if(is_object($value) || is_array($value))
             {
@@ -330,7 +326,7 @@ class XSSHelpers
             }
             else if(is_numeric($value))
             {
-                $value = (int)$value;
+                $value = $value;
             }
             else
             {
@@ -338,6 +334,6 @@ class XSSHelpers
             }
         }
         
-        return $objectToScrubCopy;
+        return $objectToScrub;
     }
 }

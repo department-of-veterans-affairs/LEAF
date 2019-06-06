@@ -83,7 +83,7 @@ abstract class RESTfulResponse
      */
     public function output($out = '')
     {
-        header('Access-Control-Allow-Origin: *');
+        //header('Access-Control-Allow-Origin: *');
         $format = isset($_GET['format']) ? $_GET['format'] : '';
         switch ($format) {
             case 'json':
@@ -259,6 +259,35 @@ abstract class RESTfulResponse
                 echo $body;
 
                 break;
+            case 'x-visualstudio': // experimental mode for visual studio
+                header('Content-type: application/json');
+                $out2 = [];
+                foreach($out as $item) {
+                    $out2['r' . $item['recordID']] = $item;
+                }
+
+                $jsonOut = json_encode($out2);
+
+                if ($_SERVER['REQUEST_METHOD'] === 'GET')
+                {
+                    $etag = md5($jsonOut);
+                    header_remove('Pragma');
+                    header_remove('Cache-Control');
+                    header_remove('Expires');
+                    if (isset($_SERVER['HTTP_IF_NONE_MATCH'])
+                        && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
+                    {
+                        header("ETag: {$etag}", true, 304);
+                        header('Cache-Control: must-revalidate, private');
+                        exit;
+                    }
+
+                    header("ETag: {$etag}");
+                    header('Cache-Control: must-revalidate, private');
+                }
+
+                echo $jsonOut;
+                break;
             case 'debug':
                 echo '<pre>' . print_r($out, true) . '</pre>';
 
@@ -335,8 +364,8 @@ abstract class RESTfulResponse
         $url .= $_SERVER['HTTP_HOST'];
 
         $script = $_SERVER['SCRIPT_NAME'];
-        $apiOffset = strpos($script, 'api');
-        $script = substr($script, 0, $apiOffset);
+        $apiOffset = strpos($script, '/api/');
+        $script = substr($script, 0, $apiOffset + 1);
 
         $checkMe = strtolower($url . $script . 'admin');
 

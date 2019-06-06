@@ -32,6 +32,9 @@
 
             </div>
             <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->" >
+            <!--{if $indicator.is_sensitive == 1}-->
+                &nbsp;<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt="This field is sensitive" title="This field is sensitive" />&nbsp;
+            <!--{/if}-->
                 <span onkeypress="keyPressGetForm(event, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" tabindex="0" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)">
             <!--{if trim($indicator.name) != ''}-->
                 <!--{$indicator.name|sanitizeRichtext|strip_tags}-->
@@ -51,6 +54,9 @@
                 <div class="printsubheading">
             <!--{/if}-->
                 <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->">
+                    <!--{if $indicator.is_sensitive == 1}-->
+                        &nbsp;<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt="This field is sensitive" title="This field is sensitive" />&nbsp;
+                    <!--{/if}-->
                     <span onkeypress="keyPressGetForm(event, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" tabindex="0" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)">
                     <!--{if trim($indicator.name) != ''}-->
                         <!--{$indicator.name|sanitizeRichtext|strip_tags|indent:$depth:""}-->
@@ -66,20 +72,31 @@
             </div>
             <div tabindex="0" class="printResponse" id="xhrIndicator_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
 
-<!--{$indicator.format}-->
-<!--{if $indicator.options != ''}-->
+<!--{if $indicator.format == 'grid'}-->
+    <!--{$indicator.format}-->
+    </br></br>
+    <div id="grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="width: 100%; max-width: 100%;">
+    </div>
+    <script>
+        var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
+        gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.preview();
+    </script>
+<!--{else}-->
+    <!--{$indicator.format}-->
+    <!--{if $indicator.options != ''}-->
     <ul>
-    <!--{assign var="numOptions" value=0}-->
-    <!--{foreach from=$indicator.options item=option}-->
-    <li><!--{$option}--></li>
+        <!--{assign var="numOptions" value=0}-->
+        <!--{foreach from=$indicator.options item=option}-->
+        <li><!--{$option}--></li>
 
-    <!--{if $numOptions > 5}-->
+        <!--{if $numOptions > 5}-->
         <li>...</li>
         <!--{break}-->
-    <!--{/if}-->
-    <!--{assign var="numOptions" value=$numOptions+1}-->
-    <!--{/foreach}-->
+        <!--{/if}-->
+        <!--{assign var="numOptions" value=$numOptions+1}-->
+        <!--{/foreach}-->
     </ul>
+    <!--{/if}-->
 <!--{/if}-->
 
                 <!--{include file="print_subindicators_ajax.tpl"}-->
