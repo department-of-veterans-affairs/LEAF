@@ -412,11 +412,11 @@ var printer = function() {
                             });
                             checkBoxShift = checkBoxShift * 3.5 > 20 ? checkBoxShift * 3.5 : 20;
                             verticalStart = verticalShift;
-                            if (title.length > 190) {
+                            if (title.length > 100) {
                                 splitTitle = doc.splitTextToSize(title, 185);
                                 for (var i = 0; i < splitTitle.length; i++) {
+                                    doc.text(splitTitle[i], 11, verticalShift + 3);
                                     verticalShift += 3;
-                                    doc.text(splitTitle[i], 11, verticalShift);
                                 }
                             } else {
                                 doc.text(title, horizontalShift + 1, verticalShift + 3);
@@ -444,7 +444,6 @@ var printer = function() {
                                 horizontalShift += checkBoxShift;
                                 sizeOfBox += sizeOfOption;
                             }
-                            verticalShift += 4;
                             if (verticalStart === verticalShift) {
                                 doc.rect(horizontalStart, verticalStart, maxWidth, 12);
                             } else {
