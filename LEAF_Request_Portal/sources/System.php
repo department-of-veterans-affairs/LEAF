@@ -632,7 +632,7 @@ class System
 
             return 'Invalid filename. Must only contain alphanumeric characters.';
         }
-
+        $fileName = preg_replace('/\s+/', '_', $fileName);
         $ext = substr($fileName, strrpos($fileName, '.') + 1);
         if (!in_array($ext, $this->fileExtensionWhitelist))
         {
