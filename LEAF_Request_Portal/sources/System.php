@@ -535,7 +535,7 @@ class System
             return 'Invalid filename. Must only contain alphanumeric characters.';
         }
         $ext = substr($fileName, strrpos($fileName, '.') + 1);
-        if (!in_array(strtolower($ext), $this->fileExtensionWhitelist))
+        if (!in_array(strtolower($ext), $this->fileExtensionWhitelist))//case insensitive
         {
             return 'Unsupported file type.';
         }
@@ -543,10 +543,8 @@ class System
         {
             return 'Admin access required';
         }
-        
-        move_uploaded_file($_FILES['file']['tmp_name'], __DIR__ . '/../files/' . strtolower($fileName));
-        
-
+        move_uploaded_file($_FILES['file']['tmp_name'], __DIR__ . '/../files/' . strtolower($fileName)); 
+        //Allows extensions that aren't fully lowercase to be added on page
         return true;
     }
     public function removeFile($in)
