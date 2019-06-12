@@ -1,5 +1,5 @@
 FROM php:7.3.5-apache
-MAINTAINER Nick Ciardiello <nick.ciardiello@ablevets.com>
+MAINTAINER Dastan Rahimi <dastan.rahimi@ablevets.com>
 
 RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git subversion zlib1g-dev libzip-dev python net-tools
 RUN yes | apt-get install mysql-client
@@ -16,7 +16,7 @@ RUN curl -sL "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bun
 RUN python -m zipfile -e awscli-bundle.zip .
 RUN chmod +x ./awscli-bundle/install
 RUN ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
-RUN rm -rf awscli-bundle
+RUN rm -rf awscli-bundle awscli-bundle.zip
 
 # git ssl error fix
 RUN git config --global http.sslVerify false
@@ -32,9 +32,7 @@ RUN sed -i "s/expose_php = On/expose_php = Off/" "$PHP_INI_DIR/php.ini" && \
     sed -i "s/memory_limit = 128M/memory_limit = 2048M/" "$PHP_INI_DIR/php.ini" && \
     sed -i "s/max_input_time = 60/max_input_time = 600/" "$PHP_INI_DIR/php.ini"
 
-RUN docker-php-ext-install mysqli pdo pdo_mysql
-RUN docker-php-ext-install gd
-RUN docker-php-ext-install zip
+RUN docker-php-ext-install mysqli pdo pdo_mysql zip gd
 RUN a2enmod rewrite
 RUN a2enmod setenvif
 RUN a2enmod speling
