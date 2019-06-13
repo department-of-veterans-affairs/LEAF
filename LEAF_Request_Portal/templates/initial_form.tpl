@@ -72,7 +72,7 @@ $(function() {
             <tr>
                 <td>Service</td>
                 <td>
-                    <select id="service" name="service">
+                    <select id="service" name="service" style=" width: 150px;">
                     <option value=""></option>
                     <!--{foreach from=$services item=service}-->
                     <option value="<!--{$service.serviceID|strip_tags}-->"<!--{if $selectedService == $service}-->selected="selected"<!--{/if}-->><!--{$service.service|sanitize}--></option>
