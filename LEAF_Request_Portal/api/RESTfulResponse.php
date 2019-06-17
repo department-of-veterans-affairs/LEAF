@@ -355,11 +355,11 @@ abstract class RESTfulResponse
             exit();
         }
 
-        $url = 'http://';
-        if ($_SERVER['HTTPS'] == 'on')
-        {
-            $url = 'https://';
-        }
+        $url = 'https://';
+        // if ($_SERVER['HTTPS'] == 'on')
+        // {
+        //     $url = 'https://';
+        // }
 
         $url .= $_SERVER['HTTP_HOST'];
 
