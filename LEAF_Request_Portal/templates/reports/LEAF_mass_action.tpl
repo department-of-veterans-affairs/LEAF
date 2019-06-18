@@ -137,6 +137,7 @@ function getCategoryIndicators() {
             }
         }
     }
+    indicatorDropdown += '<option value="0">No Change</option>';
     for (var i = 0; i < indicatorArray.length; i++) {
         indicatorDropdown += '<option value="'+indicatorArray[i].recordID+'-'+indicatorArray[i].id+'">';
         indicatorDropdown += indicatorArray[i].recordID + ': ' + indicatorArray[i].name;

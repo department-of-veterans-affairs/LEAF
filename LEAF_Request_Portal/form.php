@@ -1009,38 +1009,40 @@ class Form
             return 0;
         }
         foreach ($indicators as $indicator) {
-            $newVariable = null;
-            $vars = array(':recordID' => (int)$indicator['recordID'],
-                ':indicatorID' => (int)$indicator['indicatorID']);
-            $isSet = boolval($this->db->prepared_query('SELECT COUNT(*) FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID', $vars));
-            if ($isSet) {
-                $this->db->prepared_query('DELETE FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID', $vars);
-            }
-            $vars = array(':recordID' => (int)$indicator['recordID'],
-                ':fromRecordID' => (int)$indicator['fromRecordID'],
-                ':indicatorID' => (int)$indicator['indicatorID'],
-                ':fromIndicatorID' => (int)$indicator['fromIndicatorID'],
-                ':timeStamp' => time(),
-                ':userID' => $this->login->getUserID());
+            if (boolval((int)$indicator['fromIndicatorID'])) {
+                $newVariable = null;
+                $vars = array(':recordID' => (int)$indicator['recordID'],
+                    ':indicatorID' => (int)$indicator['indicatorID']);
+                $isSet = boolval($this->db->prepared_query('SELECT COUNT(*) FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID', $vars));
+                if ($isSet) {
+                    $this->db->prepared_query('DELETE FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID', $vars);
+                }
+                $vars = array(':recordID' => (int)$indicator['recordID'],
+                    ':fromRecordID' => (int)$indicator['fromRecordID'],
+                    ':indicatorID' => (int)$indicator['indicatorID'],
+                    ':fromIndicatorID' => (int)$indicator['fromIndicatorID'],
+                    ':timeStamp' => time(),
+                    ':userID' => $this->login->getUserID());
 
-            $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, data, timestamp, userID)
+                $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, data, timestamp, userID)
                                         SELECT :recordID, :indicatorID, data, :timeStamp, :userID
                                         FROM data
                                         WHERE recordID=:fromRecordID AND indicatorID=:fromIndicatorID', $vars);
-            if ($isSet) {
-                $newVariable = $this->db->prepared_query('SELECT data FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID',
-                    array(
-                        ':recordID' => (int)$indicator['recordID'],
-                        ':indicatorID' => (int)$indicator['indicatorID']
-                    )
-                )[0]["data"];
-                $vars = array(':recordID' => (int)$indicator['recordID'],
-                    ':indicatorID' => (int)$indicator['indicatorID'],
-                    ':data' => $newVariable,
-                    ':timeStamp' => time(),
-                    ':userID' => $this->login->getUserID());
-                $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, data, timestamp, userID)
+                if ($isSet) {
+                    $newVariable = $this->db->prepared_query('SELECT data FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID',
+                        array(
+                            ':recordID' => (int)$indicator['recordID'],
+                            ':indicatorID' => (int)$indicator['indicatorID']
+                        )
+                    )[0]["data"];
+                    $vars = array(':recordID' => (int)$indicator['recordID'],
+                        ':indicatorID' => (int)$indicator['indicatorID'],
+                        ':data' => $newVariable,
+                        ':timeStamp' => time(),
+                        ':userID' => $this->login->getUserID());
+                    $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, data, timestamp, userID)
                                                VALUES (:recordID, :indicatorID, :data, :timestamp, :userID)', $vars);
+                }
             }
         }
         return 1;
