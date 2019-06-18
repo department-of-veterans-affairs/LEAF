@@ -50,6 +50,7 @@ var extraTerms;
 var extraTermsFrom;
 var empSel = '';
 var firstSearch = true;
+var fromFirstSearch = true;
 var indicatorsToParse = [];
 var selectedFormCategories = [];
 
@@ -105,13 +106,17 @@ $(document).ready(function(){
     leafSearchFrom.setRootURL('./');
     leafSearchFrom.setSearchFunc(function(search) {
         extraTermsFrom = search;
-        fromSearchID = Math.floor((Math.random() * 1000000000));
-        queryObjFrom = buildQuery('false', '', true);
-        listRequests(queryObjFrom, fromSearchID, true);
+        doSearchFrom();
     });
 
     //leafSearch.init();
 });
+
+function doSearchFrom() {
+    fromSearchID = Math.floor((Math.random() * 1000000000));
+    queryObjFrom = buildQuery('false', '', true);
+    listRequests(queryObjFrom, fromSearchID, true);
+}
 function getCategoryIndicators() {
     var categoryList = [];
     var indicatorArray = [];
@@ -203,6 +208,11 @@ function chooseAction()
             {
                 isLeafSearchFromInit = true;
                 leafSearchFrom.init();
+            }
+            if (!fromFirstSearch) {
+                doSearchFrom();
+            } else {
+                fromFirstSearch = !fromFirstSearch;
             }
         }
         if (!firstSearch) {
@@ -526,6 +536,7 @@ function updateProgress(recordID, success)
         doSearch();
         setProgress(successfulActionRecordIDs.length + ' successes and ' + failedActionRecordIDs.length + ' failures of ' + totalActions + ' total.');
         if (actionValue === 'copyIndicator') {
+            doSearchFrom();
             $('#indicatorAssignment').html('');
             $('#indicatorAssignment').hide();
         }
