@@ -3,7 +3,7 @@
         width: 800px;
         margin: auto;
     }
-    #searchRequestsContainer, #searchResults, #searchResultsFrom, #errorMessage, #errorMessageFrom, #indicatorAssignment, #iconBusy {
+    #searchRequestsContainer, #searchResults, #searchResultsFrom, #errorMessage, #errorMessageFrom, #empSelectorHint, #indicatorAssignment, #iconBusy {
         display: none;
     }
     #actionContainer {
@@ -191,6 +191,7 @@ function chooseAction()
     $('#copyFromContainer').hide();
     $('#searchResultsFrom').hide();
     $('#empSelector').hide();
+    $('#empSelectorHint').hide();
     $('#empSelectorMat').hide();
     indicatorsToParse = [];
     selectedFormCategories = [];
@@ -252,6 +253,7 @@ function doSearch()
             getCancelled = 'false';
             break;
         case 'changeSubmitter':
+            $('#empSelectorHint').show();
             $('#empSelector').show();
             $('#empSelectorMat').show();
             empSel = new employeeSelector("empSelector");
@@ -589,6 +591,9 @@ function setProgress(message)
 
     <div id="searchRequestsContainer"></div>
     <img id="iconBusy" src="./images/indicator.gif" class="employeeSelectorIcon" alt="busy">
+    <div id="empSelectorHint">
+        <h4>Select an Employee to Change Initiator To:</h4>
+    </div>
     <div id="empSelector"></div>
     <div id="empSelectorMat"></div>
     <div id="indicatorAssignment"></div>
