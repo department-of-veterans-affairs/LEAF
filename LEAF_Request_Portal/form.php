@@ -2735,7 +2735,7 @@ class Form
                             switch ($tResTypeHint[0]['format']) {
                             case 'number':
                             case 'currency':
-                                $dataTerm = "CAST({$dataTerm} as DECIMAL)";
+                                $dataTerm = "CAST({$dataTerm} as DECIMAL(21,5))";
 
                                 break;
                             case 'date':

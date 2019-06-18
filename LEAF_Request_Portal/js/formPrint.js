@@ -124,6 +124,7 @@ var printer = function() {
                 var horizontalStart = 0;
                 var sizeOfOption = 0;
                 var splitTitle = [];
+                var splitOption = [];
                 var format = indicator.format;
                 if (format === 'text' && (indicator.value.length > 30 || title.length > 30)) {
                     format = 'textarea';
@@ -410,13 +411,13 @@ var printer = function() {
                             $.each(indicator.options, function () {
                                 checkBoxShift = this.length > checkBoxShift ? this.length : checkBoxShift;
                             });
-                            checkBoxShift = checkBoxShift * 3.5 > 20 ? checkBoxShift * 3.5 : 20;
+                            checkBoxShift = checkBoxShift * 5 > 20 ? checkBoxShift * 5 : 20;
                             verticalStart = verticalShift;
-                            if (title.length > 190) {
+                            if (title.length > 100) {
                                 splitTitle = doc.splitTextToSize(title, 185);
                                 for (var i = 0; i < splitTitle.length; i++) {
+                                    doc.text(splitTitle[i], 11, verticalShift + 3);
                                     verticalShift += 3;
-                                    doc.text(splitTitle[i], 11, verticalShift);
                                 }
                             } else {
                                 doc.text(title, horizontalShift + 1, verticalShift + 3);
@@ -429,6 +430,19 @@ var printer = function() {
                             }
                             horizontalShift += 5;
                             for (var i = 0; i < indicator.options.length; i++) {
+                                if (verticalShift >= height - 40) {
+                                    doc.rect(10, verticalStart, 190, height - 20 - verticalStart);
+                                    pageFooter(false);
+                                    doc.addPage();
+                                    verticalShift = 10;
+                                    verticalStart = verticalShift;
+                                    fitSize = (splitText.length - i) * lineSpacing;
+                                    doc.setFontSize(8);
+                                    doc.setFont("helvetica");
+                                    doc.text(titleContinued, 11, verticalShift + 3);
+                                    doc.setFontSize(12);
+                                    doc.setFont("times");
+                                }
                                 if (horizontalShift > 160) {
                                     subNewRow();
                                     horizontalShift += 5;
@@ -439,12 +453,15 @@ var printer = function() {
                                 }
                                 sizeOfOption = indicator.options[i].length * 2.5;
                                 doc.setFont("times");
-                                doc.text(decodeHTMLEntities(indicator.options[i]), horizontalShift + 6, verticalShift + 10.5);
+                                splitOption = doc.splitTextToSize(decodeHTMLEntities(indicator.options[i]), 170);
+                                for (var j = 0; j < splitOption.length; j++) {
+                                    doc.text(splitOption[j], horizontalShift + 6, verticalShift + 10.5 + 8 * j);
+                                }
+                                verticalShift += 8 * (splitOption.length - 1);
                                 doc.setFont("Helvetica");
                                 horizontalShift += checkBoxShift;
                                 sizeOfBox += sizeOfOption;
                             }
-                            verticalShift += 4;
                             if (verticalStart === verticalShift) {
                                 doc.rect(horizontalStart, verticalStart, maxWidth, 12);
                             } else {
@@ -608,17 +625,19 @@ var printer = function() {
                             $.each(indicator.options, function () {
                                 checkBoxShift = this.length > checkBoxShift ? this.length : checkBoxShift;
                             });
-                            checkBoxShift = checkBoxShift * 3.5 > 20 ? checkBoxShift * 3.5 : 20;
+                            checkBoxShift = checkBoxShift * 5 > 20 ? checkBoxShift * 5 : 20;
                             horizontalShift = 20;
                             verticalStart = verticalShift;
                             doc.setTextColor(0);
                             doc.setFont("times");
+                            verticalShift += 4;
                             for (var i = 0; i < indicator.options.length; i++) {
                                 if (horizontalShift > maxWidth) {
-                                    verticalShift += 16;
+                                    verticalShift += 8;
                                     horizontalShift = 20;
                                 }
                                 if (verticalShift >= height - 40) {
+                                    doc.rect(10, verticalStart, 190, height - 20 - verticalStart);
                                     doc.setTextColor(0);
                                     doc.setFont("times");
                                     pageFooter(false);
@@ -649,6 +668,7 @@ var printer = function() {
                                     for (var j = 0; j < splitTitle.length; j++) {
                                         doc.text(splitTitle[j], 11, verticalStart + 6 + 8 * j);
                                     }
+                                    verticalShift += 4;
                                 }
                                 doc.rect(horizontalShift - 5, verticalShift + 6, 5, 5);
                                 doc.setTextColor(0);
@@ -657,7 +677,11 @@ var printer = function() {
                                     doc.text('x', horizontalShift - 3.5, verticalShift + 9.5);
                                 }
                                 doc.setFont("times");
-                                doc.text(decodeHTMLEntities(indicator.options[i]), horizontalShift + 1, verticalShift + 10.5);
+                                splitOption = doc.splitTextToSize(decodeHTMLEntities(indicator.options[i]), 170);
+                                for (var j = 0; j < splitOption.length; j++) {
+                                    doc.text(splitOption[j], horizontalShift + 1, verticalShift + 10.5 + 8 * j);
+                                }
+                                verticalShift += 8 * (splitOption.length - 1);
                                 horizontalShift += checkBoxShift;
                             }
                             verticalShift += 16;
