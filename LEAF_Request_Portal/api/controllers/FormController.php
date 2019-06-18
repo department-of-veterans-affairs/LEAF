@@ -200,7 +200,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['POST']->register('form/copy', function ($args) use ($form) {
-            return $form->copyIndicators(XSSHelpers::scrubObjectOrArray($_POST['dataToSend'])[0][0]);
+            return $form->copyIndicators(XSSHelpers::scrubObjectOrArray($_POST['dataToSend'])[0]);
         });
 
         $this->index['POST']->register('form/[digit]/submit', function ($args) use ($form) {
