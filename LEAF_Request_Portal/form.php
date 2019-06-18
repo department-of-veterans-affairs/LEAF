@@ -1000,6 +1000,50 @@ class Form
         return 1;
     }
 
+    public function copyIndicators($record)
+    {
+        if (!is_array($record)) {
+            return 0;
+        }
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
+            return 0;
+        }
+        $newVariable = null;
+        $vars = array(':recordID' => (int)$record['recordID'],
+            ':indicatorID' => (int)$record['indicatorID']);
+        $isSet = boolval($this->db->prepared_query('SELECT COUNT(*) FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID', $vars));
+        if ($isSet){
+            $this->db->prepared_query('DELETE FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID', $vars);
+        }
+        $vars = array(':recordID' => (int)$record['recordID'],
+            ':fromRecordID' => (int)$record['fromRecordID'],
+            ':indicatorID' => (int)$record['indicatorID'],
+            ':fromIndicatorID' => (int)$record['fromIndicatorID'],
+            ':timeStamp' => time(),
+            ':userID' => $this->login->getUserID());
+
+        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, data, timestamp, userID)
+                                        SELECT :recordID, :indicatorID, data, :timeStamp, :userID
+                                        FROM data
+                                        WHERE recordID=:fromRecordID AND indicatorID=:fromIndicatorID', $vars);
+        if ($isSet) {
+            $newVariable = $this->db->prepared_query('SELECT data FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID',
+                array(
+                    ':recordID' => (int)$record['recordID'],
+                    ':indicatorID' => (int)$record['indicatorID']
+                )
+            )[0]["data"];
+            $vars = array(':recordID' => (int)$record['recordID'],
+                ':indicatorID' => (int)$record['indicatorID'],
+                ':data' => $newVariable,
+                ':timeStamp' => time(),
+                ':userID' => $this->login->getUserID());
+            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, data, timestamp, userID)
+                                               VALUES (:recordID, :indicatorID, :data, :timestamp, :userID)', $vars);
+        }
+        return 1;
+    }
+
     /**
      * Write data from input fields if the current user has access - HTTP POST
      * @param int $recordID
@@ -2752,7 +2796,7 @@ class Form
 
                         break;
                     case 'status':
-                        $joins .= 'LEFT JOIN (SELECT * FROM records_workflow_state GROUP BY recordID) lj_status USING (recordID)
+                        $joins .= 'LEFT JOIN (SELECT * FROM records_workflow_state ORDER BY recordID) lj_status USING (recordID)
 							   LEFT JOIN (SELECT stepID, stepTitle FROM workflow_steps) lj_steps ON (lj_status.stepID = lj_steps.stepID) ';
 
                         break;
