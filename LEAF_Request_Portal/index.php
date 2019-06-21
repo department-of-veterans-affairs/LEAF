@@ -172,6 +172,7 @@ switch ($action) {
             'js/workflow.js',
             'js/formGrid.js',
             'js/formQuery.js',
+            'js/formPrint.js',
             'js/jsdiff.js',
             '../libs/js/LEAF/XSSHelpers.js',
             '../libs/jsapi/portal/LEAFPortalAPI.js',
@@ -520,6 +521,8 @@ switch ($action) {
 }
 
 $main->assign('login', $t_login->fetch('login.tpl'));
+$onPrem = !isset(Config::$onPrem) ? true :  Config::$onPrem;
+$main->assign('onPrem', $onPrem);
 $t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
