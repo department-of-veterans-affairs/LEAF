@@ -634,7 +634,7 @@ class System
         }
 
         $ext = substr($fileName, strrpos($fileName, '.') + 1);
-        if (!in_array($ext, $this->fileExtensionWhitelist))
+        if (!in_array(strtolower($ext), $this->fileExtensionWhitelist))//case insensitive
         {
             return 'Unsupported file type.';
         }
