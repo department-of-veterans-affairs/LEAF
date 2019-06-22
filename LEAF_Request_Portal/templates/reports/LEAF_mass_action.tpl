@@ -76,6 +76,18 @@ $(document).ready(function(){
 
     $('input#selectAllRequests').change(function(){
         $('input.massActionRequest').prop('checked', $(this).is(':checked'));
+        if (actionValue === 'copyIndicator') {
+            if ($(this).is(':checked')) {
+                $.each($('input.massActionRequest'), function () {
+                    selectedFormCategories.push($(this).attr('id'));
+                });
+            } else if (!$(this).is(':checked')) {
+                $.each($('input.massActionRequest'), function () {
+                    selectedFormCategories.splice(selectedFormCategories.indexOf($(this).attr('id')), 1);
+                });
+            }
+            getCategoryIndicators();
+        }
     });
 
     $(document).on('change', 'input#indicatorVal', function() {
@@ -86,12 +98,12 @@ $(document).ready(function(){
 
     $(document).on('change', 'input.massActionRequest', function() {
         $('input#selectAllRequests').prop('checked', false);
-        if ($(this).is(':checked')) {
-            selectedFormCategories.push($(this).attr('id'));
-        } else if (!$(this).is(':checked')) {
-            selectedFormCategories.splice(selectedFormCategories.indexOf($(this).attr('id')), 1);
-        }
         if (actionValue === 'copyIndicator') {
+            if ($(this).is(':checked')) {
+                selectedFormCategories.push($(this).attr('id'));
+            } else if (!$(this).is(':checked')) {
+                selectedFormCategories.splice(selectedFormCategories.indexOf($(this).attr('id')), 1);
+            }
             getCategoryIndicators();
         }
     });
