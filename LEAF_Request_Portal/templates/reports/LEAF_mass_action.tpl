@@ -3,7 +3,7 @@
         width: 800px;
         margin: auto;
     }
-    #searchRequestsContainer, #searchResults, #searchResultsFrom, #errorMessage, #errorMessageFrom, #empSelectorHint, #indicatorAssignment, #iconBusy {
+    #searchRequestsContainer, #searchResults, #searchResultsFrom, #errorMessage, #errorMessageFrom, .empSelectorHint, #indicatorAssignment, #iconBusy {
         display: none;
     }
     #actionContainer {
@@ -203,7 +203,7 @@ function chooseAction()
     $('#copyFromContainer').hide();
     $('#searchResultsFrom').hide();
     $('#empSelector').hide();
-    $('#empSelectorHint').hide();
+    $('.empSelectorHint').hide();
     $('#empSelectorMat').hide();
     indicatorsToParse = [];
     selectedFormCategories = [];
@@ -265,7 +265,7 @@ function doSearch()
             getCancelled = 'false';
             break;
         case 'changeSubmitter':
-            $('#empSelectorHint').show();
+            $('.empSelectorHint').show();
             $('#empSelector').show();
             $('#empSelectorMat').show();
             empSel = new employeeSelector("empSelector");
@@ -584,6 +584,12 @@ function setProgress(message)
             <option value="copyIndicator">Copy Indicator</option>
         </select>
     </div>
+    <br />
+    <div class="empSelectorHint">
+        <h4>Select an Employee to Change Initiator To:</h4>
+    </div>
+    <div id="empSelector"></div>
+    <div id="empSelectorMat"></div>
     <div id="copyFromContainer">
         <li>Select requests to copy data from.</li>
         <br />
@@ -611,14 +617,11 @@ function setProgress(message)
         <br />
         <h4>Select a Request to Copy Into:</h4>
     </div>
-
+    <div class="empSelectorHint">
+        <h4>Select Requests to Modify:</h4>
+    </div>
     <div id="searchRequestsContainer"></div>
     <img id="iconBusy" src="./images/indicator.gif" class="employeeSelectorIcon" alt="busy">
-    <div id="empSelectorHint">
-        <h4>Select an Employee to Change Initiator To:</h4>
-    </div>
-    <div id="empSelector"></div>
-    <div id="empSelectorMat"></div>
     <div id="indicatorAssignment"></div>
     <div id="searchResults">
         <button class="buttonNorm takeAction" style="text-align: center; font-weight: bold; white-space: normal">Take Action</button>
