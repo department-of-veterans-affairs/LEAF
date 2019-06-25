@@ -1009,25 +1009,27 @@ class Form
             return 0;
         }
         foreach ($indicators as $indicator) {
+            // check write access and if source indicatorID is not 0
+            if (!$this->hasWriteAccess((int)$indicator['recordID'], 0, (int)$indicator['indicatorID'])){
+                return 0;
+            }
             if (boolval((int)$indicator['fromIndicatorID'])) {
                 $newVariable = null;
                 $vars = array(':recordID' => (int)$indicator['recordID'],
                     ':indicatorID' => (int)$indicator['indicatorID']);
                 $isSet = boolval($this->db->prepared_query('SELECT COUNT(*) FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID', $vars));
-                if ($isSet) {
-                    $this->db->prepared_query('DELETE FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID', $vars);
-                }
                 $vars = array(':recordID' => (int)$indicator['recordID'],
                     ':fromRecordID' => (int)$indicator['fromRecordID'],
                     ':indicatorID' => (int)$indicator['indicatorID'],
                     ':fromIndicatorID' => (int)$indicator['fromIndicatorID'],
-                    ':timeStamp' => time(),
+                    ':timestamp' => time(),
                     ':userID' => $this->login->getUserID());
 
                 $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, data, timestamp, userID)
-                                        SELECT :recordID, :indicatorID, data, :timeStamp, :userID
-                                        FROM data
-                                        WHERE recordID=:fromRecordID AND indicatorID=:fromIndicatorID', $vars);
+                                        SELECT :recordID, :indicatorID, t.data, :timestamp, :userID
+                                        FROM data t
+                                        WHERE recordID=:fromRecordID AND indicatorID=:fromIndicatorID
+                                        ON DUPLICATE KEY UPDATE  data=t.data, timestamp=:timestamp, userID=:userID', $vars);
                 if ($isSet) {
                     $newVariable = $this->db->prepared_query('SELECT data FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID',
                         array(
@@ -1037,11 +1039,12 @@ class Form
                     )[0]["data"];
                     $vars = array(':recordID' => (int)$indicator['recordID'],
                         ':indicatorID' => (int)$indicator['indicatorID'],
+                        ':series' => 1,
                         ':data' => $newVariable,
-                        ':timeStamp' => time(),
+                        ':timestamp' => time(),
                         ':userID' => $this->login->getUserID());
-                    $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, data, timestamp, userID)
-                                               VALUES (:recordID, :indicatorID, :data, :timestamp, :userID)', $vars);
+                    $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
                 }
             }
         }

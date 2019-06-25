@@ -548,6 +548,8 @@ function updateProgress(recordID, success)
             alert(alertMessage);
         }
 
+        indicatorsToParse = [];
+        selectedFormCategories = [];
         doSearch();
         setProgress(successfulActionRecordIDs.length + ' successes and ' + failedActionRecordIDs.length + ' failures of ' + totalActions + ' total.');
         if (actionValue === 'copyIndicator') {
