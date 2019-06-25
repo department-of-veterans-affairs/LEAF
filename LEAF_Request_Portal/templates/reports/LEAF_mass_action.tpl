@@ -585,6 +585,15 @@ function setProgress(message)
         </select>
     </div>
     <div id="copyFromContainer">
+        <li>Select requests to copy data from.</li>
+        <br />
+        <li>Once selected, choose the desired fields you want to copy from
+            the indicators column for each record.</li>
+        <br />
+        <li>Select the requests you want to copy into.  The possible
+            fields will display and each field will have dropdown of the selected indicators from the top to assign
+            them.
+        </li>
         <h4>Select a Request to Copy From:</h4>
         <div id="searchRequestsContainerFrom"></div>
         <div id="searchResultsFrom">

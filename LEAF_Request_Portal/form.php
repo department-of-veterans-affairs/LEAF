@@ -1030,22 +1030,20 @@ class Form
                                         FROM data t
                                         WHERE recordID=:fromRecordID AND indicatorID=:fromIndicatorID
                                         ON DUPLICATE KEY UPDATE  data=t.data, timestamp=:timestamp, userID=:userID', $vars);
-                if ($isSet) {
-                    $newVariable = $this->db->prepared_query('SELECT data FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID',
-                        array(
-                            ':recordID' => (int)$indicator['recordID'],
-                            ':indicatorID' => (int)$indicator['indicatorID']
-                        )
-                    )[0]["data"];
-                    $vars = array(':recordID' => (int)$indicator['recordID'],
-                        ':indicatorID' => (int)$indicator['indicatorID'],
-                        ':series' => 1,
-                        ':data' => $newVariable,
-                        ':timestamp' => time(),
-                        ':userID' => $this->login->getUserID());
-                    $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
-                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
-                }
+                $newVariable = $this->db->prepared_query('SELECT data FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID',
+                    array(
+                        ':recordID' => (int)$indicator['recordID'],
+                        ':indicatorID' => (int)$indicator['indicatorID']
+                    )
+                )[0]["data"];
+                $vars = array(':recordID' => (int)$indicator['recordID'],
+                    ':indicatorID' => (int)$indicator['indicatorID'],
+                    ':series' => 1,
+                    ':data' => $newVariable,
+                    ':timestamp' => time(),
+                    ':userID' => $this->login->getUserID());
+                $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
+                                               VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
             }
         }
         return 1;
