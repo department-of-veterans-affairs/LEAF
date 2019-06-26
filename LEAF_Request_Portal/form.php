@@ -1002,22 +1002,24 @@ class Form
 
     public function copyIndicators($indicators)
     {
-        if (!is_array($indicators)) {
+        if (!is_array($indicators))
+        {
             return 0;
         }
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        {
             return 0;
         }
-        foreach ($indicators as $indicator) {
+        foreach ($indicators as $indicator)
+        {
             // check write access and if source indicatorID is not 0
-            if (!$this->hasWriteAccess((int)$indicator['recordID'], 0, (int)$indicator['indicatorID'])){
+            if (!$this->hasWriteAccess((int)$indicator['recordID'], 0, (int)$indicator['indicatorID']))
+            {
                 return 0;
             }
-            if (boolval((int)$indicator['fromIndicatorID'])) {
+            if (boolval((int)$indicator['fromIndicatorID']))
+            {
                 $newVariable = null;
-                $vars = array(':recordID' => (int)$indicator['recordID'],
-                    ':indicatorID' => (int)$indicator['indicatorID']);
-                $isSet = boolval($this->db->prepared_query('SELECT COUNT(*) FROM data WHERE recordID=:recordID AND indicatorID=:indicatorID', $vars));
                 $vars = array(':recordID' => (int)$indicator['recordID'],
                     ':fromRecordID' => (int)$indicator['fromRecordID'],
                     ':indicatorID' => (int)$indicator['indicatorID'],
@@ -2801,7 +2803,7 @@ class Form
 
                         break;
                     case 'status':
-                        $joins .= 'LEFT JOIN (SELECT * FROM records_workflow_state ORDER BY recordID) lj_status USING (recordID)
+                        $joins .= 'LEFT JOIN (SELECT * FROM records_workflow_state GROUP BY recordID) lj_status USING (recordID)
 							   LEFT JOIN (SELECT stepID, stepTitle FROM workflow_steps) lj_steps ON (lj_status.stepID = lj_steps.stepID) ';
 
                         break;
