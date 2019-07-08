@@ -281,12 +281,6 @@ class Login
             }
         }
 
-        // grants backup the same privileges as backupFor's group
-        foreach ($this->getMembership()["groupID"] as $group)
-        {
-            $this->cache['checkGroup'][$group] = true;
-        }
-
         // special case for "Everyone" groupID 2, workaround until Orgchart is more integrated
         if ($groupID == 2)
         {
