@@ -1774,6 +1774,15 @@ class Form
                     $temp[$dep['recordID']] = 1;
                 }
 
+                // grants backups the ability to access records of their backupFor
+                foreach ($this->employee->getBackupsFor($this->login->getEmpUID()) as $emp)
+                {
+                    if ($dep['userID'] == $emp["userName"])
+                    {
+                        $temp[$dep['recordID']] = 1;
+                    }
+                }
+
                 // collaborator access
                 if (isset($hasCategoryAccess[$dep['categoryID']]))
                 {
