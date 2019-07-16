@@ -46,20 +46,56 @@ $db->query("delete FROM `records_dependencies` WHERE dependencyID=0;"); // delet
 $db->query("TRUNCATE TABLE `step_modules`;");
 
 
+function importTable($db, $tempFolder, $table) {
+    switch($table) {
+        case 'actions':
+        case 'categories':
+        case 'category_staples':
+        case 'dependencies':
+        case 'indicators':
+        case 'route_events':
+        case 'workflows':
+        case 'workflow_steps':
+        case 'step_dependencies':
+        case 'workflow_routes':
+        case 'step_modules':
+            break;
+        default:
+            exit();
+            break;
+    }
 
-$db->query("LOAD DATA INFILE '{$tempFolder}actions.sql' INTO TABLE actions");
-$db->query("LOAD DATA INFILE '{$tempFolder}categories.sql' INTO TABLE categories");
-$db->query("LOAD DATA INFILE '{$tempFolder}category_staples.sql' INTO TABLE category_staples");
-$db->query("LOAD DATA INFILE '{$tempFolder}dependencies.sql' INTO TABLE dependencies");
-$db->query("LOAD DATA INFILE '{$tempFolder}indicators.sql' INTO TABLE indicators");
-$db->query("LOAD DATA INFILE '{$tempFolder}route_events.sql' INTO TABLE route_events");
-$db->query("LOAD DATA INFILE '{$tempFolder}workflows.sql' INTO TABLE workflows");
-$db->query("LOAD DATA INFILE '{$tempFolder}workflow_steps.sql' INTO TABLE workflow_steps");
-$db->query("LOAD DATA INFILE '{$tempFolder}step_dependencies.sql' INTO TABLE step_dependencies");
-$db->query("LOAD DATA INFILE '{$tempFolder}workflow_routes.sql' INTO TABLE workflow_routes");
-$db->query("LOAD DATA INFILE '{$tempFolder}step_modules.sql' INTO TABLE step_modules");
+    $resFields = $db->query("DESCRIBE {$table}");
+    $fields = [];
+    foreach($resFields as $t) {
+        $fields[] = $t['Field'];
+    }
 
+    $fieldSQL = '`'. implode("`, `", $fields) . '`';
 
+    $file = file_get_contents($tempFolder . $table . '.sql');
+    $data = unserialize($file);
+    foreach($data as $row) {
+        $vars = [];
+        foreach($fields as $described) {
+            $vars[':'.$described] = $row[$described] ?? null;
+        }
+        $varsSQL = implode(', ', array_keys($vars));
+        $db->prepared_query("INSERT INTO {$table} ({$fieldSQL}) VALUES ({$varsSQL})", $vars);
+    }
+}
+
+importTable($db, $tempFolder, 'actions');
+importTable($db, $tempFolder, 'categories');
+importTable($db, $tempFolder, 'category_staples');
+importTable($db, $tempFolder, 'dependencies');
+importTable($db, $tempFolder, 'indicators');
+importTable($db, $tempFolder, 'route_events');
+importTable($db, $tempFolder, 'workflows');
+importTable($db, $tempFolder, 'workflow_steps');
+importTable($db, $tempFolder, 'step_dependencies');
+importTable($db, $tempFolder, 'workflow_routes');
+importTable($db, $tempFolder, 'step_modules');
 
 $db->query("ALTER TABLE `records_dependencies` ADD CONSTRAINT `fk_records_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
 $db->query("ALTER TABLE `dependency_privs` ADD CONSTRAINT `fk_privs_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
