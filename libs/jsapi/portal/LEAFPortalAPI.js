@@ -201,6 +201,7 @@ var PortalFormsAPI = function (baseAPIURL) {
         },
 
         /**
+         * --- BETA ---
          * Get a JSON representation of a form that is appropriate for digital signing.
          *
          * @param record    string              the record ID to generate JSON for
@@ -854,6 +855,7 @@ var PortalWorkflowAPI = function (baseAPIURL) {
         },
 
         /**
+         * --- BETA ---
          * Set whether a Step in the specified Workflow requires a Digital Signature
          * 
          * @param workflowID            int                 the Workflow ID
