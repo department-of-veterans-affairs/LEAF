@@ -328,7 +328,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                         var month = sigTime.getMonth() + 1;
                         var date = sigTime.getDate();
                         var year = sigTime.getFullYear();
-                        $('#workflowSignatureContainer').append('<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">'+ lastActionSummary.signatures[i].stepTitle +' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="'+ rootURL +'../libs/dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature logo" />'
+                        $('#workflowSignatureContainer').append('<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">'+ lastActionSummary.signatures[i].stepTitle +' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="'+ rootURL +'../libs/dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature (beta) logo" />'
                                 + lastActionSummary.signatures[i].name + ' '
                                 + month + '/' + date + '/' + year
                                 +'</span><br /><span aria-hidden="true" style="font-size: 75%">x'+ lastActionSummary.signatures[i].signature.substr(0, 32) +'</span></div>');
