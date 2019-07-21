@@ -13,3 +13,5 @@ const HTTP_HOST = 'www.example.com';
 const AUTH_URL = 'example.com/auth';
 
 const AUTH_TYPE = 'cookie';
+
+const CIPHER_KEY = 'example-key';

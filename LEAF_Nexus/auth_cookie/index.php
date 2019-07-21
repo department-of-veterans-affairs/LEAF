@@ -33,7 +33,7 @@ if (isset($_COOKIE['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || O
         $redirect = $protocol . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/../';
     }
 
-    $user = $_COOKIE['REMOTE_USER'];
+    $user = decryptUser($_COOKIE['REMOTE_USER']);
 
     // see if user is valid
     $vars = array(':userName' => $user);
@@ -105,4 +105,18 @@ if (isset($_COOKIE['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || O
     }
 }else{
     header('Location: ' . $protocol . AUTH_URL . '/?r=' . base64_encode($_SERVER['REQUEST_URI']));
+}
+
+
+function decryptUser($src){
+  $corrected = preg_replace("[^0-9a-fA-F]", "", $src);
+  $crypted_token = pack("H".strlen($corrected), $corrected);
+
+  list($crypted_token, $enc_iv) = explode("::", $crypted_token);
+  $cipher_method = 'aes-128-ctr';
+  $enc_key = openssl_digest(CIPHER_KEY, 'SHA256', TRUE);
+  $token = openssl_decrypt($crypted_token, $cipher_method, $enc_key, 0, hex2bin($enc_iv));
+  unset($crypted_token, $cipher_method, $enc_key, $enc_iv);
+
+  return $token;
 }
