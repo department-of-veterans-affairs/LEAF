@@ -108,7 +108,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['GET']->register('form/[digit]/data/print', function ($args) use ($form) {
-            return $form->getFullFormPrint((int)$args[0], null);
+            return $form->getFullForm((int)$args[0], null, true);
         });
 
         $this->index['GET']->register('form/[digit]/dataforsigning', function ($args) use ($form) {
@@ -137,7 +137,7 @@ class FormController extends RESTfulResponse
             {
                 $formats[$i] = XSSHelpers::xscrub($formats[$i]);
             }
-            
+
             return $form->getIndicatorsByRecordAndFormat((int)$args[0], $formats);
         });
 
