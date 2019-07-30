@@ -245,7 +245,7 @@ var printer = function() {
                         styles: {
                             font: "helvetica",
                             fontStyle: "normal",
-                            fillColor: [30, 70, 125],
+                            fillColor: [74, 106, 177],
                             overflow: 'linebreak',
                             overflowColumns: false,
                             cellWidth: 190 / columns.length,
@@ -340,9 +340,16 @@ var printer = function() {
                                 .text()) : '';
                             textSub();
                             break;
+                        case 'currency':
+                            var num_parts = value.toString().split(".");
+                            $.each(num_parts, function(index) {
+                                num_parts[index] = this.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            });
+                            value = "$" + num_parts.join(".");
+                            textSub();
+                            break;
                         case 'date':
                         case 'number':
-                        case 'currency':
                         case 'text':
                             textSub();
                             break;
@@ -479,6 +486,8 @@ var printer = function() {
                             //default format is dark-blue header
                             doc.setTextColor(255);
                             doc.setFont("helvetica");
+                            doc.setTextColor(250,148,115);
+                            doc.setFillColor(255,255,255);
                             splitTitle = doc.splitTextToSize(title, 185);
                             if (verticalShift + 8 + splitTitle.length * 8 >= height - 40) {
                                 doc.rect(10, verticalShift, 190, height - 30 - verticalShift, 'FD');
@@ -534,6 +543,14 @@ var printer = function() {
                                 .remove()
                                 .end()
                                 .text()) : '';
+                            textHeader();
+                            break;
+                        case 'currency':
+                             var num_parts = value.toString().split(".");
+                            $.each(num_parts, function(index) {
+                                num_parts[index] = this.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            });
+                            value = "$" + num_parts.join(".");
                             textHeader();
                             break;
                         case 'date':
@@ -838,11 +855,12 @@ var printer = function() {
         function getIndicatorData() {
             $.ajax({
                 method: 'GET',
-                url: './api/?a=form/' + recordID + '/data/tree',
+                url: './api/?a=form/' + recordID + '/data/print',
                 dataType: 'json',
                 cache: false
             }).done(function (res) {
                 indicators = res;
+                console.log(indicators);
                 checkBlank();
                 blank = blankIndicators === indicatorCount;
                 var submitted = Number(requestInfo['submitted']) > 0;

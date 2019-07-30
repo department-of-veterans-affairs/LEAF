@@ -136,6 +136,34 @@ class Form
         return $fullForm;
     }
 
+    /**
+     * Retrieves a form and includes any associated data, while retaining the form tree
+     * @param int $recordID
+     * @param string $limitCategory
+     * @return array
+     */
+    public function getFullFormPrint($recordID, $limitCategory = null)
+    {
+        $fullForm = array();
+
+        // build the whole form structure
+        $form = $this->getForm($recordID, $limitCategory);
+
+        if (isset($form['items']))
+        {
+            foreach ($form['items'] as $section)
+            {
+                foreach ($section['children'] as $subsection)
+                {
+                    $fullForm = array_merge($fullForm, $this->objectToArrayNested($this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID)));
+                }
+            }
+        }
+//        var_dump($fullForm);
+
+        return $fullForm;
+    }
+
     public function flattenFullFormData($data, &$output, $parentID = null)
     {
         foreach ($data as $key => $item)
@@ -420,6 +448,22 @@ class Form
         }
 
         return (int)$recordID;
+    }
+    public function convertToArray($indicator) {
+        $output = array_values($indicator["child"]);
+        $indicator["child"] = $output;
+        for($i = 0; $i < count($indicator["child"]); $i++) {
+            $indicator["child"][$i] = $this->convertToArray($indicator["child"][$i]);
+        }
+        return $indicator;
+    }
+
+    public function objectToArrayNested($indicators) {
+        $output = [];
+        foreach($indicators as $indicator) {
+            array_push($output, $this->convertToArray($indicator));
+        }
+        return $output;
     }
 
     /**
