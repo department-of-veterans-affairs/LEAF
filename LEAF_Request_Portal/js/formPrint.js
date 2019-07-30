@@ -341,6 +341,7 @@ var printer = function() {
                             textSub();
                             break;
                         case 'currency':
+                            value = Math.round(value * 100) / 100;
                             var num_parts = value.toString().split(".");
                             $.each(num_parts, function(index) {
                                 num_parts[index] = this.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -546,6 +547,7 @@ var printer = function() {
                             textHeader();
                             break;
                         case 'currency':
+                            value = Math.round(value * 100) / 100;
                              var num_parts = value.toString().split(".");
                             $.each(num_parts, function(index) {
                                 num_parts[index] = this.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
