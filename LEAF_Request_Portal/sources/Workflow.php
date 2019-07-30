@@ -375,6 +375,7 @@ class Workflow
     }
 
     /**
+     * --- BETA ---
      * Set whether the specified step for the current Workflow requires a digital signature.
      * Uses the workflowID that was set with setWorkflowID(workflowID).
      *
