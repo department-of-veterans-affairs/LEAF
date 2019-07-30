@@ -860,7 +860,6 @@ var printer = function() {
                 cache: false
             }).done(function (res) {
                 indicators = res;
-                console.log(indicators);
                 checkBlank();
                 blank = blankIndicators === indicatorCount;
                 var submitted = Number(requestInfo['submitted']) > 0;

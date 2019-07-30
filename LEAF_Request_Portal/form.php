@@ -137,7 +137,7 @@ class Form
     }
 
     /**
-     * Retrieves a form and includes any associated data, while retaining the form tree
+     * Copy of getFullForm, but returns sub-indicators as array to preserve order
      * @param int $recordID
      * @param string $limitCategory
      * @return array
@@ -159,7 +159,6 @@ class Form
                 }
             }
         }
-//        var_dump($fullForm);
 
         return $fullForm;
     }
@@ -449,6 +448,12 @@ class Form
 
         return (int)$recordID;
     }
+
+    /**
+     * Converts child key to array recursively
+     * @param object $indicator
+     * @return object
+     */
     public function convertToArray($indicator) {
         $output = array_values($indicator["child"]);
         $indicator["child"] = $output;
@@ -458,6 +463,12 @@ class Form
         return $indicator;
     }
 
+
+    /**
+     * Runs convertToArray function on each indicator element
+     * @param array $indicators
+     * @return array
+     */
     public function objectToArrayNested($indicators) {
         $output = [];
         foreach($indicators as $indicator) {
