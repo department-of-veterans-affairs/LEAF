@@ -2951,7 +2951,7 @@ class Form
             foreach ($res2 as $item)
             {
                 if($data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] == null
-                    || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] >= $item['fulfillmentTime']) {
+                    || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] < $item['fulfillmentTime']) {
                     $data[$item['recordID']]['recordResolutionData']['lastStatus'] = $item['lastStatus'];
                     $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] = $item['fulfillmentTime'];
                 }
