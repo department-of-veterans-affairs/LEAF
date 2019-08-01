@@ -110,6 +110,9 @@ class Workflow
     public function getAllUniqueWorkflows()
     {
         $vars = array();
+        /*$res = $this->db->prepared_query('SELECT * FROM workflows
+                                            WHERE workflowID > 0
+                                            ORDER BY description ASC', $vars);*/
         $res = $this->db->prepared_query('SELECT * FROM workflows ORDER BY description ASC', $vars);
 
         return $res;
@@ -140,6 +143,7 @@ class Workflow
         $res = $this->db->prepared_query("SELECT * FROM categories
                                                 WHERE parentID=''
     												AND disabled = 0
+                                                    AND workflowID != -1
     											ORDER BY categoryName", null);
 
         return $res;
@@ -250,7 +254,8 @@ class Workflow
     public function getAllEvents()
     {
         $vars = array();
-        $res = $this->db->prepared_query('SELECT * FROM events', $vars);
+        $res = $this->db->prepared_query('SELECT * FROM events
+                                            WHERE eventID NOT LIKE "LeafSecure_%"', $vars);
 
         return $res;
     }
@@ -523,6 +528,10 @@ class Workflow
             return 'Admin access required.';
         }
 
+        if(strpos($eventID, 'LeafSecure_') !== false) {
+            return 'Restricted command.';
+        }
+
         $vars = array(':workflowID' => $this->workflowID,
                       ':stepID' => $stepID,
                       ':actionType' => $actionType,
@@ -648,11 +657,12 @@ class Workflow
     {
         $summary = array();
         $steps = $this->getSteps();
-        if (!isset($steps[0]))
+        $firstElement = array_slice($steps, 0, 1)[0];
+        if (count($steps) == 0)
         {
             return 0;
         }
-        $initialStepID = $steps[0]['initialStepID'];
+        $initialStepID = $firstElement['initialStepID'];
 
         $stepData = array();
         foreach ($steps as $step)

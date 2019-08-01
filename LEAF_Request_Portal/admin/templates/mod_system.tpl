@@ -42,7 +42,12 @@ input {
         <input id="requestLabel" type="text" title="" />
         </div>
 
-<br />
+        <div class="item">
+            <label for="leafSecureContent">LEAF Secure Status:&nbsp;</label>
+            <span id="leafSecureStatus">Loading...</span><br />
+        </div>
+
+<br /><br />
         <div class="item">
         <label for="subHeading">Import Tags [<a href="#" title="Groups in the Org. Chart with any one of these tags will be imported for use">?</a>]:&nbsp;</label>
             <span style="font-style: italic">
@@ -179,6 +184,14 @@ $(function() {
     .then(function(res) {
         for(var i in res) {
             $('#' + i).val(res[i]);
+            if(i == 'leafSecure') {
+                if(res[i] == '1') {
+                    $('#leafSecureStatus').html('<span style="font-size: 120%; color: green; font-weight: bold">Certified</span>');
+                }
+                else {
+                    $('#leafSecureStatus').html('<span style="font-size: 120%; color: red; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</a>');
+                }
+            }
         }
         renderSiteType();
     });

@@ -62,7 +62,7 @@ class Inbox
         							LEFT JOIN categories USING (categoryID)
         							WHERE deleted = 0
         								AND disabled = 0
-        								AND workflowID > 0', array());
+        								AND workflowID != 0', array());
 
         $formCategories = array();
         foreach ($res2 as $category)

@@ -49,9 +49,9 @@
       <span id="headerDescription">{$title|sanitize}</span>
     </div>
     <span id="headerHelp">
-        {if !$leafSecure}
+        {if $leafSecure == 0}
         <div class="alert" style="display: inline">
-            <span>Do not provide PHI/PII on this site.</span>
+            <span>Do not enter PHI/PII.</span>
         </div>
         {/if}
         {$login}</span>
