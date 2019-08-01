@@ -65,7 +65,7 @@
                 });
 
                 <!--{if $indicator.required == 1}-->
-                formRequired.id<!--{$indicator.indicatorID}--> = {
+                formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired:  function() {
                         var gridElement = '#grid_' + <!--{$indicator.indicatorID}--> + '_' + <!--{$indicator.series}--> + '_input > tbody';
                         for(var i = 0; i < $(gridElement).find('tr').length; i++){
@@ -107,7 +107,7 @@
                 });
             });
             <!--{if $indicator.required == 1}-->
-            formRequired.id<!--{$indicator.indicatorID}--> = {
+            formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
@@ -147,7 +147,7 @@
                     $('.icheck<!--{$indicator.indicatorID|strip_tags}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
                 });
                 <!--{if $indicator.required == 1}-->
-                formRequired.id<!--{$indicator.indicatorID}--> = {
+                formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {
                         return ($('.icheck<!--{$indicator.indicatorID|strip_tags}-->').is(':checked') == false);
                     },
@@ -182,7 +182,7 @@
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '80%'});
                 });
                 <!--{if $indicator.required == 1}-->
-                formRequired.id<!--{$indicator.indicatorID}--> = {
+                formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {
                         return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                     },
@@ -200,7 +200,7 @@
             </span>
             <script>
             <!--{if $indicator.required == 1}-->
-            formRequired.id<!--{$indicator.indicatorID}--> = {
+            formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
@@ -218,7 +218,7 @@
                 <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Data must be numeric</span>
             </span>
             <script type="text/javascript">
-            formValidator.id<!--{$indicator.indicatorID}--> = {
+            formValidator["id<!--{$indicator.indicatorID}-->"] = {
             	setValidator: function() {
                     return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
             	},
@@ -237,7 +237,7 @@
             	}
             };
             <!--{if $indicator.required == 1}-->
-            formRequired.id<!--{$indicator.indicatorID}--> = {
+            formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
@@ -265,7 +265,7 @@
                 $('#<!--{$indicator.indicatorID|strip_tags}-->').datepicker('option', 'showAnim', 'slideDown');
             });
             <!--{if $indicator.required == 1}-->
-            formRequired.id<!--{$indicator.indicatorID}--> = {
+            formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
@@ -289,7 +289,7 @@
                 <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Data must be numeric</span>
             </span>
             <script type="text/javascript">
-            formValidator.id<!--{$indicator.indicatorID}--> = {
+            formValidator["id<!--{$indicator.indicatorID}-->"] = {
                     setValidator: function() {
                     	return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                     },
@@ -299,7 +299,7 @@
                     }
                 };
             <!--{if $indicator.required == 1}-->
-            formRequired.id<!--{$indicator.indicatorID}--> = {
+            formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
@@ -329,7 +329,7 @@
                 	$('.icheck<!--{$indicator.indicatorID|strip_tags}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
                 });
                 <!--{if $indicator.required == 1}-->
-                formRequired.id<!--{$indicator.indicatorID}--> = {
+                formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {
                         return ($('#<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->').prop('checked') == false);
                     },
@@ -410,7 +410,7 @@
             </fieldset>
             <!--{if $indicator.required == 1}-->
             <script>
-                formRequired.id<!--{$indicator.indicatorID}--> = {
+                formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {
                         var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
                         var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
@@ -472,7 +472,7 @@
             </fieldset>
             <!--{if $indicator.required == 1}-->
             <script>
-                formRequired.id<!--{$indicator.indicatorID}--> = {
+                formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {
                         var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
                         var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
@@ -502,7 +502,7 @@
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|strip_tags}-->" style="display: none"></input>
             <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Invalid Group</span>
             <script>
-            formValidator.id<!--{$indicator.indicatorID}--> = {
+            formValidator["id<!--{$indicator.indicatorID}-->"] = {
                 setValidator: function() {
                     return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
@@ -521,7 +521,7 @@
                 }
             };
             <!--{if $indicator.required == 1}-->
-            formRequired.id<!--{$indicator.indicatorID}--> = {
+            formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
@@ -672,7 +672,7 @@
                 }
             });
             <!--{if $indicator.required == 1}-->
-            formRequired.id<!--{$indicator.indicatorID}--> = {
+            formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
@@ -758,7 +758,7 @@
                 }
             });
             <!--{if $indicator.required == 1}-->
-            formRequired.id<!--{$indicator.indicatorID}--> = {
+            formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },

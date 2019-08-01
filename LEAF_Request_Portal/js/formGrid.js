@@ -552,8 +552,7 @@ var LeafFormGrid = function(containerID, options) {
         }
 
         $('#' + prefixID+'table>tbody>tr>td').css({'border': '1px solid black',
-               'padding': '8px',
-               'font-size': '12px'});
+               'padding': '8px'});
         if(postRenderFunc != null) {
             postRenderFunc();
         }
