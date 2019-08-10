@@ -30,7 +30,7 @@ class Form
 
     public $oc_dbName;   // Org Chart
 
-    public $log = array();  // used by checkReadAccess() and hasWriteAccess to log activity
+    public $log = array();  // used by checkReadAccess() and hasWriteAccess() to log activity
 
     private $db;
 
