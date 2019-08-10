@@ -195,6 +195,9 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
+        $t_form->assign('canWrite', $form->hasWriteAccess($recordIDToPrint));
+        $t_form->assign('canRead', $form->hasReadAccess($recordIDToPrint));
+        $t_form->assign('accessLogs', $form->log);
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);

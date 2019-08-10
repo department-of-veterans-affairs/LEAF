@@ -847,6 +847,17 @@ button.tools:hover, button.tools:focus{
     float: right;
 }
 
+.toolbar_security {
+    background-color: #cbcbcb;
+    border: 1px solid black;
+    padding: 2px;
+}
+
+.toolbar_security>div {
+    padding: 2px;
+    background-color: #e3e3e3;
+}
+
 .toolbar_right div {
 }
 
