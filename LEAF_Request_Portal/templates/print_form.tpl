@@ -78,6 +78,26 @@
         <button class="AdminButton" onclick="admin_changeInitiator()" title="Change Initiator" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Initiator</button>
     </div>
     <!--{/if}-->
+    <div class="toolbar_security">
+        <button title="Security Permissions Log" tabindex="0" onclick="viewAccessLogs()" style="cursor: pointer; position: absolute; padding: 0px; border: none; background: none;">
+            <img src="../libs/dynicons/?img=emblem-notice.svg&amp;w=32" style="height: 18px;"></img>
+        </button>
+        <h1 role="heading">Security Permissions</h1>
+        <div>
+            <!--{if $canRead}-->
+            <img src="../libs/dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" /> You have read access
+            <!--{else}-->
+            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Read Access" style="vertical-align: middle" tabindex="0"/> You do not have read access
+            <!--{/if}-->
+        </div>
+        <div>
+            <!--{if $canWrite}-->
+            <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Write Access" style="vertical-align: middle" /> You have write access
+            <!--{else}-->
+            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Write Access" style="vertical-align: middle" /> You do not have write access
+            <!--{/if}-->
+        </div>
+    </div>
 </div>
 
 <!-- DIALOG BOXES -->
@@ -335,6 +355,15 @@ function openContent(url) {
     	},
     	cache: false
     });
+}
+
+function viewAccessLogs() {
+    // presents logs as bullet points in a message window
+    var logs = '<!--{foreach from=$accessLogs item=log}--> <li><!--{$log}--></li> <!--{/foreach}-->';
+    dialog_message.setTitle('Access Logs');
+    dialog_message.setContent(logs);
+    dialog_message.show();
+    dialog_message.indicateIdle();
 }
 
 function viewHistory() {
