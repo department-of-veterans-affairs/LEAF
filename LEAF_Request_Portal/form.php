@@ -1400,11 +1400,11 @@ class Form
             && $this->login->getUserID() == $resRecords[0]['userID'])
         {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
-            $this->log["write_{$recordID}_{$categoryID}_writable"] = "User is a writable user or creator of record {$recordID}, {$categoryID}.";
+            $this->log["write_{$recordID}_{$categoryID}_writable"] = "User is a writable user or initiator of record {$recordID}, {$categoryID}.";
 
             return 1;
         }
-        $this->log["write_{$recordID}_{$categoryID}_writable"] = "User is not a writable user or creator of record {$recordID}, {$categoryID}.";
+        $this->log["write_{$recordID}_{$categoryID}_writable"] = "User is not a writable user or initiator of record {$recordID}, {$categoryID}.";
 
         // give admins access
         if ($this->login->checkGroup(1))
@@ -1511,7 +1511,7 @@ class Form
 
                 return 0;
             }
-            $this->log["read_{$recordID}"] = "Record {$recordID} is need to know and but user has read access.";
+            $this->log["read_{$recordID}"] = "Record {$recordID} is need to know but user has read access.";
         }
         else
         {
