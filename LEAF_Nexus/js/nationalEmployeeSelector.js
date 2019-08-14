@@ -182,157 +182,158 @@ nationalEmployeeSelector.prototype.search = function() {
 	    var txt = $('#' + this.prefixID + 'input').val().replace(/<[^>]*>/g, '');
 	    var domain = $('#' + this.prefixID + 'domain').val().replace(/<[^>]*>/g, '');
 		
-	    if(txt != "" && txt != undefined && (txt != this.q || domain != this.qDomain)) {
-	    	this.q = txt;
-	    	this.qDomain = domain;
+		if (txt != undefined && (txt != this.q || domain != this.qDomain)) {
+			this.q = txt;
+			this.qDomain = domain;
 
-	    	if(this.currRequest != null) {
-	    		this.currRequest.abort();
-	    	}
+			if(txt != "") {
+				if(this.currRequest != null) {
+					this.currRequest.abort();
+				}
 
-            // search local directory, since an empUID query implies that the user already exists in the local dir.
-            var apiOption = "national/employee/search";
-            if(this.q.substr(0, 1) == '#') {
-                apiOption = "employee/search";
-            }
-            var announceID = this.prefixID;
+				// search local directory, since an empUID query implies that the user already exists in the local dir.
+				var apiOption = "national/employee/search";
+				if(this.q.substr(0, 1) == '#') {
+					apiOption = "employee/search";
+				}
+				var announceID = this.prefixID;
 
-	    	var ajaxOptions = {
-		            url: this.apiPath + apiOption,
-		            dataType: 'json',
-			    	data: {q: this.q,
-			    		   noLimit: this.optionNoLimit,
-			    		   domain: domain},
-		            success: function(response) {
-		            	t.currRequest = null;
-		            	t.numResults = 0;
-		            	t.selection = '';
-		            	$('#' + t.prefixID + 'result').html('');
-		            	var buffer = '';
-		            	if(t.outputStyle == 'micro') {
-		            		buffer = '<table aria-live="true" aria-atomic="true" tabindex="0" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
-		            	}
-		            	else {
-		            		buffer = '<table aria-live="true" aria-atomic="true" tabindex="0" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Location</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
-		            	}
+				var ajaxOptions = {
+					url: this.apiPath + apiOption,
+					dataType: 'json',
+					data: {q: this.q,
+					noLimit: this.optionNoLimit,
+					domain: domain},
+					success: function(response) {
+						t.currRequest = null;
+						t.numResults = 0;
+						t.selection = '';
+						$('#' + t.prefixID + 'result').html('');
+						var buffer = '';
+						if(t.outputStyle == 'micro') {
+							buffer = '<table aria-live="true" aria-atomic="true" tabindex="0" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+						}
+						else {
+							buffer = '<table aria-live="true" aria-atomic="true" tabindex="0" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Location</th><th>Contact</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+						}
 
-		            	$('#' + t.prefixID + 'result').html(buffer);
+						$('#' + t.prefixID + 'result').html(buffer);
 
-		            	if(response.length == 0) {
-		            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
-                            $('#' + t.prefixID + 'status').text('No results found for term ' + txt);
-                        }else {
-                            $('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below');
-                        }
+						if(response.length == 0) {
+							$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
+							$('#' + t.prefixID + 'status').text('No results found for term ' + txt);
+						}else {
+							$('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below');
+						}
 
 
-                            t.selectionData = new Object();
-		            	for(var i in response) {
-		                	t.selectionData[response[i].empUID] = response[i];
+						t.selectionData = new Object();
+						for(var i in response) {
+							t.selectionData[response[i].empUID] = response[i];
 
-		                	var photo = response[i].data[1] != undefined && response[i].data[1].data != '' ? '<img class="employeeSelectorPhoto" src="' + t.rootPath + 'image.php?categoryID=1&amp;UID='+response[i].empUID+'&amp;indicatorID=1" alt="photo" />' : '';
-		                	var positionTitle = response[i].positionData != undefined ? response[i].positionData.positionTitle : '';
-		                	positionTitle = positionTitle == '' && response[i].data[23] !== undefined ? response[i].data[23].data : positionTitle;
-		                	var groupTitle = '';
-		                	
-		                	if(response[i].serviceData != undefined && response[i].serviceData[0].groupTitle != null) {
-		                		var counter = 0;
-		                		var divide = '';
-		                		for(var j in response[i].serviceData) {
-		                			if(counter > 0) {
-		                				divide = ' - ';
-		                			}
-		                			groupTitle += divide + (response[i].serviceData[j].groupAbbreviation == null ? response[i].serviceData[j].groupTitle : response[i].serviceData[j].groupAbbreviation) + '<br />';
-		                			counter++;
-		                		}
-		                	}
-		                	
-		                	room = '';
-		                	if(response[i].data[8] != undefined) {
-		                		if(response[i].data[8].data != '') {
-		                			room = response[i].data[8].data;
-		                		}
-		                	}
-		                	var email = '';
-		                	if(t.emailHref) {
-		                		email = response[i].data[6] != undefined ? '<b>Email:</b> <a href="mailto:' + response[i].data[6].data + '" onclick="event.stopPropagation();">' + response[i].data[6].data + '</a><br />' : '';
-		                	}
-		                	else {
-		                		email = response[i].data[6] != undefined ? '<b>Email:</b> ' + response[i].data[6].data + '<br />' : '';
-		                	}
+							var photo = response[i].data[1] != undefined && response[i].data[1].data != '' ? '<img class="employeeSelectorPhoto" src="' + t.rootPath + 'image.php?categoryID=1&amp;UID='+response[i].empUID+'&amp;indicatorID=1" alt="photo" />' : '';
+							var positionTitle = response[i].positionData != undefined ? response[i].positionData.positionTitle : '';
+							positionTitle = positionTitle == '' && response[i].data[23] !== undefined ? response[i].data[23].data : positionTitle;
+							var groupTitle = '';
 
-		                	phone = response[i].data[5] != undefined ? '<b>Phone:</b> ' + response[i].data[5].data + '<br />' : '';
+							if(response[i].serviceData != undefined && response[i].serviceData[0].groupTitle != null) {
+								var counter = 0;
+								var divide = '';
+								for(var j in response[i].serviceData) {
+									if(counter > 0) {
+										divide = ' - ';
+									}
+									groupTitle += divide + (response[i].serviceData[j].groupAbbreviation == null ? response[i].serviceData[j].groupTitle : response[i].serviceData[j].groupAbbreviation) + '<br />';
+									counter++;
+								}
+							}
 
-		                	midName = response[i].middleName == '' ? '' : '&nbsp;' + response[i].middleName + '.';
-		                	linkText = response[i].lastName + ', ' + response[i].firstName + midName;
-		                	if(t.selectLink != null) {
-		                		linkText = '<a href="'+ t.selectLink +'&empUID='+ response[i].empUID +'">' + linkText + '</a>';
-		                	}
+							room = '';
+							if(response[i].data[8] != undefined) {
+								if(response[i].data[8].data != '') {
+									room = response[i].data[8].data;
+								}
+							}
+							var email = '';
+							if(t.emailHref) {
+								email = response[i].data[6] != undefined ? '<b>Email:</b> <a href="mailto:' + response[i].data[6].data + '" onclick="event.stopPropagation();">' + response[i].data[6].data + '</a><br />' : '';
+							}
+							else {
+								email = response[i].data[6] != undefined ? '<b>Email:</b> ' + response[i].data[6].data + '<br />' : '';
+							}
 
-		                	if(t.outputStyle == 'micro') {
-			                	$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
-			                			<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
-			                			<td class="employeeSelectorContact">'+ email + phone +'</td>\
-			                			</tr>');
-		                	}
-		                	else {
-			                	$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
-			                			<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
-		                    			<td class="employeeSelectorService">'+ groupTitle + '<span>' +  room + '</span></td>\
-		                    			<td class="employeeSelectorContact">'+ email + phone +'</td>\
-			                			</tr>');	                		
-		                	}
+							phone = response[i].data[5] != undefined ? '<b>Phone:</b> ' + response[i].data[5].data + '<br />' : '';
 
-		                	$('#' + t.prefixID + 'emp' + response[i].empUID).addClass('employeeSelector');
+							midName = response[i].middleName == '' ? '' : '&nbsp;' + response[i].middleName + '.';
+							linkText = response[i].lastName + ', ' + response[i].firstName + midName;
+							if(t.selectLink != null) {
+								linkText = '<a href="'+ t.selectLink +'&empUID='+ response[i].empUID +'">' + linkText + '</a>';
+							}
 
-		                	$('#' + t.prefixID + 'emp' + response[i].empUID).on('click', t.getSelectorFunction(response[i].empUID));
+							if(t.outputStyle == 'micro') {
+								$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
+								<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
+								<td class="employeeSelectorContact">'+ email + phone +'</td>\
+								</tr>');
+							}
+							else {
+								$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
+								<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
+								<td class="employeeSelectorService">'+ groupTitle + '<span>' +  room + '</span></td>\
+								<td class="employeeSelectorContact">'+ email + phone +'</td>\
+								</tr>');	                		
+							}
 
-                            $('#' + t.prefixID + 'status').append(' ' + response[i].userName + ' ' + positionTitle + ' ' + email + ',');
-                            t.numResults++;
-		            	}
+							$('#' + t.prefixID + 'emp' + response[i].empUID).addClass('employeeSelector');
 
-		            	if(t.numResults == 1) {
-		            		t.selection = response[i].empUID;
-		            	}
+							$('#' + t.prefixID + 'emp' + response[i].empUID).on('click', t.getSelectorFunction(response[i].empUID));
 
-		            	if(t.numResults >= 5) {
-		            		var resultColSpan = 3;
-		                	if(t.outputStyle == 'micro') {
-		                		resultColSpan = 2;
-		                	}
-	
-		                	$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'tip">\
-		                			<td class="employeeSelectorName" colspan="'+ resultColSpan +'" style="background-color: white; text-align: center; font-weight: normal">&#x1f4a1; Can&apos;t find someone? Trying searching their Email address</td>\
-		                			</tr>');	  
-		            	}
+							$('#' + t.prefixID + 'status').append(' ' + response[i].userName + ' ' + positionTitle + ' ' + email + ',');
+							t.numResults++;
+						}
 
-		            	if(t.resultHandler != null) {
-		            		t.resultHandler();
-		            	}
+						if(t.numResults == 1) {
+							t.selection = response[i].empUID;
+						}
 
-		                t.showNotBusy();
-		            },
-		            cache: false
-		        };
-	    	var t = this;
-	    	if(this.useJSONP == 1) {
-	    		ajaxOptions.url += '&format=jsonp';
-	    		ajaxOptions.dataType = 'jsonp';
-	    	}
-	        this.currRequest = $.ajax(ajaxOptions);
-	    }
-	    else if(txt == "") {
-	    	this.q = txt;
-	    	$('#' + this.prefixID + 'result').html('');
-	    	this.numResults = 0;
-	    	this.selection = '';
-	    	if(this.resultHandler != null) {
-        		this.resultHandler();
-        	}
-	        this.showNotBusy();
-	    }
-	    else {
-	    	this.showNotBusy();
-	    }
+						if(t.numResults >= 5) {
+							var resultColSpan = 3;
+							if(t.outputStyle == 'micro') {
+								resultColSpan = 2;
+							}
+
+							$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'tip">\
+							<td class="employeeSelectorName" colspan="'+ resultColSpan +'" style="background-color: white; text-align: center; font-weight: normal">&#x1f4a1; Can&apos;t find someone? Trying searching their Email address</td>\
+							</tr>');	  
+						}
+
+						if(t.resultHandler != null) {
+							t.resultHandler();
+						}
+
+						t.showNotBusy();
+					},
+					cache: false
+				};
+				var t = this;
+				if(this.useJSONP == 1) {
+					ajaxOptions.url += '&format=jsonp';
+					ajaxOptions.dataType = 'jsonp';
+				}
+				this.currRequest = $.ajax(ajaxOptions);
+			}
+			else if(txt == "") {
+				$('#' + this.prefixID + 'result').html('');
+				this.numResults = 0;
+				this.selection = '';
+				if(this.resultHandler != null) {
+					this.resultHandler();
+				}
+				this.showNotBusy();
+			}
+		}
+		else {
+			this.showNotBusy();
+		}
 	}
 };

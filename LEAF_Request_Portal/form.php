@@ -1774,6 +1774,15 @@ class Form
                     $temp[$dep['recordID']] = 1;
                 }
 
+                // grants backups the ability to access records of their backupFor
+                foreach ($this->employee->getBackupsFor($this->login->getEmpUID()) as $emp)
+                {
+                    if ($dep['userID'] == $emp["userName"])
+                    {
+                        $temp[$dep['recordID']] = 1;
+                    }
+                }
+
                 // collaborator access
                 if (isset($hasCategoryAccess[$dep['categoryID']]))
                 {
@@ -2691,7 +2700,7 @@ class Form
                             switch ($tResTypeHint[0]['format']) {
                             case 'number':
                             case 'currency':
-                                $dataTerm = "CAST({$dataTerm} as DECIMAL)";
+                                $dataTerm = "CAST({$dataTerm} as DECIMAL(21,5))";
 
                                 break;
                             case 'date':
@@ -2942,7 +2951,7 @@ class Form
             foreach ($res2 as $item)
             {
                 if($data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] == null
-                    || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] >= $item['fulfillmentTime']) {
+                    || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] < $item['fulfillmentTime']) {
                     $data[$item['recordID']]['recordResolutionData']['lastStatus'] = $item['lastStatus'];
                     $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] = $item['fulfillmentTime'];
                 }
