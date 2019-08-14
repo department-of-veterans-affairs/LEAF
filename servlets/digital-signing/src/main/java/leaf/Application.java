@@ -6,6 +6,7 @@ import io.vertx.core.VertxOptions;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.json.Json;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
@@ -16,6 +17,8 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 public class Application extends AbstractVerticle {
 
     private static Logger logger = LoggerFactory.getLogger(Application.class);
+
+    private SignEngine signEngine;
 
     public static void main(String[] args) {
         Runner.run(Application.class);
@@ -39,10 +42,12 @@ public class Application extends AbstractVerticle {
             ws.handler(request -> {
                 Sign sign = JsonSerializer.deserialize(request.toString());
                 logger.info("dataToSign: " + sign.getDataToSign());
-                String signature = SignEngine.getSignature(sign.getDataToSign());
-                String status = "SUCCESS";
-                if (signature.substring(0, 5).equals("ERROR")) status = "ERROR";
-                ws.write(Buffer.buffer(JsonSerializer.serialize(sign.getKey(), signature, status)));
+                SignEngine signEngine = new SignEngine();
+                String signature = signEngine.getSignature(sign.getDataToSign());
+                String certificateHex = signEngine.getCertificateHex();
+                String status = (signature.substring(0, 5).equals("ERROR")) ? "ERROR" : "SUCCESS";
+                logger.info("Verified: " + signEngine.verify());
+                ws.write(Buffer.buffer(JsonSerializer.serialize(sign.getKey(), signature, status, certificateHex)));
             });
         });
         router.route("/myapp/*").handler(sockJSHandler);
@@ -53,10 +58,12 @@ public class Application extends AbstractVerticle {
             ws.handler(request -> {
                 Sign sign = JsonSerializer.deserialize(request.toString());
                 logger.info("dataToSign: " + sign.getDataToSign());
-                String signature = SignEngine.getSignature(sign.getDataToSign());
-                String status = "SUCCESS";
-                if (signature.substring(0, 5).equals("ERROR")) status = "ERROR";
-                ws.writeFinalTextFrame(JsonSerializer.serialize(sign.getKey(), signature, status));
+                SignEngine signEngine = new SignEngine();
+                String signature = signEngine.getSignature(sign.getDataToSign());
+                String certificateHex = signEngine.getCertificateHex();
+                String status = (signature.substring(0, 5).equals("ERROR")) ? "ERROR" : "SUCCESS";
+                logger.info("Verified: " + signEngine.verify());
+                ws.writeFinalTextFrame(JsonSerializer.serialize(sign.getKey(), signature, status, certificateHex));
             });
         }).listen(8080);
         logger.info("Websocket server started on port 8080");

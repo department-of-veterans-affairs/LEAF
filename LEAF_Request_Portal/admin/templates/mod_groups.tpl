@@ -266,15 +266,27 @@ function createGroup() {
 
     dialog.setSaveHandler(function() {
     	dialog.indicateBusy();
+        //list of possible errors returned by the api call
+        possibleErrors = [
+            "Group title must not be blank", 
+            "Group title already exists", 
+            "invalid parent group"
+        ];
         $.ajax({
             type: 'POST',
             url: '<!--{$orgchartPath}-->/api/?a=group',
             data: {title: $('#groupName').val(),
                    CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
-                tagAndUpdate(res, function() {
-                    dialog.indicateIdle();
-                });
+                if(possibleErrors.indexOf(res) != -1) {
+                    alert(res);
+                    dialog.hide();
+                }
+                else {
+                    tagAndUpdate(res, function() {
+                        dialog.indicateIdle();
+                    });
+                }
             }
         });
     });

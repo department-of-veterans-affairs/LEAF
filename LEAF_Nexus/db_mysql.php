@@ -42,7 +42,7 @@ class DB
         try
         {
             $this->db = new PDO(
-                "mysql:host={$this->dbHost};dbname={$this->dbName}",
+                "mysql:host={$this->dbHost};dbname={$this->dbName};charset=UTF8",
                 $this->dbUser,
                 $pass,
                 array()

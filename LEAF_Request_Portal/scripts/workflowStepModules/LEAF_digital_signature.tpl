@@ -17,7 +17,7 @@ workflowStepModule[{{$stepID}}]['LEAF_digital_signature'] = (function() {
 						'padding-bottom': '16px',
 						'font-size': '14px',
 						'text-align': 'center'})
-					.html("<img src='images/largespinner.gif' alt='Loading Digital Signature Routines' title='Loading Digital Signature Routines'' style='vertical-align: middle'> Loading Digital Signature Routines...")
+					.html("<img src='images/largespinner.gif' alt='Loading Digital Signature (Beta) Routines' title='Loading Digital Signature (Beta) Routines'' style='vertical-align: middle'> Loading Digital Signature (Beta) Routines...")
 					.attr('id', 'digitalSignatureStatus_' + key)
 					.appendTo('#workflowbox_dep' + step.dependencyID);
 
@@ -28,13 +28,14 @@ workflowStepModule[{{$stepID}}]['LEAF_digital_signature'] = (function() {
 						currRecordID,
 						function (json) {
 							var jsonStr = JSON.stringify(json);
-							Signer.sign(key, jsonStr, function (signedData) {
+							Signer.sign(key, jsonStr, function (signedData, signerPublicKey) {
 								portalAPI.Signature.create(
 									signedData,
 									currRecordID,
 									step.stepID,
 									step.dependencyID,
-									jsonStr,
+                                    jsonStr,
+                                    signerPublicKey,
 									function (id) {
 										completeAction();
 									},
@@ -67,7 +68,7 @@ workflowStepModule[{{$stepID}}]['LEAF_digital_signature'] = (function() {
 		.css({'margin': 'auto',
 			  'width': '95%',
 			  'text-align': 'center'})
-		.html("<br style='clear: both' /><img src='../libs/dynicons/?img=application-certificate.svg&w=24' alt='Digital Signature Enabled' title='Digital Signature Enabled' style='vertical-align: middle'> Digital Signature Enabled")
+		.html("<br style='clear: both' /><img src='../libs/dynicons/?img=application-certificate.svg&w=24' alt='Digital Signature (Beta) Enabled' title='Digital Signature (Beta) Enabled' style='vertical-align: middle'> Digital Signature (Beta) Enabled")
 		.appendTo('#form_dep' + step.dependencyID);
 
 		if(typeof Signer == 'undefined') {

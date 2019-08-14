@@ -211,6 +211,14 @@ class Login
 
     public function loginUser()
     {
+        $authType = '/auth_domain/?r=';
+        $nonBrowserAuth = '/login/?r=';
+
+        if(defined('AUTH_TYPE') && AUTH_TYPE == 'cookie') {
+            $authType = '/auth_cookie/?r=';
+            $nonBrowserAuth = '/auth_cookie/?r=';
+        }
+
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
         {
             if (php_sapi_name() != 'cli')
@@ -228,11 +236,11 @@ class Login
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
                 {
-                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/auth_domain/?r=' . base64_encode($_SERVER['REQUEST_URI']));
+                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . $authType . base64_encode($_SERVER['REQUEST_URI']));
                     exit();
                 }
 
-                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . '/login/?r=' . base64_encode($_SERVER['REQUEST_URI']));
+                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
                 exit();
             }
 
