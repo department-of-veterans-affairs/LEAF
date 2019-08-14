@@ -264,6 +264,8 @@ function addSubordinate(parentID) {
                 parentDomPosition.left += 0;
                 parentDomPosition.top += 80;
                 positions[response].setDomPosition(parentDomPosition.left, parentDomPosition.top);
+                positions[response].addControl('<div class="button" onclick="removePosition('+response+');"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=32" alt="Remove Position" title="Remove Position" /> Remove Position</div>');
+                positions[response].addControl('<div class="button" onclick="changeSupervisor('+response+');"><img src="../libs/dynicons/?img=system-users.svg&amp;w=32" alt="Change Supervisor" title="Change Supervisor" /> Change Supervisor</div>');
                 // make position box draggable
                 draggableOptions.stop = function() {
                 	saveLayout(response);
@@ -522,6 +524,12 @@ $(function() {
 
     $('#header').css('background-image', "url('images/gradient_admin.png')");
     $('#editor_toolbar').appendTo('#headerTab');
+    $('#xhrDialog').on('keydown', function(e) {
+        if(e.keyCode == 13) { // enter key
+            e.preventDefault();
+            $('#xhrDialog button#button_save').click();
+        }
+    });
 });
 
 /* ]]> */

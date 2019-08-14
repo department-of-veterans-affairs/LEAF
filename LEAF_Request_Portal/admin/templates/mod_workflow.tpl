@@ -827,7 +827,7 @@ function signatureRequired(cb, stepID) {
     if (cb.checked) {
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
-        dialog_confirm.setContent('Are you sure you want to require a digital signature on this step?<br /><br />'
+        dialog_confirm.setContent('Are you sure you want to require a digital signature (beta) on this step?<br /><br />'
                 + '<span>Digital signatures should only be used if a "wet signature" is required by your business process.</span>');
         dialog_confirm.setSaveHandler(function() {
             dialog_confirm.hide();
@@ -864,6 +864,7 @@ function buildWorkflowIndicatorDropdown(stepID, steps) {
         cache: false
         })
         .then(function(indicatorList) {
+            var stapledInternalIndicators;
             for(var i in associatedCategories) {
                 for(var j in indicatorList) {
                     if((associatedCategories[i].categoryID == indicatorList[j].categoryID
@@ -976,7 +977,7 @@ function showStepInfo(stepID) {
                     // TODO: This will eventually be moved to some sort of Workflow extension plugin
                     output += '<fieldset><legend>Options</legend><ul>';
                     output += '<li><input id="requiresSigCB" style="cursor: pointer" type="checkbox"' + (steps[stepID].requiresDigitalSignature == true ? ' checked' : '') + ' onclick="signatureRequired(this, ' + stepID + ')">';
-                    output += '<label for="requiresSigCB" style="cursor: pointer">Require Digital Signature</label></li>';
+                    output += '<label for="requiresSigCB" style="cursor: pointer">Require Digital Signature (Beta)</label></li>';
                     output += '<li>Form Field: <select id="workflowIndicator" style="width: 240px"><option value="">None</option></select></li>';
                     output += '</ul></fieldset>';
 

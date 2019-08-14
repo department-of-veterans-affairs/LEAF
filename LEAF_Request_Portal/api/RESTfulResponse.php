@@ -355,17 +355,17 @@ abstract class RESTfulResponse
             exit();
         }
 
-        $url = 'http://';
-        if ($_SERVER['SERVER_PORT'] == '443')
-        {
-            $url = 'https://';
-        }
+        $url = 'https://';
+        // if ($_SERVER['HTTPS'] == 'on')
+        // {
+        //     $url = 'https://';
+        // }
 
         $url .= $_SERVER['HTTP_HOST'];
 
         $script = $_SERVER['SCRIPT_NAME'];
-        $apiOffset = strpos($script, 'api');
-        $script = substr($script, 0, $apiOffset);
+        $apiOffset = strpos($script, '/api/');
+        $script = substr($script, 0, $apiOffset + 1);
 
         $checkMe = strtolower($url . $script . 'admin');
 

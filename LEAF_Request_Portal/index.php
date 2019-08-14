@@ -172,6 +172,7 @@ switch ($action) {
             'js/workflow.js',
             'js/formGrid.js',
             'js/formQuery.js',
+            'js/formPrint.js',
             'js/jsdiff.js',
             '../libs/js/LEAF/XSSHelpers.js',
             '../libs/jsapi/portal/LEAFPortalAPI.js',
@@ -197,6 +198,7 @@ switch ($action) {
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);
+        $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
         $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
         $t_form->assign('priority', (int)$recordInfo['priority']);
@@ -261,7 +263,7 @@ switch ($action) {
         break;
     case 'inbox':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js'));
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -518,7 +520,10 @@ switch ($action) {
         break;
 }
 
+$main->assign('leafSecure', isset(Config::$leafSecure) && Config::$leafSecure);
 $main->assign('login', $t_login->fetch('login.tpl'));
+$onPrem = !isset(Config::$onPrem) ? true :  Config::$onPrem;
+$main->assign('onPrem', $onPrem);
 $t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());

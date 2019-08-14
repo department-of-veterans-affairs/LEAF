@@ -24,12 +24,14 @@ configurations {
 dependencies {
     compile 'io.vertx:vertx-core:3.3.3'
     compile 'io.vertx:vertx-web:3.3.3'
+    compile 'javax.xml.bind:jaxb-api:2.3.0'
 }
 
 shadowJar.archiveName = 'Sign.jar'
 
 jar {
     manifest {
-        attributes("Main-Class": "leaf.Application")
+        attributes("Main-Class": "leaf.Application",
+                    "Permissions": "all-permissions")
     }
 }

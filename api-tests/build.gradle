@@ -1,0 +1,67 @@
+plugins {
+	id 'org.springframework.boot' version '2.1.5.RELEASE'
+	id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'groovy'
+
+group = 'gov.va.leaf'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "Greenwich.SR1")
+}
+
+test {
+    systemProperty "java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager"
+}
+
+configurations {
+	resolutionStrategy {
+		all*.exclude group: 'log4j', module: 'log4j'
+		all*.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+		all*.exclude group: 'org.slf4j', module: 'log4j-over-slf4j'
+		all*.exclude group: 'ch.qos.logback', module: 'logback-core'
+		all*.exclude group: 'ch.qos.logback', module: 'logback-classic'
+		all*.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+		all*.exclude group: 'org.springframework.boot', module: 'logback-classic'
+		all*.exclude group: 'org.springframework.boot', module: 'logback-core'
+	}
+}
+
+dependencies {
+	implementation 'org.apache.logging.log4j:log4j-jul:2.11.2'
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+	compileOnly 'org.projectlombok:lombok'
+	implementation 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'org.codehaus.groovy:groovy-all:2.5.7'
+
+	testImplementation 'org.spockframework:spock-core:1.3-groovy-2.5'
+	testImplementation 'org.spockframework:spock-spring:1.3-groovy-2.5'
+
+	testImplementation 'io.rest-assured:rest-assured:4.0.0'
+	testImplementation 'io.rest-assured:json-path:4.0.0'
+	testImplementation 'io.rest-assured:xml-path:4.0.0'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}

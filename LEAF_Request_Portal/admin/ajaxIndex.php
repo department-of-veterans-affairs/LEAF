@@ -111,7 +111,7 @@ switch ($action) {
 
         break;
     case 'importForm':
-        require '../sources/formStack.php';
+        require '../sources/FormStack.php';
         $formStack = new FormStack($db, $login);
         $result = $formStack->importForm();
 
@@ -119,7 +119,7 @@ switch ($action) {
 
         break;
     case 'manualImportForm':
-           require '../sources/formStack.php';
+           require '../sources/FormStack.php';
            $formStack = new FormStack($db, $login);
            $result = $formStack->importForm();
 

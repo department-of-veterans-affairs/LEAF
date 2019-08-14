@@ -133,7 +133,7 @@ class Employee extends Data
     {
         if ($userName == '')
         {
-            return '';
+            return 'Invalid user';
         }
 
         // first see if the username already exists
@@ -663,7 +663,7 @@ class Employee extends Data
                 }
 
                 $searchResult = $this->lookupName($last, $first, $middle);
-                if (count($res) <= $this->deepSearch)
+                if (count($searchResult) <= $this->deepSearch)
                 {
                     $this->log[] = 'Trying Deeper search';
                     $input = trim('*' . $input);

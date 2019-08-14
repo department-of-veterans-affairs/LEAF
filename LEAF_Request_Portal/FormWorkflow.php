@@ -201,6 +201,8 @@ class FormWorkflow
                     {
                         $res[$i]['description'] = $tGroup[0]['name'];
                     }
+
+                    $res[$i]['description'] ?? 'Warning: Group Name has not been imported in the User Access Group';
                 }
 
                 foreach ($res2 as $group)
