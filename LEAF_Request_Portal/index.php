@@ -520,6 +520,7 @@ switch ($action) {
         break;
 }
 
+$main->assign('leafSecure', isset(Config::$leafSecure) && Config::$leafSecure);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $onPrem = !isset(Config::$onPrem) ? true :  Config::$onPrem;
 $main->assign('onPrem', $onPrem);
