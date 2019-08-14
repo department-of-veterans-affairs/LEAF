@@ -11,5 +11,9 @@ LEAF_Request_Portal/globals.php
 LEAF_Nexus/UPLOADS
 LEAF_Request_Portal/UPLOADS
 .vscode
+LEAF_Request_Portal/db_config-bk.php
+LEAF_Nexus/config-bk.php
+LEAF_Nexus/globals-bk.php
+LEAF_Request_Portal/globals-bk.php
 /node_modules
 /.idea
