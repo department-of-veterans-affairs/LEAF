@@ -8,7 +8,7 @@ RUN yes | apt-get install vim
 # Mail()
 RUN apt-get install -y ssmtp && \
   apt-get clean && \
-  echo "FromLineOverride=YES" >> /etc/ssmtp/ssmtp.conf && \
+  echo "FromLineOverride=YES" > /etc/ssmtp/ssmtp.conf && \
   echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail.ini
 
 # AWS CLI
