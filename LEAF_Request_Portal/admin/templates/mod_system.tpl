@@ -171,6 +171,49 @@ function renderSiteType() {
     }
 }
 
+function renderSettings(res) {
+    var query = new LeafFormQuery();
+    query.setRootURL('../');
+    query.addTerm('categoryID', '=', 'leaf_secure');
+
+    for(var i in res) {
+        $('#' + i).val(res[i]);
+        if(i == 'leafSecure') {
+            if(res[i] == '1') { // Certified
+                query.addTerm('stepID', '=', 'resolved');
+                query.join('recordResolutionData');
+                query.onSuccess(function(data) {
+                    var mostRecentID = null;
+                    var mostRecentDate = 0;
+                    for(var i in data) {
+                        if(data[i].recordResolutionData.lastStatus == 'Approved'
+                            && data[i].recordResolutionData.fulfillmentTime > mostRecentDate) {
+                            mostRecentDate = data[i].recordResolutionData.fulfillmentTime;
+                            mostRecentID = i;
+                        }
+                    }
+                    $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: green; color: white; font-weight: bold">Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID='+ mostRecentID +'">View details</a>');
+                });
+                query.execute();
+            }
+            else { // Not certified
+                query.addTerm('stepID', '!=', 'resolved');
+                query.onSuccess(function(data) {
+                    if(data.length == 0) {
+                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</a>');
+                    }
+                    else {
+                        var recordID = data[Object.keys(data)[0]].recordID;
+                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID='+ recordID +'">Check Certification Progress</a>');
+                    }
+                });
+                query.execute();
+            }
+        }
+    }
+    renderSiteType();
+}
+
 var dialog, dialog_confirm;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
@@ -182,18 +225,7 @@ $(function() {
         cache: false
     })
     .then(function(res) {
-        for(var i in res) {
-            $('#' + i).val(res[i]);
-            if(i == 'leafSecure') {
-                if(res[i] == '1') {
-                    $('#leafSecureStatus').html('<span style="font-size: 120%; color: green; font-weight: bold">Certified</span>');
-                }
-                else {
-                    $('#leafSecureStatus').html('<span style="font-size: 120%; color: red; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</a>');
-                }
-            }
-        }
-        renderSiteType();
+        renderSettings(res)
     });
 
     $('#siteType').on('change', function() {
