@@ -30,6 +30,11 @@ class Form
 
     public $oc_dbName;   // Org Chart
 
+    public $log = array(
+        "write" => array(),
+        "read" => array()
+    );  // used by checkReadAccess() and hasWriteAccess() to log activity
+
     private $db;
 
     private $login;
@@ -1349,6 +1354,11 @@ class Form
                 {
                     $categoryID = $res[0]['categoryID'];
                     $this->cache["hasWriteAccess_{$recordID}_{$categoryID}_{$indicatorID}"] = $categoryID;
+                    $this->log["write"]["{$recordID}_{$categoryID}_{$indicatorID}"] = "Indicator {$indicatorID} is associated with {$categoryID}.";
+                }
+                else
+                {
+                    $this->log["write"]["{$recordID}_{$categoryID}_{$indicatorID}"] = "Indicator {$indicatorID} on record {$recordID} is not associated with any form.";
                 }
             }
         }
@@ -1357,6 +1367,7 @@ class Form
         if ($categoryID === 0
             && $indicatorID == 0)
         {
+            $categoryID = '';
             $vars = array(':recordID' => (int)$recordID);
             $res = $this->db->prepared_query('SELECT * FROM category_count
         										WHERE recordID=:recordID
@@ -1392,16 +1403,21 @@ class Form
             && $this->login->getUserID() == $resRecords[0]['userID'])
         {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
+            $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are a writable user or initiator of record {$recordID}, {$categoryID}.";
 
             return 1;
         }
+        $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You is not a writable user or initiator of record {$recordID}, {$categoryID}.";
+
         // give admins access
         if ($this->login->checkGroup(1))
         {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
+            $this->log["write"]["{$recordID}_{$categoryID}_admin"] = 'You are an admin.';
 
             return 1;
         }
+        $this->log["write"]["{$recordID}_{$categoryID}_admin"] = 'You are not an admin.';
 
         // find out if explicit permissions have been granted to any groups
         if (count($multipleCategories) <= 1)
@@ -1417,9 +1433,11 @@ class Form
             if (count($resCategoryPrivs) > 0)
             {
                 $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
+                $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
 
                 return 1;
             }
+            $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are not in group with appropriate write permissions.';
         }
         else
         {
@@ -1436,9 +1454,11 @@ class Form
                 if (count($resCategoryPrivs) > 0)
                 {
                     $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
+                    $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
 
                     return 1;
                 }
+                $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are not in group with appropriate write permissions.';
             }
         }
 
@@ -1456,9 +1476,11 @@ class Form
             if ($this->hasDependencyAccess($priv['dependencyID'], $priv))
             {
                 $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
+                $this->log["write"]["{$recordID}_{$categoryID}_dependency"] = 'You are a dependency.';
 
                 return 1;
             }
+            $this->log["write"]["{$recordID}_{$categoryID}_dependency"] = 'You are not a dependency.';
         }
 
         // default no access
@@ -1488,9 +1510,15 @@ class Form
             if (!isset($resRead[$recordID]))
             {
                 $this->cache["hasReadAccess_{$recordID}"] = 0;
+                $this->log["read"]["{$recordID}"] = "Record {$recordID} is need to know and you do not have read access.";
 
                 return 0;
             }
+            $this->log["read"]["{$recordID}"] = "Record {$recordID} is need to know but you have read access.";
+        }
+        else
+        {
+            $this->log["read"]["{$recordID}"] = "Record {$recordID} is not need to know.";
         }
         $this->cache["hasReadAccess_{$recordID}"] = 1;
 
