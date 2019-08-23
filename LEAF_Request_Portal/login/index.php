@@ -61,11 +61,7 @@ When logging into this system, you agree to the following:<br />
 
     <div style="font-size: 150%">
         <a href="<?php echo '//' . $_SERVER['SERVER_NAME'] . ':444' . getBaseDir() . 'auth_token/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV card</b><img src="../../libs/dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV card" title="Icon for PIV card" /></div></a><br />
-        <?php if (!isset(Config::$leafSecure) || Config::$leafSecure == false)
-        {
-            echo '<a href="//' . $_SERVER['SERVER_NAME'] . getBaseDir() . 'auth_domain/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8') . '"><div class="buttonNorm" style="text-align: center">Login with Username and Password</div></a>';
-        }
-        ?>
+        <a href="//' . $_SERVER['SERVER_NAME'] . getBaseDir() . 'auth_cookie/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8') . '"><div class="buttonNorm" style="text-align: center">Login with Windows Credentials</div></a>
     </div>
 </div>
 
