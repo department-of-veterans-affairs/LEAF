@@ -36,10 +36,10 @@ function LeafSessionTimeout() {
 
         if (LeafSession_idleTime >= LeafSession_maxTime) {
             if(window.location.href.indexOf('/admin/') == -1) {
-                window.location = './index.php?a=logouta';
+                window.location = './index.php?a=logout';
             }
             else {
-                window.location = '../index.php?a=logouta';
+                window.location = '../index.php?a=logout';
             }
         }
         // check activity on other windows after LeafSession_warningTime minutes
