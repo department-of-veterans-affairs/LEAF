@@ -179,7 +179,7 @@ function renderSettings(res) {
     for(var i in res) {
         $('#' + i).val(res[i]);
         if(i == 'leafSecure') {
-            if(res[i] == '1') { // Certified
+            if(res[i] >= 1) { // Certified
                 query.addTerm('stepID', '=', 'resolved');
                 query.join('recordResolutionData');
                 query.onSuccess(function(data) {

@@ -33,7 +33,7 @@
     <script type="text/javascript" src="../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/icheck/icheck.js"></script>
     {/if}
-    {if $leafSecure == 1}
+    {if $leafSecure >= 1}
     <script type="text/javascript" src="../libs/js/LEAF/sessionTimeout.js"></script>
     {/if}
 {section name=i loop=$javascripts}
