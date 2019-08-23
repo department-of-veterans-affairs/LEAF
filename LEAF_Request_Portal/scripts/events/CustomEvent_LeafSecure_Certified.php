@@ -34,6 +34,7 @@ class CustomEvent_LeafSecure_Certified
      */
     public function execute()
     {
-        $this->db->query("UPDATE settings SET data = '1' WHERE setting = 'leafSecure'");
+        $vars = array(':time' => time());
+        $this->db->prepared_query("UPDATE settings SET data = :time WHERE setting = 'leafSecure'", $vars);
     }
 }
