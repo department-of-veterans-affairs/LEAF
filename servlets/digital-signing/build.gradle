@@ -31,6 +31,7 @@ shadowJar.archiveName = 'Sign.jar'
 
 jar {
     manifest {
-        attributes("Main-Class": "leaf.Application")
+        attributes("Main-Class": "leaf.Application",
+                    "Permissions": "all-permissions")
     }
 }
