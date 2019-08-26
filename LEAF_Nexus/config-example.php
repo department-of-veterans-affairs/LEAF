@@ -27,6 +27,8 @@ class Config
 
     public $adPath = array('OU=Users,DC=va,DC=gov'); // Active directory paths
 
+    public static $onPrem = false;         //used to display on-prem banner warning
+
     public static $uploadDir = './UPLOADS/';
 
     // Directory for user uploads

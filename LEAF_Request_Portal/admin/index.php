@@ -442,6 +442,8 @@ switch ($action) {
 
 $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
+$onPrem = !isset(Config::$onPrem) ? true :  Config::$onPrem;
+$main->assign('onPrem', $onPrem);
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $o_menu = $t_menu->fetch('menu.tpl');

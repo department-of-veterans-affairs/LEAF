@@ -699,7 +699,9 @@
                     });
                 }
                 function importFromNational(empSel) {
-                    if(empSel.selection != '') {
+                    if (empSel.selection === '') {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
+                    } else {
                         $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Please wait. Database busy. ***');
                         var selectedUserName = empSel.selectionData[empSel.selection].userName;
                         $.ajax({
