@@ -478,6 +478,7 @@ switch ($action) {
 
         $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
         $main->assign('city', $settings['subHeading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subHeading']));
+        $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
         $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
 
         $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
@@ -523,7 +524,7 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', isset(Config::$leafSecure) && Config::$leafSecure);
+$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $onPrem = !isset(Config::$onPrem) ? true :  Config::$onPrem;
 $main->assign('onPrem', $onPrem);

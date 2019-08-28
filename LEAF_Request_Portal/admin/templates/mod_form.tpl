@@ -493,7 +493,7 @@ function newQuestion(parentIndicatorID) {
                                 <td><input id="required" name="required" type="checkbox" /></td>\
                             </tr>\
                             <tr>\
-                                <td>Sensitive</td>\
+                                <td>Sensitive Data (PHI/PII)</td>\
                                 <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
                             </tr>\
                             <tr>\
@@ -930,7 +930,7 @@ function getForm(indicatorID, series) {
                         <td><input id="required" name="required" type="checkbox" /></td>\
                     </tr>\
                     </tr>\
-                        <td>Sensitive</td>\
+                        <td>Sensitive Data (PHI/PII)</td>\
                         <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
                     </tr>\
                     <tr>\
