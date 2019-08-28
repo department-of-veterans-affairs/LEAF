@@ -33,6 +33,9 @@
     <script type="text/javascript" src="../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/icheck/icheck.js"></script>
     {/if}
+    {if $leafSecure >= 1}
+    <script type="text/javascript" src="../libs/js/LEAF/sessionTimeout.js"></script>
+    {/if}
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
@@ -49,9 +52,9 @@
       <span id="headerDescription">{$title|sanitize}</span>
     </div>
     <span id="headerHelp">
-        {if !$leafSecure}
+        {if $leafSecure == 0}
         <div class="alert" style="display: inline">
-            <span>Do not provide PHI/PII on this site.</span>
+            <span>Do not enter PHI/PII.</span>
         </div>
         {/if}
         {$login}</span>
@@ -74,6 +77,5 @@
 <div class="noprint" id="footer"{if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
     <br /><br /><a id="versionID" href="?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>
 </div>
-
 </body>
 </html>{/strip}

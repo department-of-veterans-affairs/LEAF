@@ -1176,7 +1176,7 @@ class Form
         $hasInitialStep = false;
         foreach ($res as $workflow)
         {
-            if ($workflow['initialStepID'] > 0)
+            if ($workflow['initialStepID'] != 0)
             {
                 // make sure the initial step is valid
                 $vars = array(':stepID' => $workflow['initialStepID']);
@@ -1205,7 +1205,7 @@ class Form
                 }
             }
 
-            if ($workflow['workflowID'] > 0)
+            if ($workflow['workflowID'] != 0)
             {
                 $workflowIDs[] = $workflow['workflowID'];
             }
@@ -3069,14 +3069,14 @@ class Form
                 break;
         }
         $vars = array();
-        $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
+        $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
                     LEFT JOIN categories USING (categoryID)
                     WHERE indicators.disabled = 0
                         AND format != ""
                         AND name != ""
                         AND categories.disabled = 0' . $orderBy;
         if($includeHeadings) {
-            $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
+            $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
             LEFT JOIN categories USING (categoryID)
             WHERE indicators.disabled = 0
                 AND name != ""
@@ -3084,7 +3084,7 @@ class Form
         }
         $res = $this->db->prepared_query($query, $vars);
 
-        $resAll = $this->db->prepared_query('SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
+        $resAll = $this->db->prepared_query('SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
 													LEFT JOIN categories USING (categoryID)
 								                    WHERE indicators.disabled = 0
 								    					AND categories.disabled = 0' . $orderBy, $vars);
@@ -3112,6 +3112,7 @@ class Form
             $temp['description'] = $item['description'];
             $temp['categoryName'] = $item['categoryName'];
             $temp['categoryID'] = $item['categoryID'];
+            $temp['is_sensitive'] = $item['is_sensitive'];
             $isActiveIndicator[$item['indicatorID']] = $temp;
             $isActiveCategory[$item['categoryID']] = 1;
         }
@@ -3133,6 +3134,7 @@ class Form
                     $temp['description'] = $item['description'];
                     $temp['categoryName'] = $item['categoryName'];
                     $temp['categoryID'] = $item['categoryID'];
+                    $temp['is_sensitive'] = $item['is_sensitive'];
                     $temp['parentCategoryID'] = $item['parentCategoryID'];
                     $temp['parentStaples'] = $dataStaples[$item['categoryID']];
                     if(count($forms) > 0) {

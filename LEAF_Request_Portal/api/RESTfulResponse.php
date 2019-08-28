@@ -355,13 +355,10 @@ abstract class RESTfulResponse
             exit();
         }
 
-        $url = 'https://';
-        // if ($_SERVER['HTTPS'] == 'on')
-        // {
-        //     $url = 'https://';
-        // }
+        $tIdx = strpos($_SERVER['HTTP_REFERER'], '://');
+        $referer = substr($_SERVER['HTTP_REFERER'], $tIdx);
 
-        $url .= $_SERVER['HTTP_HOST'];
+        $url = '://' . $_SERVER['HTTP_HOST'];
 
         $script = $_SERVER['SCRIPT_NAME'];
         $apiOffset = strpos($script, '/api/');
@@ -369,7 +366,7 @@ abstract class RESTfulResponse
 
         $checkMe = strtolower($url . $script . 'admin');
 
-        if (strncmp(strtolower($_SERVER['HTTP_REFERER']), $checkMe, strlen($checkMe)) !== 0)
+        if (strncmp(strtolower($referer), $checkMe, strlen($checkMe)) !== 0)
         {
             echo 'Error: Invalid request. Mismatched Referer';
             exit();
