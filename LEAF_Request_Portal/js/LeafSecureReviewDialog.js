@@ -29,7 +29,7 @@ var LeafSecureReviewDialog = function(domId) {
             buildSensitiveGrid(sensitiveFields);
         }
         else {
-            $('#'+ prefixID +'sensitiveFields').html('<h3>No data fields have been marked as sensitive.</h3>');
+            $('#'+ prefixID +'sensitiveFields').html('<h2>No data fields have been marked as sensitive.</h2>');
             if($('#'+ prefixID).val() == '') {
                 $('#'+ prefixID).val('N/A');
             }
@@ -59,7 +59,7 @@ var LeafSecureReviewDialog = function(domId) {
         ]);
         gridSensitive.sort('fieldName', 'desc');
         gridSensitive.renderBody();
-        $('#'+ prefixID +'sensitiveFields').prepend('<h3>The following fields have been marked as sensitive.</h3>'
+        $('#'+ prefixID +'sensitiveFields').prepend('<h2>The following fields have been marked as sensitive.</h2>'
                                                 + '<p>Sensitive fields automatically enable and enforce "Need to know" data restrictions in this system.</p>');
     }
 
@@ -79,6 +79,6 @@ var LeafSecureReviewDialog = function(domId) {
         ]);
         gridNonSensitive.sort('fieldName', 'desc');
         gridNonSensitive.renderBody();
-        $('#'+ prefixID +'nonSensitiveFields').prepend('<br /><h3>Please verify the remaining fields are not sensitive.</h3>');
+        $('#'+ prefixID +'nonSensitiveFields').prepend('<br /><h2 style="color: red">Please verify the remaining fields are not sensitive.</h2>');
     }
 };
