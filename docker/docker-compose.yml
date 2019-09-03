@@ -4,10 +4,10 @@ services:
   php:
       build:
         context: ../
-        dockerfile: docker/php/Dockerfile
+        dockerfile: Dockerfile
       ports:
-        - 80:80
-        - 443:443
+        - 8080:80
+#       - 443:443
       links:
         - mysql
       volumes:
@@ -18,8 +18,10 @@ services:
         code-network:
           aliases:
             - php
+
       environment:
         - REMOTE_USER=${REMOTE_USER}
+        - "DB_HOST=mysql"
 
   mysql:
     build:

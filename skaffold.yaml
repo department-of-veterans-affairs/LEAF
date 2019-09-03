@@ -1,31 +1,28 @@
-apiVersion: skaffold/v1alpha2
+apiVersion: skaffold/v1beta2
 kind: Config
 build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
   tagPolicy:
     envTemplate:
-      template: "{{.DOCKER_REGISTRY}}/{{.ECR_REPO}}/{{.APP_NAME}}:{{.VERSION}}"
-  artifacts:
-    - imageName: changeme
-      workspace: .
-      docker: {}
+      template: '{{.DOCKER_REGISTRY}}/avdockerid/leaf:{{.VERSION}}'
   local: {}
 deploy:
-  kubectl:
-    manifests:
+  kubectl: {}
 profiles:
-  - name: dev
-    build:
-      tagPolicy:
-        envTemplate:
-          template: "{{.DOCKER_REGISTRY}}/{{.ECR_REPO}}:{{.JOB_NAME}}-{{.DIGEST_HEX}}"
-      artifacts:
-        - docker: {}
-      local: {}
-    deploy:
-      helm:
-        releases:
-          - name: "{{.APP_NAME}}"
-            chartPath: "charts/{{.APP_NAME}}"
-            setValueTemplates:
-              image.repository: "{{.DOCKER_REGISTRY}}/{{.ECR_REPO}}"
-              image.tag: "{{.JOB_NAME}}-{{.DIGEST_HEX}}"
+- name: dev
+  build:
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/avdockerid/leaf:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: leaf
+        chartPath: charts/leaf
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/avdockerid/leaf'
+          image.tag: '{{.DIGEST_HEX}}'

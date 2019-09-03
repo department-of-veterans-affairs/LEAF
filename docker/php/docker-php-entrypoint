@@ -3,7 +3,11 @@
 set -e
 
 # Sleep to run after MySQL container start
-sleep 120
+sleep 12
+
+# Updates php config files at runtime for 
+# database configuration from environment variables
+update_env.sh
 
 printf '\n\nRunning updateDatabase scripts...'
 php /var/www/html/LEAF_Nexus/scripts/updateDatabase.php
