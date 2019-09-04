@@ -64,6 +64,17 @@ pipeline {
         }
       }
     }
+    stage('Run fortify') {
+      when {
+        branch 'dev'
+      }
+      steps {
+        container('fortify-code-security') {
+          sh '/mnt/workspace/fortify.sh'
+        }
+        archiveArtifacts artifacts: 'fortify/**', allowEmptyArchive: true, fingerprint: true
+      }
+    }
   }
   post {
         always {
