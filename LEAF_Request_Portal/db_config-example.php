@@ -44,7 +44,7 @@ class Config
 
     public static $orgchartImportTags = array('resources_site_access'); // Import org chart groups if they match these tags
 
-    public static $leafSecure = false;      //toggle LEAF-Secure on and off, default is off
+    public static $onPrem = false;         //used to display on-prem banner warning
 
     public $descriptionID = 16;    // indicator ID for description field
 

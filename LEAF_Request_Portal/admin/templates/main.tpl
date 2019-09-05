@@ -32,6 +32,9 @@
     <script type="text/javascript" src="../../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <script type="text/javascript" src="../../libs/js/jquery/icheck/icheck.js"></script>
     {/if}
+    {if $leafSecure >= 1}
+    <script type="text/javascript" src="../../libs/js/LEAF/sessionTimeout.js"></script>
+    {/if}
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
@@ -47,7 +50,14 @@
       <span id="headerLabel">{$city}</span>
       <span id="headerDescription">{$title}</span>
     </div>
-    <span id="headerHelp">{$login}</span>
+    <span id="headerHelp">
+        {if $leafSecure == 0}
+        <div class="alert" style="display: inline">
+            <span>Do not enter PHI/PII.</span>
+        </div>
+        {/if}
+        {$login}
+    </span>
     <span id="headerLogin"></span>
     <span id="headerTab">{$emergency}{$tabText}</span>
     <span id="headerTabImg"><img src="../images/tab.png" alt="tab" /></span>

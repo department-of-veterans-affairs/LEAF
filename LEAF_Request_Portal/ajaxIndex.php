@@ -163,7 +163,7 @@ switch ($action) {
                                              LEFT JOIN workflows USING (workflowID)
                                              WHERE recordID=:recordID
                                                AND count > 0
-        									   AND workflowID > 0', $vars);
+        									   AND workflowID != 0', $vars);
            // if no workflow, don't give a submit control
            if (count($res) == 0)
            {

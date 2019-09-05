@@ -341,7 +341,8 @@ switch ($action) {
         $main->assign('useUI', true);
 //   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $main->assign('javascripts', array('../../libs/js/LEAF/XSSHelpers.js'));
+        $main->assign('javascripts', array('../../libs/js/LEAF/XSSHelpers.js',
+                                           '../js/formQuery.js'));
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
@@ -439,7 +440,10 @@ switch ($action) {
         break;
 }
 
+$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
+$onPrem = !isset(Config::$onPrem) ? true :  Config::$onPrem;
+$main->assign('onPrem', $onPrem);
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $o_menu = $t_menu->fetch('menu.tpl');
