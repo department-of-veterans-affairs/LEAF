@@ -283,6 +283,14 @@ class Employee extends Data
                                             LEFT JOIN relation_position_employee USING (empUID)
                                             WHERE empUID=:empUID', $vars);
 
+        if(count($res) === 0)
+        {
+            $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
+            $res = $this->db->prepared_query('SELECT * FROM employee
+                                                LEFT JOIN relation_position_employee USING (empUID)
+                                                WHERE employee.oldEmpUID=:empUID', $vars);
+        }
+
         $data['employee'] = $res[0];
         $data['employee']['data'] = $this->getAllData($empUID);
 
@@ -339,6 +347,17 @@ class Employee extends Data
         $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
         $result = $this->db->prepared_query($sql, $vars);
 
+        //fall back to the oldEmpUID
+        if(count($result) === 0)
+        {
+            $sql = "SELECT * FROM {$this->tableName}
+                        WHERE oldEmpUID = :empUID
+                        AND deleted = 0";
+
+            $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
+            $result = $this->db->prepared_query($sql, $vars);
+        }
+        //fall back to the username
         if(count($result) === 0)
         {
             $sql = "SELECT * FROM {$this->tableName}
