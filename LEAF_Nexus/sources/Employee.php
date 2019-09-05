@@ -334,10 +334,20 @@ class Employee extends Data
 
         $sql = "SELECT * FROM {$this->tableName}
                     WHERE empUID = :empUID
-                    	AND deleted = 0";
+                        AND deleted = 0";
 
         $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
         $result = $this->db->prepared_query($sql, $vars);
+
+        if(count($result) === 0)
+        {
+            $sql = "SELECT * FROM {$this->tableName}
+                        WHERE userName = :empUID
+                        AND deleted = 0";
+
+            $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
+            $result = $this->db->prepared_query($sql, $vars);
+        }
         $this->cache["lookupEmpUID_{$empUID}"] = $result;
 
         return $result;

@@ -1,6 +1,6 @@
 <?php
 
-function buildUpdateScriptFromNationalOGForNexus($db)
+function buildUpdateScriptFromNationalOG($db)
 {
     $nationalEmployeeData = $db->query('select employee.* from employee order By employee.lastUpdated');
 
@@ -18,6 +18,21 @@ function buildUpdateScriptFromNationalOGForNexus($db)
 function prepareNexus($db)
 {
     $sql = "ALTER TABLE `employee_data`
+    DROP FOREIGN KEY IF EXISTS `empUID_rel`;
+    ALTER TABLE `employee_data_history`
+    DROP FOREIGN KEY IF EXISTS `empUID_rel_history`;
+    ALTER TABLE `employee_privileges`
+    DROP FOREIGN KEY IF EXISTS `empUID_rel_privs`;
+    ALTER TABLE `relation_employee_backup`
+    DROP FOREIGN KEY IF EXISTS `empUID_rel_backup`;
+    ALTER TABLE `relation_employee_backup`
+    DROP FOREIGN KEY IF EXISTS `empUID_rel_backup2`;
+    ALTER TABLE `relation_group_employee`
+    DROP FOREIGN KEY IF EXISTS `empUID_rel_group`;
+    ALTER TABLE `relation_position_employee`
+    DROP FOREIGN KEY IF EXISTS `empUID_rel_position`;
+    
+    ALTER TABLE `employee_data`
     ADD INDEX `author` (`author`);
     ALTER TABLE `employee_data_history`
     ADD INDEX `author` (`author`);
@@ -121,8 +136,8 @@ function duplicateActiveEmails($db)
 function finishUpNexus($db)
 {
     echo " finishing up " . (new \DateTime())->format('H:i:s')." " . memory_get_usage ().PHP_EOL;
-    $sql = "ALTER TABLE employee DROP COLUMN oldEmpUID;
-            ALTER TABLE employee ADD PRIMARY KEY(empUID);
+    $sql = "ALTER TABLE employee DROP PRIMARY KEY;
+    ALTER TABLE employee ADD PRIMARY KEY(empUID);
 
     ALTER TABLE `employee_data`
     DROP INDEX `author`;
@@ -205,20 +220,21 @@ function updateNexus($db, $nationalEmpUIDImport='')
             $sqlNewEmpUID = 'UPDATE employee SET empUID=uuid();';
         }
         $db->exec($sqlNewEmpUID); 
+        echo PHP_EOL." setting empuids " . (new \DateTime())->format('H:i:s')." ".memory_get_usage () . PHP_EOL;
         //if any empUID is null, set to oldEmpUID
         $sqlFillInEmpUIDBlanks = "UPDATE employee SET empUID=CONCAT('not_in_national_', oldEmpUID) WHERE empUID IS NULL;";
         $db->query($sqlFillInEmpUIDBlanks);
-        
+        echo PHP_EOL." setting temp tables " . (new \DateTime())->format('H:i:s')." ".memory_get_usage () . PHP_EOL;
         $createTempTable = "CREATE TEMPORARY TABLE emails_table
                             (INDEX empUId_ky (empUID))
                             SELECT empUID, data FROM employee_data 
                             where indicatorID = 6;";
         $db->query($createTempTable);
-        
+        echo PHP_EOL." doing join select " . (new \DateTime())->format('H:i:s')." ".memory_get_usage () . PHP_EOL;
         $sqlEmployeeInfo = 'select employee.empUID, employee.oldEmpUID, employee.userName, emails_table.data as email 
         from employee left join emails_table on (employee.oldEmpUID = emails_table.empUID) ORDER BY employee.lastUpdated DESC;';
         $res = $db->query($sqlEmployeeInfo);
-
+        echo PHP_EOL." done wit dat " . (new \DateTime())->format('H:i:s')." ".memory_get_usage () . PHP_EOL;
         $empUIDsKeyedByEmail = array();
         $employeesKeyedByOldEmpUIDs = array();
         $empUIDsToDelete = array();
@@ -379,65 +395,25 @@ $db = new PDO(
     $dbPass,
     array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
 );
+//TODO uncomment
+// echo PHP_EOL.PHP_EOL."updating national orgchart".PHP_EOL;
+// prepareNexus($db);
+// updateNexus($db);
+// finishUpNexus($db);
+
 //build update script for individual nexus
-$nationalEmpUIDImport = buildUpdateScriptFromNationalOGForNexus($db);
+$nationalEmpUIDImport = buildUpdateScriptFromNationalOG($db);
 
 $localNexusArray = [
-    //'visn22_600_orgchart',
-    'visn4_642_orgchart',
-    // 'visn23_437_orgchart',
-    // 'visn21_640_orgchart',
-    // 'visn10_583_orgchart',
-    // 'visn10_610_orgchart',
+    //'dcvamc_orgchart',
+    //'national_dlemon_orgchart',
+    'visn19_495hr_orgchart'
 ];
 $localPortalArray = [
-    'visn4_642_pcs',
-    'visn4_642_cmc_communications_request_modernization',
-    'visn4_642_cmcvamc',
-    'visn4_642_facilities',
-    'visn4_642_has',
-    'visn4_642_electronic_rmc_process',
-    'visn4_642_radiology',
-    'visn4_642_hr',
-    'visn4_642_fiscal',
-    'visn4_642_cmcvamc_health_informatics',
-    'visn4_642_cmcvamc_pharmacy',
-    'visn4_642_itops',
-    'visn4_642_quality_management',
-
-    // 'visn10_583_indianapolis_request_system',
-
-    // 'visn10_610_nihcs_healthcare_informatics_change_requests',
-    // 'visn10_610_nihcs_healthcare_informatics_change_requests-leaf',
-
-    // 'visn21_640_resources',
-    // 'visn21_640_logistics',
-    // 'visn21_640_ofpd_project_tracking',
-    // 'visn21_640_oit_equipment_request',
-    // 'visn21_640_palo_alto_pao',
-    // 'visn21_640_tarf',
-    // 'visn21_640_vapahcs_vcs_promo_requests',
-    // 'visn21_640_resources_test',
-    // 'visn21_640_vcs_promotional_fund',
-
-    'visn22_600_accreditation',
-    'visn22_600_stopcodes',
-    'visn22_600_distro',
-    'visn22_600_myhealthevet_work_order',
-    'visn22_600_onboarding',
-    'visn22_600_resources',
-    'visn22_600_board_actions',
-    'visn22_600_it_requests',
-    'visn22_600_tibor_rubin_cac',
-    'visn22_600_hr_helpdesk_requests',
-    'visn22_600_hr',
-    'visn22_600_organizational_charts',
-    'visn22_600_hpt_outprocessing',
-    'visn22_600_has_clinic_profile_group',
-
-    // 'visn23_437_nurse_executive',
-    // 'visn23_437_fargo_vahcs_education_service_line',
-    // 'visn23_437_waiverrequests',
+    // 'dcvamc_travel',
+    // 'national_dlemon_resources',
+    // 'visn19_495hr_visn_19_human_resources_ticketing_system',
+    // 'visn19_495hr_visn_19_resource_managment_committee'
 ];
 
 //do individual nexi
