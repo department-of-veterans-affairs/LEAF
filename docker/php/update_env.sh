@@ -23,7 +23,10 @@ sed -i  "s/DATABASE_PASSWORD/$DATABASE_PASSWORD/g" ./LEAF_Nexus/config.php
 
 cp ./LEAF_Request_Portal/globals.php.example ./LEAF_Request_Portal/globals.php
 # Portal globals
-sed -i -e "s/DIRECTORY_HOST = '.*/DIRECTORY_HOST = '$DB_HOST';/" ./LEAF_Request_Portal/globals.php
+sed -i -e "s/DIRECTORY_HOST = '.*/DIRECTORY_HOST = '$DB_HOST';/"            ./LEAF_Request_Portal/globals.php
+sed -i -e "s/DIRECTORY_DB = '.*/DIRECTORY_DB = '$DATABASE_NEXUS';/"         ./LEAF_Request_Portal/globals.php
+sed -i -e "s/DIRECTORY_USER = '.*/DIRECTORY_USER = '$DATABASE_USERNAME';/"  ./LEAF_Request_Portal/globals.php
+sed -i -e "s/DIRECTORY_PASS = '.*/DIRECTORY_PASS = '$DATABASE_PASSWORD';/"  ./LEAF_Request_Portal/globals.php
 
 cp ./LEAF_Request_Portal/db_config-example.php ./LEAF_Request_Portal/db_config.php
 # Portal db_config
@@ -33,4 +36,7 @@ sed -i -e "s/dbUser = '.*/dbUser = '$DATABASE_USERNAME';/"            ./LEAF_Req
 sed -i -e "s/dbPass = '.*/dbPass = '$DATABASE_PASSWORD';/"            ./LEAF_Request_Portal/db_config.php
 sed -i -e "s/orgchartPath = '.*/orgchartPath = '..\/LEAF_Nexus';/"    ./LEAF_Request_Portal/db_config.php
 sed -i -e "s/phonedbName = '.*/phonedbName = '$DATABASE_NEXUS';/"     ./LEAF_Request_Portal/db_config.php
+
+# Disable AUTH_TYPE
+sed -i -e "s/^const AUTH_TYPE/# const AUTH_TYPE/" ./LEAF_Nexus/globals.php
 

@@ -10,7 +10,7 @@ image:
 # define environment variables here as a map of key: value
 env:
   DB_HOST: "leafdb-mysql"
-  REMOTE_USER: "//tester"
+  REMOTE_USER: "\\\\tester"
 
 # enable this flag to use knative serve to deploy the app
 knativeDeploy: false
