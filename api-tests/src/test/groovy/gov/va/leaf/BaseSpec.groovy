@@ -11,9 +11,12 @@ import static io.restassured.RestAssured.*
 class BaseSpec extends Specification {
     def cookieFilter = new CookieFilter()
     def CSRFToken =  'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    
+    static db_host = System.getProperty('db_host')
+    static web_host = System.getProperty('web_host')
 
-    static Map dbLeafUsers =  [url: 'jdbc:mariadb://localhost:3306/leaf_users', user: 'tester', password: 'tester', driver: 'org.mariadb.jdbc.Driver']
-    static Map dbLeafPortal = [url: 'jdbc:mariadb://localhost:3306/leaf_portal', user: 'tester', password: 'tester', driver: 'org.mariadb.jdbc.Driver']
+    static Map dbLeafUsers =  [url: "jdbc:mariadb://${db_host}:3306/leaf_users", user: 'tester', password: 'tester', driver: 'org.mariadb.jdbc.Driver']
+    static Map dbLeafPortal = [url: "jdbc:mariadb://${db_host}:3306/leaf_portal", user: 'tester', password: 'tester', driver: 'org.mariadb.jdbc.Driver']
     static Sql sqlOrgChart
     static Sql sqlPortal
 
@@ -28,7 +31,7 @@ class BaseSpec extends Specification {
     }
 
     def setupRestAssuredSpec() throws Exception {
-        RestAssured.baseURI = "http://localhost/"
+        RestAssured.baseURI = "http://${web_host}/"
         RestAssured.port = 80
         config = config().redirect(config.getRedirectConfig().followRedirects(true).and().maxRedirects(0))
                 .logConfig(config.getLogConfig().enableLoggingOfRequestAndResponseIfValidationFails().enablePrettyPrinting(true))

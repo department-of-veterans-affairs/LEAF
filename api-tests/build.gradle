@@ -25,7 +25,24 @@ ext {
 }
 
 test {
+    maxHeapSize '512m'
+    jvmArgs "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", '-Xmx512m', '-Xms512m'
+
     systemProperty "java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager"
+    systemProperty "db_host", findProperty("db_host")
+    systemProperty "web_host", findProperty("web_host")
+
+     testLogging {
+         events "failed"
+         exceptionFormat "short"
+
+         debug {
+             events "started", "skipped", "failed"
+             exceptionFormat "full"
+         }
+
+         info.events = ["failed", "skipped"]
+     }
 }
 
 configurations {

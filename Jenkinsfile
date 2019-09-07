@@ -29,15 +29,52 @@ pipeline {
         }
       }
     }
+    stage('CI Tests') {
+      agent {
+        label "jenkins-gradle"
+      }
+      when {
+        branch 'PR-*'
+      }
+      environment {
+        PREVIEW_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
+        PREVIEW_NAMESPACE = "$APP_NAME-$BRANCH_NAME".toLowerCase()
+        HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
+      }
+      steps {
+        container('gradle') {
+          dir('./api-tests') {
+
+            sh """
+              sleep 10
+              export DB_HOST="leafdb-mysql.jx-ablevets-bot-\${PREVIEW_NAMESPACE}"
+              export WEB_HOST="leaf.jx-ablevets-bot-\${PREVIEW_NAMESPACE}"
+
+              echo db_host=\${DB_HOST} > gradle.properties
+              echo web_host=\${WEB_HOST} >> gradle.properties
+
+              ./gradlew --no-daemon --max-workers 2 clean compileTestGroovy
+              ./gradlew --no-daemon --max-workers 2 test
+            """
+
+          }
+        }
+      }
+      post {
+        always {
+          junit allowEmptyResults: true, testResults: 'api-tests/build/test-results/test/*.xml'
+        }
+      }
+    }
     stage('Build Release') {
       when {
-        branch 'dev'
+        branch 'master'
       }
       steps {
         container('jx-base') {
 
           // ensure we're not on a detached head
-          sh "git checkout dev"
+          sh "git checkout master"
           sh "git config --global credential.helper store"
           sh "jx step git credentials"
           sh "jx step next-version --use-git-tag-only --tag"
@@ -48,7 +85,7 @@ pipeline {
     }
     stage('Promote to Environments') {
       when {
-        branch 'dev'
+        branch 'master'
       }
       steps {
         container('jx-base') {
@@ -66,7 +103,7 @@ pipeline {
     }
     stage('Run fortify') {
       when {
-        branch 'dev'
+        branch 'master'
       }
       steps {
         container('fortify-code-security') {
@@ -77,8 +114,8 @@ pipeline {
     }
   }
   post {
-        always {
-          cleanWs()
-        }
+    always {
+      cleanWs()
+    }
   }
 }

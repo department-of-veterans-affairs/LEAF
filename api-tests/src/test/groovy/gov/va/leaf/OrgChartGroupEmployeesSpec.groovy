@@ -47,7 +47,6 @@ class OrgChartGroupEmployeesSpec extends BaseSpec {
             response.then().log().ifError().statusCode(200).spec(specification)
         where:
             param                                    || specification
-            [groupID: 1, userName: "tester"]         || expect().spec(defaultSpec).body('userName', contains(equalTo(param.userName)))
-//            [groupID: 1, userName: "tester"]         || expect().spec(defaultSpec).body('userName', not(contains(equalTo(param.userName))))
+            [groupID: 1, userName: "tester86"]         || expect().spec(defaultSpec).body('userName', hasItem(equalTo(param.userName)))
     }
 }

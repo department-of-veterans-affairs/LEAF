@@ -10,12 +10,14 @@ import static org.hamcrest.Matchers.*
 
 class WorkflowCreateSpec extends BaseSpec {
 
+    static web_host = System.getProperty('web_host')
+
     @Unroll
     def "Create Workflow"() {
         given:
             def request = given().contentType(ContentType.APPLICATION_FORM_URLENCODED.toString()).log().all()
-                .header('Referer', 'http://localhost/LEAF_Request_Portal/admin/?a=workflow')
-                .header("Host", "localhost")
+                .header('Referer', "http://${web_host}/LEAF_Request_Portal/admin/?a=workflow")
+                .header("Host", "${web_host}")
                 .urlEncodingEnabled(true)
                 .filter(cookieFilter)
                 .param("description", "create-workflow")
