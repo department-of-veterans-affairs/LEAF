@@ -270,9 +270,8 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         var categories = new Object();
     
         $.ajax({
-            type: 'POST',
-            url: './api?a=form/'+recordID+'/recordinfo',
-            data: {CSRFToken: CSRFToken},
+            type: 'GET',
+            url: 'api/?a=form/'+recordID+'/recordinfo',
             success: function(res) {
                 if ('priority' in res)
                 {
@@ -294,9 +293,8 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
             cache: false
         }).done(function() {
             $.ajax({
-                type: 'POST',
-                url: './api?a=form/'+recordID+'/data',
-                data: {CSRFToken: CSRFToken},
+                type: 'GET',
+                url: 'api/?a=form/'+recordID+'/data',
                 success: function(res) {
                    loopThroughSubmissions(res, priority, serviceID, title, categories);
                 },
