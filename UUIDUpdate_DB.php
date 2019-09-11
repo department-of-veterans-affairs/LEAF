@@ -57,7 +57,8 @@ function prepareNexus($db)
     ALTER TABLE `position_privileges`
     ADD INDEX `UID` (`UID`);
     
-    ALTER TABLE `employee` CHANGE `empUID` `empUID` varchar(36) NOT NULL DEFAULT '0' FIRST;
+    ALTER TABLE `employee` CHANGE `empUID` `oldEmpUID` varchar(36) NOT NULL; 
+    ALTER TABLE `employee` ADD `empUID` varchar(36) FIRST;
     ALTER TABLE `employee_data` CHANGE `empUID` `empUID` varchar(36) NOT NULL;
     ALTER TABLE `employee_data_history` CHANGE `empUID` `empUID` varchar(36) NOT NULL;
     ALTER TABLE `employee_privileges` CHANGE `empUID` `empUID` varchar(36) NOT NULL;
@@ -79,110 +80,6 @@ function prepareNexus($db)
     ALTER TABLE `position_data_history` CHANGE `author` `author` varchar(36) NOT NULL;
     
     ALTER TABLE `relation_employee_backup` CHANGE `approverUserName` `approverUserName` varchar(36);
-
-    ALTER TABLE employee CHANGE `empUID` `oldEmpUID` int; 
-    ALTER TABLE `employee` ADD `empUID` varchar(36) FIRST;
-    ";
-    $db->beginTransaction();
-    $db->exec($sql);
-    $db->commit();
-}
-
-function getUniqueEmailCount($db)
-{
-    $sql = "SELECT count(*) AS count
-            FROM (
-                    SELECT employee.userName, employee_data.data AS email
-                    FROM employee
-                    LEFT JOIN employee_data on (employee.empUID = employee_data.empUID and indicatorID = 6)
-                    WHERE employee.deleted = 0
-                    GROUP BY IF(email = '' or email is null, employee.userName, email)
-                )as a;";
-    $res = $db->query($sql)->fetchAll();
-
-    return $res[0]['count'];
-}
-
-function getActiveUserCount($db)
-{
-    $sql = "SELECT count(*) AS count
-            FROM employee 
-            WHERE deleted = 0;";
-    $res = $db->query($sql)->fetchAll();
-
-    return $res[0]['count'];
-}
-
-function duplicateActiveEmails($db)
-{
-    $sql = "SELECT count(*) as count
-            FROM (
-                    SELECT employee_data.data
-                    FROM employee
-                    LEFT JOIN employee_data USING (empUID)
-                    WHERE employee_data.indicatorID = 6
-                    AND employee.deleted = 0
-                    AND employee_data.data != ''
-                    AND employee_data.data IS NOT NULL
-                    GROUP BY employee_data.data
-                    HAVING count(employee.userName) > 1
-                ) as a;";
-
-    $res = $db->query($sql)->fetchAll();
-
-    return $res[0]['count'];
-}
-
-function finishUpNexus($db)
-{
-    echo " finishing up " . (new \DateTime())->format('H:i:s')." " . memory_get_usage ().PHP_EOL;
-    $sql = "ALTER TABLE employee DROP PRIMARY KEY;
-    ALTER TABLE employee ADD PRIMARY KEY(empUID);
-
-    ALTER TABLE `employee_data`
-    DROP INDEX `author`;
-    ALTER TABLE `employee_data_history`
-    DROP INDEX `author`;
-    ALTER TABLE `employee_privileges`
-    DROP INDEX `UID`;
-    ALTER TABLE `relation_employee_backup`
-    DROP INDEX `backupEmpUID`;
-    ALTER TABLE `relation_employee_backup`
-    DROP INDEX `approverUserName`;
-    ALTER TABLE `group_data`
-    DROP INDEX `author`;
-    ALTER TABLE `group_data_history`
-    DROP INDEX `author`;
-    ALTER TABLE `position_data`
-    DROP INDEX `author`;
-    ALTER TABLE `position_data_history`
-    DROP INDEX `author`;
-    ALTER TABLE `group_privileges`
-    DROP INDEX `UID`;
-    ALTER TABLE `indicator_privileges`
-    DROP INDEX `UID`;
-    ALTER TABLE `position_privileges`
-    DROP INDEX `UID`;
-    ";
-    $db->beginTransaction();
-    $db->exec($sql);
-    $db->commit();
-}
-
-function preparePortal($db)
-{
-    echo " setting up " . (new \DateTime())->format('H:i:s')." " . memory_get_usage ().PHP_EOL;
-    $sql = "ALTER TABLE `action_history` CHANGE `userID` `empUID` varchar(36) NOT NULL;
-    ALTER TABLE `approvals` CHANGE `userID` `empUID` varchar(36) NOT NULL;
-    ALTER TABLE `data` CHANGE `userID` `empUID` varchar(36) NOT NULL;
-    ALTER TABLE `data_extended` CHANGE `userID` `empUID` varchar(36) NOT NULL;
-    ALTER TABLE `data_history` CHANGE `userID` `empUID` varchar(36) NOT NULL;
-    ALTER TABLE `notes` CHANGE `userID` `empUID` varchar(36) NOT NULL;
-    ALTER TABLE `records` CHANGE `userID` `empUID` varchar(36) NOT NULL;
-    ALTER TABLE `service_chiefs` CHANGE `userID` `empUID` varchar(36) NOT NULL;
-    ALTER TABLE `signatures` CHANGE `userID` `empUID` varchar(36) NOT NULL;
-    ALTER TABLE `tags` CHANGE `userID` `empUID` varchar(36) NOT NULL;
-    ALTER TABLE `users` ADD `empUID` varchar(36) NOT NULL;
     ";
     $db->beginTransaction();
     $db->exec($sql);
@@ -230,27 +127,27 @@ function updateNexus($db, $nationalEmpUIDImport='')
                             SELECT empUID, data FROM employee_data 
                             where indicatorID = 6;";
         $db->query($createTempTable);
-        echo PHP_EOL." doing join select " . (new \DateTime())->format('H:i:s')." ".memory_get_usage () . PHP_EOL;
-        $sqlEmployeeInfo = 'select employee.empUID, employee.oldEmpUID, employee.userName, emails_table.data as email 
+        
+        $sqlEmployeeInfo = 'select employee.empUID, employee.oldEmpUID, employee.userName, employee.deleted, emails_table.data as email 
         from employee left join emails_table on (employee.oldEmpUID = emails_table.empUID) ORDER BY employee.lastUpdated DESC;';
         $res = $db->query($sqlEmployeeInfo);
-        echo PHP_EOL." done wit dat " . (new \DateTime())->format('H:i:s')." ".memory_get_usage () . PHP_EOL;
+
         $empUIDsKeyedByEmail = array();
         $employeesKeyedByOldEmpUIDs = array();
         $empUIDsToDelete = array();
         foreach ($res as $employeeData)
         {
-            $employee = ['oldEmpUID' => $employeeData['oldEmpUID'], 'userName' => $employeeData['userName'], 'empUID' => $employeeData['empUID']];
+            $employee = ['oldEmpUID' => $employeeData['oldEmpUID'], 'userName' => $employeeData['userName'], 'empUID' => $employeeData['empUID'], 'deleted' => $employeeData['deleted']];
 
             $emailToLower = strtolower($employeeData['email']);
-            if ($emailToLower != null && $emailToLower != '' && array_key_exists($emailToLower, $empUIDsKeyedByEmail))
+            if ($emailToLower != null && $emailToLower != '' && $employeeData['deleted'] == 0 && array_key_exists($emailToLower, $empUIDsKeyedByEmail))
             {//if the email was already found
             //set this employee to be disabled
                 $empUIDsToDelete[] = $employeeData['empUID'];
                 //associate this employee with the already found employee(same employee, different username)
                 //$employee['empUID'] = $empUIDsKeyedByEmail[$emailToLower];
             }
-            else if($emailToLower != null && $emailToLower != '')
+            else if($emailToLower != null && $emailToLower != '' && $employeeData['deleted'] == 0)
             { //email not found
             //add to list of found emails w/ associated empUIDs
                 $empUIDsKeyedByEmail[$emailToLower] = $employeeData['empUID'];
@@ -304,6 +201,91 @@ function updateNexus($db, $nationalEmpUIDImport='')
         echo $e->getMessage();
         $db->rollBack();
     }
+}
+
+function finishUpNexus($db)
+{
+    echo " finishing up " . (new \DateTime())->format('H:i:s')." " . memory_get_usage ().PHP_EOL;
+    $sql = "ALTER TABLE employee DROP PRIMARY KEY;
+    ALTER TABLE employee ADD PRIMARY KEY(empUID);
+
+    ALTER TABLE `employee_data`
+    DROP INDEX `author`;
+    ALTER TABLE `employee_data_history`
+    DROP INDEX `author`;
+    ALTER TABLE `employee_privileges`
+    DROP INDEX `UID`;
+    ALTER TABLE `relation_employee_backup`
+    DROP INDEX `backupEmpUID`;
+    ALTER TABLE `relation_employee_backup`
+    DROP INDEX `approverUserName`;
+    ALTER TABLE `group_data`
+    DROP INDEX `author`;
+    ALTER TABLE `group_data_history`
+    DROP INDEX `author`;
+    ALTER TABLE `position_data`
+    DROP INDEX `author`;
+    ALTER TABLE `position_data_history`
+    DROP INDEX `author`;
+    ALTER TABLE `group_privileges`
+    DROP INDEX `UID`;
+    ALTER TABLE `indicator_privileges`
+    DROP INDEX `UID`;
+    ALTER TABLE `position_privileges`
+    DROP INDEX `UID`;
+    ";
+    $db->beginTransaction();
+    $db->exec($sql);
+    $db->commit();
+}
+
+function addForeignKeysBackToNationalOrgchart($db)
+{
+    echo " adding foreign keys back to national " . (new \DateTime())->format('H:i:s')." " . memory_get_usage ().PHP_EOL;
+    $sql = "ALTER TABLE `employee_data`
+    ADD CONSTRAINT `empUID_rel` FOREIGN KEY (`empUID`) REFERENCES `employee` (`empUID`) ON DELETE CASCADE;
+    
+    ALTER TABLE `employee_data_history`
+    ADD CONSTRAINT `empUID_rel_history` FOREIGN KEY (`empUID`) REFERENCES `employee` (`empUID`) ON DELETE CASCADE;
+    
+    ALTER TABLE `employee_privileges`
+    ADD CONSTRAINT `empUID_rel_privs` FOREIGN KEY (`empUID`) REFERENCES `employee` (`empUID`) ON DELETE CASCADE;
+    
+    ALTER TABLE `relation_employee_backup`
+    ADD CONSTRAINT `empUID_rel_backup` FOREIGN KEY (`empUID`) REFERENCES `employee` (`empUID`) ON DELETE CASCADE;
+    
+    ALTER TABLE `relation_employee_backup`
+    ADD CONSTRAINT `empUID_rel_backup2` FOREIGN KEY (`backupEmpUID`) REFERENCES `employee` (`empUID`) ON DELETE CASCADE;
+    
+    ALTER TABLE `relation_group_employee`
+    ADD CONSTRAINT `empUID_rel_group` FOREIGN KEY (`empUID`) REFERENCES `employee` (`empUID`) ON DELETE CASCADE;
+    
+    ALTER TABLE `relation_position_employee`
+    ADD CONSTRAINT `empUID_rel_position` FOREIGN KEY (`empUID`) REFERENCES `employee` (`empUID`) ON DELETE CASCADE;
+    ";
+    $db->beginTransaction();
+    $db->exec($sql);
+    $db->commit();
+}
+
+function preparePortal($db)
+{
+    echo " setting up " . (new \DateTime())->format('H:i:s')." " . memory_get_usage ().PHP_EOL;
+    $sql = "ALTER TABLE `action_history` CHANGE `userID` `empUID` varchar(36) NOT NULL;
+    ALTER TABLE `approvals` CHANGE `userID` `empUID` varchar(36) NOT NULL;
+    ALTER TABLE `data` CHANGE `userID` `empUID` varchar(36) NOT NULL;
+    ALTER TABLE `data_extended` CHANGE `userID` `empUID` varchar(36) NOT NULL;
+    ALTER TABLE `data_history` CHANGE `userID` `empUID` varchar(36) NOT NULL;
+    ALTER TABLE `notes` CHANGE `userID` `empUID` varchar(36) NOT NULL;
+    ALTER TABLE `records` CHANGE `userID` `empUID` varchar(36) NOT NULL;
+    ALTER TABLE `service_chiefs` CHANGE `userID` `empUID` varchar(36) NOT NULL;
+    ALTER TABLE `signatures` CHANGE `userID` `empUID` varchar(36) NOT NULL;
+    ALTER TABLE `tags` CHANGE `userID` `empUID` varchar(36) NOT NULL;
+    ALTER TABLE `users` ADD `empUID` varchar(36) NOT NULL;
+    ";
+    $db->beginTransaction();
+    $db->exec($sql);
+    $db->commit();
 }
 
 function updatePortal($db, $nationalEmpUIDImport)
@@ -369,18 +351,52 @@ function updatePortal($db, $nationalEmpUIDImport)
     }
 }
 
+function getUniqueEmailCount($db)
+{
+    $sql = "SELECT count(*) AS count
+            FROM (
+                    SELECT employee.userName, employee_data.data AS email
+                    FROM employee
+                    LEFT JOIN employee_data on (employee.empUID = employee_data.empUID and indicatorID = 6)
+                    WHERE employee.deleted = 0
+                    GROUP BY IF(email = '' or email is null, employee.userName, email)
+                )as a;";
+    $res = $db->query($sql)->fetchAll();
 
-
-
-
-
-
-function progressBar($done, $total) {
-    $perc = floor(($done / $total) * 100);
-    $left = 100 - $perc;
-    $write = sprintf("\033[0G\033[2K[%'={$perc}s>%-{$left}s] - $perc%% - $done/$total", "", "");
-    fwrite(STDERR, $write);
+    return $res[0]['count'];
 }
+
+function getActiveUserCount($db)
+{
+    $sql = "SELECT count(*) AS count
+            FROM employee 
+            WHERE deleted = 0;";
+    $res = $db->query($sql)->fetchAll();
+
+    return $res[0]['count'];
+}
+
+function duplicateActiveEmails($db)
+{
+    $sql = "SELECT count(*) as count
+            FROM (
+                    SELECT employee_data.data
+                    FROM employee
+                    LEFT JOIN employee_data USING (empUID)
+                    WHERE employee_data.indicatorID = 6
+                    AND employee.deleted = 0
+                    AND employee_data.data != ''
+                    AND employee_data.data IS NOT NULL
+                    GROUP BY employee_data.data
+                    HAVING count(employee.userName) > 1
+                ) as a;";
+
+    $res = $db->query($sql)->fetchAll();
+
+    return $res[0]['count'];
+}
+
+
 
 $dbHOST = $argv[1];
 $dbUser = $argv[2];
@@ -395,18 +411,19 @@ $db = new PDO(
     $dbPass,
     array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
 );
-//TODO uncomment
+
 // echo PHP_EOL.PHP_EOL."updating national orgchart".PHP_EOL;
 // prepareNexus($db);
 // updateNexus($db);
 // finishUpNexus($db);
+// addForeignKeysBackToNationalOrgchart($db);
 
 //build update script for individual nexus
 $nationalEmpUIDImport = buildUpdateScriptFromNationalOG($db);
 
 $localNexusArray = [
-    //'dcvamc_orgchart',
-    //'national_dlemon_orgchart',
+    // 'dcvamc_orgchart',
+    // 'national_dlemon_orgchart',
     'visn19_495hr_orgchart'
 ];
 $localPortalArray = [
