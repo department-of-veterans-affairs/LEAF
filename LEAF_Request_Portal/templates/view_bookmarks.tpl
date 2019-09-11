@@ -60,44 +60,16 @@
 /* <![CDATA[ */
 
 function removeBookmark(recordID) {
-    dojo.style('bookmark_' + recordID, 'opacity', '0.2');
-    dojo.xhrPost({
-        url: "ajaxIndex.php?a=removebookmark&recordID=" + recordID,
-        content: {CSRFToken: '<!--{$CSRFToken}-->'},
-        load: function(response, ioArgs) {
+    $.ajax({
+            type: "POST",
+            url: "ajaxIndex.php?a=removebookmark&recordID=" + recordID,
+            data: {CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(response, ioArgs) {
+             $(document).ajaxStop(function() { location.reload(true); });
         },
-        preventCache: true
-    });
+        cache: false
+       });
 }
-
-//attempt to force a consistent width for the sidebar if there is enough desktop resolution
-var lastScreenSize = null;
-function sideBar() {
-//    console.log(dojo.body().clientWidth);
-    if(lastScreenSize != dojo.body().clientWidth) {
-        lastScreenSize = dojo.body().clientWidth;
-
-        if(lastScreenSize < 700) {
-            mainWidth = lastScreenSize * 0.97;
-            dojo.removeClass("toolbar", "toolbar_right");
-            dojo.addClass("toolbar", "toolbar_inline");
-            dojo.style("toolbar", "width", "98%");
-        }
-        else {
-            mainWidth = (lastScreenSize * 0.8) - 2;
-            dojo.removeClass("toolbar", "toolbar_inline");
-            dojo.addClass("toolbar", "toolbar_right");
-            // effective width of toolbar becomes around 200px
-            mywidth = Math.floor((1 - 200/lastScreenSize) * 100);
-            dojo.style("toolbar", "width", 98-mywidth + "%");
-        }
-    }
-}
-
-dojo.addOnLoad(function() {
-    sideBar();
-    setInterval("sideBar()", 500);
-});
 
 /* ]]> */
 </script>
