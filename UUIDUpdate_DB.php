@@ -396,6 +396,58 @@ function duplicateActiveEmails($db)
     return $res[0]['count'];
 }
 
+function getUnmigratedPortals($db)
+{
+    $sql = "SELECT CAST(table_schema as BINARY) as database_name, table_name, GROUP_CONCAT(column_name) as field_list, count(*)
+            from information_schema.columns
+            where table_name = 'users'
+            GROUP BY database_name
+            Having Find_In_Set('empUID',field_list)=0
+            AND Find_In_Set('userID',field_list)>0
+            AND Find_In_Set('groupID',field_list)>0
+            AND count(*) = 2;";
+
+    $res = $db->query($sql)->fetchAll();
+
+    $arrayToReturn = [];
+    foreach($res as $key => $value)
+    {
+        $arrayToReturn[] = $value['database_name'];
+    }
+    return $arrayToReturn;
+}
+
+function getUnmigratedNexi($db)
+{
+    $sql = "SELECT CAST(table_schema as BINARY) as database_name, table_name, GROUP_CONCAT(column_name) as field_list
+            from information_schema.columns
+            where table_name = 'employee'
+            AND table_schema != 'national_orgchart'
+            GROUP BY database_name
+            Having 
+            Find_In_Set('empUID',field_list)>0
+            AND Find_In_Set('userName',field_list)>0
+            AND Find_In_Set('lastName',field_list)>0
+            AND Find_In_Set('firstName',field_list)>0
+            AND Find_In_Set('middleName',field_list)>0
+            AND Find_In_Set('phoneticFirstName',field_list)>0
+            AND Find_In_Set('phoneticLastName',field_list)>0
+            AND Find_In_Set('domain',field_list)>0
+            AND Find_In_Set('deleted',field_list)>0
+            AND Find_In_Set('lastUpdated',field_list)>0
+            AND Find_In_Set('oldEmpUID',field_list)=0
+            AND count(*) = 10;
+            ";
+
+    $res = $db->query($sql)->fetchAll();
+
+    $arrayToReturn = [];
+    foreach($res as $key => $value)
+    {
+        $arrayToReturn[] = $value['database_name'];
+    }
+    return $arrayToReturn;
+}
 
 
 $dbHOST = $argv[1];
@@ -413,25 +465,23 @@ $db = new PDO(
 );
 
 // echo PHP_EOL.PHP_EOL."updating national orgchart".PHP_EOL;
-// prepareNexus($db);
-// updateNexus($db);
-// finishUpNexus($db);
-// addForeignKeysBackToNationalOrgchart($db);
+prepareNexus($db);
+updateNexus($db);
+finishUpNexus($db);
+addForeignKeysBackToNationalOrgchart($db);
 
 //build update script for individual nexus
 $nationalEmpUIDImport = buildUpdateScriptFromNationalOG($db);
 
-$localNexusArray = [
-    // 'dcvamc_orgchart',
-    // 'national_dlemon_orgchart',
-    'visn19_495hr_orgchart'
-];
-$localPortalArray = [
-    // 'dcvamc_travel',
-    // 'national_dlemon_resources',
-    // 'visn19_495hr_visn_19_human_resources_ticketing_system',
-    // 'visn19_495hr_visn_19_resource_managment_committee'
-];
+$db = new PDO(
+    "mysql:host={$dbHOST};",
+    $dbUser,
+    $dbPass,
+    array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
+);
+
+$localNexusArray = getUnmigratedNexi($db);
+$localPortalArray = getUnmigratedPortals($db);
 
 //do individual nexi
 echo PHP_EOL.PHP_EOL."updating local nexi".PHP_EOL;
