@@ -18,21 +18,6 @@ function buildUpdateScriptFromNationalOG($db)
 function prepareNexus($db)
 {
     $sql = "ALTER TABLE `employee_data`
-    DROP FOREIGN KEY IF EXISTS `empUID_rel`;
-    ALTER TABLE `employee_data_history`
-    DROP FOREIGN KEY IF EXISTS `empUID_rel_history`;
-    ALTER TABLE `employee_privileges`
-    DROP FOREIGN KEY IF EXISTS `empUID_rel_privs`;
-    ALTER TABLE `relation_employee_backup`
-    DROP FOREIGN KEY IF EXISTS `empUID_rel_backup`;
-    ALTER TABLE `relation_employee_backup`
-    DROP FOREIGN KEY IF EXISTS `empUID_rel_backup2`;
-    ALTER TABLE `relation_group_employee`
-    DROP FOREIGN KEY IF EXISTS `empUID_rel_group`;
-    ALTER TABLE `relation_position_employee`
-    DROP FOREIGN KEY IF EXISTS `empUID_rel_position`;
-    
-    ALTER TABLE `employee_data`
     ADD INDEX `author` (`author`);
     ALTER TABLE `employee_data_history`
     ADD INDEX `author` (`author`);
@@ -239,6 +224,29 @@ function finishUpNexus($db)
     $db->commit();
 }
 
+function dropForeignKeysFromNationalOrgchart($db)
+{
+    echo " dropping foreign keys from national " . (new \DateTime())->format('H:i:s')." " . memory_get_usage ().PHP_EOL;
+    $sql = "ALTER TABLE `employee_data`
+    DROP FOREIGN KEY `empUID_rel`;
+    ALTER TABLE `employee_data_history`
+    DROP FOREIGN KEY `empUID_rel_history`;
+    ALTER TABLE `employee_privileges`
+    DROP FOREIGN KEY `empUID_rel_privs`;
+    ALTER TABLE `relation_employee_backup`
+    DROP FOREIGN KEY `empUID_rel_backup`;
+    ALTER TABLE `relation_employee_backup`
+    DROP FOREIGN KEY `empUID_rel_backup2`;
+    ALTER TABLE `relation_group_employee`
+    DROP FOREIGN KEY `empUID_rel_group`;
+    ALTER TABLE `relation_position_employee`
+    DROP FOREIGN KEY `empUID_rel_position`;
+    ";
+    $db->beginTransaction();
+    $db->exec($sql);
+    $db->commit();
+}
+
 function addForeignKeysBackToNationalOrgchart($db)
 {
     echo " adding foreign keys back to national " . (new \DateTime())->format('H:i:s')." " . memory_get_usage ().PHP_EOL;
@@ -396,6 +404,34 @@ function duplicateActiveEmails($db)
     return $res[0]['count'];
 }
 
+function checkNationalForUpdate($db)
+{
+    $sql = "SELECT CAST(table_schema as BINARY) as database_name, table_name, GROUP_CONCAT(column_name) as field_list
+    from information_schema.columns
+    where table_name = 'employee'
+    AND table_schema = 'national_orgchart'
+    GROUP BY database_name
+    Having 
+    Find_In_Set('empUID',field_list)>0
+    AND Find_In_Set('userName',field_list)>0
+    AND Find_In_Set('lastName',field_list)>0
+    AND Find_In_Set('firstName',field_list)>0
+    AND Find_In_Set('middleName',field_list)>0
+    AND Find_In_Set('phoneticFirstName',field_list)>0
+    AND Find_In_Set('phoneticLastName',field_list)>0
+    AND Find_In_Set('domain',field_list)>0
+    AND Find_In_Set('deleted',field_list)>0
+    AND Find_In_Set('lastUpdated',field_list)>0
+    AND Find_In_Set('oldEmpUID',field_list)=0
+    AND count(*) = 10;
+    ";
+
+    $res = $db->query($sql)->fetchAll();
+
+    
+    return count($res) > 1;
+}
+
 function getUnmigratedPortals($db)
 {
     $sql = "SELECT CAST(table_schema as BINARY) as database_name, table_name, GROUP_CONCAT(column_name) as field_list, count(*)
@@ -448,7 +484,9 @@ function getUnmigratedNexi($db)
     }
     return $arrayToReturn;
 }
-
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 
 $dbHOST = $argv[1];
 $dbUser = $argv[2];
@@ -456,19 +494,33 @@ $dbPass = $argv[3];
 
 ini_set('memory_limit', '-1');
 
-$nationalOG = 'national_orgchart';
 $db = new PDO(
-    "mysql:host={$dbHOST};dbname={$nationalOG}",
+    "mysql:host={$dbHOST};",
     $dbUser,
     $dbPass,
     array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
 );
 
-// echo PHP_EOL.PHP_EOL."updating national orgchart".PHP_EOL;
-prepareNexus($db);
-updateNexus($db);
-finishUpNexus($db);
-addForeignKeysBackToNationalOrgchart($db);
+if(checkNationalForUpdate($db))
+{
+    $nationalOG = 'national_orgchart';
+    $db = new PDO(
+        "mysql:host={$dbHOST};dbname={$nationalOG}",
+        $dbUser,
+        $dbPass,
+        array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
+    );
+
+    // echo PHP_EOL.PHP_EOL."updating national orgchart".PHP_EOL;
+    dropForeignKeysFromNationalOrgchart($db);
+    prepareNexus($db);
+    updateNexus($db);
+    finishUpNexus($db);
+    addForeignKeysBackToNationalOrgchart($db);  
+}
+
+
+
 
 //build update script for individual nexus
 $nationalEmpUIDImport = buildUpdateScriptFromNationalOG($db);
