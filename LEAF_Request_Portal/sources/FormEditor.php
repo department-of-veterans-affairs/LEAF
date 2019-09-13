@@ -288,6 +288,11 @@ class FormEditor
 
     public function setFormWorkflow($categoryID, $input)
     {
+        // don't allow standardized workflows to be set by the user
+        if($input < 0) {
+            return false;
+        }
+
         // don't allow a workflow to be set if it's a stapled form
         $vars = array(':categoryID' => $categoryID);
         $res = $this->db->prepared_query('SELECT * FROM category_staples
