@@ -88,7 +88,9 @@ function editProperties(isSubForm) {
                     var buffer = '<select id="workflowID">';
                     buffer += '<option value="0">No Workflow</option>';
                     for(var i in res) {
-                        buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
+                        if(res[i].workflowID > 0) {
+                            buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
+                        }
                     }
                     buffer += '</select>';
                     $('#container_workflowID').html(buffer);
