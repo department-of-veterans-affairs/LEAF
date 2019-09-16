@@ -92,6 +92,12 @@ if ($login->checkGroup(1))
         $importController = new ImportController($db, $login);
         $importController->handler($action);
     });
+
+    $controllerMap->register('site', function () use ($db, $login, $action) {
+        require 'controllers/SiteController.php';
+        $siteController = new SiteController($db, $login);
+        $siteController->handler($action);
+    });
 }
 
 $controllerMap->register('form', function () use ($db, $login, $action) {
