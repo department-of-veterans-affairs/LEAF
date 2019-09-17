@@ -429,7 +429,7 @@ function checkNationalForUpdate($db)
     $res = $db->query($sql)->fetchAll();
 
     
-    return count($res) > 1;
+    return count($res) > 0;
 }
 
 function getUnmigratedPortals($db)
@@ -519,8 +519,13 @@ if(checkNationalForUpdate($db))
     addForeignKeysBackToNationalOrgchart($db);  
 }
 
-
-
+$nationalOG = 'national_orgchart';
+$db = new PDO(
+    "mysql:host={$dbHOST};dbname={$nationalOG}",
+    $dbUser,
+    $dbPass,
+    array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
+);
 
 //build update script for individual nexus
 $nationalEmpUIDImport = buildUpdateScriptFromNationalOG($db);
