@@ -183,7 +183,7 @@ function updateNexus($db, $nationalEmpUIDImport='')
     }
     catch(Exception $e) 
     {
-        echo $e->getMessage();
+        echo 'Error: '.(new \DateTime())->format('H:i:s').'-'.$e->getMessage();
         $db->rollBack();
     }
 }
@@ -492,6 +492,7 @@ $dbHOST = $argv[1];
 $dbUser = $argv[2];
 $dbPass = $argv[3];
 
+ini_set('max_execution_time', 0);
 ini_set('memory_limit', '-1');
 
 $db = new PDO(
