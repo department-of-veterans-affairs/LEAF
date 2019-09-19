@@ -541,34 +541,48 @@ $db = new PDO(
 $localNexusArray = getUnmigratedNexi($db);
 $localPortalArray = getUnmigratedPortals($db);
 
+$nexiToSkip = [];
+$portalsToSkip = [
+'NATIONAL_101_suicide_prevention_program',
+'VISN17_STX_dental_service_',
+'VISN18_phoenix_staff_info_update',
+'VISN1_608CP_alaska_oit_',
+'VISN22_678_financial_management_savahcs',
+'VISN4_642_CMCVAMC_LOG',
+'VISN4_642_quality_management',
+'VISN8_546_education_service_comp_time'
+];
+
 //do individual nexi
 echo PHP_EOL.PHP_EOL."updating local nexi".PHP_EOL;
 foreach($localNexusArray as $key => $dbName)
 {
-    echo PHP_EOL." Doing " . $dbName . " " . (new \DateTime())->format('H:i:s')." ".memory_get_usage () . PHP_EOL;
-    $db = new PDO(
-        "mysql:host={$dbHOST};dbname={$dbName}",
-        $dbUser,
-        $dbPass,
-        array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
-    );
+    if (!in_array($dbName, $nexiToSkip, true)) {
+        echo PHP_EOL." Doing " . $dbName . " " . (new \DateTime())->format('H:i:s')." ".memory_get_usage () . PHP_EOL;
+        $db = new PDO(
+            "mysql:host={$dbHOST};dbname={$dbName}",
+            $dbUser,
+            $dbPass,
+            array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
+        );
 
-    $numberOfUnique = getUniqueEmailCount($db);
-    prepareNexus($db);
-    updateNexus($db, $nationalEmpUIDImport['nexusImport']);
-    finishUpNexus($db);
-    $numberOfActive = getActiveUserCount($db);
+        $numberOfUnique = getUniqueEmailCount($db);
+        prepareNexus($db);
+        updateNexus($db, $nationalEmpUIDImport['nexusImport']);
+        finishUpNexus($db);
+        $numberOfActive = getActiveUserCount($db);
 
-    $duplicates = duplicateActiveEmails($db);
+        $duplicates = duplicateActiveEmails($db);
 
-    echo "active unique emails: " . $numberOfUnique . ", # of active users: " . $numberOfActive . ", duplicate active emails: " . $duplicates;
-    if($numberOfUnique === $numberOfActive && $duplicates === '0')
-    {
-        echo " All is well.";
-    }
-    else
-    {
-        echo PHP_EOL."There was a problem. Unique emails should equal active users. And there should be no duplicate active emails.".PHP_EOL;
+        echo "active unique emails: " . $numberOfUnique . ", # of active users: " . $numberOfActive . ", duplicate active emails: " . $duplicates;
+        if($numberOfUnique === $numberOfActive && $duplicates === '0')
+        {
+            echo " All is well.";
+        }
+        else
+        {
+            echo PHP_EOL."There was a problem. Unique emails should equal active users. And there should be no duplicate active emails.".PHP_EOL;
+        }
     }
 }
 
@@ -576,16 +590,18 @@ foreach($localNexusArray as $key => $dbName)
 echo PHP_EOL.PHP_EOL."updating portals".PHP_EOL;
 foreach($localPortalArray as $key => $dbName)
 {
-    echo PHP_EOL." Doing " . $dbName . " " . (new \DateTime())->format('H:i:s')." ".memory_get_usage () . PHP_EOL;
-    $db = new PDO(
-        "mysql:host={$dbHOST};dbname={$dbName}",
-        $dbUser,
-        $dbPass,
-        array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
-    );
+    if (!in_array($dbName, $portalsToSkip, true)) {
+        echo PHP_EOL." Doing " . $dbName . " " . (new \DateTime())->format('H:i:s')." ".memory_get_usage () . PHP_EOL;
+        $db = new PDO(
+            "mysql:host={$dbHOST};dbname={$dbName}",
+            $dbUser,
+            $dbPass,
+            array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
+        );
 
-    preparePortal($db);
-    updatePortal($db, $nationalEmpUIDImport['portalImport']);
+        preparePortal($db);
+        updatePortal($db, $nationalEmpUIDImport['portalImport']);
+    }
 }
 
 echo PHP_EOL.PHP_EOL."Finished";
