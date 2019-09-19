@@ -27,7 +27,6 @@ if(!file_exists($tempFolder . 'actions.sql')) {
 }
 
 echo "Running Importer on {$db_config->dbName}...<br />\n";
-$db->enableDebug();
 $db->query("TRUNCATE TABLE `workflow_routes`;");
 $db->query("TRUNCATE TABLE `step_dependencies`;");
 $db->query("delete from `workflow_steps`;");

@@ -17,7 +17,6 @@ if($res['siteType'] != 'national_primary') {
     exit();
 }
 
-$db->enableDebug();
 echo "Running Package Builder...<br />\n";
 array_map('unlink', glob($tempFolder . '*.sql'));
 
