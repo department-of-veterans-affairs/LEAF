@@ -68,13 +68,13 @@ pipeline {
     }
     stage('Build Release') {
       when {
-        branch 'master'
+        branch 'dev'
       }
       steps {
         container('jx-base') {
 
           // ensure we're not on a detached head
-          sh "git checkout master"
+          sh "git checkout dev"
           sh "git config --global credential.helper store"
           sh "jx step git credentials"
           sh "jx step next-version --use-git-tag-only --tag"
@@ -85,7 +85,7 @@ pipeline {
     }
     stage('Promote to Environments') {
       when {
-        branch 'master'
+        branch 'dev'
       }
       steps {
         container('jx-base') {
@@ -103,7 +103,7 @@ pipeline {
     }
     stage('Run fortify') {
       when {
-        branch 'master'
+        branch 'dev'
       }
       steps {
         container('fortify-code-security') {
