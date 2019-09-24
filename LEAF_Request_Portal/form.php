@@ -1407,7 +1407,7 @@ class Form
 
             return 1;
         }
-        $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You is not a writable user or initiator of record {$recordID}, {$categoryID}.";
+        $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are not a writable user or initiator of record {$recordID}, {$categoryID}.";
 
         // give admins access
         if ($this->login->checkGroup(1))
