@@ -278,21 +278,21 @@ class VAMC_Directory_maintenance_AD
                 $pq3->bindParam(':empUID', $res[0]['empUID']);
                 $id = 5;
                 $pq3->bindParam(':indicatorID', $id);
-                $pq3->bindParam(':data', $this->users[$key]['phone']);
+                $pq3->bindParam(':data', fixIfHex($this->users[$key]['phone']));
                 $pq3->execute();
 
                 $pq3 = $this->db->prepare($sql);
                 $pq3->bindParam(':empUID', $res[0]['empUID']);
                 $id = 8;
                 $pq3->bindParam(':indicatorID', $id);
-                $pq3->bindParam(':data', $this->users[$key]['roomNum']);
+                $pq3->bindParam(':data', fixIfHex($this->users[$key]['roomNum']));
                 $pq3->execute();
 
                 $pq3 = $this->db->prepare($sql);
                 $pq3->bindParam(':empUID', $res[0]['empUID']);
                 $id = 23;
                 $pq3->bindParam(':indicatorID', $id);
-                $pq3->bindParam(':data', $this->users[$key]['title']);
+                $pq3->bindParam(':data', fixIfHex($this->users[$key]['title']));
                 $pq3->execute();
 
                 // don't store mobile # if it's the same as the primary phone #
@@ -302,7 +302,7 @@ class VAMC_Directory_maintenance_AD
                     $pq3->bindParam(':empUID', $res[0]['empUID']);
                     $id = 16;
                     $pq3->bindParam(':indicatorID', $id);
-                    $pq3->bindParam(':data', $this->users[$key]['mobile']);
+                    $pq3->bindParam(':data', fixIfHex($this->users[$key]['mobile']));
                     $pq3->execute();
                 }
 
@@ -639,5 +639,18 @@ class VAMC_Directory_maintenance_AD
             default:
                 return $dc;
         }
+    }
+
+    //tests stringToFix for format X'...', if it matches, it's a hex value, is decoded and returned
+    private function fixIfHex($stringToFix)
+    {
+        if(substr( $stringToFix, 0, 2 ) === "X'")
+        {
+            $stringToFix = ltrim($stringToFix, "X'");
+            $stringToFix = rtrim($stringToFix, "'");
+            $stringToFix = hex2bin($stringToFix);
+        }
+
+        return $stringToFix;
     }
 }
