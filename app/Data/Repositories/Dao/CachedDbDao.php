@@ -56,4 +56,22 @@ class CachedDbDao
     {
         return DB::table($this->getDbName() . "." . $otherTable);
     }
+
+    /**
+     * Get a \Illuminate\Support\Facades\DB object set to use $tableName.
+     * Use this when a different table than the one defined by the class variable $tableName
+     */
+    protected function getRawSQL()
+    {
+        return DB::getQueryLog();
+    }
+
+    /**
+     * Get a \Illuminate\Support\Facades\DB object set to use $tableName.
+     * Use this when a different table than the one defined by the class variable $tableName
+     */
+    protected function enableQueryLog()
+    {
+        DB::enableQueryLog();
+    }
 }

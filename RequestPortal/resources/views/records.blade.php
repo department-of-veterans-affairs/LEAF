@@ -4,6 +4,65 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script>
+            function deleteRequest(url)
+            {
+                $.ajax({
+                    type: 'DELETE',
+                    url: url,
+                    data: { '_token':'{{ csrf_token() }}' },
+                    cache: false
+                }).done(function(data) {
+                    location.reload();
+                }).fail(function (jqXHR, error, errorThrown) {
+                    console.log(jqXHR);
+                    console.log(error);
+                    console.log(errorThrown);
+                }).always(function () {
+
+                });
+            }
+            function restoreRequest(url)
+            {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: { '_token':'{{ csrf_token() }}' },
+                    cache: false
+                }).done(function(data) {
+                    location.reload();
+                }).fail(function (jqXHR, error, errorThrown) {
+                    console.log(jqXHR);
+                    console.log(error);
+                    console.log(errorThrown);
+                }).always(function () {
+
+                });
+            }
+            function getForm(url)
+            {
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    data: { '_token':'{{ csrf_token() }}' },
+                    cache: false
+                }).done(function(data) {
+                    var str = '';
+                    $.each(data.items[0].children, function( index, value ) {
+                        str += (index+1) + ': ' + value.desc + '- ' + value.format + '\n';
+                    });
+                    alert(str);
+                    
+                }).fail(function (jqXHR, error, errorThrown) {
+                    console.log(jqXHR);
+                    console.log(error);
+                    console.log(errorThrown);
+                }).always(function () {
+
+                });
+            }
+        </script>
         <title>LEAF Test</title>
     </head>
 
@@ -33,6 +92,8 @@
                             <th>deleted</th>
                             <th>is writable user</th>
                             <th>is writable group</th>
+                            <th>show form</th>
+                            <th>delete/restore</th>
                         </thead>
                         <tbody>
                             @foreach ($records as $record)
@@ -40,7 +101,7 @@
                                     <td>{{ $record->recordID }}</td>
                                     <td>{{ $record->date}}</td>
                                     <td>{{ $record->serviceID }}</td>
-                                    <td>{{ $record->userID }}</td>
+                                    <td>{{ $record->empUID }}</td>
                                     <td>{{ $record->title }}</td>
                                     <td>{{ $record->priority}}</td>
                                     <td>{{ $record->lastStatus}}</td>
@@ -48,6 +109,24 @@
                                     <td>{{ $record->deleted}}</td>
                                     <td>{{ $record->isWritableUser}}</td>
                                     <td>{{ $record->isWritableGroup}}</td>
+                                    <td>
+                                        <button onclick="getForm('{{ route('request.form', [$visn,$record->recordID]) }}');">
+                                            Show Form
+                                        </button>
+                                    </td>
+                                    @if ($record->deleted == 0)
+                                        <td>
+                                            <button onclick="deleteRequest('{{ route('request.delete', [$visn,$record->recordID]) }}');">
+                                                Delete
+                                            </button>
+                                        </td>
+                                    @else
+                                        <td>
+                                            <button onclick="restoreRequest('{{ route('request.restore', [$visn,$record->recordID]) }}');">
+                                                Restore
+                                            </button>
+                                        </td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>

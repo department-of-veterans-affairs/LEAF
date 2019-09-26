@@ -8,19 +8,25 @@
 
 ## Laravel Setup
 
+
+1. Install composer https://getcomposer.org/
+1. Install laravel https://laravel.com/docs/5.7 `composer global require laravel/installer`
+1. Install app dependencies `composer install` (run from project root)
+
 1. Copy `.env.example` and populate with relevant info
 1. Run `artisan key:generate` to generate a unique app key
+1. Run `artisan migrate`
 1. Run dev server (from project root) `artisan serve`
 
 ### `.env` Configuration
 
-The `.env` file contains all environment specific info for the application.
-
+The `.env` file contains all environment specific info for the application. 
+For development, all usernames and passwords can be the same.
 * `DB_*` entries should use the connection details that access the portals/nexus databases.
 
 * `ROUTES_DB_*` entries should use the connection details for accessing the `leaf_routes` database.
 
-* `ADMIN_DB_*` entries should use the connection details for accessing any database with elevated privileges.
+* `ADMIN_DB_*` entries should use the connection details for accessing any database with elevated privileges. For development, leave ADMIN_DB_DATABASE blank.
 
 
 Set this in .env to log to command line:
