@@ -1647,7 +1647,7 @@ function deleteForm() {
 }
 
 function buildMenu(categoryID) {
-	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser();" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
+	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser(); fetchFormSecureInfo();" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
 	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" style="font-size: 120%" onkeypress="onKeyPressClick(event)" role="button"><img src="../../libs/dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
     $('#' + categoryID).on('click', function(categoryID) {
         return function() {
@@ -1755,11 +1755,97 @@ function showFormBrowser() {
                     }(res[i].categoryID));
             	}
             }
+            
             if(postRenderFormBrowser != undefined) {
             	postRenderFormBrowser();
             }
         },
         cache: false
+    });
+}
+
+function renderSecureFormsInfo(res) {
+    var query = new LeafFormQuery();
+    query.setRootURL('../');
+    query.addTerm('categoryID', '=', 'leaf_secure');
+
+    for(var i in res) {
+        if(i == 'leafSecure') {
+            var buffer = '';
+            $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: green; display: none;" ></div>');
+            $('#secure_forms_info').append('<span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span> ');
+            $('#secure_forms_info').append('<a id="secureBtn" class="buttonNorm">View Details</a>');
+            if(res[i] >= 1) { // Certified
+                query.addTerm('stepID', '=', 'resolved');
+                query.join('recordResolutionData');
+                query.onSuccess(function(data) {
+                    var mostRecentID = null;
+                    var mostRecentDate = 0;
+                    for(var i in data) {
+                        if(data[i].recordResolutionData.lastStatus === 'Approved'
+                            && data[i].recordResolutionData.fulfillmentTime > mostRecentDate) {
+                            mostRecentDate = data[i].recordResolutionData.fulfillmentTime;
+                            mostRecentID = i;
+                        }
+                    }
+                    
+                    $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ mostRecentID);
+                    
+                    $.ajax({
+                        type: 'GET',
+                        url: '../api/form/indicator/list',
+                        cache: false,
+                        success: function(resp) {
+                            var mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
+                            for(var i in resp) {
+                                if(new Date(resp[i].timeAdded).getTime() > mostRecentTimestamp.getTime()) {
+                                    console.log(new Date(resp[i].timeAdded).getTime());
+                                    console.log(mostRecentTimestamp.getTime());
+                                    $('#secure_forms_info').css('background-color', 'red');
+                                    $('#secureStatus').text('Forms have been modified.');
+                                    $('#secureBtn').text('Please Recertify Your Site');
+                                    $('#secureBtn').attr('href', '../report.php?a=LEAF_start_leaf_secure_certification');
+                                    $('#secure_forms_info').show();
+                                    break; 
+                                }
+                            }                            
+                        }
+                    })
+                });
+                query.execute();
+            }
+            else { // Not certified
+                query.addTerm('stepID', '!=', 'resolved');
+                query.onSuccess(function(data) {
+                    $('#secure_forms_info').css('background-color', 'red');
+                    $('#secureStatus').text('Portal has not been certified.');
+                    
+                    if(data.length == 0) {
+                        $('#secureBtn').text('Start Certification Process');
+                        $('#secureBtn').attr('href', '../report.php?a=LEAF_start_leaf_secure_certification');
+                    } else {
+                        var recordID = data[Object.keys(data)[0]].recordID;
+                        
+                        $('#secureBtn').text('Check Certification Progress');
+                        $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ recordID);
+                    }
+                    
+                    $('#secure_forms_info').show();
+                });
+                query.execute();
+            }
+        }
+    }
+}
+
+function fetchFormSecureInfo() {
+    $.ajax({
+        type: 'GET',
+        url: '../api/system/settings',
+        cache: false
+    })
+    .then(function(res) {
+        renderSecureFormsInfo(res)
     });
 }
 
@@ -1840,6 +1926,8 @@ $(function() {
     portalAPI.setCSRFToken('<!--{$CSRFToken}-->');
 
     showFormBrowser();
+    fetchFormSecureInfo();
+
     <!--{if $form != ''}-->
     postRenderFormBrowser = function() { selectForm('<!--{$form}-->') };
     <!--{/if}-->

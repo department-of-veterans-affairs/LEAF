@@ -3113,6 +3113,7 @@ class Form
             $temp['categoryName'] = $item['categoryName'];
             $temp['categoryID'] = $item['categoryID'];
             $temp['is_sensitive'] = $item['is_sensitive'];
+            $temp['timeAdded'] = $item['timeAdded'] . ' GMT';
             $isActiveIndicator[$item['indicatorID']] = $temp;
             $isActiveCategory[$item['categoryID']] = 1;
         }
@@ -3135,6 +3136,7 @@ class Form
                     $temp['categoryName'] = $item['categoryName'];
                     $temp['categoryID'] = $item['categoryID'];
                     $temp['is_sensitive'] = $item['is_sensitive'];
+                    $temp['timeAdded'] = $item['timeAdded'] . ' GMT';
                     $temp['parentCategoryID'] = $item['parentCategoryID'];
                     $temp['parentStaples'] = $dataStaples[$item['categoryID']];
                     if(count($forms) > 0) {
