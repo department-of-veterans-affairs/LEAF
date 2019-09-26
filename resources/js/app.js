@@ -29,5 +29,14 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
  */
 
 const app = new Vue({
-    el: '#app'
+  // app initial state
+  el: '.leaf-app',
+  data: {
+    isShowing:false
+  },
+  methods: {
+    showAlert: function(event){
+      alert('How can I help you!');
+    }
+  }
 });

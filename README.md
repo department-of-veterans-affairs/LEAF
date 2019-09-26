@@ -1,8 +1,18 @@
-## Developer Setup
+## Docker Setup
+
+* `cd docker`
+* `docker-compose up`
+* `docker-compose exec leaf-php-fpm composer install` to install app dependencies
+* To generate a unique app key run `docker-compose exec leaf-php-fpm php artisan key:generate`
+* Create the `leaf_routes` database: `docker-compose exec leaf-php-fpm php artisan db:routes:create`
+
+## Laravel Setup
+
 
 1. Install composer https://getcomposer.org/
 1. Install laravel https://laravel.com/docs/5.7 `composer global require laravel/installer`
 1. Install app dependencies `composer install` (run from project root)
+
 1. Copy `.env.example` and populate with relevant info
 1. Run `artisan key:generate` to generate a unique app key
 1. Run `artisan migrate`
@@ -82,4 +92,3 @@ artisan route:clear
 ```
 
 Or, run this command from the project root: `artisan clear:dev`
-
