@@ -540,7 +540,7 @@ function openShareDialog() {
             CSRFToken: CSRFToken}
     })
     .then(function(res) {
-        $('#reportLink').html(pwd + 'open?report=' + res);
+        $('#reportLink').html(pwd + 'open.php?report=' + res);
     });
 }
 
