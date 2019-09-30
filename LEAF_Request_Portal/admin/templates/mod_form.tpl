@@ -1771,71 +1771,111 @@ function renderSecureFormsInfo(res) {
 
     for(var i in res) {
         if(i == 'leafSecure') {
-            var buffer = '';
-            $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: green;" ></div>').hide();
+            $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: green; display:none;" ></div>');
             $('#secure_forms_info').append('<span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span> ');
             $('#secure_forms_info').append('<a id="secureBtn" class="buttonNorm">View Details</a>');
             if(res[i] >= 1) { // Certified
-                query.addTerm('stepID', '=', 'resolved');
-                query.join('recordResolutionData');
-                query.onSuccess(function(data) {
+                $.when(fetchIndicators(), fetchLEAFSRequests(true)).then(function(indicators, leafSRequests) {
                     var mostRecentID = null;
+                    var newIndicator = false;
                     var mostRecentDate = 0;
-                    for(var i in data) {
-                        if(data[i].recordResolutionData.lastStatus === 'Approved'
-                            && data[i].recordResolutionData.fulfillmentTime > mostRecentDate) {
-                            mostRecentDate = data[i].recordResolutionData.fulfillmentTime;
+                    for(var i in leafSRequests) {
+                        if(leafSRequests[i].recordResolutionData.lastStatus === 'Approved'
+                            && leafSRequests[i].recordResolutionData.fulfillmentTime > mostRecentDate) {
+                            mostRecentDate = leafSRequests[i].recordResolutionData.fulfillmentTime;
                             mostRecentID = i;
                         }
                     }
                     
                     $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ mostRecentID);
-                    
-                    $.ajax({
-                        type: 'GET',
-                        url: '../api/form/indicator/list',
-                        cache: false,
-                        success: function(resp) {
-                            var mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
-                            for(var i in resp) {
-                                if(new Date(resp[i].timeAdded).getTime() > mostRecentTimestamp.getTime()) {
-                                    $('#secure_forms_info').css('background-color', 'red');
-                                    $('#secureStatus').text('Forms have been modified.');
-                                    $('#secureBtn').text('Please Recertify Your Site');
-                                    $('#secureBtn').attr('href', '../report.php?a=LEAF_start_leaf_secure_certification');
-                                    $('#formEditor_content').show();
-                                    break; 
-                                }
-                            }    
-                            
-                            $('#formEditor_content').show();
+                    var mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
+
+                    // check for new indicators since certification
+                    for(var i in indicators) {
+                        if(new Date(indicators[i].timeAdded).getTime() > mostRecentTimestamp.getTime()) {
+                            newIndicator = true;
+                            break;
                         }
-                    })
+                    }
+
+                    // if newIndicator found, look for existing leaf-s request and assign proper next step
+                    if (newIndicator) {
+                        fetchLEAFSRequests(false).then(function(unresolvedLeafSRequests) {
+                            if (unresolvedLeafSRequests.length == 0) { // if no new request, create one
+                                $('#secure_forms_info').css('background-color', 'red');
+                                $('#secureStatus').text('Forms have been modified.');
+                                $('#secureBtn').text('Please Recertify Your Site');
+                                $('#secureBtn').attr('href', '../report.php?a=LEAF_start_leaf_secure_certification');
+                            } else {
+                                var recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
+                                $('#secure_forms_info').css('background-color', 'red');
+                                $('#secureStatus').text('Forms have been modified. Certification in-progress found. Please recertify your site.');
+                                $('#secureBtn').text('Check Certification Progress');
+                                $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ recordID);
+                            }
+
+                            $('#secure_forms_info').show();
+                        });
+                    } else {
+                        $('#secure_forms_info').show();
+                    }
                 });
-                query.execute();
             }
             else { // Not certified
-                query.addTerm('stepID', '!=', 'resolved');
-                query.onSuccess(function(data) {
+                $.when(fetchLEAFSRequests(false)).then(function(leafSRequests) {
                     $('#secure_forms_info').css('background-color', 'red');
                     $('#secureStatus').text('Portal has not been certified.');
                     
-                    if(data.length == 0) {
+                    if(leafSRequests.length == 0) {
                         $('#secureBtn').text('Start Certification Process');
                         $('#secureBtn').attr('href', '../report.php?a=LEAF_start_leaf_secure_certification');
-                    } else {
-                        var recordID = data[Object.keys(data)[0]].recordID;
+                    } else { // in progress
+                        var recordID = leafSRequests[Object.keys(leafSRequests)[0]].recordID;
                         
                         $('#secureBtn').text('Check Certification Progress');
                         $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ recordID);
                     }
                     
-                    $('#formEditor_content').show();
+                    $('#secure_forms_info').show();
                 });
-                query.execute();
             }
         }
     }
+}
+
+function fetchLEAFSRequests(searchResolved) {
+    var deferred = $.Deferred();
+    var query = new LeafFormQuery();
+    query.setRootURL('../');
+    query.addTerm('categoryID', '=', 'leaf_secure');
+
+    if (searchResolved) {
+        query.addTerm('stepID', '=', 'resolved');
+        query.join('recordResolutionData');
+    } else {
+        query.addTerm('stepID', '!=', 'resolved');
+    }
+
+    query.onSuccess(function(data) {
+        deferred.resolve(data);
+    });
+
+    query.execute();
+    return deferred.promise();
+}
+
+
+function fetchIndicators() {
+    var deferred = $.Deferred();
+    $.ajax({
+        type: 'GET',
+        url: '../api/form/indicator/list',
+        cache: false,
+        success: function(resp) {
+            deferred.resolve(resp);
+        }
+    });
+    return deferred.promise();
 }
 
 function fetchFormSecureInfo() {
