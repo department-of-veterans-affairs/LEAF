@@ -1772,7 +1772,7 @@ function renderSecureFormsInfo(res) {
     for(var i in res) {
         if(i == 'leafSecure') {
             var buffer = '';
-            $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: green; display: none;" ></div>');
+            $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: green;" ></div>').hide();
             $('#secure_forms_info').append('<span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span> ');
             $('#secure_forms_info').append('<a id="secureBtn" class="buttonNorm">View Details</a>');
             if(res[i] >= 1) { // Certified
@@ -1799,16 +1799,16 @@ function renderSecureFormsInfo(res) {
                             var mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
                             for(var i in resp) {
                                 if(new Date(resp[i].timeAdded).getTime() > mostRecentTimestamp.getTime()) {
-                                    console.log(new Date(resp[i].timeAdded).getTime());
-                                    console.log(mostRecentTimestamp.getTime());
                                     $('#secure_forms_info').css('background-color', 'red');
                                     $('#secureStatus').text('Forms have been modified.');
                                     $('#secureBtn').text('Please Recertify Your Site');
                                     $('#secureBtn').attr('href', '../report.php?a=LEAF_start_leaf_secure_certification');
-                                    $('#secure_forms_info').show();
+                                    $('#formEditor_content').show();
                                     break; 
                                 }
-                            }                            
+                            }    
+                            
+                            $('#formEditor_content').show();
                         }
                     })
                 });
@@ -1830,7 +1830,7 @@ function renderSecureFormsInfo(res) {
                         $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ recordID);
                     }
                     
-                    $('#secure_forms_info').show();
+                    $('#formEditor_content').show();
                 });
                 query.execute();
             }
