@@ -27,7 +27,7 @@ class NationalEmployeeController extends RESTfulResponse
             return $this->API_VERSION;
         });
 
-        $this->index['GET']->register('national/employee/[digit]', function ($args) use ($employee) {
+        $this->index['GET']->register('national/employee/[text]', function ($args) use ($employee) {
             return $employee->getSummary($args[0]);
         });
 

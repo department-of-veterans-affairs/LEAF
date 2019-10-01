@@ -73,7 +73,7 @@ $this->index['POST']->register('group/[digit]/permissions/addGroup', function ($
 
     return $group->addPermission($args[0], 'group', $_POST['groupID'], $type);
 });
-$this->index['POST']->register('group/[digit]/permission/[text]/[digit]/[text]/toggle', function ($args) use ($group) {
+$this->index['POST']->register('group/[digit]/permission/[text]/[text]/[text]/toggle', function ($args) use ($group) {
     //$groupID, $categoryID, $UID, $permissionType
     return $group->togglePermission($args[0], $group->sanitizeInput($args[1]), $args[2], $args[3]);
 });

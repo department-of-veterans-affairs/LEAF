@@ -43,7 +43,7 @@ switch ($_GET['categoryID']) {
         break;
 }
 
-$data = $type->getAllData((int)$_GET['UID'], (int)$_GET['indicatorID']);
+$data = $type->getAllData(XSSHelpers::xscrub($_GET['UID']), (int)$_GET['indicatorID']);
 
 $value = $data[$_GET['indicatorID']]['data'];
 

@@ -30,16 +30,16 @@ class Signature
             ':stepID' => $stepID,
             ':dependencyID' => $dependencyID,
             ':message' => $message,
+            ':empUID' => $this->login->getEmpUID(),
             ':signerPublicKey' => $signerPublicKey,
-            ':userID' => $this->login->getUserID(),
             ':timestamp' => time()
         );
 
         $res = $this->db->prepared_query(
             'INSERT INTO 
-                signatures (signature, recordID, stepID, dependencyID, message, signerPublicKey, userID, timestamp)
-                VALUES (:signature, :recordID, :stepID, :dependencyID, :message, :signerPublicKey, :userID, :timestamp)
-                ON DUPLICATE KEY UPDATE signature=:signature, message=:message, signerPublicKey=:signerPublicKey, userID=:userID, timestamp=:timestamp',
+                signatures (signature, recordID, stepID, dependencyID, message, signerPublicKey, empUID, timestamp)
+                VALUES (:signature, :recordID, :stepID, :dependencyID, :message, :signerPublicKey, :empUID, :timestamp)
+                ON DUPLICATE KEY UPDATE signature=:signature, message=:message, signerPublicKey=:signerPublicKey, empUID=:empUID, timestamp=:timestamp',
             $vars
         );
 
@@ -55,6 +55,7 @@ class Signature
         $res = $this->db->prepared_query(
             'SELECT * FROM 
                 signatures
+                LEFT JOIN users USING (empUID)
                 WHERE recordID=:recordID;',
             $vars
         );
@@ -126,13 +127,13 @@ class Signature
             );
 
             $nexusDB = $this->login->getNexusDB();
-            $vars = array(':userName' => $res[0]['userID']);
+            $vars = array(':empUID' => $res[0]['empUID']);
             $res2 = $nexusDB->prepared_query(
                 'SELECT * FROM employee 
                 LEFT JOIN employee_data 
                 USING (empUID) 
                 WHERE indicatorID=6 AND 
-                userName=:userName;', $vars);
+                empUID=:empUID;', $vars);
 
             array_push($res[0], $res2[0]);
             array_push($returnArray, $res[0]);

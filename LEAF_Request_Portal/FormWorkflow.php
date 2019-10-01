@@ -76,7 +76,7 @@ class FormWorkflow
 
         $steps = array();
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query('SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
+        $res = $this->db->prepared_query('SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, empUID, requiresDigitalSignature FROM records_workflow_state
         									LEFT JOIN records USING (recordID)
         									LEFT JOIN workflow_steps USING (stepID)
         									LEFT JOIN step_dependencies USING (stepID)
@@ -136,7 +136,7 @@ class FormWorkflow
                         //check if the requester has any backups
                         //get nexus db
                         $nexusDB = $this->login->getNexusDB();
-                        $vars4 = array(':empId' => $empUID);
+                        $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
                         if ($empUID == $this->login->getEmpUID())
@@ -171,7 +171,7 @@ class FormWorkflow
                 // dependencyID -2 is for requestor followup
                 if ($res[$i]['dependencyID'] == -2)
                 {
-                    if ($res[$i]['userID'] == $this->login->getUserID())
+                    if ($res[$i]['empUID'] == $this->login->getEmpUID())
                     {
                         $res[$i]['hasAccess'] = true;
                     }
@@ -280,6 +280,7 @@ class FormWorkflow
         {
             $vars = array(':actionID' => $res[0]['actionID']);
             $res = $this->db->prepared_query('SELECT * FROM action_history
+	    									LEFT JOIN users USING (empUID)
 	    									LEFT JOIN actions ON actions.actionType = action_history.actionType
 	    									LEFT JOIN category_count USING (recordID)
 	    									LEFT JOIN categories USING (categoryID)
@@ -310,7 +311,7 @@ class FormWorkflow
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
-            $approver = $dir->lookupLogin($res[0]['userID']);
+            $approver = $dir->lookupEmpUID($res[0]['empUID']);
 
             $res[0]['description'] = "{$approver[0]['firstName']} {$approver[0]['lastName']}";
         }
@@ -342,7 +343,7 @@ class FormWorkflow
         }
 
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query('SELECT signatureID, signature, recordID, stepID, dependencyID, userID, timestamp, stepTitle, workflowID FROM signatures
+        $res = $this->db->prepared_query('SELECT signatureID, signature, recordID, stepID, dependencyID, empUID, timestamp, stepTitle, workflowID FROM signatures
                                             LEFT JOIN workflow_steps USING (stepID)
 	    									WHERE recordID=:recordID', $vars);
 
@@ -352,7 +353,7 @@ class FormWorkflow
 
             $signedSteps = [];
             foreach($res as $key => $sig) {
-                $signer = $dir->lookupLogin($sig['userID']);
+                $signer = $dir->lookupEmpUID($sig['empUID']);
                 $res[$key]['name'] = "{$signer[0]['firstName']} {$signer[0]['lastName']}";
                 $signedSteps[$res[$key]['stepID']] = 1;
             }
@@ -420,13 +421,13 @@ class FormWorkflow
 
         // first check if the user has access
         $vars = array(':dependencyID' => $dependencyID,
-                      ':userID' => $this->login->getUserID(), );
+                      ':empUID' => $this->login->getEmpUID(), );
         $res = $this->db->prepared_query('SELECT * FROM dependency_privs
         									LEFT JOIN users USING (groupID)
         									WHERE dependencyID=:dependencyID
-        										AND userID=:userID', $vars);
+        										AND empUID=:empUID', $vars);
 
-        if (!$this->login->checkGroup(1) && !isset($res[0]['userID']))
+        if (!$this->login->checkGroup(1) && !isset($res[0]['empUID']))
         {
             // check special cases
             $vars = array(':recordID' => $this->recordID);
@@ -467,7 +468,7 @@ class FormWorkflow
                     $empUID = $resEmpUID[$resPerson[0]['indicatorID_for_assigned_empUID']]['value'];
 
                     $nexusDB = $this->login->getNexusDB();
-                    $vars4 = array(':empId' => $empUID);
+                    $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                     $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
                     if ($empUID != $this->login->getEmpUID())
@@ -497,10 +498,10 @@ class FormWorkflow
                     $form = new Form($this->db, $this->login);
 
                     $varsPerson = array(':recordID' => $this->recordID);
-                    $resPerson = $this->db->prepared_query('SELECT userID FROM records
+                    $resPerson = $this->db->prepared_query('SELECT empUID FROM records
                 												WHERE recordID=:recordID', $varsPerson);
 
-                    if ($resPerson[0]['userID'] != $this->login->getUserID())
+                    if ($resPerson[0]['empUID'] != $this->login->getEmpUID())
                     {
                         return array('status' => 0, 'errors' => array('User account does not match'));
                     }
@@ -575,7 +576,7 @@ class FormWorkflow
 
                 // don't write duplicate log entries
                 $vars2 = array(':recordID' => $this->recordID,
-                               ':userID' => $this->login->getUserID(),
+                               ':empUID' => $this->login->getEmpUID(),
                                ':stepID' => $actionable['stepID'],
                                ':dependencyID' => $dependencyID,
                                ':actionType' => $actionType,
@@ -587,8 +588,8 @@ class FormWorkflow
                 {
                     // write log
                     $logCache[$logKey] = 1;
-                    $this->db->prepared_query('INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment)
-                            VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+                    $this->db->prepared_query('INSERT INTO action_history (recordID, empUID, stepID, dependencyID, actionType, actionTypeID, time, comment)
+                            VALUES (:recordID, :empUID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
                 }
 
                 // get other action data
@@ -777,8 +778,8 @@ class FormWorkflow
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
-            $requester = $dir->lookupLogin($record[0]['userID']);
-            $author = $dir->lookupLogin($this->login->getUserID());
+            $requester = $dir->lookupEmpUID($record[0]['empUID']);
+            $author = $dir->lookupEmpUID($this->login->getEmpUID());
 
             $email->addRecipient($requester[0]['Email']);
             $email->addRecipient($author[0]['Email']);
@@ -806,7 +807,7 @@ class FormWorkflow
                     $email = new Email();
 
                     $vars = array(':recordID' => $this->recordID);
-                    $approvers = $this->db->prepared_query('SELECT *, users.userID AS approverID FROM records_workflow_state
+                    $approvers = $this->db->prepared_query('SELECT *, users.empUID AS approverID FROM records_workflow_state
                     											LEFT JOIN records USING (recordID)
                     											LEFT JOIN step_dependencies USING (stepID)
                     											LEFT JOIN dependency_privs USING (dependencyID)
@@ -829,14 +830,14 @@ class FormWorkflow
                         require_once 'VAMC_Directory.php';
                         $dir = new VAMC_Directory;
 
-                        $author = $dir->lookupLogin($this->login->getUserID());
+                        $author = $dir->lookupEmpUID($this->login->getEmpUID());
                         $email->setSender($author[0]['Email']);
 
                         foreach ($approvers as $approver)
                         {
                             if (strlen($approver['approverID']) > 0)
                             {
-                                $tmp = $dir->lookupLogin($approver['approverID']);
+                                $tmp = $dir->lookupEmpUID($approver['approverID']);
                                 $email->addRecipient($tmp[0]['Email']);
                             }
                         }
@@ -851,9 +852,9 @@ class FormWorkflow
 
                             foreach ($chief as $member)
                             {
-                                if (strlen($member['userID']) > 0)
+                                if (strlen($member['empUID']) > 0)
                                 {
-                                    $tmp = $dir->lookupLogin($member['userID']);
+                                    $tmp = $dir->lookupEmpUID($member['empUID']);
                                     $email->addRecipient($tmp[0]['Email']);
                                 }
                             }
@@ -868,9 +869,9 @@ class FormWorkflow
 
                             foreach ($quadrad as $member)
                             {
-                                if (strlen($member['userID']) > 0)
+                                if (strlen($member['empUID']) > 0)
                                 {
-                                    $tmp = $dir->lookupLogin($member['userID']);
+                                    $tmp = $dir->lookupEmpUID($member['empUID']);
                                     $email->addRecipient($tmp[0]['Email']);
                                 }
                             }
@@ -892,10 +893,10 @@ class FormWorkflow
 
                             //check if the requester has any backups
                             $nexusDB = $this->login->getNexusDB();
-                            $vars4 = array(':empId' => $empUID);
+                            $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                             $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
-                            if ($empUID > 0)
+                            if ($empUID !== 0)
                             {
                                 $tmp = $dir->lookupEmpUID($empUID);
                                 $email->addRecipient($tmp[0]['Email']);
@@ -916,9 +917,9 @@ class FormWorkflow
                         if ($approvers[0]['dependencyID'] == -2)
                         {
                             $vars = array(':recordID' => $this->recordID);
-                            $resRequestor = $this->db->prepared_query('SELECT userID FROM records
+                            $resRequestor = $this->db->prepared_query('SELECT empUID FROM records
                     													WHERE recordID=:recordID', $vars);
-                            $tmp = $dir->lookupLogin($resRequestor[0]['userID']);
+                            $tmp = $dir->lookupEmpUID($resRequestor[0]['empUID']);
                             $email->addRecipient($tmp[0]['Email']);
                         }
 
@@ -967,10 +968,10 @@ class FormWorkflow
                     require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
 
-                    $author = $dir->lookupLogin($this->login->getUserID());
+                    $author = $dir->lookupEmpUID($this->login->getEmpUID());
                     $email->setSender($author[0]['Email']);
 
-                    $tmp = $dir->lookupLogin($approvers[0]['userID']);
+                    $tmp = $dir->lookupEmpUID($approvers[0]['empUID']);
                     $email->addRecipient($tmp[0]['Email']);
 
                     $email->sendMail();
@@ -1064,14 +1065,14 @@ class FormWorkflow
         }
         // write log entry
         $vars2 = array(':recordID' => $this->recordID,
-                ':userID' => $this->login->getUserID(),
+                ':empUID' => $this->login->getEmpUID(),
                 ':dependencyID' => 0,
                 ':actionType' => 'move',
                 ':actionTypeID' => 8,
                 ':time' => time(),
                 ':comment' => $comment, );
-        $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+        $this->db->prepared_query('INSERT INTO action_history (recordID, empUID, dependencyID, actionType, actionTypeID, time, comment)
+                            VALUES (:recordID, :empUID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
 
         $vars2 = array(':recordID' => $this->recordID);
         $this->db->prepared_query('DELETE FROM records_workflow_state

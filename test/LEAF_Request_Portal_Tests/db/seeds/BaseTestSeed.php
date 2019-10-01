@@ -17,7 +17,7 @@ class BaseTestSeed extends AbstractSeed
             SET FOREIGN_KEY_CHECKS = 0;
 
             INSERT INTO `action_history`
-            (`actionID`, `recordID`, `userID`, `stepID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`) VALUES
+            (`actionID`, `recordID`, `empUID`, `stepID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`) VALUES
             (1, 1, 'tester', 0, 5, 'submit', 6, 1520268930, '');
 
             INSERT INTO `categories`
@@ -35,7 +35,7 @@ class BaseTestSeed extends AbstractSeed
             ('form_f4687', 2, 1, 1);
 
             INSERT INTO `data`
-            (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `userID`) VALUES
+            (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `empUID`) VALUES
             (1, 2, 1, 'Bruce', 1520268869, 'tester'),
             (1, 3, 1, 'Wayne', 1520268875, 'tester'),
             (1, 4, 1, 'Vigilante Crime Fighter', 1520268925, 'tester'),
@@ -44,7 +44,7 @@ class BaseTestSeed extends AbstractSeed
             (1, 7, 1, 'Cant see me', 1520268896, 'tester');
 
             INSERT INTO `data_history`
-            (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `userID`) VALUES
+            (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `empUID`) VALUES
             (1, 2, 1, 'Bruce', 1520268869, 'tester'),
             (1, 3, 1, 'Wayne', 1520268875, 'tester'),
             (1, 6, 1, '05/23/1934', 1520268896, 'tester'),
@@ -71,13 +71,13 @@ class BaseTestSeed extends AbstractSeed
             (7, 1);
 
             INSERT INTO `records`
-            (`recordID`, `date`, `serviceID`, `userID`, `title`, `priority`, `lastStatus`, `submitted`, `deleted`, `isWritableUser`, `isWritableGroup`) VALUES
+            (`recordID`, `date`, `serviceID`, `empUID`, `title`, `priority`, `lastStatus`, `submitted`, `deleted`, `isWritableUser`, `isWritableGroup`) VALUES
             (1, 1520268853, 0, 'tester', 'My Request', 0, 'Submitted', 1520268930, 0, 0, 1);
 
             INSERT INTO `users`
-            (`userID`, `groupID`) VALUES
-            ('tester', 1),
-            ('ninja', 2);
+            (`empUID`, `userID`, `groupID`) VALUES
+            ('1', 'tester', 1),
+            ('2', 'ninja', 2);
 
             INSERT INTO `workflows`
             (`workflowID`, `initialStepID`, `description`) VALUES

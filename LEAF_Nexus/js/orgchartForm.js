@@ -53,7 +53,7 @@ orgchartForm.prototype.getForm = function(UID, categoryID, indicatorID) {
 	        this.dialog.setSaveHandler(function() {
 	            $.ajax({
 	            	type: 'POST',
-	                url: './api/?a=employee/' + UID,
+	                url: './api/?a=employee/_' + UID,
 	                data: $('#' + t.prefixID + 'record').serialize(),
 	                success: function(res, args) {
             			dialog.hide();

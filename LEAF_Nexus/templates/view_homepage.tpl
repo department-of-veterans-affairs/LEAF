@@ -105,7 +105,7 @@
     </div>
 
     <div id="currentEmployee" style="float: right; width: 220px; background-color: #ffe3e3; border: 1px solid black;">
-    <!--{if $employee[0].empUID > 0}-->
+    <!--{if $employee[0].empUID !== 0}-->
         <div id="currentEmployeeHeader" style="background-color: #f4bcbc; font-size: 110%; font-weight: bold; padding: 4px"><a href="?a=view_employee&empUID=<!--{$employee[0].empUID|strip_tags}-->"><!--{$employee[0].firstName|sanitize}--> <!--{$employee[0].lastName|sanitize}--></a></div>
         <div id="currentEmployeeBody" style="padding: 4px">Loading...</div>
     <!--{else}-->
@@ -249,7 +249,7 @@ $(function() {
     };
     ppInterval = setInterval(function(){postProcess();}, 100);
 
-    <!--{if $employee[0].empUID > 0 && is_numeric($employee[0].empUID)}-->
+    <!--{if $employee[0].empUID !== 0}-->
     $.ajax({
         url: "ajaxEmployee.php?a=getForm&empUID=<!--{$employee[0].empUID}-->",
         success: function(response) {
