@@ -40,6 +40,7 @@ class FormStack
         $res = $this->db->prepared_query('SELECT * FROM categories
     										   LEFT JOIN workflows USING (workflowID)
     	                                       WHERE disabled = 0
+                                                AND workflowID != -1
                                                 ORDER BY sort, categoryName ASC', null);
 
         return $res;
