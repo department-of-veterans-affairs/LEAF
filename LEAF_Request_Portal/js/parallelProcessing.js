@@ -122,15 +122,10 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                             url: orgChartPath + '/api/employee/import/_' + selectedUserName,
                             data: {CSRFToken: CSRFToken},
                             success: function(localEmpUID) {
-                                if(!isNaN(localEmpUID)) {
-                                    $('#'+this.prefixID+'emp'+empSel.selection).removeClass('employeeSelected');
-                                    $('#'+this.prefixID+'emp'+empSel.selection).addClass('employeeSelector');
-                                    var name = empSel.selectionData[empSel.selection].lastName + ', ' + empSel.selectionData[empSel.selection].firstName;
-                                    addToList(localEmpUID, name);
-                                }
-                                else {
-                                    alert(localEmpUID);
-                                }
+                                $('#'+this.prefixID+'emp'+empSel.selection).removeClass('employeeSelected');
+                                $('#'+this.prefixID+'emp'+empSel.selection).addClass('employeeSelector');
+                                var name = empSel.selectionData[empSel.selection].lastName + ', ' + empSel.selectionData[empSel.selection].firstName;
+                                addToList(localEmpUID, name);
                             }
                         });
                     });

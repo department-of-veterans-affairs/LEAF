@@ -29,10 +29,25 @@ final class FormWorkflowControllerTest extends DatabaseTest
      */
     public function testFormWorkflow() : void
     {
+        //get current forms
+        $forms = self::$client->get(array('a' => 'formStack/categoryList/all'));
+        $oldForms = array();
+        foreach($forms as $key => $val)
+        {
+            $oldForms[] = $val['categoryID'];
+        }
+
         //create a form with no user input needed
         self::$client->post(array('a' => 'formEditor/new'));
         $forms = self::$client->get(array('a' => 'formStack/categoryList/all'));
-        $newCategoryID = $forms[0]['categoryID'];
+        
+        for($i=0; $i<sizeof($forms); $i++)
+        {
+            if(!in_array($forms[$i]['categoryID'], $oldForms))
+            {
+                $newCategoryID = $forms[$i]['categoryID'];
+            }
+        }
         $this->assertNotNull($newCategoryID);
 
         //fill values
@@ -63,6 +78,11 @@ final class FormWorkflowControllerTest extends DatabaseTest
             'categoryID' => $newCategoryID, );
 
         self::$client->post(array('a' => 'formEditor/newIndicator'), $vars);
+
+
+        //fix workflow
+        $response = self::$client->post(array('a' => 'workflow/1/initialStep'), array('stepID' => 1));
+        self::$client->post(array('a' => 'workflow/step/1/dependencies'), array('dependencyID' => '5'));
 
         //create a new request with the generated indicator
         $vars = array('title' => 'test',

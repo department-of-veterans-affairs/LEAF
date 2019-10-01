@@ -48,9 +48,9 @@ final class CryptoHelpersTest extends DatabaseTest
      */
     public function testHashObject() : void
     {
-        $hexHash = '71c7e92d4527c9172078c7ce8709d46c4156787a9dbda2e79ff4014988776393';
+        $hexHash = 'cf6fd5dfc2f155d2e1e5cb410f7b45bc59a0300b074d13dc77ae224b7b6de85b';
 
-        $formToSign = self::$portalClient->get(array('a' => 'form/1/dataforsigning'));
+        $formToSign = (Object)['one' => '1', 'two' => 'marry'];
         $formObj = json_encode($formToSign, JSON_FORCE_OBJECT);
 
         $hashed = CryptoHelpers::hashObject($formObj);
@@ -63,11 +63,11 @@ final class CryptoHelpersTest extends DatabaseTest
      */
     public function testSignJSONObject() : void
     {
-        $formToSign = self::$portalClient->get(array('a' => 'form/1/dataforsigning'));
+        $formToSign = (Object)['one' => '1', 'two' => 'marry'];
         $formObj = json_encode($formToSign, JSON_FORCE_OBJECT);
         $sig = CryptoHelpers::signJSONObject($formObj, self::$secretSignKey);
 
-        $this->assertEquals(self::$signature, $sig);
+       $this->assertEquals('af31146a62f2a7c0199e08771ebd1cfbe6a7073bc16019174e25159be4a4bfb7fc3772683a9436108c03f936867c831872d614ebd9ece54127bb672a4e77ad02', $sig);
 
         $anotherFormToSign = self::$portalClient->get(array('a' => 'form/2/dataforsigning'));
         $anotherFormObj = json_encode($anotherFormToSign, JSON_FORCE_OBJECT);
@@ -86,8 +86,12 @@ final class CryptoHelpersTest extends DatabaseTest
         $formToSign = self::$portalClient->get(array('a' => 'form/1/dataforsigning'));
         $formObj = json_encode($formToSign, JSON_FORCE_OBJECT);
 
+        $signature = CryptoHelpers::signJSONObject(
+            $formObj,
+            self::$secretSignKey
+        );
         $verified = CryptoHelpers::verifySignature(
-            self::$signature,
+            $signature,
             $formObj,
             self::$publicSignKey
         );

@@ -235,7 +235,6 @@ function addEmployeePosition() {
                 url: './api/employee/import/_' + selectedUserName,
                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
-                    if(!isNaN(res)) {
                         $.ajax({
                             type: 'POST',
                             url: './api/?a=group/<!--{$groupID}-->/employee',
@@ -246,10 +245,6 @@ function addEmployeePosition() {
                             },
                             cache: false
                         });
-                    }
-                    else {
-                        alert(res);
-                    }
                 }
             });
         }
@@ -308,7 +303,7 @@ function confirmUnlinkEmployee(empUID) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'DELETE',
-            url: './api/?a=group/<!--{$groupID}-->/employee/' + empUID + '&'
+            url: './api/?a=group/<!--{$groupID}-->/employee/_' + empUID + '&'
             		+ $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 window.location.reload();

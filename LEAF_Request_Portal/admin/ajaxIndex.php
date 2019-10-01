@@ -60,7 +60,7 @@ switch ($action) {
         require 'Group.php';
 
         $group = new Group($db, $login);
-        $group->addMember($_POST['userID'], $_POST['groups']);
+        $group->addMember($_POST['empUID'], $_POST['groups']);
 
         break;
     case 'remove_user_old':
@@ -72,7 +72,7 @@ switch ($action) {
         $group = new Group($db, $login);
         foreach ($deleteList as $del)
         {
-            $group->removeMember(XSSHelpers::xscrub($del['userID']), $del['groupID']);
+            $group->removeMember(XSSHelpers::xscrub($del['empUID']), $del['groupID']);
         }
 
         break;
@@ -81,7 +81,7 @@ switch ($action) {
            require 'Group.php';
 
            $group = new Group($db, $login);
-           $group->addMember($_POST['userID'], $_POST['groupID']);
+           $group->addMember($_POST['empUID'], $_POST['groupID']);
 
            break;
     case 'remove_user':
@@ -89,7 +89,7 @@ switch ($action) {
            require 'Group.php';
 
            $group = new Group($db, $login);
-           $group->removeMember($_POST['userID'], $_POST['groupID']);
+           $group->removeMember($_POST['empUID'], $_POST['groupID']);
 
            break;
     case 'printview':

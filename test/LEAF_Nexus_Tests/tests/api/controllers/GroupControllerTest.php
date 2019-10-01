@@ -196,7 +196,7 @@ class GroupControllerTest extends DatabaseTest
     }
 
     /**
-     * Tests the `group/[digit]/employee/[digit]` endpoint for deletion.
+     * Tests the `group/[digit]/employee/[test]` endpoint for deletion.
      */
     public function testRemoveEmployee() : void
     {
@@ -205,7 +205,7 @@ class GroupControllerTest extends DatabaseTest
         $users = $results['users'];
         $this->assertNotNull($users[0]);
 
-        self::$client->delete(array('a' => 'group/1/employee/1'));
+        self::$client->delete(array('a' => 'group/1/employee/_1'));
 
         //Checks to make sure employee is deleted
         $results = self::$client->get(array('a' => 'group/1/employees/detailed'));

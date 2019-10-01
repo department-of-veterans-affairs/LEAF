@@ -138,7 +138,21 @@ class LEAFClient
         require_once '../../LEAF_Request_Portal/db_mysql.php';
 
         $config = new \Config();
+
         $db_phonebook = new \DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        if (defined('DIRECTORY_HOST'))
+        {
+            $db = new \DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
+            if (!$db->isConnected())
+            {
+                $db = $db_phonebook;
+            }
+        }
+        else
+        {
+            $db = $db_phonebook;
+        }
+
         $cookieJar = $this->client->getConfig('cookies');
         $cookie = $cookieJar->getCookieByName('PHPSESSID');
         if (is_null($cookie))
@@ -146,9 +160,8 @@ class LEAFClient
             trigger_error('PHPSESSID cookie not set', E_USER_WARNING);
         }
         $sessionID = $cookie->getValue();
-
         $vars = array(':sessionID' => $sessionID);
-        $res = $db_phonebook->prepared_query('SELECT * FROM sessions WHERE sessionKey=:sessionID', $vars);
+        $res = $db->prepared_query('SELECT * FROM sessions WHERE sessionKey=:sessionID', $vars);
 
         $CSRFToken = '';
         if (array_key_exists(0, $res) && array_key_exists('data', $res[0]))
@@ -172,14 +185,14 @@ class LEAFClient
      *
      * @return Client   a GuzzleHttp\Client
      */
-    private static function getBaseClient($baseURI, $authURL = null, $headers = []) : Client
+    private static function getBaseClient($baseURI, $authURL = null, $headers = array()) : Client
     {
         $config = array(
             'base_uri' => $baseURI,
             'cookies' => true,
         );
 
-        if(!empty($headers))
+        if (!empty($headers))
         {
             $config['headers'] = $headers;
         }

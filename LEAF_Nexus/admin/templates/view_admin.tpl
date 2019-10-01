@@ -109,13 +109,7 @@ function newEmployee() {
             dataType: 'json',
             data: {CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
-            	if(parseFloat(response) > 0) {
             	    window.location = '../?a=view_employee&empUID=' + response;
-            	}
-            	else {
-            		alert(response);
-            		dialog.hide();
-            	}
             },
             cache: false
         });

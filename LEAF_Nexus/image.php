@@ -65,7 +65,7 @@ if (in_array($fileExtension, $imageExtensionWhitelist) && file_exists($filename)
         header('Last-Modified: ' . date(DATE_RFC822, $time));
         header('Expires: ' . date(DATE_RFC822, time() + 604800));
         header('Content-Type: image/' . $fileExtension);
-
+        
         // shrink images if they're too big
         if (filesize($filename) > 131072)
         {
