@@ -13,17 +13,13 @@ include '../globals.php';
 include '../sources/Login.php';
 include '../db_mysql.php';
 include '../config.php';
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
 
 $config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 
-if (isset($_SERVER['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || Orgchart\Config::$leafSecure == false))
+if (isset($_SERVER['REMOTE_USER']))
 {
     $protocol = 'http://';
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
@@ -51,7 +47,6 @@ if (isset($_SERVER['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || O
     if (count($res) > 0)
     {
         $_SESSION['userID'] = $user;
-        $_SESSION['empUID'] = $res[0]['empUID'];
         session_write_close();
         header('Location: ' . $redirect);
         exit();
@@ -69,8 +64,7 @@ if (isset($_SERVER['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || O
         // add user to local DB
         if (count($res) > 0)
         {
-            $vars = array(':empUID' => $res[0]['empUID'],
-                    ':firstName' => $res[0]['firstName'],
+            $vars = array(':firstName' => $res[0]['firstName'],
                     ':lastName' => $res[0]['lastName'],
                     ':middleName' => $res[0]['middleName'],
                     ':userName' => $res[0]['userName'],
@@ -78,11 +72,19 @@ if (isset($_SERVER['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || O
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
                     ':lastUpdated' => time(), );
-            $db->prepared_query('INSERT INTO employee (empUID, firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
-        							VALUES (:empUID, :firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
+            $db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
+        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
     								ON DUPLICATE KEY UPDATE deleted=0', $vars);
+            $empUID = $db->getLastInsertID();
 
-            $vars = array(':empUID' => XSSHelpers::xscrub($res[0]['empUID']),
+            if ($empUID == 0)
+            {
+                $vars = array(':userName' => $res[0]['userName']);
+                $empUID = $db->prepared_query('SELECT empUID FROM employee
+                                                   WHERE userName=:userName', $vars)[0]['empUID'];
+            }
+
+            $vars = array(':empUID' => $empUID,
                     ':indicatorID' => 6,
                     ':data' => $res[0]['data'],
                     ':author' => 'viaLogin',
@@ -94,7 +96,6 @@ if (isset($_SERVER['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || O
 
             // redirect as usual
             $_SESSION['userID'] = $res[0]['userName'];
-            $_SESSION['empUID'] = $res[0]['empUID'];
             session_write_close();
             header('Location: ' . $redirect);
             exit();

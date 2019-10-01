@@ -47,6 +47,11 @@ if ($key != 'classicphonebook'
     $login->loginUser();
 }
 
+// Used for the 15min session timeout period UX
+if ($key != 'userActivity') {
+    $_SESSION['lastAction'] = time();
+}
+
 $controllerMap = new ControllerMap();
 
 $controllerMap->register('classicphonebook', function () use ($db, $login, $action) {
@@ -86,6 +91,12 @@ if ($login->checkGroup(1))
         require 'controllers/ImportController.php';
         $importController = new ImportController($db, $login);
         $importController->handler($action);
+    });
+
+    $controllerMap->register('site', function () use ($db, $login, $action) {
+        require 'controllers/SiteController.php';
+        $siteController = new SiteController($db, $login);
+        $siteController->handler($action);
     });
 }
 
@@ -152,6 +163,12 @@ $controllerMap->register('signature', function() use ($db, $login, $action) {
 $controllerMap->register('open', function() use ($db, $login, $action) {
     require 'controllers/OpenController.php';
     $SignatureController = new OpenController($db, $login);
+    $SignatureController->handler($action);
+});
+
+$controllerMap->register('userActivity', function() use ($db, $login, $action) {
+    require 'controllers/UserActivity.php';
+    $SignatureController = new UserActivity($db, $login);
     $SignatureController->handler($action);
 });
 

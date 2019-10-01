@@ -1,10 +1,11 @@
 <?php
-ini_set('display_errors', 1); // Set to 1 to display errors
+ini_set('display_errors', 0); // Set to 1 to display errors
 
 include '../globals.php';
 include '../db_mysql.php';
 include '../db_config.php';
 
+$debug = false;
 $db_config = new DB_Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
@@ -27,7 +28,12 @@ if(!file_exists($tempFolder . 'actions.sql')) {
 }
 
 echo "Running Importer on {$db_config->dbName}...<br />\n";
-$db->enableDebug();
+
+if ($debug)
+{
+    $db->enableDebug();
+}
+
 $db->query("TRUNCATE TABLE `workflow_routes`;");
 $db->query("TRUNCATE TABLE `step_dependencies`;");
 $db->query("delete from `workflow_steps`;");

@@ -32,6 +32,9 @@
     <script type="text/javascript" src="../../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <script type="text/javascript" src="../../libs/js/jquery/icheck/icheck.js"></script>
     {/if}
+    {if $leafSecure >= 1}
+    <script type="text/javascript" src="../../libs/js/LEAF/sessionTimeout.js"></script>
+    {/if}
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
@@ -48,9 +51,9 @@
       <span id="headerDescription">{$title}</span>
     </div>
     <span id="headerHelp">
-        {if $onPrem === true}
+        {if $leafSecure == 0}
         <div class="alert" style="display: inline">
-            <span>This site is not on the VA Enterprise Cloud. Do not enter PHI/PII.</span>
+            <span>Do not enter PHI/PII.</span>
         </div>
         {/if}
         {$login}

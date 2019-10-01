@@ -195,6 +195,9 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
+        $t_form->assign('canWrite', $form->hasWriteAccess($recordIDToPrint));
+        $t_form->assign('canRead', $form->hasReadAccess($recordIDToPrint));
+        $t_form->assign('accessLogs', $form->log);
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);
@@ -475,6 +478,7 @@ switch ($action) {
 
         $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
         $main->assign('city', $settings['subHeading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subHeading']));
+        $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
         $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
 
         $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
@@ -520,10 +524,8 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', isset(Config::$leafSecure) && Config::$leafSecure);
+$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
-$onPrem = !isset(Config::$onPrem) ? true :  Config::$onPrem;
-$main->assign('onPrem', $onPrem);
 $t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());

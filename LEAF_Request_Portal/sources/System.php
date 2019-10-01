@@ -613,7 +613,7 @@ class System
         foreach ($list as $item)
         {
             $ext = substr($item, strrpos($item, '.') + 1);
-            if (in_array($ext, $this->fileExtensionWhitelist)
+            if (in_array(strtolower($ext), $this->fileExtensionWhitelist)
                 && $item != 'index.html')
             {
                 $out[] = $item;
@@ -638,7 +638,7 @@ class System
         }
 
         $ext = substr($fileName, strrpos($fileName, '.') + 1);
-        if (!in_array($ext, $this->fileExtensionWhitelist))
+        if (!in_array(strtolower($ext), $this->fileExtensionWhitelist))//case insensitive
         {
             return 'Unsupported file type.';
         }

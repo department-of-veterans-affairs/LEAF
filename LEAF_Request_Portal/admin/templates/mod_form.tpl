@@ -88,7 +88,9 @@ function editProperties(isSubForm) {
                     var buffer = '<select id="workflowID">';
                     buffer += '<option value="0">No Workflow</option>';
                     for(var i in res) {
-                        buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
+                        if(res[i].workflowID > 0) {
+                            buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
+                        }
                     }
                     buffer += '</select>';
                     $('#container_workflowID').html(buffer);
@@ -493,7 +495,7 @@ function newQuestion(parentIndicatorID) {
                                 <td><input id="required" name="required" type="checkbox" /></td>\
                             </tr>\
                             <tr>\
-                                <td>Sensitive</td>\
+                                <td>Sensitive Data (PHI/PII)</td>\
                                 <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
                             </tr>\
                             <tr>\
@@ -930,7 +932,7 @@ function getForm(indicatorID, series) {
                         <td><input id="required" name="required" type="checkbox" /></td>\
                     </tr>\
                     </tr>\
-                        <td>Sensitive</td>\
+                        <td>Sensitive Data (PHI/PII)</td>\
                         <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
                     </tr>\
                     <tr>\

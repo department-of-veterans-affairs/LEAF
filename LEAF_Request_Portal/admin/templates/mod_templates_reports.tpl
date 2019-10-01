@@ -175,10 +175,10 @@ function updateFileList() {
 			for(var i in res) {
 				file = res[i].replace('.tpl', '');
 				if(!isExcludedFile(file)) {
-					buffer += '<li onclick="loadContent(\''+ file +'\');"><a href="#">' + file + '</a></li>';
+					buffer += '<li onclick="loadContent(\''+ file +'\');"><a href="#'+ file +'">' + file + '</a></li>';
                 }
                 else {
-                    bufferExamples += '<li onclick="loadContent(\''+ file +'\');"><a href="#">' + file + '</a></li>';
+                    bufferExamples += '<li onclick="loadContent(\''+ file +'\');"><a href="#'+ file +'">' + file + '</a></li>';
                 }
 			}
             buffer += '</ul>';

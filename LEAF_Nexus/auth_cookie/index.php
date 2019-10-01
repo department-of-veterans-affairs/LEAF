@@ -21,7 +21,7 @@ $login = new Orgchart\Login($db, $db);
 
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
 
-if (isset($_COOKIE['REMOTE_USER']) && (!isset(Orgchart\Config::$leafSecure) || Orgchart\Config::$leafSecure == false))
+if (isset($_COOKIE['REMOTE_USER']))
 {
     $redirect = '';
     if (isset($_GET['r']))

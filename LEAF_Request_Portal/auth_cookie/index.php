@@ -23,7 +23,7 @@ $login = new Login($db_phonebook, $db);
 
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
 
-if (isset($_COOKIE['REMOTE_USER']) && (!isset(Config::$leafSecure) || Config::$leafSecure == false))
+if (isset($_COOKIE['REMOTE_USER']))
 {
     $redirect = '';
     if (isset($_GET['r']))

@@ -65,6 +65,11 @@ class Workflow
             return 'Admin access required.';
         }
 
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
+        }
+
         $vars = array(':stepID' => $stepID);
         $res = $this->db->prepared_query('SELECT * FROM records_workflow_state
     										WHERE stepID = :stepID', $vars);
@@ -110,6 +115,9 @@ class Workflow
     public function getAllUniqueWorkflows()
     {
         $vars = array();
+        /*$res = $this->db->prepared_query('SELECT * FROM workflows
+                                            WHERE workflowID > 0
+                                            ORDER BY description ASC', $vars);*/
         $res = $this->db->prepared_query('SELECT * FROM workflows ORDER BY description ASC', $vars);
 
         return $res;
@@ -140,6 +148,7 @@ class Workflow
         $res = $this->db->prepared_query("SELECT * FROM categories
                                                 WHERE parentID=''
     												AND disabled = 0
+                                                    AND workflowID != -1
     											ORDER BY categoryName", null);
 
         return $res;
@@ -187,6 +196,12 @@ class Workflow
         {
             return 'Admin access required.';
         }
+
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
+        }
+
         $vars = array(':workflowID' => $this->workflowID,
                       ':stepID' => $stepID,
                       ':x' => $x,
@@ -205,6 +220,12 @@ class Workflow
         {
             return 'Admin access required.';
         }
+
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
+        }
+
         // clear out route events
         $vars = array(':workflowID' => $this->workflowID,
                       ':stepID' => $stepID,
@@ -235,6 +256,11 @@ class Workflow
             return 'Admin access required.';
         }
 
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
+        }
+
         $vars = array(':workflowID' => $this->workflowID,
                       ':stepID' => $stepID,
                       ':nextStepID' => $nextStepID,
@@ -250,7 +276,8 @@ class Workflow
     public function getAllEvents()
     {
         $vars = array();
-        $res = $this->db->prepared_query('SELECT * FROM events', $vars);
+        $res = $this->db->prepared_query('SELECT * FROM events
+                                            WHERE eventID NOT LIKE "LeafSecure_%"', $vars);
 
         return $res;
     }
@@ -270,9 +297,9 @@ class Workflow
             return 'Admin access required.';
         }
 
-        if ($stepID < 0)
-        {
-            return 'Invalid Action';
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
         }
 
         $vars = array(':workflowID' => $this->workflowID,
@@ -302,6 +329,11 @@ class Workflow
             return 'Admin access required.';
         }
 
+        // Don't allow changes to standardized components
+        if($this->workflowID < 0) {
+            return 'Restricted command.';
+        }
+
         $vars = array(':workflowID' => $this->workflowID,
                         ':stepTitle' => $stepTitle,
                         ':jsSrc' => '',
@@ -323,6 +355,11 @@ class Workflow
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required.';
+        }
+
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
         }
 
         $vars = array(':stepID' => $stepID,
@@ -347,6 +384,11 @@ class Workflow
         $indicatorID = (int)$indicatorID;
         if(!$this->login->checkGroup(1)) {
             return 'Admin access required.';
+        }
+
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
         }
 
         if($indicatorID < 1) {
@@ -389,6 +431,11 @@ class Workflow
             return 'Admin access required.';
         }
 
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
+        }
+
         $vars = array(
             ':stepID' => (int)$stepID,
             ':requiresSignature' => $requireSignature
@@ -406,6 +453,11 @@ class Workflow
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required.';
+        }
+
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
         }
 
         $vars = array(':stepID' => $stepID,
@@ -429,6 +481,11 @@ class Workflow
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required.';
+        }
+
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
         }
 
         $vars = array(':stepID' => $stepID,
@@ -523,6 +580,10 @@ class Workflow
             return 'Admin access required.';
         }
 
+        if(strpos($eventID, 'LeafSecure_') !== false) {
+            return 'Restricted command.';
+        }
+
         $vars = array(':workflowID' => $this->workflowID,
                       ':stepID' => $stepID,
                       ':actionType' => $actionType,
@@ -539,6 +600,10 @@ class Workflow
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required.';
+        }
+
+        if(strpos($eventID, 'LeafSecure_') !== false) {
+            return 'Restricted command.';
         }
 
         $vars = array(':workflowID' => $this->workflowID,
@@ -560,6 +625,11 @@ class Workflow
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required.';
+        }
+
+        // Don't allow changes to standardized components
+        if($workflowID < 0) {
+            return 'Restricted command.';
         }
 
         $vars = array(':workflowID' => $workflowID);
@@ -605,6 +675,12 @@ class Workflow
         {
             return 'Admin access required.';
         }
+
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
+        }
+
         $vars = array(':stepID' => $stepID,
                       ':indicatorID' => $indicatorID, );
         $this->db->prepared_query('UPDATE workflow_steps
@@ -625,6 +701,12 @@ class Workflow
         {
             return 'Admin access required.';
         }
+
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
+        }
+
         $vars = array(':stepID' => $stepID,
                 ':indicatorID' => $indicatorID, );
         $this->db->prepared_query('UPDATE workflow_steps
@@ -648,11 +730,12 @@ class Workflow
     {
         $summary = array();
         $steps = $this->getSteps();
-        if (!isset($steps[0]))
+        $firstElement = array_slice($steps, 0, 1)[0];
+        if (count($steps) == 0)
         {
             return 0;
         }
-        $initialStepID = $steps[0]['initialStepID'];
+        $initialStepID = $firstElement['initialStepID'];
 
         $stepData = array();
         foreach ($steps as $step)
@@ -808,11 +891,11 @@ class Workflow
             return 'Admin access required';
         }
 
-        $systemAction = array('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit');
+        $systemAction = array('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit', 'sign');
 
         if (in_array($actionType, $systemAction))
         {
-            return 'System Action cannot be edited.';
+            return 'System Actions cannot be edited.';
         }
 
         $alignment = 'right';
@@ -843,11 +926,11 @@ class Workflow
         {
             return 'Admin access required';
         }
-        $systemAction = array('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit');
+        $systemAction = array('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit', 'sign');
 
         if (in_array($actionType, $systemAction))
         {
-            return 'System Action cannot be removed.';
+            return 'System Actions cannot be removed.';
         }
 
         $vars = array(':actionType' => strip_tags($actionType), ':deleted' => 1);
