@@ -2496,7 +2496,9 @@ class Form
 
                     break;
                 case 'userID':
-                    $conditions .= "userID {$operator} :userID{$count} AND ";
+                    $conditions .= "empUID {$operator} :empUID{$count} AND ";
+                    unset($vars[':userID' . $count]);
+                    $vars[':empUID' . $count] = $q['match'];
 
                     break;
                 case 'date': // backwards compatibility
