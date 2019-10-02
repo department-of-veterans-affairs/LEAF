@@ -164,7 +164,7 @@ switch ($action) {
             $t_form->assign('summary', $summary);
             $t_form->assign('groups', $employee->listGroups($empUID));
             $t_form->assign('userID', $_SESSION['userID']);
-            $t_form->assign('empUID', $_SESSION['empUID']);
+            //$t_form->assign('empUID', $_SESSION['empUID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
             $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
@@ -293,7 +293,7 @@ switch ($action) {
         $t_form->assign('empUID', $empUID);
         $t_form->assign('summary', $employee->getSummary($empUID));
         $t_form->assign('userID', $_SESSION['userID']);
-        $t_form->assign('empUID', $_SESSION['empUID']);
+        //$t_form->assign('empUID', $_SESSION['empUID']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch('browse_employee.tpl'));
