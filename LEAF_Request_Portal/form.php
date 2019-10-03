@@ -3433,4 +3433,66 @@ class Form
 
         return $data;
     }
+    
+    public function permanentlyDeleteRecord($recordID) {
+        /*if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
+            return 0;
+        }*/
+        
+        $vars = array(':recordID' => $recordID,
+            ':date' => '0',
+            ':serviceID' => '0',
+            ':userID' => '',
+            ':title' => 'record has been deleted',
+            ':priority' => '0',
+            ':lastStatus' => '',
+            ':submitted' => '0',
+            ':deleted' => time(),
+            ':isWritableUser' => '0',
+            ':isWritableGroup' => '0');
+                          
+        $res = $this->db->prepared_query('UPDATE records SET
+        deleted=:time,
+        date=:date,
+        serviceID=:serviceID,
+        userID=:userID,
+        title=:title,
+        priority=:priority,
+        lastStatus=:lastStatus,
+        submitted=:submitted,
+        isWritableUser=:isWritableUser,
+        isWritableGroup=:isWritableGroup ,
+        WHERE recordID=:recordID', $vars);
+            
+        $vars = array(':recordID' => $recordID);
+            
+        $res = $this->db->prepared_query('DELETE FROM action_history WHERE recordID=:recordID', $vars);
+            
+        $vars = array(':recordID' => $recordID,
+            ':userID' => '',
+            ':dependencyID' => 0,
+            ':actionType' => 'deleted',
+            ':actionTypeID' => 4,
+            ':time' => time(), );
+                
+        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
+        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
+            
+            
+        $vars = array(':recordID' => $recordID);
+            
+        $this->db->prepared_query('DELETE FROM records_workflow_state WHERE recordID=:recordID', $vars);
+            
+            
+        $vars = array(':recordID' => $recordID);
+            
+        $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID', $vars);
+            
+            
+        $vars = array(':recordID' => $recordID);
+            
+        $this->db->prepared_query('DELETE FROM records_dependencies WHERE recordID=:recordID', $vars);
+            
+        return 1;
+    }
 }
