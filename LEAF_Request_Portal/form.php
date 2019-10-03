@@ -2969,6 +2969,7 @@ class Form
             {
                 $user = $dir->lookupEmpUID($item['empUID']);
                 $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['empUID'];
+
                 $item['approverName'] = $name;
 
                 $data[$item['recordID']]['action_history'][] = $item;

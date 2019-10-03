@@ -22,6 +22,7 @@ include 'db_mysql.php';
 include 'config.php';
 include './sources/Exception.php';
 include './sources/Employee.php';
+
 if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
@@ -62,7 +63,9 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
+
             if (is_numeric($_GET['indicatorID']))
+
             {
                 $t_form->assign('uid', $_GET['empUID']);
                 $t_form->assign('categoryID', $employee->getDataTableCategoryID());
@@ -78,8 +81,10 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
+
         $t_form->assign('form', $employee->getAllData(XSSHelpers::xscrub($_GET['empUID']), (int)$_GET['indicatorID']));
         $t_form->assign('UID', XSSHelpers::xscrub($_GET['empUID']));
+
         $t_form->assign('categoryID', $employee->getDataTableCategoryID());
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->display('ajaxForm.tpl');

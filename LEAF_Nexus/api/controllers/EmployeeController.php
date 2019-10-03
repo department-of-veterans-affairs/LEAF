@@ -74,6 +74,7 @@ class EmployeeController extends RESTfulResponse
                 return $e->getMessage();
             }
         });
+
         $this->index['POST']->register('employee/[text]', function ($args) use ($employee) {
             try
             {
@@ -84,6 +85,7 @@ class EmployeeController extends RESTfulResponse
                 return $e->getMessage();
             }
         });
+
         $this->index['POST']->register('employee/[text]/backup', function ($args) use ($employee) {
             try
             {
@@ -94,6 +96,7 @@ class EmployeeController extends RESTfulResponse
                 return $e->getMessage();
             }
         });
+
         $this->index['POST']->register('employee/[text]/activate', function ($args) use ($employee) {
             try
             {
@@ -127,7 +130,9 @@ class EmployeeController extends RESTfulResponse
             return print_r($args, true) . print_r($_GET, true);
         });
 
+
         $this->index['DELETE']->register('employee/[text]', function ($args) use ($employee) {
+
             try
             {
                 return $employee->disableAccount($args[0]);
@@ -138,7 +143,9 @@ class EmployeeController extends RESTfulResponse
             }
         });
 
+
         $this->index['DELETE']->register('employee/[text]/backup/[text]', function ($args) use ($employee) {
+
             try
             {
                 return $employee->removeBackup($args[0], $args[1]);

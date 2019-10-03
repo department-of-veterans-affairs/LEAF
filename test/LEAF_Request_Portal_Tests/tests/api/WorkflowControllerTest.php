@@ -274,6 +274,7 @@ final class WorkflowControllerTest extends DatabaseTest
     public function testRemoveAction() : void
     {
       $results = self::$client->post(array('a' => 'system/actions'), array(
+
           'actionText' => 'Active',
           'actionTextPasttense' => 'Activated',
           'actionIcon' => 'active.svg',

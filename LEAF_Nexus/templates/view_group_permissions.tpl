@@ -37,6 +37,7 @@
     <!--{foreach from=$permissions item=permission}-->
         <tr style="background-color: <!--{cycle values='#e0e0e0,#c4c4c4'}-->">
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->" style="font-size: 14px; font-weight: bold"><img src="images/largespinner.gif" alt="loading..." /> Loading <!--{$permission.categoryID|strip_tags}-->...</td>
+
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_read" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', '<!--{$permission.UID|strip_tags}-->', 'read')">
                 <div class="buttonNorm">
                 <!--{if $permission.read == 1}-->

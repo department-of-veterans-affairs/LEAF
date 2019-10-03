@@ -83,7 +83,6 @@ final class FormWorkflowControllerTest extends DatabaseTest
         //fix workflow
         $response = self::$client->post(array('a' => 'workflow/1/initialStep'), array('stepID' => 1));
         self::$client->post(array('a' => 'workflow/step/1/dependencies'), array('dependencyID' => '5'));
-
         //create a new request with the generated indicator
         $vars = array('title' => 'test',
                         'num' . $newCategoryID => 1, );

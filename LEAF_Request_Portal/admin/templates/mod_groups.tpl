@@ -153,7 +153,7 @@ function getGroupList() {
                                     url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
                                     data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                     success: function(res) {
-                                            addAdmin(selectedEmpUID);
+                                            addAdmin(selectedEmpUID)
                                     }
                                 });
                             }

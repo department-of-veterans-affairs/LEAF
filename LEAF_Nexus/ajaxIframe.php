@@ -135,7 +135,9 @@ switch ($action) {
 
         $t_iframe->left_delimiter = '<!--{';
         $t_iframe->right_delimiter = '}-->';
+
         $t_iframe->assign('privileges', $login->getIndicatorPrivileges(array((int)$_GET['indicatorID']), XSSHelpers::xscrub($type), XSSHelpers::xscrub($_GET['UID'])));
+
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_iframe->assign('UID', XSSHelpers::xscrub($_GET['UID']));
         $main->assign('body', $t_iframe->fetch('permission_iframe.tpl'));

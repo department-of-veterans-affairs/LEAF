@@ -509,6 +509,55 @@ class VAMC_Directory_maintenance_AD
         return rtrim($out);
     }
 
+    // Log errors from the database
+    private function logError($error)
+    {
+        $this->log[] = $error;
+    }
+
+    // Translates the * wildcard to SQL % wildcard
+    private function parseWildcard($query)
+    {
+        return str_replace('*', '%', $query . '*');
+    }
+
+    // Trims input
+    private function trimField(&$value, &$key)
+    {
+        $value = trim($value);
+        $value = trim($value, '.');
+    }
+
+    // Trims input
+    private function trimField2(&$value, &$key)
+    {
+        $value = trim($value);
+        $value = trim($value, '.');
+    }
+
+    private function ucwordss($str)
+    {
+        $lowerCase = array('OF');
+        $out = '';
+        foreach (explode(' ', $str) as $word)
+        {
+            if (in_array($word, $lowerCase))
+            {
+                $out .= strtolower($word) . ' ';
+            }
+            elseif (strlen($word) > 4 || metaphone($word) != $word)
+            {
+                $out .= strtoupper($word[0]) . substr(strtolower($word), 1) . ' ';
+            }
+            else
+            {
+                $out .= $word . ' ';
+            }
+        }
+
+        return rtrim($out);
+    }
+
     // Clean up all wildcards
     private function cleanWildcards($input)
     {

@@ -290,7 +290,6 @@ class Employee extends Data
                                                 LEFT JOIN relation_position_employee USING (empUID)
                                                 WHERE employee.oldEmpUID=:empUID', $vars);
         }
-
         $data['employee'] = $res[0];
         $data['employee']['data'] = $this->getAllData($empUID);
 

@@ -825,6 +825,10 @@ class Group extends Data
      */
     public function removeEmployee($groupID, $empUID)
     {
+        if (!is_numeric($groupID) || !is_numeric($empUID))
+        {
+            return 0;
+        }
         $privs = $this->getUserPrivileges($groupID);
         if ($privs[$groupID]['write'] == 0)
         {
