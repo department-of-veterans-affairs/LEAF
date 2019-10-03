@@ -2894,7 +2894,7 @@ class Form
 
         if ($joinInitiatorNames)
         {
-            $joins .= "LEFT JOIN (SELECT empUID, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.empUID = lj_OCinitiatorNames.empUID ";
+            $joins .= "LEFT JOIN (SELECT empUID, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames USING (empUID)";
         }
 
         $res = $this->db->prepared_query('SELECT * FROM records
