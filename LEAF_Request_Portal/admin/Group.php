@@ -94,7 +94,7 @@ class Group
             {
                 $empRes = $dir->lookupEmpUID($member);
                 $vars = array(':empUID' => $member,
-                              ':userID' => $empRes[0]['userID'],
+                              ':userID' => $empRes[0]['userName'],
                               ':groupID' => (int)$group, );
                 $res = $this->db->prepared_query('INSERT INTO users (empUID, userID, groupID)
                                                     VALUES (:empUID, :userID, :groupID)', $vars);

@@ -429,7 +429,7 @@ $(function() {
             if(response != '') {
                 employees = '';
                 for(var id in response) {
-                	employees += '<div><a class="buttonNorm" href="?a=view_employee&empUID='+response[id].empUID+'">' + response[id].lastName + ', ' + response[id].firstName +'</a> [ <a href="#" onclick="confirmUnlinkEmployee('+ response[id].empUID +'); return false;"> Remove</a> ]</div>';
+                	employees += '<div><a class="buttonNorm" href="?a=view_employee&empUID='+response[id].empUID+'">' + response[id].lastName + ', ' + response[id].firstName +'</a> [ <a href="#" onclick="confirmUnlinkEmployee(\''+ response[id].empUID +'\'); return false;"> Remove</a> ]</div>';
                 }
             	$('#employeeBody').html(employees);
             }
