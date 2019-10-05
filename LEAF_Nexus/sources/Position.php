@@ -281,6 +281,25 @@ class Position extends Data
         return $out;
     }
 
+     /**
+     * Get employees related to the position from HRSmart#
+     * @param int $HRSmart
+     * @return array
+     */
+
+    public function getEmployeesHrsmart($HRSmart)
+    {
+        $vars = array(':HRSmart' => $HRSmart);
+                        
+        $res = $this->db->prepared_query('SELECT * FROM positions
+                                            LEFT JOIN relation_position_employee USING (positionID)
+                                            LEFT JOIN employee USING (empUID)
+                                            WHERE positionID=(select positionID from position_data 
+                                            where indicatorID = 26 and 
+                                            data =:HRSmart) ORDER BY lastName ASC', $vars);                                 
+        
+         return $res;
+    }
     /**
      * Get position summary, including related employee
      * @param int $positionID
