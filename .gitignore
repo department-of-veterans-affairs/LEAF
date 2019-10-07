@@ -13,3 +13,6 @@ LEAF_Request_Portal/UPLOADS
 .vscode
 /node_modules
 /.idea
+.DS_Store
+test_logins.txt
+*/admin/templates_c/
