@@ -2,7 +2,7 @@
 
 namespace Nexus\Data\Model;
 
-class NexusUser
+class Employee
 {
     public $empUID;
     public $userName;

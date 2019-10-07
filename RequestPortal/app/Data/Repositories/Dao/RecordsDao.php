@@ -8,12 +8,20 @@ namespace RequestPortal\Data\Repositories\Dao;
 use App\Data\Repositories\Dao\CachedDbDao;
 use RequestPortal\Data\Model\Record;
 use RequestPortal\Data\Repositories\Contracts\RecordsRepository;
+use RequestPortal\Data\Repositories\Contracts\PortalUsersRepository;
 
 class RecordsDao extends CachedDbDao implements RecordsRepository
 {
     protected $tableName = 'records';
 
     protected $cache = array();
+
+    /**
+     * Protal Users Repository
+     *
+     * @var PortalUsersRepository
+     */
+    protected $portalUsers;
 
     /**
      * Create a new Record
@@ -207,5 +215,125 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
         }
 
         return 1;
+    }
+
+    public function addTag($recordID, $tag)
+    {
+        $res = $this->getConnForTable('tags')
+        ->updateOrInsert(['recordID' => $recordID, 'tag' => $tag, 'empUID' => $this->portalUsers->getEmpUID(session('userID'))], ['timestamp' => time()]);
+    }
+
+    public function deleteTag($recordID, $tag)
+    {
+        $res = $this->getConnForTable('tags')
+        ->where(['recordID' => $recordID, 'tag' => $tag, 'empUID' => $this->portalUsers->getEmpUID(session('userID'))])
+        ->delete();
+    }
+
+    public function getIndicator($indicatorID)
+    {
+        $res = $this->getConnForTable('indicators')
+            ->where(['indicatorID' => $indicatorID, 'disabled' => 0])
+            ->get()
+            ->toArray();
+        
+        return $res;
+    }
+
+    public function getIndicatorData($indicatorID, $series, $recordID)
+    {
+        $res = $this->getConnForTable('data')
+        ->leftJoin('indicators', 'indicators.indicatorID', '=', 'data.indicatorID')
+        ->leftJoin('indicator_mask', 'indicator_mask.indicatorID', '=', 'data.indicatorID')
+        ->where(['indicatorID' => $indicatorID, 'series' => $series, 'recordID' => $recordID, 'disabled' => 0])
+        ->get()
+        ->toArray();
+
+        if (!isset($res[0]))
+        {
+            $res = $this->getIndicator($indicatorID);
+        }
+
+        return $res;
+    }
+
+    public function getDataForIndicatorArray($indicatorArray, $series, $recordID)
+    {
+        return $this->getConnForTable('data')
+        ->select('data', 'timestamp', 'indicatorID', 'groupID')
+        ->leftJoin('indicator_mask', 'indicator_mask.indicatorID', '=', 'data.indicatorID')
+        ->whereIn('indicatorID', $indicatorArray)
+        ->where(['series' => $series, 'recordID' => $recordID])
+        ->get()
+        ->toArray();
+    }
+
+    public function getCategoryCount($recordID)
+    {
+        $res = $this->getConnForTable('category_count')
+        ->where(['recordID' => $recordID])
+        ->groupBy('categoryID')
+        ->get()
+        ->toArray();
+
+        return $res;
+    }
+
+    public function getIsWritable($recordID)
+    {
+        return $this->getConn()
+        ->select('empUID', 'isWritableUser', 'isWritableGroup')
+        ->where('recordID', $recordID)
+        ->get()
+        ->toArray();
+    }
+
+    public function getCategoryPrivs($categoryID, $empUID)
+    {
+        return $this->getConn('category_privs')
+        ->leftJoin('users', 'users.groupID', '=', 'category_privs.groupID')
+        ->where(['categoryID' => $categoryID, 'empUID' => $empUID, 'writable' => 1])
+        ->get()
+        ->toArray();
+    }
+
+    public function getRecordPrivs($recordID)
+    {
+        return $this->getConn('records_workflow_state')
+        ->select('recordID', 'groupID', 'dependencyID', 'records.empUID', 'serviceID', 'indicatorID_for_assigned_empUID', 'indicatorID_for_assigned_groupID')
+        ->leftJoin('step_dependencies', 'step_dependencies.stepID', '=', 'records_workflow_state.stepID')
+        ->leftJoin('workflow_steps', 'workflow_steps.stepID', '=', 'records_workflow_state.stepID')
+        ->leftJoin('dependency_privs', 'dependency_privs.dependencyID', '=', 'records_workflow_state.dependencyID')
+        ->leftJoin('users', 'users.groupID', '=', 'records_workflow_state.groupID')
+        ->leftJoin('records', 'records.recordID', '=', 'records_workflow_state.recordID')
+        ->where(['recordID' => $recordID])
+        ->get()
+        ->toArray();
+    }
+
+    public function getRecordIDFromRecord($recordID)
+    {
+        return $this->getConn()
+        ->select('userID')
+        ->where(['recordID' => $recordID])
+        ->get()
+        ->toArray();
+    }
+
+    public function getIndicatorMask($indicatorID)
+    {
+        return $this->getConn('indicator_mask')
+        ->where(['indicatorID' => $indicatorID])
+        ->get()
+        ->toArray();
+    }
+
+    public function getIndicatorsByParent($parentID)
+    {
+        return $this->getConn('indicators')
+        ->where(['parentID' => $parentID, 'disabled' => 0])
+        ->orderBy('sort', 'asc')
+        ->get()
+        ->toArray();
     }
 }

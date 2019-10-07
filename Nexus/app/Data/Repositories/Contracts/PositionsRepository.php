@@ -2,9 +2,9 @@
 
 namespace Nexus\Data\Repositories\Contracts;
 
-interface NexusUsersRepository
+interface PositionsRepository
 {
     public function getAll();
     public function getById($id);
-    public function getByUsername($username);
+    public function getTitle($positionID);
 }

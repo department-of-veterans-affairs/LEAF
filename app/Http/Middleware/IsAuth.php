@@ -6,7 +6,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Nexus\Data\Repositories\Contracts\NexusUsersRepository;
+use Nexus\Data\Repositories\Contracts\EmployeesRepository;
 // use RP\Db\Config;
 // use RP\Db\DB as RPDB;
 // use RP\Db\DB_Config;
@@ -15,13 +15,13 @@ use Nexus\Data\Repositories\Contracts\NexusUsersRepository;
 class IsAuth
 {
     /**
-     * The Nexus Users repository
+     * The Employees repository
      *
-     * @var NexusUsersRepository
+     * @var EmployeesRepository
      */
     protected $users;
 
-    public function __construct(NexusUsersRepository $users)
+    public function __construct(EmployeesRepository $users)
     {
         $this->users = $users;
     }
@@ -36,6 +36,7 @@ class IsAuth
     public function handle($request, Closure $next)
     {
         session(['userID' => 'tester']);
+        session(['empUID' => '44o64a5f-cf55-11o9-bad9-645d863o34f5']);
 
         // $db_config = new DB_Config();
         // $config = new Config();

@@ -13,6 +13,7 @@ Route::middleware('IsAuth')->group(function () {
             'prefix' => '/requests',
         ), function () {
             Route::post('/new', 'RequestsController@store')->name('request.store');
+            Route::get('/test', 'RequestsController@test')->name('request.test');
             Route::group(array(
                 'prefix' => '/{requestID}',
             ), function () {
@@ -20,16 +21,18 @@ Route::middleware('IsAuth')->group(function () {
                 Route::post('/restore', 'RequestsController@restore')->name('request.restore');
                 Route::get('/form', 'RequestsController@getForm')->name('request.form');
                 Route::get('/form/json', 'RequestsController@getFormJson')->name('request.form.json');
-                Route::post('/form/add/{categoryID}', 'RequestsController@addToCategoryCount')->name('request.addToCategoryCount'); 
-                Route::post('/form/update', 'RequestsController@switchCategoryCount')->name('request.switchCategoryCount');
+                Route::post('/form/add/{categoryID}', 'RequestsController@addToCategoryCount')->name('request.form.add'); 
+                Route::post('/form/update', 'RequestsController@switchCategoryCount')->name('request.form.update');
 
-                /* Route::post('/bookmark', 'RequestsController@getById')->name('request.detail'); //TODO
-                Route::delete('/bookmark', 'RequestsController@getById')->name('request.detail'); //TODO
-                Route::get('/data', 'RequestsController@getById')->name('request.detail'); //TODO
-                Route::get('/dataforsigning', 'RequestsController@getById')->name('request.detail'); //TODO
-                Route::post('/initiator/{initiator}', 'RequestsController@getById')->name('request.detail'); //TODO
+                Route::post('/bookmark', 'RequestsController@addBookmark')->name('request.bookmark.add'); 
+                Route::delete('/bookmark', 'RequestsController@deleteBookmark')->name('request.bookmark.delete');
+                Route::get('/data', 'RequestsController@getFullFormData')->name('request.data'); 
+                Route::get('/dataforsigning', 'RequestsController@getFullFormDataForSigning')->name('request.data.signing');
+                Route::post('/initiator/{initiator}', 'RequestsController@setInitiator')->name('request.initiator.set'); //TODO
 
-                Route::get('/progress', 'RequestsController@getById')->name('request.detail'); //TODO
+                
+
+                /*  Route::get('/progress', 'RequestsController@getById')->name('request.detail'); //TODO
                 Route::get('/progress/json', 'RequestsController@getById')->name('request.detail'); //TODO
                 Route::get('/recordinfo', 'RequestsController@getById')->name('request.detail'); //TODO
                 Route::post('/service/{serviceID}', 'RequestsController@getById')->name('request.detail'); //TODO
@@ -53,6 +56,12 @@ Route::middleware('IsAuth')->group(function () {
 
                 Route::post('/indicator/{indicatorID}', 'RequestsController@updateIndicator');
             });
+        });
+        Route::group(array(
+            'prefix' => '/form',
+        ), function () {
+            Route::get('/', 'FormController@getAllForms')->name('form.getAll');
+            //Route::post('/new', 'FormController@createForm')->name('form.new');TODO
         });
     });
 });

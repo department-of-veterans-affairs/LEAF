@@ -354,7 +354,7 @@ class PortalUsersDao extends CachedDbDao implements PortalUsersRepository
         return false;
     }
 
-        /**
+    /**
      * Scrubs a list of records to remove records that the current user doesn't have access to
      * Defaults to enable read access, unless needToKnow mode is set for any form
      * @param array
