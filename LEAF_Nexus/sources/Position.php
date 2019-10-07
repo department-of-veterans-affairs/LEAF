@@ -291,11 +291,12 @@ class Position extends Data
     {
         $vars = array(':HRSmart' => $HRSmart);
                         
-        $res = $this->db->prepared_query('SELECT * FROM positions
+        $res = $this->db->prepared_query('SELECT p.*,e.*,ed.data as email FROM positions p
                                             LEFT JOIN relation_position_employee USING (positionID)
-                                            LEFT JOIN employee USING (empUID)
-                                            WHERE positionID=(select positionID from position_data 
-                                            where indicatorID = 26 and 
+                                            LEFT JOIN employee e USING (empUID)
+                                            LEFT JOIN employee_data ed on e.empUID = ed.empUID and ed.indicatorID = 6
+                                            WHERE p.positionID=(select positionID from position_data 
+                                            where (indicatorID = 26 or indicatorID = 6) and 
                                             data =:HRSmart) ORDER BY lastName ASC', $vars);                                 
         
          return $res;
