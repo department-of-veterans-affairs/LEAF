@@ -296,7 +296,7 @@ class Position extends Data
                                             LEFT JOIN employee e USING (empUID)
                                             LEFT JOIN employee_data ed on e.empUID = ed.empUID and ed.indicatorID = 6
                                             WHERE p.positionID=(select positionID from position_data 
-                                            where (indicatorID = 26 or indicatorID = 6) and 
+                                            where indicatorID = 26  and 
                                             data =:HRSmart) ORDER BY lastName ASC', $vars);                                 
         
          return $res;
