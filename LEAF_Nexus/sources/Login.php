@@ -178,6 +178,7 @@ class Login
 
     public function parseURL($in)
     {
+      // TODO: Put this in a config var
       $url = str_replace('/var/www/html', '', $in);
 
       return $url;
