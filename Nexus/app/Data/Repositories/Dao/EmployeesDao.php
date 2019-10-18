@@ -5,13 +5,25 @@
 
 namespace Nexus\Data\Repositories\Dao;
 
-use App\Data\Repositories\Dao\CachedDbDao;
+use Nexus\Data\Repositories\Dao\DataDao;
 use Nexus\Data\Repositories\Contracts\EmployeesRepository;
 
-class EmployeesDao extends CachedDbDao implements EmployeesRepository
+class EmployeesDao extends DataDao implements EmployeesRepository
 {
     protected $connectionName = "nexus";
     protected $tableName = "employee";
+
+    public $position;
+
+    protected $dataTable = 'employee_data';
+
+    protected $dataHistoryTable = 'employee_data_history';
+
+    protected $dataTableUID = 'empUID';
+
+    protected $dataTableDescription = 'Employee';
+
+    protected $dataTableCategoryID = 1;
 
     public function getAll()
     {
@@ -67,7 +79,7 @@ class EmployeesDao extends CachedDbDao implements EmployeesRepository
     }
 
     //$login is userName
-    public function VAMC_lookupLogin($login, $onlyGetName = false)
+    public function VAMC_Directory_lookupLogin($login, $onlyGetName = false)
     {
         $res = $this->lookupLogin($login);
         $data = array();
@@ -81,7 +93,7 @@ class EmployeesDao extends CachedDbDao implements EmployeesRepository
             if (!$onlyGetName)
             {
                 // orgchart data
-                $ocData = $this->getAllData($result['empUID']);//todo data->getalldata
+                $ocData = $this->getAllData($result['empUID']);
                 $tdata['Email'] = $ocData[6]['data'];
             }
             $data[] = $tdata;

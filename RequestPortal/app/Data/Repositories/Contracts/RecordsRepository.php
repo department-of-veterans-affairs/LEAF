@@ -23,5 +23,5 @@ interface RecordsRepository
 
     public function getFormJSON($recordID);
 
-    public function addTag($recordID, $tag);
+    public function addTag($recordID, $tag, $empUID);
 }

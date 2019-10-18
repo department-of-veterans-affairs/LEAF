@@ -16,6 +16,7 @@ use RequestPortal\Data\Repositories\Contracts\FormsRepository;
 use RequestPortal\Data\Repositories\Contracts\RecordsRepository;
 use RequestPortal\Data\Repositories\Contracts\PortalUsersRepository;
 use RequestPortal\Data\Repositories\Contracts\ServiceRepository;
+use RequestPortal\Data\Repositories\Contracts\ActionHistoryRepository;
 use Nexus\Data\Repositories\Contracts\EmployeesRepository;
 use Nexus\Data\Repositories\Contracts\PositionsRepository;
 use Nexus\Data\Repositories\Contracts\GroupsRepository;
@@ -57,6 +58,13 @@ class RequestsController extends Controller
     protected $portalUsers;
 
     /**
+     * Action History Repository
+     *
+     * @var ActionHistoryRepository
+     */
+    protected $actionHistory;
+
+    /**
      * Nexus/Employees Repository
      *
      * @var EmployeesRepository
@@ -84,7 +92,8 @@ class RequestsController extends Controller
     public function __construct(RecordsRepository $records, 
                                 ServiceRepository $services, 
                                 FormsRepository $forms, 
-                                PortalUsersRepository $portalUsers, 
+                                PortalUsersRepository $portalUsers,
+                                ActionHistoryRepository $actionHistory,
                                 EmployeesRepository $employees,
                                 PositionsRepository $positions,
                                 GroupsRepository $groups)
@@ -94,6 +103,7 @@ class RequestsController extends Controller
         $this->services = $services;
         $this->forms = $forms;
         $this->portalUsers = $portalUsers;
+        $this->actionHistory = $actionHistory;
         $this->employees = $employees;
         $this->positions = $positions;
         $this->groups = $groups;
@@ -368,7 +378,8 @@ class RequestsController extends Controller
         {
             return 0;
         }
-        $this->records->addTag($recordID, 'bookmark_' . $this->portalUsers->getEmpUID(session('userID')));
+        $empUID = $this->portalUsers->getEmpUID(session('userID'));
+        $this->records->addTag($recordID, 'bookmark_' . $empUID, $empUID);
     }
 
     public function deleteBookmark($route, $recordID)
@@ -377,7 +388,8 @@ class RequestsController extends Controller
         {
             return 0;
         }
-        $this->records->deleteTag($recordID, 'bookmark_' . $this->portalUsers->getEmpUID(session('userID')));
+        $empUID = $this->portalUsers->getEmpUID(session('userID'));
+        $this->records->deleteTag($recordID, 'bookmark_' . $empUID, $empUID);
     }
 
     /**
@@ -919,7 +931,7 @@ class RequestsController extends Controller
         $this->flattenFullFormData($fullForm, $indicators);
 
         $output = array(
-            'userName' => $this->login->getUserID(),
+            'userName' => session('userID'),
             'timestamp' => time(),
             'formId' => $form['items'][0]['children'][0]['type'],
             'recordId' => $recordID,
@@ -930,35 +942,20 @@ class RequestsController extends Controller
         return $output;
     }
 
-    public function setInitiator($recordID, $userID)
+    public function setInitiator($recordID, $empUID)
     {
-        if ($this->portalUsers->isAdmin(session('userID')))//todo checkgroup
+        if ($this->portalUsers->isAdmin(session('userID')))
         {
-            $vars = array(':recordID' => (int)$recordID,//todo db
-                          ':userID' => $userID, );
-            $res = $this->db->prepared_query('UPDATE records SET
-                                            	userID=:userID
-                                            	WHERE recordID=:recordID', $vars);
+            $res = $this->records->updateInitiator($recordID, $empUID);
 
             // write log entry
-            require_once 'VAMC_Directory.php';
-            $dir = new VAMC_Directory;
-
-            $user = $dir->lookupLogin($userID);
-            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;//todo uhh
+            $user = $this->employees->VAMC_Directory_lookupLogin(session('userID'));
+            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : session('userID');
 
             $comment = "Initiator changed to {$name}";
-            $vars2 = array(':recordID' => (int)$recordID,//todo db
-                ':userID' => $this->login->getUserID(),
-                ':dependencyID' => 0,
-                ':actionType' => 'changeInitiator',
-                ':actionTypeID' => 8,
-                ':time' => time(),
-                ':comment' => $comment, );
-            $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+            $this->actionHistory->insert($recordID, $empUID, 0, 'changeInitiator', 8, time(), $comment);
 
-            return $userID;
+            return $empUID;
         }
     }
 

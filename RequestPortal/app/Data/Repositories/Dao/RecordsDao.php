@@ -217,16 +217,16 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
         return 1;
     }
 
-    public function addTag($recordID, $tag)
+    public function addTag($recordID, $tag, $empUID)
     {
         $res = $this->getConnForTable('tags')
-        ->updateOrInsert(['recordID' => $recordID, 'tag' => $tag, 'empUID' => $this->portalUsers->getEmpUID(session('userID'))], ['timestamp' => time()]);
+        ->updateOrInsert(['recordID' => $recordID, 'tag' => $tag, 'empUID' => $empUID], ['timestamp' => time()]);
     }
 
-    public function deleteTag($recordID, $tag)
+    public function deleteTag($recordID, $tag, $empUID)
     {
         $res = $this->getConnForTable('tags')
-        ->where(['recordID' => $recordID, 'tag' => $tag, 'empUID' => $this->portalUsers->getEmpUID(session('userID'))])
+        ->where(['recordID' => $recordID, 'tag' => $tag, 'empUID' => $empUID])
         ->delete();
     }
 
@@ -335,5 +335,10 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
         ->orderBy('sort', 'asc')
         ->get()
         ->toArray();
+    }
+
+    public function updateInitiator($recordID, $empUID)
+    {
+        return $this->getConn()->where('recordID', $recordID)->update(array('empUID' => $empUID));                                        
     }
 }

@@ -15,7 +15,7 @@ class NexusRepositoryProvider extends ServiceProvider
     {
         $this->app->bind(
             'Nexus\Data\Repositories\Contracts\DataRepository',
-            'Nexus\Data\Repositories\Dao\DataDao'//todo this shit
+            'Nexus\Data\Repositories\Dao\DataDao'
         );
 
         $this->app->bind(
