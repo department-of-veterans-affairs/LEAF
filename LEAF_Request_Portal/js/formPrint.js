@@ -126,7 +126,7 @@ var printer = function() {
                 var splitTitle = [];
                 var splitOption = [];
                 var format = indicator.format;
-                if (format === 'text' && (indicator.value.length > 30 || title.length > 30)) {
+                if (format === 'text' && (indicator.value && indicator.value.length > 30 || title.length > 30)) {
                     format = 'textarea';
                 }
 
@@ -145,7 +145,7 @@ var printer = function() {
                 }
 
                 doc.setFillColor(30, 70, 125);
-                var value = htmlPattern.test(indicator.value.toString()) ? decodeHTMLEntities(cleanTagsAndWhitespace(indicator.value)) : decodeHTMLEntities(indicator.value);
+                var value = htmlPattern.test((indicator.value || "").toString()) ? decodeHTMLEntities(cleanTagsAndWhitespace(indicator.value)) : decodeHTMLEntities(indicator.value);
                 var splitText = doc.splitTextToSize(value, 150.5);
                 var lines = 1;
 
@@ -796,13 +796,13 @@ var printer = function() {
                 var child = indicator[children[i]];
                 switch (child.format) {
                     case 'grid':
-                        if (typeof(child.value.cells) === "undefined"
+                        if (!child.value || typeof(child.value.cells) === "undefined"
                             || child.value.cells === null) {
                             blankIndicators++;
                         }
                         break;
                     default:
-                        if (child.value.length === 0) {
+                        if (!child.value || child.value.length === 0) {
                             blankIndicators++;
                         }
                 }
@@ -819,13 +819,13 @@ var printer = function() {
                 indicatorCount++;
                 switch (this.format) {
                     case 'grid':
-                        if (typeof(this.value.cells) === "undefined"
+                        if (!this.value || typeof(this.value.cells) === "undefined"
                             || this.value.cells === null) {
                             blankIndicators++;
                         }
                         break;
                     default:
-                        if (this.value.length === 0) {
+                        if (!this.value || this.value.length === 0) {
                             blankIndicators++;
                         }
                 }

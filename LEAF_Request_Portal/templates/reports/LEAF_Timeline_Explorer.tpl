@@ -217,7 +217,7 @@ function processData(queryResult, workflowData, site) {
                 }
                 dataSteps[stepID] = timelines[stepID].label;
 
-                var businessDaysSpent = Math.round(diffBusinessTime(startTime, endTime) /60 /60 /8 *100000) / 100000;
+                var businessDaysSpent = Math.round(diffBusinessTime(startTime, endTime) /60 /60 / (endBusinessHours - startBusinessHours + 1) *100000) / 100000;
                 prepCrossfilter(site, service, timelines[stepID].label, res[i].recordID, res[i].categoryID, stepID, businessDaysSpent, lastActionTimestamp, data)
 
                 // don't count time taken during sendbacks or other route overrides

@@ -152,10 +152,10 @@ class Email
                 $this->addBCC($recipient);
             }
         }
-        $email['recipient'] = $this->emailRecipient;
+        $email['recipient'] = html_entity_decode($this->emailRecipient, ENT_QUOTES);
         $email['subject'] = $this->emailSubject;
         $email['body'] = $this->emailBody;
-        $email['headers'] = $this->getHeaders();
+        $email['headers'] = html_entity_decode($this->getHeaders(), ENT_QUOTES);
 
         $emailCache = serialize($email);
         $emailQueueName = sha1($emailCache . random_int(0, 99999999));
@@ -174,7 +174,7 @@ class Email
         }
         else
         {
-            exec("php mailer/mailer.php {$emailQueueName} > /dev/null &");
+            exec("php {$currDir}/mailer/mailer.php {$emailQueueName} > /dev/null &");
         }
     }
 

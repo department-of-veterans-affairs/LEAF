@@ -50,8 +50,7 @@ function loadWorkflow(recordID, prefixID) {
 
 function prepareEmail(link) {
 	mailtoHref = 'mailto:?subject=Report%20for&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
-    $('body').append($('<iframe id="ie9workaround" src="' + mailtoHref + '"/>'));
-    $('#ie9workaround').remove();
+    $('body').append($('<iframe id="ie9workaround" style="display:none;" src="' + mailtoHref + '"/>'));
 }
 
 var tDepHeader = [];
@@ -541,7 +540,7 @@ function openShareDialog() {
             CSRFToken: CSRFToken}
     })
     .then(function(res) {
-        $('#reportLink').html(pwd + 'open?report=' + res);
+        $('#reportLink').html(pwd + 'open.php?report=' + res);
     });
 }
 

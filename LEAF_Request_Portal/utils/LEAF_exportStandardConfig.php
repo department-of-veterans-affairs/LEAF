@@ -1,11 +1,13 @@
 <?php
-ini_set('display_errors', 1); // Set to 1 to display errors
+ini_set('display_errors', 0); // Set to 1 to display errors
 
 $tempFolder = str_replace('\\', '/', dirname(__FILE__)) . '/../files/temp/';
 
+define("LF", "\n");
 include '../db_mysql.php';
 include '../db_config.php';
 
+$debug = false;
 $db_config = new DB_Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
@@ -16,18 +18,43 @@ if($res['siteType'] != 'national_primary') {
     exit();
 }
 
-$db->enableDebug();
+if ($debug) {
+    $db->enableDebug();
+}
 echo "Running Package Builder...<br />\n";
 array_map('unlink', glob($tempFolder . '*.sql'));
 
-$db->query("SELECT * INTO OUTFILE '{$tempFolder}actions.sql' FROM actions");
-$db->query("SELECT * INTO OUTFILE '{$tempFolder}categories.sql' FROM categories");
-$db->query("SELECT * INTO OUTFILE '{$tempFolder}category_staples.sql' FROM category_staples");
-$db->query("SELECT * INTO OUTFILE '{$tempFolder}dependencies.sql' FROM dependencies");
-$db->query("SELECT * INTO OUTFILE '{$tempFolder}indicators.sql' FROM indicators");
-$db->query("SELECT * INTO OUTFILE '{$tempFolder}route_events.sql' FROM route_events");
-$db->query("SELECT * INTO OUTFILE '{$tempFolder}workflows.sql' FROM workflows");
-$db->query("SELECT * INTO OUTFILE '{$tempFolder}workflow_steps.sql' FROM workflow_steps");
-$db->query("SELECT * INTO OUTFILE '{$tempFolder}step_dependencies.sql' FROM step_dependencies");
-$db->query("SELECT * INTO OUTFILE '{$tempFolder}workflow_routes.sql' FROM workflow_routes");
-$db->query("SELECT * INTO OUTFILE '{$tempFolder}step_modules.sql' FROM step_modules");
+function exportTable($db, $tempFolder, $table) {
+    switch($table) {
+        case 'actions':
+        case 'categories':
+        case 'category_staples':
+        case 'dependencies':
+        case 'indicators':
+        case 'route_events':
+        case 'workflows':
+        case 'workflow_steps':
+        case 'step_dependencies':
+        case 'workflow_routes':
+        case 'step_modules':
+            break;
+        default:
+            exit();
+            break;
+    }
+
+    $res = $db->query("SELECT * FROM {$table}");
+    file_put_contents("{$tempFolder}{$table}.sql", serialize($res));
+}
+
+exportTable($db, $tempFolder, 'actions');
+exportTable($db, $tempFolder, 'categories');
+exportTable($db, $tempFolder, 'category_staples');
+exportTable($db, $tempFolder, 'dependencies');
+exportTable($db, $tempFolder, 'indicators');
+exportTable($db, $tempFolder, 'route_events');
+exportTable($db, $tempFolder, 'workflows');
+exportTable($db, $tempFolder, 'workflow_steps');
+exportTable($db, $tempFolder, 'step_dependencies');
+exportTable($db, $tempFolder, 'workflow_routes');
+exportTable($db, $tempFolder, 'step_modules');

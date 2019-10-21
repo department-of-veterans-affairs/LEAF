@@ -36,6 +36,11 @@ class FormEditor
     function addIndicator($package, $overwriteExisting = false) {
     	$package['parentID'] = $package['parentID'] == '' ? null : $package['parentID'];
 
+        // update category to reflect modification
+        $vars = array(':categoryID' => $package['categoryID'],
+            ':time' => time());
+        $this->db->prepared_query('UPDATE categories SET lastModified=:time WHERE categoryID=:categoryID', $vars);
+
         if(!$overwriteExisting) 
         {
     	    $vars = array(':name' => $package['name'],
@@ -243,10 +248,20 @@ class FormEditor
                       ':categoryID' => $categoryID,
                       ':workflowID' => $workflowID,
                       ':formLibraryID' => $formLibraryID,
+                      ':lastModified' => time()
         );
-        $this->db->prepared_query('INSERT INTO categories (categoryID, parentID, categoryName, categoryDescription, workflowID, formLibraryID)
-    									VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID)
-                                        ON DUPLICATE KEY UPDATE categoryName=:name, categoryDescription=:description, workflowID=:workflowID, disabled=0', $vars);
+        $this->db->prepared_query('INSERT INTO categories (categoryID, parentID, categoryName, categoryDescription, workflowID, formLibraryID, lastModified)
+    									VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID, :lastModified)
+                                        ON DUPLICATE KEY UPDATE categoryName=:name, categoryDescription=:description, workflowID=:workflowID, lastModified=:lastModified, disabled=0', $vars);
+
+        // need to know enabled by default if leaf secure is active
+        $res = $this->db->query('SELECT * FROM settings WHERE setting="leafSecure" AND data>=1');
+        if(count($res) > 0) {
+            $vars = array(':categoryID' => $categoryID);
+            $this->db->prepared_query('UPDATE categories
+                                        SET needToKnow=1
+                                        WHERE categoryID=:categoryID', $vars);
+        }
 
         return $categoryID;
     }
@@ -273,6 +288,11 @@ class FormEditor
 
     public function setFormWorkflow($categoryID, $input)
     {
+        // don't allow standardized workflows to be set by the user
+        if($input < 0) {
+            return false;
+        }
+
         // don't allow a workflow to be set if it's a stapled form
         $vars = array(':categoryID' => $categoryID);
         $res = $this->db->prepared_query('SELECT * FROM category_staples

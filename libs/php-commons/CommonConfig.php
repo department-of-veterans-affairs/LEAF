@@ -34,6 +34,7 @@ class CommonConfig
                                             'pub',
                                             'msg', 'ics',
                                             'mht', 'htm', 'html', 'msg', 'xml',
+                                            'zip', '7z',
                                         );
 
     public $fileManagerWhitelist_nexus = array('doc', 'docx', 'docm', 'dotx', 'dotm',

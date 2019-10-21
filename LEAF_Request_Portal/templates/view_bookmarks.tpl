@@ -60,20 +60,29 @@
 /* <![CDATA[ */
 
 function removeBookmark(recordID) {
-    dojo.style('bookmark_' + recordID, 'opacity', '0.2');
+	/*dojo.style('bookmark_' + recordID, 'opacity', '0.2');
     dojo.xhrPost({
         url: "ajaxIndex.php?a=removebookmark&recordID=" + recordID,
         content: {CSRFToken: '<!--{$CSRFToken}-->'},
         load: function(response, ioArgs) {
         },
         preventCache: true
-    });
+    });*/
+    $.ajax({
+            type: "POST",
+            url: "ajaxIndex.php?a=removebookmark&recordID=" + recordID,
+            data: {CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(response, ioArgs) {
+             $(document).ajaxStop(function() { location.reload(true); });
+        },
+        cache: false
+       });
 }
 
 //attempt to force a consistent width for the sidebar if there is enough desktop resolution
 var lastScreenSize = null;
-function sideBar() {
-//    console.log(dojo.body().clientWidth);
+/*function sideBar() {
+    console.log(dojo.body().clientWidth);
     if(lastScreenSize != dojo.body().clientWidth) {
         lastScreenSize = dojo.body().clientWidth;
 
@@ -97,7 +106,7 @@ function sideBar() {
 dojo.addOnLoad(function() {
     sideBar();
     setInterval("sideBar()", 500);
-});
+});*/
 
 /* ]]> */
 </script>
