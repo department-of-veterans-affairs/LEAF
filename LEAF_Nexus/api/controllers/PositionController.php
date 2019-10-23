@@ -65,6 +65,9 @@ class PositionController extends RESTfulResponse
         $this->index['GET']->register('position/[digit]/search/parentTag/[text]', function ($args) use ($position) {
             return $position->findRootPositionByGroupTag($args[0], $position->sanitizeInput($args[1]));
         });
+         $this->index['GET']->register('position/employees/hrsmart/[digit]', function($args) use ($position) {
+             return $position->getEmployeesHrsmart($args[0]);
+        });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
