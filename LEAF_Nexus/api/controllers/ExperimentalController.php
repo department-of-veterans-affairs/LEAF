@@ -21,12 +21,13 @@ class ExperimentalController extends RESTfulResponse
     {
         $db = $this->db;
         $login = $this->login;
+
         $this->index['GET'] = new ControllerMap();
         $this->index['GET']->register('x/version', function () {
             return $this->API_VERSION;
         });
 
-        $this->index['GET']->register('x/demo', function ($args) {
+        $this->index['GET']->register('x/demo', function ($args) use ($db, $login) {
             return 'example';
         });
 
@@ -41,10 +42,11 @@ class ExperimentalController extends RESTfulResponse
 
     public function post($act)
     {
-        $position = $this->position;
+        $db = $this->db;
+        $login = $this->login;
 
         $this->index['POST'] = new ControllerMap();
-        $this->index['POST']->register('x/demo', function ($args) use ($position) {
+        $this->index['POST']->register('x/demo', function ($args) use ($db, $login) {
             return 'example';
         });
 
@@ -53,10 +55,11 @@ class ExperimentalController extends RESTfulResponse
 
     public function delete($act)
     {
-        $position = $this->position;
+        $db = $this->db;
+        $login = $this->login;
 
         $this->index['DELETE'] = new ControllerMap();
-        $this->index['DELETE']->register('x/demo', function ($args) use ($position) {
+        $this->index['DELETE']->register('x/demo', function ($args) use ($db, $login) {
             return 'example';
         });
 
