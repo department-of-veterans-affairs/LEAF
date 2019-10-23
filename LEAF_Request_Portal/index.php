@@ -106,6 +106,8 @@ switch ($action) {
         $t_form->assign('services', $servicesArray);
         $t_form->assign('city', XSSHelpers::sanitizeHTML($config->city));
         $t_form->assign('phone', XSSHelpers::sanitizeHTML($currEmployeeData[5]['data']));
+        $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
+        $t_form->assign('empUID', (int)$login->getEmpUID());
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
 
@@ -139,6 +141,9 @@ switch ($action) {
             $t_form->assign('lastStatus', XSSHelpers::sanitizeHTMl($form->getLastStatus($recordIDToView)));
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('isIframe', (int)$_GET['iframe'] == 1 ? 1 : 0);
+            $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
+            $t_form->assign('empUID', (int)$login->getEmpUID());
+            $t_form->assign('empMembership', $login->getMembership());
 
             // since $thisRecord was already commented out above, this can probably be removed
             // if(isset($thisRecord['approval'])) {
@@ -201,6 +206,8 @@ switch ($action) {
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);
+        $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
+        $t_form->assign('empUID', (int)$login->getEmpUID());
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
         $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
