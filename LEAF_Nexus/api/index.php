@@ -107,6 +107,15 @@ switch ($key) {
         });
 
         break;
+
+    case 'x':
+        $controllerMap->register('x', function () use ($db, $login, $action) {
+            require 'controllers/ExperimentalController.php';
+            $experimentalController = new ExperimentalController($db, $login);
+            $experimentalController->handler($action);
+        });
+
+        break;
     default:
         echo 'Primary Object not supported.';
 

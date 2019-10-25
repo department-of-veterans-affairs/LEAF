@@ -17,3 +17,6 @@ LEAF_Nexus/globals-bk.php
 LEAF_Request_Portal/globals-bk.php
 /node_modules
 /.idea
+.DS_Store
+test_logins.txt
+*/admin/templates_c/
