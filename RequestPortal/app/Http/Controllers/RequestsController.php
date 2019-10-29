@@ -134,7 +134,7 @@ class RequestsController extends Controller
         if ($this->records->isNeedToKnow($recordID))
         {
             $query[$recordID]['recordID'] = $recordID;
-            $resRead = $this->portalUsers->checkReadAccess($query);
+            $resRead = $this->portalUsers->checkReadAccess(session('userID'), $query);
             if (!isset($resRead[$recordID]))
             {
                 $this->cache["hasReadAccess_{$recordID}"] = 0;
@@ -273,7 +273,7 @@ class RequestsController extends Controller
         ));
     }
 
-    public function updateIndicator(Request $request, $route, $recordID, $indicatorID)
+    public function updateIndicator(Request $request, $recordID, $indicatorID)
     {
         // series will always be 1 (for now)
         $series = 1;
@@ -293,12 +293,12 @@ class RequestsController extends Controller
         return 0;
     }
 
-    public function delete($route, $recordID)
+    public function delete($recordID)
     {
         return $this->records->delete($recordID);
     }
 
-    public function restore($route, $recordID)
+    public function restore($recordID)
     {
         // only allow admins to un-delete records
         if (!$this->portalUsers->isAdmin(session('userID')))
@@ -310,7 +310,7 @@ class RequestsController extends Controller
 
 
 
-    public function getForm($route, $recordID)
+    public function getForm($recordID)
     {
         if ($this->records->isNeedToKnow($recordID))
         {
@@ -326,7 +326,7 @@ class RequestsController extends Controller
         return $this->records->getForm($recordID);
     }
 
-    public function getFormJSON($route, $recordID)
+    public function getFormJSON($recordID)
     {
         if ($this->records->isNeedToKnow($recordID))
         {
@@ -341,7 +341,7 @@ class RequestsController extends Controller
         return $this->records->getFormJSON($recordID);
     }
 
-    public function addToCategoryCount($route, $recordID, $categoryID)
+    public function addToCategoryCount($recordID, $categoryID)
     {
         // only allow admins
         if (!$this->portalUsers->isAdmin(session('userID')) || !$this->isCategory($categoryID))
@@ -354,8 +354,9 @@ class RequestsController extends Controller
         }
     }
 
-    public function switchCategoryCount($route, $recordID, $categories)
+    public function switchCategoryCount(Request $request, $recordID)
     {
+        $categories = $request->input('categories');
         // only allow admins
         if (!$this->portalUsers->isAdmin(session('userID')) || !$this->isCategory($categoryID))
         {
@@ -363,16 +364,21 @@ class RequestsController extends Controller
         }
         else
         {
-            $this->records->switchCategoryCount($recordID, $categories);
+            $this->records->switchCategoryCount($recordID);
+
+            foreach ($categories as $category)
+            {
+                $this->addToCategoryCount($recordID, $category);
+            }
         }
     }
 
-    public function debug($route)
-    {       
-        return $this->addToCategoryCount($route, 'tester', 900, 'form_f4687');
-    }
+    // public function debug($route)
+    // {       
+    //     return $this->addToCategoryCount($route, 'tester', 900, 'form_f4687');
+    // }
 
-    public function addBookmark($route, $recordID)
+    public function addBookmark($recordID)
     {
         if (!$this->hasReadAccess($recordID))
         {
@@ -382,7 +388,7 @@ class RequestsController extends Controller
         $this->records->addTag($recordID, 'bookmark_' . $empUID, $empUID);
     }
 
-    public function deleteBookmark($route, $recordID)
+    public function deleteBookmark($recordID)
     {
         if (!$this->hasReadAccess($recordID))
         {
@@ -771,7 +777,7 @@ class RequestsController extends Controller
     {
         if (!isset($this->cache["indicator_parentID{$id}"]))
         {
-            $res = $this->records->getIndicatorsByParent($parentID);
+            $res = $this->records->getIndicatorsByParent($id);
             $this->cache["indicator_parentID{$id}"] = $res;
         }
         else
@@ -867,7 +873,7 @@ class RequestsController extends Controller
                 }
 
                 // special handling for org chart data types
-                if ($field['format'] == 'orgchart_employee')
+                if ($field['format'] == 'orgchart_employee' && isset($data[$idx]['data']))
                 {
                     $empRes = $this->employees->lookupEmpUID($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = '';
@@ -876,12 +882,12 @@ class RequestsController extends Controller
                         $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
                     }
                 }
-                if ($field['format'] == 'orgchart_position')
+                if ($field['format'] == 'orgchart_position' && isset($data[$idx]['data']))
                 {
                     $positionTitle = $this->positions->getTitle($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = $positionTitle;
                 }
-                if ($field['format'] == 'orgchart_group')
+                if ($field['format'] == 'orgchart_group' && isset($data[$idx]['data']))
                 {
                     $groupTitle = $this->groups->getGroup($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];

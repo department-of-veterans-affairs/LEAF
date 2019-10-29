@@ -120,19 +120,18 @@ class DataDao extends CachedDbDao implements DataRepository
 
         if (count($res) > 0)
         {
-            $indicatorList = '';
+            $indicatorArray = array();
             foreach ($res as $field)
             {
                 if (is_numeric($field['indicatorID']))
                 {
-                    $indicatorList .= "{$field['indicatorID']},";
+                    $indicatorArray[] = $field['indicatorID'];
                 }
             }
             $res2 = $this->getConnForTable($this->dataTable)
             ->select('data', 'timestamp', 'indicatorID')
-            ->whereIn([['indicatorID', $indicatorList]])
+            ->whereIn('indicatorID', $indicatorArray)
             ->where([[$this->dataTableUID, $UID]])
-            ->orderBy('sort', 'asc')
             ->get()
             ->toArray();
 
@@ -188,4 +187,229 @@ class DataDao extends CachedDbDao implements DataRepository
 
         return $data;
     }
+
+        /**
+     * Retrieves current user's privileges for the specified indicatorIDs
+     * The default behavior is to grant full access if the user "owns" the data
+     * eg: Users have access to their own employee information by default
+     * Non-owners by default only have read access
+     * Any privilege setting will override all default behaviors
+     *
+     * @param array $indicatorIDs
+     * @param string $dataTableUID is either 'empUID', 'positionID', 'groupID', 'employee', 'position', or 'group'
+     * @param int $UID. This could be a empUID, positionID, or groupID.
+     */
+    public function getIndicatorPrivileges($indicatorIDs, $dataTableUID = '', $UID = 0)
+    {
+        $UID = \XSSHelpers::xscrub($UID);
+        $cacheHash = 'getIndicatorPrivileges' . implode('-', $indicatorIDs) . $dataTableUID . $UID;
+        if (isset($this->cache[$cacheHash]))
+        {
+            return $this->cache[$cacheHash];
+        }
+
+        switch ($dataTableUID) {
+            case 'employee':
+                $dataTableUID = 'empUID';
+
+                break;
+            case 'position':
+                $dataTableUID = 'positionID';
+
+                break;
+            case 'group':
+                $dataTableUID = 'groupID';
+
+                break;
+            default:
+                break;
+        }
+        $data = array();
+        $memberships = $this->getMembership();
+
+        $indicatorList = '';
+        foreach ($indicatorIDs as $id)
+        {
+            $id = (int)$id;
+            $indicatorList .= $id . ',';
+            // grant by default if user is the owner, or is a member of a group who has ownership
+            if (isset($memberships[$dataTableUID][$UID]))
+            {
+                $data[$id]['read'] = -1;
+                $data[$id]['write'] = -1;
+                $data[$id]['grant'] = 0;
+                $data[$id]['isOwner'] = 1;
+            }
+            // otherwise deny write/grant
+            else
+            {
+                $data[$id]['read'] = -1;
+                $data[$id]['write'] = 0;
+                $data[$id]['grant'] = 0;
+            }
+        }
+        $indicatorList = trim($indicatorList, ',');
+
+        $cacheHash2 = 'getIndicatorPrivileges2' . $indicatorList;
+        $res = null;
+        if (isset($this->cache[$cacheHash2]))
+        {
+            $res = $this->cache[$cacheHash2];
+        }
+        else
+        {
+            $var = array();
+            $res = $this->db->prepared_query("SELECT * FROM indicator_privileges
+                                            	WHERE indicatorID IN ({$indicatorList})", $var);
+            $this->cache[$cacheHash2] = $res;
+        }
+
+        foreach ($res as $item)
+        {
+            $resIndicatorID = (int)$item['indicatorID'];
+            $resCategoryID = \XSSHelpers::xscrub($item['categoryID']);
+            $resUID = \XSSHelpers::xscrub($item['UID']);
+            $resRead = (int)$item['read'];
+            $resWrite = (int)$item['write'];
+            $resGrant = (int)$item['grant'];
+
+            // grant highest available access
+            if (isset($memberships[$resCategoryID . 'ID'][$resUID]))
+            {
+                if (isset($data[$resIndicatorID]['read']) && $data[$resIndicatorID]['read'] != 1)
+                {
+                    $data[$resIndicatorID]['read'] = $resRead;
+                }
+                if (isset($data[$resIndicatorID]['write']) && $data[$resIndicatorID]['write'] != 1)
+                {
+                    $data[$resIndicatorID]['write'] = $resWrite;
+                }
+                if (isset($data[$resIndicatorID]['grant']) && $data[$resIndicatorID]['grant'] != 1)
+                {
+                    $data[$resIndicatorID]['grant'] = $resGrant;
+                }
+            }
+            else
+            {
+                if (isset($data[$resIndicatorID]['read']) && $data[$resIndicatorID]['read'] != 1)
+                {
+                    $data[$resIndicatorID]['read'] = 0;
+                }
+                if (isset($data[$resIndicatorID]['write']) && $data[$resIndicatorID]['write'] != 1)
+                {
+                    $data[$resIndicatorID]['write'] = 0;
+                }
+                if (isset($data[$resIndicatorID]['grant']) && $data[$resIndicatorID]['grant'] != 1)
+                {
+                    $data[$resIndicatorID]['grant'] = 0;
+                }
+            }
+
+            // apply access levels for special group: Owner (groupID 3)
+            if ($resCategoryID == 'group'
+                && $resUID == 3
+                && isset($data[$resIndicatorID]['isOwner']))
+            {
+                if (isset($data[$resIndicatorID]['read']) && $data[$resIndicatorID]['read'] != 1)
+                {
+                    $data[$resIndicatorID]['read'] = $resRead;
+                }
+                if (isset($data[$resIndicatorID]['write']) && $data[$resIndicatorID]['write'] != 1)
+                {
+                    $data[$resIndicatorID]['write'] = $resWrite;
+                }
+                if (isset($data[$resIndicatorID]['grant']) && $data[$resIndicatorID]['grant'] != 1)
+                {
+                    $data[$resIndicatorID]['grant'] = $resGrant;
+                }
+            }
+        }
+
+        // allow grant access if user is part of the special group: System Administrator (groupID 1)
+        if (isset($memberships['groupID'][1])
+                && $memberships['groupID'][1] == 1)
+        {
+            foreach ($indicatorIDs as $id)
+            {
+                $id = (int)$id;
+                $data[$id]['grant'] = 1;
+            }
+        }
+
+        $this->cache[$cacheHash] = $data;
+
+        return $data;
+    }
+
+        /**
+     * Retrieves the positions and groups the current user is a member of
+     * @return array
+     */
+    public function getMembership($empUID = null)
+    {
+        if ($empUID == null)
+        {
+            $empUID = \XSSHelpers::xscrub($this->empUID);
+        }
+
+        if (isset($this->cache['getMembership_' . $empUID]))
+        {
+            return $this->cache['getMembership_' . $empUID];
+        }
+
+        $membership = array();
+        // inherit permissions if employee is a backup for someone else
+        $vars = array(':empUID' => \XSSHelpers::xscrub($empUID));
+        $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
+                                            WHERE backupEmpUID=:empUID
+        										AND approved=1', $vars);
+        $temp = \XSSHelpers::xscrub($empUID);
+        if (count($res) > 0)
+        {
+            foreach ($res as $item)
+            {
+                //casting as an int to prevent sql injection
+                $scrubEmpUID = \XSSHelpers::xscrub($item['empUID']);
+                $temp .= ",{$scrubEmpUID}";
+                $membership['inheritsFrom'][] = $scrubEmpUID;
+            }
+            $vars = array(':empUID' => $temp);
+        }
+
+        $res = $this->db->prepared_query("SELECT positionID, empUID,
+                                                relation_group_employee.groupID as employee_groupID,
+                                                relation_group_position.groupID as position_groupID FROM employee
+                                            LEFT JOIN relation_position_employee USING (empUID)
+                                            LEFT JOIN relation_group_employee USING (empUID)
+                                            LEFT JOIN relation_group_position USING (positionID)
+                                            WHERE empUID IN (:empUID)", $vars);
+        if (count($res) > 0)
+        {
+            foreach ($res as $item)
+            {
+                if (isset($item['positionID']))
+                {
+                    $membership['positionID'][$item['positionID']] = 1;
+                }
+                if (isset($item['employee_groupID']))
+                {
+                    $membership['groupID'][$item['employee_groupID']] = 1;
+                }
+                if (isset($item['position_groupID']))
+                {
+                    $membership['groupID'][$item['position_groupID']] = 1;
+                }
+            }
+        }
+        $membership['employeeID'][$empUID] = 1;
+        $membership['empUID'][$empUID] = 1;
+
+        // Add special membership groups
+        $membership['groupID'][2] = 1;    // groupID 2 = "Everyone"
+
+        $this->cache['getMembership_' . $empUID] = $membership;
+
+        return $this->cache['getMembership_' . $empUID];
+    }
+
 }

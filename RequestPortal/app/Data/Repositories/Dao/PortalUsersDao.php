@@ -26,7 +26,7 @@ class PortalUsersDao extends CachedDbDao implements PortalUsersRepository
     {
         $result = $this->getById($userID);
         
-        return $result->groupID == 1;
+        return $result['groupID'] == 1;
     }
 
     /**
@@ -119,7 +119,7 @@ class PortalUsersDao extends CachedDbDao implements PortalUsersRepository
     public function getEmpUID($userID)
     {
         $result = $this->getById($userID);
-        return $result->empUID;
+        return $result['empUID'];
     }
 
     /**

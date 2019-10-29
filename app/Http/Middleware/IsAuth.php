@@ -57,7 +57,7 @@ class IsAuth
 
         $user = $this->users->getByUsername(session('userID'));
 
-        if ($user == null || $user->userName == null)
+        if ($user == null || $user['userName'] == null)
         {
             abort(403);
         } 
