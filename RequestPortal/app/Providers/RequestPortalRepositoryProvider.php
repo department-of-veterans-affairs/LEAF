@@ -14,6 +14,11 @@ class RequestPortalRepositoryProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(
+            'RequestPortal\Data\Repositories\Contracts\ActionHistoryRepository',
+            'RequestPortal\Data\Repositories\Dao\ActionHistoryDao'
+        );
+
+        $this->app->bind(
             'RequestPortal\Data\Repositories\Contracts\FormsRepository',
             'RequestPortal\Data\Repositories\Dao\FormsDao'
         );

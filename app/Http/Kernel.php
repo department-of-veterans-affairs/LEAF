@@ -85,6 +85,7 @@ class Kernel extends HttpKernel
         'GetDatabaseName' => \App\Http\Middleware\GetDatabaseName::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'IsAuth' => \App\Http\Middleware\IsAuth::class,
+        'RemoveVisn' => \App\Http\Middleware\RemoveVisn::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,

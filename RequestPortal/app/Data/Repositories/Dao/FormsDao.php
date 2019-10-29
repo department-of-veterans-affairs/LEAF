@@ -34,4 +34,12 @@ class FormsDao extends CachedDbDao implements FormsRepository
     {
         return $this->getConnForTable('category_staples')->where('categoryID', $categoryID)->get();
     }
+
+    public function getAllForms()
+    {
+        return $this->getConnForTable('categories')
+        ->select('categoryID', 'categoryName', 'categoryDescription')
+        ->where('disabled', 0)
+        ->get();
+    }
 }

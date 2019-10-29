@@ -14,8 +14,23 @@ class NexusRepositoryProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(
-            'Nexus\Data\Repositories\Contracts\NexusUsersRepository',
-            'Nexus\Data\Repositories\Dao\NexusUsersDao'
+            'Nexus\Data\Repositories\Contracts\DataRepository',
+            'Nexus\Data\Repositories\Dao\DataDao'
+        );
+
+        $this->app->bind(
+            'Nexus\Data\Repositories\Contracts\EmployeesRepository',
+            'Nexus\Data\Repositories\Dao\EmployeesDao'
+        );
+
+        $this->app->bind(
+            'Nexus\Data\Repositories\Contracts\GroupsRepository',
+            'Nexus\Data\Repositories\Dao\GroupsDao'
+        );
+
+        $this->app->bind(
+            'Nexus\Data\Repositories\Contracts\PositionsRepository',
+            'Nexus\Data\Repositories\Dao\PositionsDao'
         );
     }
 
