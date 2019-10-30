@@ -20,14 +20,21 @@ $phonedb = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 $login = new Orgchart\Login($phonedb, $db);
 $login->loginUser();
 
-$startTime = time();
+// prevent updating if orgchart is the same
+if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
+	echo "Orgchart is already synced.";
+	
+	return;
+} else {
+	$startTime = time();
+	echo "Refresh Orgchart Employees Start\n";
 
-echo "Refresh Orgchart Employees Start\n";
+	updateLocalOrgchart();
 
-updateLocalOrgchart();
+	$endTime = time();
+	echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
+}
 
-$endTime = time();
-echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
 
 /*
  *	Updates employee information from national orgchart to local orgchart
