@@ -20,21 +20,80 @@ $phonedb = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 $login = new Orgchart\Login($phonedb, $db);
 $login->loginUser();
 
+$userName = $_GET['userName'];
+
+$empUID = $_GET['empUID'];
+
 // prevent updating if orgchart is the same
 if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
 	echo "Orgchart is already synced.";
-	
+
 	return;
 } else {
-	$startTime = time();
-	echo "Refresh Orgchart Employees Start\n";
 
-	updateLocalOrgchart();
+	if(!empty($userName) && !empty($empUID)){
 
-	$endTime = time();
-	echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
+		updateUserInfo($userName, $empUID);
+
+	}else{
+
+		$startTime = time();
+		echo "Refresh Orgchart Employees Start\n";
+
+		updateLocalOrgchart();
+
+		$endTime = time();
+		echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
+	}
+
+
 }
 
+
+/*
+ *	Updates employee information from national orgchart to local orgchart
+*/
+function updateUserInfo($userName, $empUID){
+	global $db, $phonedb;
+
+	$vars = array(':userName' => $userName);
+	$sql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
+			FROM employee
+			WHERE userName=:userName";
+
+	$sql2 = "UPDATE employee
+		SET lastName=:lastName,
+		firstName=:firstName,
+		middleName=:midInit,
+		phoneticFirstName=:phoneticFname,
+		phoneticLastName=:phoneticLname,
+		domain=:domain,
+		deleted=:deleted,
+		lastUpdated=:lastUpdated
+		WHERE userName=:userName";
+
+	$res = $phonedb->prepared_query($sql, $vars);
+
+	if (count($res) > 0) {
+		$vars = array(
+				':userName' => $res[0]['userName'],
+				':lastName' => $res[0]['lastName'],
+				':firstName' => $res[0]['firstName'],
+				':midInit' => $res[0]['middleName'],
+				':phoneticFname' => $res[0]['phoneticFirstName'],
+				':phoneticLname' => $res[0]['phoneticLastName'],
+				':domain' => $res[0]['domain'],
+				':deleted' => $res[0]['deleted'],
+				':lastUpdated' => $res[0]['lastUpdated']
+		);
+
+		// sets local employee table
+		$db->prepared_query($sql2, $vars);
+
+		// sets local employee_data table
+		updateEmployeeData($res[0]['empUID'], $empUID);
+	}
+}
 
 /*
  *	Updates employee information from national orgchart to local orgchart
@@ -52,12 +111,12 @@ function updateLocalOrgchart()
 
     $userKeys = array_keys($localEmployees);
 
-    $sql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated 
+    $sql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
     		FROM employee
     		WHERE userName=:userName";
 
     $sql2 = "UPDATE employee
-			SET lastName=:lastName, 
+			SET lastName=:lastName,
 			firstName=:firstName,
 			middleName=:midInit,
 			phoneticFirstName=:phoneticFname,
@@ -73,7 +132,7 @@ function updateLocalOrgchart()
 
         // gets national data
         $res = $phonedb->prepared_query($sql, $userNameArr);
-        
+
         if (count($res) > 0) {
             echo 'Updating: ' . $res[0]['lastName'] . ', ' . $res[0]['firstName'] . "\n";
             $vars = array(
@@ -133,7 +192,7 @@ function updateEmployeeData($nationalEmpUID, $localEmpUID)
 				ON DUPLICATE KEY UPDATE data=:data,
 					author=:author,
 					timestamp=:timestamp";
-            
+
             $vars = array(
                 ':empUID' => $localEmpUID,
                 ':indicatorID' => $res[$i]['indicatorID'],
