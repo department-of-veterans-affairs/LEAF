@@ -25,7 +25,7 @@ $(function() {
     $('#groupList').html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
 
     $.ajax({
-        url: "../scripts/maintenance.php",
+        url: "../scripts/refreshOrgchartEmployees.php",
         dataType: "text",
         success: function(response, args) {
             $('#groupList').html('<pre>' + response + '</pre>');
