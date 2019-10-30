@@ -165,6 +165,7 @@ switch ($action) {
             $t_form->assign('groups', $employee->listGroups($empUID));
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+            $t_form->assign('is_admin', $login->getMembership()['groupID'][1]);
 
             $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
 
