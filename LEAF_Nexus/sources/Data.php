@@ -86,6 +86,11 @@ abstract class Data
         return $this->dataTableCategoryID;
     }
 
+    public function getDataTableDescription()
+    {
+        return $this->dataTableDescription;
+    }
+
     /**
      * Retrieve all data if no indicatorID is given
      * @param int $UID
@@ -670,5 +675,81 @@ abstract class Data
         $this->cache['updateLastModified'] = $time;
 
         return true;
+    }
+
+    public function logAction($action, $toLog){
+
+        $vars = [
+            ':userID' => (int)$this->login->getEmpUID(),
+            ':action' => $action
+        ];
+
+        $sql = 
+            "BEGIN;
+
+            INSERT INTO data_action_log (`userID`, `timestamp`, `action`)
+                    VALUES (:userID, NOW(), :action);
+
+            SELECT LAST_INSERT_ID() INTO @log_id; 
+            
+            INSERT INTO data_log_items (`data_action_log_fk`, `tableName`, `column`, `value`)
+                VALUES";
+
+        for($i = 0; $i < count($toLog); $i++){
+            $vars[":tableName$i"] = $toLog[$i]["tableName"];
+            $vars[":column$i"] = $toLog[$i]["column"];
+            $vars[":value$i"] = $toLog[$i]["value"];
+
+            $sql = $sql."(@log_id, :tableName$i, :column$i, :value$i)".(($i == count($toLog)-1? "; ":", "));
+        }
+
+        $sql = $sql.'COMMIT;';
+
+        $this->db->prepared_query($sql, $vars);
+    }
+
+    public function getHistory($filterById){
+
+        $vars = [
+            ':filterBy' => $this->dataTableUID,
+            ':filterById' => $filterById
+        ];
+
+        $sqlCreateTemp =
+            "create temporary table group_logs
+            select data_action_log_fk 
+            from data_log_items 
+            WHERE `column` = :filterBy
+            AND `VALUE` = :filterById;";
+        
+        $this->db->prepared_query($sqlCreateTemp, $vars);
+        
+        $sqlFetchData = 
+        "
+            SELECT 
+                e.userName,
+                dal.action,
+                dal.timestamp,
+                -- Formatting the items for readability:
+                GROUP_CONCAT( '\"',dli.column, '\":\"', dli.value,'\"' SEPARATOR ' ') AS history
+            FROM
+                data_action_log dal
+                    LEFT JOIN
+                employee e ON e.empUID = dal.userID
+                    LEFT JOIN
+                data_log_items dli ON dal.ID = dli.data_action_log_fk
+                    RIGHT JOIN
+                group_logs gl on gl.data_action_log_fk = dal.ID
+            WHERE
+                dli.`column` != 'groupID'
+            group by dal.id
+            order by timestamp desc;";
+        
+        $results = $this->db->query($sqlFetchData);
+        
+        $sqlCleanUp = "drop temporary table group_logs;";
+        $this->db->query($sqlCleanUp);
+        
+        return $results;
     }
 }

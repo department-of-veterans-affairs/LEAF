@@ -42,6 +42,7 @@
         <!--{/if}-->
         <button class="options" onclick="editGroupName()" style="width: 100%"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</button>
         <button class="options" id="button_addEmployeePosition" onclick="addEmployeePosition()" style="width: 100%"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee/" title="Add Employee/Position" /> Add Employee/Position</button>
+        <button class="tools" onclick="viewHistory()"><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>
         <br />
         <br />
         <button class="options" onclick="confirmRemove()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
@@ -89,6 +90,7 @@
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <div id="orgchartForm"></div>
 
@@ -125,6 +127,23 @@ function triggerClickViewOrgChart(e) {
 
 function announceAction(actionName) {
     $('#buttonClick').attr('aria-label', 'clicked ' + actionName);
+}
+
+function viewHistory(){
+    dialog_message.setContent('');
+	dialog_message.show();
+	dialog_message.indicateBusy();
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&categoryID=3&itemID=<!--{$groupID}-->',
+        dataType: 'text',
+        success: function(res) {
+            dialog_message.setContent(res);
+            dialog_message.indicateIdle();
+        },
+        cache: false
+    });
 }
 
 function editGroupName() {
@@ -455,6 +474,7 @@ $(function() {
 
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     confirm_dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+    dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
 });
 
 </script>

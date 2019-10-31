@@ -147,7 +147,14 @@ class Group extends Data
                       ':phoGroupTitle' => metaphone($groupTitle), );
         $this->db->prepared_query('INSERT INTO groups (groupTitle, parentID, phoneticGroupTitle)
                VALUES (:groupTitle, :parentID, :phoGroupTitle)', $vars);
+
         $groupID = $this->db->getLastInsertID();
+
+        $this->logAction("add-group",[
+            ["tableName"=> "groups", "column"=> "groupID", "value"=> $groupID],
+            ["tableName"=> "groups", "column"=> "groupTitle", "value"=> $groupTitle],
+            ["tableName"=> "groups", "column"=> "parentID", "value" => $parentGroupID]
+        ]);
 
         // Give admin to the person creating the group
         // If available, add their position instead of empUID
@@ -163,7 +170,14 @@ class Group extends Data
                               ':categoryID' => 'position',
                               ':UID' => $position['positionID'], );
                 $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
-                                            		VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
+                                                    VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
+                $this->logAction("change-priveleges",[
+                    ["tableName"=> "group_privileges", "column"=> "groupID", "value"=> $groupID],
+                    ["tableName"=> "group_privileges", "column"=> "UID", "value"=> $position['positionID']],
+                    ["tableName"=> "group_privileges", "column"=> "read", "value"=> "true"],
+                    ["tableName"=> "group_privileges", "column"=> "write", "value"=> "true"],
+                    ["tableName"=> "group_privileges", "column"=> "grant", "value"=> "true"]
+                ]);
             }
         }
         else
@@ -172,7 +186,15 @@ class Group extends Data
                           ':categoryID' => 'employee',
                           ':UID' => $this->login->getEmpUID(), );
             $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
-                                            	VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
+                                                VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
+                                                
+            $this->logAction("change-priveleges",[
+                ["tableName"=> "group_privileges", "column"=> "groupID", "value"=> $groupID],
+                ["tableName"=> "group_privileges", "column"=> "UID", "value"=> $this->login->getEmpUID()],
+                ["tableName"=> "group_privileges", "column"=> "read", "value"=> "true"],
+                ["tableName"=> "group_privileges", "column"=> "write", "value"=> "true"],
+                ["tableName"=> "group_privileges", "column"=> "grant", "value"=> "true"]
+            ]);
         }
 
         // Give admin to admins
@@ -232,6 +254,10 @@ class Group extends Data
 
         $this->db->commitTransaction();
         $this->updateLastModified();
+
+        $this->logAction("delete-group",[
+            ["tableName"=> "groups", "column"=> "groupID", "value"=> $groupID]
+        ]);
 
         return 1;
     }
@@ -298,7 +324,13 @@ class Group extends Data
                       ':groupID' => $groupID,
                       ':phoTitle' => metaphone($newTitle), );
         $this->db->prepared_query('UPDATE groups SET groupTitle=:groupTitle, groupAbbreviation=:abbrTitle, phoneticGroupTitle=:phoTitle
-        								WHERE groupID=:groupID', $vars);
+                                        WHERE groupID=:groupID', $vars);
+        
+        $this->logAction("edit-group",[
+            ["tableName"=> "groups", "column"=> "groupID", "value"=> $groupID],
+            ["tableName"=> "groups", "column"=> "groupTitle", "value"=> $newTitle]
+        ]);
+
         $this->updateLastModified();
 
         return $groupID;
@@ -318,6 +350,11 @@ class Group extends Data
         $this->db->prepared_query('UPDATE groups SET parentID=:parentID
                 						WHERE groupID=:groupID', $vars);
         $this->updateLastModified();
+
+        $this->logAction("edit-group",[
+            ["tableName"=> "groups", "column"=> "groupID", "value"=> $groupID],
+            ["tableName"=> "groups", "column"=> "parentID", "value"=> $newParentID]
+        ]);
 
         return $groupID;
     }
@@ -758,7 +795,14 @@ class Group extends Data
         $this->db->prepared_query('INSERT INTO relation_group_position (groupID, positionID)
                                     VALUES (:groupID, :positionID)', $vars);
 
-        return $this->db->getLastInsertID();
+        $newRecordID = getLastInsertID();
+
+        $this->logAction("add-group-position",[
+            ["tableName"=> "relation_group_position", "column"=> "groupID", "value"=> $groupID],
+            ["tableName"=> "relation_group_position", "column"=> "positionID", "value"=> $positionID]
+        ]);
+        
+        return $newRecordID;
     }
 
     /**
@@ -782,6 +826,11 @@ class Group extends Data
         $this->db->prepared_query('DELETE FROM relation_group_position
                                     WHERE positionID=:positionID AND groupID=:groupID', $vars);
         $this->updateLastModified();
+
+        $this->logAction("remove-group-position",[
+            ["tableName"=> "relation_group_position", "column"=> "groupID", "value"=> $groupID],
+            ["tableName"=> "relation_group_position", "column"=> "positionID", "value"=> $positionID]
+        ]);
 
         return 1;
     }
@@ -810,6 +859,11 @@ class Group extends Data
         $this->db->prepared_query('INSERT INTO relation_group_employee (groupID, empUID)
                                     VALUES (:groupID, :employeeID)', $vars);
 
+        $this->logAction("add-group-employee",[
+            ["tableName"=> "relation_group_employee", "column"=> "groupID", "value"=> $groupID],
+            ["tableName"=> "relation_group_employee", "column"=> "empUID", "value"=> $employeeID]
+        ]);
+
         return $this->db->getLastInsertID();
     }
 
@@ -834,6 +888,11 @@ class Group extends Data
         $this->db->prepared_query('DELETE FROM relation_group_employee
                                     WHERE empUID=:empUID AND groupID=:groupID', $vars);
         $this->updateLastModified();
+
+        $this->logAction("remove-group-employee",[
+            ["tableName"=> "relation_group_employee", "column"=> "groupID", "value"=> $groupID],
+            ["tableName"=> "relation_group_employee", "column"=> "empUID", "value"=> $employeeID]
+        ]);
 
         return 1;
     }
@@ -939,6 +998,12 @@ class Group extends Data
                                             WHERE groupID=:groupID
                                                 AND categoryID=:categoryID
                                                 AND UID=:UID", $vars);
+        $this->logAction("change-group-group_privileges",[
+            ["tableName"=> "group_privileges", "column"=> $permissionType, "value"=> "true"],
+            ["tableName"=> "group_privileges", "column"=> "groupID", "value"=> $groupID],
+            ["tableName"=> "group_privileges", "column"=> "categoryID", "value"=> $categoryID],
+            ["tableName"=> "group_privileges", "column"=> "UID", "value"=> $UID]
+        ]);
 
         return 1;
     }
@@ -992,6 +1057,13 @@ class Group extends Data
                                             WHERE groupID=:groupID
                                                 AND categoryID=:categoryID
                                                 AND UID=:UID", $vars);
+        
+        $this->logAction("change-group-group_privileges",[
+            ["tableName"=> "group_privileges", "column"=> $permissionType, "value"=> "false"],
+            ["tableName"=> "group_privileges", "column"=> "groupID", "value"=> $groupID],
+            ["tableName"=> "group_privileges", "column"=> "categoryID", "value"=> $categoryID],
+            ["tableName"=> "group_privileges", "column"=> "UID", "value"=> $UID]
+        ]);
 
         // if subject has all permissions removed, delete the row from the table
         $vars = array(':groupID' => $groupID,
@@ -1037,4 +1109,5 @@ class Group extends Data
     {
         return '%' . metaphone($in) . '%';
     }
+
 }

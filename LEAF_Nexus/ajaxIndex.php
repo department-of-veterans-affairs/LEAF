@@ -134,6 +134,25 @@ switch ($action) {
         echo $type->deleteAttachment($_POST['categoryID'], $_POST['UID'], $_POST['indicatorID'], $_POST['file']);
 
         break;
+    case 'gethistory':
+        $t_form = getSmarty();
+        $itemID = isset($_GET['itemID']) ? (int)$_GET['itemID'] : 0;
+        if ($itemID != 0)
+        {
+            $resHistory = $type->getHistory($itemID);
+
+            $t_form->assign('dataType', $type->getDataTableDescription());
+            $t_form->assign('dataID', $itemID);
+            $t_form->assign('dataName', $type->getTitle($itemID));
+
+            $resHistory = $resHistory ?? array();
+
+            $t_form->assign('history', $resHistory);
+
+            $t_form->display('view_history.tpl');
+        }
+        
+        break;
     default:
         /*
         echo "Action: $action<br /><br />Catchall...<br /><br />POST: <pre>";
@@ -146,3 +165,13 @@ switch ($action) {
         */
         break;
 }
+
+function getSmarty(){
+
+    $t_form = new Smarty;
+    $t_form->left_delimiter = '<!--{';
+    $t_form->right_delimiter = '}-->';
+
+    return $t_form;
+}
+
