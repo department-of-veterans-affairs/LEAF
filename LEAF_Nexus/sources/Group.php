@@ -795,7 +795,7 @@ class Group extends Data
         $this->db->prepared_query('INSERT INTO relation_group_position (groupID, positionID)
                                     VALUES (:groupID, :positionID)', $vars);
 
-        $newRecordID = getLastInsertID();
+        $newRecordID = $this->db->getLastInsertID();
 
         $this->logAction("add-group-position",[
             ["tableName"=> "relation_group_position", "column"=> "groupID", "value"=> $groupID],
