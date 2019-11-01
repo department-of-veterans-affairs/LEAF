@@ -55,9 +55,45 @@ class EmployeesDao extends DataDao implements EmployeesRepository
         ->get()
         ->toArray();
 
+        //fall back to the oldEmpUID
+        if(count($result) === 0)
+        {
+            $result =  $this->getConn()
+            ->where([['oldEmpUID', $empUID], ['deleted', 0]])
+            ->get()
+            ->toArray();
+        }
+        //fall back to the username
+        if(count($result) === 0)
+        {
+            $result =  $this->getConn()
+            ->where([['userName', $empUID], ['deleted', 0]])
+            ->get()
+            ->toArray();
+        }
         $this->cache["lookupEmpUID_{$empUID}"] = $result;
 
         return $result;
+    }
+
+    public function VAMC_Directory_lookupEmpUID($empUID)
+    {
+        $res = $this->lookupEmpUID($empUID);
+        $data = array();
+        foreach ($res as $result)
+        {
+            $tdata = array();
+            $tdata = $result;
+            $tdata['Lname'] = $result['lastName'];
+            $tdata['Fname'] = $result['firstName'];
+
+            // orgchart data
+            $ocData = $this->getAllData($result['empUID']);
+            $tdata['Email'] = $ocData[6]['data'];
+            $data[] = $tdata;
+        }
+
+        return $data;
     }
 
     //$login is userName

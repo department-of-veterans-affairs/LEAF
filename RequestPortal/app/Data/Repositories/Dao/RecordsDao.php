@@ -238,8 +238,14 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
     public function getIndicatorData($indicatorID, $series, $recordID)
     {
         $res = $this->getConnForTable('data')
+        ->select('data.*', 'indicator_mask.groupID', 'indicators.*')
         ->leftJoin('indicators', 'indicators.indicatorID', '=', 'data.indicatorID')
-        ->leftJoin('indicator_mask', 'indicator_mask.indicatorID', '=', 'data.indicatorID')
+        ->leftJoin('indicator_mask', function($join)
+        {
+            $join->on('indicator_mask.indicatorID', '=', 'indicators.indicatorID');
+            $join->on('indicator_mask.indicatorID','=','data.indicatorID');
+            $join->on('data.indicatorID','=','indicators.indicatorID');
+        })
         ->where(['data.indicatorID' => $indicatorID, 'series' => $series, 'recordID' => $recordID, 'disabled' => 0])
         ->get()
         ->toArray();
@@ -248,7 +254,7 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
         {
             $res = $this->getIndicator($indicatorID);
         }
-
+        
         return $res;
     }
 
@@ -335,5 +341,96 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
     public function updateInitiator($recordID, $empUID)
     {
         return $this->getConn()->where('recordID', $recordID)->update(array('empUID' => $empUID));                                        
+    }
+
+    public function getCountAndSubmitStatus($recordID)
+    {
+        return $this->getConn()
+        ->select('records.recordID', 'categoryID', 'count', 'submitted')
+        ->leftJoin('category_count', 'category_count.recordID', '=', 'records.recordID')
+        ->where(['records.recordID' => $recordID])
+        ->get()
+        ->toArray();
+    }
+
+    public function getIndicatorCompletedCount($recordID)
+    {
+        return $this->getConnForTable('data')
+        ->selectraw('COUNT(*)')
+        ->leftJoin('indicators', 'indicators.indicatorID', '=', 'data.indicatorID')
+        ->where(['recordID' => $recordID, 'indicators.required' => 1, 'indicators.disabled' => 0])
+        ->where('data', '!=' , "")
+        ->get()
+        ->toArray();
+    }
+
+    public function getIndicatorTotalCount()
+    {
+        return $this->getConnForTable('indicators')
+        ->selectraw('categoryID, COUNT(*)')
+        ->where(['required' => 1, 'disabled' => 0])
+        ->groupBy('categoryID')
+        ->get()
+        ->toArray();
+    }
+
+    public function getSteps($recordID)
+    {
+        return $this->getConnForTable('records_workflow_state')
+        ->select('dependencies.dependencyID', 'records.recordID', 'workflow_steps.stepID', 'stepTitle', 'blockingStepID', 'workflowID', 'serviceID', 'stepBgColor', 'stepFontColor', 'stepBorder', 'description', 'indicatorID_for_assigned_empUID', 'indicatorID_for_assigned_groupID', 'jsSrc', 'empUID', 'requiresDigitalSignature')
+        ->leftJoin('records', 'records.recordID', '=', 'records_workflow_state.recordID')
+        ->leftJoin('workflow_steps', 'workflow_steps.stepID', '=', 'records_workflow_state.stepID')
+        ->leftJoin('step_dependencies', 'step_dependencies.stepID', '=', 'records_workflow_state.stepID')
+        ->leftJoin('dependencies', 'dependencies.dependencyID', '=', 'step_dependencies.dependencyID')
+        ->leftJoin('records_dependencies', function($join)
+                                            {
+                                                $join->on('records_dependencies.recordID', '=', 'records.recordID');
+                                                $join->on('records_dependencies.dependencyID','=','dependencies.dependencyID');
+                                            })
+        ->where(['records.recordID' => $recordID])
+        ->get()
+        ->toArray();
+    }
+
+    public function getDependencyActions($workflowID, $stepID){           
+        return $this->getConnForTable('workflow_routes')
+        ->leftJoin('actions', 'actions.actionType', '=', 'workflow_routes.actionType')
+        ->where(['workflowID' => $workflowID, 'stepID' => $stepID])
+        ->orderBy('sort', 'asc')
+        ->get()
+        ->toArray();
+    }
+
+    public function getDependencyPrivs($dependencyID)
+    {
+        return $this->getConnForTable('dependency_privs')
+        ->where(['dependencyID' => $dependencyID])
+        ->get()
+        ->toArray();
+    }
+
+    public function getServicesForQuads($quadGroupIDs, $serviceID)
+    {
+        return $this->getConnForTable('services')
+        ->where(['groupID' => $quadGroupIDs, 'serviceID' => $serviceID])
+        ->get()
+        ->toArray();
+    }
+
+    public function getGroup($groupID)
+    {
+        return $this->getConnForTable('groups')
+        ->where(['groupID' => $groupID])
+        ->get()
+        ->toArray();
+    }
+
+    public function getStepModules($stepID)
+    {
+        return $this->getConnForTable('step_modules')
+        ->select('moduleName', 'moduleConfig')
+        ->where(['stepID' => $stepID])
+        ->get()
+        ->toArray();
     }
 }

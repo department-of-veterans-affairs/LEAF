@@ -965,8 +965,221 @@ class RequestsController extends Controller
         }
     }
 
+    /**
+     * Get the progress percentage (as integer)
+     * @param int $recordID
+     * @return int Percent completed
+     */
+    public function getProgress($recordID)
+    {
+        $tresRecord = $this->records->getCountAndSubmitStatus($recordID);
+        $resRecord = array();
+        foreach ($tresRecord as $record)
+        {
+            if ($record['submitted'] > 0)
+            {
+                return 100;
+            }
+            $resRecord[strtolower($record['categoryID'])] = $record['count'];
+        }
+
+        $resCompletedCount = $this->records->getIndicatorCompletedCount($recordID);
+
+        $resCount = $this->records->getIndicatorTotalCount();
+        $countData = array();
+        $sum = 0;
+        foreach ($resCount as $cat)
+        {
+            $sum += $cat['COUNT(*)'] * (isset($resRecord[strtolower($cat['categoryID'])]) ? $resRecord[strtolower($cat['categoryID'])] : 0);
+        }
+        if ($sum == 0)
+        {
+            return 100;
+        }
+
+        return round(($resCompletedCount[0]['COUNT(*)'] / $sum) * 100);
+    }
+
     public function test()
     {
         return $this->groups->getGroup(1);
+    }
+
+    /**
+     * Retrieves current steps of a form's workflow, controls access to steps
+     * @return array database result
+     * @return null if no database result
+     */
+    public function getCurrentSteps($recordID)
+    {
+        
+        // check privileges
+        if (!$this->hasReadAccess($recordID))
+        {
+            return 0;
+        }
+
+        $steps = array();
+        $res = $this->records->getSteps($recordID);
+
+        $numRes = count($res);
+        if ($numRes > 0)
+        {
+            for ($i = 0; $i < $numRes; $i++)
+            {
+                $res[$i]['dependencyActions'] = $this->records->getDependencyActions($res[$i]['workflowID'], $res[$i]['stepID']);
+                
+                // override access if user is in the admin group
+                $res[$i]['hasAccess'] = $this->portalUsers->checkGroup(session('userID'), 1); // initialize hasAccess
+                
+                // check permissions 
+                $res2 = $this->records->getDependencyPrivs($res[$i]['dependencyID']);
+
+                // dependencyID 1 is for a special service chief group
+                if ($res[$i]['dependencyID'] == 1 && !$res[$i]['hasAccess'])
+                {
+                    if ($this->portalUsers->checkService(session('userID'), $res[$i]['serviceID']))
+                    {
+                        $res[$i]['hasAccess'] = true;
+                    }
+                }
+
+                // dependencyID 8 is for a special quadrad group
+                if ($res[$i]['dependencyID'] == 8 && !$res[$i]['hasAccess'])
+                {
+                    $quadGroupIDs = $this->portalUsers->getQuadradGroupID(session('userID'));
+
+                    $res3 = $this->records->getServicesForQuads($quadGroupIDs, $res[$i]['serviceID']);
+
+                    if (isset($res3[0]))
+                    {
+                        $res[$i]['hasAccess'] = true;
+                    }
+                }
+
+                // dependencyID -1 is for a person designated by the requestor
+                if ($res[$i]['dependencyID'] == -1)
+                {
+                    $resEmpUID = $this->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $recordID);
+
+                    // make sure the right person has access
+                    if (!$res[$i]['hasAccess'])
+                    {
+                        $empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
+
+                        //check if the requester has any backups
+                        //get nexus db
+
+                        $backupIds = $this->portalUsers->getBackups($empUID);
+
+                        if ($empUID == $this->portalUsers->getEmpUID(session('userID')))
+                        {
+                            $res[$i]['hasAccess'] = true;
+                        }
+                        else
+                        {
+                            //check and provide access to backups
+                            foreach ($backupIds as $row)
+                            {
+                                if ($row['backupEmpUID'] == $this->portalUsers->getEmpUID(session('userID')))
+                                {
+                                    $res[$i]['hasAccess'] = true;
+                                }
+                            }
+                        }
+                    }
+
+                    $approver = $this->employees->VAMC_Directory_lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
+
+                    $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
+                    if (trim($res[$i]['description']) == '')
+                    {
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'] . ')';
+                    }
+                }
+
+                // dependencyID -2 is for requestor followup
+                if ($res[$i]['dependencyID'] == -2)
+                {
+                    if ($res[$i]['empUID'] == $this->portalUsers->getEmpUID(session('userID')))
+                    {
+                        $res[$i]['hasAccess'] = true;
+                    }
+                }
+
+                // dependencyID -3 is for a group designated by the requestor
+                if ($res[$i]['dependencyID'] == -3)
+                {
+                    $resGroupID = $this->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $recordID);
+                    $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
+
+                    // make sure the right person has access
+                    if (!$res[$i]['hasAccess'])
+                    {
+                        if ($this->portalUsers->checkGroup(session('userID'), $groupID))
+                        {
+                            $res[$i]['hasAccess'] = true;
+                        }
+                    }
+
+                    $res[$i]['description'] = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
+
+                    // find actual group name
+                    $tGroup = $this->records->getGroup($groupID);
+                    if (count($tGroup) >= 0)
+                    {
+                        $res[$i]['description'] = $tGroup[0]['name'];
+                    }
+
+                    $res[$i]['description'] ?? 'Warning: Group Name has not been imported in the User Access Group';
+                }
+
+                foreach ($res2 as $group)
+                {
+                    if ($this->portalUsers->checkGroup(session('userID'), $group['groupID']))
+                    {
+                        $res[$i]['hasAccess'] = true;
+
+                        break;
+                    }
+                }
+
+                if (!isset($steps[$res[$i]['dependencyID']]))
+                {
+                    $steps[$res[$i]['dependencyID']] = $res[$i];
+                }
+
+                //TODO THIS
+                // // load related js assets from shared steps
+                // if ($res[$i]['jsSrc'] != '' && file_exists(dirname(__FILE__) . '/scripts/custom_js/' . $res[$i]['jsSrc']))
+                // {
+                //     $steps[$res[$i]['dependencyID']]['jsSrcList'][] = 'scripts/custom_js/' . $res[$i]['jsSrc'];
+                // }
+
+                
+                // load step modules
+                $resSm = $this->records->getStepModules($res[$i]['stepID']);
+                foreach($resSm as $module) {
+                    $steps[$res[$i]['dependencyID']]['stepModules'][] = $module;
+                }
+            }
+
+            for ($i = 0; $i < $numRes; $i++)
+            {
+                // block step if there is a blocker
+                if ($res[$i]['blockingStepID'] > 0)
+                {
+                    foreach ($steps as $step)
+                    {
+                        if ($res[$i]['blockingStepID'] == $step['stepID'])
+                        {
+                            unset($steps[$res[$i]['dependencyID']]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return count($steps) > 0 ? $steps : null;
     }
 }

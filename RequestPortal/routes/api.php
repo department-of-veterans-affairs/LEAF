@@ -33,9 +33,12 @@ Route::middleware('IsAuth')->group(function () {
 
                     
 
-                    /*  Route::get('/progress', 'RequestsController@getById')->name('request.detail'); //TODO
-                    Route::get('/progress/json', 'RequestsController@getById')->name('request.detail'); //TODO
-                    Route::get('/recordinfo', 'RequestsController@getById')->name('request.detail'); //TODO
+                    Route::get('/progress', 'RequestsController@getProgress')->name('request.progress');
+                    Route::get('/progress/json', 'RequestsController@getProgress')->name('request.progress.json');
+                    Route::get('/step', 'RequestsController@getCurrentSteps')->name('request.step'); //TODO
+                    Route::post('/step/{stepID}', 'RequestsController@getById')->name('request.setstep'); //TODO
+
+                    /*Route::get('/recordinfo', 'RequestsController@getById')->name('request.detail'); //TODO
                     Route::post('/service/{serviceID}', 'RequestsController@getById')->name('request.detail'); //TODO
                     Route::post('/submit', 'RequestsController@getById')->name('request.detail'); //TODO
 
@@ -45,8 +48,6 @@ Route::middleware('IsAuth')->group(function () {
                     Route::get('/action/last', 'RequestsController@getById')->name('request.detail'); //TODO
                     Route::get('/action/{actionType}', 'RequestsController@getById')->name('request.detail'); //TODO
 
-                    Route::get('/step', 'RequestsController@getById')->name('request.detail'); //TODO
-                    Route::post('/step/{stepID}', 'RequestsController@getById')->name('request.detail'); //TODO
                     Route::get('/indicator/format/{formats}', 'RequestsController@getById')->name('request.detail'); //TODO
                     Route::get('/indicator/byworkflow', 'RequestsController@getById')->name('request.detail'); //TODO
                     Route::delete('/indicator/{indicatorID}/attachment', 'RequestsController@getById')->name('request.detail'); //TODO

@@ -166,21 +166,22 @@ class DataDao extends CachedDbDao implements DataRepository
                 }
             }
 
-            // apply access privileges
-            $privilegesData = $this->login->getIndicatorPrivileges(array_keys($data), $this->dataTableUID, $UID);//TODO find a good way o make this work
-            $privileges = array_keys($privilegesData);
-            foreach ($privileges as $id)
-            {
-                if ($privilegesData[$id]['read'] == 0
-                    && $data[$id]['data'] != '')
-                {
-                    $data[$id]['data'] = '[protected data]';
-                }
-                if ($privilegesData[$id]['write'] != 0)
-                {
-                    $data[$id]['isWritable'] = 1;
-                }
-            }
+            // // apply access privileges
+            // $privilegesData = $this->login->getIndicatorPrivileges(array_keys($data), $this->dataTableUID, $UID);//TODO find a good way o make this work
+            // $privileges = array_keys($privilegesData);
+            // foreach ($privileges as $id)
+            // {
+            //     if ($privilegesData[$id]['read'] == 0
+            //         && $data[$id]['data'] != '')
+            //     {
+            //         $data[$id]['data'] = '[protected data]';
+            //     }
+            //     if ($privilegesData[$id]['write'] != 0)
+            //     {
+            //         $data[$id]['isWritable'] = 1;
+            //     }
+            // }
+            
         }
 
         $this->cache[$cacheHash] = $data;

@@ -129,6 +129,7 @@ class PortalUsersDao extends CachedDbDao implements PortalUsersRepository
      */
     public function checkGroup($userID, $groupID)
     {
+        
         $empUID = $this->getEmpUID($userID);
         if (!isset($this->cache['checkGroup']))
         {
@@ -139,7 +140,6 @@ class PortalUsersDao extends CachedDbDao implements PortalUsersRepository
 
             foreach ($result as $group)
             {
-                $groupID = (array) $group;
                 $this->cache['checkGroup'][$group['groupID']] = true;
             }
         }
@@ -516,5 +516,11 @@ class PortalUsersDao extends CachedDbDao implements PortalUsersRepository
         return $records;
     }
 
-    
+    public function getBackups($empUID)
+    {
+        return $this->getConnForTable('relation_employee_backup')
+        ->where(['empUID', $empUID])
+        ->get()
+        ->toArray();
+    }
 }
