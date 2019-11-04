@@ -1182,4 +1182,37 @@ class RequestsController extends Controller
 
         return count($steps) > 0 ? $steps : null;
     }
+
+    public function setStep(Request $request, $recordID, $stepID)
+    {
+        if (!is_numeric($stepID))
+        {
+            return false;
+        }
+        $comment = $request->input('comment');
+
+        if ($recordID == 0 || (!$this->portalUsers->checkGroup(session('userID'), 1)))
+        {
+            return false;
+        }
+
+        // make sure the request has been submitted
+        $this->records->SubmitIfNotSubmitted($recordID);
+
+        $res = $this->records->getStep($stepID);
+        $stepName = $res[0]['stepTitle'];
+
+        if ($comment != '')
+        {
+            $comment = "Moved to {$stepName} step. " . $comment;
+        }
+        else
+        {
+            $comment = "Moved to {$stepName} step";
+        }
+        // write log entry
+        $this->records->writeStepChangeLogEntry($recordID, $stepID, $this->portalUsers->getEmpUID(session('userID')), $comment);
+
+        return 'true';
+    }
 }

@@ -35,8 +35,8 @@ Route::middleware('IsAuth')->group(function () {
 
                     Route::get('/progress', 'RequestsController@getProgress')->name('request.progress');
                     Route::get('/progress/json', 'RequestsController@getProgress')->name('request.progress.json');
-                    Route::get('/step', 'RequestsController@getCurrentSteps')->name('request.step'); //TODO
-                    Route::post('/step/{stepID}', 'RequestsController@getById')->name('request.setstep'); //TODO
+                    Route::get('/step', 'RequestsController@getCurrentSteps')->name('request.step'); 
+                    Route::post('/step/{stepID}', 'RequestsController@setStep')->name('request.setstep'); 
 
                     /*Route::get('/recordinfo', 'RequestsController@getById')->name('request.detail'); //TODO
                     Route::post('/service/{serviceID}', 'RequestsController@getById')->name('request.detail'); //TODO

@@ -433,4 +433,59 @@ class RecordsDao extends CachedDbDao implements RecordsRepository
         ->get()
         ->toArray();
     }
+
+    public function SubmitIfNotSubmitted($recordID)
+    {
+        $res = $this->getConn()
+        ->where(['recordID' => $recordID])
+        ->get()
+        ->toArray();
+        if ($res[0]['submitted'] == 0)
+        {
+            $this->getConn()
+            ->where(['recordID' => $recordID])
+            ->update(['submitted' => time()]);
+        }   
+    }
+
+    public function getStep($stepID)
+    {
+        return $this->getConnForTable('workflow_steps')
+        ->where(['stepID' => $stepID])
+        ->get()
+        ->toArray();
+    }
+
+    private function resetRecordsDependency($recordID, $stepID)
+    {
+        $res3 = $this->getConnForTable('step_dependencies')
+        ->where(['stepID' => $stepID])
+        ->get()
+        ->toArray();
+        if (count($res3) > 0)
+        {
+            foreach ($res3 as $stepDependency)
+            {
+                $this->getConnForTable('records_dependencies')
+                ->where(['recordID' => $recordID, 'dependencyID' => $stepDependency['dependencyID']])
+                ->update(['filled' => 0]);
+            }
+        }
+    }
+
+    public function writeStepChangeLogEntry($recordID, $stepID, $empUID, $comment)
+    {
+        $this->getConnForTable('action_history')
+        ->insert(['recordID' => $recordID, 'empUID' => $empUID, 'dependencyID' => 0, 'actionType' => 'move', 'actionTypeID' => 8, 'time' => time(), 'comment' => $comment]);
+
+        $this->getConnForTable('records_workflow_state')
+        ->where(['recordID' => $recordID])
+        ->delete();
+
+        $this->resetRecordsDependency($recordID, $stepID);
+
+        $this->getConnForTable('records_workflow_state')
+        ->insert(['recordID' => $recordID, 'stepID' => $stepID]);
+    
+    }
 }
