@@ -23,7 +23,7 @@ History of <!--{$dataType}--> ID : <!--{$dataID|sanitize}-->
     </td>
     <td>
         <span><b><!--{$log.action|sanitize}--></b> by <!--{$log.userName|sanitize}-->
-        <br />Values Affected: <!--{$log.history|sanitize}--></span>
+        <br /><!--{$log.history|sanitize}--></span>
     </td>
 </tr>
 

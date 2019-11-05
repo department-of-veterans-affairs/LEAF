@@ -131,6 +131,7 @@ function announceAction(actionName) {
 
 function viewHistory(){
     dialog_message.setContent('');
+    dialog_message.setTitle('Access Group History');
 	dialog_message.show();
 	dialog_message.indicateBusy();
 

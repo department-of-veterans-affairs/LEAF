@@ -12,6 +12,10 @@
 namespace Orgchart;
 
 require_once 'Data.php';
+if(!class_exists('LogFormatter'))
+{
+    require_once dirname(__FILE__) . '/../../libs//logFormatter.php';
+}
 
 class Group extends Data
 {
@@ -150,7 +154,7 @@ class Group extends Data
 
         $groupID = $this->db->getLastInsertID();
 
-        $this->logAction("add-group",[
+        $this->logAction(\DataActions::ADD."-".\LoggableTypes::GROUP,[
             ["tableName"=> "groups", "column"=> "groupID", "value"=> $groupID],
             ["tableName"=> "groups", "column"=> "groupTitle", "value"=> $groupTitle],
             ["tableName"=> "groups", "column"=> "parentID", "value" => $parentGroupID]
@@ -169,11 +173,16 @@ class Group extends Data
                 $vars = array(':groupID' => $groupID,
                               ':categoryID' => 'position',
                               ':UID' => $position['positionID'], );
+                
                 $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
                                                     VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
-                $this->logAction("change-priveleges",[
-                    ["tableName"=> "group_privileges", "column"=> "groupID", "value"=> $groupID],
-                    ["tableName"=> "group_privileges", "column"=> "UID", "value"=> $position['positionID']],
+                
+                $positionVars = array(':positionId'=> $position['positionID']);
+                $positionDisplay = $this->db->prepared_query('SELECT positionTitle from positions where positionId = :positionId', $positionVars)[0]['positionTitle'];                                    
+                
+                $this->logAction(\DataActions::MODIFY."-".\LoggableTypes::PRIVILEGES,[
+                    ["tableName"=> "group_privileges", "column"=> "groupID", "value"=> $groupID, "displayValue"=> $groupTitle],
+                    ["tableName"=> "group_privileges", "column"=> "UID", "value"=> $position['positionID'], "displayValue"=> $positionDisplay],
                     ["tableName"=> "group_privileges", "column"=> "read", "value"=> "true"],
                     ["tableName"=> "group_privileges", "column"=> "write", "value"=> "true"],
                     ["tableName"=> "group_privileges", "column"=> "grant", "value"=> "true"]
@@ -188,9 +197,9 @@ class Group extends Data
             $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
                                                 VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
                                                 
-            $this->logAction("change-priveleges",[
-                ["tableName"=> "group_privileges", "column"=> "groupID", "value"=> $groupID],
-                ["tableName"=> "group_privileges", "column"=> "UID", "value"=> $this->login->getEmpUID()],
+            $this->logAction(\DataActions::MODIFY."-".\LoggableTypes::PRIVILEGES,[
+                ["tableName"=> "group_privileges", "column"=> "groupID", "value"=> $groupID, "displayValue"=>$groupTitle],
+                ["tableName"=> "group_privileges", "column"=> "UID", "value"=> $this->login->getEmpUID(), "displayValue"=> $this->login->getName()], 
                 ["tableName"=> "group_privileges", "column"=> "read", "value"=> "true"],
                 ["tableName"=> "group_privileges", "column"=> "write", "value"=> "true"],
                 ["tableName"=> "group_privileges", "column"=> "grant", "value"=> "true"]
@@ -255,8 +264,8 @@ class Group extends Data
         $this->db->commitTransaction();
         $this->updateLastModified();
 
-        $this->logAction("delete-group",[
-            ["tableName"=> "groups", "column"=> "groupID", "value"=> $groupID]
+        $this->logAction(\DataActions::DELETE."-".\LoggableTypes::GROUP,[
+            ["tableName"=> "groups", "column"=> "groupID", "value"=> $groupID, "displayValue"=> getTitle($groupID)]
         ]);
 
         return 1;
@@ -326,7 +335,7 @@ class Group extends Data
         $this->db->prepared_query('UPDATE groups SET groupTitle=:groupTitle, groupAbbreviation=:abbrTitle, phoneticGroupTitle=:phoTitle
                                         WHERE groupID=:groupID', $vars);
         
-        $this->logAction("edit-group",[
+        $this->logAction(\DataActions::MODIFY."-".\LoggableTypes::GROUP,[
             ["tableName"=> "groups", "column"=> "groupID", "value"=> $groupID],
             ["tableName"=> "groups", "column"=> "groupTitle", "value"=> $newTitle]
         ]);
@@ -351,9 +360,9 @@ class Group extends Data
                 						WHERE groupID=:groupID', $vars);
         $this->updateLastModified();
 
-        $this->logAction("edit-group",[
-            ["tableName"=> "groups", "column"=> "groupID", "value"=> $groupID],
-            ["tableName"=> "groups", "column"=> "parentID", "value"=> $newParentID]
+        $this->logAction(\DataActions::MODIFY."-".\LoggableTypes::GROUP,[
+            ["tableName"=> "groups", "column"=> "groupID", "value"=> $groupID, "displayValue"=> $this->getTitle($groupID)],
+            ["tableName"=> "groups", "column"=> "parentID", "value"=> $newParentID, "displayValue"=> $this->getTitle($groupID)]
         ]);
 
         return $groupID;
@@ -797,10 +806,15 @@ class Group extends Data
 
         $newRecordID = $this->db->getLastInsertID();
 
-        $this->logAction("add-group-position",[
-            ["tableName"=> "relation_group_position", "column"=> "groupID", "value"=> $groupID],
-            ["tableName"=> "relation_group_position", "column"=> "positionID", "value"=> $positionID]
+        $positionVars = array(':positionId'=> $positionID);
+        $foo = $this->db->prepared_query('SELECT positionTitle from positions where positionId = :positionId', $positionVars);
+        $positionDisplay = $this->db->prepared_query('SELECT positionTitle from positions where positionId = :positionId', $positionVars)[0]['positionTitle'];                                    
+                
+        $this->logAction(\DataActions::ADD.'-'.\LoggableTypes::POSITION,[
+            ["tableName"=> "relation_group_position", "column"=> "groupID", "value"=> $groupID, "displayValue"=> $this->getTitle($groupID)],
+            ["tableName"=> "relation_group_position", "column"=> "positionID", "value"=> $positionID, "displayValue"=> $positionDisplay]
         ]);
+
         
         return $newRecordID;
     }
@@ -827,9 +841,12 @@ class Group extends Data
                                     WHERE positionID=:positionID AND groupID=:groupID', $vars);
         $this->updateLastModified();
 
-        $this->logAction("remove-group-position",[
-            ["tableName"=> "relation_group_position", "column"=> "groupID", "value"=> $groupID],
-            ["tableName"=> "relation_group_position", "column"=> "positionID", "value"=> $positionID]
+        $positionVars = array(':positionId'=> $position['positionID']);
+        $positionDisplay = $this->db->prepared_query('SELECT positionTitle from positions where positionId = :positionId', $positionVars)[0]['positionTitle'];                                            
+
+        $this->logAction(\DataActions::DELETE.'-'.\LoggableTypes::POSITION,[
+            ["tableName"=> "relation_group_position", "column"=> "groupID", "value"=> $groupID, "displayValue"=> $this->getTitle($groupID)],
+            ["tableName"=> "relation_group_position", "column"=> "positionID", "value"=> $positionID, "displayValue"=>$positionDisplay]
         ]);
 
         return 1;
@@ -859,9 +876,11 @@ class Group extends Data
         $this->db->prepared_query('INSERT INTO relation_group_employee (groupID, empUID)
                                     VALUES (:groupID, :employeeID)', $vars);
 
-        $this->logAction("add-group-employee",[
-            ["tableName"=> "relation_group_employee", "column"=> "groupID", "value"=> $groupID],
-            ["tableName"=> "relation_group_employee", "column"=> "empUID", "value"=> $employeeID]
+        $employeeDisplay = $this->getEmployeeDisplay($employeeID);
+                
+        $this->logAction(\DataActions::ADD.'-'.\LoggableTypes::EMPLOYEE,[
+            ["tableName"=> "relation_group_employee", "column"=> "groupID", "value"=> $groupID, "displayValue"=> $this->getTitle($groupID)],
+            ["tableName"=> "relation_group_employee", "column"=> "empUID", "value"=> $employeeID, "displayValue"=> $employeeDisplay]
         ]);
 
         return $this->db->getLastInsertID();
@@ -889,9 +908,11 @@ class Group extends Data
                                     WHERE empUID=:empUID AND groupID=:groupID', $vars);
         $this->updateLastModified();
 
-        $this->logAction("remove-group-employee",[
-            ["tableName"=> "relation_group_employee", "column"=> "groupID", "value"=> $groupID],
-            ["tableName"=> "relation_group_employee", "column"=> "empUID", "value"=> $employeeID]
+        $employeeDisplay = $this->getEmployeeDisplay($db,$empUID);
+        
+        $this->logAction(\DataActions::DELETE.'-'.\LoggableTypes::EMPLOYEE,[
+            ["tableName"=> "relation_group_employee", "column"=> "groupID", "value"=> $groupID, "displayValue"=> $this->getTitle($groupID)],
+            ["tableName"=> "relation_group_employee", "column"=> "empUID", "value"=> $empUID, "displayValue"=> $employeeDisplay]
         ]);
 
         return 1;
@@ -966,24 +987,10 @@ class Group extends Data
             return;
         }
 
-        switch ($permissionType) {
-            case 'read':
-                $permissionType = '`read`';
-
-                break;
-            case 'write':
-                $permissionType = '`write`';
-
-                break;
-            case 'grant':
-                $permissionType = '`grant`';
-
-                break;
-            default:
-                return false;
-
-                break;
+        if($permissionType != 'read' || $permissionType != 'write' || $permissionType != 'grant'){
+            return false;
         }
+
         $vars = array(':groupID' => $groupID,
                       ':categoryID' => $categoryID,
                       ':UID' => $UID, );
@@ -994,17 +1001,25 @@ class Group extends Data
                       ':categoryID' => $categoryID,
                       ':UID' => $UID, );
         $res = $this->db->prepared_query("UPDATE group_privileges
-                                            SET {$permissionType}=1
+                                            SET `$permissionType`=1
                                             WHERE groupID=:groupID
                                                 AND categoryID=:categoryID
                                                 AND UID=:UID", $vars);
-        $this->logAction("change-group-group_privileges",[
-            ["tableName"=> "group_privileges", "column"=> $permissionType, "value"=> "true"],
+
+        $UIDDisplay = ($categoryID == "group") ? $this->getTitle($UID) : $this->getEmployeeDisplay($db, $UID);
+        
+        $newPermissions = $this->db->prepared_query("SELECT * from group_privileges WHERE groupID=:groupID
+                                            AND categoryID=:categoryID
+                                            AND UID=:UID", $vars)[0];
+        
+        $this->logAction(\DataActions::MODIFY.'-'.\LoggableTypes::PRIVILEGES,[
+            ["tableName"=> "group_privileges", "column"=> "read", "value"=> $newPermissions["read"]],
+            ["tableName"=> "group_privileges", "column"=> "write", "value"=> $newPermissions["write"]],
+            ["tableName"=> "group_privileges", "column"=> "read", "grant"=> $newPermissions["grant"]],
             ["tableName"=> "group_privileges", "column"=> "groupID", "value"=> $groupID],
             ["tableName"=> "group_privileges", "column"=> "categoryID", "value"=> $categoryID],
             ["tableName"=> "group_privileges", "column"=> "UID", "value"=> $UID]
         ]);
-
         return 1;
     }
 
@@ -1023,24 +1038,8 @@ class Group extends Data
         {
             return;
         }
-
-        switch ($permissionType) {
-            case 'read':
-                $permissionType = '`read`';
-
-                break;
-            case 'write':
-                $permissionType = '`write`';
-
-                break;
-            case 'grant':
-                $permissionType = '`grant`';
-
-                break;
-            default:
-                return false;
-
-                break;
+        if($permissionType != 'read' || $permissionType != 'write' || $permissionType != 'grant'){
+            return false;
         }
 
         $vars = array(':groupID' => $groupID,
@@ -1053,13 +1052,18 @@ class Group extends Data
                       ':categoryID' => $categoryID,
                       ':UID' => $UID, );
         $res = $this->db->prepared_query("UPDATE group_privileges
-                                            SET {$permissionType}=0
+                                            SET `$permissionType`=0
                                             WHERE groupID=:groupID
                                                 AND categoryID=:categoryID
                                                 AND UID=:UID", $vars);
+        $newPermissions = $this->db->prepared_query("SELECT * from group_privileges WHERE groupID=:groupID
+                                            AND categoryID=:categoryID
+                                            AND UID=:UID", $vars)[0];
         
-        $this->logAction("change-group-group_privileges",[
-            ["tableName"=> "group_privileges", "column"=> $permissionType, "value"=> "false"],
+        $this->logAction(\DataActions::MODIFY.'-'.\LoggableTypes::PRIVILEGES,[
+            ["tableName"=> "group_privileges", "column"=> "read", "value"=> $newPermissions["read"]],
+            ["tableName"=> "group_privileges", "column"=> "write", "value"=> $newPermissions["write"]],
+            ["tableName"=> "group_privileges", "column"=> "read", "grant"=> $newPermissions["grant"]],
             ["tableName"=> "group_privileges", "column"=> "groupID", "value"=> $groupID],
             ["tableName"=> "group_privileges", "column"=> "categoryID", "value"=> $categoryID],
             ["tableName"=> "group_privileges", "column"=> "UID", "value"=> $UID]
@@ -1110,4 +1114,8 @@ class Group extends Data
         return '%' . metaphone($in) . '%';
     }
 
+    public function getEmployeeDisplay($employeeID){
+        $employeeVars = array(':employeeId'=> $employeeID);
+        return $this->db->prepared_query('SELECT concat(firstName," ",lastName) as user from employee where empUID = :employeeId', $employeeVars)[0]['user'];                                    
+    }
 }
