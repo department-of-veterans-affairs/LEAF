@@ -3364,7 +3364,7 @@ class Form
                     $child[$idx]['displayedValue'] = '';
                     if (isset($empRes[0]))
                     {
-                      $child[$idx]['displayedValue'] = ($child[$idx]['isMasked']) ? '[protected data]' : "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                        $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
                     }
                 }
                 if ($field['format'] == 'orgchart_position')
