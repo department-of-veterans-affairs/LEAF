@@ -30,11 +30,6 @@ class Form
 
     public $oc_dbName;   // Org Chart
 
-    public $log = array(
-        "write" => array(),
-        "read" => array()
-    );  // used by checkReadAccess() and hasWriteAccess() to log activity
-
     private $db;
 
     private $login;
@@ -1176,7 +1171,7 @@ class Form
         $hasInitialStep = false;
         foreach ($res as $workflow)
         {
-            if ($workflow['initialStepID'] != 0)
+            if ($workflow['initialStepID'] > 0)
             {
                 // make sure the initial step is valid
                 $vars = array(':stepID' => $workflow['initialStepID']);
@@ -1205,7 +1200,7 @@ class Form
                 }
             }
 
-            if ($workflow['workflowID'] != 0)
+            if ($workflow['workflowID'] > 0)
             {
                 $workflowIDs[] = $workflow['workflowID'];
             }
@@ -1354,11 +1349,6 @@ class Form
                 {
                     $categoryID = $res[0]['categoryID'];
                     $this->cache["hasWriteAccess_{$recordID}_{$categoryID}_{$indicatorID}"] = $categoryID;
-                    $this->log["write"]["{$recordID}_{$categoryID}_{$indicatorID}"] = "Indicator {$indicatorID} is associated with {$categoryID}.";
-                }
-                else
-                {
-                    $this->log["write"]["{$recordID}_{$categoryID}_{$indicatorID}"] = "Indicator {$indicatorID} on record {$recordID} is not associated with any form.";
                 }
             }
         }
@@ -1367,7 +1357,6 @@ class Form
         if ($categoryID === 0
             && $indicatorID == 0)
         {
-            $categoryID = '';
             $vars = array(':recordID' => (int)$recordID);
             $res = $this->db->prepared_query('SELECT * FROM category_count
         										WHERE recordID=:recordID
@@ -1403,21 +1392,16 @@ class Form
             && $this->login->getUserID() == $resRecords[0]['userID'])
         {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
-            $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are a writable user or initiator of record {$recordID}, {$categoryID}.";
 
             return 1;
         }
-        $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are not a writable user or initiator of record {$recordID}, {$categoryID}.";
-
         // give admins access
         if ($this->login->checkGroup(1))
         {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
-            $this->log["write"]["{$recordID}_{$categoryID}_admin"] = 'You are an admin.';
 
             return 1;
         }
-        $this->log["write"]["{$recordID}_{$categoryID}_admin"] = 'You are not an admin.';
 
         // find out if explicit permissions have been granted to any groups
         if (count($multipleCategories) <= 1)
@@ -1433,11 +1417,9 @@ class Form
             if (count($resCategoryPrivs) > 0)
             {
                 $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
-                $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
 
                 return 1;
             }
-            $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are not in group with appropriate write permissions.';
         }
         else
         {
@@ -1454,11 +1436,9 @@ class Form
                 if (count($resCategoryPrivs) > 0)
                 {
                     $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
-                    $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
 
                     return 1;
                 }
-                $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are not in group with appropriate write permissions.';
             }
         }
 
@@ -1476,11 +1456,9 @@ class Form
             if ($this->hasDependencyAccess($priv['dependencyID'], $priv))
             {
                 $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
-                $this->log["write"]["{$recordID}_{$categoryID}_dependency"] = 'You are a dependency.';
 
                 return 1;
             }
-            $this->log["write"]["{$recordID}_{$categoryID}_dependency"] = 'You are not a dependency.';
         }
 
         // default no access
@@ -1510,15 +1488,9 @@ class Form
             if (!isset($resRead[$recordID]))
             {
                 $this->cache["hasReadAccess_{$recordID}"] = 0;
-                $this->log["read"]["{$recordID}"] = "Record {$recordID} is need to know and you do not have read access.";
 
                 return 0;
             }
-            $this->log["read"]["{$recordID}"] = "Record {$recordID} is need to know but you have read access.";
-        }
-        else
-        {
-            $this->log["read"]["{$recordID}"] = "Record {$recordID} is not need to know.";
         }
         $this->cache["hasReadAccess_{$recordID}"] = 1;
 
@@ -1800,15 +1772,6 @@ class Form
                 if ($dep['userID'] == $this->login->getUserID())
                 {
                     $temp[$dep['recordID']] = 1;
-                }
-
-                // grants backups the ability to access records of their backupFor
-                foreach ($this->employee->getBackupsFor($this->login->getEmpUID()) as $emp)
-                {
-                    if ($dep['userID'] == $emp["userName"])
-                    {
-                        $temp[$dep['recordID']] = 1;
-                    }
                 }
 
                 // collaborator access
@@ -2979,7 +2942,7 @@ class Form
             foreach ($res2 as $item)
             {
                 if($data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] == null
-                    || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] < $item['fulfillmentTime']) {
+                    || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] >= $item['fulfillmentTime']) {
                     $data[$item['recordID']]['recordResolutionData']['lastStatus'] = $item['lastStatus'];
                     $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] = $item['fulfillmentTime'];
                 }
@@ -3069,14 +3032,14 @@ class Form
                 break;
         }
         $vars = array();
-        $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
+        $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
                     LEFT JOIN categories USING (categoryID)
                     WHERE indicators.disabled = 0
                         AND format != ""
                         AND name != ""
                         AND categories.disabled = 0' . $orderBy;
         if($includeHeadings) {
-            $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
+            $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
             LEFT JOIN categories USING (categoryID)
             WHERE indicators.disabled = 0
                 AND name != ""
@@ -3084,7 +3047,7 @@ class Form
         }
         $res = $this->db->prepared_query($query, $vars);
 
-        $resAll = $this->db->prepared_query('SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
+        $resAll = $this->db->prepared_query('SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID FROM indicators
 													LEFT JOIN categories USING (categoryID)
 								                    WHERE indicators.disabled = 0
 								    					AND categories.disabled = 0' . $orderBy, $vars);
@@ -3112,8 +3075,6 @@ class Form
             $temp['description'] = $item['description'];
             $temp['categoryName'] = $item['categoryName'];
             $temp['categoryID'] = $item['categoryID'];
-            $temp['is_sensitive'] = $item['is_sensitive'];
-            $temp['timeAdded'] = $item['timeAdded'] . ' GMT';
             $isActiveIndicator[$item['indicatorID']] = $temp;
             $isActiveCategory[$item['categoryID']] = 1;
         }
@@ -3135,8 +3096,6 @@ class Form
                     $temp['description'] = $item['description'];
                     $temp['categoryName'] = $item['categoryName'];
                     $temp['categoryID'] = $item['categoryID'];
-                    $temp['is_sensitive'] = $item['is_sensitive'];
-                    $temp['timeAdded'] = $item['timeAdded'] . ' GMT';
                     $temp['parentCategoryID'] = $item['parentCategoryID'];
                     $temp['parentStaples'] = $dataStaples[$item['categoryID']];
                     if(count($forms) > 0) {
@@ -3364,7 +3323,7 @@ class Form
                     $child[$idx]['displayedValue'] = '';
                     if (isset($empRes[0]))
                     {
-                        $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                        $child[$idx]['displayedValue'] = ($child[$idx]['isMasked']) ? '[protected data]' : "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
                     }
                 }
                 if ($field['format'] == 'orgchart_position')
