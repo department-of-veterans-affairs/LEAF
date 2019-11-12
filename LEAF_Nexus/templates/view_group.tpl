@@ -235,7 +235,6 @@ function addEmployeePosition() {
                 url: './api/employee/import/_' + selectedUserName,
                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
-                    if(!isNaN(res)) {
                         $.ajax({
                             type: 'POST',
                             url: './api/?a=group/<!--{$groupID}-->/employee',
@@ -246,10 +245,6 @@ function addEmployeePosition() {
                             },
                             cache: false
                         });
-                    }
-                    else {
-                        alert(res);
-                    }
                 }
             });
         }
@@ -308,7 +303,7 @@ function confirmUnlinkEmployee(empUID) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'DELETE',
-            url: './api/?a=group/<!--{$groupID}-->/employee/' + empUID + '&'
+            url: './api/?a=group/<!--{$groupID}-->/employee/_' + empUID + '&'
             		+ $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 window.location.reload();
@@ -434,7 +429,7 @@ $(function() {
             if(response != '') {
                 employees = '';
                 for(var id in response) {
-                	employees += '<div><a class="buttonNorm" href="?a=view_employee&empUID='+response[id].empUID+'">' + response[id].lastName + ', ' + response[id].firstName +'</a> [ <a href="#" onclick="confirmUnlinkEmployee('+ response[id].empUID +'); return false;"> Remove</a> ]</div>';
+                	employees += '<div><a class="buttonNorm" href="?a=view_employee&empUID='+response[id].empUID+'">' + response[id].lastName + ', ' + response[id].firstName +'</a> [ <a href="#" onclick="confirmUnlinkEmployee(\''+ response[id].empUID +'\'); return false;"> Remove</a> ]</div>';
                 }
             	$('#employeeBody').html(employees);
             }

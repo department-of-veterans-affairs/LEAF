@@ -334,7 +334,7 @@ abstract class Data
 
     public function getFileHash($categoryID, $uid, $indicatorID, $fileName)
     {
-        if (!is_numeric($categoryID) || !is_numeric($uid) || !is_numeric($indicatorID))
+        if (!is_numeric($categoryID) || !is_numeric($indicatorID))
         {
             return '';
         }
@@ -354,10 +354,6 @@ abstract class Data
      */
     public function modify($UID)
     {
-        if (!is_numeric($UID))
-        {
-            throw new Exception($this->dataTableDescription . ' ID required');
-        }
         if (!isset($_POST['CSRFToken']) || $_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
             throw new Exception($this->dataTableDescription . ' invalid token');
@@ -388,7 +384,7 @@ abstract class Data
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
                         $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
-                        // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
+                        // $sanitizedFileName = \XSSHelpers::scrubFilename($sanitizedFileName);
                         if (!is_dir(Config::$uploadDir))
                         {
                             mkdir(Config::$uploadDir, 755, true);
@@ -484,7 +480,7 @@ abstract class Data
                               ':indicatorID' => $key,
                               ':data' => trim($_POST[$key]),
                               ':timestamp' => time(),
-                              ':author' => $this->login->getUserID(), );
+                              ':author' => $this->login->getEmpUID(), );
                 $res = $this->db->prepared_query("INSERT INTO {$this->dataTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
                                                                 VALUES (:UID, :indicatorID, :data, :timestamp, :author)
                                                                 ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
@@ -598,7 +594,7 @@ abstract class Data
      */
     public function deleteAttachment($categoryID, $UID, $indicatorID, $file)
     {
-        if (!is_numeric($categoryID) || !is_numeric($UID) || !is_numeric($indicatorID) || $file == '')
+        if (!is_numeric($categoryID) || !is_numeric($indicatorID) || $file == '')
         {
             return 0;
         }

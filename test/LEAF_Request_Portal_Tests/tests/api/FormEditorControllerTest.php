@@ -476,17 +476,17 @@ final class FormEditorControllerTest extends DatabaseTest
      */
     public function testSetIndicatorSensitive() : void
     {
-        $indicator = self::$client->get('?a=formEditor/indicator/6');
+        $indicator = self::$client->get(array('a' => 'formEditor/indicator/6'));
+        
+        $this->assertNotNull($indicator);
+        $this->assertEquals('0', $indicator['6']['is_sensitive']);
+
+        self::$client->post(array('a' => 'formEditor/6/sensitive'), array('is_sensitive' => '1'));
+
+        $indicator = self::$client->get(array('a' => 'formEditor/indicator/6'));
 
         $this->assertNotNull($indicator);
         $this->assertEquals('1', $indicator['6']['is_sensitive']);
-
-        self::$client->postEncodedForm('?a=formEditor/6/sensitive', array('is_sensitive' => '0'));
-
-        $indicator = self::$client->get('?a=formEditor/indicator/6');
-
-        $this->assertNotNull($indicator);
-        $this->assertEquals('0', $indicator['6']['is_sensitive']);
     }
 
     /**

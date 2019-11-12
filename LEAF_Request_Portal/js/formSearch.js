@@ -328,13 +328,13 @@ var LeafFormSearch = function(containerID) {
 
                     empSel.setSelectHandler(function() {
                     	if(empSel.selectionData[empSel.selection] != undefined) {
-                    		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+                    		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].empUID;
                     		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
                     	}
                     });
                     empSel.setResultHandler(function() {
                     	if(empSel.selectionData[empSel.selection] != undefined) {
-                    		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+                    		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].empUID;
                     		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
                     	}
                     });
@@ -350,13 +350,13 @@ var LeafFormSearch = function(containerID) {
 
             empSel.setSelectHandler(function() {
             	if(empSel.selectionData[empSel.selection] != undefined) {
-            		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+            		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].empUID;
             		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
             	}
             });
             empSel.setResultHandler(function() {
             	if(empSel.selectionData[empSel.selection] != undefined) {
-            		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+            		selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].empUID;
             		$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
             	}
             });

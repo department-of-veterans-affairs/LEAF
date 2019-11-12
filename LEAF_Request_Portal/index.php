@@ -83,7 +83,7 @@ switch ($action) {
         $t_menu->assign('action', XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
 
-        $currEmployee = $form->employee->lookupLogin($_SESSION['userID']);
+        $currEmployee = $form->employee->lookupEmpUID($_SESSION['empUID']);
         $currEmployeeData = $form->employee->getAllData($currEmployee[0]['empUID'], 5);
 
         $categoryArray = $stack->getCategories();
@@ -361,7 +361,7 @@ switch ($action) {
         $t_form->assign('is_service_chief', (bool)$login->isServiceChief());
         $t_form->assign('empMembership', $login->getMembership());
 
-        $t_form->assign('bookmarks', $view->buildViewBookmarks($login->getUserID()));
+        $t_form->assign('bookmarks', $view->buildViewBookmarks($login->getEmpUID()));
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('body', $t_form->fetch('view_bookmarks.tpl'));
 
@@ -497,7 +497,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
-        $t_form->assign('empUID', (int)$login->getEmpUID());
+        $t_form->assign('empUID', XSSHelpers::xscrub($login->getEmpUID()));
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('is_service_chief', (bool)$login->isServiceChief());
         $t_form->assign('is_quadrad', (bool)$login->isQuadrad() || (bool)$login->checkGroup(1));

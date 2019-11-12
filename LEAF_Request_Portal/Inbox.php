@@ -11,6 +11,10 @@
 
 require_once 'form.php';
 
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 class Inbox
 {
     public $form;
@@ -62,7 +66,7 @@ class Inbox
         							LEFT JOIN categories USING (categoryID)
         							WHERE deleted = 0
         								AND disabled = 0
-        								AND workflowID != 0', array());
+        								AND workflowID > 0', array());
 
         $formCategories = array();
         foreach ($res2 as $category)
@@ -209,7 +213,7 @@ class Inbox
                         {
                             // see if the current user is a backup for anyone
                             $nexusDB = $this->login->getNexusDB();
-                            $vars4 = array(':empId' => $this->login->getEmpUID());
+                            $vars4 = array(':empId' => XSSHelpers::xscrub($this->login->getEmpUID()));
                             $isBackup = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE backupEmpUID =:empId', $vars4);
                             if(count($isBackup) > 0) {
                                 $this->cache['getInbox_currUserIsABackup'] = true;
@@ -227,7 +231,7 @@ class Inbox
                         else if($this->cache['getInbox_currUserIsABackup'])
                         {
                             $nexusDB = $this->login->getNexusDB();
-                            $vars4 = array(':empId' => $empUID);
+                            $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                             $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
                             $this->cache["getInbox_employeeBackups_{$empUID}"] = $backupIds;
                         }
@@ -259,7 +263,7 @@ class Inbox
 
                             $user = $this->dir->lookupEmpUID($empUID);
 
-                            $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
+                            $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['empUID'];
                             $out[$res[$i]['dependencyID']]['approverName'] = $approverName;
                         }
                     }
@@ -267,7 +271,7 @@ class Inbox
                     // dependencyID -2 is for requestor followup
                     if ($res[$i]['dependencyID'] == -2)
                     {
-                        if ($res[$i]['userID'] == $this->login->getUserID())
+                        if ($res[$i]['empUID'] == $this->login->getEmpUID())
                         {
                             $res[$i]['hasAccess'] = true;
                             $out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
@@ -375,13 +379,13 @@ class Inbox
      */
     public function getInboxStatus()
     {
-        $vars = array(':userID' => $this->login->getUserID());
+        $vars = array(':empUID' => $this->login->getEmpUID());
         $res = $this->db->prepared_query('SELECT COUNT(*) FROM records_workflow_state
         									  LEFT JOIN step_dependencies USING (stepID)
         									  LEFT JOIN dependency_privs USING (dependencyID)
         									  LEFT JOIN users USING (groupID)
         									  LEFT JOIN records_dependencies USING (recordID, dependencyID)
-        									  WHERE userID=:userID
+        									  WHERE empUID=:empUID
         										AND filled=0', $vars);
 
         // if the initial search is empty, check for special cases (service chief, quadrad)
@@ -434,7 +438,7 @@ class Inbox
 
                         //check if the requester has any backups
                         $nexusDB = $this->login->getNexusDB();
-                        $vars4 = array(':empId' => $empUID);
+                        $vars4 = array(':empId' => XSSHelpers::xscrub($empUID));
                         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
                         if ($empUID == $this->login->getEmpUID())
@@ -452,7 +456,7 @@ class Inbox
 
                         break;
                     case -2: // dependencyID -2 is for requestor followup
-                        if ($record['userID'] == $this->login->getUserID())
+                        if ($record['empUID'] == $this->login->getEmpUID())
                         {
                             return 1;
                         }
@@ -483,12 +487,12 @@ class Inbox
      */
     public function getInboxCount()
     {
-        $vars = array(':userID' => $this->login->getUserID());
+        $vars = array(':empUID' => $this->login->getEmpUID());
         $res = $this->db->prepared_query('SELECT COUNT(*) FROM records_workflow_state
         									  LEFT JOIN step_dependencies USING (stepID)
         									  LEFT JOIN dependency_privs USING (dependencyID)
         									  LEFT JOIN users USING (groupID)
-        									  WHERE userID=:userID', $vars);
+        									  WHERE empUID=:empUID', $vars);
 
         // if the initial search is empty, check for special cases (service chief, quadrad)
         if ($res[0]['COUNT(*)'] == 0)

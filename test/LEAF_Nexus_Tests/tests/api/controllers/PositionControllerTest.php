@@ -120,7 +120,7 @@ class PositionControllerTest extends DatabaseTest
         $this->assertEquals('1', $results[0]['empUID']);
 
         //deletes tester from position
-        self::$client->delete(array('a' => 'position/3/employee/1'));
+        self::$client->delete(array('a' => 'position/3/employee/_1'));
 
         //checks to make sure change was successful
         $results = self::$client->get(array('a' => 'position/3/employees'));

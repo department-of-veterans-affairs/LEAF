@@ -94,15 +94,15 @@ function getBackupInfo() {
     // get backup info
     $('#backupBody').html('');
     $.ajax({
-        url: "./api/?a=employee/" + <!--{$empUID}--> + "/backup",
+        url: "./api/?a=employee/_<!--{$empUID}-->/backup",
         success: function(response) {
             if(response != '') {
                 for(var key in response) {
                     $('#backupBody').append('<div id="backup_'+ response[key].backupEmpUID +'">'+response[key].backupEmpUID+'</div>');
                     $.ajax({
-                        url: "./api/?a=employee/" + response[key].backupEmpUID,
+                        url: "./api/?a=employee/_" + response[key].backupEmpUID,
                         success: function(response) {
-                            $('#backup_'+response.employee.empUID).html(response.employee.firstName + ' ' + response.employee.lastName + ' [ <a href="#" onclick="removeBackup('+ response.employee.empUID +');">Remove</a> ]');
+                            $('#backup_'+response.employee.empUID).html(response.employee.firstName + ' ' + response.employee.lastName + ' [ <a href="#" onclick="removeBackup(\''+ response.employee.empUID +'\');">Remove</a> ]');
                         },
                         cache: false
                     });
@@ -120,13 +120,13 @@ function getBackupForInfo() {
     // get backup for info
     $('#backupForBody').html('');
     $.ajax({
-        url: "./api/?a=employee/" + <!--{$empUID}--> + "/backupFor",
+        url: "./api/?a=employee/_<!--{$empUID}-->/backupFor",
         success: function(response) {
             if(response != '') {
                 for(var key in response) {
                     $('#backupForBody').append('<div id="backupFor_'+ response[key].empUID +'">'+response[key].empUID+'</div>');
                     $.ajax({
-                        url: "./api/?a=employee/" + response[key].empUID,
+                        url: "./api/?a=employee/_" + response[key].empUID,
                         success: function(response) {
                             $('#backupFor_'+response.employee.empUID).html(response.employee.firstName + ' ' + response.employee.lastName);
                         },
@@ -148,7 +148,7 @@ function removeBackup(backupEmpUID) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: './api/?a=employee/<!--{$empUID}-->/backup/' + backupEmpUID + '&' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/?a=employee/_<!--{$empUID}-->/backup/_' + backupEmpUID + '&' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
             	getBackupInfo();
             	confirm_dialog.hide();
@@ -177,22 +177,17 @@ function assignBackup() {
                 url: './api/employee/import/_' + selectedUserName,
                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(empUID) {
-                    if(!isNaN(empUID)) {
-                        $.ajax({
-                            type: 'POST',
-                            url: './api/?a=employee/<!--{$empUID}-->/backup',
-                            data: {backupEmpUID: empUID,
-                                CSRFToken: '<!--{$CSRFToken}-->'},
-                            success: function(response) {
-                                getBackupInfo();
-                                dialog.hide();
-                            },
-                            cache: false
-                        });
-                    }
-                    else {
-                        alert(empUID);
-                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: './api/?a=employee/_<!--{$empUID}-->/backup',
+                        data: {backupEmpUID: empUID,
+                            CSRFToken: '<!--{$CSRFToken}-->'},
+                        success: function(response) {
+                            getBackupInfo();
+                            dialog.hide();
+                        },
+                        cache: false
+                    });
                 }
             });
         }
@@ -208,7 +203,7 @@ function disableAccount(backupEmpUID) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: './api/?a=employee/<!--{$empUID}-->' + '&' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/?a=employee/_<!--{$empUID}-->' + '&' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 confirm_dialog.hide();
                 if(response == true) {
@@ -228,7 +223,7 @@ function enableAccount(backupEmpUID) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
-            url: './api/?a=employee/<!--{$empUID}-->/activate',
+            url: './api/?a=employee/_<!--{$empUID}-->/activate',
             data: {CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
                 confirm_dialog.hide();

@@ -53,7 +53,7 @@ class Group
         return 'Cannot remove group.';
     }
 
-    // return array of userIDs
+    // return array of users
     public function getMembers($groupID)
     {
         if (!is_numeric($groupID))
@@ -61,7 +61,7 @@ class Group
             return;
         }
         $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $vars);
+        $res = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY empUID', $vars);
 
         $members = array();
         if (count($res) > 0)
@@ -70,7 +70,7 @@ class Group
             $dir = new VAMC_Directory();
             foreach ($res as $member)
             {
-                $dirRes = $dir->lookupLogin($member['userID']);
+                $dirRes = $dir->lookupEmpUID($member['empUID']);
 
                 if (isset($dirRes[0]))
                 {
@@ -86,14 +86,18 @@ class Group
     {
         $groups = array();
         $tmp = explode(',', $groupIDs);
+        require_once '../VAMC_Directory.php';
+        $dir = new VAMC_Directory();
         foreach ($tmp as $group)
         {
             if (is_numeric($group))
             {
-                $vars = array(':userID' => $member,
+                $empRes = $dir->lookupEmpUID($member);
+                $vars = array(':empUID' => $member,
+                              ':userID' => $empRes[0]['userName'],
                               ':groupID' => (int)$group, );
-                $res = $this->db->prepared_query('INSERT INTO users (userID, groupID)
-                                                    VALUES (:userID, :groupID)', $vars);
+                $res = $this->db->prepared_query('INSERT INTO users (empUID, userID, groupID)
+                                                    VALUES (:empUID, :userID, :groupID)', $vars);
             }
         }
     }
@@ -102,9 +106,9 @@ class Group
     {
         if (is_numeric($groupID) && $member != '')
         {
-            $vars = array(':userID' => $member,
+            $vars = array(':empUID' => $member,
                           ':groupID' => $groupID, );
-            $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+            $res = $this->db->prepared_query('DELETE FROM users WHERE empUID=:empUID AND groupID=:groupID', $vars);
 
             return 1;
         }

@@ -11,6 +11,11 @@
     + Multiple data sources
     + Buffered inserts for low memory usage
 */
+
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 class VAMC_Directory_maintenance_AD
 {
     private $sortBy = 'Lname';          // Sort by... ?
@@ -240,8 +245,8 @@ class VAMC_Directory_maintenance_AD
     public function importData()
     {
         $time = time();
-        $sql = 'INSERT INTO employee (userName, lastName, firstName, middleName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
-                    VALUES (:loginName, :lname, :fname, :midIni, :phoneticFname, :phoneticLname, :domain, :lastUpdated)';
+        $sql = 'INSERT INTO employee (empUID, userName, lastName, firstName, middleName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
+                    VALUES (uuid(), :loginName, :lname, :fname, :midIni, :phoneticFname, :phoneticLname, :domain, :lastUpdated)';
 
         $pq = $this->db->prepare($sql);
         $count = 0;
@@ -268,28 +273,28 @@ class VAMC_Directory_maintenance_AD
                             ON DUPLICATE KEY UPDATE data=:data";
 
                 $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
+                $pq3->bindParam(':empUID', XSSHelpers::xscrub($res[0]['empUID']));
                 $id = 6;
                 $pq3->bindParam(':indicatorID', $id);
                 $pq3->bindParam(':data', $this->users[$key]['email']);
                 $pq3->execute();
 
                 $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
+                $pq3->bindParam(':empUID', XSSHelpers::xscrub($res[0]['empUID']));
                 $id = 5;
                 $pq3->bindParam(':indicatorID', $id);
                 $pq3->bindParam(':data', fixIfHex($this->users[$key]['phone']));
                 $pq3->execute();
 
                 $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
+                $pq3->bindParam(':empUID', XSSHelpers::xscrub($res[0]['empUID']));
                 $id = 8;
                 $pq3->bindParam(':indicatorID', $id);
                 $pq3->bindParam(':data', fixIfHex($this->users[$key]['roomNum']));
                 $pq3->execute();
 
                 $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
+                $pq3->bindParam(':empUID', XSSHelpers::xscrub($res[0]['empUID']));
                 $id = 23;
                 $pq3->bindParam(':indicatorID', $id);
                 $pq3->bindParam(':data', fixIfHex($this->users[$key]['title']));
@@ -299,7 +304,7 @@ class VAMC_Directory_maintenance_AD
                 if ($this->users[$key]['phone'] != $this->users[$key]['mobile'])
                 {
                     $pq3 = $this->db->prepare($sql);
-                    $pq3->bindParam(':empUID', $res[0]['empUID']);
+                    $pq3->bindParam(':empUID', XSSHelpers::xscrub($res[0]['empUID']));
                     $id = 16;
                     $pq3->bindParam(':indicatorID', $id);
                     $pq3->bindParam(':data', fixIfHex($this->users[$key]['mobile']));
@@ -349,7 +354,9 @@ class VAMC_Directory_maintenance_AD
                 $pq->execute();
                 echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
 
-                $lastEmpUID = $this->db->lastInsertId();
+                $vars = array(':userName' => $this->users[$key]['loginName']);
+                $lastEmpUID = $db->prepared_query('SELECT empUID FROM employee
+                                                   WHERE userName=:userName', $vars)[0]['empUID'];
                 if ($pq->errorCode() != '00000')
                 {
                     print_r($pq->errorInfo());
@@ -361,7 +368,7 @@ class VAMC_Directory_maintenance_AD
                             ON DUPLICATE KEY UPDATE data=:data";
 
                 $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $lastEmpUID);
+                $pq3->bindParam(':empUID', XSSHelpers::xscrub($lastEmpUID));
                 $id = 6;
                 $pq3->bindParam(':indicatorID', $id);
                 $pq3->bindParam(':data', $this->users[$key]['email']);
@@ -451,6 +458,55 @@ class VAMC_Directory_maintenance_AD
             $query2 = $this->db->prepared_query($sql, $vars2);
             // $query2->execute();
         }
+    }
+
+    // Log errors from the database
+    private function logError($error)
+    {
+        $this->log[] = $error;
+    }
+
+    // Translates the * wildcard to SQL % wildcard
+    private function parseWildcard($query)
+    {
+        return str_replace('*', '%', $query . '*');
+    }
+
+    // Trims input
+    private function trimField(&$value, &$key)
+    {
+        $value = trim($value);
+        $value = trim($value, '.');
+    }
+
+    // Trims input
+    private function trimField2(&$value, &$key)
+    {
+        $value = trim($value);
+        $value = trim($value, '.');
+    }
+
+    private function ucwordss($str)
+    {
+        $lowerCase = array('OF');
+        $out = '';
+        foreach (explode(' ', $str) as $word)
+        {
+            if (in_array($word, $lowerCase))
+            {
+                $out .= strtolower($word) . ' ';
+            }
+            elseif (strlen($word) > 4 || metaphone($word) != $word)
+            {
+                $out .= strtoupper($word[0]) . substr(strtolower($word), 1) . ' ';
+            }
+            else
+            {
+                $out .= $word . ' ';
+            }
+        }
+
+        return rtrim($out);
     }
 
     // Log errors from the database

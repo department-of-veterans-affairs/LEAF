@@ -70,7 +70,7 @@ class ServiceController extends RESTfulResponse
         });
 
         $this->index['POST']->register('service/[digit]/members', function ($args) use ($db, $login, $service) {
-            return $service->addMember($args[0], $_POST['userID']);
+            return $service->addMember($args[0], $_POST['empUID']);
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

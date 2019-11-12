@@ -34,7 +34,7 @@ function findAssociatedRequests(oldAccount, newAccount) {
     $('#newAccountName').html(newAccount);
 
     var query = new LeafFormQuery();
-    query.addTerm('userID', '=', oldAccount);
+    query.addTerm('empUID', '=', oldAccount);
     query.onSuccess(function(res) {
         var recordIDs = '';
         for (var i in res) {
@@ -52,7 +52,7 @@ function findAssociatedRequests(oldAccount, newAccount) {
                 });
             }},
             {name: 'Initiator Account', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
-                $('#'+data.cellContainerID).html(blob[data.recordID].userID);
+                $('#'+data.cellContainerID).html(blob[data.recordID].empUID);
             }}
         ]);
         formGrid.loadData(recordIDs);
@@ -90,8 +90,8 @@ $(function() {
     empSelNew.initialize();
     $('.employeeSelectorTable > thead > tr').prepend('<td style="color: red">Account Name</td>');
     $('#run').on('click', function() {
-        var oldAccount = empSel.selectionData[empSel.selection].userName;
-        var newAccount = empSelNew.selectionData[empSelNew.selection].userName;
+        var oldAccount = empSel.selectionData[empSel.selection].empUID;
+        var newAccount = empSelNew.selectionData[empSelNew.selection].empUID;
 		if(oldAccount != ''
           	&& newAccount != ''
           	&& oldAccount != newAccount) {

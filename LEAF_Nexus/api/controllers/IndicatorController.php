@@ -49,7 +49,7 @@ class IndicatorController extends RESTfulResponse
         $this->index['POST']->register('indicator/[digit]/permissions/addGroup', function ($args) use ($indicators) {
             return $indicators->addPermission($args[0], 'group', $_POST['groupID'], 'read');
         });
-        $this->index['POST']->register('indicator/[digit]/permission/[text]/[digit]/[text]/toggle', function ($args) use ($indicators) {
+        $this->index['POST']->register('indicator/[digit]/permission/[text]/[text]/[text]/toggle', function ($args) use ($indicators) {
             //$indicatorID, $categoryID, $UID, $permissionType
             return $indicators->togglePermission($args[0], $args[1], $args[2], $args[3]);
         });

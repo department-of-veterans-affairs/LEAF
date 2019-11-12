@@ -153,8 +153,8 @@ switch ($action) {
                                            'css/groupSelector.css',
                                            'css/positionSelector.css', ));
 
-        $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
-        if ($empUID != 0)
+        $empUID = isset($_GET['empUID']) ? XSSHelpers::xscrub($_GET['empUID']) : 0;
+        if ($empUID !== 0)
         {
             require 'sources/Employee.php';
             $employee = new Orgchart\Employee($db, $login);
@@ -164,6 +164,7 @@ switch ($action) {
             $t_form->assign('summary', $summary);
             $t_form->assign('groups', $employee->listGroups($empUID));
             $t_form->assign('userID', $_SESSION['userID']);
+            //$t_form->assign('empUID', $_SESSION['empUID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('is_admin', $login->getMembership()['groupID'][1]);
 
@@ -213,6 +214,7 @@ switch ($action) {
             $t_form->assign('numEmployees', count($summary['employeeList']));
             //$t_form->assign('tags', $position->getAllTags($positionID));
             $t_form->assign('userID', $_SESSION['userID']);
+            $t_form->assign('empUID', $_SESSION['empUID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $login->getDomain());
             $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
@@ -284,7 +286,7 @@ switch ($action) {
         $main->assign('javascripts', array('js/employeeSelector.js', 'js/dialogController.js', 'js/orgchartForm.js'));
         $main->assign('stylesheets', array('css/employeeSelector.css',
                                            'css/view_employee.css', ));
-        $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
+        $empUID = isset($_GET['empUID']) ? XSSHelpers::xscrub($_GET['empUID']) : 0;
 
         require 'sources/Employee.php';
         $employee = new Orgchart\Employee($db, $login);
@@ -292,6 +294,7 @@ switch ($action) {
         $t_form->assign('empUID', $empUID);
         $t_form->assign('summary', $employee->getSummary($empUID));
         $t_form->assign('userID', $_SESSION['userID']);
+        //$t_form->assign('empUID', $_SESSION['empUID']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch('browse_employee.tpl'));
@@ -381,7 +384,7 @@ switch ($action) {
         }
 
         $t_form->assign('indicatorID', (int)$_GET['indicatorID']);
-        $t_form->assign('UID', (int)$_GET['UID']);
+        $t_form->assign('UID', XSSHelpers::xscrub($_GET['UID']));
         $t_form->assign('indicator', $indicatorArray);
         $t_form->assign('permissions', $privilegesArray);
         $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
@@ -519,7 +522,7 @@ switch ($action) {
             require 'sources/Position.php';
             $position = new Orgchart\Position($db, $login);
 
-            $currentEmployee = $employee->lookupLogin($login->getUserID());
+            $currentEmployee = $employee->lookupEmpUID($login->getEmpUID());
             $t_form->assign('employee', $currentEmployee);
 
             $employeePositions = $employee->getPositions($currentEmployee[0]['empUID']);
@@ -552,6 +555,7 @@ switch ($action) {
                                                'css/view_group.css', ));
 
             $t_form->assign('userID', $_SESSION['userID']);
+            $t_form->assign('empUID', $_SESSION['empUID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
 

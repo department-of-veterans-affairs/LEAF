@@ -38,11 +38,11 @@ function populateMembers(groupID, members) {
     }
 }
 
-function addAdmin(userID) {
+function addAdmin(empUID) {
     $.ajax({
         type: 'POST',
         url: "ajaxIndex.php?a=add_user",
-        data: {'userID': userID,
+        data: {'empUID': empUID,
                'groupID': 1,
                'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
@@ -51,11 +51,11 @@ function addAdmin(userID) {
     });
 }
 
-function removeAdmin(userID) {
+function removeAdmin(empUID) {
     $.ajax({
     	type: 'POST',
         url: "ajaxIndex.php?a=remove_user",
-        data: {'userID': userID,
+        data: {'empUID': empUID,
         	   'groupID': 1,
         	   'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
@@ -147,17 +147,13 @@ function getGroupList() {
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
                                 var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                                var selectedEmpUID = empSel.selectionData[empSel.selection].empUID;
                                 $.ajax({
                                     type: 'POST',
                                     url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
                                     data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                     success: function(res) {
-                                        if(!isNaN(res)) {
-                                            addAdmin(selectedUserName);
-                                        }
-                                        else {
-                                            alert(res);
-                                        }
+                                            addAdmin(selectedEmpUID)
                                     }
                                 });
                             }
@@ -171,12 +167,12 @@ function getGroupList() {
                                 var counter = 0;
                                 for(var i in res) {
                                     $('#adminSummary').append('<div>&bull; '+ res[i].Lname  + ', ' + res[i].Fname +' [ <a tabindex="0" aria-label="Remove '+ res[i].Lname  + ', ' + res[i].Fname +'" href="#" id="removeAdmin_'+ counter +'">Remove</a> ]</div>');
-                                    $('#removeAdmin_' + counter).on('click', function(userID) {
+                                    $('#removeAdmin_' + counter).on('click', function(empUID) {
                                         return function() {
-                                            removeAdmin(userID);
+                                            removeAdmin(empUID);
                                             dialog.hide();
                                         };
-                                    }(res[i].userName));
+                                    }(res[i].empUID));
                                     counter++;
                                 }
                             }
