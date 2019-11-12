@@ -12,6 +12,6 @@ ALTER TABLE `signatures` CHANGE `userID` `empUID` varchar(36) NOT NULL;
 ALTER TABLE `tags` CHANGE `userID` `empUID` varchar(36) NOT NULL;
 ALTER TABLE `users` ADD `empUID` varchar(36) NOT NULL;
 
-UPDATE `settings` SET `data` = '5373' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '2019111100' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;

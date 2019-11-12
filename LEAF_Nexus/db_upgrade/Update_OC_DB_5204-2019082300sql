@@ -63,5 +63,5 @@ ALTER TABLE `position_data_history` CHANGE `author` `author` varchar(36) NOT NUL
 
 ALTER TABLE `relation_employee_backup` CHANGE `approverUserName` `approverUserName` varchar(36);
 
-UPDATE `settings` SET `data` = '5205' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '2019082300' WHERE `settings`.`setting` = 'dbversion';
 COMMIT;
