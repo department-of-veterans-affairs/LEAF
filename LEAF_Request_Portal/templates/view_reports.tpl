@@ -615,12 +615,12 @@ function showJSONendpoint() {
                 CSRFToken: CSRFToken}
         })
         .then(function(res) {
+            $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
+            
             if($('#msCompatMode').is(':checked')) {
-                $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'auth_domain/api/open/form/query/_' + res);
                 $('#expandLink').css('display', 'none');
             }
             else {
-                $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
                 $('#expandLink').css('display', 'inline');
             }
             setExportFormat();
