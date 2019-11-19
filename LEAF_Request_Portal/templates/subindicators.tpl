@@ -702,8 +702,18 @@
                     if (empSel.selection === '') {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
                     } else {
-                        $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Please wait. Database busy. ***');
+                        $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Loading... ***');
                         var selectedUserName = empSel.selectionData[empSel.selection].userName;
+        
+                        var first = empSel.selectionData[empSel.selection].firstName;
+                        var last = empSel.selectionData[empSel.selection].lastName;
+                        var middle = empSel.selectionData[empSel.selection].middleName;
+
+                        var formatted = last + ", " + first + " " + middle;
+                        
+                        empSel.q = formatted;
+                        $("#"+ empSel.prefixID+"input").val(formatted);
+
                         $.ajax({
                             type: 'POST',
                             url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
