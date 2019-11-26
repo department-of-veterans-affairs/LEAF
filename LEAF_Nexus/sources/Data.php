@@ -19,6 +19,10 @@ if (!class_exists('CommonConfig'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
 }
+if(!class_exists('LogFormatter'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logger/logFormatter.php';
+}
 abstract class Data
 {
     protected $db;
@@ -84,6 +88,11 @@ abstract class Data
     public function getDataTableCategoryID()
     {
         return $this->dataTableCategoryID;
+    }
+
+    public function getDataTableDescription()
+    {
+        return $this->dataTableDescription;
     }
 
     /**
@@ -671,4 +680,104 @@ abstract class Data
 
         return true;
     }
+
+    public function logAction($action, $toLog){
+
+        $vars = array(
+            ':userID' => (int)$this->login->getEmpUID(),
+            ':action' => $action
+        );
+
+        $sql = 
+            "BEGIN;
+
+            INSERT INTO data_action_log (`userID`, `timestamp`, `action`)
+                    VALUES (:userID, NOW(), :action);
+
+            SELECT LAST_INSERT_ID() INTO @log_id; 
+            
+            INSERT INTO data_log_items (`data_action_log_fk`, `tableName`, `column`, `value`, `displayValue`)
+                VALUES";
+
+        for($i = 0; $i < count($toLog); $i++){
+            $vars[":tableName$i"] = $toLog[$i]["tableName"];
+            $vars[":column$i"] = $toLog[$i]["column"];
+            $vars[":value$i"] = $toLog[$i]["value"];
+            $vars[":displayValue$i"] = isset($toLog[$i]["displayValue"]) ? $toLog[$i]["displayValue"]: null;
+
+            $sql = $sql."(@log_id, :tableName$i, :column$i, :value$i, :displayValue$i)".(($i == count($toLog)-1? "; ":", "));
+        }
+
+        $sql = $sql.'COMMIT;';
+
+        $this->db->prepared_query($sql, $vars);
+    }
+
+    public function getHistory($filterById){
+        
+        $logResults = $this->fetchLogData($filterById);
+
+        for($i = 0; $i<count($logResults); $i++){
+            $logResults[$i]["items"] = $this->fetchLogItems($logResults[$i]);
+            $logResults[$i]["history"] = \LogFormatter::getFormattedString($logResults[$i], $this->dataTableUID);
+        }
+        
+        return $logResults;
+    }
+
+    function fetchLogData($filterById){
+
+        $vars = array(
+            ':filterBy' => $this->dataTableUID,
+            ':filterById' => $filterById
+        );
+
+        $sqlCreateTemp =
+            "create temporary table group_logs
+            select data_action_log_fk 
+            from data_log_items 
+            WHERE `column` = :filterBy
+            AND `VALUE` = :filterById;";
+        
+        $this->db->prepared_query($sqlCreateTemp, $vars);
+
+        $sqlFetchLogData= 
+            " Select 
+                    dal.ID,
+                    concat(e.firstName,' ',e.lastName) as userName,
+                    dal.action,
+                    dal.timestamp
+                from data_action_log dal
+                        LEFT JOIN
+                    employee e ON e.empUID = dal.userID
+                Where id in (select * from group_logs)
+                order by dal.ID desc;";
+        
+        $results = $this->db->query($sqlFetchLogData);
+
+        $sqlCleanUp = "drop temporary table group_logs;";
+        $this->db->query($sqlCleanUp);
+        
+        return $results;
+    }
+
+    function fetchLogItems($logResult){
+
+        $vars = array(
+            ':dalFK' => $logResult["ID"]);
+
+        $sqlFetchLogItems =
+        " Select
+            `column`,
+            `value`,
+            `displayValue`
+            from data_log_items 
+            WHERE data_action_log_fk = :dalFK
+        ";
+
+        $foo =$this->db->prepared_query($sqlFetchLogItems, $vars);
+
+        return $this->db->prepared_query($sqlFetchLogItems, $vars);
+    }
+
 }
