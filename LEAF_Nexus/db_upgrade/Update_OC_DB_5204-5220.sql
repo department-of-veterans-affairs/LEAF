@@ -5,9 +5,9 @@ CREATE TABLE `data_action_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `action` varchar(45) DEFAULT NULL,
   `userID` int(11) DEFAULT NULL,
-  `timestamp` datetime DEFAULT NULL,
+  `timestamp` DATETIME DEFAULT NULL,
   PRIMARY KEY (`id`)
-) AUTO_INCREMENT;
+);
 
 CREATE TABLE `data_log_items` (
   `data_action_log_fk` int(11) NOT NULL,
