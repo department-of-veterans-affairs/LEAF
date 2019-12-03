@@ -14,6 +14,7 @@ CREATE TABLE `data_log_items` (
   `tableName` varchar(75) NOT NULL,
   `column` varchar(75) NOT NULL,
   `value` varchar(75) NOT NULL,
+  'displayValue' varchar(256)
   PRIMARY KEY (`data_action_log_fk`,`tableName`,`column`)
 );
 
