@@ -19,6 +19,6 @@ CREATE TABLE `data_log_items` (
 );
 
 
-UPDATE `settings` SET `data` = '5220' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '2019110100' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;
