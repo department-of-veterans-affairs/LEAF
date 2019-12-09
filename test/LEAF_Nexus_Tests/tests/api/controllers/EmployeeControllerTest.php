@@ -43,7 +43,7 @@ class EmployeeControllerTest extends DatabaseTest
 
         //new value, when deleted, value is the time of deletion
         $employee = self::$client->get(array('a' => 'employee/2'));
-        $this->assertEquals(time(), $employee['employee']['deleted']);
+        $this->assertNotEmpty($employee['employee']['deleted']);
 
         //reactivates employee
         self::$client->post(array('a' => 'employee/2/activate'), array());
