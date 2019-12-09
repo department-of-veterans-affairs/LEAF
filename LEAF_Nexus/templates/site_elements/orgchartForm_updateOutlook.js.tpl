@@ -3,7 +3,7 @@
         dialog.setTitle('Update Outlook');
         dialog.setContent('<div style="border: 1px solid black; background-color: #e0e0e0"><div style="float: left; padding: 32px"><img src="../libs/dynicons/?img=system-lock-screen.svg&amp;w=72" alt="NT Account Password Required" /></div>\
                    <div style="padding-top: 42px">Please enter your Windows Account password to update the Outlook address book.\
-                   <br /><br /><span style="font-size: 120%"><!--{$userID}--></span><br /><br /><input id="NTPW" type="password" />\
+                   <br /><br /><span style="font-size: 120%"><!--{addslashes($userID)}--></span><br /><br /><input id="NTPW" type="password" />\
                    </div><br /><br /></div>');
         $('#NTPW').keypress(function(event) {
             if(event.which == 13) {

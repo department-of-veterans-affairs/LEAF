@@ -125,6 +125,7 @@ class Employee extends Data
      */
     public function importFromNational($userName)
     {
+        $userName = htmlspecialchars_decode($userName,ENT_QUOTES);
         if ($userName == '')
         {
             return 'Invalid user';
