@@ -29,7 +29,7 @@ class LogFormatter{
         ],
         DataActions::DELETE.'-'.LoggableTypes::EMPLOYEE=> [
             "message"=>"User %s has been removed from Group %s",
-            "variables"=>"empuID,groupID"
+            "variables"=>"empUID,groupID"
         ],   
         DataActions::ADD.'-'.LoggableTypes::POSITION=> [
             "message"=>"Position %s added to Group %s",
