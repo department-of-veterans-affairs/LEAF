@@ -255,7 +255,7 @@ $(function() {
         success: function(response) {
             if(response != '') {
                 $('#employeeName').html('<!--{$summary.employee.firstName|escape}--> <!--{$summary.employee.lastName|escape}--> <!--{if $summary.employee.deleted != 0}-->(Disabled account)<!--{/if}-->');
-                $('#employeeAccount').html('<!--{$summary.employee.userName}-->');
+                $('#employeeAccount').html("<!--{$summary.employee.userName}-->");
                 $('#employeeBody').html(response);
             }
             else {
