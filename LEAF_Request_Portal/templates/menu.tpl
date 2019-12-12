@@ -1,37 +1,54 @@
-{if $action != ''}
+<!--{if $action != ''}-->
     <a href="./" class="buttonNorm"><img src="../libs/dynicons/?img=go-home.svg&amp;w=16" role="button" />Main Page</a>
-{/if}
+<!--{/if}-->
 <div id="headerMenu_container" style="display: inline-block">
     <a id="button_showLinks" tabindex="0" class="buttonNorm" alt="Links Dropdown" title="Links" aria-haspopup="true" aria-expanded="false" role="button">Links</a>
     <div id="headerMenu_links">
     {include file="menu_links.tpl"}
     </div>
 </div>
-{if $is_admin == true}
+<!--{if $is_admin == true}-->
      <a href="./admin/" class="buttonNorm" role="button"><img src="../libs/dynicons/?img=applications-system.svg&amp;w=16"/>Admin Panel</a>
 {/if}
+    <a class="buttonNorm" role="button" id="helpButton"><img src="../libs/dynicons/?img=help-browser.svg&amp;w=16">Help</a>
 {if $hide_main_control == 1}
 {/if}
 
 <script>
-    var menuButton = $('#button_showLinks');
-    var subMenu = $('#headerMenu_links');
-    var subMenuButton = $('#headerMenu_links').find('a');
+    $(document).ready(function(){
+                var menuButton = $('#button_showLinks');
+        var subMenu = $('#headerMenu_links');
+        var subMenuButton = $('#headerMenu_links').find('a');
 
-    $(menuButton).keypress(function(e) {
-        if (e.keyCode === 13) {
-            $(subMenu).css("display", "block");
-            $(menuButton).attr('aria-expanded', 'true');
-            subMenuButton.focus();
-        }
+        $(menuButton).keypress(function(e) {
+            if (e.keyCode === 13) {
+                $(subMenu).css("display", "block");
+                $(menuButton).attr('aria-expanded', 'true');
+                subMenuButton.focus();
+            }
+        });
+
+        $("#helpButton").click(function(){
+            dialog_message.setContent('foooo');
+            dialog_message.setTitle('Help');
+            dialog_message.show();
+        });
+
+        $(subMenuButton).focusout(function() {
+                $(subMenu).css("display", "none");
+                $(menuButton).attr('aria-expanded', 'false');
+                $(menuButton).focus();
+        });
+
+        dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
+
+
+
     });
 
-    $(subMenuButton).focusout(function() {
-            $(subMenu).css("display", "none");
-            $(menuButton).attr('aria-expanded', 'false');
-            $(menuButton).focus();
-    });
+
 </script>
+{include file="site_elements/generic_dialog.tpl"}
 
 <br />
 <noscript><div class="alert"><span>Javascript must be enabled for this version of software to work!</span></div></noscript>
