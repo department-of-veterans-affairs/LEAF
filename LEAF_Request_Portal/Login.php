@@ -252,6 +252,7 @@ class Login
 
     /**
      * Checks if the current user is part of a group
+     * Magic variable $_GET['masquerade'] = nonAdmin enables admins to view content as non-admins
      * @param int $groupID Group ID number
      * @return boolean
      */
@@ -277,6 +278,10 @@ class Login
         if (!isset($this->cache['checkGroup']))
         {
             $this->cache['checkGroup'] = array();
+        }
+
+        if($groupID == 1 && $_GET['masquerade'] == 'nonAdmin') {
+            return false;
         }
 
         return isset($this->cache['checkGroup'][$groupID]);
