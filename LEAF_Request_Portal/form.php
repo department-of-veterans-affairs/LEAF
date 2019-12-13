@@ -237,7 +237,7 @@ class Form
 
         foreach ($form as $item)
         {
-            $fullForm = array_merge($fullForm, $this->getIndicator($item['indicatorID'], 1, $recordID, $parseTemplate));
+            $fullForm = array_merge($fullForm, $this->getIndicator($item['indicatorID'], 1, null, $parseTemplate));
         }
 
         return $fullForm;
@@ -384,6 +384,7 @@ class Form
 
         $keys = array_keys($_POST);
 
+        $containsFieldData = false;
         if (isset($_POST['title']))
         {
             foreach ($keys as $key)
@@ -421,9 +422,16 @@ class Form
                         }
                     }
                 }
+
+                if(is_numeric($key) && !$containsFieldData) {
+                    $containsFieldData = true;
+                }
             }
         }
 
+        if($containsFieldData) {
+            $this->doModify($recordID);
+        }
         return (int)$recordID;
     }
 
@@ -1102,8 +1110,6 @@ class Form
                                                 title=:title,
                                                 priority=:priority
                                                 WHERE recordID=:recordID', $vars);
-
-            return 1;
         }
 
         foreach ($keys as $key)
