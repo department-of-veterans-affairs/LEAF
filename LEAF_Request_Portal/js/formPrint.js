@@ -375,7 +375,16 @@ var printer = function() {
                                         fitSize = (splitText.length - i) * lineSpacing;
                                         doc.setFontSize(8);
                                         doc.setFont("helvetica");
-                                        doc.text(titleContinued, 11, verticalShift + 3);
+                                        if (titleContinued.length > 190) {
+                                            splitTitleContinued = doc.splitTextToSize(titleContinued, 185);
+                                            for (var i = 0; i < splitTitleContinued.length; i++) {
+                                                verticalShift += 3;
+                                                doc.text(splitTitleContinued[i], 11, verticalShift);
+                                            }
+                                            verticalShift += 4;
+                                        } else {
+                                            doc.text(titleContinued, 11, verticalShift + 3);
+                                        }
                                         doc.setFontSize(12);
                                         doc.setFont("times");
                                     }
@@ -439,7 +448,16 @@ var printer = function() {
                                     fitSize = (splitText.length - i) * lineSpacing;
                                     doc.setFontSize(8);
                                     doc.setFont("helvetica");
-                                    doc.text(titleContinued, 11, verticalShift + 3);
+                                    if (titleContinued.length > 190) {
+                                        splitTitleContinued = doc.splitTextToSize(titleContinued, 185);
+                                        for (var i = 0; i < splitTitleContinued.length; i++) {
+                                            verticalShift += 3;
+                                            doc.text(splitTitleContinued[i], 11, verticalShift);
+                                        }
+                                        verticalShift += 4;
+                                    } else {
+                                        doc.text(titleContinued, 11, verticalShift + 3);
+                                    }
                                     doc.setFontSize(12);
                                     doc.setFont("times");
                                 }
@@ -578,7 +596,16 @@ var printer = function() {
                                         verticalStart = 10;
                                         fitSize = (splitText.length - i) * lineSpacing;
                                         doc.rect(10, verticalShift, 190, 8, 'FD');
-                                        doc.text(titleContinued, 11, verticalShift + 6);
+                                        if (titleContinued.length > 190) {
+                                            splitTitleContinued = doc.splitTextToSize(titleContinued, 185);
+                                            for (var i = 0; i < splitTitleContinued.length; i++) {
+                                                verticalShift += 3;
+                                                doc.text(splitTitleContinued[i], 11, verticalShift);
+                                            }
+                                            verticalShift += 4;
+                                        } else {
+                                            doc.text(titleContinued, 11, verticalShift + 6);
+                                        }
                                         doc.setFont("times");
                                     }
                                     doc.setTextColor(0);
