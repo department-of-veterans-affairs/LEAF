@@ -1064,8 +1064,13 @@ function getForm(indicatorID, series) {
         });
     });
     $('#button_advanced').on('click', function() {
-    	$('#button_advanced').css('display', 'none');
-    	$('#advanced').css('visibility', 'visible');
+        if(<!--{$hasDevConsoleAccess}--> == 1) {
+            $('#button_advanced').css('display', 'none');
+    	    $('#advanced').css('visibility', 'visible');
+        }
+        else {
+            alert('Please go to Admin Panel -> LEAF Programmer to gain access to this area.');
+        }
     });
 
     function saveCodeHTML() {

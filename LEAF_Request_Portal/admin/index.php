@@ -67,6 +67,20 @@ function customTemplate($tpl)
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
+function hasDevConsoleAccess($login, $db_phonebook)
+{
+    $vars = array(':empUID' => $login->getEmpUID());
+    $res = $db_phonebook->prepared_query('SELECT data FROM employee_data
+                                            WHERE empUID=:empUID
+                                                AND indicatorID=27
+                                                AND data="Yes"
+                                                AND author="DevConsoleWorkflow"', $vars);
+    if(count($res) > 0) {
+        return 1;
+    }
+    return 0;
+}
+
 // HQ logo
 if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 { // issue with dijit tabcontainer and ie6
@@ -152,9 +166,9 @@ switch ($action) {
 
         break;
     case 'form':
-          $t_form = new Smarty;
-           $t_form->left_delimiter = '<!--{';
-           $t_form->right_delimiter = '}-->';
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
         $main->assign('javascripts', array('../../libs/js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
@@ -179,6 +193,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
+        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
 
         if (isset($_GET['form']))
         {
@@ -197,47 +212,51 @@ switch ($action) {
         break;
     case 'mod_templates':
     case 'mod_templates_reports':
-          $t_form = new Smarty;
-           $t_form->left_delimiter = '<!--{';
-           $t_form->right_delimiter = '}-->';
+            if(!hasDevConsoleAccess($login, $db_phonebook)) {
+                header('Location: ../report.php?a=LEAF_start_leaf_dev_console_request');
+            }
 
-           $main->assign('useUI', true);
-           $main->assign('javascripts', array('../../libs/js/codemirror/lib/codemirror.js',
-                                              '../../libs/js/codemirror/mode/xml/xml.js',
-                                              '../../libs/js/codemirror/mode/javascript/javascript.js',
-                                              '../../libs/js/codemirror/mode/css/css.js',
-                                              '../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-                                              '../../libs/js/codemirror/addon/search/search.js',
-                                              '../../libs/js/codemirror/addon/search/searchcursor.js',
-                                              '../../libs/js/codemirror/addon/dialog/dialog.js',
-                                              '../../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
-                                              '../../libs/js/codemirror/addon/search/matchesonscrollbar.js',
-                                              '../../libs/js/codemirror/addon/display/fullscreen.js',
-           ));
-           $main->assign('stylesheets', array('../../libs/js/codemirror/lib/codemirror.css',
-                                              '../../libs/js/codemirror/addon/dialog/dialog.css',
-                                              '../../libs/js/codemirror/addon/scroll/simplescrollbars.css',
-                                              '../../libs/js/codemirror/addon/search/matchesonscrollbar.css',
-                                              '../../libs/js/codemirror/addon/display/fullscreen.css',
-           ));
+            $t_form = new Smarty;
+            $t_form->left_delimiter = '<!--{';
+            $t_form->right_delimiter = '}-->';
 
-           $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-           $t_form->assign('APIroot', '../api/');
+            $main->assign('useUI', true);
+            $main->assign('javascripts', array('../../libs/js/codemirror/lib/codemirror.js',
+                                                '../../libs/js/codemirror/mode/xml/xml.js',
+                                                '../../libs/js/codemirror/mode/javascript/javascript.js',
+                                                '../../libs/js/codemirror/mode/css/css.js',
+                                                '../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
+                                                '../../libs/js/codemirror/addon/search/search.js',
+                                                '../../libs/js/codemirror/addon/search/searchcursor.js',
+                                                '../../libs/js/codemirror/addon/dialog/dialog.js',
+                                                '../../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
+                                                '../../libs/js/codemirror/addon/search/matchesonscrollbar.js',
+                                                '../../libs/js/codemirror/addon/display/fullscreen.js',
+            ));
+            $main->assign('stylesheets', array('../../libs/js/codemirror/lib/codemirror.css',
+                                                '../../libs/js/codemirror/addon/dialog/dialog.css',
+                                                '../../libs/js/codemirror/addon/scroll/simplescrollbars.css',
+                                                '../../libs/js/codemirror/addon/search/matchesonscrollbar.css',
+                                                '../../libs/js/codemirror/addon/display/fullscreen.css',
+            ));
 
-           switch ($action) {
-               case 'mod_templates':
-                   $main->assign('body', $t_form->fetch('mod_templates.tpl'));
-                   $tabText = 'Template Editor';
+            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+            $t_form->assign('APIroot', '../api/');
 
-                   break;
-               case 'mod_templates_reports':
-                   $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
-                   $tabText = 'Editor';
+            switch ($action) {
+                case 'mod_templates':
+                    $main->assign('body', $t_form->fetch('mod_templates.tpl'));
+                    $tabText = 'Template Editor';
 
-                   break;
-               default:
-                   break;
-           }
+                    break;
+                case 'mod_templates_reports':
+                    $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
+                    $tabText = 'Editor';
+
+                    break;
+                default:
+                    break;
+            }
 
         break;
     case 'admin_update_database':
