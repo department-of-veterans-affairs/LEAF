@@ -948,7 +948,6 @@ class Form
         {
             $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
         }
-//var_dump($_POST[$key]);
 
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
@@ -3431,19 +3430,19 @@ class Form
      * @param string $fileName
      * @param int $recordID
      * @param int $newRecordID
+     * @param int $series
      * @return int
      */
-    public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID) {
+    public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID, $series) {
         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
         $cleanedFile = XSSHelpers::scrubFilename($fileName);
-        $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $cleanedFile;
-        $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $cleanedFile;
+        $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+        $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
         
-        // return 'source: ' . $sourceFile . '\n' . $destFile;
-        // echo $sourceFile;
-        // die();
         if (!copy($sourceFile, $destFile)) {
-            return 1;
+            $errors= error_get_last();
+            return $errors['message'];
+            // return 1;
         } 
         return 0;
     }

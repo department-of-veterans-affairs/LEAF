@@ -245,8 +245,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['POST']->register('form/files/copy', function ($args) use ($form) {
-            return $form->copyAttachment($_POST['indicatorID'], $_POST['fileName'], $_POST['recordID'], $_POST['newRecordID']);
-            // return 'test';
+            return $form->copyAttachment($_POST['indicatorID'], $_POST['fileName'], $_POST['recordID'], $_POST['newRecordID'], $_POST['series']);
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

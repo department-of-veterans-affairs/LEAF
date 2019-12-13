@@ -363,7 +363,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                         ajaxData[thisRow['indicatorID']] = '';
                         $.each(thisRow['value'], function(k, file) {
                             ajaxData[thisRow['indicatorID']] = ajaxData[thisRow['indicatorID']] + file + '\n';
-                            copyFileToNewRecord(thisRow['indicatorID'], file, newRecordID);
+                            copyFileToNewRecord(thisRow['indicatorID'], file, newRecordID, ajaxData['series']);
                         });
                     }
                     else {
@@ -435,8 +435,8 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
     * Function to copy file attachments from parallel processing record to new records
     * 
     */
-    function copyFileToNewRecord(indicatorID, fileName, newRecordID) {
-        console.log(indicatorID + ': ' + fileName);
+    function copyFileToNewRecord(indicatorID, fileName, newRecordID, series) {
+        // console.log(indicatorID + ': ' + fileName);
         $.ajax({
             type: 'POST',
             url: './api/form/files/copy',
@@ -445,13 +445,11 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 indicatorID: indicatorID,
                 fileName: fileName,
                 recordID: recordID,
-                newRecordID: newRecordID
+                newRecordID: newRecordID,
+                series: series
             },
             success: function(res) {
                 console.log(res);
-            },
-            fail: function(res) {
-                console.log(res);  
             }
         });
     }
