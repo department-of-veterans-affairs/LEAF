@@ -3434,9 +3434,9 @@ class Form
      * @return int
      */
     public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID, $series) {
-        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : '../' . UPLOAD_DIR;
         $cleanedFile = XSSHelpers::scrubFilename($fileName);
-        // to work locally prepend $destFile and $sourceFile with '../'
+        // to work locally prepend $destFile and $sourceFile with '../' if UPLOAD_DIR == './UPLOADS'
         $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
         $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
 
