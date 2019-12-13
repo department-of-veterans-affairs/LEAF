@@ -130,6 +130,7 @@ switch ($action) {
             $t_form->assign('userID', $login->getUserID());
             $t_form->assign('empUID', $login->getEmpUID());
             $t_form->assign('empMembership', $login->getMembership());
+            $t_form->assign('currUserActualName', XSSHelpers::xscrub($login->getName()));
             $t_form->assign('orgchartPath', Config::$orgchartPath);
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
