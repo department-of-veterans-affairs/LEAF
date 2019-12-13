@@ -148,7 +148,7 @@ class Workflow
         $res = $this->db->prepared_query("SELECT * FROM categories
                                                 WHERE parentID=''
     												AND disabled = 0
-                                                    AND workflowID != -1
+                                                    AND workflowID >= 0
     											ORDER BY categoryName", null);
 
         return $res;
