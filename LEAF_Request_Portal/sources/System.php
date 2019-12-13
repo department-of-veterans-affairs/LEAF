@@ -673,10 +673,6 @@ class System
         }
     }
 
-    public function copyFile() {
-
-    }
-
     public function getSettings()
     {
         return $this->db->query_kv('SELECT * FROM settings', 'setting', 'data');

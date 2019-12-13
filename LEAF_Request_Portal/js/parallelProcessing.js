@@ -350,7 +350,6 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         var ajaxData = new Object();
         ajaxData['CSRFToken'] = CSRFToken;
         ajaxData['series'] = 1;
-        debugger;
         $.each( formData, function( i, val ) {
             $.each( val, function( j, thisRow ) {
                 if('series' in thisRow)
@@ -359,7 +358,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 }
                 if(('indicatorID' in thisRow) && ('value' in thisRow))
                 {
-                    if(thisRow['format'] == 'fileupload' || thisRow['format'] == 'imageupload') {
+                    if(thisRow['format'] == 'fileupload' || thisRow['format'] == 'image') {
                         ajaxData[thisRow['indicatorID']] = '';
                         $.each(thisRow['value'], function(k, file) {
                             ajaxData[thisRow['indicatorID']] = ajaxData[thisRow['indicatorID']] + file + '\n';
@@ -436,7 +435,6 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
     * 
     */
     function copyFileToNewRecord(indicatorID, fileName, newRecordID, series) {
-        // console.log(indicatorID + ': ' + fileName);
         $.ajax({
             type: 'POST',
             url: './api/form/files/copy',
@@ -450,7 +448,8 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
             },
             success: function(res) {
                 console.log(res);
-            }
+            },
+            cache: false
         });
     }
 

@@ -3436,13 +3436,12 @@ class Form
     public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID, $series) {
         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
         $cleanedFile = XSSHelpers::scrubFilename($fileName);
+        // to work locally prepend $destFile and $sourceFile with '../'
         $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
         $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
-        
+
         if (!copy($sourceFile, $destFile)) {
-            $errors= error_get_last();
-            return $errors['message'];
-            // return 1;
+            return 1;
         } 
         return 0;
     }
