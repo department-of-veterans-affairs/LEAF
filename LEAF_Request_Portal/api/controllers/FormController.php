@@ -244,6 +244,11 @@ class FormController extends RESTfulResponse
             return $form->getCustomData($recordIDs, $_POST['indicatorList']);
         });
 
+        $this->index['POST']->register('form/files/copy', function ($args) use ($form) {
+            return $form->copyAttachment($_POST['indicatorID'], $_POST['fileName'], $_POST['recordID'], $_POST['newRecordID']);
+            // return 'test';
+        });
+
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
 }

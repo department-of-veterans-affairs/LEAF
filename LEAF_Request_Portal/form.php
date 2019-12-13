@@ -948,6 +948,7 @@ class Form
         {
             $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
         }
+//var_dump($_POST[$key]);
 
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
@@ -3422,6 +3423,28 @@ class Form
             return $this->isIndicatorOrphan($indicatorList[$indicator['parentIndicatorID']], $indicatorList);
         }
 
+        return 0;
+    }
+    /**
+     * Copies file attachment from record to new record
+     * @param int $indicatorID
+     * @param string $fileName
+     * @param int $recordID
+     * @param int $newRecordID
+     * @return int
+     */
+    public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID) {
+        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+        $cleanedFile = XSSHelpers::scrubFilename($fileName);
+        $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $cleanedFile;
+        $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $cleanedFile;
+        
+        // return 'source: ' . $sourceFile . '\n' . $destFile;
+        // echo $sourceFile;
+        // die();
+        if (!copy($sourceFile, $destFile)) {
+            return 1;
+        } 
         return 0;
     }
 

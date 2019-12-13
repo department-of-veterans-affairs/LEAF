@@ -350,15 +350,25 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         var ajaxData = new Object();
         ajaxData['CSRFToken'] = CSRFToken;
         ajaxData['series'] = 1;
+        debugger;
         $.each( formData, function( i, val ) {
-            $.each( val, function( i, thisRow ) {
+            $.each( val, function( j, thisRow ) {
                 if('series' in thisRow)
                 {
                     ajaxData['series'] = thisRow['series']; 
                 }
                 if(('indicatorID' in thisRow) && ('value' in thisRow))
                 {
-                    ajaxData[thisRow['indicatorID']] = thisRow['value']; 
+                    if(thisRow['format'] == 'fileupload' || thisRow['format'] == 'imageupload') {
+                        ajaxData[thisRow['indicatorID']] = '';
+                        $.each(thisRow['value'], function(k, file) {
+                            ajaxData[thisRow['indicatorID']] = ajaxData[thisRow['indicatorID']] + file + '\n';
+                            copyFileToNewRecord(thisRow['indicatorID'], file, newRecordID);
+                        });
+                    }
+                    else {
+                        ajaxData[thisRow['indicatorID']] = thisRow['value']; 
+                    }
                 }
             });
         });
@@ -419,6 +429,31 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
 
             
         }
+    }
+
+    /*
+    * Function to copy file attachments from parallel processing record to new records
+    * 
+    */
+    function copyFileToNewRecord(indicatorID, fileName, newRecordID) {
+        console.log(indicatorID + ': ' + fileName);
+        $.ajax({
+            type: 'POST',
+            url: './api/form/files/copy',
+            data: {
+                CSRFToken: CSRFToken, 
+                indicatorID: indicatorID,
+                fileName: fileName,
+                recordID: recordID,
+                newRecordID: newRecordID
+            },
+            success: function(res) {
+                console.log(res);
+            },
+            fail: function(res) {
+                console.log(res);  
+            }
+        });
     }
 
     initializeParallelProcessing();
