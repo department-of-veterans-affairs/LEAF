@@ -343,6 +343,31 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         });
     }
 
+    /*
+    * Function to copy file attachments from parallel processing record to new records
+    * 
+    */
+    function copyFileToNewRecord(indicatorID, fileName, newRecordID, series) {
+        $.ajax({
+            type: 'POST',
+            url: './api/form/files/copy',
+            data: {
+                CSRFToken: CSRFToken, 
+                indicatorID: indicatorID,
+                fileName: fileName,
+                recordID: recordID,
+                newRecordID: newRecordID,
+                series: series
+            },
+            success: function(res) {
+                if (res === 1) {
+                    alert(fileName + " was not copied successfully.");
+                } 
+            },
+            cache: false
+        });
+    }
+
     // Add data from form for recordID given
     // then submit, updating load bar
     function fillAndSubmitForm(formData, newRecordID, indicatorIDToChange, newData)
@@ -358,7 +383,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 }
                 if(('indicatorID' in thisRow) && ('value' in thisRow))
                 {
-                    if(thisRow['format'] == 'fileupload' || thisRow['format'] == 'image') {
+                    if(thisRow['format'] === 'fileupload' || thisRow['format'] === 'image') {
                         ajaxData[thisRow['indicatorID']] = '';
                         $.each(thisRow['value'], function(k, file) {
                             ajaxData[thisRow['indicatorID']] = ajaxData[thisRow['indicatorID']] + file + '\n';
@@ -428,29 +453,6 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
 
             
         }
-    }
-
-    /*
-    * Function to copy file attachments from parallel processing record to new records
-    * 
-    */
-    function copyFileToNewRecord(indicatorID, fileName, newRecordID, series) {
-        $.ajax({
-            type: 'POST',
-            url: './api/form/files/copy',
-            data: {
-                CSRFToken: CSRFToken, 
-                indicatorID: indicatorID,
-                fileName: fileName,
-                recordID: recordID,
-                newRecordID: newRecordID,
-                series: series
-            },
-            success: function(res) {
-                console.log(res);
-            },
-            cache: false
-        });
     }
 
     initializeParallelProcessing();
