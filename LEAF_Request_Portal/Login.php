@@ -166,7 +166,7 @@ class Login
 
     public function parseURL($in)
     {
-        $url = str_replace('/var/www/html', '', $in);
+      $url = str_replace('/var/www/html', '', $in);
 
       return $url;
     }
