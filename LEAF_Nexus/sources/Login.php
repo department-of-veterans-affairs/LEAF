@@ -179,7 +179,7 @@ class Login
     public function parseURL($in)
     {
       // TODO: Put this in a config var
-      $url = str_replace(array(Config::$rootPath, '/sources'), array('', ''), $in);
+      $url = str_replace(array('/var/www/html', '/sources'), array('', ''), $in);
 
       return $url;
     }

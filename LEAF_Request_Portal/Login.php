@@ -166,7 +166,7 @@ class Login
 
     public function parseURL($in)
     {
-      $url = str_replace(Config::$rootPath, '', $in);
+        $url = str_replace(Config::$rootPath, '', $in);
 
       return $url;
     }
