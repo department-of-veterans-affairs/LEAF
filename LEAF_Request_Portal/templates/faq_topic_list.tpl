@@ -3,8 +3,6 @@
 <style type="text/css">
 
 	#dynamic-data-container{
-		width:80%;
-		height:60%;
 		margin:auto;
 	}
 	
@@ -18,9 +16,9 @@
 	}
 
 	.faq-card{
-		width: 20%;
 		box-sizing: border-box;
 		padding: 10px;
+		margin: 15px;
 		vertical-align: middle;
 	}
 	
@@ -60,12 +58,14 @@
 	#faq-search-input{
 		padding:4px;
 		flex-grow:5;
+		display:flex;
 	}
 	
 	#faq-search-icon{
-		height:25px;
-		width:25px;
+		height:12px;
+		width:12px;
 		padding:6px 10px 6px 10px;
+		display:flex;	
 	}
 	
 	#faq-header{
@@ -85,6 +85,11 @@
 		font-family: verdana;
 		padding: 15px 10px 15px 10px;
 	}
+
+	.ui-dialog{
+		height:500px;
+		width:600px;
+	}
 	
 </style>
 
@@ -98,7 +103,7 @@
 			<div id="card-container">
 			
 			    <!--{foreach $cardData as $item}-->
-					<div class="faq-card" data-term="<!--{$item->faqType}-->">
+					<div class="card faq-card" data-term="<!--{$item->faqType}-->">
 						<a href="#" data-term="<!--{$item->faqType}-->">
 							<img src="<!--{$item->imgUrl}-->" class="card-image"/>
 							<div class="card-title">
@@ -182,8 +187,6 @@
 		
 			for(var i=0; i< questions.length; i++){
 
-				debugger;
-			
 				var toDisplay = questions[i];
 			
 				var html = "<li><a href='"+toDisplay.url+"' class='question'>"+ toDisplay.title +"</a></li>";
