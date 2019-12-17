@@ -537,6 +537,28 @@ switch ($action) {
         $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 
         break;
+    case 'faqcategories':
+        require_once './faq/faqCategoryListManager.php';
+        $listManager =  new FaqCategoryListManager();
+        $categoryList = $listManager->getCategoryList();
+
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+        $t_form-> assign('cardData', $categoryList);
+
+        $t_form->display("faq_topic_list.tpl");
+        break;
+    case 'faqquestions':
+        require_once './faq/faqQuestions.php';
+        $questionList = new FaqQuestionList();
+        $isByType = filter_var($_GET['byType'], FILTER_VALIDATE_BOOLEAN);
+        $filterBy = $_GET['filterBy'];
+        $questions = $isByType ? $questionList->getQuestionsByType($filterBy) : $questionList->getQuestionsByTerm($filterBy);
+
+        echo json_encode($questions);
+
+        break;
     default:
         break;
 }

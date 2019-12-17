@@ -29,9 +29,18 @@
         });
 
         $("#helpButton").click(function(){
-            dialog_message.setContent('foooo');
             dialog_message.setTitle('Help');
-            dialog_message.show();
+
+            $.ajax({
+                type: 'GET',
+                url: 'ajaxIndex.php?a=faqcategories',
+                dataType: 'text',
+                success: function(res) {
+                    dialog_message.setContent(res);
+                    dialog_message.show();
+                },
+                cache: false
+            });
         });
 
         $(subMenuButton).focusout(function() {
