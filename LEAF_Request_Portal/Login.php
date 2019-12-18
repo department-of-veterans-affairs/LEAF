@@ -346,7 +346,7 @@ class Login
             return $this->cache['getQuadradGroupID'];
         }
         $var = array(':userID' => $this->userID);
-        $result = $this->userDB->prepared_query('SELECT * FROM groups
+        $result = $this->userDB->prepared_query('SELECT * FROM `groups`
                                             LEFT JOIN users USING (groupID)
                                             WHERE parentGroupID=-1
                                                 AND userID=:userID', $var);
@@ -378,7 +378,7 @@ class Login
         }
 
         $var = array(':userID' => $this->userID);
-        $result = $this->userDB->prepared_query('SELECT * FROM groups
+        $result = $this->userDB->prepared_query('SELECT * FROM `groups`
                                             LEFT JOIN users USING (groupID)
                                             WHERE parentGroupID=-1
                                                 AND userID=:userID', $var);

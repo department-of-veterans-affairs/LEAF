@@ -196,7 +196,7 @@ class FormWorkflow
 
                     // find actual group name
                     $vars = array(':groupID' => $groupID);
-                    $tGroup = $this->db->prepared_query('SELECT * from groups WHERE groupID=:groupID', $vars);
+                    $tGroup = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID=:groupID', $vars);
                     if (count($tGroup) >= 0)
                     {
                         $res[$i]['description'] = $tGroup[0]['name'];
