@@ -703,11 +703,13 @@
                         $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
                     } else {
                         $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Loading... ***');
-                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
+
+                        var selectedUser = empSel.selectionData[empSel.selection];
+                        var selectedUserName = selectedUser.userName;
         
-                        var first = empSel.selectionData[empSel.selection].firstName;
-                        var last = empSel.selectionData[empSel.selection].lastName;
-                        var middle = empSel.selectionData[empSel.selection].middleName;
+                        var first = selectedUser.firstName;
+                        var last = selectedUser.lastName;
+                        var middle = selectedUser.middleName;
 
                         var formatted = last + ", " + first + " " + middle;
                         
