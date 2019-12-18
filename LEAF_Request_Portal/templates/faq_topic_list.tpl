@@ -68,10 +68,11 @@
 		display:flex;	
 	}
 	
-	#faq-header{
+	.faq-header{
 		font-family: verdana;
 		text-align:center;
-		padding-top:15px;
+		padding-top:5px;
+		margin-top:5px;
 	}
 	
 	#back-from-questions{
@@ -90,6 +91,10 @@
 		height:500px;
 		width:600px;
 	}
+
+	#faq-category-list{
+		padding-top:10px;
+	}
 	
 </style>
 
@@ -97,9 +102,13 @@
 <div>
 	<div id="dynamic-data-container">
 		<div id="faq-category-list">
-			<h2 id="faq-header">
-				Select a topic
+			<h2 class="faq-header">
+				Need help?
 			</h2>
+			<p class="faq-header">
+				The Knowledge Base has answers to many frequently asked questions.
+				Select a topic to get started.
+			</p>
 			<div id="card-container">
 			
 			    <!--{foreach $cardData as $item}-->

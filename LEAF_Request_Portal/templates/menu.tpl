@@ -29,7 +29,7 @@
         });
 
         $("#helpButton").click(function(){
-            dialog_message.setTitle('Help');
+            dialog_message.setTitle('LEAF Knowledge Base');
 
             $.ajax({
                 type: 'GET',
