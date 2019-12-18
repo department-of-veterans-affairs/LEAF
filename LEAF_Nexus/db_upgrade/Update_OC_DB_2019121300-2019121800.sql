@@ -7,6 +7,6 @@ The following will have to be run on the national nexus manually, to avoid hitti
 update employee set new_empUUID = uuid();
 */
 
-UPDATE `settings` SET `data` = '2019121300' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '2019121800' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;
