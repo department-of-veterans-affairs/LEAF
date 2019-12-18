@@ -1069,7 +1069,10 @@ function getForm(indicatorID, series) {
     	    $('#advanced').css('visibility', 'visible');
         }
         else {
-            alert('Please go to Admin Panel -> LEAF Programmer to gain access to this area.');
+            //alert('Please go to Admin Panel -> LEAF Programmer to gain access to this area.');
+            alert('Notice: Please go to Admin Panel -> LEAF Programmer to ensure continued access to this area.');
+            $('#button_advanced').css('display', 'none');
+    	    $('#advanced').css('visibility', 'visible');
         }
     });
 
