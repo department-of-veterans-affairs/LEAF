@@ -64,6 +64,14 @@
     </span>
 </a>
 
+<a href="../report.php?a=LEAF_Toolbox" role="button">
+    <span class="menuButton" style="background-color: black">
+        <img class="menuIcon" src="../../libs/dynicons/?img=applications-accessories.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+        <span class="menuText" style="color: white">Toolbox</span><br />
+        <span class="menuDesc" style="color: white">Utilities for managing requests</span>
+    </span>
+</a>
+
 <!--{if $siteType == 'national_primary'}-->
 <a href="../report.php?a=LEAF_National_Distribution" role="button">
     <span class="menuButton" style="background-color: #574d68" >
