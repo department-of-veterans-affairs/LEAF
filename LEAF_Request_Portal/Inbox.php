@@ -307,7 +307,7 @@ class Inbox
                             else
                             {
                                 $vars = array(':groupID' => $groupID);
-                                $resDepGroup = $this->db->prepared_query('SELECT name FROM groups WHERE groupID=:groupID', $vars);
+                                $resDepGroup = $this->db->prepared_query('SELECT name FROM `groups` WHERE groupID=:groupID', $vars);
                                 $this->cache["getInbox_resDepGroup_{$groupID}"] = $resDepGroup;
                             }
                             $approverName = '';

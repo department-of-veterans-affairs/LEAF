@@ -252,6 +252,7 @@ class Login
 
     /**
      * Checks if the current user is part of a group
+     * Magic variable $_GET['masquerade'] = nonAdmin enables admins to view content as non-admins
      * @param int $groupID Group ID number
      * @return boolean
      */
@@ -277,6 +278,10 @@ class Login
         if (!isset($this->cache['checkGroup']))
         {
             $this->cache['checkGroup'] = array();
+        }
+
+        if($groupID == 1 && $_GET['masquerade'] == 'nonAdmin') {
+            return false;
         }
 
         return isset($this->cache['checkGroup'][$groupID]);
@@ -341,7 +346,7 @@ class Login
             return $this->cache['getQuadradGroupID'];
         }
         $var = array(':userID' => $this->userID);
-        $result = $this->userDB->prepared_query('SELECT * FROM groups
+        $result = $this->userDB->prepared_query('SELECT * FROM `groups`
                                             LEFT JOIN users USING (groupID)
                                             WHERE parentGroupID=-1
                                                 AND userID=:userID', $var);
@@ -373,7 +378,7 @@ class Login
         }
 
         $var = array(':userID' => $this->userID);
-        $result = $this->userDB->prepared_query('SELECT * FROM groups
+        $result = $this->userDB->prepared_query('SELECT * FROM `groups`
                                             LEFT JOIN users USING (groupID)
                                             WHERE parentGroupID=-1
                                                 AND userID=:userID', $var);
