@@ -1,6 +1,11 @@
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
 SET time_zone = "+00:00";
+
+--
+-- Database: `leaf_data`
+--
 
 -- --------------------------------------------------------
 
@@ -8,27 +13,29 @@ SET time_zone = "+00:00";
 -- Table structure for table `actions`
 --
 
-CREATE TABLE IF NOT EXISTS `actions` (
+CREATE TABLE `actions` (
   `actionType` varchar(50) NOT NULL,
   `actionText` varchar(50) NOT NULL,
   `actionTextPasttense` varchar(50) NOT NULL,
   `actionIcon` varchar(50) NOT NULL,
   `actionAlignment` varchar(20) NOT NULL,
   `sort` tinyint(4) NOT NULL,
-  `fillDependency` tinyint(4) NOT NULL
+  `fillDependency` tinyint(4) NOT NULL,
+  `deleted` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `actions`
 --
 
-INSERT INTO `actions` (`actionType`, `actionText`, `actionTextPasttense`, `actionIcon`, `actionAlignment`, `sort`, `fillDependency`) VALUES
-('approve', 'Approve', 'Approved', 'gnome-emblem-default.svg', 'right', 0, 1),
-('concur', 'Concur', 'Concurred', 'go-next.svg', 'right', 1, 1),
-('defer', 'Defer', 'Deferred', 'software-update-urgent.svg', 'left', 0, -2),
-('disapprove', 'Disapprove', 'Disapproved', 'process-stop.svg', 'left', 0, -1),
-('sendback', 'Send Back', 'Sent Back', 'edit-undo.svg', 'left', 0, 0),
-('submit', 'Submit', 'Submitted', 'gnome-emblem-default.svg', 'right', 0, 1);
+INSERT INTO `actions` (`actionType`, `actionText`, `actionTextPasttense`, `actionIcon`, `actionAlignment`, `sort`, `fillDependency`, `deleted`) VALUES
+('approve', 'Approve', 'Approved', 'gnome-emblem-default.svg', 'right', 0, 1, 0),
+('concur', 'Concur', 'Concurred', 'go-next.svg', 'right', 1, 1, 0),
+('defer', 'Defer', 'Deferred', 'software-update-urgent.svg', 'left', 0, -2, 0),
+('disapprove', 'Disapprove', 'Disapproved', 'process-stop.svg', 'left', 0, -1, 0),
+('sendback', 'Return to Requestor', 'Returned to Requestor', 'edit-undo.svg', 'left', 0, 0, 0),
+('sign', 'Sign', 'Signed', 'application-certificate.svg', 'right', 0, 1, 0),
+('submit', 'Submit', 'Submitted', 'gnome-emblem-default.svg', 'right', 0, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -36,16 +43,16 @@ INSERT INTO `actions` (`actionType`, `actionText`, `actionTextPasttense`, `actio
 -- Table structure for table `action_history`
 --
 
-CREATE TABLE IF NOT EXISTS `action_history` (
-  `actionID` mediumint(8) unsigned NOT NULL,
-  `recordID` smallint(5) unsigned NOT NULL,
+CREATE TABLE `action_history` (
+  `actionID` mediumint(8) UNSIGNED NOT NULL,
+  `recordID` mediumint(8) UNSIGNED NOT NULL,
   `userID` varchar(50) NOT NULL,
-  `dependencyID` tinyint(3) unsigned NOT NULL,
-  `groupID` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `stepID` smallint(6) NOT NULL DEFAULT 0,
+  `dependencyID` smallint(6) NOT NULL,
   `actionType` varchar(50) NOT NULL,
-  `actionTypeID` tinyint(3) unsigned NOT NULL,
-  `time` int(10) unsigned NOT NULL,
-  `comment` text
+  `actionTypeID` tinyint(3) UNSIGNED NOT NULL,
+  `time` int(10) UNSIGNED NOT NULL,
+  `comment` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -54,10 +61,10 @@ CREATE TABLE IF NOT EXISTS `action_history` (
 -- Table structure for table `action_types`
 --
 
-CREATE TABLE IF NOT EXISTS `action_types` (
-  `actionTypeID` tinyint(3) unsigned NOT NULL,
+CREATE TABLE `action_types` (
+  `actionTypeID` tinyint(3) UNSIGNED NOT NULL,
   `actionTypeDesc` varchar(50) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `action_types`
@@ -79,14 +86,14 @@ INSERT INTO `action_types` (`actionTypeID`, `actionTypeDesc`) VALUES
 -- Table structure for table `approvals`
 --
 
-CREATE TABLE IF NOT EXISTS `approvals` (
-  `approvalID` mediumint(8) unsigned NOT NULL,
-  `recordID` smallint(5) unsigned NOT NULL,
+CREATE TABLE `approvals` (
+  `approvalID` mediumint(8) UNSIGNED NOT NULL,
+  `recordID` mediumint(8) UNSIGNED NOT NULL,
   `userID` varchar(50) NOT NULL,
-  `groupID` mediumint(9) NOT NULL DEFAULT '0',
+  `groupID` mediumint(9) NOT NULL DEFAULT 0,
   `approvalType` varchar(50) NOT NULL,
-  `time` int(10) unsigned NOT NULL,
-  `comment` text
+  `time` int(10) UNSIGNED NOT NULL,
+  `comment` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -95,15 +102,27 @@ CREATE TABLE IF NOT EXISTS `approvals` (
 -- Table structure for table `categories`
 --
 
-CREATE TABLE IF NOT EXISTS `categories` (
+CREATE TABLE `categories` (
   `categoryID` varchar(20) NOT NULL,
   `parentID` varchar(50) NOT NULL,
   `categoryName` varchar(50) NOT NULL,
   `categoryDescription` varchar(255) NOT NULL,
-  `workflowID` tinyint(3) unsigned NOT NULL,
-  `sort` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `disabled` tinyint(4) NOT NULL DEFAULT '0'
+  `workflowID` smallint(6) NOT NULL,
+  `sort` tinyint(3) NOT NULL DEFAULT 0,
+  `needToKnow` tinyint(4) NOT NULL DEFAULT 0,
+  `formLibraryID` smallint(6) DEFAULT NULL,
+  `visible` tinyint(4) NOT NULL DEFAULT 1,
+  `disabled` tinyint(4) NOT NULL DEFAULT 0,
+  `type` varchar(50) NOT NULL DEFAULT '',
+  `lastModified` int(10) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`categoryID`, `parentID`, `categoryName`, `categoryDescription`, `workflowID`, `sort`, `needToKnow`, `formLibraryID`, `visible`, `disabled`, `type`, `lastModified`) VALUES
+('leaf_secure', '', 'Leaf Secure Certification', '', -1, 0, 0, NULL, 1, 0, '', 0);
 
 -- --------------------------------------------------------
 
@@ -111,22 +130,10 @@ CREATE TABLE IF NOT EXISTS `categories` (
 -- Table structure for table `category_count`
 --
 
-CREATE TABLE IF NOT EXISTS `category_count` (
-  `recordID` smallint(5) unsigned NOT NULL,
+CREATE TABLE `category_count` (
+  `recordID` mediumint(8) UNSIGNED NOT NULL,
   `categoryID` varchar(20) NOT NULL,
-  `count` tinyint(3) unsigned NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `category_dependencies`
---
-
-CREATE TABLE IF NOT EXISTS `category_dependencies` (
-  `categoryID` varchar(20) NOT NULL,
-  `dependencyID` smallint(6) NOT NULL,
-  `state` tinyint(4) NOT NULL DEFAULT '1'
+  `count` tinyint(3) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -135,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `category_dependencies` (
 -- Table structure for table `category_privs`
 --
 
-CREATE TABLE IF NOT EXISTS `category_privs` (
+CREATE TABLE `category_privs` (
   `categoryID` varchar(20) NOT NULL,
   `groupID` mediumint(9) NOT NULL,
   `readable` tinyint(4) NOT NULL,
@@ -145,15 +152,26 @@ CREATE TABLE IF NOT EXISTS `category_privs` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `category_staples`
+--
+
+CREATE TABLE `category_staples` (
+  `categoryID` varchar(20) NOT NULL,
+  `stapledCategoryID` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `data`
 --
 
-CREATE TABLE IF NOT EXISTS `data` (
-  `recordID` smallint(5) unsigned NOT NULL,
+CREATE TABLE `data` (
+  `recordID` mediumint(8) UNSIGNED NOT NULL,
   `indicatorID` smallint(5) NOT NULL,
-  `series` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `series` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
   `data` text NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `userID` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -163,7 +181,7 @@ CREATE TABLE IF NOT EXISTS `data` (
 -- Table structure for table `data_cache`
 --
 
-CREATE TABLE IF NOT EXISTS `data_cache` (
+CREATE TABLE `data_cache` (
   `cacheKey` varchar(32) NOT NULL,
   `data` text NOT NULL,
   `timestamp` int(11) NOT NULL
@@ -172,15 +190,29 @@ CREATE TABLE IF NOT EXISTS `data_cache` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `data_extended`
+--
+
+CREATE TABLE `data_extended` (
+  `recordID` mediumint(8) UNSIGNED NOT NULL,
+  `indicatorID` smallint(6) NOT NULL,
+  `data` text NOT NULL,
+  `timestamp` int(10) UNSIGNED NOT NULL,
+  `userID` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `data_history`
 --
 
-CREATE TABLE IF NOT EXISTS `data_history` (
-  `recordID` smallint(5) unsigned NOT NULL,
+CREATE TABLE `data_history` (
+  `recordID` mediumint(8) UNSIGNED NOT NULL,
   `indicatorID` smallint(5) NOT NULL,
-  `series` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `series` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
   `data` text NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `userID` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -190,10 +222,22 @@ CREATE TABLE IF NOT EXISTS `data_history` (
 -- Table structure for table `dependencies`
 --
 
-CREATE TABLE IF NOT EXISTS `dependencies` (
+CREATE TABLE `dependencies` (
   `dependencyID` smallint(6) NOT NULL,
   `description` varchar(50) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `dependencies`
+--
+
+INSERT INTO `dependencies` (`dependencyID`, `description`) VALUES
+(-3, 'Group Designated by the Requestor'),
+(-2, 'Requestor Followup'),
+(-1, 'Person Designated by the Requestor'),
+(1, 'Service Chief'),
+(5, 'Request Submitted'),
+(8, 'Quadrad');
 
 -- --------------------------------------------------------
 
@@ -201,7 +245,7 @@ CREATE TABLE IF NOT EXISTS `dependencies` (
 -- Table structure for table `dependency_privs`
 --
 
-CREATE TABLE IF NOT EXISTS `dependency_privs` (
+CREATE TABLE `dependency_privs` (
   `dependencyID` smallint(6) NOT NULL,
   `groupID` mediumint(9) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -212,19 +256,20 @@ CREATE TABLE IF NOT EXISTS `dependency_privs` (
 -- Table structure for table `events`
 --
 
-CREATE TABLE IF NOT EXISTS `events` (
+CREATE TABLE `events` (
   `eventID` varchar(40) NOT NULL,
   `eventDescription` varchar(200) NOT NULL,
-  `event` varchar(64) NOT NULL
+  `eventData` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `events`
 --
 
-INSERT INTO `events` (`eventID`, `eventDescription`, `event`) VALUES
-('std_email_notify_completed', 'Standard notification alerting requestor of approved request', ''),
-('std_email_notify_next_approver', 'Standard Email Notification for next approver', '');
+INSERT INTO `events` (`eventID`, `eventDescription`, `eventData`) VALUES
+('LeafSecure_Certified', 'Marks site as LEAF Secure', ''),
+('std_email_notify_completed', 'Notify the requestor via email', ''),
+('std_email_notify_next_approver', 'Notify the next approver via email', '');
 
 -- --------------------------------------------------------
 
@@ -232,12 +277,12 @@ INSERT INTO `events` (`eventID`, `eventDescription`, `event`) VALUES
 -- Table structure for table `groups`
 --
 
-CREATE TABLE IF NOT EXISTS `groups` (
+CREATE TABLE `groups` (
   `groupID` mediumint(9) NOT NULL,
   `parentGroupID` tinyint(4) DEFAULT NULL,
-  `name` varchar(50) NOT NULL,
+  `name` varchar(250) NOT NULL,
   `groupDescription` varchar(50) NOT NULL DEFAULT ''
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `groups`
@@ -253,22 +298,33 @@ INSERT INTO `groups` (`groupID`, `parentGroupID`, `name`, `groupDescription`) VA
 -- Table structure for table `indicators`
 --
 
-CREATE TABLE IF NOT EXISTS `indicators` (
+CREATE TABLE `indicators` (
   `indicatorID` smallint(5) NOT NULL,
   `name` text NOT NULL,
   `format` text NOT NULL,
   `description` varchar(50) DEFAULT NULL,
-  `default` varchar(20) DEFAULT NULL,
-  `parentID` smallint(5) unsigned DEFAULT NULL,
+  `default` text DEFAULT NULL,
+  `parentID` smallint(6) DEFAULT NULL,
   `categoryID` varchar(20) DEFAULT NULL,
-  `html` varchar(510) DEFAULT NULL,
-  `htmlPrint` text,
+  `html` text DEFAULT NULL,
+  `htmlPrint` text DEFAULT NULL,
   `jsSort` varchar(255) DEFAULT NULL,
-  `required` tinyint(4) NOT NULL DEFAULT '0',
-  `sort` tinyint(4) NOT NULL DEFAULT '1',
-  `timeAdded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `disabled` tinyint(4) NOT NULL DEFAULT '0'
+  `required` tinyint(4) NOT NULL DEFAULT 0,
+  `sort` tinyint(4) NOT NULL DEFAULT 1,
+  `timeAdded` timestamp NOT NULL DEFAULT current_timestamp(),
+  `disabled` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `is_sensitive` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `indicators`
+--
+
+INSERT INTO `indicators` (`indicatorID`, `name`, `format`, `description`, `default`, `parentID`, `categoryID`, `html`, `htmlPrint`, `jsSort`, `required`, `sort`, `timeAdded`, `disabled`, `is_sensitive`) VALUES
+(-4, 'Supervisor or ELT (GS-13 or higher)', 'orgchart_employee', NULL, NULL, -3, 'leaf_secure', NULL, NULL, NULL, 1, 1, '2019-08-09 19:52:34', 0, 0),
+(-3, 'Approval Officials', '', NULL, NULL, NULL, 'leaf_secure', '', NULL, NULL, 0, 1, '2019-08-09 19:48:46', 0, 0),
+(-2, 'Justification for collection of sensitive data', 'textarea', '', '', NULL, 'leaf_secure', '<div id=\"leafSecureDialogContent\"></div>\n\n<script src=\"js/LeafSecureReviewDialog.js\" />\n<script>\n$(function() {\n\n	LeafSecureReviewDialog(\'leafSecureDialogContent\');\n\n});\n</script>', '<div id=\"leafSecureDialogContentPrint\"></div>\n\n<script src=\"js/LeafSecureReviewDialog.js\" />\n<script>\n$(function() {\n\n	LeafSecureReviewDialog(\'leafSecureDialogContentPrint\');\n\n});\n</script>', NULL, 1, 2, '2019-07-31 00:25:06', 0, 0),
+(-1, 'Privacy Officer', 'orgchart_employee', NULL, NULL, -3, 'leaf_secure', NULL, NULL, NULL, 1, 1, '2019-07-30 21:11:38', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -276,7 +332,7 @@ CREATE TABLE IF NOT EXISTS `indicators` (
 -- Table structure for table `indicator_mask`
 --
 
-CREATE TABLE IF NOT EXISTS `indicator_mask` (
+CREATE TABLE `indicator_mask` (
   `indicatorID` smallint(5) NOT NULL,
   `groupID` mediumint(9) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -287,11 +343,11 @@ CREATE TABLE IF NOT EXISTS `indicator_mask` (
 -- Table structure for table `notes`
 --
 
-CREATE TABLE IF NOT EXISTS `notes` (
-  `noteID` mediumint(8) unsigned NOT NULL,
-  `recordID` smallint(5) unsigned NOT NULL,
+CREATE TABLE `notes` (
+  `noteID` mediumint(8) UNSIGNED NOT NULL,
+  `recordID` smallint(5) UNSIGNED NOT NULL,
   `note` text NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `userID` varchar(50) NOT NULL,
   `deleted` tinyint(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -299,32 +355,21 @@ CREATE TABLE IF NOT EXISTS `notes` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pair_category_serviceiid`
---
-
-CREATE TABLE IF NOT EXISTS `pair_category_serviceiid` (
-  `categoryID` varchar(50) CHARACTER SET utf8 NOT NULL,
-  `serviceIndicatorID` smallint(5) unsigned NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `records`
 --
 
-CREATE TABLE IF NOT EXISTS `records` (
-  `recordID` smallint(5) unsigned NOT NULL,
-  `date` int(10) unsigned NOT NULL,
-  `serviceID` smallint(5) unsigned NOT NULL DEFAULT '0',
+CREATE TABLE `records` (
+  `recordID` mediumint(8) UNSIGNED NOT NULL,
+  `date` int(10) UNSIGNED NOT NULL,
+  `serviceID` smallint(5) NOT NULL DEFAULT 0,
   `userID` varchar(50) NOT NULL,
-  `title` text,
-  `priority` tinyint(4) NOT NULL DEFAULT '0',
+  `title` text DEFAULT NULL,
+  `priority` tinyint(4) NOT NULL DEFAULT 0,
   `lastStatus` varchar(200) DEFAULT NULL,
-  `submitted` int(10) NOT NULL DEFAULT '0',
-  `deleted` int(10) NOT NULL DEFAULT '0',
-  `isWritableUser` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `isWritableGroup` tinyint(3) unsigned NOT NULL DEFAULT '1'
+  `submitted` int(10) NOT NULL DEFAULT 0,
+  `deleted` int(10) NOT NULL DEFAULT 0,
+  `isWritableUser` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
+  `isWritableGroup` tinyint(3) UNSIGNED NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -333,11 +378,23 @@ CREATE TABLE IF NOT EXISTS `records` (
 -- Table structure for table `records_dependencies`
 --
 
-CREATE TABLE IF NOT EXISTS `records_dependencies` (
-  `recordID` smallint(5) unsigned NOT NULL,
+CREATE TABLE `records_dependencies` (
+  `recordID` mediumint(8) UNSIGNED NOT NULL,
   `dependencyID` smallint(6) NOT NULL,
-  `filled` tinyint(3) NOT NULL DEFAULT '0',
-  `time` int(10) unsigned DEFAULT NULL
+  `filled` tinyint(3) NOT NULL DEFAULT 0,
+  `time` int(10) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `records_step_fulfillment`
+--
+
+CREATE TABLE `records_step_fulfillment` (
+  `recordID` mediumint(8) UNSIGNED NOT NULL,
+  `stepID` smallint(6) NOT NULL,
+  `fulfillmentTime` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -346,10 +403,10 @@ CREATE TABLE IF NOT EXISTS `records_dependencies` (
 -- Table structure for table `records_workflow_state`
 --
 
-CREATE TABLE IF NOT EXISTS `records_workflow_state` (
-  `recordID` smallint(6) NOT NULL,
-  `stepID` tinyint(4) unsigned NOT NULL,
-  `blockingStepID` tinyint(4) unsigned NOT NULL DEFAULT '0'
+CREATE TABLE `records_workflow_state` (
+  `recordID` mediumint(8) UNSIGNED NOT NULL,
+  `stepID` smallint(6) NOT NULL,
+  `blockingStepID` tinyint(4) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -358,12 +415,22 @@ CREATE TABLE IF NOT EXISTS `records_workflow_state` (
 -- Table structure for table `route_events`
 --
 
-CREATE TABLE IF NOT EXISTS `route_events` (
-  `workflowID` tinyint(3) unsigned NOT NULL,
-  `stepID` tinyint(3) unsigned NOT NULL,
+CREATE TABLE `route_events` (
+  `workflowID` smallint(6) NOT NULL,
+  `stepID` smallint(6) NOT NULL,
   `actionType` varchar(50) NOT NULL,
   `eventID` varchar(40) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `route_events`
+--
+
+INSERT INTO `route_events` (`workflowID`, `stepID`, `actionType`, `eventID`) VALUES
+(-1, -3, 'approve', 'std_email_notify_next_approver'),
+(-1, -2, 'approve', 'LeafSecure_Certified'),
+(-1, -2, 'approve', 'std_email_notify_completed'),
+(-1, -1, 'submit', 'std_email_notify_next_approver');
 
 -- --------------------------------------------------------
 
@@ -371,8 +438,8 @@ CREATE TABLE IF NOT EXISTS `route_events` (
 -- Table structure for table `services`
 --
 
-CREATE TABLE IF NOT EXISTS `services` (
-  `serviceID` smallint(5) unsigned NOT NULL,
+CREATE TABLE `services` (
+  `serviceID` smallint(5) NOT NULL,
   `service` varchar(100) NOT NULL,
   `abbreviatedService` varchar(25) NOT NULL,
   `groupID` mediumint(9) DEFAULT NULL
@@ -384,52 +451,12 @@ CREATE TABLE IF NOT EXISTS `services` (
 -- Table structure for table `service_chiefs`
 --
 
-CREATE TABLE IF NOT EXISTS `service_chiefs` (
-  `serviceID` smallint(5) unsigned NOT NULL,
-  `userID` varchar(50) NOT NULL
+CREATE TABLE `service_chiefs` (
+  `serviceID` smallint(5) NOT NULL,
+  `userID` varchar(50) NOT NULL,
+  `locallyManaged` tinyint(1) DEFAULT 0,
+  `active` tinyint(4) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `service_data`
---
-
-CREATE TABLE IF NOT EXISTS `service_data` (
-  `serviceID` smallint(5) unsigned NOT NULL,
-  `serviceIndicatorID` smallint(5) unsigned NOT NULL,
-  `data` text NOT NULL,
-  `timestamp` int(11) NOT NULL,
-  `userID` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `service_data_history`
---
-
-CREATE TABLE IF NOT EXISTS `service_data_history` (
-  `serviceID` smallint(5) unsigned NOT NULL,
-  `serviceIndicatorID` smallint(5) unsigned NOT NULL,
-  `data` text NOT NULL,
-  `timestamp` int(11) NOT NULL,
-  `userID` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `service_indicatorid`
---
-
-CREATE TABLE IF NOT EXISTS `service_indicatorid` (
-  `serviceIndicatorID` smallint(5) unsigned NOT NULL,
-  `name` text NOT NULL,
-  `format` text NOT NULL,
-  `description` varchar(50) NOT NULL,
-  `default` varchar(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -437,11 +464,11 @@ CREATE TABLE IF NOT EXISTS `service_indicatorid` (
 -- Table structure for table `sessions`
 --
 
-CREATE TABLE IF NOT EXISTS `sessions` (
+CREATE TABLE `sessions` (
   `sessionKey` varchar(40) NOT NULL,
   `variableKey` varchar(40) NOT NULL DEFAULT '',
   `data` text NOT NULL,
-  `lastModified` int(10) unsigned NOT NULL
+  `lastModified` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -450,9 +477,9 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 -- Table structure for table `settings`
 --
 
-CREATE TABLE IF NOT EXISTS `settings` (
-  `setting` varchar(20) NOT NULL,
-  `data` varchar(50) NOT NULL
+CREATE TABLE `settings` (
+  `setting` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -460,8 +487,47 @@ CREATE TABLE IF NOT EXISTS `settings` (
 --
 
 INSERT INTO `settings` (`setting`, `data`) VALUES
-('dbversion', '3848'),
+('dbversion', '2019120500'),
+('heading', ''),
+('leafSecure', '0'),
+('national_linkedPrimary', ''),
+('national_linkedSubordinateList', ''),
+('requestLabel', 'Request'),
+('siteType', 'standard'),
+('subHeading', ''),
+('timeZone', 'America/New_York'),
 ('version', '2240');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `short_links`
+--
+
+CREATE TABLE `short_links` (
+  `shortID` mediumint(8) UNSIGNED NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `hash` varchar(64) NOT NULL,
+  `data` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `signatures`
+--
+
+CREATE TABLE `signatures` (
+  `signatureID` mediumint(9) NOT NULL,
+  `signature` text NOT NULL,
+  `recordID` smallint(5) UNSIGNED NOT NULL,
+  `stepID` smallint(5) NOT NULL,
+  `dependencyID` smallint(5) NOT NULL,
+  `message` longtext NOT NULL,
+  `signerPublicKey` text NOT NULL,
+  `userID` varchar(50) NOT NULL,
+  `timestamp` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -469,10 +535,30 @@ INSERT INTO `settings` (`setting`, `data`) VALUES
 -- Table structure for table `step_dependencies`
 --
 
-CREATE TABLE IF NOT EXISTS `step_dependencies` (
+CREATE TABLE `step_dependencies` (
   `stepID` smallint(6) NOT NULL,
   `dependencyID` smallint(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `step_dependencies`
+--
+
+INSERT INTO `step_dependencies` (`stepID`, `dependencyID`) VALUES
+(-3, -1),
+(-2, -1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `step_modules`
+--
+
+CREATE TABLE `step_modules` (
+  `stepID` smallint(6) NOT NULL,
+  `moduleName` varchar(50) NOT NULL,
+  `moduleConfig` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -480,10 +566,10 @@ CREATE TABLE IF NOT EXISTS `step_dependencies` (
 -- Table structure for table `tags`
 --
 
-CREATE TABLE IF NOT EXISTS `tags` (
-  `recordID` smallint(5) unsigned NOT NULL,
+CREATE TABLE `tags` (
+  `recordID` int(11) UNSIGNED NOT NULL,
   `tag` varchar(50) NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `userID` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -493,7 +579,7 @@ CREATE TABLE IF NOT EXISTS `tags` (
 -- Table structure for table `users`
 --
 
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE `users` (
   `userID` varchar(50) NOT NULL,
   `groupID` mediumint(9) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -504,11 +590,18 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Table structure for table `workflows`
 --
 
-CREATE TABLE IF NOT EXISTS `workflows` (
-  `workflowID` tinyint(4) unsigned NOT NULL,
-  `initialStepID` tinyint(3) unsigned NOT NULL DEFAULT '0',
+CREATE TABLE `workflows` (
+  `workflowID` smallint(6) NOT NULL,
+  `initialStepID` smallint(6) NOT NULL DEFAULT 0,
   `description` varchar(64) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `workflows`
+--
+
+INSERT INTO `workflows` (`workflowID`, `initialStepID`, `description`) VALUES
+(-1, -3, 'LEAF Secure Certification');
 
 -- --------------------------------------------------------
 
@@ -516,13 +609,23 @@ CREATE TABLE IF NOT EXISTS `workflows` (
 -- Table structure for table `workflow_routes`
 --
 
-CREATE TABLE IF NOT EXISTS `workflow_routes` (
-  `workflowID` tinyint(3) unsigned NOT NULL,
+CREATE TABLE `workflow_routes` (
+  `workflowID` smallint(6) NOT NULL,
   `stepID` smallint(6) NOT NULL,
-  `nextStepID` tinyint(3) unsigned NOT NULL,
+  `nextStepID` smallint(6) NOT NULL,
   `actionType` varchar(50) NOT NULL,
   `displayConditional` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `workflow_routes`
+--
+
+INSERT INTO `workflow_routes` (`workflowID`, `stepID`, `nextStepID`, `actionType`, `displayConditional`) VALUES
+(-1, -3, -2, 'approve', ''),
+(-1, -3, 0, 'sendback', ''),
+(-1, -2, 0, 'approve', ''),
+(-1, -2, 0, 'sendback', '');
 
 -- --------------------------------------------------------
 
@@ -530,8 +633,8 @@ CREATE TABLE IF NOT EXISTS `workflow_routes` (
 -- Table structure for table `workflow_steps`
 --
 
-CREATE TABLE IF NOT EXISTS `workflow_steps` (
-  `workflowID` tinyint(3) unsigned NOT NULL,
+CREATE TABLE `workflow_steps` (
+  `workflowID` smallint(6) NOT NULL,
   `stepID` smallint(6) NOT NULL,
   `stepTitle` varchar(64) NOT NULL,
   `stepBgColor` varchar(10) NOT NULL DEFAULT '#fffdcd',
@@ -539,8 +642,19 @@ CREATE TABLE IF NOT EXISTS `workflow_steps` (
   `stepBorder` varchar(20) NOT NULL DEFAULT '1px solid black',
   `jsSrc` varchar(128) NOT NULL,
   `posX` smallint(6) DEFAULT NULL,
-  `posY` smallint(6) DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+  `posY` smallint(6) DEFAULT NULL,
+  `indicatorID_for_assigned_empUID` smallint(6) DEFAULT NULL,
+  `indicatorID_for_assigned_groupID` smallint(6) DEFAULT NULL,
+  `requiresDigitalSignature` tinyint(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `workflow_steps`
+--
+
+INSERT INTO `workflow_steps` (`workflowID`, `stepID`, `stepTitle`, `stepBgColor`, `stepFontColor`, `stepBorder`, `jsSrc`, `posX`, `posY`, `indicatorID_for_assigned_empUID`, `indicatorID_for_assigned_groupID`, `requiresDigitalSignature`) VALUES
+(-1, -3, 'Supervisory Review for LEAF-S Certification', '#82b9fe', 'black', '1px solid black', '', 579, 146, -4, NULL, NULL),
+(-1, -2, 'Privacy Officer Review for LEAF-S Certification', '#82b9fe', 'black', '1px solid black', '', 575, 331, -1, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -556,7 +670,12 @@ ALTER TABLE `actions`
 -- Indexes for table `action_history`
 --
 ALTER TABLE `action_history`
-  ADD PRIMARY KEY (`actionID`), ADD KEY `time` (`time`), ADD KEY `recordID` (`recordID`), ADD KEY `actionTypeID` (`actionTypeID`), ADD KEY `groupID` (`groupID`), ADD KEY `dependencyID` (`dependencyID`), ADD KEY `actionType` (`actionType`);
+  ADD PRIMARY KEY (`actionID`),
+  ADD KEY `time` (`time`),
+  ADD KEY `recordID` (`recordID`),
+  ADD KEY `actionTypeID` (`actionTypeID`),
+  ADD KEY `dependencyID` (`dependencyID`),
+  ADD KEY `actionType` (`actionType`);
 
 --
 -- Indexes for table `action_types`
@@ -568,37 +687,47 @@ ALTER TABLE `action_types`
 -- Indexes for table `approvals`
 --
 ALTER TABLE `approvals`
-  ADD PRIMARY KEY (`approvalID`), ADD KEY `time` (`time`), ADD KEY `recordID` (`recordID`), ADD KEY `groupID` (`groupID`), ADD KEY `record_group` (`recordID`,`groupID`), ADD KEY `record_time` (`recordID`,`time`);
+  ADD PRIMARY KEY (`approvalID`),
+  ADD KEY `time` (`time`),
+  ADD KEY `recordID` (`recordID`),
+  ADD KEY `groupID` (`groupID`),
+  ADD KEY `record_group` (`recordID`,`groupID`),
+  ADD KEY `record_time` (`recordID`,`time`);
 
 --
 -- Indexes for table `categories`
 --
 ALTER TABLE `categories`
-  ADD PRIMARY KEY (`categoryID`), ADD KEY `parentID` (`parentID`);
+  ADD PRIMARY KEY (`categoryID`),
+  ADD KEY `parentID` (`parentID`);
 
 --
 -- Indexes for table `category_count`
 --
 ALTER TABLE `category_count`
-  ADD PRIMARY KEY (`recordID`,`categoryID`), ADD KEY `categoryID` (`categoryID`);
-
---
--- Indexes for table `category_dependencies`
---
-ALTER TABLE `category_dependencies`
-  ADD UNIQUE KEY `categoryID_2` (`categoryID`,`dependencyID`), ADD KEY `sort` (`state`), ADD KEY `categoryID` (`categoryID`), ADD KEY `dependencyID` (`dependencyID`);
+  ADD PRIMARY KEY (`recordID`,`categoryID`),
+  ADD KEY `categoryID` (`categoryID`);
 
 --
 -- Indexes for table `category_privs`
 --
 ALTER TABLE `category_privs`
-  ADD UNIQUE KEY `categoryID` (`categoryID`,`groupID`), ADD KEY `groupID` (`groupID`);
+  ADD UNIQUE KEY `categoryID` (`categoryID`,`groupID`),
+  ADD KEY `groupID` (`groupID`);
+
+--
+-- Indexes for table `category_staples`
+--
+ALTER TABLE `category_staples`
+  ADD UNIQUE KEY `category_stapled` (`categoryID`,`stapledCategoryID`),
+  ADD KEY `categoryID` (`categoryID`);
 
 --
 -- Indexes for table `data`
 --
 ALTER TABLE `data`
-  ADD UNIQUE KEY `unique` (`recordID`,`indicatorID`,`series`), ADD KEY `indicator_series` (`indicatorID`,`series`);
+  ADD UNIQUE KEY `unique` (`recordID`,`indicatorID`,`series`),
+  ADD KEY `indicator_series` (`indicatorID`,`series`);
 
 --
 -- Indexes for table `data_cache`
@@ -607,10 +736,17 @@ ALTER TABLE `data_cache`
   ADD UNIQUE KEY `cacheKey` (`cacheKey`);
 
 --
+-- Indexes for table `data_extended`
+--
+ALTER TABLE `data_extended`
+  ADD KEY `recordID_indicatorID` (`recordID`,`indicatorID`);
+
+--
 -- Indexes for table `data_history`
 --
 ALTER TABLE `data_history`
-  ADD KEY `recordID` (`recordID`,`indicatorID`,`series`), ADD KEY `timestamp` (`timestamp`);
+  ADD KEY `recordID` (`recordID`,`indicatorID`,`series`),
+  ADD KEY `timestamp` (`timestamp`);
 
 --
 -- Indexes for table `dependencies`
@@ -622,7 +758,8 @@ ALTER TABLE `dependencies`
 -- Indexes for table `dependency_privs`
 --
 ALTER TABLE `dependency_privs`
-  ADD UNIQUE KEY `dependencyID` (`dependencyID`,`groupID`), ADD KEY `groupID` (`groupID`);
+  ADD UNIQUE KEY `dependencyID` (`dependencyID`,`groupID`),
+  ADD KEY `groupID` (`groupID`);
 
 --
 -- Indexes for table `events`
@@ -640,37 +777,48 @@ ALTER TABLE `groups`
 -- Indexes for table `indicators`
 --
 ALTER TABLE `indicators`
-  ADD PRIMARY KEY (`indicatorID`), ADD KEY `parentID` (`parentID`), ADD KEY `categoryID` (`categoryID`), ADD KEY `sort` (`sort`);
+  ADD PRIMARY KEY (`indicatorID`),
+  ADD KEY `parentID` (`parentID`),
+  ADD KEY `categoryID` (`categoryID`),
+  ADD KEY `sort` (`sort`);
 
 --
 -- Indexes for table `indicator_mask`
 --
 ALTER TABLE `indicator_mask`
-  ADD UNIQUE KEY `indicatorID_2` (`indicatorID`,`groupID`), ADD KEY `indicatorID` (`indicatorID`), ADD KEY `groupID` (`groupID`);
+  ADD UNIQUE KEY `indicatorID_2` (`indicatorID`,`groupID`),
+  ADD KEY `indicatorID` (`indicatorID`),
+  ADD KEY `groupID` (`groupID`);
 
 --
 -- Indexes for table `notes`
 --
 ALTER TABLE `notes`
-  ADD PRIMARY KEY (`noteID`), ADD KEY `recordID` (`recordID`);
-
---
--- Indexes for table `pair_category_serviceiid`
---
-ALTER TABLE `pair_category_serviceiid`
-  ADD KEY `categoryID` (`categoryID`), ADD KEY `serviceIndicatorID` (`serviceIndicatorID`);
+  ADD PRIMARY KEY (`noteID`),
+  ADD KEY `recordID` (`recordID`);
 
 --
 -- Indexes for table `records`
 --
 ALTER TABLE `records`
-  ADD PRIMARY KEY (`recordID`), ADD KEY `date` (`date`), ADD KEY `deleted` (`deleted`), ADD KEY `serviceID` (`serviceID`);
+  ADD PRIMARY KEY (`recordID`),
+  ADD KEY `date` (`date`),
+  ADD KEY `deleted` (`deleted`),
+  ADD KEY `serviceID` (`serviceID`);
 
 --
 -- Indexes for table `records_dependencies`
 --
 ALTER TABLE `records_dependencies`
-  ADD UNIQUE KEY `recordID` (`recordID`,`dependencyID`), ADD KEY `filled` (`dependencyID`,`filled`), ADD KEY `time` (`time`);
+  ADD UNIQUE KEY `recordID` (`recordID`,`dependencyID`),
+  ADD KEY `filled` (`dependencyID`,`filled`),
+  ADD KEY `time` (`time`);
+
+--
+-- Indexes for table `records_step_fulfillment`
+--
+ALTER TABLE `records_step_fulfillment`
+  ADD UNIQUE KEY `recordID` (`recordID`,`stepID`) USING BTREE;
 
 --
 -- Indexes for table `records_workflow_state`
@@ -682,37 +830,26 @@ ALTER TABLE `records_workflow_state`
 -- Indexes for table `route_events`
 --
 ALTER TABLE `route_events`
-  ADD UNIQUE KEY `workflowID_2` (`workflowID`,`stepID`,`actionType`,`eventID`), ADD KEY `eventID` (`eventID`), ADD KEY `workflowID` (`workflowID`,`stepID`,`actionType`), ADD KEY `actionType` (`actionType`);
+  ADD UNIQUE KEY `workflowID_2` (`workflowID`,`stepID`,`actionType`,`eventID`),
+  ADD KEY `eventID` (`eventID`),
+  ADD KEY `workflowID` (`workflowID`,`stepID`,`actionType`),
+  ADD KEY `actionType` (`actionType`);
 
 --
 -- Indexes for table `services`
 --
 ALTER TABLE `services`
-  ADD PRIMARY KEY (`serviceID`), ADD UNIQUE KEY `service` (`service`), ADD KEY `groupID` (`groupID`);
+  ADD PRIMARY KEY (`serviceID`),
+  ADD UNIQUE KEY `service` (`service`),
+  ADD KEY `groupID` (`groupID`);
 
 --
 -- Indexes for table `service_chiefs`
 --
 ALTER TABLE `service_chiefs`
-  ADD UNIQUE KEY `serviceID_2` (`serviceID`,`userID`), ADD KEY `serviceID` (`serviceID`), ADD KEY `userID` (`userID`);
-
---
--- Indexes for table `service_data`
---
-ALTER TABLE `service_data`
-  ADD KEY `serviceID` (`serviceID`), ADD KEY `serviceIndicatorID` (`serviceIndicatorID`);
-
---
--- Indexes for table `service_data_history`
---
-ALTER TABLE `service_data_history`
-  ADD KEY `serviceID` (`serviceID`), ADD KEY `serviceIndicatorID` (`serviceIndicatorID`);
-
---
--- Indexes for table `service_indicatorid`
---
-ALTER TABLE `service_indicatorid`
-  ADD PRIMARY KEY (`serviceIndicatorID`);
+  ADD UNIQUE KEY `serviceID_2` (`serviceID`,`userID`),
+  ADD KEY `serviceID` (`serviceID`),
+  ADD KEY `userID` (`userID`);
 
 --
 -- Indexes for table `sessions`
@@ -727,22 +864,45 @@ ALTER TABLE `settings`
   ADD PRIMARY KEY (`setting`);
 
 --
+-- Indexes for table `short_links`
+--
+ALTER TABLE `short_links`
+  ADD PRIMARY KEY (`shortID`),
+  ADD UNIQUE KEY `type_hash` (`type`,`hash`);
+
+--
+-- Indexes for table `signatures`
+--
+ALTER TABLE `signatures`
+  ADD PRIMARY KEY (`signatureID`),
+  ADD UNIQUE KEY `recordID_stepID_depID` (`recordID`,`stepID`,`dependencyID`);
+
+--
 -- Indexes for table `step_dependencies`
 --
 ALTER TABLE `step_dependencies`
-  ADD UNIQUE KEY `stepID` (`stepID`,`dependencyID`), ADD KEY `dependencyID` (`dependencyID`);
+  ADD UNIQUE KEY `stepID` (`stepID`,`dependencyID`),
+  ADD KEY `dependencyID` (`dependencyID`);
+
+--
+-- Indexes for table `step_modules`
+--
+ALTER TABLE `step_modules`
+  ADD UNIQUE KEY `stepID_moduleName` (`stepID`,`moduleName`);
 
 --
 -- Indexes for table `tags`
 --
 ALTER TABLE `tags`
-  ADD UNIQUE KEY `recordID` (`recordID`,`tag`), ADD KEY `tag` (`tag`);
+  ADD UNIQUE KEY `recordID` (`recordID`,`tag`),
+  ADD KEY `tag` (`tag`);
 
 --
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`userID`,`groupID`), ADD KEY `groupID` (`groupID`);
+  ADD PRIMARY KEY (`userID`,`groupID`),
+  ADD KEY `groupID` (`groupID`);
 
 --
 -- Indexes for table `workflows`
@@ -754,13 +914,16 @@ ALTER TABLE `workflows`
 -- Indexes for table `workflow_routes`
 --
 ALTER TABLE `workflow_routes`
-  ADD UNIQUE KEY `workflowID` (`workflowID`,`stepID`,`actionType`), ADD KEY `stepID` (`stepID`), ADD KEY `actionType` (`actionType`);
+  ADD UNIQUE KEY `workflowID` (`workflowID`,`stepID`,`actionType`),
+  ADD KEY `stepID` (`stepID`),
+  ADD KEY `actionType` (`actionType`);
 
 --
 -- Indexes for table `workflow_steps`
 --
 ALTER TABLE `workflow_steps`
-  ADD PRIMARY KEY (`stepID`), ADD KEY `workflowID` (`workflowID`);
+  ADD PRIMARY KEY (`stepID`),
+  ADD KEY `workflowID` (`workflowID`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -770,62 +933,80 @@ ALTER TABLE `workflow_steps`
 -- AUTO_INCREMENT for table `action_history`
 --
 ALTER TABLE `action_history`
-  MODIFY `actionID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `actionID` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `action_types`
 --
 ALTER TABLE `action_types`
-  MODIFY `actionTypeID` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=9;
+  MODIFY `actionTypeID` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
 --
 -- AUTO_INCREMENT for table `approvals`
 --
 ALTER TABLE `approvals`
-  MODIFY `approvalID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `approvalID` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `dependencies`
 --
 ALTER TABLE `dependencies`
-  MODIFY `dependencyID` smallint(6) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=15;
+  MODIFY `dependencyID` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
 --
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `groupID` mediumint(9) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+  MODIFY `groupID` mediumint(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
 --
 -- AUTO_INCREMENT for table `indicators`
 --
 ALTER TABLE `indicators`
   MODIFY `indicatorID` smallint(5) NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `notes`
 --
 ALTER TABLE `notes`
-  MODIFY `noteID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `noteID` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `records`
 --
 ALTER TABLE `records`
-  MODIFY `recordID` smallint(5) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `recordID` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `services`
 --
 ALTER TABLE `services`
-  MODIFY `serviceID` smallint(5) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `serviceID` smallint(5) NOT NULL AUTO_INCREMENT;
+
 --
--- AUTO_INCREMENT for table `service_indicatorid`
+-- AUTO_INCREMENT for table `short_links`
 --
-ALTER TABLE `service_indicatorid`
-  MODIFY `serviceIndicatorID` smallint(5) unsigned NOT NULL AUTO_INCREMENT;
+ALTER TABLE `short_links`
+  MODIFY `shortID` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `signatures`
+--
+ALTER TABLE `signatures`
+  MODIFY `signatureID` mediumint(9) NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `workflows`
 --
 ALTER TABLE `workflows`
-  MODIFY `workflowID` tinyint(4) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=10;
+  MODIFY `workflowID` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
 --
 -- AUTO_INCREMENT for table `workflow_steps`
 --
 ALTER TABLE `workflow_steps`
-  MODIFY `stepID` smallint(6) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=14;
+  MODIFY `stepID` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
 --
 -- Constraints for dumped tables
 --
@@ -834,78 +1015,68 @@ ALTER TABLE `workflow_steps`
 -- Constraints for table `action_history`
 --
 ALTER TABLE `action_history`
-ADD CONSTRAINT `action_history_ibfk_2` FOREIGN KEY (`actionTypeID`) REFERENCES `action_types` (`actionTypeID`);
+  ADD CONSTRAINT `action_history_ibfk_2` FOREIGN KEY (`actionTypeID`) REFERENCES `action_types` (`actionTypeID`);
 
 --
 -- Constraints for table `category_count`
 --
 ALTER TABLE `category_count`
-ADD CONSTRAINT `category_count_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`);
-
---
--- Constraints for table `category_dependencies`
---
-ALTER TABLE `category_dependencies`
-ADD CONSTRAINT `fk_category_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`),
-ADD CONSTRAINT `category_dependencies_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`);
+  ADD CONSTRAINT `category_count_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`);
 
 --
 -- Constraints for table `category_privs`
 --
 ALTER TABLE `category_privs`
-ADD CONSTRAINT `category_privs_ibfk_2` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`);
+  ADD CONSTRAINT `category_privs_ibfk_2` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`);
+
+--
+-- Constraints for table `category_staples`
+--
+ALTER TABLE `category_staples`
+  ADD CONSTRAINT `category_staples_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `dependency_privs`
 --
 ALTER TABLE `dependency_privs`
-ADD CONSTRAINT `fk_privs_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`);
+  ADD CONSTRAINT `fk_privs_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`);
 
 --
 -- Constraints for table `indicators`
 --
 ALTER TABLE `indicators`
-ADD CONSTRAINT `indicators_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`);
-
---
--- Constraints for table `pair_category_serviceiid`
---
-ALTER TABLE `pair_category_serviceiid`
-ADD CONSTRAINT `pair_category_serviceiid_ibfk_1` FOREIGN KEY (`serviceIndicatorID`) REFERENCES `service_indicatorid` (`serviceIndicatorID`),
-ADD CONSTRAINT `pair_category_serviceiid_ibfk_2` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`);
+  ADD CONSTRAINT `indicators_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`);
 
 --
 -- Constraints for table `records_dependencies`
 --
 ALTER TABLE `records_dependencies`
-ADD CONSTRAINT `fk_records_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`);
+  ADD CONSTRAINT `fk_records_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`);
 
 --
 -- Constraints for table `route_events`
 --
 ALTER TABLE `route_events`
-ADD CONSTRAINT `route_events_ibfk_1` FOREIGN KEY (`actionType`) REFERENCES `actions` (`actionType`),
-ADD CONSTRAINT `route_events_ibfk_2` FOREIGN KEY (`eventID`) REFERENCES `events` (`eventID`);
+  ADD CONSTRAINT `route_events_ibfk_1` FOREIGN KEY (`actionType`) REFERENCES `actions` (`actionType`),
+  ADD CONSTRAINT `route_events_ibfk_2` FOREIGN KEY (`eventID`) REFERENCES `events` (`eventID`);
 
 --
 -- Constraints for table `step_dependencies`
 --
 ALTER TABLE `step_dependencies`
-ADD CONSTRAINT `fk_step_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`),
-ADD CONSTRAINT `step_dependencies_ibfk_3` FOREIGN KEY (`stepID`) REFERENCES `workflow_steps` (`stepID`);
+  ADD CONSTRAINT `fk_step_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`),
+  ADD CONSTRAINT `step_dependencies_ibfk_3` FOREIGN KEY (`stepID`) REFERENCES `workflow_steps` (`stepID`);
 
 --
 -- Constraints for table `workflow_routes`
 --
 ALTER TABLE `workflow_routes`
-ADD CONSTRAINT `workflow_routes_ibfk_4` FOREIGN KEY (`stepID`) REFERENCES `workflow_steps` (`stepID`),
-ADD CONSTRAINT `workflow_routes_ibfk_1` FOREIGN KEY (`workflowID`) REFERENCES `workflows` (`workflowID`),
-ADD CONSTRAINT `workflow_routes_ibfk_3` FOREIGN KEY (`actionType`) REFERENCES `actions` (`actionType`);
+  ADD CONSTRAINT `workflow_routes_ibfk_1` FOREIGN KEY (`workflowID`) REFERENCES `workflows` (`workflowID`),
+  ADD CONSTRAINT `workflow_routes_ibfk_3` FOREIGN KEY (`actionType`) REFERENCES `actions` (`actionType`);
 
 --
 -- Constraints for table `workflow_steps`
 --
 ALTER TABLE `workflow_steps`
-ADD CONSTRAINT `workflow_steps_ibfk_1` FOREIGN KEY (`workflowID`) REFERENCES `workflows` (`workflowID`);
-
-INSERT INTO `dependencies` (`dependencyID`, `description`) VALUES ('1', 'Service Chief'), ('8', 'Quadrad');
+  ADD CONSTRAINT `workflow_steps_ibfk_1` FOREIGN KEY (`workflowID`) REFERENCES `workflows` (`workflowID`);
+COMMIT;
