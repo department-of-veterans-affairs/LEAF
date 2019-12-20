@@ -648,18 +648,18 @@ var printer = function() {
                                 doc.rect(10, verticalShift, 190, 8, 'FD');
                                 doc.text(title, 11, verticalShift + 6);
                             }
+                            doc.setFont("times");
                             checkBoxShift = 0;
                             $.each(indicator.options, function () {
-                                checkBoxShift = this.length > checkBoxShift ? this.length : checkBoxShift;
+                                checkBoxShift = doc.getTextWidth(this) + 10 > checkBoxShift ? doc.getTextWidth(this) + 10 : checkBoxShift;
                             });
-                            checkBoxShift = checkBoxShift * 5 > 20 ? checkBoxShift * 5 : 20;
+                            checkBoxShift = checkBoxShift > 20 ? checkBoxShift : 20;
                             horizontalShift = 20;
                             verticalStart = verticalShift;
                             doc.setTextColor(0);
-                            doc.setFont("times");
                             verticalShift += 4;
                             for (var i = 0; i < indicator.options.length; i++) {
-                                if (horizontalShift > maxWidth) {
+                                if ( (horizontalShift + doc.getTextWidth(indicator.options[i])) > maxWidth) {
                                     verticalShift += 8;
                                     horizontalShift = 20;
                                 }
