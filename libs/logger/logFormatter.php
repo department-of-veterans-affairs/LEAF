@@ -3,7 +3,8 @@
 class LogFormatter{
 
     const formatters = array(
-        "groupID"=> self::groupFormattedStrings
+        "groupID"=> self::groupFormattedStrings,
+        "serviceChief"=> self::serviceChiefFormattedStrings
     );
 
     const groupFormattedStrings = [
@@ -39,6 +40,17 @@ class LogFormatter{
             "message"=>"Position %s has been removed from Group %s",
             "variables"=>"positionID,groupID"
         ]
+    ];
+
+    const serviceChiefFormattedStrings = [
+        DataActions::ADD.'-'.LoggableTypes::SERVICE_CHIEF => [
+            "message"=>"User %s has been added to %s",
+            "variables"=>"userID,groupID" 
+        ],
+        DataActions::DELETE.'-'.LoggableTypes::SERVICE_CHIEF=> [
+            "message"=>"User %s has been removed from %s",
+            "variables"=>"userID,groupID"    
+        ],
     ];
 
     public static function getFormattedString($logData, $logType){
@@ -84,4 +96,5 @@ class LoggableTypes {
     const PRIVILEGES = 'privileges';
     const POSITION = 'position';
     const EMPLOYEE = 'employee';
+    const SERVICE_CHIEF = "service_chief";
 }
