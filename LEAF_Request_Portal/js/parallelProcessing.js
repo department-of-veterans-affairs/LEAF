@@ -345,7 +345,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
 
     /*
     * Function to copy file attachments from parallel processing record to new records
-    * 
+    * Alerts user if a file failed to be copy, otherwise, implicit success
     */
     function copyFileToNewRecord(indicatorID, fileName, newRecordID, series) {
         $.ajax({
@@ -360,8 +360,12 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 series: series
             },
             success: function(res) {
-                if (res === 1) {
-                    alert(fileName + " was not copied successfully.");
+                if (res !== 1) {
+                    if (res.type === 2) {
+                        alert('Error: ' + fileName + " failed to copy.\nReason: File does not exist or file name format incorrect");
+                    } else {
+                        alert('Error: Unknown error.\nReason: If you see this error, try again. If the error persists, please contact support.');
+                    }
                 } 
             },
             cache: false
