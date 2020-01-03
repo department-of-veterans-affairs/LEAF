@@ -221,7 +221,7 @@ var printer = function() {
                     $.each(JSON.parse(indicator.options), function () {
                         columns.push(this.name);
                     });
-                    var table = '#grid_' + indicator.indicatorID + '_' + indicator.series + '_output';
+                    var table = '#grid_' + indicator.indicatorID + '_' + indicator.series + '_' + recordID + '_output';
                     doc.autoTableSetDefaults({
                         margin: {
                             left: 10,

@@ -221,7 +221,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
         <div class="printResponse" style="overflow-x: scroll; -ms-overflow-x: scroll;" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_output" style="word-wrap:break-word; text-align: center;">
+            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_<!--{$recordID}-->_output" style="word-wrap:break-word; text-align: center;">
                 <thead>
                 </thead>
                 <tbody>
@@ -231,7 +231,7 @@
         <script>
             // fix for IE scroll bar
             $('#xhrIndicator_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').css('max-width', parseInt($('.printmainlabel').css('width')) * .85 + 'px');
-            var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
+            var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->, <!--{$recordID}-->);
             $(function() {
                 gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.output(<!--{$indicator.value|json_encode}-->);
             })
