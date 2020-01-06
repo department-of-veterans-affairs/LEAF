@@ -38,13 +38,13 @@ class Group
         if ($groupID != 1)
         {
             $vars = array(':groupID' => $groupID);
-            $res = $this->db->prepared_query('SELECT * FROM groups WHERE groupID=:groupID', $vars);
+            $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID=:groupID', $vars);
 
             if (isset($res[0])
                 && $res[0]['parentGroupID'] == null)
             {
                 $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
-                $this->db->prepared_query('DELETE FROM groups WHERE groupID=:groupID', $vars);
+                $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
                 return 1;
             }
@@ -113,7 +113,7 @@ class Group
     // exclude: 0 (no group), 24, (everyone), 16 (service chief)
     public function getGroups()
     {
-        $res = $this->db->prepared_query('SELECT * FROM groups WHERE groupID != 0 ORDER BY name ASC', array());
+        $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID != 0 ORDER BY name ASC', array());
 
         return $res;
     }

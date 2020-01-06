@@ -139,7 +139,7 @@ class System
         // clear out old data first
         $vars = array(':groupID' => $groupID);
         $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
-        $this->db->prepared_query('DELETE FROM groups WHERE groupID=:groupID', $vars);
+        $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
@@ -246,7 +246,7 @@ class System
 
     public function getGroups()
     {
-        return $this->db->prepared_query('SELECT * FROM groups
+        return $this->db->prepared_query('SELECT * FROM `groups`
     								WHERE groupID > 1
         							ORDER BY name ASC', array());
     }

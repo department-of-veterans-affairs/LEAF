@@ -702,8 +702,20 @@
                     if (empSel.selection === '') {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
                     } else {
-                        $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Please wait. Database busy. ***');
-                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                        $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Loading... ***');
+
+                        var selectedUser = empSel.selectionData[empSel.selection];
+                        var selectedUserName = selectedUser.userName;
+        
+                        var first = selectedUser.firstName;
+                        var last = selectedUser.lastName;
+                        var middle = selectedUser.middleName;
+
+                        var formatted = last + ", " + first + " " + middle;
+                        
+                        empSel.q = formatted;
+                        $("#"+ empSel.prefixID+"input").val(formatted);
+
                         $.ajax({
                             type: 'POST',
                             url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,

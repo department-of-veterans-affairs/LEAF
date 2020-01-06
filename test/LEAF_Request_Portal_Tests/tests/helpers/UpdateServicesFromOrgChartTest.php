@@ -49,7 +49,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             self::$db->query("INSERT INTO category_privs (`categoryID`, `groupID`, `readable`, `writable`)
                                 VALUES ('form_f4687', '20', '1', '1')");
             //assert they are inserted
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $users = self::$db->query("SELECT * FROM users WHERE groupID = '20'");
             $category_privs = self::$db->query("SELECT * FROM category_privs WHERE groupID = '20'");
             $this->assertTrue(count($groups) > 0);
@@ -60,7 +60,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgChart.php');
 
             //assert they are gone
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $users = self::$db->query("SELECT * FROM users WHERE groupID = '20'");
             $category_privs = self::$db->query("SELECT * FROM category_privs WHERE groupID = '20'");
             $this->assertTrue(count($groups) == 0);
@@ -75,7 +75,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             self::$db->query("INSERT INTO users (`userID`, `groupID`)
                                 VALUES ('tester', '20')");
             //assert they are inserted
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $users = self::$db->query("SELECT * FROM users WHERE groupID = '20'");
             $this->assertTrue(count($groups) > 0);
             $this->assertTrue(count($users) > 0);
@@ -84,7 +84,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgChart.php');
 
             //assert they are gone
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $users = self::$db->query("SELECT * FROM users WHERE groupID = '20'");
             $this->assertTrue(count($groups) == 0);
             $this->assertTrue(count($users) == 0);
@@ -97,7 +97,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             self::$db->query("INSERT INTO category_privs (`categoryID`, `groupID`, `readable`, `writable`)
                                 VALUES ('form_f4687', '20', '1', '1')");
             //assert they are inserted
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $category_privs = self::$db->query("SELECT * FROM category_privs WHERE groupID = '20'");
             $this->assertTrue(count($groups) > 0);
             $this->assertTrue(count($category_privs) > 0);
@@ -106,7 +106,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgChart.php');
 
             //assert they are gone
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $category_privs = self::$db->query("SELECT * FROM category_privs WHERE groupID = '20'");
             $this->assertTrue(count($groups) == 0);
             $this->assertTrue(count($category_privs) == 0);
@@ -138,14 +138,14 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             self::$db->query("INSERT INTO groups (`groupID`, `parentGroupID`, `name`, `groupDescription`)
                                 VALUES ('20', NULL, 'faker', 'faker')");
             //assert they are inserted
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $this->assertTrue(count($groups) > 0);
 
             //call update, this should remove all since the group isn't in nexus
             self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgChart.php');
 
             //assert they are gone
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $this->assertTrue(count($groups) == 0);
 
         //CASE 6, REMOVE users only:

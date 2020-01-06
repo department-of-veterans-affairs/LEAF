@@ -40,7 +40,7 @@ class GroupControllerTest extends DatabaseTest
 
         $var = array(':groupID' => 1);
         $res = self::$db->prepared_query('SELECT parentID
-                                            FROM groups
+                                            FROM `groups`
                                             WHERE groupID=:groupID', $var);
 
         $this->assertFalse(empty($res));
