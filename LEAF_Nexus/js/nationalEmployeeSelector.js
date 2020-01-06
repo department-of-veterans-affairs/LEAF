@@ -79,6 +79,10 @@ nationalEmployeeSelector.prototype.initialize = function() {
 	$('#' + this.prefixID+ 'input').on('keydown', function(e) {
 		t.showBusy();
 		t.timer = 0;
+
+		if(t.selection != ""){
+			t.selection = "";
+		}
 		if(e.keyCode == 13) { // enter key
 			t.search();
 		}
@@ -290,10 +294,6 @@ nationalEmployeeSelector.prototype.search = function() {
 
 							$('#' + t.prefixID + 'status').append(' ' + response[i].userName + ' ' + positionTitle + ' ' + email + ',');
 							t.numResults++;
-						}
-
-						if(t.numResults == 1) {
-							t.selection = response[i].empUID;
 						}
 
 						if(t.numResults >= 5) {
