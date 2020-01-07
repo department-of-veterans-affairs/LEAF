@@ -35,7 +35,7 @@ switch ($action) {
         $stepID = (int)$_GET['stepID'];
         if ($script != ''
             && file_exists("scripts/workflowStepModules/{$script}.tpl")
-            && $stepID > 0)
+            && is_numeric($stepID))
         {
             $vars = array(':stepID' => $stepID,
                           ':moduleName' => $script);
