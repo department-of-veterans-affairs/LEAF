@@ -69,6 +69,15 @@ function customTemplate($tpl)
 
 function hasDevConsoleAccess($login, $db_phonebook)
 {
+    // automatically allow coaches
+    $db_national = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+    $vars = array(':groupID' => 17,
+                  ':empUID' => $login->getEmpUID());
+    $res = $db_national->prepared_query('SELECT * FROM relation_group_employee WHERE groupID=:groupID AND empUID=:empUID', $vars);
+    if(count($res) > 0) {
+        return 1;
+    }
+
     $vars = array(':empUID' => $login->getEmpUID());
     $res = $db_phonebook->prepared_query('SELECT data FROM employee_data
                                             WHERE empUID=:empUID
