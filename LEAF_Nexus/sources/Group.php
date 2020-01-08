@@ -158,7 +158,7 @@ class Group extends Data
 
         $groupID = $this->db->getLastInsertID();
 
-        $this->logAction(\DataActions::ADD."-".\LoggableTypes::GROUP,[
+        $this->logAction(\DataActions::ADD,\LoggableTypes::GROUP,[
             new LogItem("groups", "groupID", $groupID),
             new LogItem("groups", "groupTitle", $groupTitle),
             new LogItem("groups", "parentID", $parentGroupID)
@@ -181,7 +181,7 @@ class Group extends Data
                 $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
                                                     VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
                 
-                $this->logAction(\DataActions::MODIFY."-".\LoggableTypes::PRIVILEGES,[
+                $this->logAction(\DataActions::MODIFY,\LoggableTypes::PRIVILEGES,[
                     new LogItem("group_privileges", "groupID", $groupID, $groupTitle),
                     new LogItem("group_privileges", "UID", $position['positionID'],$this->getPositionDisplay($position['positionID'])),
                     new LogItem("group_privileges", "read", "true"),
@@ -198,7 +198,7 @@ class Group extends Data
             $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
                                                 VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
                                                 
-            $this->logAction(\DataActions::MODIFY."-".\LoggableTypes::PRIVILEGES,[
+            $this->logAction(\DataActions::MODIFY,\LoggableTypes::PRIVILEGES,[
                 new LogItem("group_privileges", "groupID", $groupID, $groupTitle ),
                 new LogItem("group_privileges", "UID", $this->login->getEmpUID(),$this->login->getName()),
                 new LogItem("group_privileges", "read", "true"),
@@ -265,7 +265,7 @@ class Group extends Data
         $this->db->commitTransaction();
         $this->updateLastModified();
 
-        $this->logAction(\DataActions::DELETE."-".\LoggableTypes::GROUP,[
+        $this->logAction(\DataActions::DELETE,\LoggableTypes::GROUP,[
             new LogItem("groups", "groupID", $groupID, getTitle($groupID))
         ]);
 
@@ -336,7 +336,7 @@ class Group extends Data
         $this->db->prepared_query('UPDATE groups SET groupTitle=:groupTitle, groupAbbreviation=:abbrTitle, phoneticGroupTitle=:phoTitle
                                         WHERE groupID=:groupID', $vars);
         
-        $this->logAction(\DataActions::MODIFY."-".\LoggableTypes::GROUP,[
+        $this->logAction(\DataActions::MODIFY,\LoggableTypes::GROUP,[
             new LogItem("groups", "groupID", $groupID),
             new LogItem("groups", "groupTitle", $newTitle)
         ]);
@@ -361,7 +361,7 @@ class Group extends Data
                 						WHERE groupID=:groupID', $vars);
         $this->updateLastModified();
 
-        $this->logAction(\DataActions::MODIFY."-".\LoggableTypes::GROUP,[
+        $this->logAction(\DataActions::MODIFY,\LoggableTypes::GROUP,[
             new LogItem("groups", "groupID", $groupID, $this->getTitle($groupID)),
             new LogItem("groups", "parentID", $newParentID, $this->getTitle($groupID))
         ]);
@@ -807,7 +807,7 @@ class Group extends Data
 
         $newRecordID = $this->db->getLastInsertID();                                    
                 
-        $this->logAction(\DataActions::ADD.'-'.\LoggableTypes::POSITION,[
+        $this->logAction(\DataActions::ADD,\LoggableTypes::POSITION,[
             new LogItem("relation_group_position", "groupID", $groupID, $this->getTitle($groupID)),
             new LogItem("relation_group_position", "positionID", $positionID, $this->getPositionDisplay($positionID))
         ]);
@@ -838,7 +838,7 @@ class Group extends Data
                                     WHERE positionID=:positionID AND groupID=:groupID', $vars);
         $this->updateLastModified();
 
-        $this->logAction(\DataActions::DELETE.'-'.\LoggableTypes::POSITION,[
+        $this->logAction(\DataActions::DELETE,\LoggableTypes::POSITION,[
             new LogItem("relation_group_position", "groupID", $groupID, $this->getTitle($groupID)),
             new LogItem("relation_group_position", "positionID", $positionID, $this->getPositionDisplay($positionID))
         ]);
@@ -872,7 +872,7 @@ class Group extends Data
 
         $employeeDisplay = $this->getEmployeeDisplay($employeeID);
                 
-        $this->logAction(\DataActions::ADD.'-'.\LoggableTypes::EMPLOYEE,[
+        $this->logAction(\DataActions::ADD,\LoggableTypes::EMPLOYEE,[
             new LogItem("relation_group_employee", "groupID", $groupID,$this->getTitle($groupID)),
             new LogItem("relation_group_employee", "empUID", $employeeID, $employeeDisplay)
         ]);
@@ -904,7 +904,7 @@ class Group extends Data
 
         $employeeDisplay = $this->getEmployeeDisplay($empUID);
         
-        $this->logAction(\DataActions::DELETE.'-'.\LoggableTypes::EMPLOYEE,[
+        $this->logAction(\DataActions::DELETE,\LoggableTypes::EMPLOYEE,[
             new LogItem("relation_group_employee", "groupID", $groupID, $this->getTitle($groupID)),
             new LogItem("relation_group_employee", "empUID", $empUID, $employeeDisplay)
         ]);
@@ -1004,7 +1004,7 @@ class Group extends Data
                                             AND categoryID=:categoryID
                                             AND UID=:UID", $vars)[0];
         
-        $this->logAction(\DataActions::MODIFY.'-'.\LoggableTypes::PRIVILEGES,[
+        $this->logAction(\DataActions::MODIFY,\LoggableTypes::PRIVILEGES,[
             new LogItem("group_privileges", "read", ($newPermissions["read"]? "true": "false")),
             new LogItem("group_privileges", "write", ($newPermissions["write"]? "true": "false")),
             new LogItem("group_privileges", "grant", ($newPermissions["grant"]? "true": "false")),
@@ -1052,7 +1052,7 @@ class Group extends Data
                                             AND categoryID=:categoryID
                                             AND UID=:UID", $vars)[0];
         
-        $this->logAction(\DataActions::MODIFY.'-'.\LoggableTypes::PRIVILEGES,[
+        $this->logAction(\DataActions::MODIFY,\LoggableTypes::PRIVILEGES,[
             new LogItem("group_privileges", "read", ($newPermissions["read"] ? "true": "false")),
             new LogItem("group_privileges", "write", ($newPermissions["write"] ? "true": "false")),
             new LogItem("group_privileges", "grant", ($newPermissions["grant"] ? "true": "false")),

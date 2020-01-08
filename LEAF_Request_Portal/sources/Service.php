@@ -9,6 +9,11 @@
 
 */
 
+if(!class_exists('DataActionLogger'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
+}
+
 class Service
 {
     public $siteRoot = '';
@@ -17,10 +22,13 @@ class Service
 
     private $login;
 
+    private $dataActionLogger;
+
     public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
+        $this->dataActionLogger = new \DataActionDataActionLogger($db);
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
@@ -87,6 +95,12 @@ class Service
             $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, locallyManaged)
                                                    VALUES (:groupID, :userID, 1)', $vars);
 
+            $this->dataActionLogger->logAction(\DataActions::ADD,\LoggableTypes::SERVICE_CHIEF,[
+                new LogItem("service_chiefs","serviceID", $groupID, getGroupName($groupID)),
+                new LogItem("service_chiefs", "userID", $member, getEmployeeDisplay($member)), 
+                new LogItem("service_chiefs", "locallyManaged", "false")
+            ]);     
+
             // check if this service is also an ELT
             $vars = array(':groupID' => $groupID);
             $res = $this->db->prepared_query('SELECT * FROM services
@@ -97,7 +111,7 @@ class Service
                 $vars = array(':userID' => $member,
                               ':groupID' => $groupID, );
                 $this->db->prepared_query('INSERT INTO users (userID, groupID)
-												VALUES (:userID, :groupID)', $vars);
+                                                VALUES (:userID, :groupID)', $vars)
             }
         }
 
@@ -117,13 +131,24 @@ class Service
                 $vars = array(':userID' => $member,
                         ':groupID' => $groupID, );
                 $res = $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
+                
+                $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::SERVICE_CHIEF,[
+                    new LogItem("service_chiefs","serviceID", $groupID, getGroupName($groupID)),
+                    new LogItem("service_chiefs", "userID", $member, getEmployeeDisplay($member)) /
+                ]);   
             }
             else
             {
                 $vars = array(':userID' => $member,
                         ':groupID' => $groupID, );
                 $res = $this->db->prepared_query('UPDATE service_chiefs SET active=0, locallyManaged=1
-    												WHERE userID=:userID AND serviceID=:groupID', $vars);
+                                                    WHERE userID=:userID AND serviceID=:groupID', $vars);
+
+                $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::SERVICE_CHIEF,[
+                    new LogItem("service_chiefs","serviceID", $groupID, getGroupName($groupID)),
+                    new LogItem("service_chiefs", "userID", $member, getEmployeeDisplay($member))
+                ]);                                      
+
             }
 
             // check if this service is also an ELT
@@ -205,5 +230,18 @@ class Service
         }
 
         return $list;
+    }
+
+    private function getEmployeeDisplay($employeeID)
+    {
+        $employeeVars = array(':employeeId'=> $employeeID);
+        return $this->db->prepared_query('SELECT concat(firstName," ",lastName) as user from employee where empUID = :employeeId', $employeeVars)[0]['user'];                                    
+    }
+
+    public function getGroupName($groupID)
+    {
+        $vars = array(':groupID' => $groupID);
+        return $this->db->prepared_query('SELECT * FROM groups
+                                            WHERE groupID=:groupID', $vars)[0]['name'];
     }
 }

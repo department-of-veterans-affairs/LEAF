@@ -2,19 +2,21 @@
 
 class LogFormatter{
 
+    const READ_COLUMN_NAMES = "READCOLUMNNAME";
+
     const formatters = array(
-        "groupID"=> self::groupFormattedStrings,
-        "serviceChief"=> self::serviceChiefFormattedStrings
+        LoggableTypes::GROUP=> self::groupFormattedStrings,
+        LoggableTypes::SERVICE_CHIEF=> self::serviceChiefFormattedStrings
     );
 
     const groupFormattedStrings = [
         DataActions::ADD.'-'.LoggableTypes::GROUP => [
             "message"=>"Group %s created",
-            "variables"=>"groupTitle" 
+            "variables"=>"groupTitle"
         ],
         DataActions::DELETE.'-'.LoggableTypes::GROUP=> [
             "message"=>"Group %s deleted",
-            "variables"=>"groupID"    
+            "variables"=>"groupID"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::GROUP=> [
             "message"=>"Group name has changed to %s",
@@ -34,7 +36,8 @@ class LogFormatter{
         ],   
         DataActions::ADD.'-'.LoggableTypes::POSITION=> [
             "message"=>"Position %s added to Group %s",
-            "variables"=>"positionID,groupID"
+            "variables"=>"positionID,groupID",
+            "readColumnNames"=> false
         ],
         DataActions::DELETE.'-'.LoggableTypes::POSITION=> [
             "message"=>"Position %s has been removed from Group %s",
@@ -45,12 +48,28 @@ class LogFormatter{
     const serviceChiefFormattedStrings = [
         DataActions::ADD.'-'.LoggableTypes::SERVICE_CHIEF => [
             "message"=>"User %s has been added to %s",
-            "variables"=>"userID,groupID" 
+            "variables"=>"userID,groupID"
         ],
         DataActions::DELETE.'-'.LoggableTypes::SERVICE_CHIEF=> [
             "message"=>"User %s has been removed from %s",
-            "variables"=>"userID,groupID"    
+            "variables"=>"userID,groupID"
         ],
+    ];
+
+    const formFormattedStrings = [
+
+    ];
+
+    const indicatorFormattedStrings = [
+        DataActions::ADD.'-'.LoggableTypes::INDICATOR => [
+            "message" => "Indicator %s has been added to form %s",
+            "variables"=> "name,categoryID"
+        ],
+        DataActions::MODIFY.'-'.LoggableTypes::INDICATOR => [
+            "message" => "Indicator %s",
+            "variables"=> "name,".self::READ_COLUMN_NAMES,
+            "loggableColumns"=>"name,format,description,default,parentID,required,is_sensitive,disabled,sort,html,htmlPrint"
+        ]
     ];
 
     public static function getFormattedString($logData, $logType){
@@ -59,15 +78,32 @@ class LogFormatter{
 
         $dictionaryItem = $logDictionary[$logData["action"]];
 
-        $columnNames = explode("," , $dictionaryItem["variables"]);
+        $formatVariables = explode("," , $dictionaryItem["variables"]);
+
+        $message = $dictionaryItem["message"];
+
+        if($dictionaryItem["loggableColumns"] != null){
+            $loggableColumns = explode(",", $dictionaryItem["loggableColumns"]);
+        }
 
         $variableArray = [];
 
-        foreach($columnNames as $columnName){
-            array_push($variableArray,self::findValue($logData["items"], $columnName));
+        foreach($formatVariables as $formatVariable){
+            if($formatVariable == self::READ_COLUMN_NAMES){
+                foreach($logData["items"] as $logDataItem){
+                    if(in_array($logDataItem->column, $loggableColumns)){
+                        $message.="%s changed to %s";
+                        array_push($variableArray, $logDataItem->column);
+                        array_push($variableArray, self::findValue($logData["items"], $logDataItem->column));
+                    }
+                }
+            }
+            else{
+                array_push($variableArray,self::findValue($logData["items"], $formatVariable));
+            }
         }
 
-        return vsprintf($dictionaryItem["message"],$variableArray);
+        return vsprintf($message,$variableArray);
     }
 
     private static function findValue($items, $columnName){
@@ -97,4 +133,6 @@ class LoggableTypes {
     const POSITION = 'position';
     const EMPLOYEE = 'employee';
     const SERVICE_CHIEF = "service_chief";
+    const FORM = "form";
+    const INDICATOR = "indicator";
 }

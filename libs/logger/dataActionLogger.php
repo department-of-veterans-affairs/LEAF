@@ -19,7 +19,9 @@ class DataActionLogger{
         $this->db = $db;
     }
 
-    public function logAction($action, $toLog){
+    public function logAction($verb, $type, $toLog){
+
+        $action = $verb.'-'.$type;
 
         $vars = array(
             ':userID' => (int)$this->login->getEmpUID(),
@@ -54,36 +56,42 @@ class DataActionLogger{
         $this->db->prepared_query($sql, $vars);
     }
 
-    public function getHistory($filterById, $tablePKName){
+    public function getHistory($filterById, $filterByColumnName, $logType){
         
-        $logResults = $this->fetchLogData($filterById, $tablePKName);
+        $logResults = $this->fetchLogData($filterById, $filterByColumnName, $logType);
 
         for($i = 0; $i<count($logResults); $i++){
             $logResults[$i]["items"] = $this->fetchLogItems($logResults[$i]);
-            $logResults[$i]["history"] = \LogFormatter::getFormattedString($logResults[$i], $this->dataTableUID);
+            $logResults[$i]["history"] = \LogFormatter::getFormattedString($logResults[$i], \LoggableTypes::GROUP);
         }
         
         return $logResults;
     }
 
-    function fetchLogData($filterById, $tablePKName){
+    function fetchLogData($filterById, $filterByColumnName, $logType){
 
         $vars = array(
-            ':filterBy' => $tablePKName,
+            ':filterBy' => $filterByColumnName,
             ':filterById' => $filterById
         );
 
         $sqlCreateTemp =
-            "create temporary table group_logs
-            select data_action_log_fk 
-            from data_log_items 
-            WHERE `column` = :filterBy
-            AND `VALUE` = :filterById;";
+            "
+            CREATE TEMPORARY TABLE group_logs
+            SELECT data_action_log_fk 
+            FROM data_log_items dli
+            LEFT JOIN data_action_log dal ON dal.id = dli.data_action_log_fk
+            WHERE 
+                dli.column = :filterBy
+            AND 
+                dli.VALUE = :filterById
+            AND 
+                dal.ACTION IN ".$this->buildInClause($logType).";";
         
         $this->db->prepared_query($sqlCreateTemp, $vars);
 
         $sqlFetchLogData= 
-            " Select 
+            " SELECT 
                     dal.ID,
                     concat(e.firstName,' ',e.lastName) as userName,
                     dal.action,
@@ -100,6 +108,20 @@ class DataActionLogger{
         $this->db->query($sqlCleanUp);
         
         return $results;
+    }
+
+    function buildInClause($logType){
+        $actions = array_keys(\LogFormatter::formatters[$logType]);
+
+        $inClause = "(";
+
+        for($i=0; $i<count($actions); $i++){
+            $inClause.="'".$actions[$i]."'".($i == count($actions)-1 ? "": ",");
+        }
+
+        $inClause.=")";
+
+        return $inClause;
     }
 
     function fetchLogItems($logResult){
