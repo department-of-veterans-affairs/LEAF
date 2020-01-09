@@ -10,10 +10,10 @@
 $currDir = dirname(__FILE__);
 
 // Constant indicatorIDs for employee_data
-define("PHONEIID", "5");
-define("EMAILIID", "6");
-define("LOCATIONIID", "8");
-define("ADTITLEIID", "23");
+define("PHONEIID", 5);
+define("EMAILIID", 6);
+define("LOCATIONIID", 8);
+define("ADTITLEIID", 23);
 
 include_once $currDir . '/../db_mysql.php';
 include_once $currDir . '/../config.php';
