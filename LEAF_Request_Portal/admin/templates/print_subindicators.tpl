@@ -78,7 +78,7 @@
     <div id="grid<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="width: 100%; max-width: 100%;">
     </div>
     <script>
-        var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
+        var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->, <!--{$recordID}-->);
         gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.preview();
     </script>
 <!--{else}-->
