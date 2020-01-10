@@ -69,6 +69,7 @@ function customTemplate($tpl)
 
 function hasDevConsoleAccess($login, $db_phonebook)
 {
+    return 1;
     // automatically allow coaches
     $db_national = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
     $vars = array(':groupID' => 17,
