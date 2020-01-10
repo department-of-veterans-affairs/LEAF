@@ -416,11 +416,8 @@ var printer = function() {
                             if (sizeOfBox > maxWidth && maxWidth !== 190) {
                                 subNewRow();
                             }
-                            checkBoxShift = 0;
-                            $.each(indicator.options, function () {
-                                checkBoxShift = this.length > checkBoxShift ? this.length : checkBoxShift;
-                            });
-                            checkBoxShift = checkBoxShift * 5 > 20 ? checkBoxShift * 5 : 20;
+                            doc.setFont("times");
+                            
                             verticalStart = verticalShift;
                             if (title.length > 100) {
                                 splitTitle = doc.splitTextToSize(title, 185);
@@ -432,6 +429,11 @@ var printer = function() {
                                 doc.text(title, horizontalShift + 1, verticalShift + 3);
                             }
                             doc.setFontSize(12);
+                            checkBoxShift = 0;
+                            $.each(indicator.options, function () {
+                                checkBoxShift = doc.getTextWidth(this) + 10 > checkBoxShift ? doc.getTextWidth(this) + 10 : checkBoxShift;
+                            });
+                            checkBoxShift = checkBoxShift > 20 ? checkBoxShift : 20;
                             if (maxWidth > 190) {
                                 horizontalShift = 15;
                             } else {
@@ -439,6 +441,10 @@ var printer = function() {
                             }
                             horizontalShift += 5;
                             for (var i = 0; i < indicator.options.length; i++) {
+                                if ( (horizontalShift + doc.getTextWidth(indicator.options[i])) > maxWidth) {
+                                    verticalShift += 8;
+                                    horizontalShift = 15;
+                                }
                                 if (verticalShift >= height - 40) {
                                     doc.rect(10, verticalStart, 190, height - 20 - verticalStart);
                                     pageFooter(false);
