@@ -9,6 +9,12 @@
 
 $currDir = dirname(__FILE__);
 
+// Constant indicatorIDs for employee_data
+define("PHONEIID", 5);
+define("EMAILIID", 6);
+define("LOCATIONIID", 8);
+define("ADTITLEIID", 23);
+
 include_once $currDir . '/../db_mysql.php';
 include_once $currDir . '/../config.php';
 include_once $currDir . '/../globals.php';
@@ -181,7 +187,10 @@ function updateEmployeeData($nationalEmpUID, $localEmpUID)
 {
     global $db, $phonedb;
 
-    $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=" . $nationalEmpUID;
+    $dataToCopy = array(PHONEIID, EMAILIID, LOCATIONIID, ADTITLEIID);
+    $csv = implode(',', $dataToCopy);
+
+    $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=" . $nationalEmpUID . " AND indicatorID in (" . $csv . ")";
 
     $res = $phonedb->query($sql);
 
