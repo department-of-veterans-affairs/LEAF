@@ -2,21 +2,23 @@
 
 if(!class_exists('LogFormatter'))
 {
-    require_once dirname(__FILE__) . '/../../libs/logger/logFormatter.php';
+    require_once dirname(__FILE__) . '/logFormatter.php';
 }
 
 if(!class_exists('LogItem'))
 {
-    require_once dirname(__FILE__) . '/../../libs/logger/logItem.php';
+    require_once dirname(__FILE__) . '/logItem.php';
 }
 
 class DataActionLogger{
 
     protected $db;
+    protected $login;
 
-    public function __construct($db)
+    public function __construct($db, $login)
     {
         $this->db = $db;
+        $this->login = $login;
     }
 
     public function logAction($verb, $type, $toLog){
@@ -25,14 +27,15 @@ class DataActionLogger{
 
         $vars = array(
             ':userID' => (int)$this->login->getEmpUID(),
-            ':action' => $action
+            ':action' => $action,
+            ':userDisplay' =>  $this->login->getName()
         );
 
         $sql = 
             "BEGIN;
 
-            INSERT INTO data_action_log (`userID`, `timestamp`, `action`)
-                    VALUES (:userID, NOW(), :action);
+            INSERT INTO data_action_log (`userID`, `timestamp`, `action`, `userDisplay`)
+                    VALUES (:userID, NOW(), :action, :userDisplay);
 
             SELECT LAST_INSERT_ID() INTO @log_id; 
             
@@ -62,7 +65,7 @@ class DataActionLogger{
 
         for($i = 0; $i<count($logResults); $i++){
             $logResults[$i]["items"] = $this->fetchLogItems($logResults[$i]);
-            $logResults[$i]["history"] = \LogFormatter::getFormattedString($logResults[$i], \LoggableTypes::GROUP);
+            $logResults[$i]["history"] = \LogFormatter::getFormattedString($logResults[$i], $logType);
         }
         
         return $logResults;
@@ -93,12 +96,10 @@ class DataActionLogger{
         $sqlFetchLogData= 
             " SELECT 
                     dal.ID,
-                    concat(e.firstName,' ',e.lastName) as userName,
+                    dal.userDisplay as userName,
                     dal.action,
                     dal.timestamp
                 from data_action_log dal
-                        LEFT JOIN
-                    employee e ON e.empUID = dal.userID
                 Where id in (select * from group_logs)
                 order by dal.ID desc;";
         

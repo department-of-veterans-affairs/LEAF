@@ -6,7 +6,8 @@ class LogFormatter{
 
     const formatters = array(
         LoggableTypes::GROUP=> self::groupFormattedStrings,
-        LoggableTypes::SERVICE_CHIEF=> self::serviceChiefFormattedStrings
+        LoggableTypes::SERVICE_CHIEF=> self::serviceChiefFormattedStrings,
+        LoggableTypes::FORM=> self::formFormattedStrings
     );
 
     const groupFormattedStrings = [
@@ -36,8 +37,7 @@ class LogFormatter{
         ],   
         DataActions::ADD.'-'.LoggableTypes::POSITION=> [
             "message"=>"Position %s added to Group %s",
-            "variables"=>"positionID,groupID",
-            "readColumnNames"=> false
+            "variables"=>"positionID,groupID"
         ],
         DataActions::DELETE.'-'.LoggableTypes::POSITION=> [
             "message"=>"Position %s has been removed from Group %s",
@@ -48,19 +48,24 @@ class LogFormatter{
     const serviceChiefFormattedStrings = [
         DataActions::ADD.'-'.LoggableTypes::SERVICE_CHIEF => [
             "message"=>"User %s has been added to %s",
-            "variables"=>"userID,groupID"
+            "variables"=>"userID,serviceID"
         ],
         DataActions::DELETE.'-'.LoggableTypes::SERVICE_CHIEF=> [
             "message"=>"User %s has been removed from %s",
-            "variables"=>"userID,groupID"
+            "variables"=>"userID,serviceID"
         ],
     ];
 
     const formFormattedStrings = [
-
-    ];
-
-    const indicatorFormattedStrings = [
+        DataActions::ADD.'-'.LoggableTypes::FORM => [
+            "message"=> "Form %s has been created",
+            "variables" => "categoryName"
+        ],
+        DataActions::MODIFY.'-'.LoggableTypes::FORM => [
+            "message" => "Form %s",
+            "variables" => "categoryID,".self::READ_COLUMN_NAMES,
+            "loggableColumns" => "categoryName,categoryDescription,workflowID,needToKnow,sort,visible,type"
+        ],
         DataActions::ADD.'-'.LoggableTypes::INDICATOR => [
             "message" => "Indicator %s has been added to form %s",
             "variables"=> "name,categoryID"
@@ -89,35 +94,36 @@ class LogFormatter{
         $variableArray = [];
 
         foreach($formatVariables as $formatVariable){
-            if($formatVariable == self::READ_COLUMN_NAMES){
-                foreach($logData["items"] as $logDataItem){
-                    if(in_array($logDataItem->column, $loggableColumns)){
-                        $message.="%s changed to %s";
-                        array_push($variableArray, $logDataItem->column);
-                        array_push($variableArray, self::findValue($logData["items"], $logDataItem->column));
-                    }
-                }
-            }
-            else{
-                array_push($variableArray,self::findValue($logData["items"], $formatVariable));
+            $result = self::findValue($logData["items"], $formatVariable, $loggableColumns, $message);
+            $message = $result["message"];
+            foreach($result["values"] as $value){
+                array_push($variableArray, $value);
             }
         }
 
         return vsprintf($message,$variableArray);
     }
 
-    private static function findValue($items, $columnName){
+    private static function findValue($changeDetails, $columnName, $loggableColumns, $message){
 
-        $value = '';
+        $result = ["message"=> $message, "values"=> array()];
 
-        foreach($items as $key=> $item){
-            if($item["column"] == $columnName){
-                $value = isset($item["displayValue"]) ? $item["displayValue"] : $item["value"];
-                break;
+        foreach($changeDetails as $key=> $detail){
+            if($columnName == self::READ_COLUMN_NAMES){
+                if(in_array($detail["column"], $loggableColumns)){
+                    $result["message"].=" %s changed to %s ";
+                    array_push($result["values"], $detail["column"]);
+                    $value = isset($detail["displayValue"]) ? $detail["displayValue"] : $detail["value"];
+                    array_push($result["values"], $value);
+                }
+            }
+            if($detail["column"] == $columnName){
+                $value = isset($detail["displayValue"]) ? $detail["displayValue"] : $detail["value"];
+                array_push($result["values"], $value);
             }
         }
         
-        return $value;
+        return $result;
     }
 }
 

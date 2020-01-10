@@ -1677,6 +1677,9 @@ function buildMenu(categoryID) {
     $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event);" onclick="mergeFormDialog(\''+ categoryID +'\');" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=tab-new.svg&w=32" alt="Staple Form" /> Staple other form</div>\
                           <div id="stapledArea"></div><br />');
 
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>\
+                        <div id="stapledArea"></div><br />');                      
+
     // show stapled forms in the menu area
     $.ajax({
         type: 'GET',
@@ -1813,6 +1816,24 @@ function renderSecureFormsInfo(res) {
             }
         });
     }
+}
+
+function viewHistory(categoryId){
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('Form History');
+	dialog_simple.show();
+	dialog_simple.indicateBusy();
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type=form&id='+categoryId,
+        dataType: 'text',
+        success: function(res) {
+            dialog_simple.setContent(res);
+            dialog_simple.indicateIdle();
+        },
+        cache: false
+    });
 }
 
 function fetchLEAFSRequests(searchResolved) {

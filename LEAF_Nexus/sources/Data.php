@@ -50,7 +50,7 @@ abstract class Data
         $this->db = $db;
         $this->login = $login;
         $this->initialize();
-        $this->dataActionLogger = new \DataActionLogger($db);
+        $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
 
     /**
