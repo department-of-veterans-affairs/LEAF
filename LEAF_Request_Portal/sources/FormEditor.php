@@ -105,14 +105,11 @@ class FormEditor
                     SET name=:name
                     WHERE indicatorID=:indicatorID', $vars); 
 
-        if(!empty($name)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-                new LogItem("indicators", "name", $name)
-            ]);  
-    
-        }
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "name", $name)
+        ]);
 
         return $result;
 
@@ -128,13 +125,11 @@ class FormEditor
                     SET format=:format
                     WHERE indicatorID=:indicatorID', $vars);
 
-        if(!empty($format)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-                new LogItem("indicators", "format", $format)
-            ]);  
-        }
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "format", $format)
+        ]);  
 
         return $result;
     }
@@ -148,13 +143,11 @@ class FormEditor
                     SET description=:input
                     WHERE indicatorID=:indicatorID', $vars);
         
-        if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-                new LogItem("indicators", "description", $input)
-            ]); 
-        }
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "description", $input)
+        ]); 
  
         return $result;
     }
@@ -168,13 +161,11 @@ class FormEditor
     								SET `default`=:input
                                     WHERE indicatorID=:indicatorID', $vars);
         
-        if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-                new LogItem("indicators", "default", $input)
-            ]); 
-        }
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "default", $input)
+        ]); 
  
 
         return $result;
@@ -204,13 +195,11 @@ class FormEditor
     									SET parentID=:input
                                         WHERE indicatorID=:indicatorID', $vars);
 
-        if($empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-                new LogItem("indicators", "parentID", $input)
-            ]);  
-        }
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "parentID", $input)
+        ]);  
 
     }
 
@@ -223,12 +212,10 @@ class FormEditor
     								SET categoryID=:input
                                     WHERE indicatorID=:indicatorID', $vars);
         
-        if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators", "categoryID", $input)
-            ]);  
-        }
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators", "categoryID", $input)
+        ]);  
 
     }
 
@@ -241,13 +228,11 @@ class FormEditor
     								SET required=:input
                                     WHERE indicatorID=:indicatorID', $vars);
         
-        if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-                new LogItem("indicators", "required", $input)
-            ]);  
-        }
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "required", $input)
+        ]);  
 
         
         return $result;
@@ -262,13 +247,11 @@ class FormEditor
                 SET is_sensitive=:input
                 WHERE indicatorID=:indicatorID', $vars);
 
-        if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-                new LogItem("indicators", "is_sensitive", $input)
-            ]);  
-        }
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "is_sensitive", $input)
+        ]);  
 
         return $result;
     }
@@ -289,14 +272,11 @@ class FormEditor
                         SET disabled=:input
                         WHERE indicatorID=:indicatorID', $vars); 
 
-        if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-                new LogItem("indicators", "disabled", $input)
-            ]);  
-        }
-
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "disabled", $input)
+        ]);  
         
     	return $result;
     }
@@ -310,13 +290,11 @@ class FormEditor
     								SET sort=:input
                                     WHERE indicatorID=:indicatorID', $vars);
         
-        if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
-                new LogItem("indicators", "sort", $input)
-            ]);
-        }
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "sort", $input)
+        ]);
 
 
         return $result;
@@ -330,13 +308,11 @@ class FormEditor
         $result = $this->db->prepared_query('UPDATE indicators
     								SET html=:input
                                     WHERE indicatorID=:indicatorID', $vars);
-        if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-                new LogItem("indicators", "html", $input)
-            ]);
-        }
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "html", $input)
+        ]);
 
 
         return $result;
@@ -350,13 +326,11 @@ class FormEditor
         $result =  $this->db->prepared_query('UPDATE indicators
     								SET htmlPrint=:input
                                     WHERE indicatorID=:indicatorID', $vars);
-        if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-                new LogItem("indicators", "indicatorID", $indicatorID),
-                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-                new LogItem("indicators", "htmlPrint", $input)
-            ]);
-        }
+        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "htmlPrint", $input)
+        ]);
 
 
         return $result;

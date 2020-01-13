@@ -72,7 +72,7 @@ class LogFormatter{
         ],
         DataActions::MODIFY.'-'.LoggableTypes::INDICATOR => [
             "message" => "Indicator %s",
-            "variables"=> "name,".self::READ_COLUMN_NAMES,
+            "variables"=> "indicatorID,".self::READ_COLUMN_NAMES,
             "loggableColumns"=>"name,format,description,default,parentID,required,is_sensitive,disabled,sort,html,htmlPrint"
         ]
     ];
