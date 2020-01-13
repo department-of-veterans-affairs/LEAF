@@ -5,6 +5,7 @@
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <script>
+
 function checkSensitive(indicator) {
     var result = 0;
     $.each(indicator, function( index, value )
@@ -105,8 +106,19 @@ function editProperties(isSubForm) {
         });
 
         dialog.setSaveHandler(function() {
-            $.when(
-                $.ajax({
+
+            var calls = [];
+
+            var nameChanged = categories[currCategoryID].name != $('#name').val();
+            var descriptionChanged = categories[currCategoryID].description != $('#description').val();
+            var workflowChanged = categories[currCategoryID].workflowID != $('#workflowID').val();
+            var needToKnowChanged = categories[currCategoryID].needToKnow != $('#needToKnow').val();
+            var sortChanged = categories[currCategoryID].sort != $('#sort').val();
+            var visibleChanged = categories[currCategoryID].visible != $('#visible').val();
+            var typeChanged = categories[currCategoryID].formType != $('#formType').val();
+
+            if(nameChanged){
+                calls.push($.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formName',
                     data: {name: $('#name').val(),
@@ -116,8 +128,11 @@ function editProperties(isSubForm) {
                         if(res != null) {
                         }
                     }
-                }),
-                $.ajax({
+                }));
+            }
+
+            if(descriptionChanged){
+                calls.push($.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formDescription',
                     data: {description: $('#description').val(),
@@ -127,8 +142,12 @@ function editProperties(isSubForm) {
                         if(res != null) {
                         }
                     }
-                }),
-                $.ajax({
+                }));
+            }
+
+            if(workflowChanged){
+                calls.push(
+                    $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formWorkflow',
                     data: {workflowID: $('#workflowID').val(),
@@ -139,7 +158,11 @@ function editProperties(isSubForm) {
                         	alert('Workflow cannot be set because this form has been merged into another form');
                         }
                     }
-                }),
+                }));
+            }
+
+            if(needToKnowChanged){
+                calls.push(
                 $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formNeedToKnow',
@@ -150,7 +173,12 @@ function editProperties(isSubForm) {
                         if(res != null) {
                         }
                     }
-                }),
+                })
+                );
+            }
+
+            if(sortChanged){
+                calls.push(                
                 $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formSort',
@@ -161,7 +189,10 @@ function editProperties(isSubForm) {
                         if(res != null) {
                         }
                     }
-                }),
+                }),);
+            }
+
+            if(visibleChanged){
                 $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formVisible',
@@ -172,8 +203,12 @@ function editProperties(isSubForm) {
                         if(res != null) {
                         }
                     }
-                }),
-             $.ajax({
+                })
+            }
+
+            if(typeChanged){
+                calls.push( 
+                    $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formType',
                     data: {type: $('#formType').val(),
@@ -183,7 +218,9 @@ function editProperties(isSubForm) {
                         if(res != null) {
                         }
                     }
-                })).then(function() {
+                }));
+            }
+            $.when.apply(undefined, calls).then(function() {
                 categories[currCategoryID].categoryName = $('#name').val();
                 categories[currCategoryID].categoryDescription = $('#description').val();
                 categories[currCategoryID].description = '';
