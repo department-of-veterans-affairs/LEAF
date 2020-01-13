@@ -343,6 +343,35 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         });
     }
 
+    /*
+    * Function to copy file attachments from parallel processing record to new records
+    * Alerts user if a file failed to be copy, otherwise, implicit success
+    */
+    function copyFileToNewRecord(indicatorID, fileName, newRecordID, series) {
+        $.ajax({
+            type: 'POST',
+            url: './api/form/files/copy',
+            data: {
+                CSRFToken: CSRFToken, 
+                indicatorID: indicatorID,
+                fileName: fileName,
+                recordID: recordID,
+                newRecordID: newRecordID,
+                series: series
+            },
+            success: function(res) {
+                if (res !== 1) {
+                    if (res.type === 2) {
+                        alert('Error: ' + fileName + " failed to copy.\nReason: File does not exist or file name format incorrect");
+                    } else {
+                        alert('Error: Unknown error.\nReason: If you see this error, try again. If the error persists, please contact support.');
+                    }
+                } 
+            },
+            cache: false
+        });
+    }
+
     // Add data from form for recordID given
     // then submit, updating load bar
     function fillAndSubmitForm(formData, newRecordID, indicatorIDToChange, newData)
@@ -351,14 +380,23 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         ajaxData['CSRFToken'] = CSRFToken;
         ajaxData['series'] = 1;
         $.each( formData, function( i, val ) {
-            $.each( val, function( i, thisRow ) {
+            $.each( val, function( j, thisRow ) {
                 if('series' in thisRow)
                 {
                     ajaxData['series'] = thisRow['series']; 
                 }
                 if(('indicatorID' in thisRow) && ('value' in thisRow))
                 {
-                    ajaxData[thisRow['indicatorID']] = thisRow['value']; 
+                    if(thisRow['format'] === 'fileupload' || thisRow['format'] === 'image') {
+                        ajaxData[thisRow['indicatorID']] = '';
+                        $.each(thisRow['value'], function(k, file) {
+                            ajaxData[thisRow['indicatorID']] = ajaxData[thisRow['indicatorID']] + file + '\n';
+                            copyFileToNewRecord(thisRow['indicatorID'], file, newRecordID, ajaxData['series']);
+                        });
+                    }
+                    else {
+                        ajaxData[thisRow['indicatorID']] = thisRow['value']; 
+                    }
                 }
             });
         });

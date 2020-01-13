@@ -3430,6 +3430,37 @@ class Form
 
         return 0;
     }
+    /**
+     * Copies file attachment from record to new record
+     * @param int $indicatorID
+     * @param string $fileName
+     * @param int $recordID
+     * @param int $newRecordID
+     * @param int $series
+     * @return int 1 for success, errors for failure
+     */
+    public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID, $series) {
+        if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series))
+        {
+            $errors = array('type' => 2);
+            return $errors;
+        }
+
+        // prepends $uploadDir with '../' if $uploadDir ends up being relative './UPLOADS/'
+        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+        $uploadDir = $uploadDir === UPLOAD_DIR ? '../' . UPLOAD_DIR : $uploadDir;
+
+        $cleanedFile = XSSHelpers::scrubFilename($fileName);
+
+        $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+        $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+
+        if (!copy($sourceFile, $destFile)) {
+            $errors = error_get_last();
+            return $errors;
+        } 
+        return 1;
+    }
 
     public function getRecordsByCategory($categoryID)
     {
