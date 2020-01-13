@@ -976,8 +976,6 @@ function showStepInfo(stepID) {
 
                     // TODO: This will eventually be moved to some sort of Workflow extension plugin
                     output += '<fieldset><legend>Options</legend><ul>';
-                    output += '<li><input id="requiresSigCB" style="cursor: pointer" type="checkbox"' + (steps[stepID].requiresDigitalSignature == true ? ' checked' : '') + ' onclick="signatureRequired(this, ' + stepID + ')">';
-                    output += '<label for="requiresSigCB" style="cursor: pointer">Require Digital Signature (Beta)</label></li>';
                     output += '<li>Form Field: <select id="workflowIndicator" style="width: 240px"><option value="">None</option></select></li>';
                     output += '</ul></fieldset>';
 

@@ -72,14 +72,7 @@ workflowStepModule[{{$stepID}}]['LEAF_digital_signature'] = (function() {
 		.appendTo('#form_dep' + step.dependencyID);
 
 		if(typeof Signer == 'undefined') {
-			$.ajax({
-				type: 'GET',
-				url: "../libs/sign/SmartcardHelpers.js",
-				dataType: 'script'});
-			$.ajax({
-				type: 'GET',
-				url: "../libs/sign/SockJS.js",
-				dataType: 'script'});
+			alert("Digital Signature is not available.");
 		}
 
 		setupButtonAction();
