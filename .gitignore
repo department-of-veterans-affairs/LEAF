@@ -20,3 +20,4 @@ LEAF_Request_Portal/globals-bk.php
 .DS_Store
 test_logins.txt
 */admin/templates_c/
+*/auth_dev/*

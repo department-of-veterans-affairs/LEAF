@@ -19,7 +19,7 @@ $db_config = new DB_Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $dir = new VAMC_Directory();
 
-$groups = $db->prepared_query('SELECT * FROM groups ORDER BY name ASC', array());
+$groups = $db->prepared_query('SELECT * FROM `groups` ORDER BY name ASC', array());
 echo 'Access Groups:';
 echo '<ul>';
 foreach ($groups as $group)

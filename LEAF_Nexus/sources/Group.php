@@ -143,7 +143,7 @@ class Group extends Data
         $groupTitle = $this->sanitizeInput($groupTitle);
 
         $vars = array(':groupTitle' => $groupTitle);
-        $res = $this->db->prepared_query('SELECT * FROM groups
+        $res = $this->db->prepared_query('SELECT * FROM `groups`
         							WHERE groupTitle = :groupTitle', $vars);
         if (count($res) > 0)
         {
@@ -259,7 +259,7 @@ class Group extends Data
         $res = $this->db->prepared_query('DELETE FROM group_data
                                             WHERE groupID=:groupID', $vars);
 
-        $res = $this->db->prepared_query('DELETE FROM groups
+        $res = $this->db->prepared_query('DELETE FROM `groups`
                                             WHERE groupID=:groupID', $vars);
 
         $this->db->commitTransaction();
@@ -384,7 +384,7 @@ class Group extends Data
     public function getNumberOfSubgroups($parentID)
     {
         $vars = array(':parentID' => $parentID);
-        $res = $this->db->prepared_query('SELECT COUNT(*) FROM groups WHERE parentID=:parentID', $vars);
+        $res = $this->db->prepared_query('SELECT COUNT(*) FROM `groups` WHERE parentID=:parentID', $vars);
 
         return $res[0]['COUNT(*)'];
     }
@@ -406,7 +406,7 @@ class Group extends Data
 
         $this->db->limit($offset, $quantity);
         $vars = array(':parentID' => $parentID);
-        $res = $this->db->prepared_query('SELECT * FROM groups WHERE parentID=:parentID
+        $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE parentID=:parentID
         									ORDER BY groupTitle ASC', $vars);
         if ($noData == null)
         {
@@ -453,7 +453,7 @@ class Group extends Data
         }
 
         $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM groups WHERE parentID=:groupID', $vars);
+        $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE parentID=:groupID', $vars);
 
         return $res;
     }
@@ -750,7 +750,7 @@ class Group extends Data
     {
         $data = array();
         $vars = array(':groupID' => $groupID);
-        /*$res = $this->db->prepared_query('SELECT * FROM groups
+        /*$res = $this->db->prepared_query('SELECT * FROM `groups`
                                             LEFT JOIN relation_group_position USING (groupID)
                                             LEFT JOIN positions USING (positionID)
                                             WHERE groupID=:groupID', $vars);*/
@@ -772,7 +772,7 @@ class Group extends Data
             return $this->cache["getGroup_{$groupID}"];
         }
         $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM groups
+        $res = $this->db->prepared_query('SELECT * FROM `groups`
                                             WHERE groupID=:groupID', $vars);
         $this->cache["getGroup_{$groupID}"] = $res;
 

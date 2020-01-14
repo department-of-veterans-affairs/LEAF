@@ -237,7 +237,7 @@ class Form
 
         foreach ($form as $item)
         {
-            $fullForm = array_merge($fullForm, $this->getIndicator($item['indicatorID'], 1, $recordID, $parseTemplate));
+            $fullForm = array_merge($fullForm, $this->getIndicator($item['indicatorID'], 1, null, $parseTemplate));
         }
 
         return $fullForm;
@@ -384,6 +384,7 @@ class Form
 
         $keys = array_keys($_POST);
 
+        $containsFieldData = false;
         if (isset($_POST['title']))
         {
             foreach ($keys as $key)
@@ -421,9 +422,16 @@ class Form
                         }
                     }
                 }
+
+                if(is_numeric($key) && !$containsFieldData) {
+                    $containsFieldData = true;
+                }
             }
         }
 
+        if($containsFieldData) {
+            $this->doModify($recordID);
+        }
         return (int)$recordID;
     }
 
@@ -1102,8 +1110,6 @@ class Form
                                                 title=:title,
                                                 priority=:priority
                                                 WHERE recordID=:recordID', $vars);
-
-            return 1;
         }
 
         foreach ($keys as $key)
@@ -3423,6 +3429,37 @@ class Form
         }
 
         return 0;
+    }
+    /**
+     * Copies file attachment from record to new record
+     * @param int $indicatorID
+     * @param string $fileName
+     * @param int $recordID
+     * @param int $newRecordID
+     * @param int $series
+     * @return int 1 for success, errors for failure
+     */
+    public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID, $series) {
+        if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series))
+        {
+            $errors = array('type' => 2);
+            return $errors;
+        }
+
+        // prepends $uploadDir with '../' if $uploadDir ends up being relative './UPLOADS/'
+        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+        $uploadDir = $uploadDir === UPLOAD_DIR ? '../' . UPLOAD_DIR : $uploadDir;
+
+        $cleanedFile = XSSHelpers::scrubFilename($fileName);
+
+        $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+        $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+
+        if (!copy($sourceFile, $destFile)) {
+            $errors = error_get_last();
+            return $errors;
+        } 
+        return 1;
     }
 
     public function getRecordsByCategory($categoryID)
