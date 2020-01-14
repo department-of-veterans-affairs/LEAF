@@ -280,7 +280,7 @@ class Login
             $this->cache['checkGroup'] = array();
         }
 
-        if($groupID == 1 && $_GET['masquerade'] == 'nonAdmin') {
+        if($groupID == 1 && isset($_GET['masquerade']) && $_GET['masquerade'] == 'nonAdmin') {
             return false;
         }
 
