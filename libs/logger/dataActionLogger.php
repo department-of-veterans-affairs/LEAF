@@ -1,14 +1,7 @@
 <?php
 
-if(!class_exists('LogFormatter'))
-{
-    require_once dirname(__FILE__) . '/logFormatter.php';
-}
-
-if(!class_exists('LogItem'))
-{
-    require_once dirname(__FILE__) . '/logItem.php';
-}
+require_once './logFormatter.php';
+require_once './logItem.php';
 
 class DataActionLogger{
 

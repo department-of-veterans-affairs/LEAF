@@ -10,6 +10,11 @@
     Handler for user groups for the resource management web app
 */
 
+if(!class_exists('DataActionLogger'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
+}
+
 class Group
 {
     private $db;
@@ -133,5 +138,27 @@ class Group
         }
 
         return $list;
+    }
+
+    public function getGroupName($groupId){
+        return foo;
+    }
+    
+    private function getEmployeeDisplay($employeeID)
+    {
+        require_once '../VAMC_Directory.php';
+     
+        $dir = new VAMC_Directory();
+        $dirRes = $dir->lookupLogin($employeeID);
+
+        $empData = $dirRes[0];
+        $empDisplay =$empData["firstName"]." ".$empData["lastName"];
+        
+        return $empDisplay;
+    }
+
+    public function getHistory($filterById)
+    {
+        return $this->dataActionLogger->getHistory($filterById, "groupID", \LoggableTypes::PORTAL_GROUP);
     }
 }
