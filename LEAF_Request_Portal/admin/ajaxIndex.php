@@ -165,6 +165,11 @@ switch ($action) {
                 $type = new \FormEditor($db, $login);
                 $title = $type->getFormName($itemID);
                 break;
+            case 'group':
+                include 'Group.php';
+                $type = new \Group($db, $login);
+                $title = $type->getGroupName($itemID);
+                break;
         }
 
         if (!empty($itemID))

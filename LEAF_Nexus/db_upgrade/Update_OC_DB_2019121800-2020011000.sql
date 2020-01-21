@@ -14,5 +14,3 @@ SET SQL_SAFE_UPDATES=1;
 UPDATE `settings` SET `data` = '2020011000' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;
-
-

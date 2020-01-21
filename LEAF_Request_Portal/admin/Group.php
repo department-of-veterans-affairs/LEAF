@@ -21,10 +21,13 @@ class Group
 
     private $login;
 
+    private $dataActionLogger;
+
     public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
+        $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
 
     public function addGroup($groupName, $groupDesc = '', $parentGroupID = null)
@@ -99,6 +102,11 @@ class Group
                               ':groupID' => (int)$group, );
                 $res = $this->db->prepared_query('INSERT INTO users (userID, groupID)
                                                     VALUES (:userID, :groupID)', $vars);
+                
+                $this->dataActionLogger->logAction(\DataActions::ADD,\LoggableTypes::EMPLOYEE,[
+                    new LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
+                    new LogItem("users", "groupID", $group, $this->getGroupName($group)) 
+                ]);     
             }
         }
     }
@@ -110,6 +118,11 @@ class Group
             $vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
             $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+
+            $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::EMPLOYEE,[
+                new LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
+                new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID)) 
+            ]);
 
             return 1;
         }
@@ -141,7 +154,12 @@ class Group
     }
 
     public function getGroupName($groupId){
-        return foo;
+        $vars = array(":groupID"=> $groupId);
+        $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID = :groupID', $vars);
+        if($res[0] != null){
+            return $res[0]["name"];
+        }
+        return "";
     }
     
     private function getEmployeeDisplay($employeeID)

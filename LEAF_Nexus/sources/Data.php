@@ -684,8 +684,8 @@ abstract class Data
         return true;
     }
 
-    public function logAction($action, $toLog){
-        $this->dataActionLogger->logAction($action, $toLog);
+    public function logAction($verb, $type, $data){
+        $this->dataActionLogger->logAction($verb, $type, $data);
     }
 
     public function getHistory($filterById){

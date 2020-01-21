@@ -136,7 +136,9 @@ function getGroupList() {
                 }
                 else { // if is admin
                     function openAdminGroup(){
-                        dialog.setContent('<h2 role="heading" tabindex="-1">System Administrators</h2><div id="adminSummary"></div><br /><h3 role="heading" tabindex="-1" >Add Administrator:</h3><div id="employeeSelector"></div>');
+                        dialog.setContent(
+                            '<button style="float:right" class="buttonNorm" onclick="viewHistory(1)"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>'+
+                            '<h2 role="heading" tabindex="-1">System Administrators</h2><div id="adminSummary"></div><br /><h3 role="heading" tabindex="-1" >Add Administrator:</h3><div id="employeeSelector"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -198,6 +200,24 @@ function getGroupList() {
                 }
                 populateMembers(res[i].groupID, res[i].members);
             }
+        },
+        cache: false
+    });
+}
+
+function viewHistory(groupID){
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('Group History');
+	dialog_simple.show();
+	dialog_simple.indicateBusy();
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type=group&id='+groupID,
+        dataType: 'text',
+        success: function(res) {
+            dialog_simple.setContent(res);
+            dialog_simple.indicateIdle();
         },
         cache: false
     });

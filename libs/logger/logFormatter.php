@@ -1,13 +1,13 @@
 <?php
 
-require_once './formatters/loggableTypes.php';
-require_once './formatters/dataActions.php';
-require_once './formatters/formatOptions.php';
+require_once 'formatters/loggableTypes.php';
+require_once 'formatters/dataActions.php';
+require_once 'formatters/formatOptions.php';
 
-require_once './formatters/groupFormatter.php';
-require_once './formatters/serviceChiefFormatter.php';
-require_once './formatters/formFormatter.php';
-require_once './formatters/portalGroupFormatter.php';
+require_once 'formatters/groupFormatter.php';
+require_once 'formatters/serviceChiefFormatter.php';
+require_once 'formatters/formFormatter.php';
+require_once 'formatters/portalGroupFormatter.php';
 
 class LogFormatter{
 

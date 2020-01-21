@@ -1,7 +1,7 @@
 <?php
 
-require_once './logFormatter.php';
-require_once './logItem.php';
+require_once 'logFormatter.php';
+require_once 'logItem.php';
 
 class DataActionLogger{
 
@@ -56,9 +56,11 @@ class DataActionLogger{
         
         $logResults = $this->fetchLogData($filterById, $filterByColumnName, $logType);
 
-        for($i = 0; $i<count($logResults); $i++){
-            $logResults[$i]["items"] = $this->fetchLogItems($logResults[$i]);
-            $logResults[$i]["history"] = \LogFormatter::getFormattedString($logResults[$i], $logType);
+        if($logResults != null){
+            for($i = 0; $i<count($logResults); $i++){
+                $logResults[$i]["items"] = $this->fetchLogItems($logResults[$i]);
+                $logResults[$i]["history"] = \LogFormatter::getFormattedString($logResults[$i], $logType);
+            }
         }
         
         return $logResults;
