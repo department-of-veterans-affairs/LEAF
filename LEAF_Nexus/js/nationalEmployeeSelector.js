@@ -176,6 +176,8 @@ nationalEmployeeSelector.prototype.setDomain = function(domain) {
 
 nationalEmployeeSelector.prototype.runSearchQuery = function(query, domain) {
     var txt = query;
+    this.q = query;
+    var t = this;
     if(domain == undefined) {
         domain = '';
     }
@@ -183,11 +185,7 @@ nationalEmployeeSelector.prototype.runSearchQuery = function(query, domain) {
         this.currRequest.abort();
     }
 
-    // search local directory, since an empUID query implies that the user already exists in the local dir.
     var apiOption = "national/employee/search";
-    if(this.q.substr(0, 1) == '#') {
-        apiOption = "employee/search";
-    }
     var announceID = this.prefixID;
 
     var ajaxOptions = {
@@ -282,6 +280,10 @@ nationalEmployeeSelector.prototype.runSearchQuery = function(query, domain) {
 
                 $('#' + t.prefixID + 'status').append(' ' + response[i].userName + ' ' + positionTitle + ' ' + email + ',');
                 t.numResults++;
+            }
+
+            if(t.numResults == 1) {
+                t.selection = response[i].empUID;
             }
 
             if(t.numResults >= 5) {
