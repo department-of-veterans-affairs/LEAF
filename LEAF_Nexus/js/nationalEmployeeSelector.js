@@ -186,6 +186,10 @@ nationalEmployeeSelector.prototype.runSearchQuery = function(query, domain) {
     }
 
     var apiOption = "national/employee/search";
+    if(query.substr(0, 1) == '#') {
+        // search local directory, since an empUID query implies that the user already exists in the local dir.
+        apiOption = "employee/search";
+    }
     var announceID = this.prefixID;
 
     var ajaxOptions = {
