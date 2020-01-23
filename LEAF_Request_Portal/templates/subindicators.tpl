@@ -55,7 +55,7 @@
             </div>
             <button type="button" class="buttonNorm" id="addRowBtn" title="Grid input add row" alt="Grid input add row" aria-label="Grid input add row" onclick="gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow()"><img src="../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
             <script>
-                var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->, <!--{$recordID|strip_tags}-->);
+                var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
 
                 $(function() {
                     gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.input(<!--{$indicator.value|json_encode}-->);
@@ -699,23 +699,9 @@
                     });
                 }
                 function importFromNational(empSel) {
-                    if (empSel.selection === '') {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
-                    } else {
-                        $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Loading... ***');
-
-                        var selectedUser = empSel.selectionData[empSel.selection];
-                        var selectedUserName = selectedUser.userName;
-        
-                        var first = selectedUser.firstName;
-                        var last = selectedUser.lastName;
-                        var middle = selectedUser.middleName;
-
-                        var formatted = last + ", " + first + " " + middle;
-                        
-                        empSel.q = formatted;
-                        $("#"+ empSel.prefixID+"input").val(formatted);
-
+                    if(empSel.selection != '') {
+                        $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Loading. ***');
+                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
                         $.ajax({
                             type: 'POST',
                             url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
@@ -748,10 +734,7 @@
                             });
                             empSel.initialize();
                             <!--{if $indicator.value != ''}-->
-                            var query = empSel.runSearchQuery('#<!--{$indicator.value|strip_tags|escape|trim}-->');
-                            query.done(function() {
-                                empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
-                            });
+                            empSel.forceSearch('#<!--{$indicator.value|strip_tags|escape|trim}-->');
                             <!--{/if}-->
                         }
                     });
@@ -770,10 +753,7 @@
 
                     empSel.initialize();
                     <!--{if $indicator.value != ''}-->
-                    var query = empSel.runSearchQuery('#<!--{$indicator.value|strip_tags|escape|trim}-->');
-                    query.done(function() {
-                        empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
-                    });
+                    empSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
                     <!--{/if}-->
                 }
             });
