@@ -181,11 +181,11 @@ nationalEmployeeSelector.prototype.search = function() {
 		return false;
 	}
 	this.timer += (this.timer > 5000) ? 0 : 200;
-
+	
 	if(this.timer > 300) {
 	    var txt = $('#' + this.prefixID + 'input').val().replace(/<[^>]*>/g, '');
 	    var domain = $('#' + this.prefixID + 'domain').val().replace(/<[^>]*>/g, '');
-
+		
 		if (txt != undefined && (txt != this.q || domain != this.qDomain)) {
 			this.q = txt;
 			this.qDomain = domain;
@@ -209,13 +209,9 @@ nationalEmployeeSelector.prototype.search = function() {
 					noLimit: this.optionNoLimit,
 					domain: domain},
 					success: function(response) {
-						var shouldSelect = false;
-						if(Object.keys(response).length == 1 && !t.selection){
-							shouldSelect = true;
-						}
-						t.selection = '';
 						t.currRequest = null;
 						t.numResults = 0;
+						t.selection = '';
 						$('#' + t.prefixID + 'result').html('');
 						var buffer = '';
 						if(t.outputStyle == 'micro') {
@@ -289,7 +285,7 @@ nationalEmployeeSelector.prototype.search = function() {
 								<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
 								<td class="employeeSelectorService">'+ groupTitle + '<span>' +  room + '</span></td>\
 								<td class="employeeSelectorContact">'+ email + phone +'</td>\
-								</tr>');
+								</tr>');	                		
 							}
 
 							$('#' + t.prefixID + 'emp' + response[i].empUID).addClass('employeeSelector');
@@ -308,16 +304,11 @@ nationalEmployeeSelector.prototype.search = function() {
 
 							$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'tip">\
 							<td class="employeeSelectorName" colspan="'+ resultColSpan +'" style="background-color: white; text-align: center; font-weight: normal">&#x1f4a1; Can&apos;t find someone? Trying searching their Email address</td>\
-							</tr>');
+							</tr>');	  
 						}
 
 						if(t.resultHandler != null) {
 							t.resultHandler();
-						}
-
-						if(shouldSelect){
-							var selectedId = Object.keys(response)[0];
-							t.select(selectedId);
 						}
 
 						t.showNotBusy();
