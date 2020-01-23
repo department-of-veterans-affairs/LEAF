@@ -748,7 +748,10 @@
                             });
                             empSel.initialize();
                             <!--{if $indicator.value != ''}-->
-                            empSel.forceSearch('#<!--{$indicator.value|strip_tags|escape|trim}-->');
+                            var query = empSel.runSearchQuery('#<!--{$indicator.value|strip_tags|escape|trim}-->');
+                            query.done(function() {
+                                empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
+                            });
                             <!--{/if}-->
                         }
                     });
@@ -767,7 +770,10 @@
 
                     empSel.initialize();
                     <!--{if $indicator.value != ''}-->
-                    empSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
+                    var query = empSel.runSearchQuery('#<!--{$indicator.value|strip_tags|escape|trim}-->');
+                    query.done(function() {
+                        empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
+                    });
                     <!--{/if}-->
                 }
             });
