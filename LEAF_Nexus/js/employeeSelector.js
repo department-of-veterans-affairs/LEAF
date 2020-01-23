@@ -153,10 +153,6 @@ employeeSelector.prototype.search = function() {
 						noLimit: this.optionNoLimit},
 				success: function(response) {
 					t.currRequest = null;
-					var shouldSelect = false;
-					if(Object.keys(response).length == 1 && !t.selection){
-						shouldSelect = true;
-					}
 					t.numResults = 0;
 					t.selection = '';
 					$('#' + t.prefixID + 'result').html('');
@@ -259,11 +255,6 @@ employeeSelector.prototype.search = function() {
 
 					if(t.resultHandler != null) {
 						t.resultHandler();
-					}
-					
-					if(shouldSelect){
-						var selectedId = Object.keys(response)[0];
-						t.select(selectedId);
 					}
 
 					t.showNotBusy();
