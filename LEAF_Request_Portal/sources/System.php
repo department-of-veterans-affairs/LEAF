@@ -677,4 +677,10 @@ class System
     {
         return $this->db->query_kv('SELECT * FROM settings', 'setting', 'data');
     }
+
+    public function getPrimaryAdmin()
+    {
+        return $this->db->prepared_query('SELECT * FROM `users`
+    								WHERE `primary_admin` = 1', array());
+    }
 }
