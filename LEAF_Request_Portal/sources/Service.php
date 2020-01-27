@@ -9,6 +9,11 @@
 
 */
 
+if(!class_exists('DataActionLogger'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
+}
+
 class Service
 {
     public $siteRoot = '';
@@ -17,10 +22,13 @@ class Service
 
     private $login;
 
+    private $dataActionLogger;
+
     public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
+        $this->dataActionLogger = new \DataActionLogger($db, $login);
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
@@ -87,6 +95,12 @@ class Service
             $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, locallyManaged)
                                                    VALUES (:groupID, :userID, 1)', $vars);
 
+            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::SERVICE_CHIEF, [
+                new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
+                new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)), 
+                new LogItem("service_chiefs", "locallyManaged", "false")
+            ]);     
+
             // check if this service is also an ELT
             $vars = array(':groupID' => $groupID);
             $res = $this->db->prepared_query('SELECT * FROM services
@@ -97,7 +111,7 @@ class Service
                 $vars = array(':userID' => $member,
                               ':groupID' => $groupID, );
                 $this->db->prepared_query('INSERT INTO users (userID, groupID)
-												VALUES (:userID, :groupID)', $vars);
+                                                VALUES (:userID, :groupID)', $vars);
             }
         }
 
@@ -117,13 +131,24 @@ class Service
                 $vars = array(':userID' => $member,
                         ':groupID' => $groupID, );
                 $res = $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
+                
+                $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::SERVICE_CHIEF,[
+                    new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
+                    new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)) 
+                ]);   
             }
             else
             {
                 $vars = array(':userID' => $member,
                         ':groupID' => $groupID, );
                 $res = $this->db->prepared_query('UPDATE service_chiefs SET active=0, locallyManaged=1
-    												WHERE userID=:userID AND serviceID=:groupID', $vars);
+                                                    WHERE userID=:userID AND serviceID=:groupID', $vars);
+
+                $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::SERVICE_CHIEF, [
+                    new LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID)),
+                    new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
+                ]);                                      
+
             }
 
             // check if this service is also an ELT
@@ -205,5 +230,45 @@ class Service
         }
 
         return $list;
+    }
+
+    /**
+     * Gets Employee name formatted for display
+     * @param string $employeeID 	the id of the employee to retrieve display name
+     * @return string
+     */
+    private function getEmployeeDisplay($employeeID)
+    {
+        require_once '../VAMC_Directory.php';
+     
+        $dir = new VAMC_Directory();
+        $dirRes = $dir->lookupLogin($employeeID);
+
+        $empData = $dirRes[0];
+        $empDisplay = $empData["firstName"] . " " . $empData["lastName"];
+        
+        return $empDisplay;
+    }
+
+    /**
+     * Gets display name for Service.
+     * @param int $serviceID 	the id of the service to find display name for.
+     * @return string
+     */
+    public function getServiceName($serviceID)
+    {
+        $vars = array(':serviceID' => $serviceID);
+        return $this->db->prepared_query('SELECT * FROM services 
+                                            where serviceid=:serviceID', $vars)[0]['service'];
+    }
+
+    /**
+     * Gets history for given serviceID.
+     * @param int $filterById 	the id of the service to fetch logs of
+     * @return array
+     */
+    public function getHistory($filterById)
+    {
+        return $this->dataActionLogger->getHistory($filterById, "serviceID", \LoggableTypes::SERVICE_CHIEF);
     }
 }

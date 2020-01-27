@@ -10,16 +10,24 @@
     Handler for user groups for the resource management web app
 */
 
+if(!class_exists('DataActionLogger'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
+}
+
 class Group
 {
     private $db;
 
     private $login;
 
+    private $dataActionLogger;
+
     public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
+        $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
 
     public function addGroup($groupName, $groupDesc = '', $parentGroupID = null)
@@ -94,6 +102,11 @@ class Group
                               ':groupID' => (int)$group, );
                 $res = $this->db->prepared_query('INSERT INTO users (userID, groupID)
                                                     VALUES (:userID, :groupID)', $vars);
+                
+                $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
+                    new \LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
+                    new \LogItem("users", "groupID", $group, $this->getGroupName($group)) 
+                ]);     
             }
         }
     }
@@ -105,6 +118,11 @@ class Group
             $vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
             $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+
+            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
+                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID)) 
+            ]);
 
             return 1;
         }
@@ -133,5 +151,50 @@ class Group
         }
 
         return $list;
+    }
+
+    /**
+     * Returns formatted group name.
+     * @param string $groupID       The group id to find the formatted name of
+     * @return string 
+     */
+    public function getGroupName($groupId)
+    {
+        $vars = array(":groupID" => $groupId);
+        $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID = :groupID', $vars);
+        if($res[0] != null){
+            return $res[0]["name"];
+        }
+        return "";
+    }
+    
+    /**
+     * Returns formatted Employee name.
+     * @param string $employeeID        The id to create the display name of.
+     * @return string 
+     */
+    private function getEmployeeDisplay($employeeID)
+    {
+        require_once '../VAMC_Directory.php';
+     
+        $dir = new VAMC_Directory();
+        $dirRes = $dir->lookupLogin($employeeID);
+
+        $empData = $dirRes[0];
+        $empDisplay =$empData["firstName"]." ".$empData["lastName"];
+        
+        return $empDisplay;
+    }
+
+    /**
+     * Returns Portal Group logs.
+     * 
+     * @param string $filterById        The id of the Group to find the logs of
+     *
+     * @return array 
+     */
+    public function getHistory($filterById)
+    {
+        return $this->dataActionLogger->getHistory($filterById, "groupID", \LoggableTypes::PORTAL_GROUP);
     }
 }

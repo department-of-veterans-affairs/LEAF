@@ -149,6 +149,49 @@ switch ($action) {
            }
 
            break;
+    case 'gethistory':
+        $typeName = $_GET['type'];
+        $itemID = $_GET['id']; 
+
+        $type = null;
+        switch ($typeName) {
+            case 'service':
+                include '../sources/Service.php';
+                $type = new \Service($db, $login);
+                $title = $type->getServiceName($itemID);
+                break;
+            case 'form':
+                include '../sources/FormEditor.php';
+                $type = new \FormEditor($db, $login);
+                $title = $type->getFormName($itemID);
+                break;
+            case 'group':
+                include 'Group.php';
+                $type = new \Group($db, $login);
+                $title = $type->getGroupName($itemID);
+                break;
+        }
+
+        if (!empty($itemID))
+        {
+            $t_form = new Smarty;
+            $t_form->left_delimiter = '<!--{';
+            $t_form->right_delimiter = '}-->';
+
+            $resHistory = $type->getHistory($itemID);
+
+            $t_form->assign('dataType', ucwords($typeName));
+            $t_form->assign('dataID', $itemID);
+            $t_form->assign('dataName', $title);
+
+            $resHistory = $resHistory ?? array();
+
+            $t_form->assign('history', $resHistory);
+
+            $t_form->display('view_history.tpl');
+        }
+
+        break;           
     default:
         /*
         echo "Action: $action<br /><br />Catchall...<br /><br />POST: <pre>";

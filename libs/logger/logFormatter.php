@@ -1,45 +1,22 @@
 <?php
 
+require_once 'formatters/loggableTypes.php';
+require_once 'formatters/dataActions.php';
+require_once 'formatters/formatOptions.php';
+
+require_once 'formatters/groupFormatter.php';
+require_once 'formatters/serviceChiefFormatter.php';
+require_once 'formatters/formFormatter.php';
+require_once 'formatters/portalGroupFormatter.php';
+
 class LogFormatter{
 
     const formatters = array(
-        "groupID"=> self::groupFormattedStrings
+        LoggableTypes::GROUP=> GroupFormatter::TEMPLATES,
+        LoggableTypes::SERVICE_CHIEF=> ServiceChiefFormatter::TEMPLATES,
+        LoggableTypes::FORM=> FormFormatter::TEMPLATES,
+        LoggableTypes::PORTAL_GROUP=>PortalGroupFormatter::TEMPLATES
     );
-
-    const groupFormattedStrings = [
-        DataActions::ADD.'-'.LoggableTypes::GROUP => [
-            "message"=>"Group %s created",
-            "variables"=>"groupTitle" 
-        ],
-        DataActions::DELETE.'-'.LoggableTypes::GROUP=> [
-            "message"=>"Group %s deleted",
-            "variables"=>"groupID"    
-        ],
-        DataActions::MODIFY.'-'.LoggableTypes::GROUP=> [
-            "message"=>"Group name has changed to %s",
-            "variables"=>"groupTitle"
-        ],  
-        DataActions::MODIFY.'-'.LoggableTypes::PRIVILEGES=> [
-            "message"=>"User %s has the following permissions for group %s: Read: %s Write: %s Grant: %s",
-            "variables"=>"UID,groupID,read,write,grant"
-        ],     
-        DataActions::ADD.'-'.LoggableTypes::EMPLOYEE=> [
-            "message"=>"User %s has been added to Group %s",
-            "variables"=>"empUID,groupID"
-        ],
-        DataActions::DELETE.'-'.LoggableTypes::EMPLOYEE=> [
-            "message"=>"User %s has been removed from Group %s",
-            "variables"=>"empUID,groupID"
-        ],   
-        DataActions::ADD.'-'.LoggableTypes::POSITION=> [
-            "message"=>"Position %s added to Group %s",
-            "variables"=>"positionID,groupID"
-        ],
-        DataActions::DELETE.'-'.LoggableTypes::POSITION=> [
-            "message"=>"Position %s has been removed from Group %s",
-            "variables"=>"positionID,groupID"
-        ]
-    ];
 
     public static function getFormattedString($logData, $logType){
 
@@ -47,41 +24,49 @@ class LogFormatter{
 
         $dictionaryItem = $logDictionary[$logData["action"]];
 
-        $columnNames = explode("," , $dictionaryItem["variables"]);
+        $formatVariables = explode("," , $dictionaryItem["variables"]);
+
+        $message = $dictionaryItem["message"];
+
+        if($dictionaryItem["loggableColumns"] != null){
+            $loggableColumns = explode(",", $dictionaryItem["loggableColumns"]);
+        }
 
         $variableArray = [];
 
-        foreach($columnNames as $columnName){
-            array_push($variableArray,self::findValue($logData["items"], $columnName));
+        foreach($formatVariables as $formatVariable){
+            $result = self::findValue($logData["items"], $formatVariable, $loggableColumns, $message);
+            $message = $result["message"];
+            foreach($result["values"] as $value){
+                array_push($variableArray, $value);
+            }
         }
 
-        return vsprintf($dictionaryItem["message"],$variableArray);
+        return vsprintf($message,$variableArray);
     }
 
-    private static function findValue($items, $columnName){
+    private static function findValue($changeDetails, $columnName, $loggableColumns, $message){
 
-        $value = '';
+        $result = ["message"=> $message, "values"=> array()];
 
-        foreach($items as $key=> $item){
-            if($item["column"] == $columnName){
-                $value = isset($item["displayValue"]) ? $item["displayValue"] : $item["value"];
-                break;
+        foreach($changeDetails as $key=> $detail){
+            if($columnName == FormatOptions::READ_COLUMN_NAMES){
+                if(in_array($detail["column"], $loggableColumns)){
+                    $result["message"].=" %s changed to %s ";
+                    array_push($result["values"], $detail["column"]);
+                    $value = isset($detail["displayValue"]) ? $detail["displayValue"] : $detail["value"];
+                    array_push($result["values"], $value);
+                }
+            }
+            if($detail["column"] == $columnName){
+                $value = isset($detail["displayValue"]) ? $detail["displayValue"] : $detail["value"];
+                array_push($result["values"], $value);
             }
         }
         
-        return $value;
+        return $result;
     }
 }
 
-class DataActions {
-    const MODIFY = 'modify';
-    const DELETE = 'delete';
-    const ADD = 'add';
-}
 
-class LoggableTypes {
-    const GROUP = 'group';
-    const PRIVILEGES = 'privileges';
-    const POSITION = 'position';
-    const EMPLOYEE = 'employee';
-}
+
