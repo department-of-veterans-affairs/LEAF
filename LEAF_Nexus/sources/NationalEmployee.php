@@ -87,6 +87,7 @@ class NationalEmployee extends NationalData
 
     public function lookupLogin($login)
     {
+        $login = str_replace('userName:', '', $login);
         $cacheHash = "lookupLogin{$login}";
         if (isset($this->cache[$cacheHash]))
         {
@@ -359,15 +360,8 @@ class NationalEmployee extends NationalData
                 break;
             // Format: Loginname
             case strpos(strtolower($input), 'vha') !== false:
-                if ($this->debug)
-                {
-                    $this->log[] = 'Format Detected: Loginname';
-                }
-                   $searchResult = $this->lookupLogin($input);
-
-                   break;
-            // Format: Loginname (vaco)
             case strpos(strtolower($input), 'vaco') !== false:
+            case strpos(strtolower($input), 'username:') !== false:
                    if ($this->debug)
                    {
                        $this->log[] = 'Format Detected: Loginname';
