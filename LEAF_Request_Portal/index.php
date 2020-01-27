@@ -75,7 +75,7 @@ if (isset($settings['timeZone']))
 switch ($action) {
     case 'newform':
         $main->assign('useLiteUI', true);
-
+        $main->assign('javascripts', array('js/titleValidator.js'));
         $form = new Form($db, $login);
         include './sources/FormStack.php';
         $stack = new FormStack($db, $login);
@@ -184,7 +184,8 @@ switch ($action) {
             '../libs/js/es6-promise/es6-promise.min.js',
             '../libs/js/es6-promise/es6-promise.auto.min.js',
             '../libs/js/jspdf/jspdf.min.js',
-            '../libs/js/jspdf/jspdf.plugin.autotable.min.js'
+            '../libs/js/jspdf/jspdf.plugin.autotable.min.js',
+            'js/titleValidator.js'
         ));
 
         $recordIDToPrint = (int)$_GET['recordID'];

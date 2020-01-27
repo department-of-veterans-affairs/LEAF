@@ -699,9 +699,14 @@
                     });
                 }
                 function importFromNational(empSel) {
-                    if(empSel.selection != '') {
-                        $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Loading. ***');
-                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                    if (empSel.selection === '') {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
+                    } else {
+                        $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Loading... ***');
+
+                        var selectedUser = empSel.selectionData[empSel.selection];
+                        var selectedUserName = selectedUser.userName;
+
                         $.ajax({
                             type: 'POST',
                             url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
@@ -714,7 +719,40 @@
                     }
                 }
 
-            	var empSel;
+                function empSearchSuccess() {
+                    var empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
+                    empSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                    empSel.rootPath = '<!--{$orgchartPath}-->/';
+
+                    empSel.setSelectHandler(function() {
+                        importFromNational(empSel);
+                    });
+                    empSel.setResultHandler(function() {
+                        importFromNational(empSel);
+                    });
+                    empSel.initialize();
+                    <!--{if $indicator.value != ''}-->
+                    $.ajax({
+                        type: 'GET',
+                        url: '<!--{$orgchartPath}-->/api/employee/<!--{$indicator.value|strip_tags|escape|trim}-->'
+                    })
+                    .then(function(res) {
+                        if(res.employee != undefined && res.employee.userName != '') {
+                            var first = res.employee.firstName;
+                            var last = res.employee.lastName;
+                            var middle = res.employee.middleName;
+
+                            var formatted = last + ", " + first + " " + middle;
+                            var query = empSel.runSearchQuery('userName:' + res.employee.userName);
+                            $("#"+ empSel.prefixID+"input").val('userName:' + res.employee.userName);
+                            query.done(function() {
+                                empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
+                            });
+                        }
+                    });
+                    <!--{/if}-->
+                }
+                
                 if(typeof nationalEmployeeSelector == 'undefined') {
                     $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />');
                     $.ajax({
@@ -722,39 +760,12 @@
                         url: "<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js",
                         dataType: 'script',
                         success: function() {
-                            empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                            empSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                            empSel.rootPath = '<!--{$orgchartPath}-->/';
-
-                            empSel.setSelectHandler(function() {
-                            	importFromNational(empSel);
-                            });
-                            empSel.setResultHandler(function() {
-                            	importFromNational(empSel);
-                            });
-                            empSel.initialize();
-                            <!--{if $indicator.value != ''}-->
-                            empSel.forceSearch('#<!--{$indicator.value|strip_tags|escape|trim}-->');
-                            <!--{/if}-->
+                            empSearchSuccess();
                         }
                     });
                 }
                 else {
-                    empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                    empSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                    empSel.rootPath = '<!--{$orgchartPath}-->/';
-
-                    empSel.setSelectHandler(function() {
-                    	importFromNational(empSel);
-                    });
-                    empSel.setResultHandler(function() {
-                    	importFromNational(empSel);
-                    });
-
-                    empSel.initialize();
-                    <!--{if $indicator.value != ''}-->
-                    empSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
-                    <!--{/if}-->
+                    empSearchSuccess();
                 }
             });
             <!--{if $indicator.required == 1}-->
