@@ -5,7 +5,6 @@ $(document).ready(function(){
 });
 $(document).on('DOMNodeInserted', 'input[name="title"][type="text"]', function(e) {
     prevTitle = $('input[name="title"][type="text"]').val();
-    console.log("prevTitle: "+prevTitle);
 });
 $(document).on('input','input[name="title"][type="text"]', function(e) {
     if ($(this).val().length>maxTitleLength) 
