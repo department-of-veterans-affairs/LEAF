@@ -692,7 +692,7 @@ class System
         $res = $this->db->prepared_query('SELECT * 
                                             FROM `users`
                                             WHERE `userID` = :userID
-                                            AND `groupID` = 1', array($vars));
+                                            AND `groupID` = 1', $vars);
         $resultArray = array();
         if(count($res))
         {
@@ -700,7 +700,7 @@ class System
     								        SET `primary_admin` = 0', array());
             $res = $this->db->prepared_query('UPDATE `users`
                                                 SET `primary_admin` = 1
-                                                WHERE `userID` = :userID;', array($vars));
+                                                WHERE `userID` = :userID;', $vars);
             $resultArray = array('success'=>true, 'response'=>$res);
         }
         else

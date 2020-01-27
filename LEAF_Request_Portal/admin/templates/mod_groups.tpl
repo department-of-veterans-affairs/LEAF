@@ -65,6 +65,28 @@ function removeAdmin(userID) {
     });
 }
 
+function unsetPrimaryAdmin() {
+    $.ajax({
+    	type: 'POST',
+        url: "../api/system/unsetPrimaryadmin",
+        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+        success: function(response) {
+        	getMembers(1);
+        }
+    });
+}
+
+function setPrimaryAdmin(userID) {
+        $.ajax({
+    	type: 'POST',
+        url: "../api/system/setPrimaryadmin",
+        data: {'userID': userID, 'CSRFToken': '<!--{$CSRFToken}-->'},
+        success: function(response) {
+        	getMembers(1);
+        }
+    });
+}
+
 function focusGroupsAndMembers(groupID) {
     $('#' + groupID).on('focusin', function() {
         $('#' + groupID).css('background-color', '#fffdc2');
@@ -81,7 +103,6 @@ function getGroupList() {
         url: "../api/group/members",
         dataType: "json",
         success: function(res) {
-            console.log(res);
             $('#groupList').html('');
             for(var i in res) {
 
@@ -241,20 +262,23 @@ function getGroupList() {
                             dataType: "json",
                             success: function(res) {
                                 $('#primaryAdminSummary').html('');
-                                var primaryAdminName = "Primary Admin has not been set.";
+                                var foundPrimary = false;
                                 for(var i in res) {
                                     if(res[i].primary_admin == 1)
                                     {
-                                        primaryAdminName = '<div>&bull; '+ res[i].Lname  + ', ' + res[i].Fname +' [ <a tabindex="0" aria-label="Unset '+ res[i].Lname  + ', ' + res[i].Fname +'" href="#" id="unsetPrimaryAdmin">Unset</a> ]</div>';
-                                        $('#unsetPrimaryAdmin').on('click', function(userID) {
-                                            return function() {
-                                                unsetPrimaryAdmin(userID);
+                                        foundPrimary = true;
+                                        $('#primaryAdminSummary').append('<div>&bull; '+ res[i].Lname  + ', ' + res[i].Fname +' [ <a tabindex="0" aria-label="Unset '+ res[i].Lname  + ', ' + res[i].Fname +'" href="#" id="unsetPrimaryAdmin">Unset</a> ]</div>');
+                                        $('#unsetPrimaryAdmin').on('click', function() {
+                                                unsetPrimaryAdmin();
                                                 dialog.hide();
-                                            };
-                                        }(res[i].userName));
+                                        });
                                     }
                                 }
-                                $('#primaryAdminSummary').append(primaryAdminName);
+                                if(!foundPrimary)
+                                {
+                                   $('#primaryAdminSummary').append("Primary Admin has not been set.");
+                                }
+                                
                             }
                         });
                         setTimeout(function () {
