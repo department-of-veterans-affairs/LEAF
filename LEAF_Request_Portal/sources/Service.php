@@ -95,7 +95,7 @@ class Service
             $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, locallyManaged)
                                                    VALUES (:groupID, :userID, 1)', $vars);
 
-            $this->dataActionLogger->logAction(\DataActions::ADD,\LoggableTypes::SERVICE_CHIEF,[
+            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::SERVICE_CHIEF, [
                 new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
                 new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)), 
                 new LogItem("service_chiefs", "locallyManaged", "false")
@@ -144,8 +144,8 @@ class Service
                 $res = $this->db->prepared_query('UPDATE service_chiefs SET active=0, locallyManaged=1
                                                     WHERE userID=:userID AND serviceID=:groupID', $vars);
 
-                $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::SERVICE_CHIEF,[
-                    new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
+                $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::SERVICE_CHIEF, [
+                    new LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID)),
                     new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
                 ]);                                      
 
@@ -232,6 +232,11 @@ class Service
         return $list;
     }
 
+    /**
+     * Gets Employee name formatted for display
+     * @param string $employeeID 	the id of the employee to retrieve display name
+     * @return string
+     */
     private function getEmployeeDisplay($employeeID)
     {
         require_once '../VAMC_Directory.php';
@@ -240,11 +245,16 @@ class Service
         $dirRes = $dir->lookupLogin($employeeID);
 
         $empData = $dirRes[0];
-        $empDisplay =$empData["firstName"]." ".$empData["lastName"];
+        $empDisplay = $empData["firstName"] . " " . $empData["lastName"];
         
         return $empDisplay;
     }
 
+    /**
+     * Gets display name for Service.
+     * @param int $serviceID 	the id of the service to find display name for.
+     * @return string
+     */
     public function getServiceName($serviceID)
     {
         $vars = array(':serviceID' => $serviceID);
@@ -252,6 +262,11 @@ class Service
                                             where serviceid=:serviceID', $vars)[0]['service'];
     }
 
+    /**
+     * Gets history for given serviceID.
+     * @param int $filterById 	the id of the service to fetch logs of
+     * @return array
+     */
     public function getHistory($filterById)
     {
         return $this->dataActionLogger->getHistory($filterById, "serviceID", \LoggableTypes::SERVICE_CHIEF);

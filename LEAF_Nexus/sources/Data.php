@@ -684,7 +684,15 @@ abstract class Data
         return true;
     }
 
-    public function logAction($verb, $type, $data){
+    /**
+     * Adds action to Data Action log table.
+     * @param DataAction $verb      The action to log
+     * @param LoggableType $type    The type the action was performed against
+     * @param LogItem $data         The values changed
+     * @return void
+     */
+    public function logAction($verb, $type, $data)
+    {
         $this->dataActionLogger->logAction($verb, $type, $data);
     }
 

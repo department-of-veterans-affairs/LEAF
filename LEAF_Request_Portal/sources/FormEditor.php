@@ -86,9 +86,9 @@ class FormEditor
                                             ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
         }
         
-        $this->dataActionLogger->logAction(\DataActions::ADD,\LoggableTypes::INDICATOR,[
+        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::INDICATOR, [
             new LogItem("indicators", "indicatorID", $package['indicatorID']),
-            new LogItem("indicators","categoryID", $package['categoryID']),
+            new LogItem("indicators", "categoryID", $package['categoryID']),
             new LogItem("indicators", "name", $package['name']), 
             new LogItem("indicators", "is_sensitive", $package['is_sensitive'] ?? 0)
         ]);  
@@ -326,9 +326,9 @@ class FormEditor
         $result =  $this->db->prepared_query('UPDATE indicators
     								SET htmlPrint=:input
                                     WHERE indicatorID=:indicatorID', $vars);
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
+        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
             new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
             new LogItem("indicators", "htmlPrint", $input)
         ]);
 
@@ -368,7 +368,7 @@ class FormEditor
     									VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID, :lastModified)
                                         ON DUPLICATE KEY UPDATE categoryName=:name, categoryDescription=:description, workflowID=:workflowID, lastModified=:lastModified, disabled=0', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::ADD,\LoggableTypes::FORM,[
+        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::FORM, [
             new LogItem("categories", "categoryID", $categoryID),            
             new LogItem("categories", "parentID", $parentID),
             new LogItem("categories", "categoryName", $name),
@@ -524,14 +524,14 @@ class FormEditor
     public function setFormType($categoryID, $input){
 
         $vars = array(':categoryID' => $categoryID,
-            ':input' => $input, );
+            ':input' => $input );
 
         $result = $this->db->prepared_query('UPDATE categories
                     SET type=:input
                     WHERE categoryID=:categoryID', $vars);
 
         if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::FORM,[
+            $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::FORM, [
                 new LogItem("categories", "categoryID", $categoryID),
                 new LogItem("categories", "type", $input)
             ]);
@@ -771,18 +771,16 @@ class FormEditor
         }
     }
 
-    private function getCategoryID($indicatorID){
+    /**
+     * Gets category Id for given indicatorID.
+     * @param int $indicatorID 	the id of the indicator to find categoryID of
+     * @return string
+     */
+    private function getCategoryID($indicatorID)
+    {
         $vars = array(':indicatorID' => $indicatorID);
-
         return $this->db->prepared_query('SELECT * FROM indicators
-    										WHERE indicatorID=:indicatorID', $vars)[0]['categoryID'];
-    }
-
-    private function getIndicatorName($indicatorID){
-        $vars = array(':indicatorID' => $indicatorID);
-
-        return $this->db->prepared_query('SELECT * FROM indicators
-    										WHERE indicatorID=:indicatorID', $vars)[0];
+                                            WHERE indicatorID=:indicatorID', $vars)[0]['categoryID'];
     }
 
     public function getFormName($categoryID){

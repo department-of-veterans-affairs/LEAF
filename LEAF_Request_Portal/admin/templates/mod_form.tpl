@@ -206,7 +206,7 @@ function editProperties(isSubForm) {
                         categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
                     success: function(res) {
-                        categories[currCategoryID].visiblev= $('#visible').val();
+                        categories[currCategoryID].visible= $('#visible').val();
                         if(res != null) {
                         }
                     }
@@ -1936,7 +1936,7 @@ function renderSecureFormsInfo(res) {
 function viewHistory(categoryId){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Form History');
-	dialog_simple.show();
+    dialog_simple.show();
 	dialog_simple.indicateBusy();
 
     $.ajax({

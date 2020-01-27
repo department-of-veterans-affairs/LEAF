@@ -208,7 +208,7 @@ function getGroupList() {
 function viewHistory(groupID){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Group History');
-	dialog_simple.show();
+    dialog_simple.show();
 	dialog_simple.indicateBusy();
 
     $.ajax({

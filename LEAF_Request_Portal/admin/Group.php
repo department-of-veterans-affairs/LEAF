@@ -103,9 +103,9 @@ class Group
                 $res = $this->db->prepared_query('INSERT INTO users (userID, groupID)
                                                     VALUES (:userID, :groupID)', $vars);
                 
-                $this->dataActionLogger->logAction(\DataActions::ADD,\LoggableTypes::EMPLOYEE,[
-                    new LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
-                    new LogItem("users", "groupID", $group, $this->getGroupName($group)) 
+                $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
+                    new \LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
+                    new \LogItem("users", "groupID", $group, $this->getGroupName($group)) 
                 ]);     
             }
         }
@@ -119,9 +119,9 @@ class Group
                           ':groupID' => $groupID, );
             $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
 
-            $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::EMPLOYEE,[
-                new LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
-                new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID)) 
+            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
+                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID)) 
             ]);
 
             return 1;
@@ -153,8 +153,14 @@ class Group
         return $list;
     }
 
-    public function getGroupName($groupId){
-        $vars = array(":groupID"=> $groupId);
+    /**
+     * Returns formatted group name.
+     * @param string $groupID       The group id to find the formatted name of
+     * @return string 
+     */
+    public function getGroupName($groupId)
+    {
+        $vars = array(":groupID" => $groupId);
         $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID = :groupID', $vars);
         if($res[0] != null){
             return $res[0]["name"];
@@ -162,6 +168,11 @@ class Group
         return "";
     }
     
+    /**
+     * Returns formatted Employee name.
+     * @param string $employeeID        The id to create the display name of.
+     * @return string 
+     */
     private function getEmployeeDisplay($employeeID)
     {
         require_once '../VAMC_Directory.php';
@@ -175,6 +186,13 @@ class Group
         return $empDisplay;
     }
 
+    /**
+     * Returns Portal Group logs.
+     * 
+     * @param string $filterById        The id of the Group to find the logs of
+     *
+     * @return array 
+     */
     public function getHistory($filterById)
     {
         return $this->dataActionLogger->getHistory($filterById, "groupID", \LoggableTypes::PORTAL_GROUP);
