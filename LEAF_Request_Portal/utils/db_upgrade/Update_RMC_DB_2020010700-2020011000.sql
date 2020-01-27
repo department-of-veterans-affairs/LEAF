@@ -6,7 +6,7 @@ CREATE TABLE `data_action_log` (
   `action` varchar(45) DEFAULT NULL,
   `userID` int(11) DEFAULT NULL,
   `timestamp` DATETIME DEFAULT NULL,
-  `userDisplay` VARCHAR(255) DEFAULT NULL
+  `userDisplay` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
 
