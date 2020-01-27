@@ -683,4 +683,37 @@ class System
         return $this->db->prepared_query('SELECT * FROM `users`
     								WHERE `primary_admin` = 1', array());
     }
+
+    public function setPrimaryAdmin()
+    {
+        $vars = array(':userID' => XSSHelpers::xscrub($_POST['userID']));
+        $resultArray = array('success'=>false, 'response'=>$res);
+        //check if user is system admin
+        $res = $this->db->prepared_query('SELECT * 
+                                            FROM `users`
+                                            WHERE `userID` = :userID
+                                            AND `groupID` = 1', array($vars));
+        $resultArray = array();
+        if(count($res))
+        {
+            $this->db->prepared_query('UPDATE `users`
+    								        SET `primary_admin` = 0', array());
+            $res = $this->db->prepared_query('UPDATE `users`
+                                                SET `primary_admin` = 1
+                                                WHERE `userID` = :userID;', array($vars));
+            $resultArray = array('success'=>true, 'response'=>$res);
+        }
+        else
+        {
+            $resultArray = array('success'=>false, 'response'=>$res);
+        }
+
+        return json_encode($resultArray);
+    }
+
+    public function unsetPrimaryAdmin()
+    {
+        return $this->db->prepared_query('UPDATE `users`
+    								        SET `primary_admin` = 0', array());
+    }
 }

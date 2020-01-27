@@ -156,6 +156,15 @@ class SystemController extends RESTfulResponse
             return $system->setNationalLinkedPrimary();
         });
 
+        $this->index['GET']->register('system/setPrimaryadmin', function ($args) use ($group) {
+            $_POST['userID'] = XSSHelpers::sanitizeHTML($_POST['userID']);
+            return $system->setPrimaryAdmin();
+        });
+
+        $this->index['GET']->register('system/unsetPrimaryadmin', function ($args) use ($group) {
+            return $system->unsetPrimaryAdmin();
+        });
+
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
 
