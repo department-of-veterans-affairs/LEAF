@@ -33,27 +33,27 @@ function getMembers(groupID) {
 }
 
 function getPrimaryAdmin() {
-        $.ajax({
-            url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
-            dataType: "json",
-            success: function(response) {
-                $('#membersPrimaryAdmin').fadeOut();
-                $('#membersPrimaryAdmin').html('');
-                var foundPrimary = false;
-                for(var i in response) {
-                    if(response[i].primary_admin == 1)
-                    {
-                        foundPrimary = true;
-                        $('#membersPrimaryAdmin').append(response[i].Lname + ', ' + response[i].Fname + '<br />');
-                    }
-                }
-                if(!foundPrimary)
+    $.ajax({
+        url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
+        dataType: "json",
+        success: function(response) {
+            $('#membersPrimaryAdmin').fadeOut();
+            $('#membersPrimaryAdmin').html('');
+            var foundPrimary = false;
+            for(var i in response) {
+                if(response[i].primary_admin == 1)
                 {
-                    $('#membersPrimaryAdmin').append("Primary Admin has not been set.");
+                    foundPrimary = true;
+                    $('#membersPrimaryAdmin').append(response[i].Lname + ', ' + response[i].Fname + '<br />');
                 }
-                $('#membersPrimaryAdmin').fadeIn();
             }
-        });
+            if(!foundPrimary)
+            {
+                $('#membersPrimaryAdmin').append("Primary Admin has not been set.");
+            }
+            $('#membersPrimaryAdmin').fadeIn();
+        }
+    });
 }
 
 function populateMembers(groupID, members) {

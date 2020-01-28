@@ -7,6 +7,12 @@
     {include file="menu_links.tpl"}
     </div>
 </div>
+<div id="headerMenuHelp_container" style="display: inline-block">
+    <a id="button_showHelp" tabindex="0" class="buttonNorm" alt="Help Popup" title="Help">Help</a>
+    <div id="headerMenu_help">
+    {include file="menu_Help.tpl"}
+    </div>
+</div>
 {if $is_admin == true}
      <a href="./admin/" class="buttonNorm" role="button"><img src="../libs/dynicons/?img=applications-system.svg&amp;w=16"/>Admin Panel</a>
 {/if}

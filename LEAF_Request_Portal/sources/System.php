@@ -680,8 +680,17 @@ class System
 
     public function getPrimaryAdmin()
     {
-        return $this->db->prepared_query('SELECT * FROM `users`
-    								WHERE `primary_admin` = 1', array());
+        $primaryAdminRes = $this->db->prepared_query('SELECT * FROM `users`
+                                    WHERE `primary_admin` = 1', array());
+        $result = array();
+        if(count($primaryAdminRes))
+        {                          
+            require_once '../VAMC_Directory.php';
+            $dir = new VAMC_Directory;
+            $user = $dir->lookupLogin($primaryAdminRes[0]['userID']);
+            $result = isset($user[0]) ? $user[0] : $primaryAdminRes[0]['userID'];
+        }
+        return $result;
     }
 
     public function setPrimaryAdmin()
