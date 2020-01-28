@@ -37,7 +37,6 @@ function getPrimaryAdmin() {
             url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
             dataType: "json",
             success: function(response) {
-                console.log(response);
                 $('#membersPrimaryAdmin').fadeOut();
                 $('#membersPrimaryAdmin').html('');
                 var foundPrimary = false;
@@ -86,6 +85,7 @@ function removeAdmin(userID) {
         	   'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getMembers(1);
+            getPrimaryAdmin();
         }
     });
 }
@@ -267,15 +267,23 @@ function getGroupList() {
                             if(empSel.selection != '') {
                                 var selectedUserName = empSel.selectionData[empSel.selection].userName;
                                 $.ajax({
-                                    type: 'POST',
-                                    url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                    url: 'ajaxJSON.php?a=mod_groups_getMembers&groupID=1',
+                                    dataType: "json",
                                     data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                     success: function(res) {
-                                        if(!isNaN(res)) {
+                                        var selectedUserIsAdmin = false;
+                                        for(var i in res) 
+                                        {
+                                            selectedUserIsAdmin = res[i].userName == selectedUserName;
+                                            if(selectedUserIsAdmin){break;}
+                                        }
+                                        if(selectedUserIsAdmin) 
+                                        {
                                             setPrimaryAdmin(selectedUserName);
                                         }
-                                        else {
-                                            alert(res);
+                                        else 
+                                        {
+                                            alert('Primary Admin must be a member of the Sysadmin group');
                                         }
                                     }
                                 });
