@@ -33,6 +33,12 @@ $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_con
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
+$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+if (isset($settings['timeZone']))
+{
+    date_default_timezone_set($settings['timeZone']);
+}
+
 $login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
