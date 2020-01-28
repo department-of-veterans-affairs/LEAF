@@ -89,7 +89,7 @@ class SystemController extends RESTfulResponse
             return $system->getSettings();
         });
 
-        $this->index['GET']->register('system/primaryadmin', function ($args) use ($group) {
+        $this->index['GET']->register('system/primaryadmin', function ($args) use ($system) {
             return $system->getPrimaryAdmin();
         });
 

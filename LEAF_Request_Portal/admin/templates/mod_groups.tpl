@@ -32,6 +32,31 @@ function getMembers(groupID) {
     });
 }
 
+function getPrimaryAdmin() {
+        $.ajax({
+            url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
+            dataType: "json",
+            success: function(response) {
+                console.log(response);
+                $('#membersPrimaryAdmin').fadeOut();
+                $('#membersPrimaryAdmin').html('');
+                var foundPrimary = false;
+                for(var i in response) {
+                    if(response[i].primary_admin == 1)
+                    {
+                        foundPrimary = true;
+                        $('#membersPrimaryAdmin').append(response[i].Lname + ', ' + response[i].Fname + '<br />');
+                    }
+                }
+                if(!foundPrimary)
+                {
+                    $('#membersPrimaryAdmin').append("Primary Admin has not been set.");
+                }
+                $('#membersPrimaryAdmin').fadeIn();
+            }
+        });
+}
+
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
     for(var i in members) {
@@ -71,7 +96,7 @@ function unsetPrimaryAdmin() {
         url: "../api/system/unsetPrimaryadmin",
         data: {'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
-        	getMembers(1);
+        	getPrimaryAdmin();
         }
     });
 }
@@ -82,7 +107,7 @@ function setPrimaryAdmin(userID) {
         url: "../api/system/setPrimaryadmin",
         data: {'userID': userID, 'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
-        	getMembers(1);
+        	getPrimaryAdmin();
         }
     });
 }
