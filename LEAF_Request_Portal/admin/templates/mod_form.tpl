@@ -178,8 +178,7 @@ function editProperties(isSubForm) {
                         }
                         categories[currCategoryID].needToKnow = $('#needToKnow').val();
                     }
-                })
-                );
+                }));
             }
 
             if(sortChanged){
@@ -195,7 +194,7 @@ function editProperties(isSubForm) {
                         }
                         categories[currCategoryID].sort = $('#sort').val();
                     }
-                }),);
+                }));
             }
 
             if(visibleChanged){
@@ -210,7 +209,7 @@ function editProperties(isSubForm) {
                         if(res != null) {
                         }
                     }
-                })
+                });
             }
 
             if(typeChanged){
