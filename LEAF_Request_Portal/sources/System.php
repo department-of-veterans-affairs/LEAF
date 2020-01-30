@@ -706,7 +706,7 @@ class System
     public function setPrimaryAdmin()
     {
         $vars = array(':userID' => XSSHelpers::xscrub($_POST['userID']));
-        $resultArray = array('success'=>false, 'response'=>$res);
+        $resultArray = array('success' => false, 'response' => $res);
         //check if user is system admin
         $res = $this->db->prepared_query('SELECT * 
                                             FROM `users`
