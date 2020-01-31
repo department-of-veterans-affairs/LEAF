@@ -991,7 +991,7 @@ function getForm(indicatorID, series) {
                         <td>Disabled</td>\
                         <td colspan="1"><input id="disabled" name="disabled" type="checkbox" /></td>\
                         <td style="width: 275px;">\
-                            <span id="disabled-warning" style="color: red; visibility: hidden;">This field will be disabled. It can be re-enabled within 30 days under Form Editor -&gt; Restore Fields</span>\
+                            <span id="disabled-warning" style="color: red; visibility: hidden;">This field will be disabled. It can be</br>re-enabled within 30 days under</br>Form Editor -&gt; Restore Fields</span>\
                         </td>\
                     </tr>\
                 </table>\
