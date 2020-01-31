@@ -7,6 +7,7 @@ const DIRECTORY_DB = 'DB_NAME';
 const DIRECTORY_USER = 'USERNAME';
 const DIRECTORY_PASS = 'PASSWORD';
 
+const HTTP_HOST = 'www.example.com';
 
 const AUTH_URL = 'example.com/auth';
 

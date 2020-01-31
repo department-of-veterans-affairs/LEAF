@@ -29,11 +29,11 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
     $redirect = '';
     if (isset($_GET['r']))
     {
-        $redirect = $protocol . substr($_SERVER['HTTP_HOST'], 0, -4) . base64_decode($_GET['r']);
+        $redirect = $protocol . substr(HTTP_HOST, 0, -4) . base64_decode($_GET['r']);
     }
     else
     {
-        $redirect = $protocol . substr($_SERVER['HTTP_HOST'], 0, -4) . dirname($_SERVER['PHP_SELF']) . '/../';
+        $redirect = $protocol . substr(HTTP_HOST, 0, -4) . dirname($_SERVER['PHP_SELF']) . '/../';
     }
 
     $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);

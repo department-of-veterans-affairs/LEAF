@@ -28,11 +28,11 @@ if (isset($_COOKIE['REMOTE_USER']))
     $redirect = '';
     if (isset($_GET['r']))
     {
-        $redirect = $protocol . $_SERVER['HTTP_HOST'] . base64_decode($_GET['r']);
+        $redirect = $protocol . HTTP_HOST . base64_decode($_GET['r']);
     }
     else
     {
-        $redirect = $protocol . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/../';
+        $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
     }
 
     $user = decryptUser($_COOKIE['REMOTE_USER']);
