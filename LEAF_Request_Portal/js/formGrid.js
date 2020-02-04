@@ -298,7 +298,7 @@ var LeafFormGrid = function(containerID, options) {
                 // IE workaround... it adds zero-width "left-to-right mark" spaces for some reason, and we need to take it out
                 currentData[i][key] = currentData[i][key].replace(/[\u200B-\u200E]/g, '');
             }
-
+        if(isIndicatorID){
             if(currentData[i].s1 == undefined) {
                 currentData[i].s1 = {};
             }
@@ -332,7 +332,26 @@ var LeafFormGrid = function(containerID, options) {
             else {
                 isNumeric= false;
             }
+        }
+        // detect date fields for other non-indicatorID columns
+        else {
+            tDate = null;
+            if(currentData[i].sDate == undefined) {
+                currentData[i].sDate = {};
+            }
+            currentData[i].sDate[key] = 0;
 
+            if(isNaN(currentData[i][key])
+                && (currentData[i][key].indexOf('-') != -1
+                    || currentData[i][key].indexOf('/') != -1)) {
+                    tDate = Date.parse(currentData[i][key]);
+            }
+            if(isDate || (tDate != null && !isNaN(tDate))) {
+                isDate = true;
+
+                currentData[i].sDate[key] = !isNaN(tDate) && tDate != null ? tDate : 0;
+            }
+        }
             array.push(currentData[i]);
         }
         if(isDate) {
