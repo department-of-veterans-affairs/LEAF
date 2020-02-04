@@ -530,12 +530,12 @@ class FormEditor
                     SET type=:input
                     WHERE categoryID=:categoryID', $vars);
 
-        if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::FORM, [
-                new LogItem("categories", "categoryID", $categoryID),
-                new LogItem("categories", "type", $input)
-            ]);
-        }
+        $display = empty($input) ? "standard" : $input;
+
+        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::FORM, [
+            new LogItem("categories", "categoryID", $categoryID),
+            new LogItem("categories", "type", $input, $display)
+        ]);
 
         return $result;
     }
