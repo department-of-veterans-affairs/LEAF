@@ -109,14 +109,14 @@ function editProperties(isSubForm) {
 
         dialog.setSaveHandler(function() {
             var calls = [];
-
-            var nameChanged = (categories[currCategoryID].name || "") != $('#name').val();
-            var descriptionChanged  = (categories[currCategoryID].description || "") != $('#description').val();
+            
+            var nameChanged = (categories[currCategoryID].categoryName || "") != $('#name').val();
+            var descriptionChanged  = (categories[currCategoryID].categoryDescription || "") != $('#description').val();
             var workflowChanged  = (categories[currCategoryID].workflowID || "") != $('#workflowID').val();
             var needToKnowChanged = (categories[currCategoryID].needToKnow || "") != $('#needToKnow').val();
             var sortChanged = (categories[currCategoryID].sort || "") != $('#sort').val();
             var visibleChanged = (categories[currCategoryID].visible || "") != $('#visible').val();
-            var typeChanged = (categories[currCategoryID].formType || "") != $('#formType').val();
+            var typeChanged = (categories[currCategoryID].type || "") != $('#formType').val();
 
             if(nameChanged){
                 calls.push($.ajax({
