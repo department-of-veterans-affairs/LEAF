@@ -21,7 +21,7 @@ class Shortener
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         // todo: replace with config based URL
-        $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['PHP_SELF']);
+        $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['PHP_SELF']);
     }
 
     // Algo based in part on https://helloacm.com/base62/

@@ -358,7 +358,7 @@ abstract class RESTfulResponse
         $tIdx = strpos($_SERVER['HTTP_REFERER'], '://');
         $referer = substr($_SERVER['HTTP_REFERER'], $tIdx);
 
-        $url = '://' . $_SERVER['HTTP_HOST'];
+        $url = '://' . HTTP_HOST;
 
         $script = $_SERVER['SCRIPT_NAME'];
         $apiOffset = strpos($script, '/api/');

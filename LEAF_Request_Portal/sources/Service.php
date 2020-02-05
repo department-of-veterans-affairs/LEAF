@@ -31,7 +31,7 @@ class Service
         $this->dataActionLogger = new \DataActionLogger($db, $login);
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
+        $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
     }
 
     public function addService($groupName, $parentGroupID = null)
@@ -97,9 +97,9 @@ class Service
 
             $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::SERVICE_CHIEF, [
                 new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
-                new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)), 
+                new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)),
                 new LogItem("service_chiefs", "locallyManaged", "false")
-            ]);     
+            ]);
 
             // check if this service is also an ELT
             $vars = array(':groupID' => $groupID);
@@ -131,11 +131,11 @@ class Service
                 $vars = array(':userID' => $member,
                         ':groupID' => $groupID, );
                 $res = $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
-                
+
                 $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::SERVICE_CHIEF,[
                     new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
-                    new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)) 
-                ]);   
+                    new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
+                ]);
             }
             else
             {
@@ -147,7 +147,7 @@ class Service
                 $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::SERVICE_CHIEF, [
                     new LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID)),
                     new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
-                ]);                                      
+                ]);
 
             }
 
@@ -240,13 +240,13 @@ class Service
     private function getEmployeeDisplay($employeeID)
     {
         require_once '../VAMC_Directory.php';
-     
+
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
 
         $empData = $dirRes[0];
         $empDisplay = $empData["firstName"] . " " . $empData["lastName"];
-        
+
         return $empDisplay;
     }
 
@@ -258,7 +258,7 @@ class Service
     public function getServiceName($serviceID)
     {
         $vars = array(':serviceID' => $serviceID);
-        return $this->db->prepared_query('SELECT * FROM services 
+        return $this->db->prepared_query('SELECT * FROM services
                                             where serviceid=:serviceID', $vars)[0]['service'];
     }
 
