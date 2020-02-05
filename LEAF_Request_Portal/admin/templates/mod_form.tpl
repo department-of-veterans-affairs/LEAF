@@ -973,23 +973,26 @@ function getForm(indicatorID, series) {
                 <table>\
                     <tr>\
                         <td>Required</td>\
-                        <td><input id="required" name="required" type="checkbox" /></td>\
+                        <td colspan="2" style="width: 300px;"><input id="required" name="required" type="checkbox" /></td>\
                     </tr>\
                     </tr>\
                         <td>Sensitive Data (PHI/PII)</td>\
-                        <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
+                        <td colspan="2"><input id="sensitive" name="sensitive" type="checkbox" /></td>\
                     </tr>\
                     <tr>\
                         <td>Sort Priority</td>\
-                        <td><input id="sort" name="sort" type="number" style="width: 40px" /></td>\
+                        <td colspan="2"><input id="sort" name="sort" type="number" style="width: 40px" /></td>\
                     </tr>\
                     <tr>\
                         <td>Parent Question ID</td>\
-                        <td><div id="container_parentID"></div></td>\
+                        <td colspan="2"><div id="container_parentID"></div></td>\
                     </tr>\
                     <tr>\
                         <td>Disabled</td>\
-                        <td><input id="disabled" name="disabled" type="checkbox" /></td>\
+                        <td colspan="1"><input id="disabled" name="disabled" type="checkbox" /></td>\
+                        <td style="width: 275px;">\
+                            <span id="disabled-warning" style="color: red; visibility: hidden;">This field will be disabled. It can be</br>re-enabled within 30 days under</br>Form Editor -&gt; Restore Fields</span>\
+                        </td>\
                     </tr>\
                 </table>\
         </fieldset>\
@@ -1058,6 +1061,16 @@ function getForm(indicatorID, series) {
     $('#disabled').keypress(function(event) {
         if(event.keyCode === 13) {
             event.preventDefault();
+        }
+    });
+    $('#disabled').on("change", function(event) {
+        if($(this).is(':checked'))
+        {
+            $('#disabled-warning').css('visibility','visible');
+        }
+        else
+        {
+            $('#disabled-warning').css('visibility','hidden');
         }
     });
     $('#required').keypress(function(e){
