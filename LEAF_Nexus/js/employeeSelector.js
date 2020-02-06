@@ -145,7 +145,7 @@ employeeSelector.prototype.search = function() {
 	    	if(this.currRequest != null) {
 	    		this.currRequest.abort();
 	    	}
-
+	    	var t = this;
 	    	var ajaxOptions = {
 		            url: this.apiPath + "employee/search",
 		            dataType: 'json',
@@ -164,14 +164,15 @@ employeeSelector.prototype.search = function() {
 		            		buffer = '<table class="employeeSelectorTable"><tr><th>Name</th><th>Location</th><th>Contact</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 		            	}
 
-		            	$('#' + t.prefixID + 'result').html(buffer);
+                                $('#' + t.prefixID + 'result').html(buffer);
 
-		            	if(response.length == 0) {
-										$('#' + t.prefixID + 'status').text('No results for ' + txt);
-		            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
-		            	}else{
-										$('#' + t.prefixID + 'status').text('Search results found for term ' + txt + 'below');
-									}
+                                if(response.length == 0) {
+                                    $('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
+                                    $('#' + t.prefixID + 'emp0_message').text(txt);
+                                    $('#' + t.prefixID + 'status').text('No results for ' + txt);
+                                }else{
+                                    $('#' + t.prefixID + 'status').text('Search results found for term ' + txt + 'below');
+                                }
 
 		            	t.selectionData = new Object();
 		            	for(var i in response) {
@@ -260,7 +261,7 @@ employeeSelector.prototype.search = function() {
 		            },
 		            cache: false
 		        };
-	    	var t = this;
+	    	
 	    	if(this.useJSONP == 1) {
 	    		ajaxOptions.url += '&format=jsonp';
 	    		ajaxOptions.dataType = 'jsonp';
