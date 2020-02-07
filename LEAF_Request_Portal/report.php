@@ -97,7 +97,7 @@ switch ($action) {
 
         //url
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
+        $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
         $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
         $main->assign('body', $t_form->fetch('reports/showServiceFTEstatus.tpl'));
@@ -137,7 +137,7 @@ switch ($action) {
 
             //url
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-            $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
+            $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
             $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
             $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));

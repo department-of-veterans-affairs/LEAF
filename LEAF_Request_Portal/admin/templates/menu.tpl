@@ -5,6 +5,12 @@
     {include file="menu_links.tpl"}
     </div>
 </div>
+<div id="headerMenuHelp_container" style="display: inline-block">
+    <a id="button_showHelp" tabindex="0" class="buttonNorm" alt="Help Popup" title="Help"><img style="vertical-align: sub;" src="../../libs/dynicons/?img=help-browser.svg&amp;w=16">Help</a>
+    <div id="headerMenu_help" tabindex="0">
+    {include file="menu_Help.tpl"}
+    </div>
+</div>
 <a href="./" class="buttonNorm"><img src="../../libs/dynicons/?img=applications-system.svg&amp;w=16" alt="Admin Panel" title="Admin Panel" />Admin Panel</a>
 
 <br />
@@ -20,11 +26,25 @@
 </a>
 
 <script>
-    $('#button_showLinks').keypress(function(e) {
-        if (e.keyCode === 13) {
-            $('#headerMenu_links').css("display", "block");
-        }
-    });
+    menu508($('#button_showLinks'), $('#headerMenu_links'), $('#headerMenu_links').find('a'));
+    menu508($('#button_showHelp'), $('#headerMenu_help'), $('#headerMenu_help'));
+
+    function menu508(menuButton, subMenu, subMenuButton)
+    {
+        $(menuButton).keypress(function(e) {
+            if (e.keyCode === 13) {
+                $(subMenu).css("display", "block");
+                $(menuButton).attr('aria-expanded', 'true');
+                subMenuButton.focus();
+            }
+        });
+
+        $(subMenuButton).focusout(function() {
+                $(subMenu).css("display", "none");
+                $(menuButton).attr('aria-expanded', 'false');
+                $(menuButton).focus();
+        });
+    }
 </script>
 
 </div>

@@ -140,7 +140,7 @@ function updateLocalOrgchart()
         $res = $phonedb->prepared_query($sql, $userNameArr);
 
         if (count($res) > 0) {
-            echo 'Updating: ' . $res[0]['lastName'] . ', ' . $res[0]['firstName'] . "\n";
+            // echo 'Updating: ' . $res[0]['lastName'] . ', ' . $res[0]['firstName'] . "\n"; // name debugging
             $vars = array(
                 ':userName' => $res[0]['userName'],
                 ':lastName' => $res[0]['lastName'],

@@ -34,7 +34,7 @@ class System
         $this->login = $login;
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
+        $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $commonConfig = new CommonConfig();
         $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
     }
@@ -676,5 +676,68 @@ class System
     public function getSettings()
     {
         return $this->db->query_kv('SELECT * FROM settings', 'setting', 'data');
+    }
+
+    /**
+     * Get primary admin.
+     * 
+     * @return array array with primary admin's info
+     */
+    public function getPrimaryAdmin()
+    {
+        $primaryAdminRes = $this->db->prepared_query('SELECT * FROM `users`
+                                    WHERE `primary_admin` = 1', array());
+        $result = array();
+        if(count($primaryAdminRes))
+        {                          
+            require_once '../VAMC_Directory.php';
+            $dir = new VAMC_Directory;
+            $user = $dir->lookupLogin($primaryAdminRes[0]['userID']);
+            $result = isset($user[0]) ? $user[0] : $primaryAdminRes[0]['userID'];
+        }
+        return $result;
+    }
+
+    /**
+     * Set primary admin.
+     * 
+     * @return array array with response array
+     */
+    public function setPrimaryAdmin()
+    {
+        $vars = array(':userID' => XSSHelpers::xscrub($_POST['userID']));
+        $resultArray = array('success' => false, 'response' => $res);
+        //check if user is system admin
+        $res = $this->db->prepared_query('SELECT * 
+                                            FROM `users`
+                                            WHERE `userID` = :userID
+                                            AND `groupID` = 1', $vars);
+        $resultArray = array();
+        if(count($res))
+        {
+            $this->db->prepared_query('UPDATE `users`
+    								        SET `primary_admin` = 0', array());
+            $res = $this->db->prepared_query('UPDATE `users`
+                                                SET `primary_admin` = 1
+                                                WHERE `userID` = :userID;', $vars);
+            $resultArray = array('success' => true, 'response' => $res);
+        }
+        else
+        {
+            $resultArray = array('success' => false, 'response' => $res);
+        }
+
+        return json_encode($resultArray);
+    }
+
+    /**
+     * Unset primary admin.
+     * 
+     * @return array array with query response
+     */
+    public function unsetPrimaryAdmin()
+    {
+        return $this->db->prepared_query('UPDATE `users`
+    								        SET `primary_admin` = 0', array());
     }
 }

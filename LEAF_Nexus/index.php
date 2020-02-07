@@ -91,7 +91,7 @@ switch ($action) {
         $t_form->assign('header', XSSHelpers::sanitizeHTML($_GET['header']));
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $HTTP_HOST = XSSHelpers::sanitizeHTML($_SERVER['HTTP_HOST']);
+        $HTTP_HOST = XSSHelpers::sanitizeHTML(HTTP_HOST);
         $qrcodeURL = "{$protocol}://{$HTTP_HOST}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css'));
@@ -123,7 +123,7 @@ switch ($action) {
         $t_form->assign('resolvedService', $position->getService($rootID));
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $scrubbedHost = XSSHelpers::sanitizeHTML($_SERVER['HTTP_HOST']);
+        $scrubbedHost = XSSHelpers::sanitizeHTML(HTTP_HOST);
         $qrcodeURL = "{$protocol}://{$scrubbedHost}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css',
