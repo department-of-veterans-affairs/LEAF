@@ -12,7 +12,7 @@ include_once __DIR__ . '/../../../LEAF_Nexus/config.php';
 require_once __DIR__ . '/../../../LEAF_Nexus/api/RESTfulResponse.php';
 require_once __DIR__ . '/../../../LEAF_Nexus/sources/Exception.php';
 require_once __DIR__ . '/../../../LEAF_Nexus/api/ControllerMap.php';
-include_once __DIR__ . '/../../../LEAF_Nexus/enforceHTTPS.php';
+//include_once __DIR__ . '/../../../LEAF_Nexus/enforceHTTPS.php';
 
 $config = new Orgchart\Config();
 

@@ -3439,7 +3439,8 @@ class Form
             return 0;
         }*/
         
-        $vars = array(':recordID' => $recordID,
+        $vars = array(
+            ':time' => time(),
             ':date' => '0',
             ':serviceID' => '0',
             ':userID' => '',
@@ -3447,9 +3448,9 @@ class Form
             ':priority' => '0',
             ':lastStatus' => '',
             ':submitted' => '0',
-            ':deleted' => time(),
             ':isWritableUser' => '0',
-            ':isWritableGroup' => '0');
+            ':isWritableGroup' => '0',
+            ':recordID' => $recordID);
                           
         $res = $this->db->prepared_query('UPDATE records SET
         deleted=:time,
@@ -3461,9 +3462,9 @@ class Form
         lastStatus=:lastStatus,
         submitted=:submitted,
         isWritableUser=:isWritableUser,
-        isWritableGroup=:isWritableGroup ,
+        isWritableGroup=:isWritableGroup
         WHERE recordID=:recordID', $vars);
-            
+
         $vars = array(':recordID' => $recordID);
             
         $res = $this->db->prepared_query('DELETE FROM action_history WHERE recordID=:recordID', $vars);
@@ -3473,7 +3474,7 @@ class Form
             ':dependencyID' => 0,
             ':actionType' => 'deleted',
             ':actionTypeID' => 4,
-            ':time' => time(), );
+            ':time' => time() );
                 
         $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
         VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
