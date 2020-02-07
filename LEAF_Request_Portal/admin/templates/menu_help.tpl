@@ -5,9 +5,10 @@ For Help contact your primary admin:
         url: "../api/system/primaryadmin",
         dataType: "json",
         success: function(response) {
+            var emailString = response['Email'] != '' ? " - " + response['Email'] : '';
             if(response["Fname"] !== undefined)
             {
-                $('#help-primary-admin').html(response['Fname'] + " " + response['Lname'] + "-" + response['Email']);
+                $('#help-primary-admin').html(response['Fname'] + " " + response['Lname'] + emailString);
             }
             else if(response["userName"] !== undefined)
             {
