@@ -298,7 +298,6 @@ var LeafFormGrid = function(containerID, options) {
                 // IE workaround... it adds zero-width "left-to-right mark" spaces for some reason, and we need to take it out
                 currentData[i][key] = currentData[i][key].replace(/[\u200B-\u200E]/g, '');
             }
-        if(isIndicatorID){
             if(currentData[i].s1 == undefined) {
                 currentData[i].s1 = {};
             }
@@ -311,6 +310,7 @@ var LeafFormGrid = function(containerID, options) {
                 currentData[i].s1[idKey] = !isNaN(currentData[i][key]) ? currentData[i][key] : '';
                 currentData[i].sDate[key] = 0;
             }
+            if(isIndicatorID){
             tDate = null;
             if(isNaN(currentData[i].s1[idKey]) && (currentData[i].s1[idKey].indexOf('-') != -1
                 || currentData[i].s1[idKey].indexOf('/') != -1)) {
