@@ -2,6 +2,9 @@
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
+$currDir = dirname(__FILE__);
+
+include_once $currDir . '/../globals.php';
 
 class Shortener
 {
