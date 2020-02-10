@@ -243,6 +243,10 @@ final class FormControllerTest extends DatabaseTest
         $this->assertEquals('text', $indicators[4]['format']);
     }
 
+    /**
+     * Tests the `form/[digit]/delete` endpoint.
+     *
+     */
     public function testPermanentlyDeleteRecord() : void
     {
         $recordID_1 = self::$reqClient->post(array('a' => 'form/new'), array(

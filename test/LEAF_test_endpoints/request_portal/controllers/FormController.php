@@ -5,11 +5,13 @@
 
 require_once __DIR__ . '/../../../../LEAF_Request_Portal/form.php';
 
+/**
+ * FormController defines endpoints for testing
+ *
+ */
 class FormController extends RESTfulResponse
 {
     public $index = array();
-
-    private $API_VERSION = 1;    // Integer
 
     private $form;
 
@@ -17,6 +19,10 @@ class FormController extends RESTfulResponse
 
     private $db;
 
+    /**
+     * sets DB, login, and creates form object
+     *
+     */
     public function __construct($db, $login)
     {
         $this->form = new Form($db, $login);
@@ -24,6 +30,10 @@ class FormController extends RESTfulResponse
         $this->db = $db;
     }
 
+    /**
+     * GET endpoints
+     *
+     */
     public function get($act)
     {
         $form = $this->form;
@@ -55,6 +65,10 @@ class FormController extends RESTfulResponse
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
+    /**
+     * POST endpoints
+     *
+     */
     public function post($act)
     {
         $form = $this->form;
