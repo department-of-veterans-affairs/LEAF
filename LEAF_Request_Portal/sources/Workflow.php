@@ -305,7 +305,7 @@ class Workflow
             new LogItem("workflow_routes", "stepID", $stepID),
             new LogItem("workflow_routes", "nextStepID", $nextStepID),
             new LogItem("workflow_routes", "actionType", $action),
-            new LogItem("workflow_routes", "displayCOnditional", "")
+            new LogItem("workflow_routes", "displayConditional", "")
         ]);  
 
         return true;
@@ -383,15 +383,18 @@ class Workflow
         );
         $res = $this->db->prepared_query('INSERT INTO workflow_steps (workflowID, stepTitle, jsSrc)
                                             VALUES (:workflowID, :stepTitle, :jsSrc)', $vars);
+
+        $stepId = $this->db->getLastInsertID();
         
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::WORKFLOW_STEP, [
-            new LogItem("workflows", "stepTitle",  $stepTitle),
-            new LogItem("workflows", "jsSrc",  ""),
-            new LogItem("workflows", "workflowID",  $this->workflowID)
+            new LogItem("workflow_steps", "stepID",  $stepId),
+            new LogItem("workflow_steps", "stepTitle",  $stepTitle),
+            new LogItem("workflow_steps", "jsSrc",  ""),
+            new LogItem("workflow_steps", "workflowID",  $this->workflowID)
         ]);          
         
 
-        return $this->db->getLastInsertID();
+        return $stepId;
     }
 
     /**
@@ -419,7 +422,7 @@ class Workflow
     										SET stepTitle=:stepTitle
     										WHERE stepID=:stepID', $vars);
         
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::WORKFLOW_STEP, [
+        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::WORKFLOW_STEP, [
             new LogItem("workflows", "stepTitle",  $stepTitle),
             new LogItem("workflows", "jsSrc",  ""),
             new LogItem("workflows", "workflowID",  $this->workflowID)
@@ -524,8 +527,7 @@ class Workflow
                                             
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::STEP_DEPENDENCY, [
             new LogItem("step_dependencies", "stepID",  $stepID),
-            new LogItem("step_dependencies", "dependencyID",  $dependencyID),
-            new LogItem("step_dependencies", "workflowID",  $this->workflowID)
+            new LogItem("step_dependencies", "dependencyID",  $dependencyID)
         ]);   
 
         // populate records_dependencies so we can filter on items immediately
@@ -569,8 +571,7 @@ class Workflow
         
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::STEP_DEPENDENCY, [
             new LogItem("step_dependencies", "stepID",  $stepID),
-            new LogItem("step_dependencies", "dependencyID",  $dependencyID),
-            new LogItem("step_dependencies", "workflowID",  $this->workflowID)
+            new LogItem("step_dependencies", "dependencyID",  $dependencyID)
         ]); 
         
         return true;

@@ -17,7 +17,7 @@ class LogFormatter{
         LoggableTypes::SERVICE_CHIEF=> ServiceChiefFormatter::TEMPLATES,
         LoggableTypes::FORM=> FormFormatter::TEMPLATES,
         LoggableTypes::PORTAL_GROUP=> PortalGroupFormatter::TEMPLATES,
-        LoggableTypes::WORKFLOW=> WokflowFormatter::TEMPLATES
+        LoggableTypes::WORKFLOW=> WorkflowFormatter::TEMPLATES
     );
 
     public static function getFormattedString($logData, $logType){
