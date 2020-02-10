@@ -6,7 +6,7 @@
     </div>
 </div>
 <div id="headerMenuHelp_container" style="display: inline-block">
-    <a id="button_showHelp" tabindex="0" class="buttonNorm" alt="Help Popup" title="Help"><img style="vertical-align: sub;" src="../../libs/dynicons/?img=help-browser.svg&amp;w=16">Help</a>
+    <a id="button_showHelp" tabindex="0" class="buttonNorm" alt="Help Popup" title="Help"><img style="vertical-align: sub;" src="../../libs/dynicons/?img=help-browser.svg&amp;w=16">&nbsp;Help</a>
     <div id="headerMenu_help" tabindex="0">
     {include file="menu_help.tpl"}
     </div>
