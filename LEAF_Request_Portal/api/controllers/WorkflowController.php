@@ -17,15 +17,18 @@ class WorkflowController extends RESTfulResponse
     private $API_VERSION = 1;    // Integer
 
     private $workflow;
+    private $login;
 
     public function __construct($db, $login)
     {
         $this->workflow = new Workflow($db, $login);
+        $this->login = $login;
     }
 
     public function get($act)
     {
         $workflow = $this->workflow;
+        $login = $this->login;
 
         $this->index['GET'] = new ControllerMap();
         $cm = $this->index['GET'];
