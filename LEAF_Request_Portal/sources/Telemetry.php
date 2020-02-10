@@ -8,6 +8,9 @@
     Date Created: March 3, 2016
 
 */
+$currDir = dirname(__FILE__);
+
+include_once $currDir . '/../globals.php';
 
 class Telemetry
 {

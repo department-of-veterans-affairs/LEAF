@@ -9,6 +9,10 @@
 
 */
 
+$currDir = dirname(__FILE__);
+
+include_once $currDir . '/../globals.php';
+
 if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
@@ -680,7 +684,7 @@ class System
 
     /**
      * Get primary admin.
-     * 
+     *
      * @return array array with primary admin's info
      */
     public function getPrimaryAdmin()
@@ -689,7 +693,7 @@ class System
                                     WHERE `primary_admin` = 1', array());
         $result = array();
         if(count($primaryAdminRes))
-        {                          
+        {
             require_once '../VAMC_Directory.php';
             $dir = new VAMC_Directory;
             $user = $dir->lookupLogin($primaryAdminRes[0]['userID']);
@@ -700,7 +704,7 @@ class System
 
     /**
      * Set primary admin.
-     * 
+     *
      * @return array array with response array
      */
     public function setPrimaryAdmin()
@@ -708,7 +712,7 @@ class System
         $vars = array(':userID' => XSSHelpers::xscrub($_POST['userID']));
         $resultArray = array('success' => false, 'response' => $res);
         //check if user is system admin
-        $res = $this->db->prepared_query('SELECT * 
+        $res = $this->db->prepared_query('SELECT *
                                             FROM `users`
                                             WHERE `userID` = :userID
                                             AND `groupID` = 1', $vars);
@@ -732,7 +736,7 @@ class System
 
     /**
      * Unset primary admin.
-     * 
+     *
      * @return array array with query response
      */
     public function unsetPrimaryAdmin()

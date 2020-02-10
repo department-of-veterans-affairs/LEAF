@@ -9,6 +9,10 @@
 
 */
 
+$currDir = dirname(__FILE__);
+
+include_once $currDir . '/../globals.php';
+
 class Workflow
 {
     public $siteRoot = '';
