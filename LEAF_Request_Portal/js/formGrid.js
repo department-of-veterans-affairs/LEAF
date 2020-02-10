@@ -311,18 +311,38 @@ var LeafFormGrid = function(containerID, options) {
                 currentData[i].sDate[key] = 0;
             }
             if(isIndicatorID){
-            tDate = null;
-            if(isNaN(currentData[i].s1[idKey]) && (currentData[i].s1[idKey].indexOf('-') != -1
-                || currentData[i].s1[idKey].indexOf('/') != -1)) {
-                  tDate = Date.parse(currentData[i].s1[idKey]);
+                tDate = null;
+                if(isNaN(currentData[i].s1[idKey]) && (currentData[i].s1[idKey].indexOf('-') != -1
+                    || currentData[i].s1[idKey].indexOf('/') != -1)) {
+                    tDate = Date.parse(currentData[i].s1[idKey]);
+                }
+                if(isDate || (tDate != null && !isNaN(tDate))) {
+                    isDate = true;
+                    if(currentData[i].sDate == undefined) {
+                        currentData[i].sDate = {};
+                    }
+                    currentData[i].sDate[key] = 0;
+                    currentData[i].sDate[key] = !isNaN(tDate) ? tDate : 0;
+                }
             }
-            if(isDate || (tDate != null && !isNaN(tDate))) {
-                isDate = true;
+            // detect date fields for other non-indicatorID columns
+            else {
+                tDate = null;
                 if(currentData[i].sDate == undefined) {
-                      currentData[i].sDate = {};
+                    currentData[i].sDate = {};
                 }
                 currentData[i].sDate[key] = 0;
-                currentData[i].sDate[key] = !isNaN(tDate) ? tDate : 0;
+
+                if(isNaN(currentData[i][key])
+                    && (currentData[i][key].indexOf('-') != -1
+                        || currentData[i][key].indexOf('/') != -1)) {
+                        tDate = Date.parse(currentData[i][key]);
+                }
+                if(isDate || (tDate != null && !isNaN(tDate))) {
+                    isDate = true;
+
+                    currentData[i].sDate[key] = !isNaN(tDate) && tDate != null ? tDate : 0;
+                }
             }
 
             if($.isNumeric(currentData[i].s1[idKey])
@@ -332,26 +352,6 @@ var LeafFormGrid = function(containerID, options) {
             else {
                 isNumeric= false;
             }
-        }
-        // detect date fields for other non-indicatorID columns
-        else {
-            tDate = null;
-            if(currentData[i].sDate == undefined) {
-                currentData[i].sDate = {};
-            }
-            currentData[i].sDate[key] = 0;
-
-            if(isNaN(currentData[i][key])
-                && (currentData[i][key].indexOf('-') != -1
-                    || currentData[i][key].indexOf('/') != -1)) {
-                    tDate = Date.parse(currentData[i][key]);
-            }
-            if(isDate || (tDate != null && !isNaN(tDate))) {
-                isDate = true;
-
-                currentData[i].sDate[key] = !isNaN(tDate) && tDate != null ? tDate : 0;
-            }
-        }
             array.push(currentData[i]);
         }
         if(isDate) {
