@@ -7,7 +7,8 @@ require_once __DIR__ . '/../../../../LEAF_Request_Portal/form.php';
 
 /**
  * FormController defines endpoints for testing
- *
+ * 
+ * @version Release: 1.0
  */
 class FormController extends RESTfulResponse
 {
@@ -32,7 +33,8 @@ class FormController extends RESTfulResponse
 
     /**
      * GET endpoints
-     *
+     * @param string $act action object
+     * @return mixed result of api call
      */
     public function get($act)
     {
@@ -67,7 +69,8 @@ class FormController extends RESTfulResponse
 
     /**
      * POST endpoints
-     *
+     * @param string $act action object
+     * @return mixed result of api call
      */
     public function post($act)
     {
