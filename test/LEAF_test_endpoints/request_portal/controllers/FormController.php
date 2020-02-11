@@ -22,7 +22,8 @@ class FormController extends RESTfulResponse
 
     /**
      * sets DB, login, and creates form object
-     *
+     * @param object $db database object
+     * @param object $login login object
      */
     public function __construct($db, $login)
     {
