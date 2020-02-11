@@ -1303,7 +1303,6 @@ function viewHistory(){
         url: 'ajaxIndex.php?a=gethistory&type=workflow&id='+currentWorkflow,
         dataType: 'text',
         success: function(res) {
-            debugger;
             dialog_simple.setContent(res);
             dialog_simple.indicateIdle();
         },

@@ -17,22 +17,16 @@ class WorkflowController extends RESTfulResponse
     private $API_VERSION = 1;    // Integer
 
     private $workflow;
-    private $login;
-    private $db;
 
     public function __construct($db, $login)
     {
         $this->workflow = new Workflow($db, $login);
-        $this->login = $login;
-        $this->db = $db;
     }
 
     public function get($act)
     {
         $workflow = $this->workflow;
-        $login = $this->login;
-        $db = $this->db;
-
+        
         $this->index['GET'] = new ControllerMap();
         $cm = $this->index['GET'];
         $this->index['GET']->register('workflow/version', function () {
@@ -107,7 +101,7 @@ class WorkflowController extends RESTfulResponse
             return $workflow->getAllSteps();
         });
 
-        $this->index['GET']->register('workflow/action/[text]', function ($args) use ($login, $workflow) {
+        $this->index['GET']->register('workflow/action/[text]', function ($args) use ( $workflow) {
             return $workflow->getAction($args[0]);
         });
 
@@ -117,8 +111,6 @@ class WorkflowController extends RESTfulResponse
     public function post($act)
     {
         $workflow = $this->workflow;
-        $login = $this->login;
-        $db = $this->db;
 
         $this->verifyAdminReferrer();
 
@@ -209,7 +201,7 @@ class WorkflowController extends RESTfulResponse
             return $workflow->linkEvent((int)$args[1], XSSHelpers::xscrub($args[2]), XSSHelpers::xscrub($_POST['eventID']));
         });
 
-        $this->index['POST']->register('workflow/editAction/[text]', function ($args) use ($db, $login, $workflow) {
+        $this->index['POST']->register('workflow/editAction/[text]', function ($args) use ($workflow) {
             return $workflow->editAction($args[0]);
         });
 
@@ -254,7 +246,7 @@ class WorkflowController extends RESTfulResponse
             return $workflow->deleteStep($args[0]);
         });
 
-        $this->index['DELETE']->register('workflow/action/[text]', function ($args) use ($db, $login, $workflow) {
+        $this->index['DELETE']->register('workflow/action/[text]', function ($args) use ($workflow) {
             return $workflow->removeAction($args[0]);
         });
 
