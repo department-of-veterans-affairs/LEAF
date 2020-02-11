@@ -1375,14 +1375,12 @@ function getForm(indicatorID, series) {
         }
 
         var calls = [];
-
         var nameChanged = (indicatorEditing.name || "") != $('#name').val();
         var formatChanged = (indicatorEditing.format || "") != $('#format').val();
         var descriptionChanged = (indicatorEditing.description || "") != $('#description').val();
         var defaultChanged = (indicatorEditing.default || "") != $('#default').val();
         var requiredChanged = (indicatorEditing.required || "") != isRequired;
-        var sensitiveChanged = (indicatorEditing.sensitive || "") != isSensitive;
-        var disabledChanged = (indicatorEditing.disabled || "") != isDisabled;
+        var sensitiveChanged = (indicatorEditing.is_sensitive || "") != isSensitive;
         var parentIDChanged = (indicatorEditing.parentID || "") != $("#parentID").val();
         var sortChanged = (indicatorEditing.sort || "") != $("#sort").val();
         var htmlChanged = (indicatorEditing.html || "") != codeEditorHtml.getValue();
@@ -1476,7 +1474,7 @@ function getForm(indicatorID, series) {
                 }));
         }
 
-        if(disabledChanged){
+        if(isDisabled == 1){
             calls.push(   	        
                 $.ajax({
                     type: 'POST',
