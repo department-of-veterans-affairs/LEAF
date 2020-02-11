@@ -225,7 +225,7 @@ class Workflow
             new LogItem("workflow_steps", "stepID", $stepID),
             new LogItem("workflow_steps", "posX", $x),
             new LogItem("workflow_steps", "posY", $y),
-            new LogItem("workflow_steps", "workflowID", $this->workflowID)
+            new LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID))
         ]);  
 
         return true;
@@ -423,6 +423,7 @@ class Workflow
     										WHERE stepID=:stepID', $vars);
         
         $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::WORKFLOW_STEP, [
+            new LogItem("workflows", "stepID", $stepID),
             new LogItem("workflows", "stepTitle",  $stepTitle),
             new LogItem("workflows", "jsSrc",  ""),
             new LogItem("workflows", "workflowID",  $this->workflowID)
@@ -1087,6 +1088,14 @@ class Workflow
         ]); 
 
         return 1;
+    }
+
+    public function getWorkflowIDFromStep($workflowID){
+        $vars = array(':workflowID' => $workflowID);
+
+        return $this->db->prepared_query('SELECT * FROM workflow_steps
+    										WHERE workflowID=:workflowID', $vars)[0]['stepID'];
+
     }
 
     public function getDescription($workflowID){

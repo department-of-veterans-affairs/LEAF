@@ -18,17 +18,20 @@ class WorkflowController extends RESTfulResponse
 
     private $workflow;
     private $login;
+    private $db;
 
     public function __construct($db, $login)
     {
         $this->workflow = new Workflow($db, $login);
         $this->login = $login;
+        $this->db = $db;
     }
 
     public function get($act)
     {
         $workflow = $this->workflow;
         $login = $this->login;
+        $db = $this->db;
 
         $this->index['GET'] = new ControllerMap();
         $cm = $this->index['GET'];
@@ -114,6 +117,8 @@ class WorkflowController extends RESTfulResponse
     public function post($act)
     {
         $workflow = $this->workflow;
+        $login = $this->login;
+        $db = $this->db;
 
         $this->verifyAdminReferrer();
 

@@ -1376,6 +1376,7 @@ function getForm(indicatorID, series) {
 
         var calls = [];
 
+    debugger;
         var nameChanged = (indicatorEditing.name || "") != $('#name').val();
         var formatChanged = (indicatorEditing.format || "") != $('#format').val();
         var descriptionChanged = (indicatorEditing.description || "") != $('#description').val();
