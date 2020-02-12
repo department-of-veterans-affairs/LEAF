@@ -293,6 +293,10 @@ class NationalEmployee extends NationalData
         return $res;
     }
 
+    private function searchDeeper($input) {
+        return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
+    }
+
     public function search($input, $indicatorID = '')
     {
         $input = html_entity_decode($input, ENT_QUOTES);
@@ -323,7 +327,21 @@ class NationalEmployee extends NationalData
                 }
                 $last = trim(substr($input, 0, $idx));
                 $first = trim(substr($input, $idx + 1));
-                $searchResult = $this->lookupName($last, $first);
+
+                if (($midIdx = strpos($first, ' ')) > 0)
+                {
+                    $this->log[] = 'Detected possible Middle initial';
+                    $middle = trim(trim(substr($first, $midIdx + 1)), '.');
+                    $first = trim(substr($first, 0, $midIdx + 1));
+                }
+
+                $searchResult = $this->lookupName($last, $first, $middle);
+                if (count($searchResult) <= $this->deepSearch)
+                {
+                    $this->log[] = 'Trying Deeper search';
+                    $input = trim('*' . $input);
+                    $searchResult = array_merge($searchResult, $this->searchDeeper($input));
+                }
 
                 break;
             // Format: First Last
@@ -405,6 +423,7 @@ class NationalEmployee extends NationalData
                     {
                         $this->log[] = 'Trying Service search';
                         $input = trim('*' . $input);
+                        $res = array_merge($res, $this->searchDeeper($input));
                         //$res = array_merge($res, $this->lookupService($input));
                     }
                 }
