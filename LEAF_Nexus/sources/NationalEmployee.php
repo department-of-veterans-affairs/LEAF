@@ -293,7 +293,13 @@ class NationalEmployee extends NationalData
         return $res;
     }
 
-    private function searchDeeper($input) {
+    /**
+     * Runs additional search lookup by AD title to filter on larger sets of employees
+     * @param input string text of employee name to search
+     * @return list of results from active directory query 
+     */
+    private function searchDeeper($input)
+    {
         return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
     }
 
@@ -327,8 +333,9 @@ class NationalEmployee extends NationalData
                 }
                 $last = trim(substr($input, 0, $idx));
                 $first = trim(substr($input, $idx + 1));
+                $midIdx = strpos($first, ' ');
 
-                if (($midIdx = strpos($first, ' ')) > 0)
+                if ($midIdx > 0)
                 {
                     $this->log[] = 'Detected possible Middle initial';
                     $middle = trim(trim(substr($first, $midIdx + 1)), '.');
