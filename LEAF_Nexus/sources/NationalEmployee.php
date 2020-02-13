@@ -295,7 +295,8 @@ class NationalEmployee extends NationalData
 
     /**
      * Runs additional search lookup by AD title to filter on larger sets of employees
-     * @param input string text of employee name to search
+     * 
+     * @param string $input text of employee name to search
      * @return list of results from active directory query 
      */
     private function searchDeeper($input)
