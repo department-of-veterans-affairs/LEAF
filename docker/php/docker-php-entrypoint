@@ -3,11 +3,14 @@
 set -e
 
 # Sleep to run after MySQL container start
-sleep 120
+sleep 30
 
 printf '\n\nRunning updateDatabase scripts...'
 php /var/www/html/LEAF_Nexus/scripts/updateDatabase.php
 php /var/www/html/LEAF_Request_Portal/scripts/updateDatabase.php
+
+printf '\n\nRunning composer install...'
+cd /var/www/html/test && composer install
 
 if [ "${1#-}" != "$1" ]; then
 	set -- apache2-foreground "$@"

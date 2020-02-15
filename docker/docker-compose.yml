@@ -14,6 +14,7 @@ services:
         - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
         - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
         - ../libs:/var/www/html/libs
+        - ../test:/var/www/html/test
       networks:
         code-network:
           aliases:
