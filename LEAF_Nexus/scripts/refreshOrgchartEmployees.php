@@ -27,31 +27,28 @@ $login = new Orgchart\Login($phonedb, $db);
 $login->loginUser();
 
 $userName = $_GET['userName'];
-
 $empUID = $_GET['empUID'];
 
 // prevent updating if orgchart is the same
 if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
-	echo "Orgchart is already synced.";
-
-	return;
+    echo 1; // success value
 } else {
 
 	if(!empty($userName) && !empty($empUID)){
 
 		updateUserInfo($userName, $empUID);
-
+        echo 1;
 	}else{
 
 		$startTime = time();
-		echo "Refresh Orgchart Employees Start\n";
+		// echo "Refresh Orgchart Employees Start\n";
 
 		updateLocalOrgchart();
 
 		$endTime = time();
-		echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
+		// echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
+        echo 1; // success value
 	}
-
 
 }
 
@@ -111,8 +108,7 @@ function updateLocalOrgchart()
     $localEmployees = getOrgchartEmployees();
 
     if (count($localEmployees) == 0) {
-        echo "No employees to update.\n";
-        return 0;
+        return;
     }
 
     $userKeys = array_keys($localEmployees);

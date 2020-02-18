@@ -199,4 +199,17 @@ class System
             }
         }
     }
+
+    public function refreshOrgchartEmployees()
+    {
+        $memberships = $this->login->getMembership();
+        if (!isset($memberships['groupID'][1]))
+        {
+            return 'Admin access required';
+        }
+        
+        header('Cache-Control: no-cache');
+        exec('php ../scripts/refreshOrgchartEmployees.php &', $output);
+        return $output[count($output)-1]; // returns last echo from script
+    }
 }

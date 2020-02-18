@@ -11,8 +11,8 @@
 
 $(function() {
     $.ajax({
-        url: "../scripts/refreshOrgchartEmployees.php",
-        dataType: "text",
+        type: 'GET',
+        url: "../api/system/employee/update/all",
         error: function(response) {
             $('#info_refresh_icon').attr('src', '../../libs/dynicons/?img=process-stop.svg&w=64');
             $('#info_refresh_message').text('LEAF obtained the error: ' + response);
