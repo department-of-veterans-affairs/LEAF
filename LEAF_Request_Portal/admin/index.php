@@ -69,7 +69,6 @@ function customTemplate($tpl)
 
 function hasDevConsoleAccess($login, $db_phonebook)
 {
-    return 1;
     // automatically allow coaches
     $db_national = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
     $vars = array(':groupID' => 17,
@@ -224,7 +223,7 @@ switch ($action) {
     case 'mod_templates_reports':
             if(!hasDevConsoleAccess($login, $db_phonebook)) {
 //                header('Location: ../report.php?a=LEAF_start_leaf_dev_console_request');
-                $main->assign('status', 'Additional approval will be required for access to this area by Feb. 1, 2020.<br /><br /><div style="text-align: center">Please <a href="../report.php?a=LEAF_start_leaf_dev_console_request">enter a request to maintain access</a>.</div>');
+                $main->assign('status', 'Additional approval will be required for access to this area by March 1, 2020.<br /><br /><div style="text-align: center">Please <a href="../report.php?a=LEAF_start_leaf_dev_console_request">enter a request to maintain access</a>.</div>');
             }
 
             $t_form = new Smarty;

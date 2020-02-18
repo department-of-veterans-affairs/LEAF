@@ -8,6 +8,9 @@
     Date Created: September 8, 2016
 
 */
+$currDir = dirname(__FILE__);
+
+include_once $currDir . '/../globals.php';
 
 if(!class_exists('DataActionLogger'))
 {

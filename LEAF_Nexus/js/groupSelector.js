@@ -173,14 +173,15 @@ groupSelector.prototype.search = function() {
 
 	            	$('#' + t.prefixID + 'result').html('');
 	            	var buffer = '<table class="groupSelectorTable"><tr><th>Group Title</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
-	            	$('#' + t.prefixID + 'result').html(buffer + $('#' + t.prefixID + 'result').html());
+                        $('#' + t.prefixID + 'result').html(buffer + $('#' + t.prefixID + 'result').html());
 
-	            	if(response.length == 0) {
-	            		$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center">No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
-									$('#' + t.prefixID + 'status').text('No results found for term ' + txt);
-	            	}else {
-	            		$('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below');
-	            	}
+                        if(response.length == 0) {
+                            $('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center">No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
+                            $('#' + t.prefixID + 'emp0_message').text(txt);
+                            $('#' + t.prefixID + 'status').text('No results found for term ' + txt);
+                        } else {
+                            $('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below');
+                        }
 
 			t.selectionData = new Object();
 	                $.each(response, function(key, item) {
