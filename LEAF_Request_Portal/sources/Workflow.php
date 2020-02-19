@@ -7,9 +7,7 @@
     Workflow
     Date Created: December 12, 2011
 
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../globals.php';
+*/
 
 if(!class_exists('DataActionLogger'))
 {

@@ -86,16 +86,14 @@ class FormEditor
                                             ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
         }
         
-        $newIndicatorID = $this->db->getLastInsertID();
-
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::INDICATOR, [
-            new LogItem("indicators", "indicatorID", $newIndicatorID),
+            new LogItem("indicators", "indicatorID", $package['indicatorID']),
             new LogItem("indicators", "categoryID", $package['categoryID']),
             new LogItem("indicators", "name", $package['name']), 
             new LogItem("indicators", "is_sensitive", $package['is_sensitive'] ?? 0)
         ]);  
 
-        return $newIndicatorID;
+        return $this->db->getLastInsertID();
     }
 
     public function setName($indicatorID, $name)

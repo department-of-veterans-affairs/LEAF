@@ -704,20 +704,18 @@
                     } else {
                         $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Loading... ***');
 
-                        if(empSel.selectionData[empSel.selection] != undefined) {
-                            var selectedUser = empSel.selectionData[empSel.selection];
-                            var selectedUserName = selectedUser.userName;
+                        var selectedUser = empSel.selectionData[empSel.selection];
+                        var selectedUserName = selectedUser.userName;
 
-                            $.ajax({
-                                type: 'POST',
-                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-                                data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                                success: function(res) {
-                                    $('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
-                                    $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('');
-                                }
-                            });
-                        }
+                        $.ajax({
+                            type: 'POST',
+                            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                            data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                            success: function(res) {
+                                $('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
+                                $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('');
+                            }
+                        });
                     }
                 }
 

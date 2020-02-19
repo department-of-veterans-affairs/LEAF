@@ -190,9 +190,9 @@ function updateEmployeeData($nationalEmpUID, $localEmpUID)
     $dataToCopy = array(PHONEIID, EMAILIID, LOCATIONIID, ADTITLEIID);
     $csv = implode(',', $dataToCopy);
 
-    $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=:nationalEmpUID AND indicatorID in (:dataCSV)";
+    $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=" . $nationalEmpUID . " AND indicatorID in (" . $csv . ")";
 
-    $res = $phonedb->prepared_query($sql, array(':nationalEmpUID' => $nationalEmpUID, ':dataCSV' => $csv));
+    $res = $phonedb->query($sql);
 
     if (count($res) > 0) {
         for ($i = 0; $i < count($res); $i++) {

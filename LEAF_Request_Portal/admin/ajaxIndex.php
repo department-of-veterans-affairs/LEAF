@@ -156,8 +156,8 @@ switch ($action) {
 
            break;
     case 'gethistory':
-        $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
-        $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
+        $typeName = $_GET['type'];
+        $itemID = $_GET['id']; 
 
         $type = null;
         switch ($typeName) {

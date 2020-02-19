@@ -389,12 +389,10 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 {
                     if(thisRow['format'] === 'fileupload' || thisRow['format'] === 'image') {
                         ajaxData[thisRow['indicatorID']] = '';
-                        if(thisRow['value']){
-                            $.each(thisRow['value'], function(k, file) {
-                                ajaxData[thisRow['indicatorID']] = ajaxData[thisRow['indicatorID']] + file + '\n';
-                                copyFileToNewRecord(thisRow['indicatorID'], file, newRecordID, ajaxData['series']);
-                            });
-                        }
+                        $.each(thisRow['value'], function(k, file) {
+                            ajaxData[thisRow['indicatorID']] = ajaxData[thisRow['indicatorID']] + file + '\n';
+                            copyFileToNewRecord(thisRow['indicatorID'], file, newRecordID, ajaxData['series']);
+                        });
                     }
                     else {
                         ajaxData[thisRow['indicatorID']] = thisRow['value']; 

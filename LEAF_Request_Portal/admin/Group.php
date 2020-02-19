@@ -82,11 +82,6 @@ class Group
 
                 if (isset($dirRes[0]))
                 {
-                    if($groupID == 1)
-                    {
-                      $dirRes[0]['primary_admin'] = $member['primary_admin'];  
-                    }
-                    
                     $members[] = $dirRes[0];
                 }
             }

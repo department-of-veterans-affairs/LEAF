@@ -6,8 +6,6 @@ printf '\n\nRunning sql scripts...'
 mysql -uroot -p$MYSQL_ROOT_PASSWORD <<CREATE_DATABASE
 CREATE DATABASE leaf_users;
 CREATE DATABASE leaf_portal;
-CREATE DATABASE nexus_testing;
-CREATE DATABASE portal_testing;
 CREATE_DATABASE
 mysql -uroot -p$MYSQL_ROOT_PASSWORD <<GRANT_PRIVILEGES
 GRANT ALL PRIVILEGES ON *.* TO 'tester'@'%' IDENTIFIED BY 'tester';

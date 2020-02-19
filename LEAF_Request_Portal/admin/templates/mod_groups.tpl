@@ -6,7 +6,6 @@
 <div>
     <h2 role="heading" tabindex="-1">Site Administrators</h2>
     <div id="adminList"></div>
-    <div id="primaryAdmin"></div>
     <br style="clear: both" />
     <h2 role="heading" tabindex="-1">User Groups</h2>
     <div id="groupList"></div>
@@ -28,30 +27,6 @@ function getMembers(groupID) {
             $('#members' + groupID).fadeOut();
             populateMembers(groupID, response);
             $('#members' + groupID).fadeIn();
-        }
-    });
-}
-
-function getPrimaryAdmin() {
-    $.ajax({
-        url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
-        dataType: "json",
-        success: function(response) {
-            $('#membersPrimaryAdmin').fadeOut();
-            $('#membersPrimaryAdmin').html('');
-            var foundPrimary = false;
-            for(var i in response) {
-                if(response[i].primary_admin == 1)
-                {
-                    foundPrimary = true;
-                    $('#membersPrimaryAdmin').append(response[i].Lname + ', ' + response[i].Fname + '<br />');
-                }
-            }
-            if(!foundPrimary)
-            {
-                $('#membersPrimaryAdmin').append("Primary Admin has not been set.");
-            }
-            $('#membersPrimaryAdmin').fadeIn();
         }
     });
 }
@@ -85,29 +60,6 @@ function removeAdmin(userID) {
         	   'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getMembers(1);
-            getPrimaryAdmin();
-        }
-    });
-}
-
-function unsetPrimaryAdmin() {
-    $.ajax({
-    	type: 'POST',
-        url: "../api/system/unsetPrimaryadmin",
-        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
-        success: function(response) {
-        	getPrimaryAdmin();
-        }
-    });
-}
-
-function setPrimaryAdmin(userID) {
-        $.ajax({
-    	type: 'POST',
-        url: "../api/system/setPrimaryadmin",
-        data: {'userID': userID, 'CSRFToken': '<!--{$CSRFToken}-->'},
-        success: function(response) {
-        	getPrimaryAdmin();
         }
     });
 }
@@ -247,99 +199,6 @@ function getGroupList() {
                     });
                 }
                 populateMembers(res[i].groupID, res[i].members);
-
-                //Primary Admin Section
-                if(res[i].groupID == 1) {
-                    $('#primaryAdmin').append('<div tabindex="0" class="groupBlock">\
-                        <h2 id="groupTitlePrimaryAdmin">Primary Admin</h2>\
-                        <div id="membersPrimaryAdmin"></div>\
-                        </div>');
-                    focusGroupsAndMembers('primaryAdmin');
-
-                    function openPrimaryAdminGroup(){
-                        dialog.setContent('<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><br /><h3 role="heading" tabindex="-1" >Set Primary Administrator:</h3><div id="employeeSelector"></div>');
-
-                        empSel = new nationalEmployeeSelector('employeeSelector');
-                        empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                        empSel.rootPath = '<!--{$orgchartPath}-->/';
-                        empSel.outputStyle = 'micro';
-                        empSel.initialize();
-
-                        dialog.setSaveHandler(function() {
-                            if(empSel.selection != '') {
-                                var selectedUserName = empSel.selectionData[empSel.selection].userName;
-                                $.ajax({
-                                    url: 'ajaxJSON.php?a=mod_groups_getMembers&groupID=1',
-                                    dataType: "json",
-                                    data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                                    success: function(res) {
-                                        var selectedUserIsAdmin = false;
-                                        for(var i in res) 
-                                        {
-                                            selectedUserIsAdmin = res[i].userName == selectedUserName;
-                                            if(selectedUserIsAdmin){break;}
-                                        }
-                                        if(selectedUserIsAdmin) 
-                                        {
-                                            setPrimaryAdmin(selectedUserName);
-                                        }
-                                        else 
-                                        {
-                                            alert('Primary Admin must be a member of the Sysadmin group');
-                                        }
-                                    }
-                                });
-                            }
-                            dialog.hide();
-                        });
-                        $.ajax({
-                            url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
-                            dataType: "json",
-                            success: function(res) {
-                                $('#primaryAdminSummary').html('');
-                                var foundPrimary = false;
-                                for(var i in res) {
-                                    if(res[i].primary_admin == 1)
-                                    {
-                                        foundPrimary = true;
-                                        $('#primaryAdminSummary').append('<div>&bull; '+ res[i].Lname  + ', ' + res[i].Fname +' [ <a tabindex="0" aria-label="Unset '+ res[i].Lname  + ', ' + res[i].Fname +'" href="#" id="unsetPrimaryAdmin">Unset</a> ]</div>');
-                                        $('#unsetPrimaryAdmin').on('click', function() {
-                                                unsetPrimaryAdmin();
-                                                dialog.hide();
-                                        });
-                                    }
-                                }
-                                if(!foundPrimary)
-                                {
-                                   $('#primaryAdminSummary').append("Primary Admin has not been set.");
-                                }
-                                
-                            }
-                        });
-                        setTimeout(function () {
-                            dialog.show();
-                        }, 0);
-                    }
-                    $('#primaryAdmin').on('click', function() {
-                		openPrimaryAdminGroup();
-                	});
-
-                    //508 fix
-                    $('#primaryAdmin').on('keydown', function(event) {
-                        if(event.keyCode === 13 || event.keyCode === 32) {
-                            openPrimaryAdminGroup();
-                        }
-                    });
-                    $('#membersPrimaryAdmin').html('');
-                    primaryAdminName = "Primary Admin has not been set.";
-                    for(var j in res[i].members) {
-                        if(res[i].members[j].primary_admin == 1)
-                        {
-                            primaryAdminName = res[i].members[j].Lname + ', ' + res[i].members[j].Fname;
-                        }
-                    }
-                    $('#membersPrimaryAdmin').append(primaryAdminName + '<br />');
-                }
             }
         },
         cache: false
