@@ -183,9 +183,17 @@ function updateEmployeeData($nationalEmpUID, $localEmpUID)
 {
     global $db, $phonedb;
 
-    $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=:nationalEmpUID AND indicatorID in (:dataCSV)";
+    $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=:nationalEmpUID AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
-    $res = $phonedb->prepared_query($sql, array(':nationalEmpUID' => $nationalEmpUID, ':dataCSV' => PHONEIID . ',' . EMAILIID . ',' . LOCATIONIID . ',' . ADTITLEIID));
+    $selectVars = array(
+        ':nationalEmpUID' => $nationalEmpUID, 
+        ':PHONEIID' => PHONEIID, 
+        ':EMAILIID' => EMAILIID,
+        ':LOCATIONIID' => LOCATIONIID,
+        ':ADTITLEIID' => ADTITLEIID
+    );
+
+    $res = $phonedb->prepared_query($sql, $selectVars);
 
     if (count($res) > 0) {
         for ($i = 0; $i < count($res); $i++) {
