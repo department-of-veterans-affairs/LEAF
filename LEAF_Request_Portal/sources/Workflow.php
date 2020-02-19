@@ -14,6 +14,10 @@ if(!class_exists('DataActionLogger'))
     require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
 }
 
+$currDir = dirname(__FILE__);
+
+include_once $currDir . '/../globals.php';
+
 class Workflow
 {
     public $siteRoot = '';
