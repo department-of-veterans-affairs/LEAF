@@ -26,7 +26,7 @@ class WorkflowController extends RESTfulResponse
     public function get($act)
     {
         $workflow = $this->workflow;
-        
+
         $this->index['GET'] = new ControllerMap();
         $cm = $this->index['GET'];
         $this->index['GET']->register('workflow/version', function () {
@@ -101,7 +101,7 @@ class WorkflowController extends RESTfulResponse
             return $workflow->getAllSteps();
         });
 
-        $this->index['GET']->register('workflow/action/[text]', function ($args) use ( $workflow) {
+        $this->index['GET']->register('workflow/action/[text]', function ($args) use ($login, $workflow) {
             return $workflow->getAction($args[0]);
         });
 
@@ -201,7 +201,7 @@ class WorkflowController extends RESTfulResponse
             return $workflow->linkEvent((int)$args[1], XSSHelpers::xscrub($args[2]), XSSHelpers::xscrub($_POST['eventID']));
         });
 
-        $this->index['POST']->register('workflow/editAction/[text]', function ($args) use ($workflow) {
+        $this->index['POST']->register('workflow/editAction/[text]', function ($args) use ($db, $login, $workflow) {
             return $workflow->editAction($args[0]);
         });
 
@@ -246,7 +246,7 @@ class WorkflowController extends RESTfulResponse
             return $workflow->deleteStep($args[0]);
         });
 
-        $this->index['DELETE']->register('workflow/action/[text]', function ($args) use ($workflow) {
+        $this->index['DELETE']->register('workflow/action/[text]', function ($args) use ($db, $login, $workflow) {
             return $workflow->removeAction($args[0]);
         });
 

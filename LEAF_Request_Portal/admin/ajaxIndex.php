@@ -176,11 +176,6 @@ switch ($action) {
                 $type = new \Group($db, $login);
                 $title = $type->getGroupName($itemID);
                 break;
-            case 'workflow':
-                include '../sources/Workflow.php';
-                $type = new \Workflow($db, $login);
-                $title = $type->getDescription($itemID);
-                break;
         }
 
         if (!empty($itemID))
