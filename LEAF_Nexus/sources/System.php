@@ -200,6 +200,11 @@ class System
         }
     }
 
+    /**
+     * Checks for admin priviledges and runs batch refresh local orgchart employee 
+     *
+     * @return $ret returns last echo from script
+     */
     public function refreshOrgchartEmployees()
     {
         $memberships = $this->login->getMembership();
@@ -210,6 +215,9 @@ class System
         
         header('Cache-Control: no-cache');
         exec('php ../scripts/refreshOrgchartEmployees.php &', $output);
-        return $output[count($output)-1]; // returns last echo from script
+        
+        $ret = $output[count($output) - 1]; 
+
+        return $ret;
     }
 }
