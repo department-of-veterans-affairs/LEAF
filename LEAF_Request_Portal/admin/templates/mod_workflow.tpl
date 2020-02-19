@@ -7,13 +7,11 @@
     <br />
     <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 100%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
     <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size: 100%; display: none" role="button" tabindex="0">Edit Actions</div><br />
-    <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size: 100%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>
 </div>
 <div id="workflow" style="margin-left: 184px; background-color: #444444"></div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script type="text/javascript">
 var CSRFToken = '<!--{$CSRFToken}-->';
@@ -1144,7 +1142,6 @@ function loadWorkflow(workflowID) {
     $('#btn_createStep').css('display', 'block');
     $('#btn_deleteWorkflow').css('display', 'block');
     $('#btn_listActionType').css('display', 'block');
-    $('#btn_viewHistory').css('display', 'block');
 
     //508
     $('#btn_createStep').on('keypress',function(event) {
@@ -1292,25 +1289,7 @@ function loadWorkflowList(workflowID)
     });
 }
 
-function viewHistory(){
-    dialog_simple.setContent('');
-    dialog_simple.setTitle('Workflow History');
-    dialog_simple.show();
-	dialog_simple.indicateBusy();
-
-    $.ajax({
-        type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=workflow&id='+currentWorkflow,
-        dataType: 'text',
-        success: function(res) {
-            dialog_simple.setContent(res);
-            dialog_simple.indicateIdle();
-        },
-        cache: false
-    });
-}
-
-var dialog, dialog_confirm, dialog_simple;
+var dialog, dialog_confirm;
 var workflows = {};
 var steps = {};
 var endpointOptions = {
@@ -1328,7 +1307,6 @@ this.portalAPI.setCSRFToken(CSRFToken);
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
-    dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
 
 	jsPlumb.Defaults.Container = "workflow";
     jsPlumb.Defaults.ConnectionOverlays = [["PlainArrow", {location:0.9, width:20, length:12}]];
