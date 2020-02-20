@@ -199,4 +199,25 @@ class System
             }
         }
     }
+
+    /**
+     * Checks for admin priviledges and runs batch refresh local orgchart employee 
+     *
+     * @return $ret returns last echo from script
+     */
+    public function refreshOrgchartEmployees()
+    {
+        $memberships = $this->login->getMembership();
+        if (!isset($memberships['groupID'][1]))
+        {
+            return 'Admin access required';
+        }
+        
+        header('Cache-Control: no-cache');
+        exec('php ../scripts/refreshOrgchartEmployees.php &', $output);
+        
+        $ret = $output[count($output) - 1]; 
+
+        return $ret;
+    }
 }

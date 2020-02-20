@@ -56,6 +56,11 @@ class SystemController extends RESTfulResponse
             return $system->getReportTemplate($args[0]);
         });
 
+
+        $this->index['GET']->register('system/employee/update/all', function() use ($system) {
+            return $system->refreshOrgchartEmployees();
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
