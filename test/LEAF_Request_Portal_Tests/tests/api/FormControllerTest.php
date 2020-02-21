@@ -13,10 +13,12 @@ use LEAFTest\LEAFClient;
 final class FormControllerTest extends DatabaseTest
 {
     private static $reqClient = null;
+    private static $testEndpointClient = null;
 
     public static function setUpBeforeClass()
     {
         self::$reqClient = LEAFClient::createRequestPortalClient();
+        self::$testEndpointClient = LEAFClient::createRequestPortalClient('http://localhost/test/LEAF_test_endpoints/request_portal/', '../../../LEAF_Request_Portal/auth_domain/');
     }
 
     protected function setUp()
@@ -239,5 +241,171 @@ final class FormControllerTest extends DatabaseTest
         $this->assertEquals('7', $indicators[4]['indicatorID']);
         $this->assertEquals('Masked', $indicators[4]['name']);
         $this->assertEquals('text', $indicators[4]['format']);
+    }
+
+    /**
+     * Tests the `form/[digit]/delete` endpoint.
+     *
+     */
+    public function testPermanentlyDeleteRecord() : void
+    {
+        $recordID_1 = self::$reqClient->post(array('a' => 'form/new'), array(
+            'title' => 'record to delete',
+            'priority' => 0,
+            'numform_f4687' => 1
+        ));
+        $recordID_2 = self::$reqClient->post(array('a' => 'form/new'), array(
+            'title' => 'record to keep',
+            'priority' => 0,
+            'numform_f4687' => 1
+        ));
+        $recordID_3 = self::$reqClient->post(array('a' => 'form/new'), array(
+            'title' => 'other record to keep',
+            'priority' => 0,
+            'numform_f4687' => 1
+        ));
+        self::$reqClient->post(array('a' => 'form/'.$recordID_1.'/submit'));
+        self::$reqClient->post(array('a' => 'form/'.$recordID_2.'/submit'));
+        self::$reqClient->post(array('a' => 'form/'.$recordID_3.'/submit'));
+
+        self::$reqClient->post(array('a' => 'formWorkflow/'.$recordID_1.'/step'), array('stepID' => 1, 'comment' => ''));
+        self::$reqClient->post(array('a' => 'formWorkflow/'.$recordID_2.'/step'), array('stepID' => 1, 'comment' => ''));
+        self::$reqClient->post(array('a' => 'formWorkflow/'.$recordID_3.'/step'), array('stepID' => 1, 'comment' => ''));
+        self::$reqClient->post(array('a' => 'formWorkflow/'.$recordID_1.'/step'), array('stepID' => 1, 'comment' => ''));
+        self::$reqClient->post(array('a' => 'formWorkflow/'.$recordID_2.'/step'), array('stepID' => 1, 'comment' => ''));
+        self::$reqClient->post(array('a' => 'formWorkflow/'.$recordID_3.'/step'), array('stepID' => 1, 'comment' => ''));
+
+        self::$testEndpointClient->post(array('a' => 'form/addbookmark'), array('recordID' => $recordID_1, 'tag' => 'bookmark_123'));
+        self::$testEndpointClient->post(array('a' => 'form/addbookmark'), array('recordID' => $recordID_2, 'tag' => 'bookmark_123'));
+        self::$testEndpointClient->post(array('a' => 'form/addbookmark'), array('recordID' => $recordID_3, 'tag' => 'bookmark_123'));
+        self::$testEndpointClient->post(array('a' => 'form/addbookmark'), array('recordID' => $recordID_1, 'tag' => 'bookmark_456'));
+        self::$testEndpointClient->post(array('a' => 'form/addbookmark'), array('recordID' => $recordID_2, 'tag' => 'bookmark_456'));
+        self::$testEndpointClient->post(array('a' => 'form/addbookmark'), array('recordID' => $recordID_3, 'tag' => 'bookmark_456'));
+
+        $res = self::$reqClient->get(array('a' => 'form/'.$recordID_1.'/recordinfo'));
+        $this->assertNotEquals('0', $res['date']);
+        $this->assertEquals('0', $res['deleted']);
+        $this->assertEquals('record to delete', $res['title']);
+
+        $res = self::$reqClient->get(array('a' => 'form/'.$recordID_2.'/recordinfo'));
+        $this->assertNotEquals('0', $res['date']);
+        $this->assertEquals('0', $res['deleted']);
+        $this->assertEquals('record to keep', $res['title']);
+
+        $res = self::$reqClient->get(array('a' => 'form/'.$recordID_3.'/recordinfo'));
+        $this->assertNotEquals('0', $res['date']);
+        $this->assertEquals('0', $res['deleted']);
+        $this->assertEquals('other record to keep', $res['title']);
+
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/actionhistory'));
+        $this->assertEquals(2, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/actionhistory'));
+        $this->assertEquals(2, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/actionhistory'));
+        $this->assertEquals(2, count($res));
+
+
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/recordsworkflowstate'));
+        $this->assertEquals(1, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/recordsworkflowstate'));
+        $this->assertEquals(1, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_3.'/recordsworkflowstate'));
+        $this->assertEquals(1, count($res));
+
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/tags'));
+        $this->assertEquals(2, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/tags'));
+        $this->assertEquals(2, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_3.'/tags'));
+        $this->assertEquals(2, count($res));
+
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/records_dependencies'));
+        $this->assertEquals(1, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/records_dependencies'));
+        $this->assertEquals(1, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_3.'/records_dependencies'));
+        $this->assertEquals(1, count($res));
+
+        //delete first record
+        $res = self::$reqClient->post(array('a' => 'form/'.$recordID_1.'/delete'));
+
+        $res = self::$reqClient->get(array('a' => 'form/'.$recordID_1.'/recordinfo'));
+        $this->assertEquals('0', $res['date']);
+        $this->assertEquals('0', $res['serviceID']);
+        $this->assertEquals('0', $res['priority']);
+        $this->assertEquals('0', $res['submitted']);
+        $this->assertNotEquals('0', $res['deleted']);
+        $this->assertEquals('record has been deleted', $res['title']);
+
+
+        $res = self::$reqClient->get(array('a' => 'form/'.$recordID_2.'/recordinfo'));
+        $this->assertNotEquals('0', $res['date']);
+        $this->assertEquals('0', $res['deleted']);
+        $this->assertEquals('record to keep', $res['title']);
+
+        $res = self::$reqClient->get(array('a' => 'form/'.$recordID_3.'/recordinfo'));
+        $this->assertNotEquals('0', $res['date']);
+        $this->assertEquals('0', $res['deleted']);
+        $this->assertEquals('other record to keep', $res['title']);
+
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/actionhistory'));
+        $this->assertEquals(0, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/actionhistory'));
+        $this->assertEquals(2, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/actionhistory'));
+        $this->assertEquals(2, count($res));
+
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/recordsworkflowstate'));
+        $this->assertEquals(0, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/recordsworkflowstate'));
+        $this->assertEquals(1, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_3.'/recordsworkflowstate'));
+        $this->assertEquals(1, count($res));
+
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/tags'));
+        $this->assertEquals(0, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/tags'));
+        $this->assertEquals(2, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_3.'/tags'));
+        $this->assertEquals(2, count($res));
+
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/records_dependencies'));
+        $this->assertEquals(0, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/records_dependencies'));
+        $this->assertEquals(1, count($res));
+        $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_3.'/records_dependencies'));
+        $this->assertEquals(1, count($res));
+
+        //check records_workflow_state
+        //check tags
+        //check records_dependencies
+
+        //1. update records table
+        // array(':recordID' => $recordID,
+        //     ':date' => '0',
+        //     ':serviceID' => '0',
+        //     ':userID' => '',
+        //     ':title' => 'record has been deleted',
+        //     ':priority' => '0',
+        //     ':lastStatus' => '',
+        //     ':submitted' => '0',
+        //     ':deleted' => time(),
+        //     ':isWritableUser' => '0',
+        //     ':isWritableGroup' => '0');
+
+
+        //2 delete all from action_history
+        //add this to action_history
+        // array(':recordID' => $recordID,
+        //     ':userID' => '',
+        //     ':dependencyID' => 0,
+        //     ':actionType' => 'deleted',
+        //     ':actionTypeID' => 4,
+        //     ':time' => time(), );
+
+
+        //3 delete all from
+        //tags (bookmark)
+        //records_dependencies
     }
 }
