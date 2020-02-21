@@ -158,6 +158,7 @@ switch ($action) {
     case 'gethistory':
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
         $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
+        $isAll = isset($_GET['isAll']) ? XSSHelpers::xscrub((string)$_GET['isAll']) : 'false';
 
         $type = null;
         switch ($typeName) {
@@ -175,6 +176,10 @@ switch ($action) {
                 include 'Group.php';
                 $type = new \Group($db, $login);
                 $title = $type->getGroupName($itemID);
+                break;
+            case 'groupAll':
+                include 'Group.php';
+                $type = new \Group($db, $login);
                 break;
         }
 
@@ -195,6 +200,30 @@ switch ($action) {
             $t_form->assign('history', $resHistory);
 
             $t_form->display('view_history.tpl');
+        } 
+        else if(!empty($isAll) && $isAll == true)
+        {
+            $t_form = new Smarty;
+            $t_form->left_delimiter = '<!--{';
+            $t_form->right_delimiter = '}-->';
+            $itemIDArray = $type->getAllHistoryIDs();
+
+            foreach($itemIDArray as $itemID)
+            {
+                $resHistory = $type->getHistory($itemID);
+
+                $t_form->assign('dataType', ucwords($typeName));
+                $t_form->assign('dataID', $itemID);
+                $title = $type->getGroupName($itemID);
+                $t_form->assign('dataName', $title);
+    
+                $resHistory = $resHistory ?? array();
+    
+                $t_form->assign('history', $resHistory);
+    
+                $t_form->display('view_history.tpl');
+            }
+            
         }
 
         break;           

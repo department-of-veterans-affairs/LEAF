@@ -66,6 +66,15 @@ class DataActionLogger{
         return $logResults;
     }
 
+    public function getAllHistoryIDs(){
+        $sql = "SELECT `value`
+                FROM `data_log_items`
+                WHERE `column` = 'groupID'
+                GROUP BY `value`;";
+        return  $this->db->query_kv($sql, 'value', 'value', array());
+        
+    }
+
     function fetchLogData($filterById, $filterByColumnName, $logType){
 
         $vars = array(
