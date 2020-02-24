@@ -149,6 +149,7 @@ class Login
         return $this->name;
     }
 
+    // getUserID returns NT Username
     public function getUserID()
     {
         return $this->userID;
