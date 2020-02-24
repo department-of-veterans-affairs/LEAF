@@ -208,22 +208,20 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
             $itemIDArray = $type->getAllHistoryIDs();
 
+            $totalHistory = array();
             foreach($itemIDArray as $itemID)
             {
                 $resHistory = $type->getHistory($itemID);
-
-                $t_form->assign('dataType', ucwords($typeName));
-                $t_form->assign('dataID', $itemID);
-                $title = $type->getGroupName($itemID);
-                $t_form->assign('dataName', $title);
-    
                 $resHistory = $resHistory ?? array();
-    
-                $t_form->assign('history', $resHistory);
-    
-                $t_form->display('view_history.tpl');
+                $totalHistory = array_merge($totalHistory, $resHistory);
             }
-            
+            usort($totalHistory, function($a, $b) {
+                return $a['timestamp'] <=> $b['timestamp'];
+            });
+            $t_form->assign('dataType', ucwords($typeName));
+            $t_form->assign('dataName', "All Groups");
+            $t_form->assign('history', $totalHistory);
+            $t_form->display('view_history.tpl');
         }
 
         break;           

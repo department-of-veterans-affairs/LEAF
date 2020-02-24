@@ -2,7 +2,9 @@
 <div> <!-- main content -->
 <span style="font-weight: bold; font-size: 16px"><!--{$dataType}--> Name : <!--{$dataName|sanitize}--></span>
 <br />
+<!--{if !is_null($dataID) }-->
 History of <!--{$dataType}--> ID : <!--{$dataID|sanitize}-->
+<!--{/if}-->
 <br /><br />
 
 <div style="float: left; padding: 2px">
