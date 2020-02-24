@@ -7,7 +7,7 @@
     <br />
     <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 100%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
     <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size: 100%; display: none" role="button" tabindex="0">Edit Actions</div><br />
-    <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size: 100%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>
+    <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size: 100%; display: none;" role="button" tabindex="0"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>
 </div>
 <div id="workflow" style="margin-left: 184px; background-color: #444444"></div>
 
@@ -1295,7 +1295,6 @@ function loadWorkflowList(workflowID)
 function viewHistory(){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Workflow History');
-    dialog_simple.show();
 	dialog_simple.indicateBusy();
 
     $.ajax({
@@ -1305,6 +1304,7 @@ function viewHistory(){
         success: function(res) {
             dialog_simple.setContent(res);
             dialog_simple.indicateIdle();
+            dialog_simple.show();
         },
         cache: false
     });
