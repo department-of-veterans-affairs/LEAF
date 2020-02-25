@@ -71,8 +71,15 @@ function hasDevConsoleAccess($login, $db_phonebook)
 {
     // automatically allow coaches
     $db_national = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+    $vars = array(':userID' => $login->getUserID());
+    $res = $db_national->prepared_query('SELECT * FROM employee WHERE userName=:userID', $vars);
+    if(count($res) == 0) {
+        return 0;
+    }
+    $empUID = $res[0]['empUID'];
+
     $vars = array(':groupID' => 17,
-                  ':empUID' => $login->getEmpUID());
+                  ':empUID' => $empUID);
     $res = $db_national->prepared_query('SELECT * FROM relation_group_employee WHERE groupID=:groupID AND empUID=:empUID', $vars);
     if(count($res) > 0) {
         return 1;
