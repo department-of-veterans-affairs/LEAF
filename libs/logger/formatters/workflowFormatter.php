@@ -18,7 +18,7 @@ class WorkflowFormatter {
         DataActions::MODIFY.'-'.LoggableTypes::WORKFLOW_STEP => [
             "message"=>"Workflow Step %s",
             "variables"=>"stepID,".FormatOptions::READ_COLUMN_NAMES,
-            "loggableColumns"=>"posX,posY,stepTitle,jsSrc,indicatorID_for_assigned_empUID,indicatorID_for_assigned_groupID"
+            "loggableColumns"=>"posX,posY,stepTitle,indicatorID_for_assigned_empUID,indicatorID_for_assigned_groupID"
         ],
         DataActions::ADD.'-'.LoggableTypes::ROUTE_EVENTS => [
             "message"=>"Workflow %s Step %s %s action has been added",
