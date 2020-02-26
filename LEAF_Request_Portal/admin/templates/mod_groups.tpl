@@ -464,7 +464,7 @@ function showAllGroupHistory() {
     dialog.setTitle('All Group History');
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=group&isAll=true',
+        url: 'ajaxIndex.php?a=gethistoryall&type=group',
         dataType: 'text',
         success: function(res) {
             dialog.setContent(res);

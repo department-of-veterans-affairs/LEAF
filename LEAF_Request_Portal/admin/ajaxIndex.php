@@ -155,10 +155,75 @@ switch ($action) {
            }
 
            break;
+    case 'gethistoryall':
+        $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
+        $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
+        $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
+        
+        //pagination 
+        $pageLength = 10;
+
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $type = null;
+        switch ($typeName) {
+            case 'service':
+                include '../sources/Service.php';
+                $dataName = "All Services";
+                $type = new \Service($db, $login);
+                break;
+            case 'form':
+                include '../sources/FormEditor.php';
+                $dataName = "All Forms";
+                $type = new \FormEditor($db, $login);
+                break;
+            case 'group':
+                include 'Group.php';
+                $dataName = "All Groups";
+                $type = new \Group($db, $login);
+                break;
+        }
+
+        
+        $itemIDArray = $type->getAllHistoryIDs();
+
+        $totalHistory = array();
+        foreach($itemIDArray as $itemID)
+        {
+            $resHistory = $type->getHistory($itemID);
+            $resHistory = $resHistory ?? array();
+            $totalHistory = array_merge($totalHistory, $resHistory);
+        }
+        //if getting the history items or building the paginator
+        if($gethistoryslice) 
+        {
+            usort($totalHistory, function($a, $b) {
+                return $a['timestamp'] <=> $b['timestamp'];
+            });
+
+            $pageStart = ($page * $pageLength) - $pageLength;
+            $totalHistorySlice = array_slice($totalHistory, $pageStart, $pageLength);
+            
+            $t_form->assign('dataType', ucwords($typeName));
+            $t_form->assign('dataName', $dataName);
+            $t_form->assign('history', $totalHistorySlice);
+            $t_form->display('view_history.tpl');
+        }
+        else
+        {
+            $totalPages = ceil(count($totalHistory)/$pageLength);
+            
+            $t_form->assign('totalPages', $totalPages);
+            $t_form->assign('dataType', $typeName);
+            $t_form->display('view_history_all.tpl');
+        }
+
+        break;
     case 'gethistory':
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
         $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
-        $isAll = isset($_GET['isAll']) ? XSSHelpers::xscrub((string)$_GET['isAll']) : 'false';
 
         $type = null;
         switch ($typeName) {
@@ -199,28 +264,6 @@ switch ($action) {
 
             $t_form->assign('history', $resHistory);
 
-            $t_form->display('view_history.tpl');
-        } 
-        else if(!empty($isAll) && $isAll == true)
-        {
-            $t_form = new Smarty;
-            $t_form->left_delimiter = '<!--{';
-            $t_form->right_delimiter = '}-->';
-            $itemIDArray = $type->getAllHistoryIDs();
-
-            $totalHistory = array();
-            foreach($itemIDArray as $itemID)
-            {
-                $resHistory = $type->getHistory($itemID);
-                $resHistory = $resHistory ?? array();
-                $totalHistory = array_merge($totalHistory, $resHistory);
-            }
-            usort($totalHistory, function($a, $b) {
-                return $a['timestamp'] <=> $b['timestamp'];
-            });
-            $t_form->assign('dataType', ucwords($typeName));
-            $t_form->assign('dataName', "All Groups");
-            $t_form->assign('history', $totalHistory);
             $t_form->display('view_history.tpl');
         }
 
