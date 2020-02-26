@@ -15,6 +15,6 @@ SET
 WHERE 
   new_empUUID IS NULL;
 
-UPDATE `settings` SET `data` = '2020021800' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '2020022400' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;
