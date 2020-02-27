@@ -469,10 +469,11 @@ function showAllGroupHistory() {
         success: function(res) {
             dialog.setContent(res);
             dialog.indicateIdle();
+            dialog.show();
         },
         cache: false
     });
-    dialog.show();
+    
 }
 
 var dialog;
