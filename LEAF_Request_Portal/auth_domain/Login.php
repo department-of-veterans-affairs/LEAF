@@ -220,9 +220,10 @@ class Login
                             ':phoFirstName' => $res[0]['phoneticFirstName'],
                             ':phoLastName' => $res[0]['phoneticLastName'],
                             ':domain' => $res[0]['domain'],
-                            ':lastUpdated' => time(), );
-                    $db_phonebook->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
-                							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
+                            ':lastUpdated' => time(), 
+                            ':new_empUUID' => $res[0]['new_empUUID'] );
+                    $db_phonebook->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
+                                          VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
             								ON DUPLICATE KEY UPDATE deleted=0', $vars);
                     $empUID = $db_phonebook->getLastInsertID();
         

@@ -108,8 +108,8 @@ class Employee extends Data
                       ':phoFirstName' => metaphone($this->sanitizeInput($firstName)),
                       ':phoLastName' => metaphone($this->sanitizeInput($lastName)),
                       ':lastUpdated' => time(), );
-        $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, lastUpdated)
-        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :lastUpdated)
+        $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, lastUpdated, new_empUUID)
+        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :lastUpdated, UUID())
         							ON DUPLICATE KEY UPDATE deleted=0', $vars);
 
         $empUID = $this->lookupLogin($this->sanitizeInput($userName))[0]['empUID'];
