@@ -1,6 +1,7 @@
 <div id="sideBar" style="float: right">
     <button class="buttonNorm" onclick="importGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Import Group" /> Import Existing Group</button>
     <button class="buttonNorm" onclick="createGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Group" /> Create New Group</button>
+    <button class="buttonNorm" onclick="showAllGroupHistory();" style="font-size: 120%"><img src="../../libs/dynicons/?img=appointment.svg&w=32" alt="All Group History" /> Show All Group History</button>
 </div>
 <br style="clear: both" />
 <div>
@@ -457,6 +458,22 @@ function createGroup() {
     });
     dialog.show();
     $('input:visible:first, select:visible:first').focus();
+}
+
+function showAllGroupHistory() {
+    dialog.setTitle('All Group History');
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistoryall&type=group',
+        dataType: 'text',
+        success: function(res) {
+            dialog.setContent(res);
+            dialog.indicateIdle();
+            dialog.show();
+        },
+        cache: false
+    });
+    
 }
 
 var dialog;
