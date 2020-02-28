@@ -1,9 +1,9 @@
 <div id="history-slice">
 </div>
 
-<a id="prev" style="float: left;cursor:pointer;"><- Prev</a>
+<a id="prev" class="buttonNorm" style="float: left;cursor:pointer;"><- Prev</a>
 
-<a id="next" style="float:right;cursor:pointer;">Next -></a>
+<a id="next" class="buttonNorm" style="float:right;cursor:pointer;">Next -></a>
 
 
 
