@@ -242,10 +242,6 @@ switch ($action) {
                 $type = new \Group($db, $login);
                 $title = $type->getGroupName($itemID);
                 break;
-            case 'groupAll':
-                include 'Group.php';
-                $type = new \Group($db, $login);
-                break;
         }
 
         if (!empty($itemID))
