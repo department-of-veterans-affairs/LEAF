@@ -19,7 +19,7 @@ $.ajax({
     },
     cache: false
 });
-console.log(<!--{$totalPages}-->);
+
 $('#prev').on('click', function() {
     page = page - 1;
 
@@ -51,7 +51,7 @@ $('#next').on('click', function() {
 
 function adjustPageButtons(page)
 {
-    if(page == <!--{$totalPages}--> || <!--{$totalPages}--> == 1)
+    if(<!--{$totalPages}--> < 2 || page == <!--{$totalPages}-->)
     {
         $('a#next').hide();
     }
