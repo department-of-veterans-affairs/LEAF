@@ -377,9 +377,9 @@ var printer = function() {
                                         doc.setFont("helvetica");
                                         if (titleContinued.length > 190) {
                                             splitTitleContinued = doc.splitTextToSize(titleContinued, 185);
-                                            for (var i = 0; i < splitTitleContinued.length; i++) {
+                                            for (var j = 0; j < splitTitleContinued.length; j++) {
                                                 verticalShift += 3;
-                                                doc.text(splitTitleContinued[i], 11, verticalShift);
+                                                doc.text(splitTitleContinued[j], 11, verticalShift);
                                             }
                                             verticalShift += 4;
                                         } else {
@@ -456,9 +456,9 @@ var printer = function() {
                                     doc.setFont("helvetica");
                                     if (titleContinued.length > 190) {
                                         splitTitleContinued = doc.splitTextToSize(titleContinued, 185);
-                                        for (var i = 0; i < splitTitleContinued.length; i++) {
+                                        for (var j = 0; j < splitTitleContinued.length; j++) {
                                             verticalShift += 3;
-                                            doc.text(splitTitleContinued[i], 11, verticalShift);
+                                            doc.text(splitTitleContinued[j], 11, verticalShift);
                                         }
                                         verticalShift += 4;
                                     } else {
@@ -604,9 +604,9 @@ var printer = function() {
                                         doc.rect(10, verticalShift, 190, 8, 'FD');
                                         if (titleContinued.length > 190) {
                                             splitTitleContinued = doc.splitTextToSize(titleContinued, 185);
-                                            for (var i = 0; i < splitTitleContinued.length; i++) {
+                                            for (var j = 0; j < splitTitleContinued.length; j++) {
                                                 verticalShift += 3;
-                                                doc.text(splitTitleContinued[i], 11, verticalShift);
+                                                doc.text(splitTitleContinued[j], 11, verticalShift);
                                             }
                                             verticalShift += 4;
                                         } else {
