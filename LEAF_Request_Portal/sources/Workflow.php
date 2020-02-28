@@ -228,13 +228,6 @@ class Workflow
                                             SET posX=:x, posY=:y
         									WHERE workflowID=:workflowID
                                                 AND stepID=:stepID', $vars);
-        
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::WORKFLOW_STEP, [
-            new LogItem("workflow_steps", "stepID", $stepID),
-            new LogItem("workflow_steps", "posX", $x),
-            new LogItem("workflow_steps", "posY", $y),
-            new LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID))
-        ]);  
 
         return true;
     }
