@@ -466,29 +466,10 @@ class FormWorkflow
                     $resEmpUID = $form->getIndicator($resPerson[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
                     $empUID = $resEmpUID[$resPerson[0]['indicatorID_for_assigned_empUID']]['value'];
 
-                    $nexusDB = $this->login->getNexusDB();
-                    $vars4 = array(':empId' => $empUID);
-                    $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
+                    $userAuthorized = $this->checkUserAccess($empUID);
 
-                    if ($empUID != $this->login->getEmpUID())
-                    {
-                        $isBackUpAvailable = false;
-
-                        //check there is a backup present
-                        foreach ($backupIds as $row)
-                        {
-                            if ($row['backupEmpUID'] == $this->login->getEmpUID())
-                            {
-                                $isBackUpAvailable = true;
-
-                                break;
-                            }
-                        }
-
-                        if (!$isBackUpAvailable)
-                        {
-                            return array('status' => 0, 'errors' => array('User account does not match'));
-                        }
+                    if(!$userAuthorized){
+                        return array('status' => 0, 'errors' => array('User account does not match'));
                     }
 
                     break;
@@ -498,9 +479,13 @@ class FormWorkflow
 
                     $varsPerson = array(':recordID' => $this->recordID);
                     $resPerson = $this->db->prepared_query('SELECT userID FROM records
-                												WHERE recordID=:recordID', $varsPerson);
+                                                                WHERE recordID=:recordID', $varsPerson);
+                    
+                    $empUID = $this->getEmpUID($resPerson[0]['userID']);
+                                                                
+                    $userAuthorized = $this->checkUserAccess($empUID);
 
-                    if ($resPerson[0]['userID'] != $this->login->getUserID())
+                    if (!$userAuthorized)
                     {
                         return array('status' => 0, 'errors' => array('User account does not match'));
                     }
@@ -731,6 +716,32 @@ class FormWorkflow
         }
 
         return array('status' => 1, 'errors' => $errors);
+    }
+
+    public function getEmpUID($userName){
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':userID' => $userName);
+        return $nexusDB->prepared_query('SELECT * FROM dcvamc_orgchart.employee WHERE userName =:userName', $vars)[0]["empUID"];
+    }
+
+    public function checkUserAccess($empUID){
+
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':empId' => $empUID);
+        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
+
+        if ($empUID != $this->login->getEmpUID())
+        {
+            foreach ($backupIds as $row)
+            {
+                if ($row['backupEmpUID'] == $this->login->getEmpUID())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     /**
