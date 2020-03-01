@@ -200,7 +200,7 @@ switch ($action) {
         if($gethistoryslice) 
         {
             usort($totalHistory, function($a, $b) {
-                return $a['timestamp'] <=> $b['timestamp'];
+                return $b['timestamp'] <=> $a['timestamp'];
             });
 
             $pageStart = ($page * $pageLength) - $pageLength;
