@@ -344,12 +344,6 @@ class NationalEmployee extends NationalData
                 }
 
                 $searchResult = $this->lookupName($last, $first, $middle);
-                if (count($searchResult) <= $this->deepSearch)
-                {
-                    $this->log[] = 'Trying Deeper search';
-                    $input = trim('*' . $input);
-                    $searchResult = array_merge($searchResult, $this->searchDeeper($input));
-                }
 
                 break;
             // Format: First Last
@@ -431,7 +425,6 @@ class NationalEmployee extends NationalData
                     {
                         $this->log[] = 'Trying Service search';
                         $input = trim('*' . $input);
-                        $res = array_merge($res, $this->searchDeeper($input));
                         //$res = array_merge($res, $this->lookupService($input));
                     }
                 }
