@@ -700,4 +700,9 @@ abstract class Data
         return $this->dataActionLogger->getHistory($filterById, $this->dataTableUID, \LoggableTypes::GROUP);
     }
 
+    public function getAllHistoryIDs()
+    {
+        return $this->dataActionLogger->getAllHistoryIDs($this->dataTableUID, \LoggableTypes::GROUP);
+    }
+
 }

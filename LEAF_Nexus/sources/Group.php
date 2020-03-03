@@ -241,7 +241,7 @@ class Group extends Data
         {
             throw new Exception('You do not have access to delete this group.');
         }
-
+        $groupName = $this->getTitle($groupID);
         $this->db->beginTransaction();
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('DELETE FROM relation_group_employee
@@ -266,7 +266,7 @@ class Group extends Data
         $this->updateLastModified();
 
         $this->logAction(\DataActions::DELETE, \LoggableTypes::GROUP, [
-            new \LogItem("groups", "groupID", $groupID, getTitle($groupID))
+            new \LogItem("groups", "groupID", $groupID, $groupName)
         ]);
 
         return 1;
