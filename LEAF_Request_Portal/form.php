@@ -1615,12 +1615,17 @@ class Form
             case -2: // dependencyID -2 : requestor followup
                 $varsPerson = array(':recordID' => (int)$details['recordID']);
                 $resPerson = $this->db->prepared_query('SELECT userID FROM records
-               												WHERE recordID=:recordID', $varsPerson);
-
-                if ($resPerson[0]['userID'] == $this->login->getUserID())
-                {
-                    return true;
-                }
+                                                               WHERE recordID=:recordID', $varsPerson);
+                 if ($resPerson[0]['userID'] == $this->login->getUserID())
+                 {
+                     return true;
+                 }
+                 else{
+                    $empUID = $this->getEmpUID($resPerson[0]['userID']);
+                                                                
+                    return $this->checkUserAccess($empUID);
+                 }
+               
 
                 break;
             case -3: // dependencyID -3 : group designated by the requestor
@@ -1660,6 +1665,33 @@ class Form
         }
 
         return false;
+    }
+
+    public function getEmpUID($userName){
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':userName' => $userName);
+        $response = $nexusDB->prepared_query('SELECT * FROM dcvamc_orgchart.employee WHERE userName =:userName', $vars);
+        return $response[0]["empUID"];
+    }
+
+    public function checkUserAccess($empUID){
+
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':empId' => $empUID);
+        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
+
+        if ($empUID != $this->login->getEmpUID())
+        {
+            foreach ($backupIds as $row)
+            {
+                if ($row['backupEmpUID'] == $this->login->getEmpUID())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     /**

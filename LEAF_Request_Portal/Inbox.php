@@ -272,6 +272,11 @@ class Inbox
                             $res[$i]['hasAccess'] = true;
                             $out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
                         }
+                        else{
+                            $empUID = $this->getEmpUID($res[$i]['userID']);
+                            $out[$res[$i]['dependencyID']]['approverName'] = 'Backup';
+                            $res[$i]['hasAccess'] = $this->checkUserAccess($empUID);
+                        }
                     }
 
                     // dependencyID -3 is for a group designated by the requestor
@@ -366,6 +371,33 @@ class Inbox
         }
 
         return $out;
+    }
+
+    public function getEmpUID($userName){
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':userName' => $userName);
+        $response = $nexusDB->prepared_query('SELECT * FROM dcvamc_orgchart.employee WHERE userName =:userName', $vars);
+        return $response[0]["empUID"];
+    }
+
+    public function checkUserAccess($empUID){
+
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':empId' => $empUID);
+        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
+
+        if ($empUID != $this->login->getEmpUID())
+        {
+            foreach ($backupIds as $row)
+            {
+                if ($row['backupEmpUID'] == $this->login->getEmpUID())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     /**

@@ -175,6 +175,10 @@ class FormWorkflow
                     {
                         $res[$i]['hasAccess'] = true;
                     }
+                    else{
+                        $empUID = $this->getEmpUID($res[$i]['userID']);
+                        $res[$i]['hasAccess'] = $this->checkUserAccess($empUID);
+                    }
                 }
 
                 // dependencyID -3 is for a group designated by the requestor
@@ -480,17 +484,23 @@ class FormWorkflow
                     $varsPerson = array(':recordID' => $this->recordID);
                     $resPerson = $this->db->prepared_query('SELECT userID FROM records
                                                                 WHERE recordID=:recordID', $varsPerson);
-                    
-                    $empUID = $this->getEmpUID($resPerson[0]['userID']);
-                                                                
-                    $userAuthorized = $this->checkUserAccess($empUID);
 
-                    if (!$userAuthorized)
+                    if ($resPerson[0]['userID'] == $this->login->getUserID())
                     {
-                        return array('status' => 0, 'errors' => array('User account does not match'));
+                        return true;
                     }
-
-                    break;
+                    else{
+                        $empUID = $this->getEmpUID($resPerson[0]['userID']);
+                                                                
+                        $userAuthorized = $this->checkUserAccess($empUID);
+    
+                        if (!$userAuthorized)
+                        {
+                            return array('status' => 0, 'errors' => array('User account does not match'));
+                        }
+    
+                        break;
+                    }
                 case -3: // dependencyID -3 : group designated by requestor
                     require_once 'form.php';
                     $form = new Form($this->db, $this->login);
@@ -720,7 +730,7 @@ class FormWorkflow
 
     public function getEmpUID($userName){
         $nexusDB = $this->login->getNexusDB();
-        $vars = array(':userID' => $userName);
+        $vars = array(':userName' => $userName);
         return $nexusDB->prepared_query('SELECT * FROM dcvamc_orgchart.employee WHERE userName =:userName', $vars)[0]["empUID"];
     }
 
