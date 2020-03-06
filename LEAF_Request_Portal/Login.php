@@ -105,6 +105,8 @@ class Login
 
     private $empUID;
 
+    private $new_empUUID;
+
     private $isInDB = true;
 
     private $baseDir = '';
