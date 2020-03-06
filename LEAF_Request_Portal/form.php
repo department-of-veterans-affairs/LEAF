@@ -311,7 +311,7 @@ class Form
     }
 
     // Expects POST input: $_POST['service'], title, priority, num(categoryID)
-    public function newForm($userID)
+    public function newForm($userID, $new_empUUID)
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
@@ -375,10 +375,11 @@ class Form
                       ':serviceID' => $serviceID,
                       ':userID' => $userID,
                       ':title' => XSSHelpers::sanitizer($_POST['title']),
-                      ':priority' => $_POST['priority'], );
+                      ':priority' => $_POST['priority'], 
+                      ':new_empUUID' => $new_empUUID);
 
-        $this->db->prepared_query('INSERT INTO records (date, serviceID, userID, title, priority)
-                                    VALUES (:date, :serviceID, :userID, :title, :priority)', $vars);
+        $this->db->prepared_query('INSERT INTO records (date, serviceID, userID, title, priority, new_empUUID)
+                                    VALUES (:date, :serviceID, :userID, :title, :priority, :new_empUUID)', $vars);
 
         $recordID = $this->db->getLastInsertID(); // note this doesn't work with all DBs (eg. with transactions, MySQL should be ok)
 
@@ -2229,10 +2230,11 @@ class Form
         $vars = array(':recordID' => (int)$recordID,
                       ':tag' => XSSHelpers::xscrub($tag),
                       ':timestamp' => time(),
-                      ':userID' => $this->login->getUserID(), );
+                      ':userID' => $this->login->getUserID(),
+                      ':new_empUUID' -> $this->login->getEmpUUID() );
 
-        $res = $this->db->prepared_query('INSERT INTO tags (recordID, tag, timestamp, userID)
-                                            VALUES (:recordID, :tag, :timestamp, :userID)
+        $res = $this->db->prepared_query('INSERT INTO tags (recordID, tag, timestamp, userID, new_empUUID)
+                                            VALUES (:recordID, :tag, :timestamp, :userID, :new_empUUID)
                                             ON DUPLICATE KEY UPDATE timestamp=:timestamp', $vars);
     }
 
@@ -2329,7 +2331,7 @@ class Form
         }
     }
 
-    public function setInitiator($recordID, $userID)
+    public function setInitiator($recordID, $userID, $new_empUUID)
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
@@ -2339,9 +2341,11 @@ class Form
         if ($this->login->checkGroup(1))
         {
             $vars = array(':recordID' => (int)$recordID,
-                          ':userID' => $userID, );
+                          ':userID' => $userID, 
+                          ':new_empUUID' => $new_empUUID);
             $res = $this->db->prepared_query('UPDATE records SET
-                                            	userID=:userID
+                                            	userID=:userID,
+                                                new_empUUID=:new_empUUID
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
@@ -3493,6 +3497,7 @@ class Form
             ':submitted' => '0',
             ':isWritableUser' => '0',
             ':isWritableGroup' => '0',
+            ':new_empUUID' => '',
             ':recordID' => $recordID);
                           
         $res = $this->db->prepared_query('UPDATE records SET
@@ -3505,7 +3510,8 @@ class Form
         lastStatus=:lastStatus,
         submitted=:submitted,
         isWritableUser=:isWritableUser,
-        isWritableGroup=:isWritableGroup
+        isWritableGroup=:isWritableGroup,
+        new_empUUID=:new_empUUID
         WHERE recordID=:recordID', $vars);
 
         $vars = array(':recordID' => $recordID);
