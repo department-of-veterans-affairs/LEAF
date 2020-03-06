@@ -376,7 +376,7 @@ class Inbox
     public function getEmpUID($userName){
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':userName' => $userName);
-        $response = $nexusDB->prepared_query('SELECT * FROM dcvamc_orgchart.employee WHERE userName =:userName', $vars);
+        $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
         return $response[0]["empUID"];
     }
 

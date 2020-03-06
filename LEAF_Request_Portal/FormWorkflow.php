@@ -731,10 +731,10 @@ class FormWorkflow
     public function getEmpUID($userName){
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':userName' => $userName);
-        return $nexusDB->prepared_query('SELECT * FROM dcvamc_orgchart.employee WHERE userName =:userName', $vars)[0]["empUID"];
+        return $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars)[0]["empUID"];
     }
 
-    public function checkUserAccess($empUID){
+    public function checkUserAccess($empUID){ //empuid is the requestor
 
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':empId' => $empUID);
