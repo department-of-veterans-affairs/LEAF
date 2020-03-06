@@ -1001,10 +1001,11 @@ class Form
                       ':series' => $series,
                       ':data' => trim($_POST[$key]),
                       ':timestamp' => time(),
-                      ':userID' => $this->login->getUserID(), );
-        $res = $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
-                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
-                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
+                      ':userID' => $this->login->getUserID(), 
+                      ':new_empUUID' => $this->login->getEmpUUID());
+        $res = $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID, new_empUUID)
+                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID, :new_empUUID)
+                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID, new_empUUID=:new_empUUID', $vars);
 
         if (!$duplicate)
         {
