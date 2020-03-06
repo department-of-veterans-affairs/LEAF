@@ -160,6 +160,12 @@ class Login
         return $this->empUID;
     }
 
+    // getUserID returns NT Username
+    public function getEmpUUID()
+    {
+        return $this->new_empUUID;
+    }
+
     public function setBaseDir($baseDir)
     {
         $this->baseDir = "/{$baseDir}";
@@ -218,6 +224,7 @@ class Login
             $this->name = "{$result[0]['firstName']} {$result[0]['lastName']}";
             $this->userID = $result[0]['userName'];
             $this->empUID = $result[0]['empUID'];
+            $this->new_empUUID = $result[0]['new_empUUID'];
             $this->setSession();
 
             $this->isLogin = true;
