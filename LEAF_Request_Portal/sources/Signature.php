@@ -32,13 +32,14 @@ class Signature
             ':message' => $message,
             ':signerPublicKey' => $signerPublicKey,
             ':userID' => $this->login->getUserID(),
+            ':new_empUUID' => $this->login->getEmpUUID(),
             ':timestamp' => time()
         );
 
         $res = $this->db->prepared_query(
             'INSERT INTO 
-                signatures (signature, recordID, stepID, dependencyID, message, signerPublicKey, userID, timestamp)
-                VALUES (:signature, :recordID, :stepID, :dependencyID, :message, :signerPublicKey, :userID, :timestamp)
+                signatures (signature, recordID, stepID, dependencyID, message, signerPublicKey, userID, new_empUUID, timestamp)
+                VALUES (:signature, :recordID, :stepID, :dependencyID, :message, :signerPublicKey, :userID, :new_empUUID, :timestamp)
                 ON DUPLICATE KEY UPDATE signature=:signature, message=:message, signerPublicKey=:signerPublicKey, userID=:userID, timestamp=:timestamp',
             $vars
         );
