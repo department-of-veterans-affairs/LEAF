@@ -1009,8 +1009,8 @@ class Form
 
         if (!$duplicate)
         {
-            $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
-                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
+            $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID, new_empUUID)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID, :new_empUUID)', $vars);
         }
         return 1;
     }
