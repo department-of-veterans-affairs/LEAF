@@ -581,14 +581,15 @@ class FormWorkflow
                                ':actionType' => $actionType,
                                ':actionTypeID' => 8,
                                ':time' => $time,
-                               ':comment' => $comment, );
+                               ':comment' => $comment, 
+                               ':new_empUUID' => $this->login->getEmpUUID() );
                 $logKey = sha1(serialize($vars2));
                 if (!isset($logCache[$logKey]))
                 {
                     // write log
                     $logCache[$logKey] = 1;
-                    $this->db->prepared_query('INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment)
-                            VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+                    $this->db->prepared_query('INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment, new_empUUID)
+                            VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :new_empUUID)', $vars2);
                 }
 
                 // get other action data
@@ -1069,9 +1070,10 @@ class FormWorkflow
                 ':actionType' => 'move',
                 ':actionTypeID' => 8,
                 ':time' => time(),
-                ':comment' => $comment, );
-        $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+                ':comment' => $comment, 
+                ':new_empUUID' => $this->login->getEmpUUID() );
+        $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, new_empUUID)
+                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :new_empUUID)', $vars2);
 
         $vars2 = array(':recordID' => $this->recordID);
         $this->db->prepared_query('DELETE FROM records_workflow_state

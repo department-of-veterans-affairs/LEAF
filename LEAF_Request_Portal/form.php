@@ -717,9 +717,10 @@ class Form
                       ':dependencyID' => 0,
                       ':actionType' => 'deleted',
                       ':actionTypeID' => 4,
-                      ':time' => time(), );
-        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
+                      ':time' => time(), 
+                      ':new_empUUID' => $this->login->getEmpUUID() );
+        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, new_empUUID)
+                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :new_empUUID)', $vars);
 
         // delete state
         $vars = array(':recordID' => $recordID);
@@ -1237,9 +1238,10 @@ class Form
                       ':actionType' => 'submit',
                       ':actionTypeID' => 6,
                       ':time' => time(),
-                      ':comment' => '', );
-        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars);
+                      ':comment' => '', 
+                      ':new_empUUID' => $this->login->getEmpUUID() );
+        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, new_empUUID)
+                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :new_empUUID)', $vars);
 
         // populate dependency data using new workflow system
         $vars = array(':recordID' => $recordID);
@@ -2355,9 +2357,10 @@ class Form
                 ':actionType' => 'changeInitiator',
                 ':actionTypeID' => 8,
                 ':time' => time(),
-                ':comment' => $comment, );
-            $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+                ':comment' => $comment, 
+                ':new_empUUID' => $this->login->getEmpUUID() );
+            $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, new_empUUID)
+                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :new_empUUID)', $vars2);
 
             return $userID;
         }
@@ -3513,10 +3516,11 @@ class Form
             ':dependencyID' => 0,
             ':actionType' => 'deleted',
             ':actionTypeID' => 4,
-            ':time' => time() );
+            ':time' => time() , 
+            ':new_empUUID' => '' );
                 
-        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
-        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
+        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, new_empUUID)
+        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :new_empUUID)', $vars);
             
             
         $vars = array(':recordID' => $recordID);
