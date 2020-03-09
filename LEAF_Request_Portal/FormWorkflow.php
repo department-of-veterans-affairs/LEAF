@@ -176,8 +176,8 @@ class FormWorkflow
                         $res[$i]['hasAccess'] = true;
                     }
                     else{
-                        $empUID = $this->getEmpUID($res[$i]['userID']);
-                        $res[$i]['hasAccess'] = $this->checkUserAccess($empUID);
+                        $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
+                        $res[$i]['hasAccess'] = $this->checkIfBackup($empUID);
                     }
                 }
 
@@ -470,7 +470,7 @@ class FormWorkflow
                     $resEmpUID = $form->getIndicator($resPerson[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
                     $empUID = $resEmpUID[$resPerson[0]['indicatorID_for_assigned_empUID']]['value'];
 
-                    $userAuthorized = $this->checkUserAccess($empUID);
+                    $userAuthorized = $this->checkIfBackup($empUID);
 
                     if(!$userAuthorized){
                         return array('status' => 0, 'errors' => array('User account does not match'));
@@ -489,18 +489,17 @@ class FormWorkflow
                     {
                         return true;
                     }
-                    else{
-                        $empUID = $this->getEmpUID($resPerson[0]['userID']);
+                    
+                    $empUID = $this->getEmpUIDByUserName($resPerson[0]['userID']);
                                                                 
-                        $userAuthorized = $this->checkUserAccess($empUID);
-    
-                        if (!$userAuthorized)
-                        {
-                            return array('status' => 0, 'errors' => array('User account does not match'));
-                        }
-    
-                        break;
+                    $userAuthorized = $this->checkIfBackup($empUID);
+
+                    if (!$userAuthorized)
+                    {
+                        return array('status' => 0, 'errors' => array('User account does not match'));
                     }
+
+                    break;
                 case -3: // dependencyID -3 : group designated by requestor
                     require_once 'form.php';
                     $form = new Form($this->db, $this->login);
@@ -728,13 +727,26 @@ class FormWorkflow
         return array('status' => 1, 'errors' => $errors);
     }
 
-    public function getEmpUID($userName){
+
+     /**
+     * Gets empuID for given username
+     * @param string $userName Username
+     * @return string
+     */
+    public function getEmpUIDByUserName($userName)
+    {
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':userName' => $userName);
         return $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars)[0]["empUID"];
     }
 
-    public function checkUserAccess($empUID){ //empuid is the requestor
+    /**
+     * Checks if logged in user serves as a backup for given empUID
+     * @param string $empUID empUID to check 
+     * @return boolean
+     */
+    public function checkIfBackup($empUID)
+    { 
 
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':empId' => $empUID);

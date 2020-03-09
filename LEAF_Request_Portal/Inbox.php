@@ -273,9 +273,9 @@ class Inbox
                             $out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
                         }
                         else{
-                            $empUID = $this->getEmpUID($res[$i]['userID']);
+                            $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
                             $out[$res[$i]['dependencyID']]['approverName'] = 'Backup';
-                            $res[$i]['hasAccess'] = $this->checkUserAccess($empUID);
+                            $res[$i]['hasAccess'] = $this->checkIfBackup($empUID);
                         }
                     }
 
@@ -373,15 +373,26 @@ class Inbox
         return $out;
     }
 
-    public function getEmpUID($userName){
+    /**
+     * Gets empuID for given username
+     * @param string $userName Username
+     * @return string
+     */
+    public function getEmpUIDByUserName($userName)
+    {
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':userName' => $userName);
         $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
         return $response[0]["empUID"];
     }
 
-    public function checkUserAccess($empUID){
-
+    /**
+     * Checks if logged in user serves as a backup for given empUID
+     * @param string $empUID empUID to check 
+     * @return boolean
+     */
+    public function checkIfBackup($empUID)
+    {
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':empId' => $empUID);
         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
