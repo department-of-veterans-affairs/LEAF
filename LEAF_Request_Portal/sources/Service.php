@@ -32,9 +32,9 @@ class Service
     /**
      * Service constructor
      * 
-     * @param string $db            portal db
-     * @param string $login         login object
-     * @param string $db_phonebook  orgchart db
+     * @param string $db           portal db
+     * @param string $login        login object
+     * @param string $db_phonebook orgchart db
      */
     public function __construct($db, $login, $db_phonebook)
     {
