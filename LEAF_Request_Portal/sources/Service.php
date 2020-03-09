@@ -122,9 +122,10 @@ class Service
             if ($res[0]['groupID'] == $groupID)
             {
                 $vars = array(':userID' => $member,
-                              ':groupID' => $groupID, );
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-                                                VALUES (:userID, :groupID)', $vars);
+                              ':groupID' => $groupID, 
+                              ':new_empUUID' => $new_empUUID);
+                $this->db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
+                                                VALUES (:userID, :groupID, :new_empUUID)', $vars);
             }
         }
 

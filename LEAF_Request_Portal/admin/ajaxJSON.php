@@ -39,7 +39,7 @@ switch ($action) {
     case 'mod_groups_getMembers':
         require 'Group.php';
 
-        $group = new Group($db, $login);
+        $group = new Group($db, $login, $db_phonebook);
 
         echo json_encode($group->getMembers($_GET['groupID']));
 

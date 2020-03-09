@@ -122,9 +122,10 @@ class System
             foreach ($resChief as $chief)
             {
                 $vars = array(':userID' => $chief['userID'],
-                              ':groupID' => $quadID, );
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-	                                   		 VALUES (:userID, :groupID)', $vars);
+                              ':groupID' => $quadID, 
+                              ':new_empUUID' => $chief['new_empUUID']);
+                $this->db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
+	                                   		 VALUES (:userID, :groupID, :new_empUUID)', $vars);
             }
         }
 
@@ -190,20 +191,22 @@ class System
             if ($emp['userName'] != '')
             {
                 $vars = array(':userID' => $emp['userName'],
-                        ':groupID' => $groupID, );
+                        ':groupID' => $groupID, 
+                        ':new_empUUID' => $emp['new_empUUID']);
 
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+                $this->db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
+										VALUES (:userID, :groupID, :new_empUUID)', $vars);
 
                 // include the backups of employees
                 $backups = $employee->getBackups($emp['empUID']);
                 foreach ($backups as $backup)
                 {
                     $vars = array(':userID' => $backup['userName'],
-                            ':groupID' => $groupID, );
+                            ':groupID' => $groupID, 
+                            ':new_empUUID' => $backup['new_empUUID']);
 
-                    $this->db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+                    $this->db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
+										VALUES (:userID, :groupID, :new_empUUID)', $vars);
                 }
             }
         }

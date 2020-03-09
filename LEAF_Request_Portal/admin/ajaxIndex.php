@@ -65,7 +65,7 @@ switch ($action) {
         checkToken();
         require 'Group.php';
 
-        $group = new Group($db, $login);
+        $group = new Group($db, $login, $db_phonebook);
         $group->addMember($_POST['userID'], $_POST['groups']);
 
         break;
@@ -75,7 +75,7 @@ switch ($action) {
 
         $deleteList = XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
-        $group = new Group($db, $login);
+        $group = new Group($db, $login, $db_phonebook);
         foreach ($deleteList as $del)
         {
             $group->removeMember(XSSHelpers::xscrub($del['userID']), $del['groupID']);
@@ -86,7 +86,7 @@ switch ($action) {
           checkToken();
            require 'Group.php';
 
-           $group = new Group($db, $login);
+           $group = new Group($db, $login, $db_phonebook);
            $group->addMember($_POST['userID'], $_POST['groupID']);
 
            break;
@@ -94,7 +94,7 @@ switch ($action) {
            checkToken();
            require 'Group.php';
 
-           $group = new Group($db, $login);
+           $group = new Group($db, $login, $db_phonebook);
            $group->removeMember($_POST['userID'], $_POST['groupID']);
 
            break;

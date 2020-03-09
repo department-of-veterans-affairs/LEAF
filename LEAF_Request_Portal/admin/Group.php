@@ -19,13 +19,16 @@ class Group
 {
     private $db;
 
+    private $db_phonebook;
+
     private $login;
 
     private $dataActionLogger;
 
-    public function __construct($db, $login)
+    public function __construct($db, $login, $db_phonebook)
     {
         $this->db = $db;
+        $this->db_phonebook = $db_phonebook;
         $this->login = $login;
         $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
@@ -103,10 +106,16 @@ class Group
         {
             if (is_numeric($group))
             {
+
+                $vars = array(':userName' => $member);
+                $UUIDres = $this->db_phonebook->prepared_query('SELECT new_empUUID FROM employee WHERE userName = :userName', $vars);
+                $new_empUUID = count($UUIDres) > 0 ? $UUIDres[0]['new_empUUID'] : 'not_in_national_'.$member;
+
                 $vars = array(':userID' => $member,
-                              ':groupID' => (int)$group, );
-                $res = $this->db->prepared_query('INSERT INTO users (userID, groupID)
-                                                    VALUES (:userID, :groupID)', $vars);
+                              ':groupID' => (int)$group, 
+                              ':new_empUUID' => $new_empUUID);
+                $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
+                                                    VALUES (:userID, :groupID, :new_empUUID)', $vars);
                 
                 $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
                     new \LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),

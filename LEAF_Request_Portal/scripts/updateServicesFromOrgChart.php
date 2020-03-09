@@ -73,20 +73,22 @@ foreach ($resquadrad as $quadrad)
         if ($emp['userName'] != '')
         {
             $vars = array(':userID' => $emp['userName'],
-                          ':groupID' => $quadrad['groupID'], );
+                          ':groupID' => $quadrad['groupID'], 
+                          ':new_empUUID' => $emp['new_empUUID']);
 
-            $db->prepared_query('INSERT INTO users (userID, groupID)
-                                    VALUES (:userID, :groupID)', $vars);
+            $db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
+                                    VALUES (:userID, :groupID, :new_empUUID)', $vars);
 
             // include the backups of employees
             $backups = $employee->getBackups($emp['empUID']);
             foreach ($backups as $backup)
             {
                 $vars = array(':userID' => $backup['userName'],
-                              ':groupID' => $quadrad['groupID'], );
+                              ':groupID' => $quadrad['groupID'], 
+                              ':new_empUUID' => $backup['new_empUUID']);
 
-                $db->prepared_query('INSERT INTO users (userID, groupID)
-                                   		 VALUES (:userID, :groupID)', $vars);
+                $db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
+                                   		 VALUES (:userID, :groupID, :new_empUUID)', $vars);
             }
         }
     }
@@ -159,9 +161,10 @@ foreach ($res as $service)
         foreach ($resChief as $chief)
         {
             $vars = array(':userID' => $chief['userID'],
-                          ':groupID' => $quadID, );
-            $db->prepared_query('INSERT INTO users (userID, groupID)
-                                   		 VALUES (:userID, :groupID)', $vars);
+                          ':groupID' => $quadID, 
+                          ':new_empUUID' => $chief['new_empUUID']);
+            $db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
+                                   		 VALUES (:userID, :groupID, :new_empUUID)', $vars);
         }
     }
 }
@@ -193,20 +196,22 @@ foreach (Config::$orgchartImportTags as $tag)
             if ($emp['userName'] != '')
             {
                 $vars = array(':userID' => $emp['userName'],
-                              ':groupID' => $tgroup['groupID'], );
+                              ':groupID' => $tgroup['groupID'], 
+                              ':new_empUUID' => $emp['new_empUUID']);
 
-                $db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+                $db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
+										VALUES (:userID, :groupID, :new_empUUID)', $vars);
 
                 // include the backups of employees
                 $backups = $employee->getBackups($emp['empUID']);
                 foreach ($backups as $backup)
                 {
                     $vars = array(':userID' => $backup['userName'],
-                                  ':groupID' => $tgroup['groupID'], );
+                                  ':groupID' => $tgroup['groupID'], 
+                                  ':new_empUUID' => $backup['new_empUUID']);
 
-                    $db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+                    $db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
+										VALUES (:userID, :groupID, :new_empUUID)', $vars);
                 }
             }
         }
