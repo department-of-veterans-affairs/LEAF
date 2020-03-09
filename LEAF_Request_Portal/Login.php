@@ -162,7 +162,11 @@ class Login
         return $this->empUID;
     }
 
-    // getUserID returns NT Username
+    /**
+     * Returns current user's empUUID from nexus
+     *
+     * @return string employee UUID 
+     */
     public function getEmpUUID()
     {
         return $this->new_empUUID;

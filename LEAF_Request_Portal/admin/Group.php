@@ -25,6 +25,13 @@ class Group
 
     private $dataActionLogger;
 
+    /**
+     * Group constructor
+     * 
+     * @param string $db            portal db
+     * @param string $login         login object
+     * @param string $db_phonebook  orgchart db
+     */
     public function __construct($db, $login, $db_phonebook)
     {
         $this->db = $db;
@@ -109,12 +116,12 @@ class Group
 
                 $vars = array(':userName' => $member);
                 $UUIDres = $this->db_phonebook->prepared_query('SELECT new_empUUID FROM employee WHERE userName = :userName', $vars);
-                $new_empUUID = count($UUIDres) > 0 ? $UUIDres[0]['new_empUUID'] : 'not_in_national_'.$member;
+                $new_empUUID = count($UUIDres) > 0 ? $UUIDres[0]['new_empUUID'] : 'not_in_national_' . $member;
 
                 $vars = array(':userID' => $member,
                               ':groupID' => (int)$group, 
                               ':new_empUUID' => $new_empUUID);
-                $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
+                $this->db->prepared_query('INSERT INTO users (userID, groupID, new_empUUID)
                                                     VALUES (:userID, :groupID, :new_empUUID)', $vars);
                 
                 $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [

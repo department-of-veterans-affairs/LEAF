@@ -82,9 +82,9 @@ if ($login->checkGroup(1))
         $serviceController->handler($action);
     });
 
-    $controllerMap->register('group', function () use ($db, $login, $action) {
+    $controllerMap->register('group', function () use ($db, $login, $action, $db_phonebook) {
         require 'controllers/GroupController.php';
-        $serviceController = new GroupController($db, $login);
+        $serviceController = new GroupController($db, $login, $db_phonebook);
         $serviceController->handler($action);
     });
 
