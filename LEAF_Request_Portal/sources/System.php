@@ -88,20 +88,22 @@ class System
             if ($emp['userName'] != '')
             {
                 $vars = array(':userID' => $emp['userName'],
-                        ':serviceID' => $service['groupID'], );
+                        ':serviceID' => $service['groupID'], 
+                        ':new_empUUID' => $emp['new_empUUID']);
 
-                $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
-                                    VALUES (:serviceID, :userID)', $vars);
+                $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, new_empUUID)
+                                    VALUES (:serviceID, :userID, :new_empUUID)', $vars);
 
                 // include the backups of employees
                 $backups = $employee->getBackups($emp['empUID']);
                 foreach ($backups as $backup)
                 {
                     $vars = array(':userID' => $backup['userName'],
-                            ':serviceID' => $service['groupID'], );
+                            ':serviceID' => $service['groupID'], 
+                            ':new_empUUID' => $backup['new_empUUID']);
 
-                    $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
-                                    VALUES (:serviceID, :userID)', $vars);
+                    $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, new_empUUID)
+                                    VALUES (:serviceID, :userID, :new_empUUID)', $vars);
                 }
             }
         }

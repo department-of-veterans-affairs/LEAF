@@ -75,9 +75,10 @@ if ($login->checkGroup(1))
         $formEditorController->handler($action);
     });
 
-    $controllerMap->register('service', function () use ($db, $login, $action) {
+    //$db_phonebook can be removed when emp_UUID is fully integrated
+    $controllerMap->register('service', function () use ($db, $login, $action, $db_phonebook) {
         require 'controllers/ServiceController.php';
-        $serviceController = new ServiceController($db, $login);
+        $serviceController = new ServiceController($db, $login, $db_phonebook);
         $serviceController->handler($action);
     });
 

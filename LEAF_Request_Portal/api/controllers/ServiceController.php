@@ -22,11 +22,11 @@ class ServiceController extends RESTfulResponse
 
     private $login;
 
-    public function __construct($db, $login)
+    public function __construct($db, $login, $db_phonebook)
     {
         $this->db = $db;
         $this->login = $login;
-        $this->service = new Service($db, $login);
+        $this->service = new Service($db, $login, $db_phonebook);
     }
 
     public function get($act)

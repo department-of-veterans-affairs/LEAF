@@ -27,11 +27,14 @@ class Service
 
     private $dataActionLogger;
 
-    public function __construct($db, $login)
+    private $db_phonebook;
+
+    public function __construct($db, $login, $db_phonebook)
     {
         $this->db = $db;
         $this->login = $login;
         $this->dataActionLogger = new \DataActionLogger($db, $login);
+        $this->db_phonebook = $db_phonebook;
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
@@ -93,10 +96,17 @@ class Service
     {
         if (is_numeric($groupID) && $member != '')
         {
+
+            //can be removed when UUID is passed through
+            $vars = array(':userName' => $member);
+            $UUIDres = $this->db_phonebook->prepared_query('SELECT new_empUUID FROM employee WHERE userName = :userName', $vars);
+            $new_empUUID = count($UUIDres) > 0 ? $UUIDres[0]['new_empUUID'] : 'not_in_national_'.$member;
+
             $vars = array(':userID' => $member,
-                    ':groupID' => $groupID, );
-            $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, locallyManaged)
-                                                   VALUES (:groupID, :userID, 1)', $vars);
+                    ':groupID' => $groupID, 
+                    ':new_empUUID' => $new_empUUID);
+            $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, locallyManaged, new_empUUID)
+                                                   VALUES (:groupID, :userID, 1, :new_empUUID)', $vars);
 
             $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::SERVICE_CHIEF, [
                 new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
