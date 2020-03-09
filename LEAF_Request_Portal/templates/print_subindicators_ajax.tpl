@@ -213,7 +213,7 @@
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'raw_data'}-->
-            <textarea class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" style="display: none"><!--{$indicator.value|sanitize}--></textarea>
+                 <textarea class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_<!--{$<!--{$recordID}-->" style="display: none"><!--{$indicator.value|sanitize}--></textarea>
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.is_sensitive == 1}-->
