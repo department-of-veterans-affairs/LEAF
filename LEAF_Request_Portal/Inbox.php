@@ -279,7 +279,18 @@ class Inbox
                             $res[$i]['hasAccess'] = $this->checkIfBackup($empUID);
 
                             if($res[$i]['hasAccess']){
-                                $out[$res[$i]['dependencyID']]['approverName'] = 'Backup';
+
+                                if (!isset($this->dir))
+                                {
+                                    require_once 'VAMC_Directory.php';
+                                    $this->dir = new VAMC_Directory;
+                                }
+    
+                                $user = $this->dir->lookupEmpUID($empUID);
+    
+                                $approverName = isset($empUID) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "unknown user";
+                                
+                                $out[$res[$i]['dependencyID']]['approverName'] = 'Backup for '.$approverName;
                             }
                         }
                     }
