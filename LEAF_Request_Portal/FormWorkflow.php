@@ -171,14 +171,14 @@ class FormWorkflow
                 // dependencyID -2 is for requestor followup
                 if ($res[$i]['dependencyID'] == -2)
                 {
-                    if ($res[$i]['userID'] == $this->login->getUserID())
-                    {
-                        $res[$i]['hasAccess'] = true;
-                    }
-                    else{
+                    $hasAccess = $res[$i]['userID'] == $this->login->getUserID();
+
+                    if(!$hasAccess){
                         $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
-                        $res[$i]['hasAccess'] = $this->checkIfBackup($empUID);
+                        $hasAccess = $this->checkIfBackup($empUID);
                     }
+
+                    $res[$i]['hasAccess'] = $hasAccess;
                 }
 
                 // dependencyID -3 is for a group designated by the requestor
@@ -485,18 +485,16 @@ class FormWorkflow
                     $resPerson = $this->db->prepared_query('SELECT userID FROM records
                                                                 WHERE recordID=:recordID', $varsPerson);
 
-                    if ($resPerson[0]['userID'] == $this->login->getUserID())
+                    if (!$resPerson[0]['userID'] == $this->login->getUserID())
                     {
-                        return true;
-                    }
-                    
-                    $empUID = $this->getEmpUIDByUserName($resPerson[0]['userID']);
+                        $empUID = $this->getEmpUIDByUserName($resPerson[0]['userID']);
                                                                 
-                    $userAuthorized = $this->checkIfBackup($empUID);
-
-                    if (!$userAuthorized)
-                    {
-                        return array('status' => 0, 'errors' => array('User account does not match'));
+                        $userAuthorized = $this->checkIfBackup($empUID);
+    
+                        if (!$userAuthorized)
+                        {
+                            return array('status' => 0, 'errors' => array('User account does not match'));
+                        }
                     }
 
                     break;
@@ -729,10 +727,10 @@ class FormWorkflow
 
 
      /**
-     * Gets empuID for given username
-     * @param string $userName Username
-     * @return string
-     */
+      * Gets empuID for given username
+      * @param string $userName Username
+      * @return string
+      */
     public function getEmpUIDByUserName($userName)
     {
         $nexusDB = $this->login->getNexusDB();
