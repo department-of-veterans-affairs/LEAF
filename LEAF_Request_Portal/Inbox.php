@@ -272,10 +272,15 @@ class Inbox
                             $res[$i]['hasAccess'] = true;
                             $out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
                         }
-                        else{
+
+                        if(!$res[$i]['hasAccess'] )
+                        {                            
                             $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
-                            $out[$res[$i]['dependencyID']]['approverName'] = 'Backup';
                             $res[$i]['hasAccess'] = $this->checkIfBackup($empUID);
+
+                            if($res[$i]['hasAccess']){
+                                $out[$res[$i]['dependencyID']]['approverName'] = 'Backup';
+                            }
                         }
                     }
 
