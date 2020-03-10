@@ -183,13 +183,23 @@ switch ($action) {
                 include 'Group.php';
                 $dataName = "All Groups";
                 $type = new \Group($db, $login);
+
+                include '../' . Config::$orgchartPath . '/sources/Group.php';
+                $orgchartGroup = new OrgChart\Group($db_phonebook, $login);
                 break;
         }
 
-        
+        $totalHistory = array();
+        if(isset($orgchartGroup))
+        {
+            //special case for getting group history, since the only group tracked in portal is sysadmin
+            $resHistory = $type->getHistory(1);
+            $resHistory = $resHistory ?? array();
+            $totalHistory = array_merge($totalHistory, $resHistory);
+            $type = $orgchartGroup;
+        }
         $itemIDArray = $type->getAllHistoryIDs();
 
-        $totalHistory = array();
         foreach($itemIDArray as $itemID)
         {
             $resHistory = $type->getHistory($itemID);

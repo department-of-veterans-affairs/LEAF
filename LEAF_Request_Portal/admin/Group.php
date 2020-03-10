@@ -203,6 +203,11 @@ class Group
         return $this->dataActionLogger->getHistory($filterById, "groupID", \LoggableTypes::PORTAL_GROUP);
     }
 
+    /**
+     * Returns all history ids for all groups
+     * 
+     * @return array all history ids for all groups
+     */
     public function getAllHistoryIDs()
     {
         return $this->dataActionLogger->getAllHistoryIDs("groupID", \LoggableTypes::PORTAL_GROUP);

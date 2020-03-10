@@ -66,6 +66,11 @@ class DataActionLogger{
         return $logResults;
     }
 
+    /**
+     * Returns all history ids for all groups
+     * 
+     * @return array all history ids for all groups
+     */
     public function getAllHistoryIDs(){
         $sql = "SELECT `value`
                 FROM `data_log_items`
