@@ -288,7 +288,7 @@ class Inbox
     
                                 $user = $this->dir->lookupEmpUID($empUID);
     
-                                $approverName = isset($empUID) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "unknown user";
+                                $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "unknown user";
                                 
                                 $out[$res[$i]['dependencyID']]['approverName'] = 'Backup for '.$approverName;
                             }
