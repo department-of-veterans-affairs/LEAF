@@ -14,7 +14,7 @@ class CommonConfig
                                         'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif',
                                         'vsd',
                                         'rtf',
-                                        'mht', 'htm', 'html', 'msg', 'xml',
+                                        'mht', 'msg', 'xml',
                                         'pub',
                                     );
     
@@ -24,7 +24,7 @@ class CommonConfig
                                             'ai', 'eps',
                                             'pdf',
                                             'txt',
-                                            'html',
+                                            'htm', 'html',
                                             'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif', 'svg',
                                             'vsd',
                                             'rtf',
@@ -33,18 +33,7 @@ class CommonConfig
                                             'css',
                                             'pub',
                                             'msg', 'ics',
-                                            'mht', 'htm', 'html', 'msg', 'xml',
+                                            'mht', 'msg', 'xml',
                                             'zip', '7z',
                                         );
-
-    public $fileManagerWhitelist_nexus = array('doc', 'docx', 'docm', 'dotx', 'dotm',
-                                                'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
-                                                'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm', 'ppts',
-                                                'ai', 'eps',
-                                                'pdf',
-                                                'txt',
-                                                'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif',
-                                                'vsd',
-                                                'rtf',
-                                                'mht', 'htm', 'html', 'msg', 'xml', );
 }

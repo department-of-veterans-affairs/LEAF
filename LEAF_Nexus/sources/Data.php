@@ -379,7 +379,7 @@ abstract class Data
         if (is_array($_FILES))
         {
             $commonConfig = new \CommonConfig();
-            $fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
+            $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)
             {
