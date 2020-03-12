@@ -145,13 +145,14 @@ switch ($action) {
            $system = new System($db, $login);
            $result = $system->newFile();
            if ($result === true)
-           {   session_write_close();
-               header('Location: ./?a=mod_file_manager');
-               exit();
+           {
+                session_write_close();
+                header('Location: ./?a=mod_file_manager');
+                exit();
            }
            else
            {
-               echo $result;
+                echo $result;
            }
 
            break;

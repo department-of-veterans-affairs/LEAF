@@ -358,6 +358,7 @@ switch ($action) {
         }
         $commonConfig = new CommonConfig();
         $t_form->assign('fileExtensions', $commonConfig->fileManagerWhitelist);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         if ($login->checkGroup(1))
         {
             $main->assign('body', $t_form->fetch('admin_upload_file.tpl'));
