@@ -14,8 +14,11 @@ class CommonConfig
                                         'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif',
                                         'vsd',
                                         'rtf',
-                                        'mht', 'msg', 'xml',
+                                        'json',
                                         'pub',
+                                        'msg', 'ics',
+                                        'mht', 'msg', 'xml',
+                                        'zip', '7z',
                                     );
     
     public $fileManagerWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
