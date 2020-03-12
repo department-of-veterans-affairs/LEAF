@@ -7,4 +7,4 @@ Comments: {{comment}}
 ------------------------
 {{siteRoot}}?a=printview&recordID={{recordID}}
 
-{{title}}
+{{fullTitle}}

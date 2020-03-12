@@ -1,1 +1,1 @@
-RETURNED {{title}} (#{{recordID}}) to {{service}}
+RETURNED {{truncatedTitle}} (#{{recordID}}) to {{service}}

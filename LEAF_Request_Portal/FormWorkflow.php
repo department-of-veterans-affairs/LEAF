@@ -956,13 +956,24 @@ class FormWorkflow
                     											WHERE recordID=:recordID', $vars);
 
                     $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
-                    $email->setSubject('Action for ' . $title . ' (#' . $this->recordID . ') in ' . $approvers[0]['service']);
+                    // $email->setSubject('Action for ' . $title . ' (#' . $this->recordID . ') in ' . $approvers[0]['service']);
+                    
+                    // $emailBody = "Request ID#: {$this->recordID}\r\nRequest title: {$approvers[0]['title']}\r\nRequest status: {$approvers[0]['lastStatus']}\r\n\r\n";
+                    // $emailBody .= "Comments: $comment\r\n\r\n------------------------\r\n";
+                    // $emailBody .= "View Request: {$this->siteRoot}?a=printview&recordID={$this->recordID}\r\n\r\n";
 
-                    $emailBody = "Request ID#: {$this->recordID}\r\nRequest title: {$approvers[0]['title']}\r\nRequest status: {$approvers[0]['lastStatus']}\r\n\r\n";
-                    $emailBody .= "Comments: $comment\r\n\r\n------------------------\r\n";
-                    $emailBody .= "View Request: {$this->siteRoot}?a=printview&recordID={$this->recordID}\r\n\r\n";
+                    //$email->setBody($emailBody);
 
-                    $email->setBody($emailBody);
+                    $email->addSmartyVariables(array(
+                        "truncatedTitle" => $title,
+                        "fullTitle" => $approvers[0]['title'],
+                        "recordID" => $this->recordID,
+                        "service" => $approvers[0]['service'],
+                        "lastStatus" => $approvers[0]['lastStatus'],
+                        "comment" => $comment,
+                        "siteRoot" => $this->siteRoot
+                    ));
+                    $email->setTemplateByID(-3);//TODO make enum
 
                     require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
