@@ -31,8 +31,15 @@ class Email
 
     private $orgchartInitialized = false;
 
+    private $portal_db;
+
+    private $subjectTemplate;
+
+    private $bodyTemplate;
+
     public function __construct()
     {
+        $this->initPortalDB();
     }
 
     public function clearRecipients()
@@ -170,7 +177,8 @@ class Email
         if (strtoupper(substr(php_uname('s'), 0, 3)) == 'WIN')
         {
             $shell = new COM('WScript.Shell');
-            $shell->Run("php {$currDir}/mailer/mailer.php {$emailQueueName}", 0, false);
+            //$shell->Run("php {$currDir}/mailer/mailer.php {$emailQueueName}", 0, false);
+            $shell->exec("php {$currDir}/mailer/mailer.php {$emailQueueName}");//TODO remove before PR, for dev only
         }
         else
         {
@@ -219,6 +227,26 @@ class Email
         $this->orgchartInitialized = true;
     }
 
+    /**
+     * Initialize portal db object 
+     * @return void
+     */
+    function initPortalDB()
+    {
+        // set up org chart assets
+        if (!class_exists('DB'))
+        {
+            include 'db_mysql.php';
+        }
+        if (!class_exists('DB_Config'))
+        {
+            include 'db_config.php';
+        }
+
+        $db_config = new DB_Config;
+        $this->portal_db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+    }
+
     private function getHeaders()
     {
         $header = 'MIME-Version: 1.0';
@@ -253,5 +281,35 @@ class Email
         }
 
         return $header;
+    }
+
+    /**
+     * Gets template filenames from the db based on emailTemplateID and sets the properties
+     * @param int $emailTemplateID
+     * @return void
+     */
+    function setTemplateByID($emailTemplateID)
+    {
+        $res = $this->portal_db->prepared_query("   SELECT `subject`, `body` 
+                                                    FROM `email_templates` 
+                                                    WHERE emailTemplateID = :emailTemplateID;", 
+                                                array(':emailTemplateID' => $emailTemplateID));
+        $this->setSubjectTemplate($res[0]['subject']);
+        $this->setBodyTemplate($res[0]['body']);
+    }
+
+    /**
+     * Gets template filenames from the db based on label and sets the properties
+     * @param string $emailTemplateLabel
+     * @return void
+     */
+    function setTemplateByLabel($emailTemplateLabel)
+    {
+        $res = $this->portal_db->prepared_query("   SELECT `subject`, `body` 
+                                                    FROM `email_templates` 
+                                                    WHERE label = :emailTemplateLabel;", 
+                                                array(':emailTemplateLabel' => $emailTemplateLabel));
+        $this->setSubjectTemplate($res[0]['subject']);
+        $this->setBodyTemplate($res[0]['body']);
     }
 }
