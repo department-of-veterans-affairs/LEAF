@@ -336,9 +336,9 @@ class Email
         $smartySubject = new Smarty;
         $smartySubject->template_dir = __DIR__ . '/templates/email/';
         $smartySubject->compile_dir = __DIR__ . '/templates_c/';
-        $smartySubject->left_delimiter = '<!--{';
-        $smartySubject->right_delimiter = '}-->';
-        $smartySubject->assign($smartyVariables);
+        $smartySubject->left_delimiter = '{{';
+        $smartySubject->right_delimiter = '}}';
+        $smartySubject->assign($this->smartyVariables);
         $htmlOutput = $smartySubject->fetch($this->getFilepath($subjectTemplate));
         $this->setSubject($htmlOutput);
     }
@@ -355,8 +355,7 @@ class Email
         $smartyBody->compile_dir = __DIR__ . '/templates_c/';
         $smartyBody->left_delimiter = '{{';
         $smartyBody->right_delimiter = '}}';
-        $smartyBody->assign($smartyVariables);
-
+        $smartyBody->assign($this->smartyVariables);
         $htmlOutput = $smartyBody->fetch($this->getFilepath($bodyTemplate));
         $this->setBody($htmlOutput);
     }
