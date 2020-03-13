@@ -973,7 +973,7 @@ class FormWorkflow
                         "comment" => $comment,
                         "siteRoot" => $this->siteRoot
                     ));
-                    $email->setTemplateByID(-3);//TODO make enum
+                    $email->setTemplateByID(\Email::NOTIFY_COMPLETE);//TODO make enum
 
                     require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;

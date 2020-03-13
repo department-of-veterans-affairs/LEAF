@@ -40,6 +40,10 @@ class Email
 
     public $smartyVariables = array();
 
+    const SEND_BACK = -1;
+    const NOTIFY_NEXT = -2;
+    const NOTIFY_COMPLETE = -3;
+
     public function __construct()
     {
         $this->initPortalDB();
