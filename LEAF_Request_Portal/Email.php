@@ -78,7 +78,14 @@ class Email
     public function setBody($i)
     {
         $i = str_replace("\r\n", '<br />', $i);
-        $this->emailBody = '<html><body style="font-family: verdana; font-size: 12px">' . $i . '<br /><br />--- THIS IS AN AUTOMATED MESSAGE ---</body></html>';
+        $smarty = new Smarty;
+        $smarty->template_dir = __DIR__ . '/templates/email/';
+        $smarty->compile_dir = __DIR__ . '/templates_c/';
+        $smarty->left_delimiter = '{{';
+        $smarty->right_delimiter = '}}';
+        $smarty->assign('emailBody', $i);
+        $htmlOutput = $smarty->fetch('main_email_template.tpl');
+        $this->emailBody = $htmlOutput;
     }
 
     public function addRecipient($i)
