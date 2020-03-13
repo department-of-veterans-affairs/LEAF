@@ -201,8 +201,7 @@ class Email
         if (strtoupper(substr(php_uname('s'), 0, 3)) == 'WIN')
         {
             $shell = new COM('WScript.Shell');
-            //$shell->Run("php {$currDir}/mailer/mailer.php {$emailQueueName}", 0, false);
-            $shell->exec("php {$currDir}/mailer/mailer.php {$emailQueueName}");//TODO remove before PR, for dev only
+            $shell->Run("php {$currDir}/mailer/mailer.php {$emailQueueName}", 0, false);
         }
         else
         {
