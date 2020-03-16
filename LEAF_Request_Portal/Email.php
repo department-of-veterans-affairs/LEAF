@@ -10,6 +10,11 @@
 */
 include __DIR__ . '/../libs/smarty/Smarty.class.php';
 
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
+
 class Email
 {
     public $emailSender = '';
@@ -313,12 +318,12 @@ class Email
      */
     function setTemplateByID($emailTemplateID)
     {
-        $res = $this->portal_db->prepared_query("   SELECT `subject`, `body` 
-                                                    FROM `email_templates` 
-                                                    WHERE emailTemplateID = :emailTemplateID;", 
+        $res = $this->portal_db->prepared_query("SELECT `subject`, `body` 
+                                                 FROM `email_templates` 
+                                                 WHERE emailTemplateID = :emailTemplateID;", 
                                                 array(':emailTemplateID' => $emailTemplateID));
-        $this->setSubjectWithTemplate($res[0]['subject']);
-        $this->setBodyWithTemplate($res[0]['body']);
+        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
     }
 
     /**
@@ -328,12 +333,12 @@ class Email
      */
     function setTemplateByLabel($emailTemplateLabel)
     {
-        $res = $this->portal_db->prepared_query("   SELECT `subject`, `body` 
-                                                    FROM `email_templates` 
-                                                    WHERE label = :emailTemplateLabel;", 
+        $res = $this->portal_db->prepared_query("SELECT `subject`, `body` 
+                                                 FROM `email_templates` 
+                                                 WHERE label = :emailTemplateLabel;", 
                                                 array(':emailTemplateLabel' => $emailTemplateLabel));
-        $this->setSubjectWithTemplate($res[0]['subject']);
-        $this->setBodyWithTemplate($res[0]['body']);
+        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
     }
 
     /**
