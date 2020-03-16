@@ -14,10 +14,13 @@ if(isset($_GET['encode'])) {
 
     // TODO: Replace this with centrally managed server config variable
     $HTTP_HOST = '';
-    @include '../../orgchart/globals.php';
-    if(!defined('HTTP_HOST')) {
-        @include '../../LEAF_Nexus/globals.php';
+    if(file_exists('../../orgchart/globals.php')) {
+        include '../../orgchart/globals.php';
     }
+    else if(file_exists('../../LEAF_Nexus/globals.php')) {
+        include '../../LEAF_Nexus/globals.php';
+    }
+
     if(defined('HTTP_HOST')) {
         $HTTP_HOST = XSSHelpers::xssafe(HTTP_HOST);
     }
