@@ -18,9 +18,6 @@ if(isset($_GET['encode'])) {
     if(!defined('HTTP_HOST')) {
         @include '../../LEAF_Nexus/globals.php';
     }
-    if(!defined('HTTP_HOST')) {
-        @include '../../LEAF_Nexus/globals.php';
-    }
     if(defined('HTTP_HOST')) {
         $HTTP_HOST = XSSHelpers::xssafe(HTTP_HOST);
     }
