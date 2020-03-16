@@ -5,7 +5,7 @@
 Service: <!--{$service|sanitize}--><br />
 Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID|strip_tags|escape}-->"><!--{$title|sanitize}--></a><br /><br />
 
-<div style="float: left; padding: 2px">
+<div style="padding: 2px">
 <table class="agenda" id="maintable">
 <thead>
 <tr>
