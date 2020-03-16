@@ -39,10 +39,6 @@ class Email
 
     private $portal_db;
 
-    private $subjectTemplate;
-
-    private $bodyTemplate;
-
     public $smartyVariables = array();
 
     const SEND_BACK = -1;
@@ -56,7 +52,7 @@ class Email
 
     /**
      * Checks for custom templates and returns the filepath if so. Otherwise returns the regular filepath.
-     * @param string tpl the filename of the template
+     * @param string $tpl the filename of the template
      * @return string The filepath of the template passed
      */
     function getFilepath($tpl)
@@ -313,7 +309,7 @@ class Email
 
     /**
      * Gets template filenames from the db based on emailTemplateID and sets the properties
-     * @param int $emailTemplateID
+     * @param int $emailTemplateID emailTemplateID from email_templates table
      * @return void
      */
     function setTemplateByID($emailTemplateID)
@@ -328,7 +324,7 @@ class Email
 
     /**
      * Gets template filenames from the db based on label and sets the properties
-     * @param string $emailTemplateLabel
+     * @param string $emailTemplateLabel label from email_templates table
      * @return void
      */
     function setTemplateByLabel($emailTemplateLabel)
@@ -343,7 +339,7 @@ class Email
 
     /**
      * Sets the subject based on the given smarty template
-     * @param string subjectTemplate the filename of the template for the subject
+     * @param string $subjectTemplate the filename of the template for the subject
      * @return void
      */
     function setSubjectWithTemplate($subjectTemplate)
@@ -360,7 +356,7 @@ class Email
 
     /**
      * Sets the body based on the given smarty template
-     * @param string bodyTemplate the filename of the template for the body
+     * @param string $bodyTemplate the filename of the template for the body
      * @return void
      */
     function setBodyWithTemplate($bodyTemplate)
@@ -378,12 +374,12 @@ class Email
     /**
      * Performs array_merge on the current smartyVariables, adding the passed in variables.
      * If there are any repeated keys, the new values will override the old
-     * @param array associative array where the keys are the variable names and the values are the variable values
+     * @param array $newVariables associative array where the keys are the variable names and the values are the variable values
      * @return void
      */
     function addSmartyVariables($newVariables)
     {
-        $this->smartyVariables = array_merge($this->smartyVariables,$newVariables);
+        $this->smartyVariables = array_merge($this->smartyVariables, $newVariables);
     }
 
 }
