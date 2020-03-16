@@ -12,27 +12,17 @@ if(isset($_GET['encode'])) {
         $encode = $input;
     }
 
-    // TODO: Replace this with server config variable
+    // TODO: Replace this with centrally managed server config variable
     $HTTP_HOST = '';
-    $matches = array();
-    switch($_SERVER['HTTP_HOST']) {
-        case 'leaf.va.gov':
-            $HTTP_HOST = 'leaf.va.gov';
-            break;
-        case 'leaf-preprod.va.gov':
-            $HTTP_HOST = 'leaf-preprod.va.gov';
-            break;
-        case 'leaf-dev.va.gov':
-            $HTTP_HOST = 'leaf-dev.va.gov';
-            break;
-        case (preg_match('/localhost:(\d+)/', $_SERVER['HTTP_HOST'], $matches) ? true : false):
-            $HTTP_HOST = 'localhost';
-            if(isset($matches[1]) && is_numeric($matches[1])) {
-                $HTTP_HOST .= ':' . $matches[1];
-            }
-            break;
-        default:
-            break;
+    @include '../../orgchart/globals.php';
+    if(!defined('HTTP_HOST')) {
+        @include '../../LEAF_Nexus/globals.php';
+    }
+    if(!defined('HTTP_HOST')) {
+        @include '../../LEAF_Nexus/globals.php';
+    }
+    if(defined('HTTP_HOST')) {
+        $HTTP_HOST = XSSHelpers::xssafe(HTTP_HOST);
     }
 
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
