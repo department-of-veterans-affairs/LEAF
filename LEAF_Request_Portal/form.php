@@ -311,12 +311,17 @@ class Form
     }
 
     // Expects POST input: $_POST['service'], title, priority, num(categoryID)
-    public function newForm($userID, $new_empUUID)
+    public function newForm($userID)
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
             return 'Error: Invalid token.';
         }
+
+        $vars = array(':userName' => $userID);
+        $UUIDres = $this->db->prepared_query("SELECT new_empUUID FROM {$this->oc_dbName}.employee WHERE userName = :userName;", $vars);
+        $new_empUUID = count($UUIDres) > 0 ? $UUIDres[0]['new_empUUID'] : 'not_in_national_' . $userID;
+
         $title = $this->sanitizeInput($_POST['title']);
         $_POST['title'] = $title == '' ? '[blank]' : $title;
         $_POST['service'] = !isset($_POST['service']) || $_POST['service'] == '' ? 0 : (int)$_POST['service'];
@@ -2331,7 +2336,7 @@ class Form
         }
     }
 
-    public function setInitiator($recordID, $userID, $new_empUUID)
+    public function setInitiator($recordID, $userID)
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
@@ -2340,6 +2345,10 @@ class Form
 
         if ($this->login->checkGroup(1))
         {
+            $vars = array(':userName' => $userID);
+            $UUIDres = $this->db->prepared_query("SELECT new_empUUID FROM {$this->oc_dbName}.employee WHERE userName = :userName;", $vars);
+            $new_empUUID = count($UUIDres) > 0 ? $UUIDres[0]['new_empUUID'] : 'not_in_national_' . $userID;
+
             $vars = array(':recordID' => (int)$recordID,
                           ':userID' => $userID, 
                           ':new_empUUID' => $new_empUUID);
@@ -2363,7 +2372,7 @@ class Form
                 ':actionTypeID' => 8,
                 ':time' => time(),
                 ':comment' => $comment, 
-                ':new_empUUID' => $this->login->getEmpUUID() );
+                ':new_empUUID' => $new_empUUID );
             $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, new_empUUID)
                                             VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :new_empUUID)', $vars2);
 
