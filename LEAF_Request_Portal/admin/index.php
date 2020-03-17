@@ -229,8 +229,7 @@ switch ($action) {
     case 'mod_templates':
     case 'mod_templates_reports':
             if(!hasDevConsoleAccess($login, $db_phonebook)) {
-//                header('Location: ../report.php?a=LEAF_start_leaf_dev_console_request');
-                $main->assign('status', 'Additional approval will be required for access to this area by March 1, 2020.<br /><br /><div style="text-align: center">Please <a href="../report.php?a=LEAF_start_leaf_dev_console_request">enter a request to maintain access</a>.</div>');
+               header('Location: ../report.php?a=LEAF_start_leaf_dev_console_request');
             }
 
             $t_form = new Smarty;
@@ -358,6 +357,7 @@ switch ($action) {
         }
         $commonConfig = new CommonConfig();
         $t_form->assign('fileExtensions', $commonConfig->fileManagerWhitelist);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         if ($login->checkGroup(1))
         {
             $main->assign('body', $t_form->fetch('admin_upload_file.tpl'));

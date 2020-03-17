@@ -625,6 +625,10 @@ class System
 
     public function newFile()
     {
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        {
+            return 'Invalid Token.';
+        }
         $in = $_FILES['file']['name'];
         $fileName = XSSHelpers::scrubFilename($in);
         $fileName = XSSHelpers::xscrub($fileName);
