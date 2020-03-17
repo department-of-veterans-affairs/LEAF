@@ -1,6 +1,6 @@
 <div style="width: 70%; margin: auto">
     <form id="record" enctype="multipart/form-data" action="ajaxIndex.php?a=uploadFile" method="post">
-        <input name="CSRFToken" type="hidden" value="{$CSRFToken}" />
+        <input name="CSRFToken" type="hidden" value="<!--{$CSRFToken}-->" />
         <div id="file_control">Select file to upload: <input id="file" name="file" type="file" /></div>
         <div id="file_status" style="visibility: hidden; display: none; background-color: #fffcae; padding: 4px"><img src="../images/indicator.gif" alt="loading..." /> Uploading file...</div>
         <br /><br />Supported file types: <!--{foreach from=$fileExtensions item=extension}--><!--{$extension}--> <!--{/foreach}-->
