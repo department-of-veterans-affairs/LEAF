@@ -388,10 +388,31 @@ abstract class RESTfulResponse
     }
 
     /**
+     * flattenStructureOrgchart performs an in-place restructure of orgchart data
+     * within $out to fit 2D data structures
+     * @param array &$out Target data structure
+     * @param int $index Current index
+     * @param array $keys Array keys within data.s1 object
+     */
+    private function flattenStructureOrgchart(&$out, $index, $keys)
+    {
+        // flatten out orgchart_employee fields
+        // delete orgchart_position extended content
+        foreach($keys as $id) {
+            if(strpos($id, '_orgchart') !== false) {
+                if(!isset($out[$index][$id]['positionID'])) {
+                    $out[$index][$id . '_email'] = $out[$index][$id]['email'];
+                    $out[$index][$id . '_userName'] = $out[$index][$id]['userName'];
+                }
+                unset($out[$index][$id]);
+            }
+        }
+    }
+
+    /**
      * flattenStructure performs an in-place restructure of $out to fit 2D data structures
-     * Returns array of column headers
-     * @param array
-     * @return array
+     * @param array &$out Target data structure
+     * @return array Column headers
      */
     private function flattenStructure(&$out)
     {
@@ -400,7 +421,6 @@ abstract class RESTfulResponse
 
         // flatten out s1 value, which is map of data fields -> values
         $hasActionHistory = false;
-        $keys = [];
         foreach ($out as $key => $item)
         {
             if (isset($item['s1']))
@@ -408,17 +428,7 @@ abstract class RESTfulResponse
                 $out[$key] = array_merge($out[$key], $item['s1']);
                 unset($out[$key]['s1']);
 
-                // flatten out orgchart_employee fields
-                // delete orgchart_position extended content
-                foreach(array_keys($item['s1']) as $id) {
-                    if(strpos($id, '_orgchart') !== false) {
-                        if(!isset($out[$key][$id]['positionID'])) {
-                            $out[$key][$id . '_email'] = $out[$key][$id]['email'];
-                            $out[$key][$id . '_userName'] = $out[$key][$id]['userName'];
-                        }
-                        unset($out[$key][$id]);
-                    }
-                }
+                $this->flattenStructureOrgchart($out, $key, array_keys($item['s1']));
             }
 
             if (isset($item['action_history']))
