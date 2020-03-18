@@ -411,7 +411,7 @@ abstract class RESTfulResponse
 
     /**
      * flattenStructure performs an in-place restructure of $out to fit 2D data structures
-     * @param array &$out Target data structure
+     * @param array $out Target data structure
      * @return array Column headers
      */
     private function flattenStructure(&$out)
