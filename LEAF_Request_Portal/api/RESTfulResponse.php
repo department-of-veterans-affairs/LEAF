@@ -407,6 +407,18 @@ abstract class RESTfulResponse
             {
                 $out[$key] = array_merge($out[$key], $item['s1']);
                 unset($out[$key]['s1']);
+
+                // flatten out orgchart_employee fields
+                // delete orgchart_position extended content
+                foreach(array_keys($item['s1']) as $id) {
+                    if(strpos($id, '_orgchart') !== false) {
+                        if(!isset($out[$key][$id]['positionID'])) {
+                            $out[$key][$id . '_email'] = $out[$key][$id]['email'];
+                            $out[$key][$id . '_userName'] = $out[$key][$id]['userName'];
+                        }
+                        unset($out[$key][$id]);
+                    }
+                }
             }
 
             if (isset($item['action_history']))
