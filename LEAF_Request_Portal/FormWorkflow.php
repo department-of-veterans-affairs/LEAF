@@ -740,6 +740,7 @@ class FormWorkflow
 
     /**
      * Checks if logged in user serves as a backup for given empUID
+     * Also returns true when the logged in user has the same empUID
      * @param string $empUID empUID to check 
      * @return boolean
      */
