@@ -485,7 +485,7 @@ class FormWorkflow
                     $resPerson = $this->db->prepared_query('SELECT userID FROM records
                                                                 WHERE recordID=:recordID', $varsPerson);
 
-                    if (!$resPerson[0]['userID'] == $this->login->getUserID())
+                    if ($resPerson[0]['userID'] != $this->login->getUserID())
                     {
                         $empUID = $this->getEmpUIDByUserName($resPerson[0]['userID']);
                                                                 
