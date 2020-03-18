@@ -762,6 +762,8 @@ class FormWorkflow
 
             return false;
         }
+
+        return true;
     }
 
     /**
