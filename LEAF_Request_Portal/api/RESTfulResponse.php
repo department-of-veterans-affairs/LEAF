@@ -167,15 +167,8 @@ abstract class RESTfulResponse
                             );
                 }
 
-                // flatten out s1 value, which is map of data fields -> values
-                foreach ($out as $key => $item)
-                {
-                    if (isset($item['s1']))
-                    {
-                        $out[$key] = array_merge($out[$key], $item['s1']);
-                        unset($out[$key]['s1']);
-                    }
-                }
+                $columns = $this->flattenStructure($out);
+
                 $items = array_keys($out);
                 $columns = array_keys($out[$items[0]]);
 
@@ -187,43 +180,35 @@ abstract class RESTfulResponse
                     $header .= '"' . $column . '",';
                 }
                 $header = trim($header, ',');
-                echo "{$header}\r\n";
+                $buffer = "{$header}\r\n";
                 foreach ($out as $line)
                 {
                     foreach ($columns as $column)
                     {
                         if (is_array($line[$column]))
                         {
-                            echo '"';
+                            $buffer .= '"';
                             foreach ($line[$column] as $tItem)
                             {
-                                echo $tItem . ' ';
+                                $buffer .= $tItem . ':;';
                             }
-                            echo '",';
+                            $buffer = trim($buffer, ':;');
+                            $buffer .= '",';
                         }
                         else
                         {
                             $temp = strip_tags($line[$column]);
                             $temp = str_replace('"', '""', $temp);
-                            echo '"' . $temp . '",';
+                            $buffer .= '"' . $temp . '",';
                         }
                     }
-                    echo "\r\n";
+                    $buffer .= "\r\n";
                 }
+                echo $buffer;
 
                 break;
             case 'htmltable':
-                // flatten out s1 value, which is map of data fields -> values
-                foreach ($out as $key => $item)
-                {
-                    if (isset($item['s1']))
-                    {
-                        $out[$key] = array_merge($out[$key], $item['s1']);
-                        unset($out[$key]['s1']);
-                    }
-                }
-                $items = array_keys($out);
-                $columns = array_keys($out[$items[0]]);
+                $columns = $this->flattenStructure($out);
 
                 $body = '<table>';
                 $body .= '<thead><tr>';
@@ -238,18 +223,19 @@ abstract class RESTfulResponse
                     $body .= '<tr>';
                     foreach ($columns as $column)
                     {
-                        if (is_array($line[$column]))
+                        if (isset($line[$column]) && is_array($line[$column]))
                         {
                             $body .= '<td>';
                             foreach ($line[$column] as $tItem)
                             {
-                                $body .= $tItem . ' ';
+                                $body .= $tItem . ':;';
                             }
+                            $body = trim($body, ':;');
                             $body .= '</td>';
                         }
                         else
                         {
-                            $temp = strip_tags($line[$column]);
+                            $temp = isset($line[$column]) ? strip_tags($line[$column]) : '';
                             $body .= '<td>' . $temp . '</td>';
                         }
                     }
@@ -399,5 +385,58 @@ abstract class RESTfulResponse
         {
             $xml->addChild('text', $out);
         }
+    }
+
+    /**
+     * flattenStructure performs an in-place restructure of $out to fit 2D data structures
+     * Returns array of column headers
+     * @param array
+     * @return array
+     */
+    private function flattenStructure(&$out)
+    {
+        $columns = ['recordID', 'serviceID', 'date', 'userID', 'title', 'lastStatus', 'submitted',
+            'deleted', 'service', 'abbreviatedService', 'groupID'];
+
+        // flatten out s1 value, which is map of data fields -> values
+        $hasActionHistory = false;
+        $keys = [];
+        foreach ($out as $key => $item)
+        {
+            if (isset($item['s1']))
+            {
+                $out[$key] = array_merge($out[$key], $item['s1']);
+                unset($out[$key]['s1']);
+            }
+
+            if (isset($item['action_history']))
+            {
+                $hasActionHistory = true;
+                foreach ($item['action_history'] as $akey => $aval) {
+                    $newKey = $key . '.' . $akey;
+                    $out[$newKey] = $out[$key];
+                    $out[$newKey]['actionHistory_id'] = $newKey;
+                    $out[$newKey]['actionHistory_userID'] = $aval['userID'];
+                    $out[$newKey]['actionHistory_time'] = $aval['time'];
+                    $out[$newKey]['actionHistory_actionTextPasttense'] = $aval['actionTextPasttense'];
+                    $out[$newKey]['actionHistory_approverName'] = $aval['approverName'];
+                    $out[$newKey]['actionHistory_comment'] = $aval['comment'];
+                }
+                unset($out[$key]['action_history']);
+            }
+
+            foreach(array_keys($out[$key]) as $tkey) {
+                if(!in_array($tkey, $columns)) {
+                    $columns[] = $tkey;
+                }
+            }
+        }
+
+        if($hasActionHistory) {
+            $columns = array_merge($columns, ['actionHistory_id', 'actionHistory_userID', 'actionHistory_time',
+                'actionHistory_actionTextPasttense', 'actionHistory_approverName', 'actionHistory_comment']);
+        }
+
+        return $columns;
     }
 }
