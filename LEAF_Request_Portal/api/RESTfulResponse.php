@@ -390,9 +390,9 @@ abstract class RESTfulResponse
     /**
      * flattenStructureOrgchart performs an in-place restructure of orgchart data
      * within $out to fit 2D data structures
-     * @param array &$out Target data structure
-     * @param int $index Current index
-     * @param array $keys Array keys within data.s1 object
+     * @param array $out    Target data structure
+     * @param int   $index  Current index
+     * @param array $keys   Array keys within data.s1 object
      */
     private function flattenStructureOrgchart(&$out, $index, $keys)
     {
