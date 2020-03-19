@@ -636,7 +636,7 @@ class Workflow
         $res = $this->db->prepared_query('INSERT INTO dependency_privs (dependencyID, groupID)
                                             VALUES (:dependencyID, :groupID)', $vars);
         
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::DEPENDENCY_Privs, [
+        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::DEPENDENCY_PRIVS, [
             new LogItem("dependency_privs", "groupID",  $groupID),
             new LogItem("dependency_privs", "dependencyID",  $dependencyID)
         ]); 
