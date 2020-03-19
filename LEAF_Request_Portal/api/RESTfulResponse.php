@@ -387,6 +387,29 @@ abstract class RESTfulResponse
         }
     }
 
+    private function flattenStructureActionHistory(&$out, $key)
+    {
+        if(!isset($_GET['table']) && $_GET['table'] != 'action_history') {
+            $out[$key]['action_history'] = '&table=action_history';
+            return false;
+        }
+
+        foreach ($out[$key]['action_history'] as $akey => $aval) {
+            $newKey = $key . '.' . $akey;
+            $out[$newKey] = $out[$key];
+            $out[$newKey]['actionHistory_id'] = $newKey;
+            $out[$newKey]['actionHistory_userID'] = $aval['userID'];
+            $out[$newKey]['actionHistory_time'] = $aval['time'];
+            $out[$newKey]['actionHistory_actionTextPasttense'] = $aval['actionTextPasttense'];
+            $out[$newKey]['actionHistory_approverName'] = $aval['approverName'];
+            $out[$newKey]['actionHistory_comment'] = $aval['comment'];
+        }
+        unset($out[$key]);
+
+        return ['recordID', 'actionHistory_id', 'actionHistory_userID', 'actionHistory_time',
+            'actionHistory_actionTextPasttense', 'actionHistory_approverName', 'actionHistory_comment'];
+    }
+
     /**
      * flattenStructureOrgchart performs an in-place restructure of orgchart data
      * within $out to fit 2D data structures
@@ -416,11 +439,13 @@ abstract class RESTfulResponse
      */
     private function flattenStructure(&$out)
     {
+        $table = isset($_GET['table']) ? $_GET['table'] : '';
+
         $columns = ['recordID', 'serviceID', 'date', 'userID', 'title', 'lastStatus', 'submitted',
             'deleted', 'service', 'abbreviatedService', 'groupID'];
 
         // flatten out s1 value, which is map of data fields -> values
-        $hasActionHistory = false;
+        $hasActionCols = false;
         foreach ($out as $key => $item)
         {
             if (isset($item['s1']))
@@ -433,18 +458,11 @@ abstract class RESTfulResponse
 
             if (isset($item['action_history']))
             {
-                $hasActionHistory = true;
-                foreach ($item['action_history'] as $akey => $aval) {
-                    $newKey = $key . '.' . $akey;
-                    $out[$newKey] = $out[$key];
-                    $out[$newKey]['actionHistory_id'] = $newKey;
-                    $out[$newKey]['actionHistory_userID'] = $aval['userID'];
-                    $out[$newKey]['actionHistory_time'] = $aval['time'];
-                    $out[$newKey]['actionHistory_actionTextPasttense'] = $aval['actionTextPasttense'];
-                    $out[$newKey]['actionHistory_approverName'] = $aval['approverName'];
-                    $out[$newKey]['actionHistory_comment'] = $aval['comment'];
+                $actionCols = $this->flattenStructureActionHistory($out, $key);
+                if($actionCols !== false) {
+                    $hasActionCols = true;
+                    $columns = $actionCols;
                 }
-                unset($out[$key]['action_history']);
             }
 
             foreach(array_keys($out[$key]) as $tkey) {
@@ -452,11 +470,6 @@ abstract class RESTfulResponse
                     $columns[] = $tkey;
                 }
             }
-        }
-
-        if($hasActionHistory) {
-            $columns = array_merge($columns, ['actionHistory_id', 'actionHistory_userID', 'actionHistory_time',
-                'actionHistory_actionTextPasttense', 'actionHistory_approverName', 'actionHistory_comment']);
         }
 
         return $columns;
