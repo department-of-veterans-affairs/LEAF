@@ -240,7 +240,8 @@ class Workflow
         }
 
         // Don't allow changes to standardized components
-        if($stepID < 0) {
+        // Exclude stepID -1 since it's the requestor
+        if($stepID < -1) {
             return 'Restricted command.';
         }
 
@@ -288,7 +289,8 @@ class Workflow
         }
 
         // Don't allow changes to standardized components
-        if($stepID < 0) {
+        // Exclude stepID -1 since it's the requestor
+        if($stepID < -1) {
             return 'Restricted command.';
         }
 
@@ -337,7 +339,8 @@ class Workflow
         }
 
         // Don't allow changes to standardized components
-        if($stepID < 0) {
+        // Exclude stepID -1 since it's the requestor
+        if($stepID < -1) {
             return 'Restricted command.';
         }
 
