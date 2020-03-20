@@ -805,8 +805,17 @@ class FormWorkflow
             $groupName = $this->db->prepared_query('SELECT * FROM workflow_steps WHERE stepID=:stepID', $vars);
 
             $title = strlen($record[0]['title']) > 45 ? substr($record[0]['title'], 0, 42) . '...' : $record[0]['title'];
-            $email->setSubject('RETURNED ' . $title . ' (#' . $this->recordID . ') to ' . $record[0]['service']);
-            $email->setBody("Request ID#: {$this->recordID}\r\n\r\nRequest status: Sent Back by {$groupName[0]['stepTitle']}\r\n\r\nComments: $comment\r\n\r\n------------------------\r\n{$this->siteRoot}?a=printview&recordID={$this->recordID}\r\n\r\n{$record[0]['title']}\r\n\r\n");
+
+            $email->addSmartyVariables(array(
+                "truncatedTitle" => $title,
+                "fullTitle" => $record[0]['title'],
+                "recordID" => $this->recordID,
+                "service" => $record[0]['service'],
+                "stepTitle" => $groupName[0]['stepTitle'],
+                "comment" => $comment,
+                "siteRoot" => $this->siteRoot
+            ));
+            $email->setTemplateByID(\Email::SEND_BACK);
 
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
@@ -851,14 +860,17 @@ class FormWorkflow
                     if (count($approvers) > 0)
                     {
                         $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
-                        $email->setSubject('Action for ' . $title . '(#' . $this->recordID . ') in ' . $approvers[0]['service']);
 
-                        $emailBody = "The following request requires your review.\r\n\r\nPlease review your inbox at: {$this->siteRoot}?a=inbox\r\n\r\n";
-                        $emailBody .= "Request ID#: {$this->recordID}\r\nRequest title: {$approvers[0]['title']}\r\nRequest status: {$approvers[0]['lastStatus']}\r\n\r\n";
-                        $emailBody .= "Comments: $comment\r\n\r\n------------------------\r\n";
-                        $emailBody .= "View Request: {$this->siteRoot}?a=printview&recordID={$this->recordID}\r\n\r\n";
-
-                        $email->setBody($emailBody);
+                        $email->addSmartyVariables(array(
+                            "truncatedTitle" => $title,
+                            "fullTitle" => $approvers[0]['title'],
+                            "recordID" => $this->recordID,
+                            "service" => $approvers[0]['service'],
+                            "lastStatus" => $approvers[0]['lastStatus'],
+                            "comment" => $comment,
+                            "siteRoot" => $this->siteRoot
+                        ));
+                        $email->setTemplateByID(\Email::NOTIFY_NEXT);
 
                         require_once 'VAMC_Directory.php';
                         $dir = new VAMC_Directory;
@@ -990,13 +1002,17 @@ class FormWorkflow
                     											WHERE recordID=:recordID', $vars);
 
                     $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
-                    $email->setSubject('Action for ' . $title . ' (#' . $this->recordID . ') in ' . $approvers[0]['service']);
 
-                    $emailBody = "Request ID#: {$this->recordID}\r\nRequest title: {$approvers[0]['title']}\r\nRequest status: {$approvers[0]['lastStatus']}\r\n\r\n";
-                    $emailBody .= "Comments: $comment\r\n\r\n------------------------\r\n";
-                    $emailBody .= "View Request: {$this->siteRoot}?a=printview&recordID={$this->recordID}\r\n\r\n";
-
-                    $email->setBody($emailBody);
+                    $email->addSmartyVariables(array(
+                        "truncatedTitle" => $title,
+                        "fullTitle" => $approvers[0]['title'],
+                        "recordID" => $this->recordID,
+                        "service" => $approvers[0]['service'],
+                        "lastStatus" => $approvers[0]['lastStatus'],
+                        "comment" => $comment,
+                        "siteRoot" => $this->siteRoot
+                    ));
+                    $email->setTemplateByID(\Email::NOTIFY_COMPLETE);
 
                     require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;

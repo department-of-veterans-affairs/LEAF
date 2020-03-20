@@ -42,8 +42,6 @@ class CustomEvent_[YOUR EVENT ID]
         											LEFT JOIN services USING (serviceID)
         											WHERE recordID=:recordID', $vars);
 
-        $this->email->setSubject('Action for #' . $this->eventInfo['recordID'] . ' in ' . $record[0]['service']);
-
         include_once '../form.php'; // events are invoked from ./api/, so the context is ./api
         $form = new Form($this->db, $this->login);
         
@@ -51,10 +49,15 @@ class CustomEvent_[YOUR EVENT ID]
         $data_numFTE = $form->getIndicator(230, 1, $this->eventInfo['recordID']);
         $value = $data_numFTE[230]['value'];
 
-        $emailBody = "Request ID#: {$this->eventInfo['recordID']}\r\nRequest title: {$record[0]['title']}\r\nRequest status: {$record[0]['lastStatus']}\r\n\r\n";
-        $emailBody .= "View Request: {$this->siteRoot}?a=printview&recordID={$this->eventInfo['recordID']}\r\n\r\n";
-
-        $this->email->setBody($emailBody);
+        //you can pass whatever you like to the template here
+        $this->email->addSmartyVariables(array(
+            "truncatedTitle" => $record[0]['title'],
+            "fullTitle" => $record[0]['title'],
+            "recordID" => $this->eventInfo['recordID'],
+            "service" => $record[0]['service'],
+            "siteRoot" => $this->siteRoot
+        ));
+        $this->email->setTemplateByLabel("Custom Template Label");//this string would match to the label in the email table
 
         // CC service chief
         $vars = array(':serviceID' => $record[0]['serviceID']);

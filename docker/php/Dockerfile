@@ -18,6 +18,15 @@ RUN composer global require robmorgan/phinx ^0.9.2
 EXPOSE 80
 EXPOSE 443
 
+# Mail()
+RUN apt-get install -y ssmtp && \
+  apt-get clean && \
+  echo "FromLineOverride=YES" >> /etc/ssmtp/ssmtp.conf && \
+  echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail.ini
+# mv php.ini and replace log dir
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
+COPY /docker/php/ssmtp/ssmtp.conf /etc/ssmtp/
 COPY /docker/php/000-default.conf /etc/apache2/sites-enabled/
 COPY /docker/php/default-ssl.conf /etc/apache2/sites-enabled/
 COPY /docker/php/apache2.conf /etc/apache2/
