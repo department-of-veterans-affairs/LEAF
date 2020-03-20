@@ -478,6 +478,24 @@ abstract class RESTfulResponse
     }
 
     /**
+     * flattenStructureCheckGrid is a wrapper for flattenStructureGridInput
+     * @param array $out     Target data structure
+     * @param array $key     Current index
+     * @param array $hasGrid Signal for flattenStructure
+     * @param array $columns Output columns
+     */
+    private function flattenStructureCheckGrid(&$out, $key, &$hasGrid, &$columns)
+    {
+        foreach(array_keys($out[$key]['s1']) as $tkey) {
+            $gridCols = $this->flattenStructureGridInput($out, $key, $tkey);
+            if($gridCols !== false) {
+                $hasGrid = true;
+                $columns = $gridCols;
+            }
+        }
+    }
+
+    /**
      * flattenStructure performs an in-place restructure of $out to fit 2D data structures
      * @param array $out Target data structure
      * @return array Column headers
@@ -497,15 +515,7 @@ abstract class RESTfulResponse
                 $out[$key] = array_merge($out[$key], $item['s1']);
 
                 $this->flattenStructureOrgchart($out, $key);
-
-                // flatten grid data
-                foreach(array_keys($item['s1']) as $tkey) {
-                    $gridCols = $this->flattenStructureGridInput($out, $key, $tkey);
-                    if($gridCols !== false) {
-                        $hasGrid = true;
-                        $columns = $gridCols;
-                    }
-                }
+                $this->flattenStructureCheckGrid($out, $key, $hasGrid, $columns);
 
                 unset($out[$key]['s1']);
             }
