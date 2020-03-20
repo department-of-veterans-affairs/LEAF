@@ -405,15 +405,8 @@ abstract class RESTfulResponse
         }
 
         $columns = ['recordID', $gridKey . '_id'];
-        $gridIndex = [];
-        foreach($out[$key][$gridKey]['columns'] as $tKey => $tVal) {
-            $gridIndex[$tVal] = $tKey;
-        }
-
-        $gridFormatIndex = [];
         foreach($out[$key][$gridKey]['format'] as $gridFormat) {
             $columns[] = $gridFormat['name'];
-            $gridFormatIndex[$gridIndex[$gridFormat['id']]] = $gridFormat['name'];
         }
 
         foreach($out[$key][$gridKey]['cells'] as $cKey => $row) {
@@ -421,7 +414,8 @@ abstract class RESTfulResponse
             $out[$newKey] = $out[$key];
             $out[$newKey][$gridKey . '_id'] = $newKey;
             foreach($row as $rKey => $item) {
-                $out[$newKey][$gridFormatIndex[$rKey]] = $item;
+                $label = $out[$key][$gridKey]['format'][$rKey]['name'];
+                $out[$newKey][$label] = $item;
             }
         }
         unset($out[$key]);
