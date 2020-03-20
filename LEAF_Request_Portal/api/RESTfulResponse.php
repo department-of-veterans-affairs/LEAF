@@ -190,9 +190,9 @@ abstract class RESTfulResponse
                             $buffer .= '"';
                             foreach ($line[$column] as $tItem)
                             {
-                                $buffer .= $tItem . ':;';
+                                $buffer .= $tItem . "\r\n";
                             }
-                            $buffer = trim($buffer, ':;');
+                            $buffer = trim($buffer);
                             $buffer .= '",';
                         }
                         else
@@ -228,9 +228,8 @@ abstract class RESTfulResponse
                             $body .= '<td>';
                             foreach ($line[$column] as $tItem)
                             {
-                                $body .= $tItem . ':;';
+                                $body .= $tItem . '<br />';
                             }
-                            $body = trim($body, ':;');
                             $body .= '</td>';
                         }
                         else
@@ -387,23 +386,77 @@ abstract class RESTfulResponse
         }
     }
 
-    private function flattenStructureActionHistory(&$out, $key)
+    /**
+     * flattenStructureGridInput performs an in-place restructure of gridInput data
+     * within $out to fit 2D data structures
+     * @param array  $out     Target data structure
+     * @param int    $key     Current index
+     * @param string $gridKey gridInput key
+     */
+    private function flattenStructureGridInput(&$out, $key, $gridKey)
     {
-        if(!isset($_GET['table']) && $_GET['table'] != 'action_history') {
-            $out[$key]['action_history'] = '&table=action_history';
+        $isGrid = strpos($gridKey, '_gridInput') !== false ? true : false;
+        $table = isset($_GET['table']) ? $_GET['table'] : '';
+        if($table == '' || $table != $gridKey) {
+            if($isGrid) {
+                $out[$key][$gridKey] = "Append &table={$gridKey} to URL";
+            }
             return false;
         }
 
-        foreach ($out[$key]['action_history'] as $akey => $aval) {
-            $newKey = $key . '.' . $akey;
-            $out[$newKey] = $out[$key];
-            $out[$newKey]['actionHistory_id'] = $newKey;
-            $out[$newKey]['actionHistory_userID'] = $aval['userID'];
-            $out[$newKey]['actionHistory_time'] = $aval['time'];
-            $out[$newKey]['actionHistory_actionTextPasttense'] = $aval['actionTextPasttense'];
-            $out[$newKey]['actionHistory_approverName'] = $aval['approverName'];
-            $out[$newKey]['actionHistory_comment'] = $aval['comment'];
+        $columns = ['recordID', $gridKey . '_id'];
+        $gridIndex = [];
+        foreach($out[$key][$gridKey]['columns'] as $tKey => $tVal) {
+            $gridIndex[$tVal] = $tKey;
         }
+
+        $gridFormatIndex = [];
+        foreach($out[$key][$gridKey]['format'] as $gridFormat) {
+            $columns[] = $gridFormat['name'];
+            $gridFormatIndex[$gridIndex[$gridFormat['id']]] = $gridFormat['name'];
+        }
+
+        foreach($out[$key][$gridKey]['cells'] as $cKey => $row) {
+            $newKey = $key . '.' . $cKey;
+            $out[$newKey] = $out[$key];
+            $out[$newKey][$gridKey . '_id'] = $newKey;
+            foreach($row as $rKey => $item) {
+                $out[$newKey][$gridFormatIndex[$rKey]] = $item;
+            }
+        }
+        unset($out[$key]);
+
+        return $columns;
+    }
+
+    /**
+     * flattenStructureActionHistory performs an in-place restructure of action_history data
+     * within $out to fit 2D data structures
+     * @param array $out   Target data structure
+     * @param int   $index Current index
+     * @param array $keys  Array keys within data.s1 object
+     */
+    private function flattenStructureActionHistory(&$out, $key)
+    {
+        $table = isset($_GET['table']) ? $_GET['table'] : '';
+        if($table == '' || $table != 'action_history') {
+            $out[$key]['action_history'] = 'Append &table=action_history to URL';
+            return false;
+        }
+
+        if(isset($out[$key]['action_history'])) {
+            foreach ($out[$key]['action_history'] as $akey => $aval) {
+                $newKey = $key . '.' . $akey;
+                $out[$newKey] = $out[$key];
+                $out[$newKey]['actionHistory_id'] = $newKey;
+                $out[$newKey]['actionHistory_userID'] = $aval['userID'];
+                $out[$newKey]['actionHistory_time'] = $aval['time'];
+                $out[$newKey]['actionHistory_actionTextPasttense'] = $aval['actionTextPasttense'];
+                $out[$newKey]['actionHistory_approverName'] = $aval['approverName'];
+                $out[$newKey]['actionHistory_comment'] = $aval['comment'];
+            }
+        }
+
         unset($out[$key]);
 
         return ['recordID', 'actionHistory_id', 'actionHistory_userID', 'actionHistory_time',
@@ -415,13 +468,12 @@ abstract class RESTfulResponse
      * within $out to fit 2D data structures
      * @param array $out   Target data structure
      * @param int   $index Current index
-     * @param array $keys  Array keys within data.s1 object
      */
-    private function flattenStructureOrgchart(&$out, $index, $keys)
+    private function flattenStructureOrgchart(&$out, $index)
     {
         // flatten out orgchart_employee fields
         // delete orgchart_position extended content
-        foreach($keys as $id) {
+        foreach(array_keys($out[$index]) as $id) {
             if(strpos($id, '_orgchart') !== false) {
                 if(!isset($out[$index][$id]['positionID'])) {
                     $out[$index][$id . '_email'] = $out[$index][$id]['email'];
@@ -444,30 +496,41 @@ abstract class RESTfulResponse
         $columns = ['recordID', 'serviceID', 'date', 'userID', 'title', 'lastStatus', 'submitted',
             'deleted', 'service', 'abbreviatedService', 'groupID'];
 
-        // flatten out s1 value, which is map of data fields -> values
-        $hasActionCols = false;
+        $hasGrid = false;
+        $hasActionHistory = false;
         foreach ($out as $key => $item)
         {
+            // flatten out s1 and orgchart structures
             if (isset($item['s1']))
             {
                 $out[$key] = array_merge($out[$key], $item['s1']);
-                unset($out[$key]['s1']);
 
-                $this->flattenStructureOrgchart($out, $key, array_keys($item['s1']));
-            }
+                $this->flattenStructureOrgchart($out, $key);
 
-            if (isset($item['action_history']))
-            {
-                $actionCols = $this->flattenStructureActionHistory($out, $key);
-                if($actionCols !== false) {
-                    $hasActionCols = true;
-                    $columns = $actionCols;
+                // flatten grid data
+                foreach(array_keys($item['s1']) as $tkey) {
+                    $gridCols = $this->flattenStructureGridInput($out, $key, $tkey);
+                    if($gridCols !== false) {
+                        $hasGrid = true;
+                        $columns = $gridCols;
+                    }
                 }
+
+                unset($out[$key]['s1']);
             }
 
-            foreach(array_keys($out[$key]) as $tkey) {
-                if(!in_array($tkey, $columns)) {
-                    $columns[] = $tkey;
+            // flatten action_history data
+            $actionCols = $this->flattenStructureActionHistory($out, $key);
+            if($actionCols !== false) {
+                $hasActionHistory = true;
+                $columns = $actionCols;
+            }
+
+            if(isset($out[$key])) {
+                foreach(array_keys($out[$key]) as $tkey) {
+                    if(!in_array($tkey, $columns) && !$hasGrid && !$hasActionHistory) {
+                        $columns[] = $tkey;
+                    }
                 }
             }
         }
