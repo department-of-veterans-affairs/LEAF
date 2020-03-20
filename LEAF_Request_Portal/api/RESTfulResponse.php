@@ -432,9 +432,8 @@ abstract class RESTfulResponse
     /**
      * flattenStructureActionHistory performs an in-place restructure of action_history data
      * within $out to fit 2D data structures
-     * @param array $out   Target data structure
-     * @param int   $index Current index
-     * @param array $keys  Array keys within data.s1 object
+     * @param array $out Target data structure
+     * @param int   $key Current index
      */
     private function flattenStructureActionHistory(&$out, $key)
     {
@@ -491,8 +490,6 @@ abstract class RESTfulResponse
      */
     private function flattenStructure(&$out)
     {
-        $table = isset($_GET['table']) ? $_GET['table'] : '';
-
         $columns = ['recordID', 'serviceID', 'date', 'userID', 'title', 'lastStatus', 'submitted',
             'deleted', 'service', 'abbreviatedService', 'groupID'];
 
