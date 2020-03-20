@@ -59,11 +59,11 @@ services:
           - smtp
 
     environment:
-      - "SMTP_PORT=25"
-      - "APP_USER=tester" # ui login
-      - "APP_PASSWORD=tester"
-      - "MYSQL_USER=tester"
-      - "MYSQL_PASSWORD=tester"
+      - "SMTP_PORT=${SMTP_PORT}"
+      - "APP_USER=${APP_USER}" # ui login -- defaults to tester
+      - "APP_PASSWORD=${APP_PASSWORD}"
+      - "MYSQL_USER=${MYSQL_USER}"
+      - "MYSQL_PASSWORD=${MYSQL_PASSWORD}"
 
 
 
