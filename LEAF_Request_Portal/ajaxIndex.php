@@ -122,7 +122,7 @@ switch ($action) {
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
                 $t_form->assign('orgchartPath', Config::$orgchartPath);
-                $t_form->display(customTemplate('print_subindicators_ajax.tpl'));
+                $t_form->display('print_subindicators_ajax.tpl');
             }
         }
 
