@@ -164,17 +164,21 @@ function addHeader(column) {
         case 'approval_history':
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({name: 'Approval History', indicatorID: 'approval_history', editable: false, callback: function(data, blob) {
-                             var buffer = '<table style="min-width: 300px">';
+                             var buffer = '<table class="table" style="min-width: 300px">';
                              var now = new Date();
+                             var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help Excel users
+                             var delimLF = "\r\n";
 
                              for(var i in blob[data.recordID].action_history) {
                                  var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
                                  var formattedDate = date.toLocaleDateString();
-                                 buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
-                                	   + formattedDate + '</td><td>'
-                                	   + blob[data.recordID].action_history[i]['description']
-                                	   + ' ('+ blob[data.recordID].action_history[i]['approverName'] +'): '
-                                	   + blob[data.recordID].action_history[i]['actionTextPasttense'] + '.</td></tr>';
+                                 var actionDescription = blob[data.recordID].action_history[i]['description'] != null ? blob[data.recordID].action_history[i]['description'] : '';
+                                 buffer += '<tr><td>'
+                                       + formattedDate + delim + '</td>'
+                                       + '<td>' + actionDescription + delim  + '</td>'
+                                       + '<td>' + blob[data.recordID].action_history[i]['actionTextPasttense'] + delim + '</td>'
+                                       + '<td>' + blob[data.recordID].action_history[i]['approverName'] + '</td>'
+                                	   + delimLF + '</tr>';
                              }
                              buffer += '</table>';
                              $('#'+data.cellContainerID).html(buffer);
