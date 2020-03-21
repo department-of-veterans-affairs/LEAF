@@ -405,8 +405,12 @@ abstract class RESTfulResponse
         }
 
         $columns = ['recordID', $gridKey . '_id'];
+        $gridIndex = array_flip($out[$key][$gridKey]['columns']);
+
+        $gridFormatIndex = [];
         foreach($out[$key][$gridKey]['format'] as $gridFormat) {
             $columns[] = $gridFormat['name'];
+            $gridFormatIndex[$gridIndex[$gridFormat['id']]] = $gridFormat['name'];
         }
 
         foreach($out[$key][$gridKey]['cells'] as $cKey => $row) {
@@ -414,8 +418,7 @@ abstract class RESTfulResponse
             $out[$newKey] = $out[$key];
             $out[$newKey][$gridKey . '_id'] = $newKey;
             foreach($row as $rKey => $item) {
-                $label = $out[$key][$gridKey]['format'][$rKey]['name'];
-                $out[$newKey][$label] = $item;
+                $out[$newKey][$gridFormatIndex[$rKey]] = $item;
             }
         }
         unset($out[$key]);
@@ -431,6 +434,9 @@ abstract class RESTfulResponse
      */
     private function flattenStructureActionHistory(&$out, $key)
     {
+        if(!isset($out[$key]['action_history'])) {
+            return false;
+        }
         $table = isset($_GET['table']) ? $_GET['table'] : '';
         if($table == '' || $table != 'action_history') {
             $out[$key]['action_history'] = 'Append &table=action_history to URL';
