@@ -2158,7 +2158,7 @@ class Form
                         if (substr($indicators[$item['indicatorID']]['format'], 0, 4) == 'grid')
                         {
                             $values = @unserialize($item['data']);
-                            $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']');
+                            $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']', true);
                             $item['gridInput'] = array_merge($values, array("format" => $format));
                             $item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
                         }

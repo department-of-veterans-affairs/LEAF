@@ -345,6 +345,13 @@ class Employee extends Data
 
         $vars = array(':empUID' => $empUID);
         $result = $this->db->prepared_query($sql, $vars);
+        $resEmail = $this->db->prepared_query("SELECT data as email FROM {$this->dataTable}
+                                                WHERE empUID=:empUID
+                                                    AND indicatorID=6", $vars);
+        if(isset($result[0]) && isset($resEmail[0])) {
+            $result[0] = array_merge($result[0], $resEmail[0]);
+        }
+
         $this->cache["lookupEmpUID_{$empUID}"] = $result;
 
         return $result;
