@@ -3365,6 +3365,7 @@ class Form
                 $child[$idx]['timestamp'] = isset($data[$idx]['timestamp']) ? $data[$idx]['timestamp'] : 0;
                 $child[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $field['categoryID']);
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
+                $child[$idx]['sort'] = $field['sort'];
 
                 if ($child[$idx]['isMasked'])
                 {
