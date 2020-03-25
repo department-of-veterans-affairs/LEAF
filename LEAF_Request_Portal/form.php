@@ -2160,7 +2160,7 @@ class Form
                         if (substr($indicators[$item['indicatorID']]['format'], 0, 4) == 'grid')
                         {
                             $values = @unserialize($item['data']);
-                            $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']');
+                            $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']', true);
                             $item['gridInput'] = array_merge($values, array("format" => $format));
                             $item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
                         }
@@ -3367,6 +3367,7 @@ class Form
                 $child[$idx]['timestamp'] = isset($data[$idx]['timestamp']) ? $data[$idx]['timestamp'] : 0;
                 $child[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $field['categoryID']);
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
+                $child[$idx]['sort'] = $field['sort'];
 
                 if ($child[$idx]['isMasked'])
                 {

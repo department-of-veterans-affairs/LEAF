@@ -51,10 +51,14 @@ var LeafFormGrid = function(containerID, options) {
         var rows = values.cells === undefined ? 0 : values.cells.length;
         var columns = values.format.length;
         var columnOrder = [];
+        var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help Excel users
+        var delimLF = "\r\n";
+        var tDelim = '';
 
         //finds and displays column names
         for(var i = 0; i < columns; i++){
-            gridHeadBuffer +='<td style="width: 100px;">' + values.format[i].name + '</td>';
+            tDelim = (i == columns-1) ? '' : delim;
+            gridHeadBuffer +='<td style="width: 100px;">' + values.format[i].name + tDelim + '</td>';
             columnOrder.push(values.format[i].id)
         }
 
@@ -70,17 +74,18 @@ var LeafFormGrid = function(containerID, options) {
 
             //for all values with matching column id, replaces cell with value
             for (var j = 0; j < values.columns.length; j++) {
+                tDelim = (j == values.columns.length-1) ? '' : delim;
                 if(columnOrder.indexOf(values.columns[j]) !== -1) {
                     var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
-                    rowBuffer.splice(columnOrder.indexOf(values.columns[j]), 1, '<td style="width:100px">' + value + '</td>');
+                    rowBuffer.splice(columnOrder.indexOf(values.columns[j]), 1, '<td style="width:100px">' + value + tDelim + '</td>');
                 }
             }
 
             //combines cells into html and pushes row to body buffer
-            gridRow += rowBuffer.join("") + '</tr>';
+            gridRow += rowBuffer.join("") + delimLF + '</tr>';
             gridBodyBuffer += gridRow;
         }
-        return '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer + '</thead><tbody>' + gridBodyBuffer + '</tbody></table>';
+        return '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer + delimLF + '</thead><tbody>' + gridBodyBuffer + '</tbody></table>';
     }
 
     /**

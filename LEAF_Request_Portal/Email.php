@@ -8,6 +8,12 @@
     Date Created: September 19, 2008
 
 */
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 
 class Email
 {
@@ -31,8 +37,27 @@ class Email
 
     private $orgchartInitialized = false;
 
+    private $portal_db;
+
+    public $smartyVariables = array();
+
+    const SEND_BACK = -1;
+    const NOTIFY_NEXT = -2;
+    const NOTIFY_COMPLETE = -3;
+
     public function __construct()
     {
+        $this->initPortalDB();
+    }
+
+    /**
+     * Checks for custom templates and returns the filepath if so. Otherwise returns the regular filepath.
+     * @param string $tpl the filename of the template
+     * @return string The filepath of the template passed
+     */
+    function getFilepath($tpl)
+    {
+        return file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}") ? "custom_override/{$tpl}" : "{$tpl}";
     }
 
     public function clearRecipients()
@@ -54,7 +79,14 @@ class Email
     public function setBody($i)
     {
         $i = str_replace("\r\n", '<br />', $i);
-        $this->emailBody = '<html><body style="font-family: verdana; font-size: 12px">' . $i . '<br /><br />--- THIS IS AN AUTOMATED MESSAGE ---</body></html>';
+        $smarty = new Smarty;
+        $smarty->template_dir = __DIR__ . '/templates/email/';
+        $smarty->compile_dir = __DIR__ . '/templates_c/';
+        $smarty->left_delimiter = '{{';
+        $smarty->right_delimiter = '}}';
+        $smarty->assign('emailBody', $i);
+        $htmlOutput = $smarty->fetch('main_email_template.tpl');
+        $this->emailBody = $htmlOutput;
     }
 
     public function addRecipient($i)
@@ -219,6 +251,26 @@ class Email
         $this->orgchartInitialized = true;
     }
 
+    /**
+     * Initialize portal db object 
+     * @return void
+     */
+    function initPortalDB()
+    {
+        // set up org chart assets
+        if (!class_exists('DB'))
+        {
+            include 'db_mysql.php';
+        }
+        if (!class_exists('DB_Config'))
+        {
+            include 'db_config.php';
+        }
+
+        $db_config = new DB_Config;
+        $this->portal_db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+    }
+
     private function getHeaders()
     {
         $header = 'MIME-Version: 1.0';
@@ -254,4 +306,80 @@ class Email
 
         return $header;
     }
+
+    /**
+     * Gets template filenames from the db based on emailTemplateID and sets the properties
+     * @param int $emailTemplateID emailTemplateID from email_templates table
+     * @return void
+     */
+    function setTemplateByID($emailTemplateID)
+    {
+        $res = $this->portal_db->prepared_query("SELECT `subject`, `body` 
+                                                 FROM `email_templates` 
+                                                 WHERE emailTemplateID = :emailTemplateID;", 
+                                                array(':emailTemplateID' => $emailTemplateID));
+        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
+    }
+
+    /**
+     * Gets template filenames from the db based on label and sets the properties
+     * @param string $emailTemplateLabel label from email_templates table
+     * @return void
+     */
+    function setTemplateByLabel($emailTemplateLabel)
+    {
+        $res = $this->portal_db->prepared_query("SELECT `subject`, `body` 
+                                                 FROM `email_templates` 
+                                                 WHERE label = :emailTemplateLabel;", 
+                                                array(':emailTemplateLabel' => $emailTemplateLabel));
+        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
+    }
+
+    /**
+     * Sets the subject based on the given smarty template
+     * @param string $subjectTemplate the filename of the template for the subject
+     * @return void
+     */
+    function setSubjectWithTemplate($subjectTemplate)
+    {
+        $smartySubject = new Smarty;
+        $smartySubject->template_dir = __DIR__ . '/templates/email/';
+        $smartySubject->compile_dir = __DIR__ . '/templates_c/';
+        $smartySubject->left_delimiter = '{{';
+        $smartySubject->right_delimiter = '}}';
+        $smartySubject->assign($this->smartyVariables);
+        $htmlOutput = $smartySubject->fetch($this->getFilepath($subjectTemplate));
+        $this->setSubject($htmlOutput);
+    }
+
+    /**
+     * Sets the body based on the given smarty template
+     * @param string $bodyTemplate the filename of the template for the body
+     * @return void
+     */
+    function setBodyWithTemplate($bodyTemplate)
+    {
+        $smartyBody = new Smarty;
+        $smartyBody->template_dir = __DIR__ . '/templates/email/';
+        $smartyBody->compile_dir = __DIR__ . '/templates_c/';
+        $smartyBody->left_delimiter = '{{';
+        $smartyBody->right_delimiter = '}}';
+        $smartyBody->assign($this->smartyVariables);
+        $htmlOutput = $smartyBody->fetch($this->getFilepath($bodyTemplate));
+        $this->setBody($htmlOutput);
+    }
+
+    /**
+     * Performs array_merge on the current smartyVariables, adding the passed in variables.
+     * If there are any repeated keys, the new values will override the old
+     * @param array $newVariables associative array where the keys are the variable names and the values are the variable values
+     * @return void
+     */
+    function addSmartyVariables($newVariables)
+    {
+        $this->smartyVariables = array_merge($this->smartyVariables, $newVariables);
+    }
+
 }

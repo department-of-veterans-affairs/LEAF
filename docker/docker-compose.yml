@@ -45,6 +45,28 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ALLOW_EMPTY_PASSWORD=${MYSQL_ALLOW_EMPTY_PASSWORD}
 
+  smtp:
+    image: kurzdigital/fake-smtp # https://hub.docker.com/r/kurzdigital/fake-smtp/
+    expose:
+      - '2525'
+    ports:
+      - "2525:25" # smtp port
+      - "5080:5080" # web ui port
+    restart: 'always'
+    networks:
+      code-network:
+        aliases:
+          - smtp
+
+    environment:
+      - "SMTP_PORT=${SMTP_PORT}"
+      - "APP_USER=${APP_USER}" # ui login -- defaults to tester
+      - "APP_PASSWORD=${APP_PASSWORD}"
+      - "MYSQL_USER=${MYSQL_USER}"
+      - "MYSQL_PASSWORD=${MYSQL_PASSWORD}"
+
+
+
 volumes:
   leaf-mysql-data:
   leaf-php-data:

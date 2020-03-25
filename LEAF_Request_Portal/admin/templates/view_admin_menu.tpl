@@ -16,6 +16,7 @@
     </span>
 </a>
 
+<!--{if $siteType != 'national_subordinate'}-->
 <a href="?a=workflow" role="button">
     <span class="menuButton" style="background-color: #a3acff">
         <img class="menuIcon" src="../../libs/dynicons/?img=gnome-system-run.svg&amp;w=96" style="position: relative" alt="Workflow Visualizer" title="Workflow Visualizer" />
@@ -23,6 +24,7 @@
         <span class="menuDesc">Edit flowcharts for workflows</span>
     </span>
 </a>
+<!--{/if}-->
 
 <a href="?a=mod_system" role="button">
     <span class="menuButton" style="background-color: #fffde6">
@@ -32,6 +34,7 @@
     </span>
 </a>
 
+<!--{if $siteType != 'national_subordinate'}-->
 <a href="?a=form" role="button">
     <span class="menuButton" style="background-color: #d0ffce">
         <img class="menuIcon" src="../../libs/dynicons/?img=document-properties.svg&amp;w=96" style="position: relative" alt="Workflow Visualizer" title="Workflow Visualizer" />
@@ -39,6 +42,7 @@
         <span class="menuDesc">Create and Modify Forms</span>
     </span>
 </a>
+<!--{/if}-->
 
 <a href="../?a=reports" role="button">
     <span class="menuButton" style="background-color: black">
@@ -48,6 +52,7 @@
     </span>
 </a>
 
+<!--{if $siteType != 'national_subordinate'}-->
 <a href="?a=formLibrary" role="button">
     <span class="menuButton" style="background-color: #2e8540">
         <img class="menuIcon" src="../../libs/dynicons/?img=system-file-manager.svg&amp;w=96" style="position: relative" alt="Workflow Visualizer" title="Workflow Visualizer" />
@@ -55,6 +60,7 @@
         <span class="menuDesc" style="color: white">Use a form made by the LEAF community</span>
     </span>
 </a>
+<!--{/if}-->
 
 <a href="../report.php?a=LEAF_Timeline_Explorer" role="button">
     <span class="menuButton" style="background-color: black">
@@ -77,7 +83,7 @@
     <span class="menuButton" style="background-color: #574d68" >
         <img class="menuIcon" src="../../libs/dynicons/?img=network-wireless.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
         <span class="menuText" style="color: white">Site Distribution</span><br />
-        <span class="menuDesc" style="color: white">Roll-out changes to subordinate sites</span>
+        <span class="menuDesc" style="color: white">Deploy changes to subordinate sites</span>
     </span>
 </a>
 <!--{/if}-->
