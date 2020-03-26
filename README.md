@@ -44,36 +44,13 @@ LEAF will be using the United States Web Design System (USWDS): https://designsy
 The assets include fonts, colors, layout grid, and FontAwesome icons that are managed and compiled with npm and Gulp. 
 The links below provide instructions on how to install the resources using npm and Gulp.
 
-USWDS NPM Install: https://www.npmjs.com/package/uswds#install-using-npm
+USWDS NPM Install Instructions: https://www.npmjs.com/package/uswds#install-using-npm
 
-USWDS Gulp Install: https://github.com/uswds/uswds-gulp
+USWDS Gulp Install Instructions: https://github.com/uswds/uswds-gulp
 
 USWDS Gulp pipeline for copying assets and compiling Sass
 
 A simple Gulp 4.0 workflow for transforming USWDS Sass into browser-readable CSS.
-
-Requirements
-You'll need to be familiar with the command line.
-
-You'll need node and npm.
-
-You'll need to install the following packages via npm:
-
-autoprefixer
-cssnano
-fibers
-gulp@^4.0.0
-gulp-notify
-gulp-postcss
-gulp-rename
-gulp-replace
-gulp-sass
-gulp-sourcemaps
-path
-postcss-sort-media-queries
-sass
-uswds@^2.0.0
-uswds-gulp@github:uswds/uswds-gulp
 
 Installation
 If you've never installed Gulp, you'll need to install the Gulp command line interface:
@@ -88,34 +65,4 @@ Usage
 If you don't already have a project gulpfile, copy the gulpfile.js to your current directory (the project root):
 
 cp node_modules/uswds-gulp/gulpfile.js .
-
-OR
-
-If you do already have a project gulpfile, copy and rename the USWDS gulpfile (then you can manually add the contents of the USWDS gulpfile to your existing gulpfile and continue with the instructions):
-
-cp node_modules/uswds-gulp/gulpfile.js gulpfile-uswds.js
-
-Open gulpfile.js in a text editor. In the Paths section, set the following constants with the proper paths. Don't use trailing slashes in the paths. All paths should be relative to the project root.
-
-PROJECT_SASS_SRC: The directory where we'll save your USWDS settings files and the project's custom Sass.
-IMG_DEST: The directory where we'll save the USWDS images
-FONTS_DEST: The directory where we'll save the USWDS fonts
-JS_DEST: The directory where we'll save the USWDS javascript
-CSS_DEST: The destination of the final, compiled CSS
-Save gulpfile.js with these updated paths.
-
-Initialize your USWDS project. Initialization does the following:
-
-Copies settings files and the USWDS base Sass file to your project Sass directory
-Copies images, fonts, and javascript files to the directories you set above
-Compiles the USWDS Sass into a usable CSS file, called styles.css by default
-Intitialize your USWDS project by running the following command:
-
-gulp init
-
-Edit your USWDS settings in the new settings files and add custom Sass to the new _uswds-theme-custom-styles.scss file. Watch these files and compile any changes with
-
-gulp watch
-🚀
-
 
