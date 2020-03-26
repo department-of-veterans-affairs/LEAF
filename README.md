@@ -48,11 +48,9 @@ USWDS NPM Install Instructions: https://www.npmjs.com/package/uswds#install-usin
 
 USWDS Gulp Install Instructions: https://github.com/uswds/uswds-gulp
 
-USWDS Gulp pipeline for copying assets and compiling Sass
-
+Installation
 A simple Gulp 4.0 workflow for transforming USWDS Sass into browser-readable CSS.
 
-Installation
 If you've never installed Gulp, you'll need to install the Gulp command line interface:
 
 npm install gulp-cli -g
