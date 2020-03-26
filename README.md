@@ -36,3 +36,16 @@ LEAF is currently not configured/optimized for usage outside of the VA, proper s
     * [Installation and Configuration](docs/InstallationConfiguration.md)
     * [Code Reviews](docs/CodeReviews.md)
     * [Contributing](docs/Development.md)
+
+## USWDS GULP NPM Install
+
+LEAF will be using the United States Web Design System (USWDS): https://designsystem.digital.gov/how-to-use-uswds/
+
+The assets include fonts, colors, layout grid, and FontAwesome icons that are managed and compiled with npm and Gulp. 
+The links below provide instructions on how to install the resources using npm and Gulp.
+
+USWDS NPM Install: https://www.npmjs.com/package/uswds#install-using-npm
+
+USWDS Gulp Install: https://github.com/uswds/uswds-gulp
+
+
