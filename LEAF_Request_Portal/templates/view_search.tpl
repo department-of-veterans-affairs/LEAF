@@ -10,7 +10,20 @@ $(function() {
     var leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
 
+    var extendedQuery = false;
     query.onSuccess(function(res) {
+        // on the first run, if there are no results with a blank query,
+        // assume the user is looking for their own requests
+        if(extendedQuery == false
+            && Object.keys(res).length == 0
+            && leafSearch.getSearchInput() == '') {
+            extendedQuery = true;
+
+            query.addTerm('userID', '=', '<!--{$userID}-->');
+            query.execute();
+            return false;
+        }
+
         var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
         var grid = new LeafFormGrid(leafSearch.getResultContainerID(), {readOnly: true});
         grid.hideIndex();
