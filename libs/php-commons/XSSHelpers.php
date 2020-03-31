@@ -9,7 +9,6 @@
 class XSSHelpers
 {
     private static $specialPattern = array(
-        '/\b\d{3}-\d{2}-\d{4}\b/', // mask SSN
         '/(\<\/p\>\<\/p\>){2,}/', // flatten extra <p>
         '/(\<p\>\<\/p\>){2,}/', // flatten extra <p>
         '/\<\/p\>(\s+)?\<br\>(\s+)?\<p\>/U', // scrub line breaks between paragraphs
@@ -17,7 +16,6 @@ class XSSHelpers
     );
 
     private static $specialReplace = array(
-        '###-##-####',
         '',
         '',
         "</p>\n<p>",
