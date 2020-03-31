@@ -67,17 +67,17 @@ gulp.task("copy-uswds-setup", () => {
     .pipe(gulp.dest(`${PROJECT_SASS_SRC}`));
 });
 
-gulp.task("copy-uswds-fonts", () => {
-  return gulp.src(`${uswds}/fonts/**/**`).pipe(gulp.dest(`${FONTS_DEST}`));
-});
+//gulp.task("copy-uswds-fonts", () => {
+  //return gulp.src(`${uswds}/fonts/**/**`).pipe(gulp.dest(`${FONTS_DEST}`));
+//});
 
-gulp.task("copy-uswds-images", () => {
-  return gulp.src(`${uswds}/img/**/**`).pipe(gulp.dest(`${IMG_DEST}`));
-});
+//gulp.task("copy-uswds-images", () => {
+  //return gulp.src(`${uswds}/img/**/**`).pipe(gulp.dest(`${IMG_DEST}`));
+//});
 
-gulp.task("copy-uswds-js", () => {
-  return gulp.src(`${uswds}/js/**/**`).pipe(gulp.dest(`${JS_DEST}`));
-});
+//gulp.task("copy-uswds-js", () => {
+  //return gulp.src(`${uswds}/js/**/**`).pipe(gulp.dest(`${JS_DEST}`));
+//});
 
 gulp.task("build-sass", function(done) {
   var plugins = [
@@ -112,9 +112,9 @@ gulp.task(
   "init",
   gulp.series(
     "copy-uswds-setup",
-    "copy-uswds-fonts",
-    "copy-uswds-images",
-    "copy-uswds-js",
+    //"copy-uswds-fonts",
+    //"copy-uswds-images",
+    //"copy-uswds-js",
     "build-sass"
   )
 );
