@@ -169,7 +169,7 @@ class FormWorkflow
                 }
 
                 // dependencyID -2 is for requestor followup
-                if ($res[$i]['dependencyID'] == -2)
+                if ($res[$i]['dependencyID'] == -2 && !$res[$i]['hasAccess'])
                 {
                     $hasAccess = $res[$i]['userID'] == $this->login->getUserID();
 
