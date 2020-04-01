@@ -39,13 +39,13 @@ PATHS
 const PROJECT_SASS_SRC = "./libs/sass";
 
 // Images destination
-const IMG_DEST = "./libs/sass/imgs";
+//const IMG_DEST = "./libs/sass/imgs";
 
 // Fonts destination
-const FONTS_DEST = "./libs/sass/fonts";
+//const FONTS_DEST = "./libs/sass/fonts";
 
 // Javascript destination
-const JS_DEST = "./libs/sass/js";
+const JS_DEST = "./libs/js/uswds";
 
 // Compiled CSS destination
 const CSS_DEST = "./libs/sass/css";
