@@ -75,9 +75,9 @@ gulp.task("copy-uswds-setup", () => {
   //return gulp.src(`${uswds}/img/**/**`).pipe(gulp.dest(`${IMG_DEST}`));
 //});
 
-//gulp.task("copy-uswds-js", () => {
-  //return gulp.src(`${uswds}/js/**/**`).pipe(gulp.dest(`${JS_DEST}`));
-//});
+gulp.task("copy-uswds-js", () => {
+  return gulp.src(`${uswds}/js/**/**`).pipe(gulp.dest(`${JS_DEST}`));
+});
 
 gulp.task("build-sass", function(done) {
   var plugins = [
@@ -114,7 +114,7 @@ gulp.task(
     "copy-uswds-setup",
     //"copy-uswds-fonts",
     //"copy-uswds-images",
-    //"copy-uswds-js",
+    "copy-uswds-js",
     "build-sass"
   )
 );
