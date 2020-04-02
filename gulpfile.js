@@ -21,7 +21,6 @@ const replace = require("gulp-replace");
 const sass = require("gulp-sass");
 const sourcemaps = require("gulp-sourcemaps");
 const uswds = require("./node_modules/uswds-gulp/config/uswds");
-
 sass.compiler = require("sass");
 
 /*
@@ -37,7 +36,6 @@ PATHS
 
 // Project Sass source directory
 const PROJECT_SASS_SRC = "./libs/sass";
-
 
 // Javascript destination
 const JS_DEST = "./libs/js/uswds";
