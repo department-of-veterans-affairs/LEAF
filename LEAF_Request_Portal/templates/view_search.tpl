@@ -10,7 +10,38 @@ $(function() {
     var leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
 
+    var extendedQueryState = 0; // 0 = not run, 1 = need to process, 2 = processed
+    var foundOwnRequest = false;
+    var firstResult = {};
     query.onSuccess(function(res) {
+        // on the first run: if there are no results that are owned by the user,
+        // append requests owned by the user
+        if(extendedQueryState == 0) {
+            firstResult = res;
+            for(var i in res) {
+                if(res[i].userID == '<!--{$userID}-->') {
+                    foundOwnRequest = true;
+                    break;
+                }
+            }
+        }
+
+        if(extendedQueryState == 0
+            && foundOwnRequest == false
+            && leafSearch.getSearchInput() == '') {
+            extendedQueryState = 1;
+            query.addTerm('userID', '=', '<!--{$userID}-->');
+            query.execute();
+            return false;
+        }
+
+        if(extendedQueryState == 1) {
+            extendedQueryState = 2;
+            for(var i in firstResult) {
+                res[i] = firstResult[i];
+            }
+        }
+
         var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
         var grid = new LeafFormGrid(leafSearch.getResultContainerID(), {readOnly: true});
         grid.hideIndex();
