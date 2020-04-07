@@ -2466,8 +2466,9 @@ class Form
                     if(isset($data[$key]['s1'])
                         && !isset($filter['id_timestamp'])
                     ) {
+                        $sids = array_keys($data[$key]['s1']);
                         // iterate through keys within each s1 set
-                        foreach($data[$key]['s1'] as $sKey => $sValue) {
+                        foreach($sids as $sKey) {
                             if(strpos($sKey, '_timestamp') !== false) {
                                 unset($data[$key]['s1'][$sKey]);
                             }
