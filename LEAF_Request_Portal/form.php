@@ -2723,7 +2723,7 @@ class Form
                                                                     WHERE indicatorID=:indicatorID', $tVarTypeHint);
 
                         $vars[':indicatorID' . $count] = $q['indicatorID'];
-                        $joins .= "LEFT JOIN (SELECT * FROM data
+                        $joins .= "LEFT JOIN (SELECT recordID, indicatorID, series, data FROM data
 										WHERE indicatorID=:indicatorID{$count}) lj_data{$count}
 										USING (recordID) ";
                     }
@@ -2910,7 +2910,7 @@ class Form
         if ($joinSearchAllData
             || $joinSearchOrgchartEmployeeData)
         {
-            $joins .= 'LEFT JOIN data lj_data USING (recordID) ';
+            $joins .= 'LEFT JOIN (SELECT recordID, indicatorID, series, data FROM data) lj_data ON (lj_data.recordID = records.recordID) ';
         }
         if ($joinSearchAllData)
         {
