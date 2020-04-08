@@ -2439,6 +2439,48 @@ class Form
         return 1;
     }
 
+    /**
+     * filterData is an experimental output filter used to lower data transfer to clients.
+     * $_GET['x-filterData'] is a CSV of desired array keys. All other keys will be filtered out.
+     * id_timestamp is a special key to signal a need for s1.id##_timestamp values
+     * The experimental parameter x-filterData is subject to change and use of this
+     * should be limited.
+     */
+    private function filterData($data) {
+        if(isset($_GET['x-filterData'])) {
+            $filter = explode(',', $_GET['x-filterData'], 32);
+            $filter = array_flip($filter);
+            // add s1 data fields
+            $filter['s1'] = 1;
+
+            // iterate through each record
+            foreach($data as $key => $value) {
+                $ids = array_keys($value);
+                // iterate through keys within each record
+                foreach($ids as $id) {
+                    if(!isset($filter[$id])) {
+                        unset($data[$key][$id]);
+                    }
+
+                    // filter out s1 timestamps if applicable
+                    if(isset($data[$key]['s1'])
+                        && !isset($filter['id_timestamp'])
+                    ) {
+                        $sids = array_keys($data[$key]['s1']);
+                        // iterate through keys within each s1 set
+                        foreach($sids as $sKey) {
+                            if(strpos($sKey, '_timestamp') !== false) {
+                                unset($data[$key]['s1'][$sKey]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
     public function query($inQuery)
     {
         $query = json_decode(html_entity_decode(html_entity_decode($inQuery)), true);
@@ -3051,7 +3093,8 @@ class Form
                 $indicatorIDs .= $indicatorID . ',';
             }
 
-            return $this->getCustomData($data, $indicatorIDs);
+            $data = $this->getCustomData($data, $indicatorIDs);
+            return $this->filterData($data);
         }
 
         return $data;
