@@ -5,7 +5,8 @@
 History of <!--{$dataType}--> ID : <!--{$dataID|sanitize}-->
 <br /><br />
 
-<div style="float: left; padding: 2px">
+<div style="padding: 2px">
+ 
     <!--{if count($history) == 0}-->
         No history to show!
     <!--{else}-->
@@ -36,7 +37,6 @@ History of <!--{$dataType}--> ID : <!--{$dataID|sanitize}-->
         </table>
     <!--{/if}-->
 </div>
-
 
 </div> <!-- close main content -->
 
