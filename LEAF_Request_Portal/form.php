@@ -1841,11 +1841,13 @@ class Form
                 }
 
                 // grants backups the ability to access records of their backupFor
-                foreach ($this->employee->getBackupsFor($this->login->getEmpUID()) as $emp)
-                {
-                    if ($dep['userID'] == $emp["userName"])
+                if($temp[$dep['recordID']] == 0) {
+                    foreach ($this->employee->getBackupsFor($this->login->getEmpUID()) as $emp)
                     {
-                        $temp[$dep['recordID']] = 1;
+                        if ($dep['userID'] == $emp["userName"])
+                        {
+                            $temp[$dep['recordID']] = 1;
+                        }
                     }
                 }
 
