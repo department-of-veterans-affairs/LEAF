@@ -24,4 +24,12 @@
     </span>
 </a>
 
+<a href="./report.php?a=LEAF_table_input_report" role="button">
+    <span class="menuButton" style="background-color: black">
+        <img class="menuIcon" src="../libs/dynicons/?img=application-x-executable.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+        <span class="menuText" style="color: white">Grid CSV Export</span><br />
+        <span class="menuDesc" style="color: white">Export data with Grid fields as as CSV file</span>
+    </span>
+</a>
+
 </div>
