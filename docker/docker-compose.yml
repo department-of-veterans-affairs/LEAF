@@ -22,6 +22,22 @@ services:
       environment:
         - REMOTE_USER=${REMOTE_USER}
 
+
+  swaggerui:
+    build:
+        context: ../
+        dockerfile: docker/swaggerui/Dockerfile
+    ports:
+      - 8080:8080
+    hostname: swaggerui
+    volumes:
+      - ./src/nexus-swagger.json:/app/swagger.json
+    networks:
+      code-network:
+        aliases:
+          - swaggerui
+
+
   mysql:
     build:
       context: ../

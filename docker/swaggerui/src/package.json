@@ -1,0 +1,14 @@
+{
+  "name": "docker-swaggerui",
+  "version": "1.0.0",
+  "description": "Small server that serves the Swagger UI in a Docker container and allows to update the current Swagger Spec",
+  "author": "liping.wang@ablevets.com",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "1.15.0",
+    "express": "4.13.4"
+  }
+}
