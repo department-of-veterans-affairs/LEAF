@@ -223,6 +223,15 @@ $(function() {
     leafSearch.init();
 
     $('#searchContainer_getMoreResults').on('click', function() {
+        if(leafSearch.getSearchInput() == '') {
+            var tQuery = query.getQuery();
+            for(var i in tQuery.terms) {
+                if(tQuery.terms[i].id == 'userID') {
+                    tQuery.terms.splice(i, 1);
+                }
+            }
+            query.setQuery(tQuery);
+        }
         if(queryLimit <= 100) {
             queryLimit += 50;
             query.setLimit(queryLimit);
