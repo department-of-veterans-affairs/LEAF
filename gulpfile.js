@@ -41,7 +41,7 @@ const PROJECT_SASS_SRC = "./libs/sass";
 const JS_DEST = "./libs/js/uswds";
 
 // Compiled CSS destination
-const CSS_DEST = "./libs/sass/css";
+const CSS_DEST = "./libs/css";
 
 // Site CSS destination
 // Like the _site/assets/css directory in Jekyll, if necessary.
