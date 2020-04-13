@@ -85,7 +85,7 @@ class Email
         $smarty->left_delimiter = '{{';
         $smarty->right_delimiter = '}}';
         $smarty->assign('emailBody', $i);
-        $htmlOutput = $smarty->fetch('main_email_template.tpl');
+        $htmlOutput = $smarty->fetch('LEAF_main_email_template.tpl');
         $this->emailBody = $htmlOutput;
     }
 
