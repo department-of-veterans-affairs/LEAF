@@ -949,3 +949,7 @@ button.buttonNorm {
     padding: 4px;
     width: 300px;
 }
+
+.ui-dialog, .ui-dialog-content {
+    box-sizing: content-box;
+}
