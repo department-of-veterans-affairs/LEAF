@@ -23,20 +23,19 @@ services:
         - REMOTE_USER=${REMOTE_USER}
 
 
-  swaggerui:
-    build:
-        context: ../
-        dockerfile: docker/swaggerui/Dockerfile
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: "swagger-ui"
     ports:
-      - 8080:8080
-    hostname: swaggerui
+      - "8080:8080"
+    restart: 'always'
     volumes:
-      - ./src/nexus-swagger.json:/app/swagger.json
-    networks:
-      code-network:
-        aliases:
-          - swaggerui
-
+      - ./swagger/nexus-swagger.json:/usr/share/nginx/html/api/nexus-swagger.json
+      - ./swagger/portal-swagger.json:/usr/share/nginx/html/api/portal-swagger.json
+    environment:
+      URLS: "[{ url: \"./api/nexus-swagger.json\", name: \"Nexus\" },
+                        { url: \"./api/portal-swagger.json\", name: \"Portal\" },
+                       ]"
 
   mysql:
     build:
