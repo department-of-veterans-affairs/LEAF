@@ -689,7 +689,14 @@ var LeafFormSearch = function(containerID) {
 											break;
 										case 'dropdown':
 										case 'radio':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
+											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
+                                                    <option value="=">IS</option>\
+                                                    <option value="!=">IS NOT</option>\
+								            		<option value=">">></option>\
+								            		<option value=">=">>=</option>\
+								            		<option value="<"><</option>\
+								            		<option value="<="><=</option>\
+								            	</select>');
 											var resOptions = res[i].format.split("\n");
 											resOptions.shift();
 											var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="options" style="width: 250px">';
