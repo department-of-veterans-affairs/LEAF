@@ -47,12 +47,18 @@ class NationalEmployeeController extends RESTfulResponse
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
+    /**
+     * Wrapper for post endpoints
+     * 
+     * @param $act endpoint
+     * @return response for post endpoint
+     */
     public function post($act)
     {
         $employee = $this->employee;
 
         $this->index['POST'] = new ControllerMap();
-        $this->index['POST']->register('national/employee/import/email', function($args) use ($employee) {
+        $this->index['POST']->register('national/employee/import/email', function() use ($employee) {
             try 
             {   
                 $email = $_POST["email"];
@@ -69,6 +75,11 @@ class NationalEmployeeController extends RESTfulResponse
                 $localEmp = new Orgchart\Employee($db, $login);
 
                 $localUID = $localEmp->importFromNational($username[0]["userName"]);
+                
+                if (strcmp($localUID, "Invalid user") == 0) {
+                    throw new Exception("Could not import invalid user");
+                }
+
                 $empObj = array("empUID" => $localUID,
                                 "userName" => $username[0]["userName"],
                                 "email" => $username[0]["data"]);
@@ -77,6 +88,7 @@ class NationalEmployeeController extends RESTfulResponse
             }
             catch (Exception $e) 
             {
+                http_response_code(404);
                 return $e->getMessage();
             }
             
