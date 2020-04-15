@@ -55,7 +55,6 @@ class NationalEmployeeController extends RESTfulResponse
         $this->index['POST']->register('national/employee/import/email', function($args) use ($employee) {
             try 
             {   
-                $retEmpInfo = array();
                 $email = $_POST["email"];
                 $username = $employee->lookupEmail($email);
 
@@ -70,11 +69,11 @@ class NationalEmployeeController extends RESTfulResponse
                 $localEmp = new Orgchart\Employee($db, $login);
 
                 $localUID = $localEmp->importFromNational($username[0]["userName"]);
-                $empObj = array("userName" => $username[0]["empUID"],
+                $empObj = array("empUID" => $localUID,
+                                "userName" => $username[0]["userName"],
                                 "email" => $username[0]["data"]);
-                $retEmpInfo[$localUID] = $empObj;
 
-                return $retEmpInfo;
+                return $empObj;
             }
             catch (Exception $e) 
             {
