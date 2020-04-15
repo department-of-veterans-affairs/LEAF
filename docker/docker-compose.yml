@@ -33,9 +33,9 @@ services:
       - ./swagger/nexus-swagger.json:/usr/share/nginx/html/api/nexus-swagger.json
       - ./swagger/portal-swagger.json:/usr/share/nginx/html/api/portal-swagger.json
     environment:
-      URLS: "[{ url: \"./api/nexus-swagger.json\", name: \"Nexus\" },
-                        { url: \"./api/portal-swagger.json\", name: \"Portal\" },
-                       ]"
+      URLS: "[{ url: \"./api/nexus-swagger.json\", name: \"Nexus\"   },
+              { url: \"./api/portal-swagger.json\", name: \"Portal\" },
+             ]"
 
   mysql:
     build:
