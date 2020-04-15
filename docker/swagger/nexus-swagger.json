@@ -1,0 +1,2004 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "2.0.0",
+    "title": "Nexus"
+  },
+  "host": "localhost",
+  "basePath": "/LEAF_Nexus/api/",
+  "tags": [
+    {
+      "name": "employee",
+      "description": "Functions from Employee.php"
+    },
+    {
+      "name": "group",
+      "description": "Functions from Group.php"
+    },
+    {
+      "name": "position",
+      "description": "Functions from Position.php"
+    },
+    {
+      "name": "reportTemplates",
+      "description": "Functions from System.php"
+    },
+    {
+      "name": "settings",
+      "description": "Functions from System.php"
+    },
+    {
+      "name": "system",
+      "description": "THESE DONT LOOK LIKE THEY ACTUALLY WORK - Functions from System.php"
+    },
+    {
+      "name": "indicator",
+      "description": "Functions from IndicatorController.php"
+    },
+    {
+      "name": "tag",
+      "description": "Functions from Tag.php"
+    },
+    {
+      "name": "nationalEmployee",
+      "description": "Functions from NationalEmployee.php"
+    },
+    {
+      "name": "search",
+      "description": "Search functions if we were to split them out from the other paths"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/employee/new": {
+      "post": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/new; calls addNew({firstName}, {lastName}, {middleName}, {userName})",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "parameters": [
+          {
+            "name": "firstName",
+            "in": "formData",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "lastName",
+            "in": "formData",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "middleName",
+            "in": "formData",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userName",
+            "in": "formData",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/employee/{empUID}": {
+      "get": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/[digit]; calls getSummary({empUID})",
+        "parameters": [
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/[digit]; calls modify({empUID})",
+        "parameters": [
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/[digit]; calls disableAccount({empUID})",
+        "parameters": [
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/employee/{empUID}/activate": {
+      "post": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/[digit]/activate; calls enableAccount({empUID})",
+        "parameters": [
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/employee/{empUID}/backup": {
+      "get": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/[digit]/backup; calls getBackups({empUID})",
+        "parameters": [
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/employee/{empUID}/backup/{backupEmpUID}": {
+      "post": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/[digit]/backup; calls setBackup({empUID}, {backupEmpUID})",
+        "parameters": [
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "backupEmpUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/[digit]/backup/[digit]; calls removeBackup({empUID}, {backupEmpUID})",
+        "parameters": [
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "backupEmpUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/employee/{empUID}/backupFor": {
+      "get": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/[digit]/backupFor; calls getBackupsFor({empUID})",
+        "parameters": [
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/employee/import/{userName}": {
+      "post": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/import/[text]; calls importFromNational({userName})",
+        "parameters": [
+          {
+            "name": "userName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/new": {
+      "post": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/new; calls addNew({title}, {parentID})",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "title",
+            "in": "formData",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "parentID",
+            "in": "formData",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/list/all/{offset}/{quantity}": {
+      "get": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/list; calls listGroups(0, {offset}, {quantity})",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "quantity",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/list/parentGroup/{parentID}/{offset}/{quantity}": {
+      "get": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/list; calls listGroups({parentID}, {offset}, {quantity})",
+        "parameters": [
+          {
+            "name": "parentID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "offset",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "quantity",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/list/tag/{tag}": {
+      "get": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/tag/[text]; calls listGroupsByTag({tag})",
+        "parameters": [
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}": {
+      "get": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/data/[digit]; calls getAllData({groupID}), Group.php getTitle({groupID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]; calls modify({groupID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]; calls deleteGroup({groupID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/indicator/{indicatorID}": {
+      "get": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/data/[digit]; calls getAllData({groupID}, {indicatorID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/employee": {
+      "get": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/employees; calls listGroupEmployees({groupID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/employee/all": {
+      "get": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/employees/all; calls listGroupEmployeesAll({groupID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/employee/detailed/{offset}/{limit}": {
+      "get": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/employees/detailed; calls listGroupEmployeesDetailed({groupID}, {offset}, {limit})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "offset",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/employee/{empUID}": {
+      "post": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:'group/[digit]/employee; calls addEmployee({groupID}, {empUID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/employee/[digit]; calls removeEmployee({groupID}, {empUID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/leader": {
+      "get": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/leader; calls getGroupLeader({groupID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/permissions/add/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/permissions/addEmployee || group/[digit]/permissions/addPosition || group/[digit]/permission/[text]/[digit]/[text]/toggle; calls addPermission({groupID}, {categoryID}, {categoryUID}, {permissionType})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "enum": [
+              "position",
+              "group",
+              "Employee"
+            ]
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/permissions/toggle/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/permission/[text]/[digit]/[text]/toggle; calls togglePermission({groupID}, {categoryID}, {categoryUID}, {permissionType})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/position": {
+      "get": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/positions; calls listGroupPositions({groupID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/position/{positionID}": {
+      "post": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/position; calls addPosition({groupID}, {positionID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/position/[digit]; calls removePosition({groupID}, {positionID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/summary": {
+      "get": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/summary; calls getSummary({groupID})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/tag/{tag}": {
+      "post": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/tag; calls addTag({groupID}, {tag})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/tag; calls deleteTag({groupID}, {tag}))",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/title/{title}/{abbreviatedTitle}": {
+      "post": {
+        "tags": [
+          "group"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/[digit]/title; calls editTitle({groupID}, {title}, {abbreviatedTitle})",
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "title",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "abbreviatedTitle",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/new": {
+      "post": {
+        "tags": [
+          "position"
+        ],
+        "summary": "",
+        "description": "original endpoint:position; calls addNew({title}, {parentID}, {groupID})",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "title",
+            "in": "formData",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "parentID",
+            "in": "formData",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "groupID",
+            "in": "formData",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}": {
+      "get": {
+        "tags": [
+          "position"
+        ],
+        "summary": "",
+        "description": "original endpoint:position/[digit]; calls getAllData({positionID}), getTitle({positionID}), getSubordinates({positionID}), getAllTags({positionID})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "position"
+        ],
+        "summary": "",
+        "description": "original endpoint:position/[digit]; calls modify({positionID}",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "position"
+        ],
+        "summary": "",
+        "description": "original endpoint:position/[digit]; calls deletePosition({positionID})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/employee": {
+      "get": {
+        "tags": [
+          "position"
+        ],
+        "description": "original endpoint:position/[digit]/employees; calls getEmployees({positionID})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/employee/{empUID}": {
+      "delete": {
+        "tags": [
+          "position"
+        ],
+        "description": "original endpoint:position/[digit]/employee/[digit]; calls removeEmployee({positionID}, {empUID})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/employee/{empUID}/{isActing}": {
+      "post": {
+        "tags": [
+          "position"
+        ],
+        "description": "original endpoint:position/[digit]/employee; calls addEmployee({positionID}, {empUID}, {isActing})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "isActing",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/permissions/add/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "tags": [
+          "position"
+        ],
+        "summary": "",
+        "description": "original endpoint:position/[digit]/permissions/addEmployee || position/[digit]/permissions/addPosition || position/[digit]/permissions/addGroup; calls addPermission({positionID}, {categoryID}, {categoryUID}, {permissionType})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "enum": [
+              "position",
+              "group",
+              "Employee"
+            ]
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/permissions/toggle/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "tags": [
+          "position"
+        ],
+        "summary": "",
+        "description": "original endpoint:position/[digit]/permission/[text]/[digit]/[text]/toggle; calls togglePermission({positionID}, {categoryID}, {categoryUID}, {permissionType})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/quadrad": {
+      "get": {
+        "tags": [
+          "position"
+        ],
+        "description": "original endpoint:position/[digit]/quadrad; calls getQuadrad({positionID})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/service": {
+      "get": {
+        "tags": [
+          "position"
+        ],
+        "description": "original endpoint:position/[digit]/service; calls getService({positionID})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/setLeader": {
+      "post": {
+        "tags": [
+          "position"
+        ],
+        "description": "original endpoint:position/[digit]/setLeader'; calls addTag({positionID}, 'group_leader')",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/subordinates": {
+      "get": {
+        "tags": [
+          "position"
+        ],
+        "description": "original endpoint:position/[digit]/subordinates; calls getSubordinates({positionID})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/supervisor": {
+      "get": {
+        "tags": [
+          "position"
+        ],
+        "description": "original endpoint:position/[digit]/supervisor; calls getSupervisor({positionID})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/supervisor/{supervisorID}": {
+      "post": {
+        "tags": [
+          "position"
+        ],
+        "description": "original endpoint:position/[digit]/supervisor; calls setSupervisor({positionID}, {supervisorID})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "supervisorID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/title/{title}": {
+      "post": {
+        "tags": [
+          "position"
+        ],
+        "description": "original endpoint:position/[digit]/title; calls editTitle({positionID}, {title})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "title",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/reportTemplates": {
+      "get": {
+        "tags": [
+          "reportTemplates"
+        ],
+        "description": "original endpoint:system/reportTemplates; calls getReportTemplateList()",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/reportTemplates/new": {
+      "post": {
+        "tags": [
+          "reportTemplates"
+        ],
+        "description": "original endpoint:system/reportTemplates; calls newReportTemplate({filename})",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "formData",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/reportTemplates/{filename}": {
+      "get": {
+        "tags": [
+          "reportTemplates"
+        ],
+        "description": "original endpoint:system/reportTemplates; calls getReportTemplate({filename})",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "reportTemplates"
+        ],
+        "description": "original endpoint:system/reportTemplates/[text]; calls setReportTemplate({filename})",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "reportTemplates"
+        ],
+        "description": "original endpoint:system/reportTemplates/[text]; calls removeReportTemplate({filename})",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/settings/heading/{heading}": {
+      "post": {
+        "tags": [
+          "settings"
+        ],
+        "description": "original endpoint:system/settings/heading; calls setHeading({heading})",
+        "parameters": [
+          {
+            "name": "heading",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/settings/subHeading/{subHeading}": {
+      "post": {
+        "tags": [
+          "settings"
+        ],
+        "description": "original endpoint:system/settings/subHeading; calls setSubHeading({subHeading})",
+        "parameters": [
+          {
+            "name": "subHeading",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/system/templates": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "description": "original endpoint:system/templates; *** doesn't seem to exist; calls getTemplateList()",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/system/templates/{text}": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "description": "original endpoint:system/templates/[text]; *** doesn't seem to exist; calls getTemplate({text})",
+        "parameters": [
+          {
+            "name": "text",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "system"
+        ],
+        "description": "original endpoint:system/templates/[text]; *** doesn't seem to exist; calls setTemplate({text})",
+        "parameters": [
+          {
+            "name": "text",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "system"
+        ],
+        "description": "original endpoint:system/templates/[text]; *** doesn't seem to exist; calls removeCustomTemplate({text})",
+        "parameters": [
+          {
+            "name": "text",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/indicator/{indicatorID}/permissions": {
+      "get": {
+        "tags": [
+          "indicator"
+        ],
+        "summary": "",
+        "description": "original endpoint:indicator/[digit]/permissions; calls getPrivileges({indicatorID})",
+        "parameters": [
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/indicator/{indicatorID}/permissions/add/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "tags": [
+          "indicator"
+        ],
+        "summary": "",
+        "description": "original endpoint:indicator/[digit]/permissions/addEmployee || indicator/[digit]/permissions/addPosition || indicator/[digit]/permissions/addGroup; calls addPermission({indicatorID}, {categoryID}, {categoryUID}, {permissionType})",
+        "parameters": [
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "enum": [
+              "position",
+              "group",
+              "Employee"
+            ]
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/indicator/{indicatorID}/permissions/toggle/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "tags": [
+          "indicator"
+        ],
+        "summary": "",
+        "description": "original endpoint:indicator/[digit]/permission/[text]/[digit]/[text]/toggle; calls togglePermission({indicatorID}, {categoryID}, {categoryUID}, {permissionType})",
+        "parameters": [
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/indicator/{indicatorID}/upload": {
+      "post": {
+        "tags": [
+          "indicator"
+        ],
+        "description": "original endpoint:ajaxIndex.php?a=doupload; calls Data.php modify({indicatorID})",
+        "parameters": [
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/indicator/{indicatorID}/deleteAttachment/category/{categoryID}/{UID}/file/{file}": {
+      "delete": {
+        "tags": [
+          "indicator"
+        ],
+        "description": "original endpoint:ajaxIndex.php?a=deleteattachment; calls Data.php deleteAttachment({categoryID}, {UID}, {indicatorID}, {file})",
+        "parameters": [
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "UID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "file",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/tag/{tag}/parent": {
+      "get": {
+        "tags": [
+          "tag"
+        ],
+        "summary": "",
+        "description": "original endpoint:tag/[text]/parent; calls getParent({tag})",
+        "parameters": [
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/tag/{tag}/parent/{parentTag}": {
+      "post": {
+        "tags": [
+          "tag"
+        ],
+        "summary": "",
+        "description": "original endpoint:tag/[text]/parent; calls setParent({tag}, {parentTag})",
+        "parameters": [
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "parentTag",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/nationalEmployee/{digit}": {
+      "get": {
+        "tags": [
+          "nationalEmployee"
+        ],
+        "summary": "",
+        "description": "original endpoint:national/employee/[digit]; *** doesn't seem to exist; calls getSummary({digit})",
+        "parameters": [
+          {
+            "name": "digit",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/nationalEmployee/search/{search_terms}/{indicatorID}:": {
+      "get": {
+        "tags": [
+          "nationalEmployee"
+        ],
+        "summary": "",
+        "description": "original endpoint:national/employee/search; calls search({search_terms}, {indicatorID})",
+        "parameters": [
+          {
+            "name": "search_terms",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/search/employee/{search_terms}/indicator/{indicatorID}": {
+      "get": {
+        "tags": [
+          "search"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/search; calls search({search_terms}, {indicatorID})",
+        "parameters": [
+          {
+            "name": "search_terms",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/search/employee/national/{search_terms}/indicator/{indicatorID}": {
+      "get": {
+        "tags": [
+          "search"
+        ],
+        "summary": "",
+        "description": "original endpoint:national/employee/search; calls search({search_terms}, {indicatorID})",
+        "parameters": [
+          {
+            "name": "search_terms",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/search/employee/userName/{userName}": {
+      "get": {
+        "tags": [
+          "search"
+        ],
+        "summary": "",
+        "description": "original endpoint:employee/search/userName/[text]; calls lookupLogin({userName})",
+        "parameters": [
+          {
+            "name": "userName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/search/group/{search_terms}/tag/{tag}": {
+      "get": {
+        "tags": [
+          "search"
+        ],
+        "summary": "",
+        "description": "original endpoint:group/search; calls search({search_terms}, {tag})",
+        "parameters": [
+          {
+            "name": "search_terms",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/search/position/{positionID}/parentTag/{tag}": {
+      "get": {
+        "tags": [
+          "search"
+        ],
+        "description": "original endpoint:position/[digit]/search/parentTag/[text]; calls findRootPositionByGroupTag({positionID}, {tag})",
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/search/position/{search_terms}/tag/{tag}/employeeSearch{employeeSearch}": {
+      "get": {
+        "tags": [
+          "search"
+        ],
+        "description": "original endpoint:position/search; calls search({search_terms}, {tag}, {employeeSearch})",
+        "parameters": [
+          {
+            "name": "search_terms",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "employeeSearch",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    }
+  }
+}
