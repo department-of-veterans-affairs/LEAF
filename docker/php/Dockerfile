@@ -26,6 +26,7 @@ RUN apt-get install -y ssmtp && \
 # mv php.ini and replace log dir
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
+
 COPY /docker/php/ssmtp/ssmtp.conf /etc/ssmtp/
 COPY /docker/php/000-default.conf /etc/apache2/sites-enabled/
 COPY /docker/php/default-ssl.conf /etc/apache2/sites-enabled/
@@ -36,3 +37,4 @@ RUN chmod +x /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
 RUN chmod -R g+rwX /var/www
+
