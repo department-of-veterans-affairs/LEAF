@@ -263,22 +263,6 @@ class NationalEmployee extends NationalData
         return $this->db->prepared_query($sql, $vars);
     }
 
-    /**
-     *
-     */
-    public function lookupEmails($emails) {
-        $emailList = str_repeat('?,', count($emails) - 1) . '?';
-
-        $sql = "SELECT empUID, data, userName FROM {$this->dataTable}
-                    LEFT JOIN {$this->tableName} USING (empUID)
-                    WHERE indicatorID = 6
-                        AND data in ({$emailList})
-                        AND deleted = 0
-                    {$this->limit}";
-
-        return $this->db->prepared_query($sql, $emails);
-    }
-
     public function lookupPhone($phone)
     {
         $sql = "SELECT * FROM {$this->dataTable}
