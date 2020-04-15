@@ -46,4 +46,43 @@ class NationalEmployeeController extends RESTfulResponse
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
+
+    public function post($act)
+    {
+        $employee = $this->employee;
+
+        $this->index['POST'] = new ControllerMap();
+        $this->index['POST']->register('national/employee/import/email', function($args) use ($employee) {
+            try 
+            {   
+                $retEmpInfo = array();
+                $email = $_POST["email"];
+                $username = $employee->lookupEmail($email);
+
+                require_once __DIR__ . "/../../sources/Employee.php";
+                require_once __DIR__ . "/../../sources/Login.php";
+                require_once __DIR__ . "/../../config.php";
+                require_once __DIR__ . "/../../db_mysql.php";
+
+                $config = new Orgchart\Config();
+                $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+                $login = new Orgchart\Login($db, $db);
+                $localEmp = new Orgchart\Employee($db, $login);
+
+                $localUID = $localEmp->importFromNational($username[0]["userName"]);
+                $empObj = array("userName" => $username[0]["empUID"],
+                                "email" => $username[0]["data"]);
+                $retEmpInfo[$localUID] = $empObj;
+
+                return $retEmpInfo;
+            }
+            catch (Exception $e) 
+            {
+                return $e->getMessage();
+            }
+            
+        });
+
+        return $this->index['POST']->runControl($act['key'], $act['args']);
+    }
 }
