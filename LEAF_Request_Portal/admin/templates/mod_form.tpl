@@ -997,7 +997,7 @@ function getForm(indicatorID, series) {
                 </table>\
         </fieldset>\
         <span class="buttonNorm" id="button_advanced">Advanced Options</span>\
-        <div><fieldset id="advanced" style="visibility: hidden"><legend>Advanced Options</legend>\
+        <div><fieldset id="advanced" style="visibility: hidden; height: 0;"><legend>Advanced Options</legend>\
             Template Variables:<br />\
             <table class="table">\
             <tr>\
