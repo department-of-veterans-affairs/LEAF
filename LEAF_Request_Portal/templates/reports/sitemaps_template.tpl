@@ -14,7 +14,7 @@
 
     function createGroup() {
         dialog.setTitle('Add New Card');
-        dialog.setContent('<div><div role="heading">Card Title: </div><input aria-label="" id=""></input><div role="heading" style="margin-top: 1rem;">Card Description: </div><input aria-label="Enter group name" id=""></input><div role="heading" style="margin-top: 1rem;">Target Site Address: </div><input aria-label="" id=""></input><div role="heading" style="margin-top: 1rem;">Card Color: </div></div>');
+        dialog.setContent('<div><div role="heading">Card Title: </div><input aria-label="" id=""></input><div role="heading" style="margin-top: 1rem;">Card Description: </div><input aria-label="Enter group name" id=""></input><div role="heading" style="margin-top: 1rem;">Target Site Address: </div><input aria-label="" id=""></input></div>');
 
         dialog.show();
         $('input:visible:first, select:visible:first').focus();
