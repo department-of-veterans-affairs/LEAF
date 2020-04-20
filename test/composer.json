@@ -1,7 +1,7 @@
 {
   "require": {
     "guzzlehttp/guzzle": "~6.0@dev",
-    "phpunit/phpunit": "^6.5",
+    "phpunit/phpunit": "^7.4",
     "robmorgan/phinx": "^0.10.6"
   },
   "autoload": {
