@@ -562,7 +562,13 @@ abstract class Data
 
         $res = $this->db->prepared_query("INSERT INTO {$this->dataTagTable} ({$this->dataTableUID}, tag)
                                             VALUES (:UID, :tag)", $vars);
+
         $this->updateLastModified();
+        
+        $this->logAction(\DataActions::ADD, \LoggableTypes::TAG, [
+            new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        ]);
 
         return true;
     }
@@ -581,7 +587,13 @@ abstract class Data
         $res = $this->db->prepared_query("DELETE FROM {$this->dataTagTable}
                                             WHERE {$this->dataTableUID}=:UID
                                                 AND tag=:tag", $vars);
+
         $this->updateLastModified();
+        
+        $this->logAction(\DataActions::DELETE, \LoggableTypes::TAG, [
+            new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        ]);
 
         return true;
     }
