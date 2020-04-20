@@ -2,31 +2,60 @@
 @import "./node_modules/uswds/src/stylesheets/uswds.scss";
 
 /* ################# font declarations ################# */
-@font-face { font-family: 'Public Sans Regular'; src: url(fonts/public-sans/PublicSans-Regular.ttf); }
-@font-face { font-family: 'Public Sans Bold'; src: url(fonts/public-sans/PublicSans-Bold.ttf); }
-@font-face { font-family: 'Public Sans Black'; src: url(fonts/public-sans/PublicSans-Black.ttf); }
+
+@font-face {font-family: 'Public Sans Regular'; src: url(fonts/public-sans/PublicSans-Regular.ttf);}
+@font-face {font-family: 'Public Sans Bold'; src: url(fonts/public-sans/PublicSans-Bold.ttf);}
+@font-face {font-family: 'Public Sans Black'; src: url(fonts/public-sans/PublicSans-Black.ttf);}
 
 /* ############### global overrides ################# */
-h1, h2, h3, h4, h5, h6 { font-family: 'Public Sans Bold'; }
+h1, h2, h3, h4, h5, h6 {font-family: 'Public Sans Bold';}
 h1 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 h2 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
-main { font-family: 'Public Sans Regular'; }
+main {font-family: 'Public Sans Regular';}
 
 /* ############### CSS attribute classes ################# */
-.leaf-displayBlock {  display: block; }
-.leaf-displayInlineBlock {  display: inline-block; }
-.leaf-width100pct { width: 100%; }
+.leaf-float-right {float: right;}
+.leaf-float-left {float: left;}
+.leaf-displayBlock {display: block;}
+.leaf-displayInlineBlock {display: inline-block;}
+.leaf-textCentered {text-align: center!important;}
+.leaf-clearBoth {clear: both;}
 
 /* ############### global classes ################# */
-.leaf-textCentered {  text-align: center!important; }
-.leaf-padAll1rem { padding: 1rem; }
+.leaf-padAll1rem {padding: 1rem;}
+.leaf-marginAll1rem {margin: 1rem;}
 
 /* ############### special classes ################# */
-.leaf-buttonBar {  text-align: center; margin: 1.0rem 0; }
+.leaf-buttonBar {text-align: center; margin: 1.0rem 0;}
 .leaf-content-show {display: block;}
 .leaf-content-hide {display: none;}
-.leaf-grey-box { padding: 1rem; background-color: #e6e6e6;}
+.leaf-grey-box {padding: 1rem; background-color: #e6e6e6;}
+.leaf-btn-small {padding: 0.5rem; font-size: 0.7rem;}
+.leaf-sidenav-bottomBtns {margin: 0.5rem;}
+.leaf-sitemap-card {
+    width: 19rem;
+    margin: 0.5rem;
+    padding: 0.4rem 1.0rem;
+    box-shadow: 2px 2px 2px #e6e6e6;
+    border: 1px solid #332d27;
+    min-height: 9rem;
+    float: left;
+    background-color: #fff;
+    cursor: move;
+    }
+    .active {background-color: #faf3d1;}
+.leaf-sitemap-addCard {
+        width: 19rem;
+        margin: 0.5rem;
+        padding: 0.4rem 1.0rem;
+        box-shadow: 2px 2px 2px #e6e6e6;
+        border: 1px solid #332d27;
+        border-style: dashed;
+        min-height: 6rem;
+        float: left;
+        background-color: #fff;
+        }
 
 /* ################## step progress bar ################# */
 ul.leaf-progress-bar {
