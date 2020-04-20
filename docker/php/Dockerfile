@@ -11,9 +11,10 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/certs/l
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
 ENV PATH /root/.composer/vendor/bin:$PATH
-RUN composer global require phpunit/phpunit ^6.0
+RUN composer global require phpunit/phpunit ^7.4
 RUN composer global require robmorgan/phinx ^0.9.2
 
+RUN pecl install xdebug
 
 EXPOSE 80
 EXPOSE 443
@@ -26,6 +27,10 @@ RUN apt-get install -y ssmtp && \
 # mv php.ini and replace log dir
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
+RUN echo 'zend_extension="/usr/local/lib/php/extensions/no-debug-non-zts-20180731/xdebug.so"' >> /usr/local/etc/php/php.ini && \
+    echo "xdebug.remote_enable=1" >> /usr/local/etc/php/php.ini && \
+    echo "xdebug.remote_port=9000" >> /usr/local/etc/php/php.ini
+
 
 COPY /docker/php/ssmtp/ssmtp.conf /etc/ssmtp/
 COPY /docker/php/000-default.conf /etc/apache2/sites-enabled/
@@ -37,4 +42,3 @@ RUN chmod +x /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
 RUN chmod -R g+rwX /var/www
-
