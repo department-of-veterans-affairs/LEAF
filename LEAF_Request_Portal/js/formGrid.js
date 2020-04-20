@@ -708,9 +708,16 @@ var LeafFormGrid = function(containerID, options) {
             var thisSite = document.createElement('a');
             var numColumns = headers.length - 1;
             $('#' + prefixID + 'tbody>tr>td').each(function(idx, val) {
-                line[i] = $(val).text().trim();
+                var foundScripts = val.querySelectorAll('script');
+
+                for(var tIdx = 0; tIdx < foundScripts.length; tIdx++) {
+                    foundScripts[tIdx].parentNode.removeChild(foundScripts[tIdx]);
+                }
+
+                var trimmedText = val.innerText.trim();
+                line[i] = trimmedText;
                 if(i == 0 && headers[i] == 'UID') {
-                    line[i] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + $(val).text().trim() +'", "'+ $(val).text().trim() +'")';
+                    line[i] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + trimmedText +'", "'+ trimmedText +'")';
                 }
                 i++;
                 if(i > numColumns) {
