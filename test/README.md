@@ -5,18 +5,6 @@ LEAF uses:
 * [PHPUnit](https://phpunit.de/) for unit testing.
 * [Phinx](https://phinx.org/) for database migrations.
 
-## Setup
-
-Install [composer](https://getcomposer.org/).
-
-Composer handles any PHP dependencies for the testing project. Initialize composer dependencies with:
-
-```bash
-composer install
-```
-
-Composer will install `PHPUnit` and `Phinx`, so they do not need to installed separately. Both `PHPUnit` and `Phinx` can be installed globally to avoid the `./vendor/bin/` prefix when running commands, just make sure the versions installed globally match the versions listed in [composer.json](composer.json). 
-
 ### Configuring Phinx
 
 Each testing project has it's own Phinx configuration since the two databases are independent of each other.
