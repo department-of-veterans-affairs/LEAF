@@ -37,6 +37,14 @@ class GroupFormatter {
         DataActions::DELETE.'-'.LoggableTypes::POSITION=> [
             "message"=>"Position %s has been removed from Group %s",
             "variables"=>"positionID,groupID"
+        ],
+        DataActions::ADD.'-'.LoggableTypes::TAG=>[
+            "message"=> "Tag '%s' added",
+            "variables"=>"tag"
+        ],
+        DataActions::DELETE.'-'.LoggableTypes::TAG=>[
+            "message"=> "Tag '%s' removed",
+            "variables"=>"tag"
         ]
     ];
 

@@ -497,12 +497,10 @@
                                                         if (typeof (emp) !== "undefined" && emp !== null && res.length === 1) {
                                                             nexusAPI.Employee.importFromNational({
                                                                 'onSuccess': function (results) {
-                                                                    if (results.length === 1) {
+                                                                    if (!isNaN(results)) {
                                                                         requestData[indicatorArray[completed]] = parseInt(results);
-                                                                    } else if (results.length > 1) {
-                                                                        requestData['failed'] = currentCol + titleIndex + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
                                                                     } else {
-                                                                        requestData['failed'] = currentCol + titleIndex + ': Employee ' + sheetEmp + ' not found.';
+                                                                        requestData['failed'] = currentCol + titleIndex + ': Employee ' + sheetEmp + ' not found. Error: '+ results;
                                                                     }
                                                                     completed++;
                                                                     answerQuestions();
@@ -656,12 +654,10 @@
                                             if (typeof (emp) !== "undefined" && emp !== null && res.length === 1) {
                                                 nexusAPI.Employee.importFromNational({
                                                     'onSuccess': function (results) {
-                                                        if (results.length === 1) {
+                                                        if (!isNaN(results)) {
                                                             requestData[currentIndicator] = parseInt(results);
-                                                        } else if (results.length > 1) {
-                                                            requestData['failed'] = indicatorColumn + titleIndex + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
                                                         } else {
-                                                            requestData['failed'] = indicatorColumn + titleIndex + ': Employee ' + sheetEmp + ' not found.';
+                                                            requestData['failed'] = indicatorColumn + titleIndex + ': Employee ' + sheetEmp + ' not found. Error: '+ results;
                                                         }
                                                         completed++;
                                                         answerQuestions();

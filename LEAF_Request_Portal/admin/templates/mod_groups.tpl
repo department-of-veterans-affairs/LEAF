@@ -350,7 +350,6 @@ function getGroupList() {
 function viewHistory(groupID){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Group History');
-    dialog_simple.show();
 	dialog_simple.indicateBusy();
 
     $.ajax({
@@ -360,9 +359,11 @@ function viewHistory(groupID){
         success: function(res) {
             dialog_simple.setContent(res);
             dialog_simple.indicateIdle();
+            dialog_simple.show();
         },
         cache: false
     });
+
 }
 
 // used to import and add groups

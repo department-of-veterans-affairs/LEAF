@@ -17,4 +17,5 @@ class LoggableTypes {
     const DEPENDENCY_PRIVS = "dependency_privs";
     const ROUTE_EVENTS = "route_events";
     const ACTIONS = "actions";
+    const TAG = "tag";
 }

@@ -918,6 +918,10 @@ button.buttonNorm {
     transition: width 0.5s;
 }
 
+.ui-dialog, .ui-dialog-content {
+    box-sizing: content-box;
+}
+
 .card {
     box-shadow: 0 2px 6px #8e8e8e;
     background-color: white;
