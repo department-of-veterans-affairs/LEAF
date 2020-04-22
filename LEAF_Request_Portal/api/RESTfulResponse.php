@@ -547,7 +547,8 @@ abstract class RESTfulResponse
         return $columns;
     }
 
-    private function filterDataS1($s1, $filter)
+    // filterDataS1 is a helper function for filterData
+    private function filterDataS1($s1)
     {
         $sids = array_keys($s1);
         // iterate through keys within each s1 set
@@ -559,6 +560,7 @@ abstract class RESTfulResponse
         return $s1;
     }
 
+    // filterDataActionHistory is a helper function for filterData
     private function filterDataActionHistory($actionHistory, $filter)
     {
         // iterate through keys within each action_history set
