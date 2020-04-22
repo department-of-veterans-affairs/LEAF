@@ -547,6 +547,32 @@ abstract class RESTfulResponse
         return $columns;
     }
 
+    private function filterDataS1($s1, $filter)
+    {
+        $sids = array_keys($s1);
+        // iterate through keys within each s1 set
+        foreach($sids as $sKey) {
+            if(strpos($sKey, '_timestamp') !== false) {
+                unset($s1[$sKey]);
+            }
+        }
+        return $s1;
+    }
+
+    private function filterDataActionHistory($actionHistory, $filter)
+    {
+        // iterate through keys within each action_history set
+        foreach($actionHistory as $actionIdx => $actionItem) {
+            $actionKeys = array_keys($actionItem);
+            foreach($actionKeys as $actionKey) {
+                if(!isset($filter['action_history.' . $actionKey])) {
+                    unset($actionHistory[$actionIdx][$actionKey]);
+                }
+            }
+        }
+        return $actionHistory;
+    }
+
     /**
      * filterData is an experimental output filter used to lower data transfer to clients.
      * $_GET['x-filterData'] is a CSV of desired array keys. All other keys will be filtered out.
@@ -560,7 +586,8 @@ abstract class RESTfulResponse
      * The experimental parameter x-filterData is subject to change and use of this
      * should be limited.
      */
-    private function filterData($data) {
+    private function filterData($data)
+    {
         if(isset($_GET['x-filterData'])) {
             $filter = explode(',', $_GET['x-filterData'], 32);
             $filter = array_flip($filter);
@@ -581,26 +608,12 @@ abstract class RESTfulResponse
                     if(isset($data[$key]['s1'])
                         && !isset($filter['id_timestamp'])
                     ) {
-                        $sids = array_keys($data[$key]['s1']);
-                        // iterate through keys within each s1 set
-                        foreach($sids as $sKey) {
-                            if(strpos($sKey, '_timestamp') !== false) {
-                                unset($data[$key]['s1'][$sKey]);
-                            }
-                        }
+                        $data[$key]['s1'] = $this->filterDataS1($data[$key]['s1'], $filter);
                     }
 
                     // filter out action_history fields if applicable
                     if(isset($data[$key]['action_history'])) {
-                        // iterate through keys within each action_history set
-                        foreach($data[$key]['action_history'] as $actionIdx => $actionItem) {
-                            $actionKeys = array_keys($actionItem);
-                            foreach($actionKeys as $actionKey) {
-                                if(!isset($filter['action_history.' . $actionKey])) {
-                                    unset($data[$key]['action_history'][$actionIdx][$actionKey]);
-                                }
-                            }
-                        }
+                        $data[$key]['action_history'] = $this->filterDataActionHistory($data[$key]['action_history'], $filter);
                     }
                 }
             }
