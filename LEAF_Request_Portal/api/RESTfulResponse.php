@@ -610,7 +610,7 @@ abstract class RESTfulResponse
                     if(isset($data[$key]['s1'])
                         && !isset($filter['id_timestamp'])
                     ) {
-                        $data[$key]['s1'] = $this->filterDataS1($data[$key]['s1'], $filter);
+                        $data[$key]['s1'] = $this->filterDataS1($data[$key]['s1']);
                     }
 
                     // filter out action_history fields if applicable
