@@ -2,6 +2,7 @@ FROM php:7.3.5-apache
 MAINTAINER Dastan Rahimi <dastan.rahimi@ablevets.com>
 
 RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git zip unzip
+
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 RUN docker-php-ext-install gd
 RUN a2enmod rewrite
@@ -10,11 +11,12 @@ RUN a2enmod env
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/certs/leaf.key -out /etc/ssl/certs/leaf.pem -subj "/C=US/ST=VA/L=Chantilly/O=LEAF/OU=LEAF/CN=%"
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
-ENV PATH /root/.composer/vendor/bin:$PATH
+
 RUN composer global require phpunit/phpunit ^7.4
 RUN composer global require robmorgan/phinx ^0.9.2
+#ENV PATH /root/.composer/vendor/bin:$PATH
+ENV PATH="~/.composer/vendor/bin:./vendor/bin:${PATH}"
 
-RUN pecl install xdebug
 
 EXPOSE 80
 EXPOSE 443
@@ -27,9 +29,12 @@ RUN apt-get install -y ssmtp && \
 # mv php.ini and replace log dir
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-RUN echo 'zend_extension="/usr/local/lib/php/extensions/no-debug-non-zts-20180731/xdebug.so"' >> /usr/local/etc/php/php.ini && \
-    echo "xdebug.remote_enable=1" >> /usr/local/etc/php/php.ini && \
-    echo "xdebug.remote_port=9000" >> /usr/local/etc/php/php.ini
+# xdebug
+RUN yes | pecl install xdebug \
+    && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" >> $PHP_INI_DIR/php.ini \
+    && echo "xdebug.remote_enable=on" >> $PHP_INI_DIR/php.ini \
+    && echo "xdebug.remote_autostart=off" >> $PHP_INI_DIR/php.ini
+
 
 
 COPY /docker/php/ssmtp/ssmtp.conf /etc/ssmtp/
