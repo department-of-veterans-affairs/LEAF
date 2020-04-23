@@ -83,6 +83,8 @@ abstract class RESTfulResponse
      */
     public function output($out = '')
     {
+        $out = $this->filterData($out);
+
         //header('Access-Control-Allow-Origin: *');
         $format = isset($_GET['format']) ? $_GET['format'] : '';
         switch ($format) {
@@ -543,5 +545,82 @@ abstract class RESTfulResponse
         }
 
         return $columns;
+    }
+
+    // filterDataS1 is a helper function for filterData
+    private function filterDataS1($s1)
+    {
+        $sids = array_keys($s1);
+        // iterate through keys within each s1 set
+        foreach($sids as $sKey) {
+            if(strpos($sKey, '_timestamp') !== false) {
+                unset($s1[$sKey]);
+            }
+        }
+        return $s1;
+    }
+
+    // filterDataActionHistory is a helper function for filterData
+    private function filterDataActionHistory($actionHistory, $filter)
+    {
+        // iterate through keys within each action_history set
+        foreach($actionHistory as $actionIdx => $actionItem) {
+            $actionKeys = array_keys($actionItem);
+            foreach($actionKeys as $actionKey) {
+                if(!isset($filter['action_history.' . $actionKey])) {
+                    unset($actionHistory[$actionIdx][$actionKey]);
+                }
+            }
+        }
+        return $actionHistory;
+    }
+
+    /**
+     * filterData is an experimental output filter used to lower data transfer to clients.
+     * $_GET['x-filterData'] is a CSV of desired array keys. All other keys will be filtered out.
+     * 
+     * id_timestamp is a special key to signal a need for s1.id##_timestamp values.
+     * 
+     * Arrays nested within first level keys can be retrieved via [key].[subkey]
+     * For example, action_history.approverName would enable all approverNames within
+     * each action_history item.
+     * 
+     * The experimental parameter x-filterData is subject to change and use of this
+     * should be limited.
+     */
+    private function filterData($data)
+    {
+        if(isset($_GET['x-filterData'])) {
+            $filter = explode(',', $_GET['x-filterData'], 32);
+            $filter = array_flip($filter);
+            // add data fields that are implicitly requested
+            $filter['s1'] = 1;
+            $filter['action_history'] = 1;
+
+            // iterate through each record
+            foreach($data as $key => $value) {
+                $ids = array_keys($value);
+                // iterate through keys within each record
+                foreach($ids as $id) {
+                    if(!isset($filter[$id])) {
+                        unset($data[$key][$id]);
+                    }
+
+                    // filter out s1 timestamps if applicable
+                    if(isset($data[$key]['s1'])
+                        && !isset($filter['id_timestamp'])
+                    ) {
+                        $data[$key]['s1'] = $this->filterDataS1($data[$key]['s1']);
+                    }
+
+                    // filter out action_history fields if applicable
+                    if(isset($data[$key]['action_history'])) {
+                        $data[$key]['action_history'] = $this->filterDataActionHistory($data[$key]['action_history'], $filter);
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 }
