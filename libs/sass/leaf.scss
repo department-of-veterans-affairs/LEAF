@@ -1,5 +1,17 @@
 /*! uswds pulled from node modules */
 @import "./node_modules/uswds/src/stylesheets/uswds.scss";
+/*! fontawesome icon library import */
+@import "../scss/fontawesome.scss";
+@import "../scss/solid.scss";
+
+.user {
+    @extend %fa-icon;
+    @extend .fas;
+  
+    &:before {
+      content: fa-content($fa-var-user);
+    }
+  }
 
 /* ################# font declarations ################# */
 
