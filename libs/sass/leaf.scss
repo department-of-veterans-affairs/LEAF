@@ -1,25 +1,11 @@
-/*! fontawesome icon library import */
-@import "../scss/fontawesome.scss";
-@import "../scss/solid.scss";
-
-.user {
-    @extend %fa-icon;
-    @extend .fas;
-  
-    &:before {
-      content: fa-content($fa-var-user);
-    }
-  }
-.adjust {
-    @extend %fa-icon;
-    @extend .fas;
-    &:before {
-        content: fa-content($fa-var-adjust);
-      }
-}
+/*! uswds pulled from node modules */
+@import "./node_modules/uswds/src/stylesheets/uswds.scss";
+@import "./node_modules/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "./node_modules/@fortawesome/fontawesome-free/scss/solid";
 
 /* ################# font declarations ################# */
-
+@font-face {font-family: 'fa-solid'; src: url(fonts/fontawesome/fa-solid-900.woff2);}
+.fas {font-family: 'fa-solid';}
 @font-face {font-family: 'Public Sans Regular'; src: url(fonts/public-sans/PublicSans-Regular.ttf);}
 @font-face {font-family: 'Public Sans Bold'; src: url(fonts/public-sans/PublicSans-Bold.ttf);}
 @font-face {font-family: 'Public Sans Black'; src: url(fonts/public-sans/PublicSans-Black.ttf);}
