@@ -1,7 +1,8 @@
 # Prerequisites
 
-Download and install Git
-Download and install Docker for Desktop
+Install Git
+
+Install Docker for Desktop
 
 # Installation
 
