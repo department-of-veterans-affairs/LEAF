@@ -15,19 +15,22 @@ services:
         - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
         - ../libs:/var/www/html/libs
         - ../test:/var/www/html/test
+#        - ${PWD}/php/etc/php.ini:/usr/local/etc/php/php.ini
       networks:
         code-network:
           aliases:
             - php
       environment:
         - REMOTE_USER=${REMOTE_USER}
-
+        - APACHE_RUN_USER=build_user
+        - UID=${UID}
+        - GID=${GID}
 
   swagger-ui:
     image: swaggerapi/swagger-ui
     container_name: "swagger-ui"
     ports:
-      - "8080:8080"
+      - "8081:8080"
     restart: 'always'
     volumes:
       - ./swagger/nexus-swagger.json:/usr/share/nginx/html/api/nexus-swagger.json
