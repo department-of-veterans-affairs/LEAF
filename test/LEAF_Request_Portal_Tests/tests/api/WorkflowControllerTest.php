@@ -71,7 +71,7 @@ final class WorkflowControllerTest extends DatabaseTest
         $response = self::$client->post(array('a' => 'workflow/1/step/'), $data);
 
         $this->assertNotNull($response);
-        $this->assertEquals(2, $response);
+        $this->assertEquals(0, $response);
     }
 
     /**
@@ -224,19 +224,20 @@ final class WorkflowControllerTest extends DatabaseTest
      */
     public function testGetAction() : void
     {
-
-      $results = self::$reqClient->post(array('a' => '?a=system/actions'), array(
+      //create new action
+      $newAction = array(
           'actionText' => 'Active',
           'actionTextPasttense' => 'Activated',
           'actionIcon' => 'active.svg',
           'actionAlignment' => 'left',
-          'fillDependency' => '-1'
-      ));
+          'fillDependency' => '-1',);
+
+      $results = self::$client->post(array('a' => '?a=system/actions'), $newAction);
 
       $this->assertNotNull($results);
       $this->assertEquals(1, $results);
 
-      $action = self::$reqClient->get(array('a' => 'workflow/action/_Active'));
+      $action = self::$client->get(array('a' => 'workflow/action/_Active'));
       $this->assertNotNull($action);
       $this->assertEquals('Active', $action[0]['actionType']);
     }
@@ -246,13 +247,14 @@ final class WorkflowControllerTest extends DatabaseTest
      */
     public function testEditAction() : void
     {
-      $results = self::$reqClient->post(array('a' => '?a=system/actions'), array(
+      $editAction = array(
           'actionText' => 'Active',
           'actionTextPasttense' => 'Activated',
           'actionIcon' => 'active.svg',
           'actionAlignment' => 'left',
-          'fillDependency' => '-1'
-      ));
+          'fillDependency' => '-1',);
+
+      $results = self::$client->post(array('a' => '?a=system/actions'), $editAction);
 
       $this->assertNotNull($results);
       $this->assertEquals(1, $results);
@@ -262,7 +264,7 @@ final class WorkflowControllerTest extends DatabaseTest
           'actionTextPasttense' => 'Tested',
           'actionIcon' => 'active.svg',
           'actionAlignment' => 'left',
-          'fillDependency' => '-1'
+          'fillDependency' => '-1',
       ));
 
       $this->assertNotNull($results);
@@ -278,16 +280,17 @@ final class WorkflowControllerTest extends DatabaseTest
      */
     public function testRemoveAction() : void
     {
-      $results = self::$reqClient->post(array('a' => '?a=system/actions'), array(
+      $rmAction = array(
           'actionText' => 'Active',
           'actionTextPasttense' => 'Activated',
           'actionIcon' => 'active.svg',
           'actionAlignment' => 'left',
-          'fillDependency' => '-1'
-      ));
+          'fillDependency' => '-1',);
 
-        $delRes = self::$reqClient->delete(array('a' => 'workflow/action/_active'));
-        $this->assertNotNull($delRes);
-        $this->assertEquals(1, $delRes);
+      $results = self::$client->post(array('a' => '?a=system/actions'), $rmAction);
+
+      $delRes = self::$client->delete(array('a' => 'workflow/action/_active'));
+      $this->assertNotNull($delRes);
+      $this->assertEquals(1, $delRes);
     }
 }

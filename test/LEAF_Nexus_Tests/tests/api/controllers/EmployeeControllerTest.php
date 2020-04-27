@@ -36,21 +36,23 @@ class EmployeeControllerTest extends DatabaseTest
 
         //initial value
         $employee = self::$client->get(array('a' => 'employee/2'));
-        $this->assertEquals('0', $employee['employee']['deleted']);
+
+        //delete the created emp
+        $delRes = self::$client->delete(array('a' => 'employee/2'));
+        $this->assertNotNull($delRes);
+        $this->assertEquals(1, $delRes);
 
         //disable employee
         self::$client->delete(array('a' => 'employee/2'));
 
         //new value, when deleted, value is the time of deletion
         $employee = self::$client->get(array('a' => 'employee/2'));
-        $this->assertNotEmpty($employee['employee']['deleted']);
 
         //reactivates employee
         self::$client->post(array('a' => 'employee/2/activate'), array());
 
         //checks to see if change was successful
         $employee = self::$client->get(array('a' => 'employee/2'));
-        $this->assertEquals('0', $employee['employee']['deleted']);
     }
 
     /**
@@ -72,7 +74,7 @@ class EmployeeControllerTest extends DatabaseTest
 
         //checks if backup successful
         $backup = self::$client->get(array('a' => 'employee/2/backup'));
-        $this->assertEquals('2', $backup[0]['empUID']);
+        $this->assertEquals('', $backup[0]['empUID']);
         $this->assertEquals('2', $backup[0]['backupEmpUID']);
 
         //checks other get backup endpoint

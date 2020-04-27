@@ -45,7 +45,7 @@ final class ImportControllerTest extends TestCase
      */
     public function testImportXLS() : void
     {
-        $arr = self::$reqClient->get(array(
+      $arr = self::$reqClient->get(array(
             'a' => 'import/xls',
             'importFile' => self::$testFileName,
             'hasHeaders' => 1,
@@ -61,7 +61,7 @@ final class ImportControllerTest extends TestCase
         $this->assertEquals('Occupation', $headers['B']);
         $this->assertEquals('Hobbies', $headers['C']);
 
-        $cells = $arr['cells'];
+        $cells = $array['cells'];
         $this->assertNotNull($cells);
         $this->assertEquals(3, count($cells));
 
