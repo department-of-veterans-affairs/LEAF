@@ -13,6 +13,13 @@ if ("cli" == php_sapi_name()) { // TODO; also abort if XDEBUG_PROFILE is not fou
     return;
 }
 
+
+/**
+ * Call back is registered to finish generating code coverage
+ *
+ * @param CodeCoverage $coverage Code coverage parameter
+ * @return void
+ */
 function shutdown($coverage)
 {
     // This is our shutdown function, in
@@ -22,7 +29,7 @@ function shutdown($coverage)
     $coverage->stop();
 
     $cov = '<?php return unserialize(' . var_export(serialize($coverage), true) . ');';
-    $str=rand();
+    $str = rand();
     $result = md5($str);
     file_put_contents('/var/www/html/test/cov/site.' . date('U') . $result . '.cov', $cov);
     error_log('Saving code coverage file');
