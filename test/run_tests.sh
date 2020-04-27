@@ -29,10 +29,11 @@ cd /var/www/html/test/prepend/
 (
   # Rename coverage report api folder due to apache ReWrite Rule.
   cd ../cov/report/
-  mv LEAF_Nexus/api LEAF_Nexus/apiapi
-  mv LEAF_Request_Portal/api LEAF_Request_Portal/apiapi
-  sed -e 's|api/index|apiapi/index|g' -i'' LEAF_Nexus/index.html
-  sed -e 's|api/index|apiapi/index|g' -i'' LEAF_Request_Portal/index.html
+  mv LEAF_Nexus/api LEAF_Nexus/api-test
+  mv LEAF_Request_Portal/api LEAF_Request_Portal/api-test
+  sed -e 's|api/index|api-test/index|g' -i'' LEAF_Nexus/index.html
+  sed -e 's|api/index|api-test/index|g' -i'' LEAF_Request_Portal/index.html
 )
 
 echo "Coverage Report: http://localhost/test/cov/report/"
+

@@ -1,10 +1,12 @@
-version: "2"
+version: "3.4"
 
 services:
   php:
       build:
         context: ../
         dockerfile: docker/php/Dockerfile
+        args:
+          - BUILD_UID=${BUILD_UID}
       ports:
         - 80:80
         - 443:443
@@ -15,7 +17,6 @@ services:
         - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
         - ../libs:/var/www/html/libs
         - ../test:/var/www/html/test
-#        - ${PWD}/php/etc/php.ini:/usr/local/etc/php/php.ini
       networks:
         code-network:
           aliases:
@@ -23,8 +24,6 @@ services:
       environment:
         - REMOTE_USER=${REMOTE_USER}
         - APACHE_RUN_USER=build_user
-        - UID=${UID}
-        - GID=${GID}
 
   swagger-ui:
     image: swaggerapi/swagger-ui

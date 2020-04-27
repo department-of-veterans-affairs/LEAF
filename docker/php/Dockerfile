@@ -39,7 +39,8 @@ COPY /docker/php/default-ssl.conf /etc/apache2/sites-enabled/
 COPY /docker/php/apache2.conf /etc/apache2/
 COPY /docker/php/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
 
-RUN useradd -u 1000 -g www-data build_user
+ARG BUILD_UID=1000
+RUN useradd -u $BUILD_UID -g www-data build_user
 
 RUN chmod +x /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /var/www/html/
