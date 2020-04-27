@@ -1,158 +1,142 @@
-<div class="menu">
+<div class="leaf-center-content">
 
-<a href="?a=mod_groups" role="button">
-    <span class="menuButton" style="background-color: #bfe6ff">
-        <img class="menuIcon" src="../../libs/dynicons/?img=system-users.svg&amp;w=96" style="position: relative" alt="Modify users and groups" title="Modify users and groups" />
-        <span class="menuText">User Access Groups</span><br />
-        <span class="menuDesc">Modify users and groups</span>
-    </span>
-</a>
+    <a href="?a=mod_groups" role="button" class="leaf-admin-button bg-mint-10">
+        <i class="leaf-admin-btnicon fas fa-users text-mint-50" alt="Modify users and groups" title="Modify users and groups"></i>
+        <span class="leaf-admin-btntitle">User Access Groups</span>
+        <span class="leaf-admin-btndesc">Modify users and groups</span>
+    </a>
 
-<a href="?a=mod_svcChief" role="button">
-    <span class="menuButton" style="background-color: #aeedb5">
-        <img class="menuIcon" src="../../libs/dynicons/?img=system-users.svg&amp;w=96" style="position: relative" alt="Modify service chief listing" title="Modify service chief listing" />
-        <span class="menuText">Service Chiefs</span><br />
-        <span class="menuDesc">Review service chiefs and set backups</span>
-    </span>
-</a>
+    <a href="?a=mod_svcChief" role="button" class="leaf-admin-button bg-red-10">
+        <i class="leaf-admin-btnicon fas fa-user-friends text-red-50" alt="Modify service chief listing" title="Modify service chief listing"></i>
+        <span class="leaf-admin-btntitle">Service Chiefs</span>
+        <span class="leaf-admin-btndesc">Review service chiefs and set backups</span>
+    </a>
 
-<!--{if $siteType != 'national_subordinate'}-->
-<a href="?a=workflow" role="button">
-    <span class="menuButton" style="background-color: #a3acff">
-        <img class="menuIcon" src="../../libs/dynicons/?img=gnome-system-run.svg&amp;w=96" style="position: relative" alt="Workflow Visualizer" title="Workflow Visualizer" />
-        <span class="menuText">Workflow Editor</span><br />
-        <span class="menuDesc">Edit flowcharts for workflows</span>
-    </span>
-</a>
-<!--{/if}-->
+    <!--{if $siteType != 'national_subordinate'}-->
+    <a href="?a=workflow" role="button" class="leaf-admin-button bg-yellow-10">
+        <i class="leaf-admin-btnicon fas fa-cogs text-yellow-50" alt="Workflow Visualizer" title="Workflow Visualizer"></i>
+        <span class="leaf-admin-btntitle">Workflow Editor</span>
+        <span class="leaf-admin-btndesc">Edit flowcharts for workflows</span>
+    </a>
+    <!--{/if}-->
 
-<a href="?a=mod_system" role="button">
-    <span class="menuButton" style="background-color: #fffde6">
-        <img class="menuIcon" src="../../libs/dynicons/?img=preferences-desktop-wallpaper.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuText">Site Settings</span><br />
-        <span class="menuDesc">Edit site name, time zone, and other labels</span>
-    </span>
-</a>
+    <a href="?a=mod_system" role="button" class="leaf-admin-button bg-cyan-10">
+        <i class="leaf-admin-btnicon fas fa-keyboard text-cyan-50" alt="Bookmarks" title="Bookmarks"></i>
+        <span class="leaf-admin-btntitle">Site Settings</span>
+        <span class="leaf-admin-btndesc">Edit site name, time zone, and other labels</span>
+    </a>
 
-<!--{if $siteType != 'national_subordinate'}-->
-<a href="?a=form" role="button">
-    <span class="menuButton" style="background-color: #d0ffce">
-        <img class="menuIcon" src="../../libs/dynicons/?img=document-properties.svg&amp;w=96" style="position: relative" alt="Workflow Visualizer" title="Workflow Visualizer" />
-        <span class="menuText">Form Editor</span><br />
-        <span class="menuDesc">Create and Modify Forms</span>
-    </span>
-</a>
-<!--{/if}-->
+    <!--{if $siteType != 'national_subordinate'}-->
+    <a href="?a=form" role="button" class="leaf-admin-button bg-green-10">
+        <i class="leaf-admin-btnicon fas fa-file-alt text-green-50" alt="Form Editor" title="Form Editor"></i>
+        <span class="leaf-admin-btntitle">Form Editor</span>
+        <span class="leaf-admin-btndesc">Create and Modify Forms</span>
+    </a>
+    <!--{/if}-->
 
-<a href="../?a=reports" role="button">
-    <span class="menuButton" style="background-color: black">
-        <img class="menuIcon" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuText" style="color: white">Report Builder</span><br />
-        <span class="menuDesc" style="color: white">Create custom reports</span>
-    </span>
-</a>
+    <a href="../?a=reports" role="button" class="leaf-admin-button bg-gold-10">
+        <i class="leaf-admin-btnicon fas fa-file-invoice text-gold-50" alt="Report Builder" title="Report Builder"></i>
+        <span class="leaf-admin-btntitle">Report Builder</span>
+        <span class="leaf-admin-btndesc">Create custom reports</span>
+    </a>
 
-<!--{if $siteType != 'national_subordinate'}-->
-<a href="?a=formLibrary" role="button">
-    <span class="menuButton" style="background-color: #2e8540">
-        <img class="menuIcon" src="../../libs/dynicons/?img=system-file-manager.svg&amp;w=96" style="position: relative" alt="Workflow Visualizer" title="Workflow Visualizer" />
-        <span class="menuText" style="color: white">LEAF Library</span><br />
-        <span class="menuDesc" style="color: white">Use a form made by the LEAF community</span>
-    </span>
-</a>
-<!--{/if}-->
+    <!--{if $siteType != 'national_subordinate'}-->
+    <a href="?a=formLibrary" role="button" class="leaf-admin-button bg-orange-10">
+        <i class="leaf-admin-btnicon fas fa-book text-orange-50" alt="LEAF Library" title="LEAF Library"></i>
+        <span class="leaf-admin-btntitle">LEAF Library</span>
+        <span class="leaf-admin-btndesc">Use a form made by the LEAF community</span>
+    </a>
+    <!--{/if}-->
 
-<a href="../report.php?a=LEAF_Timeline_Explorer" role="button">
-    <span class="menuButton" style="background-color: black">
-        <img class="menuIcon" src="../../libs/dynicons/?img=image-loading.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuText" style="color: white">Timeline Explorer</span><br />
-        <span class="menuDesc" style="color: white">Analyze timeline data</span>
-    </span>
-</a>
+    <a href="../report.php?a=LEAF_Timeline_Explorer" role="button" class="leaf-admin-button bg-red-10">
+        <i class="leaf-admin-btnicon fas fa-book text-red-50" alt="Timeline Explorer" title="Timeline Explorer"></i>
+        <span class="leaf-admin-btntitle">Timeline Explorer</span>
+        <span class="leaf-admin-btndesc">Analyze timeline data</span>
+    </a>
 
-<a href="../report.php?a=LEAF_Toolbox" role="button">
-    <span class="menuButton" style="background-color: black">
-        <img class="menuIcon" src="../../libs/dynicons/?img=applications-accessories.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuText" style="color: white">Toolbox</span><br />
-        <span class="menuDesc" style="color: white">Utilities for managing requests</span>
-    </span>
-</a>
+    <a href="../report.php?a=LEAF_Toolbox" role="button" class="leaf-admin-button">
+        <span class="menuButton bg-green-warm-5v">
+            <img class="menuIcon" src="../../libs/dynicons/?img=applications-accessories.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+            <span class="menuText">Toolbox</span><br />
+            <span class="menuDesc">Utilities for managing requests</span>
+        </span>
+    </a>
 
-<!--{if $siteType == 'national_primary'}-->
-<a href="../report.php?a=LEAF_National_Distribution" role="button">
-    <span class="menuButton" style="background-color: #574d68" >
-        <img class="menuIcon" src="../../libs/dynicons/?img=network-wireless.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
-        <span class="menuText" style="color: white">Site Distribution</span><br />
-        <span class="menuDesc" style="color: white">Deploy changes to subordinate sites</span>
-    </span>
-</a>
-<!--{/if}-->
+    <!--{if $siteType == 'national_primary'}-->
+    <a href="../report.php?a=LEAF_National_Distribution" role="button" class="leaf-admin-button">
+        <span class="menuButton">
+            <img class="menuIcon" src="../../libs/dynicons/?img=network-wireless.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
+            <span class="menuText">Site Distribution</span><br />
+            <span class="menuDesc">Deploy changes to subordinate sites</span>
+        </span>
+    </a>
+    <!--{/if}-->
 
 </div>
-<hr style="clear: both; visibility: hidden; margin-bottom: 100px"/>
-<div class="menu">
-<hr />
-<h3 role="heading" aria-level="1" tabindex="0">Advanced Options:</h3><br />
-    <a href="?a=mod_templates" role="button">
-        <span class="menuButton" style="background-color: #ffdddd" >
+
+<div class="leaf-center-content leaf-clear-both">
+<br>
+    <h3 role="heading" aria-level="1" tabindex="0">Advanced Options</h3>
+
+    <a href="?a=mod_templates" role="button" class="leaf-admin-button">
+        <span class="menuButton bg-orange-10v">
             <img class="menuIcon" src="../../libs/dynicons/?img=text-x-script.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
             <span class="menuText">Template Editor</span><br />
             <span class="menuDesc">Edit HTML Templates</span>
         </span>
     </a>
 
-    <a href="?a=admin_sync_services" role="button">
-        <span class="menuButton" style="background-color: #574d68" >
+    <a href="?a=admin_sync_services" role="button" class="leaf-admin-button">
+        <span class="menuButton bg-green-cool-10">
             <img class="menuIcon" src="../../libs/dynicons/?img=applications-other.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
-            <span class="menuText" style="color: white">Sync Services</span><br />
-            <span class="menuDesc" style="color: white">Update Service listing from Org Chart</span>
+            <span class="menuText">Sync Services</span><br />
+            <span class="menuDesc">Update Service listing from Org Chart</span>
         </span>
     </a>
 
-    <a href="?a=mod_templates_reports" role="button">
-        <span class="menuButton" style="background-color: black" >
+    <a href="?a=mod_templates_reports" role="button" class="leaf-admin-button">
+        <span class="menuButton bg-blue-10">
             <img class="menuIcon" src="../../libs/dynicons/?img=utilities-terminal.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-            <span class="menuText" style="color: white">LEAF Programmer</span><br />
-            <span class="menuDesc" style="color: white">Advanced Reports and Custom Pages</span>
+            <span class="menuText">LEAF Programmer</span><br />
+            <span class="menuDesc">Advanced Reports and Custom Pages</span>
         </span>
     </a>
-</div>
-
-<br style="clear: both" />
-<br />
-<div id="btn_programmerMode" class="buttonNorm" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">Show Other Programmer Options</div>
-
-<div id="programmerMode" class="menu" style="display: none">
-<hr />
-<h3 role="heading" aria-level="1" tabindex="0">Programmer Options:</h3><br />
-
-<a href="../?a=search" role="button">
-    <span class="menuButton" style="background-color: black">
-        <img class="menuIcon" src="../../libs/dynicons/?img=system-search.svg&amp;w=96" style="position: relative" alt="Org Chart" title="Org Chart" />
-        <span class="menuText" style="color: white">Search Database</span><br />
-        <span class="menuDesc" style="color: white">Perform custom queries</span>
-    </span>
-</a>
-
-<a href="?a=mod_file_manager" role="button">
-    <span class="menuButton" style="background-color: black">
-        <img class="menuIcon" src="../../libs/dynicons/?img=system-file-manager.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuText" style="color: white">File Manager</span><br />
-        <span class="menuDesc" style="color: white">Upload custom image assets and documents</span>
-    </span>
-</a>
-
-<a href="?a=admin_update_database" role="button">
-    <span class="menuButton" style="background-color: #ffefa5">
-        <img class="menuIcon" src="../../libs/dynicons/?img=application-x-executable.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
-        <span class="menuText">Update Database</span><br />
-        <span class="menuDesc">Updates the system database, if available</span>
-    </span>
-</a>
 
 </div>
 
-<br /><br />
+<div class="leaf-center-content leaf-clear-both">
+<br>
+    <p id="btn_programmerMode" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">Show Other Programmer Options</p>
+
+    <div id="programmerMode" style="display: none">
+        
+        <h3 role="heading" aria-level="1" tabindex="0">Programmer Options</h3>
+
+        <a href="../?a=search" role="button" class="leaf-admin-button">
+            <span class="menuButton bg-indigo-10">
+                <img class="menuIcon" src="../../libs/dynicons/?img=system-search.svg&amp;w=96" style="position: relative" alt="Org Chart" title="Org Chart" />
+                <span class="menuText">Search Database</span><br />
+                <span class="menuDesc">Perform custom queries</span>
+            </span>
+        </a>
+
+        <a href="?a=mod_file_manager" role="button" class="leaf-admin-button">
+            <span class="menuButton bg-orange-10v">
+                <img class="menuIcon" src="../../libs/dynicons/?img=system-file-manager.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+                <span class="menuText">File Manager</span><br />
+                <span class="menuDesc">Upload custom image assets and documents</span>
+            </span>
+        </a>
+
+        <a href="?a=admin_update_database" role="button" class="leaf-admin-button">
+            <span class="menuButton bg-yellow-10">
+                <img class="menuIcon" src="../../libs/dynicons/?img=application-x-executable.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
+                <span class="menuText">Update Database</span><br />
+                <span class="menuDesc">Updates the system database, if available</span>
+            </span>
+        </a>
+
+</div>
 
 <script type="text/javascript">
 /* <![CDATA[ */
