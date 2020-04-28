@@ -258,7 +258,9 @@ function getGroupList() {
                     focusGroupsAndMembers('primaryAdmin');
 
                     function openPrimaryAdminGroup(){
-                        dialog.setContent('<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><br /><h3 role="heading" tabindex="-1" >Set Primary Administrator:</h3><div id="employeeSelector"></div>');
+                        
+                        dialog.setContent('<button style="float:right" class="buttonNorm" onclick="viewHistory()"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>'+
+                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><br /><h3 role="heading" tabindex="-1" >Set Primary Administrator:</h3><div id="employeeSelector"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -351,10 +353,36 @@ function viewHistory(groupID){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Group History');
 	dialog_simple.indicateBusy();
+    
+    var type = (groupID)? "group": "primaryAdmin";
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=group&id='+groupID,
+        url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID,
+        dataType: 'text',
+        success: function(res) {
+            dialog_simple.setContent(res);
+            dialog_simple.indicateIdle();
+            dialog_simple.show();
+
+            if(type == "primaryAdmin"){
+            $("#historyName").text("Primary Admin History");
+
+            }
+        },
+        cache: false
+    });
+
+}
+
+function viewPrimaryAdminHistory(){
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('Primary Admin History');
+	dialog_simple.indicateBusy();
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type=primaryAdmin',
         dataType: 'text',
         success: function(res) {
             dialog_simple.setContent(res);
@@ -363,7 +391,6 @@ function viewHistory(groupID){
         },
         cache: false
     });
-
 }
 
 // used to import and add groups
@@ -435,8 +462,8 @@ function createGroup() {
     	dialog.indicateBusy();
         //list of possible errors returned by the api call
         possibleErrors = [
-            "Group title must not be blank", 
-            "Group title already exists", 
+            "Group title must not be blank",
+            "Group title already exists",
             "invalid parent group"
         ];
         $.ajax({
