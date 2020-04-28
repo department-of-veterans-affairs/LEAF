@@ -1,11 +1,15 @@
-<div id="sideBar" style="float: right; width: 200px">
-    <div class="buttonNorm" onclick="syncServices();" style="font-size: 120%"><img src="../../libs/dynicons/?img=go-down.svg&w=32" alt="Import from Nexus" /> Import from Nexus</div><br />
-</div>
-<br style="clear: both" />
-<div>
-    <span style="font-size: 18px; font-weight: bold"></span>
+<div class="leaf-center-content">
 
-    <div id="groupList"></div>
+    <div id="sideBar" style="float: right; width: 200px">
+        <div class="buttonNorm" onclick="syncServices();" style="font-size: 120%"><img src="../../libs/dynicons/?img=go-down.svg&w=32" alt="Import from Nexus" /> Import from Nexus</div><br />
+    </div>
+    <br style="clear: both" />
+    <div>
+        <span style="font-size: 18px; font-weight: bold"></span>
+
+        <div id="groupList"></div>
+    </div>
+    
 </div>
 
 

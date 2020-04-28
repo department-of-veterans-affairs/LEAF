@@ -1,16 +1,28 @@
-<div id="sideBar" style="float: right">
-    <button class="buttonNorm" onclick="importGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Import Group" /> Import Existing Group</button>
-    <button class="buttonNorm" onclick="createGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Group" /> Create New Group</button>
-    <button class="buttonNorm" onclick="showAllGroupHistory();" style="font-size: 120%"><img src="../../libs/dynicons/?img=appointment.svg&w=32" alt="All Group History" /> Show All Group History</button>
-</div>
-<br style="clear: both" />
-<div>
-    <h2 role="heading" tabindex="-1">Site Administrators</h2>
-    <div id="adminList"></div>
-    <div id="primaryAdmin"></div>
-    <br style="clear: both" />
-    <h2 role="heading" tabindex="-1">User Groups</h2>
-    <div id="groupList"></div>
+<div class="leaf-center-content">
+
+    <div id="sideBar" class="leaf-float-right">
+        <button class="usa-button usa-button--outline" onclick="importGroup();">
+            <i class="fas fa-copy leaf-btn-icon" alt="Import Existing Group"></i>Import Existing Group
+        </button>
+        <button class="usa-button usa-button--outline" onclick="createGroup();">
+            <i class="fas fa-plus leaf-btn-icon" alt="Create New Group"></i>Create New Group
+        </button>
+        <button class="usa-button usa-button--outline" onclick="showAllGroupHistory();">
+            <i class="fas fa-clock leaf-btn-icon" alt="Show All Group History"></i>Show All Group History
+        </button>
+    </div>
+
+    <div>
+        <h2 role="heading" tabindex="-1">Site Administrators</h2>
+        <div id="adminList"></div>
+        <div id="primaryAdmin"></div>
+    </div>
+    
+    <div class="leaf-clear-both">
+        <h2 role="heading" tabindex="-1">User Groups</h2>
+        <div id="groupList"></div>
+    </div>
+
 </div>
 
 <br style="clear: both" />

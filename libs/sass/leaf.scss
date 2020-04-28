@@ -18,6 +18,15 @@
 .usa-logo a {color: #fff; text-decoration: none;}
 .usa-navbar {border-bottom: 0; width: 100%;}
 .default-container {background-color: #fcfcfc; width: 100%;}
+.sidenav {
+    display: block;
+    float: left;
+    margin-bottom: 3rem;
+    margin-top: 2rem;
+    padding-right: 0;
+    padding-left: 2rem;
+    width: 15rem;
+    }
 
 /* ############### USWDS BUTTON OVERRIDES ################# */
 .site-button-outline-secondary {
@@ -35,6 +44,7 @@
         box-shadow: inset 0 0 0 2px rgba(255,255,255,1);
         text-decoration: none!important;
     }
+.leaf-btn-icon {margin-right: 0.5rem;}
 
 /* ############### GLOBAL OVERRIDES ################# */
 h1, h2, h3, h4, h5, h6 { font-family: 'Public Sans Bold'; }
@@ -92,9 +102,9 @@ p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
         }
 
 /* ############### CONTENT CONTAINERS ################# */
-.leaf-admin-content {max-width: 68rem; margin: 1.5rem auto 1.5rem auto;}
+.leaf-admin-content {max-width: 68rem; margin: 1.0rem auto 1.0rem auto;}
 .leaf-show-opts {font-size: 0.9rem; margin-top: 1.2rem; cursor: pointer; }
-.leaf-center-content {width: calc(96% - 5rem); margin: 1.5rem auto 1.5rem auto;}
+.leaf-center-content {width: calc(100% - 5rem); margin: 1.0rem auto 1.0rem auto;}
 
 /* ############### LEAF ADMIN BUTTONS ################# */
 .leaf-admin-button {

@@ -2,9 +2,9 @@
 <html>
 <head>
     {if $tabText != ''}
-    <title>{$tabText} - {$title} | {$city}</title>
+        <title>{$tabText} - {$title} | {$city}</title>
     {else}
-    <title>{$title} | {$city}</title>
+        <title>{$title} | {$city}</title>
     {/if}
     <style type="text/css" media="screen">
         @import "../../libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";

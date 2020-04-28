@@ -1,6 +1,6 @@
 {if $name == ''}
     <form name="login" method="post" action="?a=login">
-        <font class="alert">STATUS: {$status}</font>
+        <span class="alert">STATUS: {$status}</span>
         <input name="login" type="submit" title="Click to login" value="Login" class="submit" />
     </form>
 {else}

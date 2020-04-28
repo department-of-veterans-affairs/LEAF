@@ -3,47 +3,51 @@
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_6_of_6{width:100%}.span_5_of_6{width:83.06%}.span_4_of_6{width:66.13%}.span_3_of_6{width:49.2%}.span_2_of_6{width:32.26%}.span_1_of_6{width:15.33%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_6,.span_2_of_6,.span_3_of_6,.span_4_of_6,.span_5_of_6,.span_6_of_6{width:100%}}
 </style>
 
-<div class="section group">
-    <div class="col span_1_of_6">
-        <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">
-            <div class="buttonNorm" onclick="newReport();"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="New File" /> New File</div><br />
-            <b>Files:</b>
-            <div id="fileList"></div>
-        </div>
-    </div>
-    <div id="codeArea" class="col span_4_of_6">
-        <div id="codeContainer" class="card" style="float: left; padding: 8px; width: 90%; display: none">
-            <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
-            <div id="reportURL" style="padding-left: 8px;"></div><br />
-            <div style="border: 1px solid black">
-                <textarea id="code"></textarea>
-            </div>
-            <br />
-            <div>
-                <table class="table">
-                    <tr>
-                        <td colspan="2">Keyboard Shortcuts within coding area</td>
-                    </tr>
-                    <tr>
-                        <td>Save</td>
-                        <td>Ctrl + S</td>
-                    </tr>
-                    <tr>
-                        <td>Fullscreen</td>
-                        <td>F11</td>
-                    </tr>
-                </table>
+<div class="leaf-center-content">
+
+    <div class="section group">
+        <div class="col span_1_of_6">
+            <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">
+                <div class="buttonNorm" onclick="newReport();"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="New File" /> New File</div><br />
+                <b>Files:</b>
+                <div id="fileList"></div>
             </div>
         </div>
-    </div>
-    <div class="col span_1_of_6">
-        <div id="controls" style="float: right; visibility: hidden">
-            <div id="saveButton" class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes<span id="saveStatus"></span></div><br /><br /><br />
-            <div class="buttonNorm" onclick="runReport();"><img id="saveIndicator" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Open Report" /> Open Report</div>
-            <br /><br /><br /><br /><br /><br />
-            <div id="deleteButton" class="buttonNorm" onclick="deleteReport();"><img src="../../libs/dynicons/?img=process-stop.svg&w=32" alt="Delete Report" /> Delete Report</div>
+        <div id="codeArea" class="col span_4_of_6">
+            <div id="codeContainer" class="card" style="float: left; padding: 8px; width: 90%; display: none">
+                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
+                <div id="reportURL" style="padding-left: 8px;"></div><br />
+                <div style="border: 1px solid black">
+                    <textarea id="code"></textarea>
+                </div>
+                <br />
+                <div>
+                    <table class="table">
+                        <tr>
+                            <td colspan="2">Keyboard Shortcuts within coding area</td>
+                        </tr>
+                        <tr>
+                            <td>Save</td>
+                            <td>Ctrl + S</td>
+                        </tr>
+                        <tr>
+                            <td>Fullscreen</td>
+                            <td>F11</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col span_1_of_6">
+            <div id="controls" style="float: right; visibility: hidden">
+                <div id="saveButton" class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes<span id="saveStatus"></span></div><br /><br /><br />
+                <div class="buttonNorm" onclick="runReport();"><img id="saveIndicator" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Open Report" /> Open Report</div>
+                <br /><br /><br /><br /><br /><br />
+                <div id="deleteButton" class="buttonNorm" onclick="deleteReport();"><img src="../../libs/dynicons/?img=process-stop.svg&w=32" alt="Delete Report" /> Delete Report</div>
+            </div>
         </div>
     </div>
+
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
