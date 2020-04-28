@@ -1,8 +1,8 @@
 {if $name == ''}
     <form name="login" method="post" action="?a=login">
-    <font class="alert">STATUS: {$status}</font>
-    <input name="login" type="submit" title="Click to login" value="Login" class="submit" />
+        <font class="alert">STATUS: {$status}</font>
+        <input name="login" type="submit" title="Click to login" value="Login" class="submit" />
     </form>
 {else}
-    Welcome, <b>{$name}</b>! | <a href="../?a=logout">Sign out</a>
+    <span class="leaf-login-msg">Welcome, <span class="leaf-bold">{$name}</span></span><a href="../?a=logout" class="leaf-sign-out">SIGN OUT</a>
 {/if}

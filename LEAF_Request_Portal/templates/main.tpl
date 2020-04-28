@@ -47,7 +47,7 @@
     <div style="float: left"><img class="print nodisplay" style="width: 72px" src="../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
     {/if}
     <div style="cursor: pointer" onclick="window.location='./'">
-      <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
+      <span style="position: absolute"><img src="images/VA_icon_small.png" alt="VA logo" /></span>
       <span id="headerLabel">{$city|sanitize}</span>
       <span id="headerDescription">{$title|sanitize}</span>
     </div>

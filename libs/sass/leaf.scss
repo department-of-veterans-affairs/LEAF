@@ -57,13 +57,14 @@ p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
 .leaf-textCentered {text-align: center!important;}
 .leaf-clearBoth {clear: both;}
 .leaf-position-relative {position: relative;}
+.leaf-valign-top {vertical-align: top;}
 
 /* ############### SPECIAL CLASSES ################# */
+.leaf-text-smaller {font-size: 0.9rem;}
 .leaf-buttonBar {text-align: center; margin: 1.0rem 0;}
 .leaf-content-show {display: block;}
 .leaf-content-hide {display: none;}
 .leaf-grey-box {padding: 1rem; background-color: #e6e6e6;}
-.leaf-admin-button {color: #3d4551;}
 .leaf-btn-small {padding: 0.5rem; font-size: 0.7rem;}
 .leaf-sidenav-bottomBtns {margin: 0.5rem;}
 .leaf-sitemap-card {
@@ -91,7 +92,33 @@ p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
         }
 
 /* ############### CONTENT CONTAINERS ################# */
-.leaf-center-content {width: calc(100% - 5rem); margin: 1.5rem auto 1.5rem auto;}
+.leaf-admin-content {max-width: 68rem; margin: 1.5rem auto 1.5rem auto;}
+.leaf-show-opts {font-size: 0.9rem; margin-top: 1.2rem; cursor: pointer; }
+.leaf-center-content {width: calc(96% - 5rem); margin: 1.5rem auto 1.5rem auto;}
+
+/* ############### LEAF ADMIN BUTTONS ################# */
+.leaf-admin-button {
+    color: #3d4551;
+    display: inline-block;
+    width: 20rem;
+    height: 3.9rem;
+    cursor: pointer;
+    margin: 0.6rem 0.6rem;
+    box-shadow: 2px 2px 3px #adadad;
+    transition: box-shadow 0.3s ease;
+    border-radius: 4px;
+    padding: 0.4rem 0.5rem 0.4rem 0.1rem;
+    text-decoration: none;
+    }
+    .leaf-admin-button:hover, .leaf-admin-button:focus {
+        box-shadow: 1px 2px 6px #71767a;
+        }
+    .leaf-admin-btnicon {font-size: 2.2rem; float: left; margin: 0.5rem 0.5rem; text-align: center;}
+        .leaf-icn-narrow2 {padding-left: 0.2rem;}
+        .leaf-icn-narrow4 {padding-left: 0.4rem;}
+    .leaf-admin-btntitle {font-size: 1.0rem; line-height: 1.4rem; font-family: 'Public Sans Bold'; display: block; margin-left: 3.5rem; }
+    .leaf-admin-btndesc {font-size: 0.8rem; display: block; margin-left: 3.5rem;}
+
 
 /* ############### LEAF HEADER ################# */
 .site-header {background-color: #252f3e; height: 4.6rem;}
@@ -101,8 +128,8 @@ p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
     .leaf-header-description {font-family: 'Public Sans Thin'; font-size: 1.1rem; display: block;}
     .leaf-header-right {float: right; color: #fff; font-family: 'Public Sans Regular'; text-align: right;}
         .leaf-hdr-top {font-size: 0.7rem; line-height: 1.1rem; padding: 0.3rem;}
-            .leaf-hdr-alert {font-size: 0.7rem; letter-spacing: 0.04rem;}
-            .leaf-login-msg {margin-left: 0.9rem; color: #fff;}
+            .leaf-hdr-alert {font-size: 0.7rem; letter-spacing: 0.04rem; margin-right: 0.6rem;}
+            .leaf-login-msg {margin-left: 0.9rem; color: #fff; margin-right: 0.6rem;}
             .leaf-sign-out {margin: 0 0.5rem 0 0.9rem; font-size: 0.6rem; color: #fff; text-decoration: none;}
                 .leaf-sign-out:hover {text-decoration: underline;}
         .leaf-hdr-bot {padding: 0.3rem;}
@@ -126,7 +153,7 @@ p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
             }
             .leaf-hdr-menu ul {list-style-type: none; margin: 0; font-size: 0.8rem; padding-inline-start: 0;}  
                 .leaf-hdr-menu ul li {margin: 0;}
-                    .leaf-menu-link {font-family: 'Public Sans Bold'; font-size: 1.0rem}
+                    .leaf-menu-link {font-family: 'Public Sans Bold'; font-size: 1.0rem; display: block;}
 
 /* ################## LEAF FOOTER ################# */
 .leaf-footer {
@@ -209,27 +236,81 @@ ul.leaf-progress-bar {
 
 /* ############### USWDS COLORS ################# */
 
-/* backgrounds */
-.bg-indigo-10 {background-color: #e5e4fa;}
-.bg-blue-10 {background-color: #d9e8f6;}
-.bg-red-10 {background-color: #f8e1de;}
-.bg-red-cool-20 {background-color: #ecbec6;}
-.bg-orange-10 {background-color: #f2e4d4;}
-.bg-orange-10v {background-color: #fce2c5;}
-.bg-orange-20 {background-color: #f3bf90;}
-.bg-gold-10 {background-color: #f1e5cd;}
-.bg-gold-10v {background-color: #ffe396;}
-.bg-mint-10 {background-color: #c7efe2;}
-.bg-mint-cool-10 {background-color: #c4eeeb;}
-.bg-indigo-warm-10v {background-color: #e4deff;}
-.bg-violet-10 {background-color: #ebe3f9;}
-.bg-yellow-10 {background-color: #f5e6af;} 
-.bg-yellow-10v {background-color: #fee685;}
-.bg-cyan-10 {background-color: #ccecf2;}
-.bg-cyan-10v {background-color: #a8f2ff;}
-.bg-green-warm-5v {background-color: #f5fbc1;}
-.bg-green-10 {background-color: #dfeacd;}
-.bg-green-cool-10 {background-color: #dbebde;}
+/* ######## backgrounds ######## */
+    /* red */
+        .bg-red-10 {background-color: #f8e1de;}
+        .bg-red-cool-20 {background-color: #ecbec6;}
+    /* orange */
+        .bg-orange-10 {background-color: #f2e4d4;}
+        .bg-orange-10v {background-color: #fce2c5;}
+        .bg-orange-20 {background-color: #f3bf90;}
+    /* gold */
+        .bg-gold-10 {background-color: #f1e5cd;}
+        .bg-gold-10v {background-color: #ffe396;}
+    /* yellow */
+        .bg-yellow-10 {background-color: #f5e6af;} 
+        .bg-yellow-5v {background-color: #fff5c2;}
+        .bg-yellow-10v {background-color: #fee685;}
+    /* green */
+        .bg-green-warm-5v {background-color: #f5fbc1;}
+        .bg-green-10 {background-color: #dfeacd;}
+        .bg-green-cool-10 {background-color: #dbebde;}
+    /* mint */
+        .bg-mint-10 {background-color: #c7efe2;}
+        .bg-mint-cool-10 {background-color: #c4eeeb;}
+    /* cyan */
+        .bg-cyan-10 {background-color: #ccecf2;}
+        .bg-cyan-10v {background-color: #a8f2ff;}
+    /* blue */
+        .bg-blue-10 {background-color: #d9e8f6;}
+        .bg-blue-10v {background-color: #cfe8ff;}
+    /* indigo */
+        .bg-indigo-cool-10 {background-color: #e1e6f9;}
+        .bg-indigo-warm-10v {background-color: #e4deff;}
+        .bg-indigo-10 {background-color: #e5e4fa;}
+    /* violet */
+        .bg-violet-10 {background-color: #ebe3f9;}
+    /* magenta */
+        .bg-magenta-10 {background-color: #f6e1e8;}
+    /* gray */
+        .bg-gray-10 {background-color: #e6e6e6;}
+
+/* ######## text colors ######## */
+    /* red */
+        .text-red-10 {color: #f8e1de;}
+        .text-red-50 {color: #d83933;}
+    /* orange */
+        .text-orange-10 {color: #f2e4d4;}
+        .text-orange-10v {color: #fce2c5;}
+        .text-orange-50 {color: #a86437;}
+    /* gold */
+        .text-gold-10 {color: #f1e5cd;}
+        .text-gold-50 {color: #8e704f;}
+    /* yellow */
+        .text-yellow-10 {color: #f5e6af;} 
+        .text-yellow-50 {color: #8a7237;}
+    /* green */
+        .text-green-warm-5v {color: #f5fbc1;}
+        .text-green-10 {color: #dfeacd;}
+        .text-green-50 {color: #607f35;}
+    /* mint */
+        .text-mint-cool-50 {color: #40807e;}
+        .text-mint-50 {color: #2e8367;}
+    /* cyan */
+        .text-cyan-10 {color: #ccecf2;}
+        .text-cyan-50 {color: #168092;}
+    /* blue */
+        .text-blue-50 {color: #2378c3;}
+        .text-blue-50v {color: #0076d6;}
+    /* indigo */
+        .text-indigo-cool-50 {color: #496fd8;}
+    /* violet */
+        .text-violet-50 {color: #8168b3;}
+    /* magenta */
+        .text-magenta-10 {color: #f6e1e8;}
+    /* gray */
+        .text-gray-10 {color: #e6e6e6;}
+
 
 /* ############### PADDINGS, MARGINS ################# */
 .leaf-marginTop-1rem {margin-top: 1rem;}
