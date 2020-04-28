@@ -280,17 +280,16 @@ final class WorkflowControllerTest extends DatabaseTest
      */
     public function testRemoveAction() : void
     {
-      $rmAction = array(
+      $results = self::$reqClient->post(array('a' => '?a=system/actions'), array(
           'actionText' => 'Active',
           'actionTextPasttense' => 'Activated',
           'actionIcon' => 'active.svg',
           'actionAlignment' => 'left',
-          'fillDependency' => '-1',);
+          'fillDependency' => '-1'
+      ));
 
-      $results = self::$client->post(array('a' => '?a=system/actions'), $rmAction);
-
-      $delRes = self::$client->delete(array('a' => 'workflow/action/_active'));
-      $this->assertNotNull($delRes);
-      $this->assertEquals(1, $delRes);
+        $delRes = self::$reqClient->delete(array('a' => 'workflow/action/_active'));
+        $this->assertNotNull($delRes);
+        $this->assertEquals(1, $delRes);
     }
 }

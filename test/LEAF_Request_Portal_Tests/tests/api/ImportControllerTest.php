@@ -61,7 +61,7 @@ final class ImportControllerTest extends TestCase
         $this->assertEquals('Occupation', $headers['B']);
         $this->assertEquals('Hobbies', $headers['C']);
 
-        $cells = $array['cells'];
+        $cells = $arr['cells'];
         $this->assertNotNull($cells);
         $this->assertEquals(3, count($cells));
 
