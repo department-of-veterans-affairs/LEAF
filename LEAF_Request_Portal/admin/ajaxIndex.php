@@ -160,8 +160,8 @@ switch ($action) {
         $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
         $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
-        
-        //pagination 
+
+        //pagination
         $pageLength = 10;
 
         $t_form = new Smarty;
@@ -208,7 +208,7 @@ switch ($action) {
             $totalHistory = array_merge($totalHistory, $resHistory);
         }
         //if getting the history items or building the paginator
-        if($gethistoryslice) 
+        if($gethistoryslice)
         {
             usort($totalHistory, function($a, $b) {
                 return $b['timestamp'] <=> $a['timestamp'];
@@ -216,7 +216,6 @@ switch ($action) {
 
             $pageStart = ($page * $pageLength) - $pageLength;
             $totalHistorySlice = array_slice($totalHistory, $pageStart, $pageLength);
-            
             $t_form->assign('dataType', ucwords($typeName));
             $t_form->assign('dataName', $dataName);
             $t_form->assign('history', $totalHistorySlice);
@@ -225,7 +224,6 @@ switch ($action) {
         else
         {
             $totalPages = ceil(count($totalHistory)/$pageLength);
-            
             $t_form->assign('totalPages', $totalPages);
             $t_form->assign('dataType', $typeName);
             $t_form->display('view_history_all.tpl');
@@ -258,28 +256,31 @@ switch ($action) {
                 $type = new \Workflow($db, $login);
                 $title = $type->getDescription($itemID);
                 break;
+            case 'primaryAdmin':
+                include '../sources/System.php';
+                $type = new \System($db, $login);
+                $itemID = null;
+                $title = 'Primary Admin';
+                break;
         }
 
-        if (!empty($itemID))
-        {
-            $t_form = new Smarty;
-            $t_form->left_delimiter = '<!--{';
-            $t_form->right_delimiter = '}-->';
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
 
-            $resHistory = $type->getHistory($itemID);
+        $resHistory = $type->getHistory($itemID);
 
-            $t_form->assign('dataType', ucwords($typeName));
-            $t_form->assign('dataID', $itemID);
-            $t_form->assign('dataName', $title);
+        $t_form->assign('dataType', ucwords($typeName));
+        $t_form->assign('dataID', $itemID);
+        $t_form->assign('dataName', $title);
 
-            $resHistory = $resHistory ?? array();
+        $resHistory = $resHistory ?? array();
 
-            $t_form->assign('history', $resHistory);
+        $t_form->assign('history', $resHistory);
 
-            $t_form->display('view_history.tpl');
-        }
+        $t_form->display('view_history.tpl');
 
-        break;           
+        break;
     default:
         /*
         echo "Action: $action<br /><br />Catchall...<br /><br />POST: <pre>";

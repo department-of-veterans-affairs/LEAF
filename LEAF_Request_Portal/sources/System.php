@@ -22,6 +22,11 @@ if (!class_exists('CommonConfig'))
     require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
 }
 
+if(!class_exists('DataActionLogger'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
+}
+
 class System
 {
     public $siteRoot = '';
@@ -32,6 +37,8 @@ class System
 
     private $fileExtensionWhitelist;
 
+    private $dataActionLogger;
+
     public function __construct($db, $login)
     {
         $this->db = $db;
@@ -41,6 +48,8 @@ class System
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $commonConfig = new CommonConfig();
         $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
+
+        $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
 
     public function updateService($serviceID)
@@ -729,6 +738,13 @@ class System
                                                 SET `primary_admin` = 1
                                                 WHERE `userID` = :userID;', $vars);
             $resultArray = array('success' => true, 'response' => $res);
+
+            $primary = $this->getPrimaryAdmin();
+
+            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PRIMARY_ADMIN, [
+                new LogItem("users", "primary_admin", 1),
+                new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+            ]);
         }
         else
         {
@@ -745,7 +761,22 @@ class System
      */
     public function unsetPrimaryAdmin()
     {
-        return $this->db->prepared_query('UPDATE `users`
-    								        SET `primary_admin` = 0', array());
+
+        $result = $this->db->prepared_query('UPDATE `users`
+                    SET `primary_admin` = 0', array());
+
+        $primary = $this->getPrimaryAdmin();
+
+        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PRIMARY_ADMIN, [
+            new LogItem("users", "primary_admin", 1),
+            new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+        ]);
+
+        return $result;
+    }
+
+    public function getHistory($filterById)
+    {
+        return $this->dataActionLogger->getHistory($filterById, null, \LoggableTypes::PRIMARY_ADMIN);
     }
 }

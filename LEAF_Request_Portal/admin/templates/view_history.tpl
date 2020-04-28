@@ -1,6 +1,6 @@
 
 <div> <!-- main content -->
-<span style="font-weight: bold; font-size: 16px"><!--{$dataType}--> Name : <!--{$dataName|sanitize}--></span>
+<span id="historyName" style="font-weight: bold; font-size: 16px"><!--{$dataType}--> Name : <!--{$dataName|sanitize}--></span>
 <br />
 <!--{if !is_null($dataID) }-->
 History of <!--{$dataType}--> ID : <!--{$dataID|sanitize}-->
