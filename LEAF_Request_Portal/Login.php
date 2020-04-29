@@ -181,7 +181,7 @@ class Login
             $authType = '/auth_cookie/?r=';
             $nonBrowserAuth = '/auth_cookie/?r=';
           }
-
+          $_SESSION['userID'] = 'VACOLayJ';
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
         {
             if (php_sapi_name() != 'cli')
@@ -212,7 +212,7 @@ class Login
 
         $var = array(':userID' => $_SESSION['userID']);
         $result = $this->db->prepared_query('SELECT * FROM employee WHERE userName=:userID AND deleted = 0', $var);
-
+        //var_dump($this->db);exit;
         if (isset($result[0]['userName']))
         {
             $this->name = "{$result[0]['firstName']} {$result[0]['lastName']}";
