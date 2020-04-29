@@ -197,3 +197,15 @@ InitialSeed     // populates with the data was supplied when the
 
 TruncateTables  // clears all data from all tables
 ```
+
+## Running Code Coverage
+
+To run the code coverage reports, execute the following commands:
+
+```
+      cd ./docker
+
+      docker-compose exec php /var/www/html/test/run_tests.sh
+```
+
+The report will be available at [http://localhost/test/cov/report/](http://localhost/test/cov/report/)
