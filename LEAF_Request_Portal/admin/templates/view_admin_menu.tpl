@@ -88,31 +88,25 @@
         <span class="leaf-admin-btndesc">Advanced Reports and Custom Pages</span>
     </a>
 
-    <p id="btn_programmerMode" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" class="leaf-show-opts">Show Other Programmer Options</p>
+    <h3 role="heading" aria-level="1" tabindex="0">Developer Console</h3>
 
-    <span id="programmerMode" style="display: none" class="leaf-valign-top">
-        
-        <h3 role="heading" aria-level="1" tabindex="0">Programmer Options</h3>
+    <a href="../?a=search" role="button" class="leaf-admin-button bg-red-10 leaf-float-left">
+        <i class="leaf-admin-btnicon fas fa-search text-red-50 leaf-icn-narrow2" alt="Search Database" title="Search Database"></i>
+        <span class="leaf-admin-btntitle">Search Database</span>
+        <span class="leaf-admin-btndesc">Perform custom queries</span>
+    </a>
 
-        <a href="../?a=search" role="button" class="leaf-admin-button bg-red-10 leaf-float-left">
-            <i class="leaf-admin-btnicon fas fa-search text-red-50 leaf-icn-narrow2" alt="Search Database" title="Search Database"></i>
-            <span class="leaf-admin-btntitle">Search Database</span>
-            <span class="leaf-admin-btndesc">Perform custom queries</span>
-        </a>
+    <a href="?a=mod_file_manager" role="button" class="leaf-admin-button bg-gold-10 leaf-float-left">
+        <i class="leaf-admin-btnicon fas fa-tasks text-gold-50" alt="File Manager" title="File Manager"></i>
+        <span class="leaf-admin-btntitle">File Manager</span>
+        <span class="leaf-admin-btndesc">Upload custom image assets and documents</span>
+    </a>
 
-        <a href="?a=mod_file_manager" role="button" class="leaf-admin-button bg-gold-10 leaf-float-left">
-            <i class="leaf-admin-btnicon fas fa-tasks text-gold-50" alt="File Manager" title="File Manager"></i>
-            <span class="leaf-admin-btntitle">File Manager</span>
-            <span class="leaf-admin-btndesc">Upload custom image assets and documents</span>
-        </a>
-
-        <a href="?a=admin_update_database" role="button" class="leaf-admin-button bg-violet-10 leaf-float-left">
-            <i class="leaf-admin-btnicon fas fa-database text-violet-50 leaf-icn-narrow2" alt="Update Database" title="Update Database"></i>
-            <span class="leaf-admin-btntitle">Update Database</span>
-            <span class="leaf-admin-btndesc">Updates the system database, if available</span>
-        </a>
-
-    </span>
+    <a href="?a=admin_update_database" role="button" class="leaf-admin-button bg-violet-10 leaf-float-left">
+        <i class="leaf-admin-btnicon fas fa-database text-violet-50 leaf-icn-narrow2" alt="Update Database" title="Update Database"></i>
+        <span class="leaf-admin-btntitle">Update Database</span>
+        <span class="leaf-admin-btndesc">Updates the system database, if available</span>
+    </a>
 
 </div>
 

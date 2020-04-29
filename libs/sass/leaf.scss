@@ -58,6 +58,8 @@ p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
 .leaf-padAll1rem {padding: 1rem;}
 .leaf-cursor-pointer {cursor: pointer;}
 .leaf-clear-both {clear: both;}
+.leaf-ul {list-style-type: none; margin: 0.5rem 0; padding-inline-start: 5px;}
+    .leaf-ul li {margin: 0; font-size: 0.8rem; line-height: 1.4rem;}
 
 /* ############### CSS ATTRIBUTE CLASSES ################# */
 .leaf-float-right {float: right;}
