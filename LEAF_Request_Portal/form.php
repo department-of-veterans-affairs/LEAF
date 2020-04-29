@@ -485,14 +485,6 @@ class Form
         $form[$idx]['parentID'] = $data[0]['parentID'];
         $form[$idx]['html'] = $data[0]['html'];
         $form[$idx]['htmlPrint'] = $data[0]['htmlPrint'];
-        if($parseTemplate) {
-            $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                              [$idx, $recordID],
-                                              $data[0]['html']);
-            $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                              [$idx, $recordID],
-                                              $data[0]['htmlPrint']);
-        }
         $form[$idx]['required'] = $data[0]['required'];
         $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
         $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
@@ -503,6 +495,15 @@ class Form
         $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
         $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
         $form[$idx]['sort'] = $data[0]['sort'];
+
+        if($parseTemplate) {
+            $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                              [$idx, $recordID, $form[$idx]['value']],
+                                              $data[0]['html']);
+            $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                              [$idx, $recordID, $form[$idx]['value']],
+                                              $data[0]['htmlPrint']);
+        }
 
         // handle file upload
         if (isset($data[0]['data'])
@@ -2139,6 +2140,14 @@ class Form
 
                         $item['data'] = $groupTitle;
                         break;
+                    case 'raw_data':
+                        if($indicators[$item['indicatorID']]['htmlPrint'] != '') {
+                            $item['dataHtmlPrint'] = $indicators[$item['indicatorID']]['htmlPrint'];
+                            $item['dataHtmlPrint'] = str_replace('{{ data }}',
+                                                        $item['data'],
+                                                        $item['dataHtmlPrint']);
+                        }
+                        break;
                     default:
                         if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
                         {
@@ -3394,14 +3403,6 @@ class Form
                 $child[$idx]['description'] = $field['description'];
                 $child[$idx]['html'] = $field['html'];
                 $child[$idx]['htmlPrint'] = $field['htmlPrint'];
-                if($parseTemplate) {
-                    $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                                      [$idx, $recordID],
-                                                      $field['html']);
-                    $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                                      [$idx, $recordID],
-                                                      $field['htmlPrint']);
-                }
                 $child[$idx]['required'] = $field['required'];
                 $child[$idx]['is_sensitive'] = $field['is_sensitive'];
                 $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;
@@ -3411,6 +3412,15 @@ class Form
                 $child[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $field['categoryID']);
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
                 $child[$idx]['sort'] = $field['sort'];
+
+                if($parseTemplate) {
+                    $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                      [$idx, $recordID, $child[$idx]['value']],
+                                                      $field['html']);
+                    $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                      [$idx, $recordID, $child[$idx]['value']],
+                                                      $field['htmlPrint']);
+                }
 
                 if ($child[$idx]['isMasked'])
                 {
