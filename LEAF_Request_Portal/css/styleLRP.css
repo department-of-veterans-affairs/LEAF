@@ -1,0 +1,1207 @@
+body {
+    background-color: #f3f3f3;
+    font-family: verdana;
+    font-size: 12px;
+    margin: 0px;
+}
+
+
+
+body a:link, body a:visited {
+    color: #004b76;
+}
+
+body a:hover {
+    color: #f04e0b;
+}
+
+span {
+    color: black;
+    font-family: verdana;
+}
+
+button {
+    font-family: verdana;
+}
+
+.item label {
+    float: left;
+    width: 150px;
+    text-align: right;
+}
+
+input {
+    border: 1px solid gray;
+    padding: 4px;
+}
+
+textarea {
+    border: 1px solid gray;
+    padding: 4px;
+}
+
+select {
+    border: 1px solid gray;
+    padding: 4px;
+}
+
+img {
+    border: 0px;
+}
+
+#body {
+    padding: 0px;
+    text-align: center;
+    width: 100%;
+}
+
+#header {
+    font-family: serif;
+    font-weight: bold;
+    background-image: url('../images/gradient.png');
+    background-size: 100% 100%;
+    width: 100%;
+    height: 80px;
+    border-bottom: 2px solid #5A79A5;
+    margin-bottom: 4px;
+}
+
+#footer {
+    float: right;
+    clear: both;
+    text-align: right;
+    padding: 4px;
+    font-size: 10px;
+}
+
+#footer a:link, #footer a:visited {
+    color: #6f6f6f;
+    text-decoration: none;
+}
+
+#footer a:hover {
+    color: #f04e0b;
+}
+
+span#headerLabel {
+    position: absolute;
+    color: #17008a;
+    left: 90px;
+    top: 44px;
+    font-size: 16px;
+}
+
+span#headerDescription {
+    position: absolute;
+    font-size: 24px;
+    color: black;
+    left: 90px;
+    top: 16px;
+}
+
+span#headerHelp {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 10px;
+    font-weight: normal;
+}
+
+span#headerLogin {
+    position: absolute;
+    top: 24px;
+    right: 10px;
+    font-size: 12px;
+    font-weight: normal;
+    text-align: right;
+}
+
+span#headerMenu {
+    position: relative;
+    top: 55px;
+    float: right;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+#headerMenu > a, #headerMenu_container > a, #headerMenuHelp_container > a {
+    text-decoration: none;
+    margin-left: 8px;
+    color: black;
+}
+
+#headerMenu > a > img {
+    padding-bottom: 2px;
+    padding-right: 4px;
+}
+
+#headerMenu > a:hover, #headerMenu_container > a:hover, #headerMenuHelp_container > a:hover{
+    text-decoration: underline;
+    color: white;
+}
+
+#headerMenu > a:focus, #headerMenu_container > a:focus, #headerMenuHelp_container > a:focus{
+    text-decoration: underline;
+    color: white;
+}
+
+#headerMenu_links a:focus > .menuButtonSmall, #headerMenu_help a:focus > .menuButtonSmall{
+    outline-style: dotted;
+    box-shadow: 0 4px 6px 2px #8e8e8e;
+}
+
+#headerMenu_links,  #headerMenu_help{
+    display: none;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 2px 60px #8e8e8e;
+    padding: 16px;
+    border: 1px solid black;
+    right: 0px;
+    z-index: 100;
+}
+
+#headerMenu_container:hover #headerMenu_links, #headerMenuHelp_container:hover #headerMenu_help  {
+    display: block;
+}
+
+#headerMenu_container > a::after, #headerMenuHelp_container > a::after {
+    content:'\25BC';
+}
+
+#headerMenu_links > a:focus > .menuButtonSmall, #headerMenu_help > a:focus > .menuButtonSmall{
+  box-shadow: 0 4px 6px 2px #8e8e8e;
+  margin: 12px;
+  outline-style: dotted;
+}
+
+span#headerTabImg {
+    position: relative;
+    top: 49px;
+    height: 32px;
+    float: right;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: right;
+/*    background-image: url(../images/tab.gif);
+    background-repeat: no-repeat;*/
+}
+
+span#headerTab {
+    position: relative;
+    top: 49px;
+    height: 32px;
+    float: right;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: right;
+    background-color: #5a79a5;
+    padding-right: 0.25em;
+}
+
+.link {
+    text-decoration: underline;
+    cursor: pointer;
+    color: #445f87;
+}
+
+.link:hover {
+    text-decoration: underline;
+    cursor: pointer;
+    color: #f04e0b;
+}
+
+#content {
+    padding: 4px;
+    margin: 0px auto;
+    text-align: left;
+}
+
+.alert {
+    font-weight: bold;
+    font-size: 16px;
+    background-color: #9d0000;
+    border: 2px solid black;
+    padding: 4px;
+}
+
+.alert>span {
+    color: white;
+}
+
+.alert a:link, .alert a:visited{
+    color: #bddcfb;
+}
+
+.item {
+    padding-bottom: 4px;
+}
+
+.numspinner {
+    width: 70px;
+}
+
+
+.mainform {
+
+}
+
+.formblock {
+
+}
+
+.mainlabel {
+
+}
+
+.sublabel {
+
+}
+
+.response {
+    padding-top: 5px;
+}
+
+div.tableinput {
+    overflow-x: scroll;
+}
+
+div.tableinput::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+div.tableinput::-webkit-scrollbar:horizontal {
+    height: 11px;
+}
+
+div.tableinput::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white;
+    background-color: rgba(0, 0, 0, .5);
+}
+
+.text {
+
+}
+
+table#tform {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    empty-cells: show;
+    text-align: left;
+}
+
+table#tform th {
+    border: 0;
+    color: #777;
+    margin: 0 0 5px 0;
+    padding: 5px 0 10px 5px;
+    font-size: 90%;
+    font-weight: normal;
+
+}
+
+table#tform td {
+    color: #444;
+    padding: 3px;
+    font-size: 13px;
+}
+
+.printmainform {
+    border: 1px solid black;
+}
+
+.printformblock {
+    page-break-inside: avoid;
+}
+
+.printmainblock {
+    page-break-inside: avoid;
+}
+
+.printsubblock {
+    float: left;
+    page-break-inside: avoid;
+}
+
+.printmainlabel {
+    padding-bottom: 4px;
+}
+
+.printcounter span {
+    padding: 4px;
+    margin-right: 4px;
+    font-size: 24px;
+    font-weight: bold;
+    background-color: black;
+    color: white;
+    float: left;
+}
+
+.printheading {
+    padding: 4px;
+    border-top: 2px solid black;
+    background-color: #e0e0e0;
+}
+
+.printheading_missing {
+    padding: 4px;
+    border-top: 2px solid black;
+    background-color: #ee9a9a;
+}
+
+div.printsubheading {
+    position: relative; /* ie6 workaround */
+    padding: 4px 16px 4px 16px;
+    border-bottom: 1px solid black;
+    background-color: #f4f4f4;
+    max-width: 250px;
+}
+
+div.printsubheading_missing {
+    position: relative; /* ie6 workaround */
+    padding: 4px 16px 4px 16px;
+    border-bottom: 1px solid black;
+    background-color: #ee9a9a;
+    max-width: 250px;
+}
+
+span.printsubheading {
+    font-weight: normal;
+    font-size: 10px;
+}
+
+.printsublabel {
+    background-color: white;
+}
+
+div.printResponse {
+    float: left;
+    padding: 5px 16px 8px 16px;
+}
+
+span.printResponse {
+    font-family: monospace;
+    font-size: 20px;
+    letter-spacing: 0.01rem;
+    line-height: 150%;
+    color: rgba(0,0,0,0.8);
+}
+
+div.printResponse::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+div.printResponse::-webkit-scrollbar:horizontal {
+    height: 11px;
+}
+
+div.printResponse::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white;
+    background-color: rgba(0, 0, 0, .5);
+}
+
+a.printResponse {
+    font-size: 23px;
+}
+
+span.printResponse li {
+    margin-left: 24px;
+    padding: 2px;
+}
+
+table.table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    margin: 2px;
+    color: black;
+}
+
+.table>thead {
+    background-color: #e0e0e0;
+    text-align: center;
+}
+
+.table>tbody {
+    background-color: white;
+}
+
+.table td {
+    padding: 6px;
+    border: 1px solid black;
+    font-size: 11px;
+    font-family: verdana;
+}
+
+.table_important {
+    font-size: 150%;
+    font-weight: bold;
+}
+
+.table_editable {
+    cursor: pointer;
+}
+
+.table_editable:hover {
+    background-color: #2372b0;
+    color: white;
+}
+
+.table_editable:hover a {
+    color: white;
+}
+
+.table_editable:hover a {
+    color: white;
+}
+
+.table_editable:hover>.browsetypes {
+    color: white;
+}
+
+.table_priority {
+    cursor: pointer;
+}
+
+.table_priority:hover {
+/*    border: 1px solid red;*/
+    background-color: #d6edff;
+}
+
+.table_priority:hover img {
+/*    border: 1px solid red;*/
+    background-color: #d6edff;
+    visibility: visible;
+}
+
+.table_priority img {
+    padding: 4px;
+    visibility: hidden;
+}
+
+.table_priority img:hover {
+    border: 1px solid black;
+    padding: 3px;
+}
+
+.table_sortable {
+    color: gold;
+    cursor: pointer;
+}
+
+table.agenda {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+table.leaf_grid {
+    border: 1px solid black;
+    border-collapse: collapse;
+    margin: 2px;
+}
+
+table.leaf_grid th {
+    font-weight: normal;
+}
+
+table.leaf_grid>tbody {
+    background-color: white;
+}
+
+.agenda th {
+    padding: 8px 4px 8px 4px;
+    border: 1px solid black;
+}
+
+.agenda td {
+    padding: 8px 4px 8px 4px;
+    border: 1px solid black;
+}
+
+.agenda a {
+    font-weight: bold;
+}
+
+span.approval_approved {
+    color: green;
+}
+
+span.approval_disapproved {
+    color: red;
+}
+
+.widget {
+    display: none;
+}
+
+.menu {
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.menu a:link, .menu a:visited {
+    color: black;
+    text-decoration: none;
+}
+
+.menu a:hover {
+    color: black;
+}
+
+.menu2 a:link, .menu2 a:visited {
+    color: black;
+    text-decoration: none;
+}
+
+.menu2 a:hover {
+    color: black;
+}
+
+.menu2 a:focus > .menuButtonSmall {
+  box-shadow: 0 4px 6px 2px #8e8e8e;
+  margin: 12px;
+  outline-style: dotted;
+ }
+
+.menuButton {
+    float: left;
+    width: 350px;
+    height: 70px;
+    cursor: pointer;
+    margin: 14px;
+    box-shadow: 0 2px 6px #8e8e8e;
+    transition: box-shadow 0.3s ease;
+}
+
+.menuButton:hover, .menuButton:focus {
+    box-shadow: 0 4px 6px 2px #8e8e8e;
+    margin: 14px;
+    outline-color: 0 4px 6px 2px #5d5959;
+}
+
+
+.menuIcon {
+    float: left;
+    width: 96px;
+    height: 96px;
+    padding-right: 4px;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.menuText {
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 160%;
+}
+
+.menuDesc {
+    font-size: 14px;
+}
+
+.menuButtonSmall {
+    float: left;
+    width: 280px;
+    height: 56px;
+    cursor: pointer;
+    margin: 12px;
+    padding: 2px;
+    box-shadow: 0 2px 6px #8e8e8e;
+    transition: box-shadow 0.3s ease;
+}
+
+.menuButtonSmall:hover, .menuButtonSmall:focus {
+    box-shadow: 0 4px 6px 2px #8e8e8e;
+    margin: 12px;
+    outline-style: dotted;
+  }
+
+.menuIconSmall {
+    float: left;
+    width: 76px;
+    height: 76px;
+    padding-right: 4px;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.menuTextSmall {
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 160%;
+}
+
+.menuDescSmall {
+    font-size: 12px;
+}
+
+.signatureArea {
+    display: none;
+    visibility: hidden;
+}
+
+#requestTitle {
+    float: left;
+    font-size: 22px;
+    padding: 8px;
+}
+
+#requestTitle>span {
+    font-size: 12px;
+}
+
+#requestInfo {
+    float: right;
+    padding: 8px;
+    border-left: 1px solid black;
+}
+
+/* dialog underlay colors */
+#dialogAnchor_underlay {
+    background-color: black;
+}
+
+#dialog_cancel_underlay {
+    background-color: black;
+}
+
+#editdialog1_underlay {
+    background-color: black;
+}
+
+#histdialog1_underlay {
+    background-color: black;
+}
+
+#statusdialog1_underlay {
+    background-color: black;
+}
+
+#tagdialog1_underlay {
+    background-color: black;
+}
+
+#dialog1_underlay {
+    background-color: black;
+}
+
+/* Tags */
+.tags {
+    font-size: 12px;
+/*    color: #646464;*/
+    background-color: black;
+    color: #dedede;
+}
+
+.tags b {
+    color: white;
+}
+
+.tags a:link, .tags a:visited {
+    color: #dedede;
+}
+
+.tags a:hover {
+    color: yellow;
+}
+
+div#maincontent {
+    width: 80%;
+    box-shadow: 0 2px 4px #8e8e8e;
+}
+
+#maincontent {
+    float: left;
+    border: 1px solid #e0e0e0;
+    padding: 4px;
+    background-color: white;
+}
+
+#comments {
+    background-color: #e6e4b9;
+    padding: 2px;
+    margin-bottom: 16px;
+    border: 1px solid black;
+}
+
+#comments>div {
+    background-color: #fffdcd;
+    padding: 4px;
+    border-top: 1px solid black;
+    /*cursor: pointer;*/
+    font-size: 100%;
+}
+
+.comments_name {
+    font-size: 80%;
+    font-weight: bold;
+}
+
+.comments_time {
+    float: right;
+    color: #8c8c8c;
+    font-size: 80%;
+}
+
+.comments_message {
+    margin-left: 20px;
+    padding-top: 4px;
+}
+
+.tools {
+    background-color: #c0dbff;
+}
+
+button.tools{
+  background-color: #e8f2ff;
+  padding: 2px;
+  margin: 0px;
+  padding-right: 6px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid #e8f2ff;
+  border-left: 1px solid #e8f2ff;
+  border-right: 1px solid #e8f2ff;
+  cursor: pointer;
+  font-family: verdana;
+  font-size: 14px;
+  text-align: left;
+  width: 99%;
+
+}
+
+button.tools:hover, button.tools:focus{
+  background-color: #2372b0;
+  color: white;
+}
+
+.tools>div {
+    background-color: #e8f2ff;
+}
+
+.tools>div:hover {
+    background-color: #2372b0;
+    color: white;
+}
+
+.tools {
+    padding: 2px;
+    margin-bottom: 16px;
+    border: 1px solid black;
+}
+
+.tools a {
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.tools>div {
+    padding: 2px;
+    border-top: 1px solid black;
+    cursor: pointer;
+    font-size: 120%;
+}
+
+
+#adminTools>div {
+    background-color: #ffe8e8;
+}
+
+#adminTools>div:hover {
+    background-color: #b02323;
+}
+
+.tools>div>img {
+    vertical-align: middle;
+}
+
+#category_list {
+    padding: 2px;
+    background-color: #f8dcd1;
+    border: 1px solid black;
+    margin-bottom: 16px;
+}
+
+#category_list>div {
+    background-color: #f9e6df;
+    padding: 2px;
+    border-top: 1px solid black;
+    cursor: pointer;
+    font-size: 120%;
+}
+
+#category_list>div:hover {
+    background-color: #2372b0;
+    color: white;
+}
+
+#category_list>div>img {
+    vertical-align: middle;
+}
+
+.toolbar_right {
+    float: right;
+}
+
+.toolbar_security {
+    background-color: #cbcbcb;
+    border: 1px solid black;
+    padding: 2px;
+}
+
+.toolbar_security>div {
+    padding: 2px;
+    background-color: #e3e3e3;
+}
+
+
+.buttonPermission {
+    width: 100%;
+    padding: 2px;
+    border: 1px solid black;
+    background-color: #e3e3e3;
+    text-align: left;
+    cursor: pointer;
+}
+
+.buttonPermission:hover  {
+    background-color: #2372b0;
+    color: white;
+}
+
+.buttonPermission:focus {
+    background-color: #2372b0;
+    color: white;
+}
+
+.toolbar_right div {
+}
+
+.toolbar {
+    width: 200px;
+}
+
+.toolbar h1 {
+    text-align: center;
+    font-size: 12px;
+    margin: 0px;
+    padding: 2px;
+}
+
+.toolbar h2 {
+    font-size: 42px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #d4d8e0;
+    margin: 2px;
+}
+
+.metaLabel {
+    text-align: center;
+    font-size: 12px;
+    margin: 0px;
+    padding: 2px;
+}
+
+.metaContent {
+    font-size: 42px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #d4d8e0;
+    margin: 2px;
+}
+
+.toolbar_inline {
+
+}
+
+.toolbar_inline div {
+    float: left;
+    margin: 4px;
+}
+
+.foldable :link, .foldable :visited {
+ background: url(../images/expanded.png) 0 50% no-repeat;
+ border: none;
+ padding-left: 16px;
+}
+.foldable :link:hover, .foldable :visited:hover { background-color: transparent }
+.collapsed > .foldable :link, .collapsed > .foldable :visited {
+ background-image: url(../images/collapsed.png);
+}
+.collapsed > div, .collapsed > table, .collapsed > ul, .collapsed > dl { display: none }
+fieldset > legend.foldable :link, fieldset > legend.foldable :visited {
+ color: #666;
+ font-size: 110%;
+}
+
+fieldset { border: 1px solid #d7d7d7; padding: .5em; margin: 1em 0 }
+p.hint, span.hint { color: #666; font-size: 85%; font-style: italic; margin: .5em 0;
+  padding-left: 1em;
+}
+fieldset.iefix {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+* html fieldset.iefix { width: 98% }
+
+fieldset.iefix p { margin: 0 }
+
+legend { color: #999999; padding: 0 .25em; font-size: 90%; font-weight: bold }
+
+div#search > div {
+    float: left;
+    height: 80px;
+    width: 400px;
+    padding: 2px;
+    margin: 2px;
+}
+
+div.workflowbox {
+    padding: 2px;
+    margin: 0px;
+}
+
+.openlate {
+
+}
+
+span.browsecounter a {
+    padding: 4px;
+    margin-right: 4px;
+    font-size: 140%;
+    font-weight: bold;
+    background-color: black;
+    color: white;
+    float: left;
+    text-decoration: none;
+}
+
+span.browsetitle a {
+    font-size: 120%;
+    font-weight: normal;
+    text-decoration: underline;
+}
+
+span.browsetypes {
+    font-size: 80%;
+    color: #707070;
+}
+
+.button {
+    background-color: #e8f2ff;
+    padding: 2px;
+    border-top: 1px solid black;
+    cursor: pointer;
+    font-size: 120%;
+}
+
+.button:hover {
+    background-color: #2372b0;
+    border-top: 1px solid black;
+    color: white;
+}
+
+.button>img {
+    vertical-align: middle;
+}
+
+.buttonNorm {
+    background-color: #e8f2ff;
+    padding: 4px;
+    border: 1px solid black;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.buttonNorm:hover, .buttonNormSelected, .buttonNorm:hover>span .buttonNorm:focus {
+    background-color: #2372b0;
+    color: white;
+}
+
+.buttonNorm:focus {
+ background-color: #2372b0;
+ color: white;
+}
+
+.buttonNorm>img {
+    vertical-align: middle;
+}
+
+button.buttonNorm {
+    background-color: #e8f2ff;
+    border: 1px solid black;
+    margin: 2px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.checkable {
+    cursor: pointer;
+}
+
+.ui-datepicker {
+    box-shadow: 0 0 20px;
+}
+
+.ui-progressbar-value {
+    transition: width 0.5s;
+}
+
+.ui-dialog, .ui-dialog-content {
+    box-sizing: content-box;
+}
+
+.card {
+    box-shadow: 0 2px 6px #8e8e8e;
+    background-color: white;
+}
+
+.nodisplay {
+    display: none;
+    visibility: hidden;
+}
+
+.trumbowyg-editor {
+    font-family: monospace;
+    font-size: 18px;
+}
+
+@media(max-width: 520px) {
+    #header {
+        height: 120px;
+        border-bottom: 2px solid #5A79A5;
+        margin-bottom: 4px;
+    }
+
+    span#headerDescription {
+        font-size: 16px;
+    }
+
+    span#headerLabel {
+        top: 30px;
+        font-size: 12px;
+    }
+
+    span#headerMenu {
+        position: absolute;
+        top: 95px;
+        right: 4px;
+        font-size: 12px;
+        font-weight: normal;
+        text-align: right;
+    }
+
+    #headerMenu > a {
+        text-decoration: none;
+        margin-left: 2px;
+        color: black;
+    }
+}
+
+.beta {
+  position: fixed;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin-top: -40px;
+  margin-left: 44px;
+  background: #fdb81e;
+  text-align: center;
+      box-shadow: 0 2px 6px #8e8e8e;
+  vertical-align: middle;
+  font-size: 12px;
+  color: black;
+  line-height: 40px;
+}
+
+button.IUbutton{
+  background-color: #f9e6df;
+  padding: 2px;
+  margin: 2px;
+  padding-right: 6px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid #f9e6df;
+  border-left: 1px solid #f9e6df;
+  border-right: 1px solid #f9e6df;;
+  cursor: pointer;
+  font-family: verdana;
+  font-size: 14px;
+  text-align: left;
+  width: 99%;
+  vertical-align: middle ;
+
+}
+
+button.IUbutton:hover, button.IUbutton:focus{
+  background-color: #2372b0;
+  color: white;
+}
+
+button.AdminButton{
+  background-color: #ffe8e8;
+  padding: 2px;
+  margin: 0px;
+  padding-right: 6px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid #ffe8e8;
+  border-left: 1px solid #ffe8e8;
+  border-right: 1px solid #ffe8e8;
+  cursor: pointer;
+  font-family: verdana;
+  font-size: 14px;
+  text-align: left;
+  width: 100%;
+
+}
+
+button.AdminButton:hover, button.AdminButton:focus {
+  background-color: #b02323;
+  color: white;
+}
+
+div.sensitiveIndicator > .printResponse {
+    display: none;
+    float: left;
+}
+
+.sensitiveIndicator-masked, .sensitiveIndicatorMaskToggle {
+    display: block;
+    float: left;
+    font-family: monospace;
+    font-size: 20px;
+    letter-spacing: 0.01rem;
+    line-height: 150%;
+    color: rgba(0,0,0,0.8);
+}
+.sensitiveIndicatorMaskToggle {
+    padding-right: 5px;
+}
+
+.sensitiveIndicatorMaskToggle > input[type=checkbox] {
+    display: none;
+}
+
+.sensitiveIndicatorMaskToggle > input[type=checkbox] + label {
+    background-image: url("../../libs/dynicons/?img=eye_invisible.svg&w=16");
+    height: 16px;
+    width: 16px;
+    display: inline-block;
+    padding: 0 0 0 0px;
+    cursor: pointer;
+}
+
+.sensitiveIndicatorMaskToggle > input[type=checkbox]:checked + label {
+    background-image: url("../../libs/dynicons/?img=eye_visible.svg&w=16");
+}
+
+.tools>div:focus {
+  background-color: #2372b0;
+  color: white;
+}
