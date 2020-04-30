@@ -496,15 +496,6 @@ class Form
         $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
         $form[$idx]['sort'] = $data[0]['sort'];
 
-        if($parseTemplate) {
-            $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
-                                              [$idx, $recordID, $form[$idx]['value']],
-                                              $data[0]['html']);
-            $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
-                                              [$idx, $recordID, $form[$idx]['value']],
-                                              $data[0]['htmlPrint']);
-        }
-
         // handle file upload
         if (isset($data[0]['data'])
             && ($data[0]['format'] == 'fileupload'
@@ -562,6 +553,15 @@ class Form
             {
                 $form[$idx]['options'][] = $inputType[$i];
             }
+        }
+
+        if($parseTemplate) {
+            $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                              [$idx, $recordID, $form[$idx]['value']],
+                                              $data[0]['html']);
+            $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                              [$idx, $recordID, $form[$idx]['value']],
+                                              $data[0]['htmlPrint']);
         }
 
         $form[$idx]['format'] = trim($inputType[0]);
@@ -2143,8 +2143,9 @@ class Form
                     case 'raw_data':
                         if($indicators[$item['indicatorID']]['htmlPrint'] != '') {
                             $item['dataHtmlPrint'] = $indicators[$item['indicatorID']]['htmlPrint'];
+                            $pData = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
                             $item['dataHtmlPrint'] = str_replace('{{ data }}',
-                                                        $item['data'],
+                                                        $pData,
                                                         $item['dataHtmlPrint']);
                         }
                         break;
@@ -3413,15 +3414,6 @@ class Form
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
                 $child[$idx]['sort'] = $field['sort'];
 
-                if($parseTemplate) {
-                    $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
-                                                      [$idx, $recordID, $child[$idx]['value']],
-                                                      $field['html']);
-                    $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
-                                                      [$idx, $recordID, $child[$idx]['value']],
-                                                      $field['htmlPrint']);
-                }
-
                 if ($child[$idx]['isMasked'])
                 {
                     $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '')
@@ -3470,6 +3462,15 @@ class Form
                 {
                     $groupTitle = $this->group->getGroup($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
+                }
+
+                if($parseTemplate) {
+                    $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                      [$idx, $recordID, $child[$idx]['value']],
+                                                      $field['html']);
+                    $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                      [$idx, $recordID, $child[$idx]['value']],
+                                                      $field['htmlPrint']);
                 }
 
                 $child[$idx]['format'] = trim($inputType[0]);
