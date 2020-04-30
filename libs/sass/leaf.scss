@@ -45,6 +45,7 @@
         text-decoration: none!important;
     }
 .leaf-btn-icon {margin-right: 0.5rem;}
+.usa-button {font-family: 'Public Sans Bold'; white-space: nowrap; padding: 0.8rem 0.6rem;}
 
 /* ############### GLOBAL OVERRIDES ################# */
 h1, h2, h3, h4, h5, h6 { font-family: 'Public Sans Bold'; }
@@ -54,7 +55,8 @@ p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
 
 /* ############### GLOBAL CLASSES ################# */
 .leaf-bold {font-family: 'Public Sans Bold';}
-.leaf-textCentered {text-align: center!important;}
+.leaf-textCentered {text-align: center;}
+.leaf-textLeft {text-align: left;}
 .leaf-padAll1rem {padding: 1rem;}
 .leaf-cursor-pointer {cursor: pointer;}
 .leaf-clear-both {clear: both;}
@@ -106,7 +108,7 @@ p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
 /* ############### CONTENT CONTAINERS ################# */
 .leaf-admin-content {max-width: 68rem; margin: 1.0rem auto 1.0rem auto;}
 .leaf-show-opts {font-size: 0.9rem; margin-top: 1.2rem; cursor: pointer; }
-.leaf-center-content {width: calc(100% - 5rem); margin: 1.0rem auto 1.0rem auto;}
+.leaf-center-content {width: calc(100% - 5rem); margin: 1.0rem auto 1.0rem auto; font-family: 'Public Sans Regular';}
 
 /* ############### LEAF ADMIN BUTTONS ################# */
 .leaf-admin-button {
@@ -234,18 +236,6 @@ ul.leaf-progress-bar {
             border-bottom: 1.5rem solid transparent;
             }
 
-/* ############### widths by percent ################# */
-.leaf-width10pct { width: 10%; }
-.leaf-width20pct { width: 20%; }
-.leaf-width30pct { width: 30%; }
-.leaf-width40pct { width: 40%; }
-.leaf-width50pct { width: 50%; }
-.leaf-width60pct { width: 60%; }
-.leaf-width70pct { width: 70%; }
-.leaf-width80pct { width: 80%; }
-.leaf-width90pct { width: 90%; }
-.leaf-width100pct { width: 100%; }
-
 /* ############### USWDS COLORS ################# */
 
 /* ######## backgrounds ######## */
@@ -326,4 +316,21 @@ ul.leaf-progress-bar {
 
 /* ############### PADDINGS, MARGINS ################# */
 .leaf-marginTop-1rem {margin-top: 1rem;}
+.leaf-marginBot-1rem {margin-bottom: 1rem;}
+.leaf-marginBot-halfRem {margin-bottom: 0.5rem;}
+
 .leaf-padAll1rem {padding: 1rem;}
+
+/* ############### widths by percent/rems ################# */
+.leaf-width10pct { width: 10%; }
+.leaf-width20pct { width: 20%; }
+.leaf-width30pct { width: 30%; }
+.leaf-width40pct { width: 40%; }
+.leaf-width50pct { width: 50%; }
+.leaf-width60pct { width: 60%; }
+.leaf-width70pct { width: 70%; }
+.leaf-width80pct { width: 80%; }
+.leaf-width90pct { width: 90%; }
+.leaf-width100pct { width: 100%; }
+
+.leaf-width-12rem {width: 12rem;}

@@ -1,17 +1,17 @@
 <div class="leaf-center-content">
 
-    <div id="sideBar" style="float: left; width: 180px">
-        <div id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size: 120%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
+    <div id="sideBar" style="float: left; width: 180px; font-size: 0.8rem;">
+        <div id="btn_createStep" class="buttonNorm" onclick="createStep();" display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
         Workflows: <br />
         <div id="workflowList"></div>
         <br />
-        <div id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();" style="font-size: 120%" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
+        <div id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
         <br />
-        <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 100%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
-        <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size: 100%; display: none" role="button" tabindex="0">Edit Actions</div><br />
-        <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size: 100%; display: none;" role="button" tabindex="0"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>
+        <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
+        <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="display: none" role="button" tabindex="0">Edit Actions</div><br />
+        <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="display: none;" role="button" tabindex="0"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>
     </div>
-    <div id="workflow" style="margin-left: 184px; background-color: #444444"></div>
+    <div id="workflow" style="margin-left: 184px; background-color: #777; font-size: 0.8rem;"></div>
 
 </div>
 

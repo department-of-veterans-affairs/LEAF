@@ -1,18 +1,22 @@
-<h2>List of disabled fields available for recovery</h2>
-<div>Disabled fields and associated data may be permanently deleted after 30 days</div>
+<div class="leaf-center-content">
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>indicatorID</th>
-            <th>Form</th>
-            <th>Field Name</th>
-            <th>Input Format</th>
-            <th>Restore</th>
-        </tr>
-    </thead>
-    <tbody id="fields"></tbody>
-</table>
+    <h2>List of disabled fields available for recovery</h2>
+    <div>Disabled fields and associated data may be permanently deleted after 30 days</div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>indicatorID</th>
+                <th>Form</th>
+                <th>Field Name</th>
+                <th>Input Format</th>
+                <th>Restore</th>
+            </tr>
+        </thead>
+        <tbody id="fields"></tbody>
+    </table>
+
+</div>
 
 <script>
 function restoreField(indicatorID) {

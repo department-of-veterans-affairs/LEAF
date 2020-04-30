@@ -788,6 +788,7 @@ span.browsetypes {
     border: 1px solid black;
     cursor: pointer;
     white-space: nowrap;
+    font-size: 0.9rem;
 }
 
 .buttonNorm:hover, .buttonNormSelected, .buttonNorm:hover>span .buttonNorm:focus {
