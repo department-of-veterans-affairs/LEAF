@@ -49,7 +49,6 @@
             var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
        	 	dialog.setSaveHandler(function() {
             dialog.indicateBusy();
-            console.log(sitemapOBJ.cards);
             var title = $("#xhr input#card-title").val();
             var description = $("#xhr input#card-description").val();
             var target = $("#xhr input#card-target").val();
@@ -57,7 +56,6 @@
             var newCard = {title: title, description: description, target: target, order: order};
             sitemapOBJ.cards.push(newCard);
             addCardToUI(newCard);
-            console.log(sitemapOBJ.cards);
             dialog.hide();
         });
 	    $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
@@ -69,7 +67,7 @@
             type: 'GET',
             url: './api/system/reportTemplates/_sitemaps_template',
             success: function(res) {
-                var newjson = "{\"saved\":1}";
+                var newjson =buildSitemapJSON();
                 html = $.parseHTML( res.file );
                // var newFile = $(res.file).find('span#sitemap-json').replaceWith('other_element').end().get(0).outerHTML;
                 var newFile = $(res.file);
@@ -77,7 +75,11 @@
                 resultString = '';
                 $.each(newFile, function( index, value ) {
                   if($.type(value.outerHTML) == 'string'){
-                    resultString += value.outerHTML;
+                    	resultString += value.outerHTML;
+                  } else if(value.nodeName == "#text"){
+                  		resultString += value.data;
+                  } else if(value.nodeName == "#comment"){
+                        resultString += value;
                   }
                 });
                 $.ajax({
@@ -125,7 +127,7 @@
                     <h3>Tap To Add New Card</h3>
                 </div>
                 <div class="leaf-marginAll1rem leaf-clearBoth">
-                    <button class="usa-button leaf-float-left" id="saveButton" onclick="buildSitemapJSON()">Save Sitemap</button>
+                    <button class="usa-button leaf-float-left" id="saveButton" onclick=" save()">Save Sitemap</button>
                     <button class="usa-button usa-button--outline leaf-float-right">Delete Sitemap</button>
                 </div>
 
