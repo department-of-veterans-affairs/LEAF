@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="../libs/css/leaf.css" />
+<link rel="stylesheet" href="../libs/css/leaf.css">
 
 <!--{include file="../site_elements/generic_xhrDialog.tpl"}-->
 
@@ -79,7 +79,7 @@
                   } else if(value.nodeName == "#text"){
                   		resultString += value.data;
                   } else if(value.nodeName == "#comment"){
-                        resultString += value;
+                        resultString += "<!--" + value.data + "-->";
                   }
                 });
                 $.ajax({
@@ -123,7 +123,7 @@
                 <h1>Phoenix VA Sitemap</h1>
                 <div id="sortable">
                 </div>
-                <div class="leaf-sitemap-addCard" onClick="createGroup();">
+                <div class="leaf-sitemap-addCard" onclick="createGroup();">
                     <h3>Tap To Add New Card</h3>
                 </div>
                 <div class="leaf-marginAll1rem leaf-clearBoth">
@@ -137,27 +137,4 @@
 
     </div>
 </main>
-<span style="display: none;" id="sitemap-json">
-    {
-	"cards": [
-		{
-			"title": "Card One",
-			"description": "This is a description",
-			"target": "www.a.com",
-			"order": 0
-		},
-		{
-			"title": "Card Two",
-			"description": "This is a description",
-			"target": "www.b.com",
-			"order": 1
-		},
-		{
-			"title": "Card Three",
-			"description": "This is a description",
-			"target": "www.c.com",
-			"order": 2
-		}
-	]
-}
-</span>
+<span style="display: none;" id="sitemap-json">{"cards":[{"title":"Card One","description":"This is a description","target":"www.a.com","order":0},{"title":"Card Two","description":"This is a description","target":"www.b.com","order":1},{"title":"Card Three","description":"This is a description","target":"www.c.com","order":2}]}</span>
