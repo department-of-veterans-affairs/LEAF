@@ -102,8 +102,11 @@ class SystemController extends RESTfulResponse
         $login = $this->login;
         $system = $this->system;
 
-        $this->verifyAdminReferrer();
-
+        $memberships = $login->getMembership();
+        $isAdmin = $memberships['groupID'][1];
+        if(!$isAdmin) {
+            $this->verifyAdminReferrer();
+        }
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('system', function ($args) {
         });
