@@ -26,9 +26,30 @@
     	return JSON.stringify(sitemapOBJ);
     }
         
-    function addCardToUI(card){
-    	    $('ul.usa-sidenav').append('<li class="usa-sidenav__item"><a href="">'+card.title+'</a></li>');
-            $('div#sortable').append('<div class="leaf-sitemap-card" draggable="true"><h3>'+card.title+'</h3><p>'+card.description+'</p></div>');
+    function addCardToUI(card){console.log(card.id);
+    	    $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_cardID_'+card.id+'"><a href="">'+card.title+'</a></li>');
+            $('div#sortable').append('<div class="leaf-sitemap-card" draggable="true" id="div_cardID_'+card.id+'"><h3>'+card.title+'</h3><p>'+card.description+'</p></div>');
+    }
+    
+    function generateNewCardID(){
+        do {
+           var result           = '';
+           var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+           for ( var i = 0; i < 5; i++ ) {
+              result += characters.charAt(Math.floor(Math.random() * 62));
+           }
+        }
+        while (cardIDExists(result));
+        return result;
+    }
+    
+    function cardIDExists(newID) {
+        $.each(sitemapOBJ.cards,  function(index, value){
+        	if(value.id == newID){
+            	return true;
+            }
+        });
+        return false;
     }
     
     function createGroup() {
@@ -49,11 +70,12 @@
             var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
        	 	dialog.setSaveHandler(function() {
             dialog.indicateBusy();
+            var id = generateNewCardID();
             var title = $("#xhr input#card-title").val();
             var description = $("#xhr input#card-description").val();
             var target = $("#xhr input#card-target").val();
             var order = sitemapOBJ.cards.length;
-            var newCard = {title: title, description: description, target: target, order: order};
+            var newCard = {id: id, title: title, description: description, target: target, order: order};
             sitemapOBJ.cards.push(newCard);
             addCardToUI(newCard);
             dialog.hide();
@@ -137,4 +159,4 @@
 
     </div>
 </main>
-<span style="display: none;" id="sitemap-json">{"cards":[{"title":"Card One","description":"This is a description","target":"www.a.com","order":0},{"title":"Card Two","description":"This is a description","target":"www.b.com","order":1},{"title":"Card Three","description":"This is a description","target":"www.c.com","order":2}]}</span>
+<span style="display: none;" id="sitemap-json">{"cards":[{"id":"abc","title":"Card One","description":"This is a description","target":"www.a.com","order":0},{"id":"def","title":"Card Two","description":"This is a description","target":"www.b.com","order":1},{"id":"ghi","title":"Card Three","description":"This is a description","target":"www.c.com","order":2},{"id":"fnTKg","title":"knhg","description":"ljjnj","target":"bknbjb","order":3}]}</span>
