@@ -5,6 +5,7 @@
 <script>
 	var sitemapOBJ;
     $(function() {
+		//load existing sitemap on page load
         sitemapOBJ = parseSitemapJSON();
         $.each(sitemapOBJ.cards, function(index, value){
 			addCardToUI(value);
@@ -16,21 +17,25 @@
 
     });
 
+	//parses sitemap json into sitemapOBJ
     function parseSitemapJSON(){
 		sitemapJSON = $('span#sitemap-json').text();
     	result = jQuery.parseJSON(sitemapJSON);
         return result;
     }
     
+	//builds sitemap JSON from sitemapOBJ
     function buildSitemapJSON(){
     	return JSON.stringify(sitemapOBJ);
     }
         
+	//insert card into sortable list and sidenav
     function addCardToUI(card){
     	    $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_cardID_'+card.id+'"><a onClick="editCardDialog(\''+card.id+'\');">'+card.title+'</a></li>');
             $('div#sortable').append('<div class="leaf-sitemap-card" draggable="true" id="div_cardID_'+card.id+'"><h3>'+card.title+'</h3><p>'+card.description+'</p></div>');
     }
     
+	//insert existing card in sortable list and sidenav
     function updateCardUI(cardID){
         $.each(sitemapOBJ.cards, function(index, value){
             if(value.id == cardID){
@@ -41,6 +46,7 @@
         });
     }
     
+	//generate unique id for sitemap card
     function generateNewCardID(){
         do {
            var result           = '';
@@ -53,6 +59,7 @@
         return result;
     }
     
+	//check if unique id already exists
     function cardIDExists(newID) {
         $.each(sitemapOBJ.cards,  function(index, value){
         	if(value.id == newID){
@@ -62,6 +69,7 @@
         return false;
     }
     
+	//brings up dialog to add a card
     function createGroup() {
         var dialog = createNewCardDialog();
         dialog.setTitle('Add New Card');
@@ -71,6 +79,7 @@
         $('input:visible:first, select:visible:first').focus();
     }
 
+	//instantiates new card dialog
     function createNewCardDialog() {
             var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
        	 	dialog.setSaveHandler(function() {
@@ -89,6 +98,7 @@
         return dialog;
     }
     
+	//instantiates and pops up edit card dialog
     function editCardDialog(cardID) {
             var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
             var title = '';
@@ -129,6 +139,7 @@
             $('input:visible:first, select:visible:first').focus();
     }
     
+	//saves sitemap json into the custom report
     function save() { 
         $.ajax({
             type: 'GET',
@@ -204,4 +215,4 @@
 
     </div>
 </main>
-<span style="display: none;" id="sitemap-json">{"cards":[{"id":"abc","title":"Card One","description":"This is a description","target":"www.a.com","order":0},{"id":"def","title":"Card Twoss","description":"This is a descriptionss","target":"www.b.comss","order":1},{"id":"ghi","title":"Card Three","description":"This is a description","target":"www.c.com","order":2},{"id":"CNrvW","title":"new card","description":"asdf","target":"rrrrr","order":3}]}</span>
+<span style="display: none;" id="sitemap-json">{"cards":[{"id":"abc","title":"Card One","description":"This is a description","target":"www.a.com","order":0},{"id":"def","title":"Card Two","description":"This is a description","target":"www.b.com","order":1},{"id":"ghi","title":"Card Three","description":"This is a description","target":"www.c.com","order":2}]}</span>
