@@ -2078,6 +2078,7 @@ $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
+    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('../api/');

@@ -15,5 +15,7 @@ $(function() {
 		width: $(window).width() * 0.8,
 		height: $(window).height() * 0.8
 	});
+    $('#plainDialogLarge').dialog({minWidth: ($(window).width() * .8) + 30});
+
 });
 </script>
