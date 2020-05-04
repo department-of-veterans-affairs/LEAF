@@ -7,7 +7,7 @@ History of <!--{$dataType}--> ID : <!--{$dataID|sanitize}-->
 <!--{/if}-->
 <br /><br />
 
-<div style="float: left; padding: 2px">
+<div style="padding: 2px">
     <!--{if count($history) == 0}-->
         No history to show!
     <!--{else}-->

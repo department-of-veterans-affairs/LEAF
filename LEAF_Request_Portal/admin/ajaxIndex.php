@@ -207,7 +207,11 @@ switch ($action) {
             $resHistory = $resHistory ?? array();
             $totalHistory = array_merge($totalHistory, $resHistory);
         }
-        //if getting the history items or building the paginator
+        
+        /*
+            First time around, gethistoryslice = false, so this loads view_history_all which calls 
+            this method again which loads view_history & displays it appropriately in the paginator
+        */
         if($gethistoryslice)
         {
             usort($totalHistory, function($a, $b) {
@@ -232,7 +236,12 @@ switch ($action) {
         break;
     case 'gethistory':
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
+        $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
         $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
+        $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
+
+        //pagination
+        $pageLength = 10;
 
         $type = null;
         switch ($typeName) {
@@ -270,15 +279,26 @@ switch ($action) {
 
         $resHistory = $type->getHistory($itemID);
 
-        $t_form->assign('dataType', ucwords($typeName));
-        $t_form->assign('dataID', $itemID);
-        $t_form->assign('dataName', $title);
+        if($gethistoryslice)
+        {
+            usort($resHistory, function($a, $b) {
+                return $b['timestamp'] <=> $a['timestamp'];
+            });
 
-        $resHistory = $resHistory ?? array();
-
-        $t_form->assign('history', $resHistory);
-
-        $t_form->display('view_history.tpl');
+            $pageStart = ($page * $pageLength) - $pageLength;
+            $totalHistorySlice = array_slice($resHistory, $pageStart, $pageLength);
+            $t_form->assign('dataType', ucwords($typeName));
+            $t_form->assign('dataName', $dataName);
+            $t_form->assign('history', $totalHistorySlice);
+            $t_form->display('view_history.tpl');
+        }
+        else
+        {
+            $totalPages = ceil(count($resHistory)/$pageLength);
+            $t_form->assign('totalPages', $totalPages);
+            $t_form->assign('dataType', $typeName);
+            $t_form->display('view_history_paginated.tpl');
+        }
 
         break;
     default:
