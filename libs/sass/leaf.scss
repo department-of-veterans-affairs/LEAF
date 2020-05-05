@@ -18,15 +18,8 @@
 .usa-logo a {color: #fff; text-decoration: none;}
 .usa-navbar {border-bottom: 0; width: 100%;}
 .default-container {background-color: #fcfcfc; width: 100%;}
-.sidenav {
-    display: block;
-    float: left;
-    margin-bottom: 3rem;
-    margin-top: 2rem;
-    padding-right: 0;
-    padding-left: 2rem;
-    width: 15rem;
-    }
+.sidenav { display: block; float: left; margin-bottom: 3rem; margin-top: 2rem; padding-right: 0; padding-left: 2rem; width: 15rem;}
+.usa-banner {font-family: 'Public Sans Regular';}
 
 /* ############### USWDS BUTTON OVERRIDES ################# */
 .site-button-outline-secondary {
@@ -138,8 +131,8 @@ p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
 .site-header {background-color: #252f3e; height: 4.6rem;}
     .leaf-logo {float: left;}
         .leaf-logo img {width: 64px; margin: 0.3rem 0.5rem 0 0.3rem;}
-    .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; }
-    .leaf-header-description {font-family: 'Public Sans Thin'; font-size: 1.1rem; display: block;}
+    .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; font-family: 'Public Sans Bold'; }
+    .leaf-header-description {font-family: 'Public Sans Thin'; font-size: 1.1rem; display: block; font-family: 'Public Sans Regular';}
     .leaf-header-right {float: right; color: #fff; font-family: 'Public Sans Regular'; text-align: right;}
         .leaf-hdr-top {font-size: 0.7rem; line-height: 1.1rem; padding: 0.3rem;}
             .leaf-hdr-alert {font-size: 0.7rem; letter-spacing: 0.04rem; margin-right: 0.6rem;}
@@ -166,8 +159,52 @@ p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
                 box-shadow: 0px 0px 5px #a9aeb1;
             }
             .leaf-hdr-menu ul {list-style-type: none; margin: 0; font-size: 0.8rem; padding-inline-start: 0;}  
-                .leaf-hdr-menu ul li {margin: 0;}
+                .leaf-hdr-menu ul li {margin: 0; }
                     .leaf-menu-link {font-family: 'Public Sans Bold'; font-size: 1.0rem; display: block;}
+
+/* ############### LEAF MAIN NAV ################# */
+/* top level */
+ul.leaf-main-nav {list-style-type: none; font-size: 0.9rem; margin: 2.5rem 0.8rem 0 0; padding-inline-start: 0;}
+    .leaf-main-nav > li {
+        float: left; 
+        text-align: left; 
+        font-family: 'Public Sans Medium'; 
+        margin: 0; 
+        padding: 0.4rem 0.8rem;
+        position: relative;
+    }
+    ul.leaf-main-nav > li:hover {background-color: #274863; font-family: 'Public Sans Bold';}
+    ul.leaf-main-nav > li > a {text-decoration: none; color: #f0f0ec;}
+        .leaf-main-nav > li > a:hover {text-decoration: none;}
+        .leaf-nav-icon {float: right; margin: 0.2rem 0.3rem 0.2rem 0;}
+
+/* level two */
+ul.leaf-main-nav > li > ul {
+    display: none; 
+    list-style-type: none; 
+    position: absolute; 
+    top: 2.1rem; 
+    left: 0; 
+    padding-inline-start: 0; 
+    background-color: #274863;
+    } 
+    .leaf-main-nav > li:hover > ul {display: block; width: 12.0rem; padding-inline-start: 0; background-color: #274863; font-size: 0.8rem; padding-bottom: 0.5rem;}
+        ul.leaf-main-nav > li > ul > li {text-align: left; font-family: 'Public Sans Regular'; background-color: #274863; padding: 0.3rem 0.5rem; position: relative;}
+        ul.leaf-main-nav > li > ul > li:hover {font-family: 'Public Sans Medium';}
+        ul.leaf-main-nav > li > ul > li > a {text-decoration: none; color: #f0f0ec;}
+
+/* level three */
+ul.leaf-main-nav > li > ul > li > ul {
+    display: none; 
+    list-style-type: none; 
+    position: absolute; 
+    padding-inline-start: 0; 
+    background-color: #274863;
+    } 
+    ul.leaf-main-nav > li > ul > li:hover > ul {display: block; left: 12.0rem; top: 0.0rem; width: 12.0rem; padding-inline-start: 0; background-color: #274863; font-size: 0.8rem; padding-bottom: 0.5rem;}
+        ul.leaf-main-nav > li > ul > li > ul > li {text-align: left; font-family: 'Public Sans Regular'; background-color: #274863; padding: 0.3rem 0.5rem;}
+        ul.leaf-main-nav > li > ul > li > ul > li:hover {font-family: 'Public Sans Medium';}
+        ul.leaf-main-nav > li > ul > li > ul > li > a {text-decoration: none; color: #f0f0ec;}
 
 /* ################## LEAF FOOTER ################# */
 .leaf-footer {
@@ -242,6 +279,7 @@ ul.leaf-progress-bar {
     /* red */
         .bg-red-10 {background-color: #f8e1de;}
         .bg-red-cool-20 {background-color: #ecbec6;}
+        .bg-red-50 {background-color: #d83933;}
     /* orange */
         .bg-orange-10 {background-color: #f2e4d4;}
         .bg-orange-10v {background-color: #fce2c5;}
@@ -278,6 +316,7 @@ ul.leaf-progress-bar {
         .bg-gray-10 {background-color: #e6e6e6;}
 
 /* ######## text colors ######## */
+    .text-white {color: #fff;}
     /* red */
         .text-red-10 {color: #f8e1de;}
         .text-red-50 {color: #d83933;}
@@ -333,4 +372,9 @@ ul.leaf-progress-bar {
 .leaf-width90pct { width: 90%; }
 .leaf-width100pct { width: 100%; }
 
+.leaf-width-2rem {width: 2rem;}
+.leaf-width-4rem {width: 4rem;}
+.leaf-width-6rem {width: 6rem;}
+.leaf-width-8rem {width: 8rem;}
+.leaf-width-10rem {width: 10rem;}
 .leaf-width-12rem {width: 12rem;}
