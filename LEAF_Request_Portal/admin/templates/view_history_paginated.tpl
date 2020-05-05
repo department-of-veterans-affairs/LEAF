@@ -10,9 +10,11 @@
 
 <script type="text/javascript">
 var page = 1;
+var itemId = '<!--{$itemId}-->';
+
 $.ajax({
     type: 'GET',
-    url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&page=1-->',
+    url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&page=1&id='+itemId,
     dataType: 'text',
     success: function(res) {
         $('#history-slice').html(res);
@@ -26,7 +28,7 @@ $('#prev').on('click', function() {
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&page=' + page,
+        url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&page=' + page +'&id='+itemId,
         dataType: 'text',
         success: function(res) {
             $('#history-slice').html(res);
@@ -40,7 +42,7 @@ $('#next').on('click', function() {
     page = page + 1;
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&page=' + page,
+        url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&id='+itemId+'&page=' + page,
         dataType: 'text',
         success: function(res) {
             $('#history-slice').html(res);

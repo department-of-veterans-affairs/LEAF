@@ -350,6 +350,8 @@ function getGroupList() {
 }
 
 function viewHistory(groupID){
+    $('#simplexhr').css({width: $(window).width() * .5, height: $(window).height() * .7});
+
     dialog_simple.setContent('');
     dialog_simple.setTitle('Group History');
 	dialog_simple.indicateBusy();
@@ -507,10 +509,14 @@ function showAllGroupHistory() {
 var dialog;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
-    history_dialog = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
 
 	$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
+
+    dialog_simple.setCancelHandler(function(){
+        $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
+        dialog_simple.setTitle("");
+    });
 	$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
 
     getGroupList();

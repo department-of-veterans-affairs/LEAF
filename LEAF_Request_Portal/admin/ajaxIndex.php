@@ -288,14 +288,16 @@ switch ($action) {
             $pageStart = ($page * $pageLength) - $pageLength;
             $totalHistorySlice = array_slice($resHistory, $pageStart, $pageLength);
             $t_form->assign('dataType', ucwords($typeName));
-            $t_form->assign('dataName', $dataName);
+            $t_form->assign('dataName', $title);
             $t_form->assign('history', $totalHistorySlice);
             $t_form->display('view_history.tpl');
         }
         else
         {
             $totalPages = ceil(count($resHistory)/$pageLength);
+            $t_form->assign('itemId', $itemID);
             $t_form->assign('totalPages', $totalPages);
+            $t_form->assign('dataName', $title);
             $t_form->assign('dataType', $typeName);
             $t_form->display('view_history_paginated.tpl');
         }

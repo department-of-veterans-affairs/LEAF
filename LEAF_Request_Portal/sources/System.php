@@ -762,10 +762,9 @@ class System
     public function unsetPrimaryAdmin()
     {
 
-        $result = $this->db->prepared_query('UPDATE `users`
-                    SET `primary_admin` = 0', array());
-
         $primary = $this->getPrimaryAdmin();
+
+        $result = $this->db->prepared_query('UPDATE `users` SET `primary_admin` = 0', array());
 
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PRIMARY_ADMIN, [
             new LogItem("users", "primary_admin", 1),
