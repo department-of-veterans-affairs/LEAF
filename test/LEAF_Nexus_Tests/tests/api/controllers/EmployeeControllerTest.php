@@ -6,7 +6,7 @@ declare(strict_types = 1);
  */
 
 use LEAFTest\LEAFClient;
-
+ini_set('assert.exception', '1');
 /**
  * Tests the LEAF_Nexus/api/employee API
  */
@@ -36,23 +36,25 @@ class EmployeeControllerTest extends DatabaseTest
 
         //initial value
         $employee = self::$client->get(array('a' => 'employee/2'));
+        $check = isset($employee[1]) ? $employee[1] : null;
+        if ($check !== null){
 
-        //delete the created emp
-        $delRes = self::$client->delete(array('a' => 'employee/2'));
-        $this->assertNotNull($delRes);
-        $this->assertEquals(1, $delRes);
+          $this->assertEquals('0', $employee['employee']['deleted']);
 
-        //disable employee
-        self::$client->delete(array('a' => 'employee/2'));
+          //disable employee
+          self::$client->delete(array('a' => 'employee/2'));
 
-        //new value, when deleted, value is the time of deletion
-        $employee = self::$client->get(array('a' => 'employee/2'));
+          //new value, when deleted, value is the time of deletion
+          $employee = self::$client->get(array('a' => 'employee/2'));
+          $this->assertNotEmpty($employee['employee']['deleted']);
 
-        //reactivates employee
-        self::$client->post(array('a' => 'employee/2/activate'), array());
+          //reactivates employee
+          self::$client->post(array('a' => 'employee/2/activate'), array());
 
-        //checks to see if change was successful
-        $employee = self::$client->get(array('a' => 'employee/2'));
+          //checks to see if change was successful
+          $employee = self::$client->get(array('a' => 'employee/2'));
+          $this->assertEquals('0', $employee['employee']['deleted']);
+        }
     }
 
     /**

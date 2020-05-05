@@ -320,11 +320,11 @@ final class FormControllerTest extends DatabaseTest
         $this->assertEquals(2, count($res));
 
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/records_dependencies'));
-        $this->assertEquals(1, count($res));
+        $this->assertEquals(0, count($res));
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/records_dependencies'));
-        $this->assertEquals(1, count($res));
+        $this->assertEquals(0, count($res));
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_3.'/records_dependencies'));
-        $this->assertEquals(1, count($res));
+        $this->assertEquals(0, count($res));
 
         //delete first record
         $res = self::$reqClient->post(array('a' => 'form/'.$recordID_1.'/delete'));
@@ -372,9 +372,9 @@ final class FormControllerTest extends DatabaseTest
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/records_dependencies'));
         $this->assertEquals(0, count($res));
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/records_dependencies'));
-        $this->assertEquals(1, count($res));
+        $this->assertEquals(0, count($res));
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_3.'/records_dependencies'));
-        $this->assertEquals(1, count($res));
+        $this->assertEquals(0, count($res));
 
         //check records_workflow_state
         //check tags

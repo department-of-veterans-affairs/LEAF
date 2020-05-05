@@ -54,16 +54,18 @@ class InitialSeed extends AbstractSeed
         $settingsData = "
             INSERT INTO `settings` (`setting`, `data`) VALUES
             ('dbversion', '3848'),
-            ('version', '2240');
+            ('version', '2240'),
+            ('heading', 'Heading'),
+            ('subheading', 'subHeading');
         ";
         $this->execute($settingsData);
 
         $dependenciesData = "
-            INSERT INTO `dependencies` (`dependencyID`, `description`) VALUES 
+            INSERT INTO `dependencies` (`dependencyID`, `description`) VALUES
             ('-3', 'Group Designated by the Requestor'),
             ('-2', 'Requestor Followup'),
             ('-1', 'Person Designated by the Requestor'),
-            ('1', 'Service Chief'), 
+            ('1', 'Service Chief'),
             ('5', 'Request Submitted'),
             ('8', 'Quadrad');
         ";

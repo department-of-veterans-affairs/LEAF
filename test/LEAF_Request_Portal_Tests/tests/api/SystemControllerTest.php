@@ -6,7 +6,7 @@ declare(strict_types = 1);
  */
 
 use LEAFTest\LEAFClient;
-
+ini_set("display_errors", '1');
 
 /**
  * Tests LEAF_Request_Portal/api/?a=system API
@@ -55,7 +55,7 @@ final class SystemControllerTest extends DatabaseTest
 
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
-        $this->assertEquals('Heading that is too long for the field and this is', $fromDB);
+        $this->assertEquals('Heading that is too long for the field and this is very long', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "LEAF's Header"));
 
@@ -237,7 +237,7 @@ final class SystemControllerTest extends DatabaseTest
 
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
-        $this->assertEquals('Heading that is too long for the field and this is', $fromDB);
+        $this->assertEquals('Heading that is too long for the field and this is very long', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "LEAF's Header"));
 

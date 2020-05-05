@@ -7,7 +7,7 @@ declare(strict_types = 1);
 
 use LEAFTest\LEAFClient;
 use PHPUnit\Framework\TestCase;
-
+ini_set("display_errors", '1');
 /**
  * Tests LEAF_Request_Portal/api?a=import API
  */
@@ -45,12 +45,13 @@ final class ImportControllerTest extends TestCase
      */
     public function testImportXLS() : void
     {
-      $arr = self::$reqClient->get(array(
+        $arr = self::$reqClient->get(array(
             'a' => 'import/xls',
             'importFile' => self::$testFileName,
             'hasHeaders' => 1,
         ));
 
+        //print "arr setting ====> "; var_dump(isset($arr));
         $this->assertNotNull($arr);
         $this->assertEquals(2, count($arr));
 
@@ -85,21 +86,21 @@ final class ImportControllerTest extends TestCase
         $this->assertEquals('Edward Nygma', $edward['A']);
         $this->assertEquals('Criminal', $edward['B']);
         $this->assertEquals('Crossword puzzles', $edward['C']);
-    }
+      }
 
-    /**
+     /**
      * Tests the `import/xls&importFile=[fileName]&hasHeaders=[digit]` endpoint
      *
      * Tests the endpoint with an invalid file name
      */
-    public function testImportXLS_invalidFile() : void
-    {
-        $arr = self::$reqClient->get(array(
-            'a' => 'import/xls',
-            'importFile' => 'I_DO_NOT_EXIST',
-            'hasHeaders' => 1,
-        ));
+     public function testImportXLS_invalidFile() : void
+     {
+       $arr = self::$reqClient->get(array(
+           'a' => 'import/xls',
+           'importFile' => 'I_DO_NOT_EXIST',
+           'hasHeaders' => 1,
+       ));
 
-        $this->assertEquals(0, count($arr));
-    }
+       $this->assertEquals(0, count($arr));
+     }
 }
