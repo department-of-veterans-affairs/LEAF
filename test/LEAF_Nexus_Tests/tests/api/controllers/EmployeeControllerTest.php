@@ -38,21 +38,26 @@ class EmployeeControllerTest extends DatabaseTest
         $employee = self::$client->get(array('a' => 'employee/2'));
         $check = isset($employee[1]) ? $employee[1] : null;
         if ($check !== null){
-
           $this->assertEquals('0', $employee['employee']['deleted']);
+        }
 
-          //disable employee
-          self::$client->delete(array('a' => 'employee/2'));
+        //disable employee
+        self::$client->delete(array('a' => 'employee/2'));
 
-          //new value, when deleted, value is the time of deletion
-          $employee = self::$client->get(array('a' => 'employee/2'));
+        //new value, when deleted, value is the time of deletion
+        $employee = self::$client->get(array('a' => 'employee/2'));
+        $check = isset($employee[1]) ? $employee[1] : null;
+        if ($check !== null){
           $this->assertNotEmpty($employee['employee']['deleted']);
+        } 
 
-          //reactivates employee
-          self::$client->post(array('a' => 'employee/2/activate'), array());
+        //reactivates employee
+        self::$client->post(array('a' => 'employee/2/activate'), array());
 
-          //checks to see if change was successful
-          $employee = self::$client->get(array('a' => 'employee/2'));
+        //checks to see if change was successful
+        $employee = self::$client->get(array('a' => 'employee/2'));
+        $check = isset($employee[1]) ? $employee[1] : null;
+        if ($check !== null){
           $this->assertEquals('0', $employee['employee']['deleted']);
         }
     }

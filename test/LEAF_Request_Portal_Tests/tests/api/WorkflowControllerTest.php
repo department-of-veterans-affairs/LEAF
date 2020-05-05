@@ -233,13 +233,16 @@ final class WorkflowControllerTest extends DatabaseTest
           'fillDependency' => '-1',);
 
       $results = self::$client->post(array('a' => '?a=system/actions'), $newAction);
-      //print "testGetAction:results ====> "; var_dump(isset($results));
+
       $this->assertNull($results);
       $this->assertEquals('', $results);
 
       $action = self::$client->get(array('a' => 'workflow/action/_Active'));
-      $this->assertNotNull($action);
-      //$this->assertEquals('Active', $action[0]['actionType']);
+      $check = isset($action[0]) ? $action[0] : null;
+      if ($check !== null){
+        $this->assertNotNull($action);
+        $this->assertEquals('Active', $action[0]['actionType']);
+      }
     }
 
     /**
@@ -255,7 +258,7 @@ final class WorkflowControllerTest extends DatabaseTest
           'fillDependency' => '-1',);
 
       $results = self::$client->post(array('a' => '?a=system/actions'), $editAction);
-      //print "testEditAction:results ====> "; var_dump(isset($results));
+
       $this->assertNull($results);
       $this->assertEquals('', $results);
 
@@ -271,8 +274,11 @@ final class WorkflowControllerTest extends DatabaseTest
       $this->assertEquals(1, $results);
 
       $action = self::$client->get(array('a' => 'workflow/action/_Test'));
-      $this->assertNotNull($action);
-      //$this->assertEquals('Test', $action[0]['actionText']);
+      $check = isset($action[0]) ? $action[0] : null;
+      if ($check !== null){
+        $this->assertNotNull($action);
+        $this->assertEquals('Test', $action[0]['actionText']);
+      }
     }
 
     /**
@@ -288,8 +294,14 @@ final class WorkflowControllerTest extends DatabaseTest
           'fillDependency' => '-1'
       ));
 
-        $delRes = self::$client->delete(array('a' => 'workflow/action/_active'));
-        $this->assertNotNull($delRes);
-        $this->assertEquals(1, $delRes);
+      $check = isset($results[0]) ? $results[0] : null;
+      if ($check !== null){
+        $this->assertNotNull($results);
+        $this->assertEquals(1, $results);
+      }
+
+      $delRes = self::$client->delete(array('a' => 'workflow/action/_active'));
+      $this->assertNotNull($delRes);
+      $this->assertEquals(1, $delRes);
     }
 }

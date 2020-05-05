@@ -51,41 +51,40 @@ final class ImportControllerTest extends TestCase
             'hasHeaders' => 1,
         ));
 
-        //print "arr setting ====> "; var_dump(isset($arr));
-        $this->assertNotNull($arr);
-        $this->assertEquals(2, count($arr));
+          $this->assertNotNull($arr);
+          $this->assertEquals(2, count($arr));
 
-        $headers = $arr['headers'];
-        $this->assertNotNull($headers);
-        $this->assertEquals(3, count($headers));
-        $this->assertEquals('Name', $headers['A']);
-        $this->assertEquals('Occupation', $headers['B']);
-        $this->assertEquals('Hobbies', $headers['C']);
+          $headers = $arr['headers'];
+          $this->assertNotNull($headers);
+          $this->assertEquals(3, count($headers));
+          $this->assertEquals('Name', $headers['A']);
+          $this->assertEquals('Occupation', $headers['B']);
+          $this->assertEquals('Hobbies', $headers['C']);
 
-        $cells = $arr['cells'];
-        $this->assertNotNull($cells);
-        $this->assertEquals(3, count($cells));
+          $cells = $arr['cells'];
+          $this->assertNotNull($cells);
+          $this->assertEquals(3, count($cells));
 
-        $bruce = $cells['0'];
-        $this->assertNotNull($bruce);
-        $this->assertEquals(3, count($bruce));
-        $this->assertEquals('Bruce Wayne', $bruce['A']);
-        $this->assertEquals('Billionaire', $bruce['B']);
-        $this->assertEquals('None', $bruce['C']);
+          $bruce = $cells['0'];
+          $this->assertNotNull($bruce);
+          $this->assertEquals(3, count($bruce));
+          $this->assertEquals('Bruce Wayne', $bruce['A']);
+          $this->assertEquals('Billionaire', $bruce['B']);
+          $this->assertEquals('None', $bruce['C']);
 
-        $oswald = $cells['1'];
-        $this->assertNotNull($oswald);
-        $this->assertEquals(3, count($oswald));
-        $this->assertEquals('Oswald Cobblepot', $oswald['A']);
-        $this->assertEquals('Criminal', $oswald['B']);
-        $this->assertEquals('Wearing a monocle', $oswald['C']);
+          $oswald = $cells['1'];
+          $this->assertNotNull($oswald);
+          $this->assertEquals(3, count($oswald));
+          $this->assertEquals('Oswald Cobblepot', $oswald['A']);
+          $this->assertEquals('Criminal', $oswald['B']);
+          $this->assertEquals('Wearing a monocle', $oswald['C']);
 
-        $edward = $cells['2'];
-        $this->assertNotNull($edward);
-        $this->assertEquals(3, count($edward));
-        $this->assertEquals('Edward Nygma', $edward['A']);
-        $this->assertEquals('Criminal', $edward['B']);
-        $this->assertEquals('Crossword puzzles', $edward['C']);
+          $edward = $cells['2'];
+          $this->assertNotNull($edward);
+          $this->assertEquals(3, count($edward));
+          $this->assertEquals('Edward Nygma', $edward['A']);
+          $this->assertEquals('Criminal', $edward['B']);
+          $this->assertEquals('Crossword puzzles', $edward['C']);
       }
 
      /**
