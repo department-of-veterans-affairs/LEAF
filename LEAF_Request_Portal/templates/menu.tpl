@@ -2,19 +2,19 @@
     <a href="./" class="usa-button site-button-outline-secondary">Main Page</a>
 {/if}
 <span id="headerMenu_container" class="leaf-position-relative">
-    <a id="button_showLinks" tabindex="0" class="usa-button site-button-outline-secondary" alt="Links Dropdown" title="Links" aria-haspopup="true" aria-expanded="false" role="button">Links</a>
+    <a id="button_showLinks" tabindex="0" class="buttonNorm" alt="Links Dropdown" title="Links" aria-haspopup="true" aria-expanded="false" role="button">Links</a>
     <div id="headerMenu_links" tabindex="0" class="leaf-hdr-menu">
         {include file="menu_links.tpl"}
     </div>
 </span>
 <span id="headerMenuHelp_container" class="leaf-position-relative">
-    <a id="button_showHelp" tabindex="0" class="usa-button site-button-outline-secondary" alt="Help Popup" title="Help" aria-haspopup="true" aria-expanded="false" role="button">Help</a>
+    <a id="button_showHelp" tabindex="0" class="buttonNorm" alt="Help Popup" title="Help" aria-haspopup="true" aria-expanded="false" role="button">Help</a>
     <div id="headerMenu_help" tabindex="0" class="leaf-hdr-menu">
         {include file="menu_help.tpl"}
     </div>
 </span>
 {if $is_admin == true}
-     <a href="./admin/" class="usa-button site-button-outline-secondary" role="button">Admin Panel</a>
+     <a href="./admin/" class="buttonNorm" role="button">Admin Panel</a>
 {/if}
 {if $hide_main_control == 1}
 {/if}
