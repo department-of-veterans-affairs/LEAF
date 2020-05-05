@@ -43,6 +43,9 @@ const JS_DEST = "./libs/js/uswds";
 // Compiled CSS destination
 const CSS_DEST = "./libs/css";
 
+// font destination
+const FONT_DEST = "./libs/css/fonts";
+
 // Site CSS destination
 // Like the _site/assets/css directory in Jekyll, if necessary.
 // If using, uncomment line 106
@@ -62,6 +65,11 @@ gulp.task("copy-uswds-setup", () => {
 
 gulp.task("copy-uswds-js", () => {
   return gulp.src(`${uswds}/js/**/**`).pipe(gulp.dest(`${JS_DEST}`));
+});
+
+gulp.task("icons", () => {
+  return gulp.src('node_modules/@fortawesome/fontawesome-free/webfonts/*')
+  .pipe(gulp.dest(`${FONT_DEST}/fontawesome`));
 });
 
 gulp.task("build-sass", function(done) {
@@ -98,9 +106,12 @@ gulp.task(
   gulp.series(
     "copy-uswds-setup",
     "copy-uswds-js",
+    "icons",
     "build-sass"
   )
 );
+
+
 
 gulp.task("watch-sass", function() {
   gulp.watch(`${PROJECT_SASS_SRC}/**/*.scss`, gulp.series("build-sass"));
