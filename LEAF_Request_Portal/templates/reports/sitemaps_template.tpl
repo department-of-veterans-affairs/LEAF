@@ -31,17 +31,17 @@
         
 	//insert card into sortable list and sidenav
     function addCardToUI(card){
-    	    $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_cardID_'+card.id+'"><a onClick="editCardDialog(\''+card.id+'\');">'+card.title+'</a></li>');
-            $('div#sortable').append('<div class="leaf-sitemap-card" draggable="true" id="div_cardID_'+card.id+'"><h3>'+card.title+'</h3><p>'+card.description+'</p></div>');
+        $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_cardID_'+card.id+'"><a onClick="editCardDialog(\''+card.id+'\');">'+card.title+'</a></li>');
+        $('div#sortable').append('<div class="leaf-sitemap-card" draggable="true" id="div_cardID_'+card.id+'"><h3>'+card.title+'</h3><p>'+card.description+'</p></div>');
     }
     
 	//insert existing card in sortable list and sidenav
     function updateCardUI(cardID){
         $.each(sitemapOBJ.cards, function(index, value){
             if(value.id == cardID){
-    	$('#li_cardID_'+cardID+' a').text(value.title);
-        $('#div_cardID_'+cardID+' h3').text(value.title);
-        $('#div_cardID_'+cardID+' p').text(value.description);
+                $('#li_cardID_'+cardID+' a').text(value.title);
+                $('#div_cardID_'+cardID+' h3').text(value.title);
+                $('#div_cardID_'+cardID+' p').text(value.description);
             }
         });
     }
@@ -81,8 +81,8 @@
 
 	//instantiates new card dialog
     function createNewCardDialog() {
-            var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
-       	 	dialog.setSaveHandler(function() {
+        var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
+        dialog.setSaveHandler(function() {
             dialog.indicateBusy();
             var id = generateNewCardID();
             var title = $("#xhr input#card-title").val();
@@ -100,43 +100,43 @@
     
 	//instantiates and pops up edit card dialog
     function editCardDialog(cardID) {
-            var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
-            var title = '';
-            var description = '';
-            var target = '';
-        	//get old values
+        var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
+        var title = '';
+        var description = '';
+        var target = '';
+        //get old values
+        $.each(sitemapOBJ.cards, function(index, value){
+            if(value.id == cardID){
+                title = value.title;
+                description = value.description;
+                target = value.target;
+            }
+        });
+    
+        dialog.setTitle('Edit Card');
+        dialog.setContent('<div><div role="heading">Card Title: </div><input aria-label="" id="card-title" value="'+title+'"></input><div role="heading" style="margin-top: 1rem;">Card Description: </div><input aria-label="Enter group name" id="card-description" value="'+description+'"></input><div role="heading" style="margin-top: 1rem;">Target Site Address: </div><input aria-label="" id="card-target" value="'+target+'"></input></div>');
+
+        //save handler
+        dialog.setSaveHandler(function() {
+            dialog.indicateBusy();
+            var id = generateNewCardID();
+            var title = $("#xhr input#card-title").val();
+            var description = $("#xhr input#card-description").val();
+            var target = $("#xhr input#card-target").val();
+            var order = sitemapOBJ.cards.length;
             $.each(sitemapOBJ.cards, function(index, value){
                 if(value.id == cardID){
-                    title = value.title;
-                    description = value.description;
-                    target = value.target;
+                    sitemapOBJ.cards[index].title = title;
+                    sitemapOBJ.cards[index].description = description;
+                    sitemapOBJ.cards[index].target = target;
                 }
             });
-        
-            dialog.setTitle('Edit Card');
-            dialog.setContent('<div><div role="heading">Card Title: </div><input aria-label="" id="card-title" value="'+title+'"></input><div role="heading" style="margin-top: 1rem;">Card Description: </div><input aria-label="Enter group name" id="card-description" value="'+description+'"></input><div role="heading" style="margin-top: 1rem;">Target Site Address: </div><input aria-label="" id="card-target" value="'+target+'"></input></div>');
-
-        	//save handler
-       	 	dialog.setSaveHandler(function() {
-            	dialog.indicateBusy();
-                var id = generateNewCardID();
-                var title = $("#xhr input#card-title").val();
-                var description = $("#xhr input#card-description").val();
-                var target = $("#xhr input#card-target").val();
-                var order = sitemapOBJ.cards.length;
-                $.each(sitemapOBJ.cards, function(index, value){
-                    if(value.id == cardID){
-						sitemapOBJ.cards[index].title = title;
-                        sitemapOBJ.cards[index].description = description;
-                        sitemapOBJ.cards[index].target = target;
-                    }
-                });
-                updateCardUI(cardID);
-                dialog.hide();
-            });
-            $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
-            dialog.show();
-            $('input:visible:first, select:visible:first').focus();
+            updateCardUI(cardID);
+            dialog.hide();
+        });
+        $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
+        dialog.show();
+        $('input:visible:first, select:visible:first').focus();
     }
     
 	//saves sitemap json into the custom report
