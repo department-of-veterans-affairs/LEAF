@@ -54,17 +54,17 @@ foreach ($queue as $file)
         $res = null;
         switch ($categoryID) {
             case 1:
-                include_once '../sources/Employee.php';
+                include_once __DIR__ . '/../sources/Employee.php';
                 $type = new OrgChart\Employee($db, $login);
 
                 break;
             case 2:
-                include_once '../sources/Position.php';
+                include_once __DIR__ . '/../sources/Position.php';
                 $type = new OrgChart\Position($db, $login);
 
                 break;
             case 3:
-                include_once '../sources/Group.php';
+                include_once __DIR__ . '/../sources/Group.php';
                 $type = new OrgChart\Group($db, $login);
 
                 break;
