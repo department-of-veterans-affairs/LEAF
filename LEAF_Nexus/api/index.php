@@ -11,10 +11,10 @@ if (false)
     exit();
 }
 
-include '../globals.php';
-include '../sources/Login.php';
-include '../db_mysql.php';
-include '../config.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../sources/Login.php';
+include __DIR__ . '/../db_mysql.php';
+include __DIR__ . '/../config.php';
 require 'RESTfulResponse.php';
 require '../sources/Exception.php';
 require 'ControllerMap.php';

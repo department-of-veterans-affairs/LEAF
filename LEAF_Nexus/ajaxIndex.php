@@ -11,12 +11,12 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
-include './sources/Exception.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/./sources/Login.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/config.php';
+include __DIR__ . '/./sources/Exception.php';
 
 $config = new Orgchart\Config();
 
@@ -32,17 +32,17 @@ if ($login)
 $type = null;
 switch ($_GET['categoryID']) {
     case 1:    // employee
-        include './sources/Employee.php';
+        include __DIR__ . '/./sources/Employee.php';
         $type = new OrgChart\Employee($db, $login);
 
         break;
     case 2:    // position
-        include './sources/Position.php';
+        include __DIR__ . '/./sources/Position.php';
         $type = new OrgChart\Position($db, $login);
 
         break;
     case 3:    // group
-        include './sources/Group.php';
+        include __DIR__ . '/./sources/Group.php';
         $type = new OrgChart\Group($db, $login);
 
         break;

@@ -4,12 +4,12 @@
  */
 
 set_time_limit(240);
-include '../globals.php';
-include '../config.php';
-include '../sources/Login.php';
-include '../db_mysql.php';
-include '../sources/Position.php';
-include '../sources/Tag.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../config.php';
+include __DIR__ . '/../sources/Login.php';
+include __DIR__ . '/../db_mysql.php';
+include __DIR__ . '/../sources/Position.php';
+include __DIR__ . '/../sources/Tag.php';
 
 if (!class_exists('XSSHelpers'))
 {
