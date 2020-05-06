@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/Indicators.php';
+require __DIR__ . '/../sources/Indicators.php';
 
 class IndicatorController extends RESTfulResponse
 {

@@ -15,9 +15,9 @@ include __DIR__ . '/../globals.php';
 include __DIR__ . '/../sources/Login.php';
 include __DIR__ . '/../db_mysql.php';
 include __DIR__ . '/../config.php';
-require 'RESTfulResponse.php';
-require '../sources/Exception.php';
-require 'ControllerMap.php';
+require __DIR__ . '/RESTfulResponse.php';
+require __DIR__ . '/../sources/Exception.php';
+require __DIR__ . '/ControllerMap.php';
 
 $config = new Orgchart\Config();
 
@@ -50,7 +50,7 @@ $controllerMap = new ControllerMap();
 switch ($key) {
     case 'group':
         $controllerMap->register('group', function () use ($db, $login, $action) {
-            require 'controllers/GroupController.php';
+            require __DIR__ . '/controllers/GroupController.php';
             $groupController = new GroupController($db, $login);
             $groupController->handler($action);
         });
@@ -58,7 +58,7 @@ switch ($key) {
         break;
     case 'position':
         $controllerMap->register('position', function () use ($db, $login, $action) {
-            require 'controllers/PositionController.php';
+            require __DIR__ . '/controllers/PositionController.php';
             $positionController = new PositionController($db, $login);
             $positionController->handler($action);
         });
@@ -66,7 +66,7 @@ switch ($key) {
         break;
     case 'employee':
         $controllerMap->register('employee', function () use ($db, $login, $action) {
-            require 'controllers/EmployeeController.php';
+            require __DIR__ . '/controllers/EmployeeController.php';
             $employeeController = new EmployeeController($db, $login);
             $employeeController->handler($action);
         });
@@ -74,7 +74,7 @@ switch ($key) {
         break;
     case 'indicator':
         $controllerMap->register('indicator', function () use ($db, $login, $action) {
-            require 'controllers/IndicatorController.php';
+            require __DIR__ . '/controllers/IndicatorController.php';
             $indicatorController = new IndicatorController($db, $login);
             $indicatorController->handler($action);
         });
@@ -82,7 +82,7 @@ switch ($key) {
         break;
     case 'tag':
          $controllerMap->register('tag', function () use ($db, $login, $action) {
-             require 'controllers/TagController.php';
+             require __DIR__ . '/controllers/TagController.php';
              $tagController = new TagController($db, $login);
              $tagController->handler($action);
          });
@@ -90,7 +90,7 @@ switch ($key) {
            break;
     case 'system':
         $controllerMap->register('system', function () use ($db, $login, $action) {
-            require 'controllers/SystemController.php';
+            require __DIR__ . '/controllers/SystemController.php';
             $systemController = new SystemController($db, $login);
             $systemController->handler($action);
         });
@@ -101,7 +101,7 @@ switch ($key) {
             $db_nat = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
             $login_nat = new Orgchart\Login($db_nat, $db_nat);
 
-            require 'controllers/NationalEmployeeController.php';
+            require __DIR__ . '/controllers/NationalEmployeeController.php';
             $nationalEmployeeController = new NationalEmployeeController($db_nat, $login_nat);
             $nationalEmployeeController->handler($action);
         });
@@ -110,7 +110,7 @@ switch ($key) {
 
     case 'x':
         $controllerMap->register('x', function () use ($db, $login, $action) {
-            require 'controllers/ExperimentalController.php';
+            require __DIR__ . '/controllers/ExperimentalController.php';
             $experimentalController = new ExperimentalController($db, $login);
             $experimentalController->handler($action);
         });

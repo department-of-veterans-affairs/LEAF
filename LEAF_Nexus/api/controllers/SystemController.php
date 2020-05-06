@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/System.php';
+require __DIR__ . '/../sources/System.php';
 
 class SystemController extends RESTfulResponse
 {
