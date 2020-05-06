@@ -1,9 +1,9 @@
 <?php
 ini_set('display_errors', 0); // Set to 1 to display errors
 
-include '../globals.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../db_mysql.php';
+include __DIR__ . '/../db_config.php';
 
 $debug = false;
 $db_config = new DB_Config();

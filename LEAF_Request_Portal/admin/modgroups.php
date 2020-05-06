@@ -5,9 +5,9 @@
 
 require __DIR__ . '/../VAMC_Directory.php';
 
-include '../globals.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../db_mysql.php';
+include __DIR__ . '/../db_config.php';
 
 if (!class_exists('XSSHelpers'))
 {

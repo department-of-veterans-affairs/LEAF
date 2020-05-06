@@ -11,12 +11,12 @@ if (false)
     exit();
 }
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include 'Login.php';
-include 'db_mysql.php';
-include 'db_config.php';
-include 'form.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/Login.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/db_config.php';
+include __DIR__ . '/form.php';
 
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
@@ -77,7 +77,7 @@ switch ($action) {
         $main->assign('useLiteUI', true);
         $main->assign('javascripts', array('js/titleValidator.js'));
         $form = new Form($db, $login);
-        include './sources/FormStack.php';
+        include __DIR__ . '/./sources/FormStack.php';
         $stack = new FormStack($db, $login);
 
         $t_menu->assign('action', XSSHelpers::xscrub($action));

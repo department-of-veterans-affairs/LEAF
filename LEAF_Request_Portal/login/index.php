@@ -4,8 +4,8 @@ header('X-UA-Compatible: IE=edge');
 $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
-include '../db_mysql.php';
-include '../db_config.php';
+include __DIR__ . '/../db_mysql.php';
+include __DIR__ . '/../db_config.php';
 
 if (!class_exists('XSSHelpers'))
 {

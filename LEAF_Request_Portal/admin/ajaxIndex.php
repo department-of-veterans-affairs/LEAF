@@ -15,11 +15,11 @@
 */
 error_reporting(E_ALL & ~E_NOTICE);
 
-include '../globals.php';
-include '../../libs/smarty/Smarty.class.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../../libs/smarty/Smarty.class.php';
+include __DIR__ . '/../Login.php';
+include __DIR__ . '/../db_mysql.php';
+include __DIR__ . '/../db_config.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -171,21 +171,21 @@ switch ($action) {
         $type = null;
         switch ($typeName) {
             case 'service':
-                include '../sources/Service.php';
+                include __DIR__ . '/../sources/Service.php';
                 $dataName = "All Services";
                 $type = new \Service($db, $login);
                 break;
             case 'form':
-                include '../sources/FormEditor.php';
+                include __DIR__ . '/../sources/FormEditor.php';
                 $dataName = "All Forms";
                 $type = new \FormEditor($db, $login);
                 break;
             case 'group':
-                include 'Group.php';
+                include __DIR__ . '/Group.php';
                 $dataName = "All Groups";
                 $type = new \Group($db, $login);
 
-                include '../' . Config::$orgchartPath . '/sources/Group.php';
+                include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
                 $orgchartGroup = new OrgChart\Group($db_phonebook, $login);
                 break;
         }
@@ -239,22 +239,22 @@ switch ($action) {
         $type = null;
         switch ($typeName) {
             case 'service':
-                include '../sources/Service.php';
+                include __DIR__ . '/../sources/Service.php';
                 $type = new \Service($db, $login);
                 $title = $type->getServiceName($itemID);
                 break;
             case 'form':
-                include '../sources/FormEditor.php';
+                include __DIR__ . '/../sources/FormEditor.php';
                 $type = new \FormEditor($db, $login);
                 $title = $type->getFormName($itemID);
                 break;
             case 'group':
-                include 'Group.php';
+                include __DIR__ . '/Group.php';
                 $type = new \Group($db, $login);
                 $title = $type->getGroupName($itemID);
                 break;
             case 'workflow':
-                include '../sources/Workflow.php';
+                include __DIR__ . '/../sources/Workflow.php';
                 $type = new \Workflow($db, $login);
                 $title = $type->getDescription($itemID);
                 break;

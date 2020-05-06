@@ -10,10 +10,10 @@
 header('Access-Control-Allow-Origin: *');
 error_reporting(E_ALL & ~E_NOTICE);
 
-include '../../globals.php';
-include '../Login.php';
-include '../../db_mysql.php';
-include '../../db_config.php';
+include __DIR__ . '/../../globals.php';
+include __DIR__ . '/../Login.php';
+include __DIR__ . '/../../db_mysql.php';
+include __DIR__ . '/../../db_config.php';
 require __DIR__ . '/../../api/RESTfulResponse.php';
 require __DIR__ . '/../../sources/Exception.php';
 require __DIR__ . '/../../api/ControllerMap.php';
