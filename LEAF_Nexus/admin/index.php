@@ -123,7 +123,7 @@ switch ($action) {
            $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
            $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
-           require_once '../sources/Tag.php';
+           require_once __DIR__ . '/../sources/Tag.php';
            $tagObj = new Orgchart\Tag($db, $login);
            $t_form->assign('serviceParent', $tagObj->getParent('service'));
 

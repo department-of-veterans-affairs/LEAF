@@ -11,7 +11,7 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
+require_once __DIR__ . '/Data.php';
 
 class Tag extends Data
 {
