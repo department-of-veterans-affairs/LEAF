@@ -311,7 +311,7 @@ switch ($action) {
         break;
     case 'status':
         $form = new Form($db, $login);
-        include_once 'View.php';
+        include_once __DIR__ . '/View.php';
         $view = new View($db, $login);
         $recordIDForStatus = (int)$_GET['recordID'];
 
@@ -359,7 +359,7 @@ switch ($action) {
 
            break;
     case 'bookmarks':
-        include_once 'View.php';
+        include_once __DIR__ . '/View.php';
         $view = new View($db, $login);
 
         $t_form = new Smarty;

@@ -1276,7 +1276,7 @@ class Form
 
         $errors = array();
         // trigger initial submit event
-        include_once 'FormWorkflow.php';
+        include_once __DIR__ . '/FormWorkflow.php';
         $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID);
         $FormWorkflow->setEventFolder('../scripts/events/');
         foreach ($workflowIDs as $id)
