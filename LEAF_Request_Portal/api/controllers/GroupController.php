@@ -5,7 +5,7 @@
 
 // Since Groups are primarily controlled via the Org. Chart, this provides read access to the local group database.
 
-require __DIR__ . '/../admin/Group.php';
+require __DIR__ . '/../../admin/Group.php';
 
 if (!class_exists('XSSHelpers'))
 {

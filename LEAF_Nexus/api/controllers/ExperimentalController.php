@@ -32,7 +32,7 @@ class ExperimentalController extends RESTfulResponse
         });
 
         $this->index['GET']->register('x/position/employees/hrsmart/[digit]', function($args) use ($db, $login) {
-            require __DIR__ . '/../sources/experimental/Position.php';
+            require __DIR__ . '/../../sources/experimental/Position.php';
             $position = new OrgChart\Position($db, $login);
             return $position->getEmployeesHrsmart($args[0]);
         });

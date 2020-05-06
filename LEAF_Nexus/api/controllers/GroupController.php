@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require __DIR__ . '/../sources/Group.php';
+require __DIR__ . '/../../sources/Group.php';
 
 class GroupController extends RESTfulResponse
 {
