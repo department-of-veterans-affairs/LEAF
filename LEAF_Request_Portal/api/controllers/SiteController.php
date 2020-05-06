@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/Site.php';
+require __DIR__ . '/../sources/Site.php';
 
 if (!class_exists('XSSHelpers'))
 {

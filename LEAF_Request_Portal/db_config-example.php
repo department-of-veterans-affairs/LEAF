@@ -11,7 +11,7 @@
     This should be kept outside of web accessible directories
 */
 
-// require '../../../db_config.php';
+// require __DIR__ . '/../../../db_config.php';
 
 ini_set('display_errors', 0); // Set to 1 to display errors
 

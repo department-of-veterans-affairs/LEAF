@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../VAMC_Directory.php';
+require __DIR__ . '/../VAMC_Directory.php';
 
 include '../globals.php';
 include '../db_mysql.php';

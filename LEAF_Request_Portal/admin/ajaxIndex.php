@@ -63,7 +63,7 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 switch ($action) {
     case 'add_user_old':
         checkToken();
-        require 'Group.php';
+        require __DIR__ . '/Group.php';
 
         $group = new Group($db, $login);
         $group->addMember($_POST['userID'], $_POST['groups']);
@@ -71,7 +71,7 @@ switch ($action) {
         break;
     case 'remove_user_old':
         checkToken();
-        require 'Group.php';
+        require __DIR__ . '/Group.php';
 
         $deleteList = XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
@@ -84,7 +84,7 @@ switch ($action) {
         break;
     case 'add_user':
           checkToken();
-           require 'Group.php';
+           require __DIR__ . '/Group.php';
 
            $group = new Group($db, $login);
            $group->addMember($_POST['userID'], $_POST['groupID']);
@@ -92,7 +92,7 @@ switch ($action) {
            break;
     case 'remove_user':
            checkToken();
-           require 'Group.php';
+           require __DIR__ . '/Group.php';
 
            $group = new Group($db, $login);
            $group->removeMember($_POST['userID'], $_POST['groupID']);
@@ -101,7 +101,7 @@ switch ($action) {
     case 'printview':
         if ($login->isLogin())
         {
-            require '../form.php';
+            require __DIR__ . '/../form.php';
             $form = new Form($db, $login);
 
             $t_form = new Smarty;
@@ -117,7 +117,7 @@ switch ($action) {
 
         break;
     case 'importForm':
-        require '../sources/FormStack.php';
+        require __DIR__ . '/../sources/FormStack.php';
         $formStack = new FormStack($db, $login);
         $result = $formStack->importForm();
 
@@ -125,7 +125,7 @@ switch ($action) {
 
         break;
     case 'manualImportForm':
-           require '../sources/FormStack.php';
+           require __DIR__ . '/../sources/FormStack.php';
            $formStack = new FormStack($db, $login);
            $result = $formStack->importForm();
 
@@ -141,7 +141,7 @@ switch ($action) {
 
            break;
     case 'uploadFile':
-           require '../sources/System.php';
+           require __DIR__ . '/../sources/System.php';
            $system = new System($db, $login);
            $result = $system->newFile();
            if ($result === true)

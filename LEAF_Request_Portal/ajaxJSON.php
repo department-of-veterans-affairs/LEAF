@@ -37,14 +37,14 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'getform':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         header('Content-type: application/json');
         echo $form->getFormJSON($_GET['recordID']);
 
         break;
     case 'getprogress': // support legacy customizations
-          require 'form.php';
+          require __DIR__ . '/form.php';
            $form = new Form($db, $login);
            header('Content-type: application/json');
            echo $form->getProgressJSON($_GET['recordID']);

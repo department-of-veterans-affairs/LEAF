@@ -37,7 +37,7 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'mod_groups_getMembers':
-        require 'Group.php';
+        require __DIR__ . '/Group.php';
 
         $group = new Group($db, $login);
 
@@ -45,7 +45,7 @@ switch ($action) {
 
         break;
     case 'directory_lookup':
-        require '../VAMC_Directory.php';
+        require __DIR__ . '/../VAMC_Directory.php';
         $dir = new VAMC_Directory();
         $results = $dir->search($_GET['query']);
 
