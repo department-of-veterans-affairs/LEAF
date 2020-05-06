@@ -74,7 +74,7 @@ class Group
         $members = array();
         if (count($res) > 0)
         {
-            require_once '../VAMC_Directory.php';
+            require_once __DIR__ . '/../VAMC_Directory.php';
             $dir = new VAMC_Directory();
             foreach ($res as $member)
             {
@@ -180,7 +180,7 @@ class Group
      */
     private function getEmployeeDisplay($employeeID)
     {
-        require_once '../VAMC_Directory.php';
+        require_once __DIR__ . '/../VAMC_Directory.php';
      
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);

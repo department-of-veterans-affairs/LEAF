@@ -230,7 +230,7 @@ switch ($action) {
         }
 
         // get workflow status and check permissions
-        require_once 'FormWorkflow.php';
+        require_once __DIR__ . '/FormWorkflow.php';
         $formWorkflow = new FormWorkflow($db, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
 
@@ -280,7 +280,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        require_once 'Inbox.php';
+        require_once __DIR__ . '/Inbox.php';
         $inbox = new Inbox($db, $login);
 
         $inboxItems = $inbox->getInbox();
@@ -515,7 +515,7 @@ switch ($action) {
 
         $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
 
-        require_once 'Inbox.php';
+        require_once __DIR__ . '/Inbox.php';
         $inbox = new Inbox($db, $login);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
         $t_form->assign('inbox_status', 1);

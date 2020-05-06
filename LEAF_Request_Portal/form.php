@@ -604,7 +604,7 @@ class Form
             $vars
         );
 
-        require_once 'VAMC_Directory.php';
+        require_once __DIR__ . '/VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $res2 = array();
@@ -862,7 +862,7 @@ class Form
             );
         }
 
-        require_once 'VAMC_Directory.php';
+        require_once __DIR__ . '/VAMC_Directory.php';
         $dir = new VAMC_Directory;
         $user = $dir->lookupLogin($res[0]['userID']);
         $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
@@ -2233,7 +2233,7 @@ class Form
                                                 AND comment != ""
                                             ORDER BY time ASC', $vars);
 
-        require_once 'VAMC_Directory.php';
+        require_once __DIR__ . '/VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $total = count($res);
@@ -2386,7 +2386,7 @@ class Form
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
-            require_once 'VAMC_Directory.php';
+            require_once __DIR__ . '/VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $user = $dir->lookupLogin($userID);
@@ -2996,7 +2996,7 @@ class Form
 
         if ($joinActionHistory)
         {
-            require_once 'VAMC_Directory.php';
+            require_once __DIR__ . '/VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $res2 = $this->db->prepared_query('SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment FROM action_history
