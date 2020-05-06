@@ -25,6 +25,7 @@
 	    dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 
 	    $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
+        $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .8) + 30});
 
     });
 
