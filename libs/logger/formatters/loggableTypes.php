@@ -18,4 +18,5 @@ class LoggableTypes {
     const ROUTE_EVENTS = "route_events";
     const ACTIONS = "actions";
     const TAG = "tag";
+    const PRIMARY_ADMIN = "primary_admin";
 }
