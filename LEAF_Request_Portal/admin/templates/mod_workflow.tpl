@@ -1,6 +1,6 @@
 <div class="leaf-center-content">
 
-    <div id="sideBar" style="float: left; width: 180px; font-size: 0.8rem;">
+    <div id="sideBar" style="float: left; width: 180px; font-size: 0.7rem;">
         <div id="btn_createStep" class="buttonNorm" onclick="createStep();" display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
         Workflows: <br />
         <div id="workflowList"></div>
@@ -11,7 +11,7 @@
         <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="display: none" role="button" tabindex="0">Edit Actions</div><br />
         <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="display: none;" role="button" tabindex="0"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>
     </div>
-    <div id="workflow" style="margin-left: 184px; background-color: #777; font-size: 0.8rem;"></div>
+    <div id="workflow" style="margin-left: 184px; background-color: #777; font-size: 0.7rem;"></div>
 
 </div>
 

@@ -10,7 +10,7 @@
 
 </head>
 
-<section class="usa-banner bg-red-50" aria-label="Official government website">
+<section class="usa-banner bg-orange-40" aria-label="Official government website">
   <div class="usa-accordion">
     <header class="usa-banner__header">
         <div class="grid-col-fill tablet:grid-col-auto">
@@ -31,44 +31,16 @@
             </em>
         </div>
         <div class="leaf-header-right">
+            <div class="leaf-user-menu">
+                <span>Welcome, </span><a href="javascript:void(0)">Sample User</a>
+            </div>
             <ul class="leaf-main-nav">
-                <li class="leaf-width-6rem"><a href="javascript:void(0)">Home</a></li>
-                <li class="leaf-width-6rem"><a href="javascript:void(0)">Admin<i class="fas fa-angle-down leaf-nav-icon"></i></a>
-                    <ul>
-                        <li><a href="javascript:void(0)">User Access<i class="fas fa-caret-right leaf-nav-icon"></i></a>
-                            <ul>
-                                <li><a href="javascript:void(0)">User Access Groups</a></li>
-                                <li><a href="javascript:void(0)">Service Chiefs</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="javascript:void(0)">Workflow Editor</a></li>
-                        <li><a href="javascript:void(0)">Form Editor</a></li>
-                        <li><a href="javascript:void(0)">LEAF Library</a></li>
-                        <li><a href="javascript:void(0)">Site Settings</a></li>
-                        <li><a href="javascript:void(0)">Timeline Explorer</a></li>
-                        <li><a href="javascript:void(0)">Toolbox</a></li>
-                        <li><a href="javascript:void(0)">Advanced Editing<i class="fas fa-caret-right leaf-nav-icon"></i></a>
-                            <ul>
-                                <li><a href="javascript:void(0)">Template Editor</a></li>
-                                <li><a href="javascript:void(0)">Sync Services</a></li>
-                                <li><a href="javascript:void(0)">LEAF Programmer</a></li>
-                                <li><a href="javascript:void(0)">Search Database</a></li>
-                                <li><a href="javascript:void(0)">Update Database</a></li>
-                                <li><a href="javascript:void(0)">File Manager</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
+            
+                <li class="leaf-width-7rem"><a href="javascript:void(0)">Home</a></li>
+                
                 <li class="leaf-width-10rem"><a href="javascript:void(0)">Report Builder</a></li>
-                <li class="leaf-width-8rem">
-                    <a href="javascript:void(0)">Toolbox<i class="fas fa-angle-down leaf-nav-icon"></i></a>
-                    <ul>
-                        <li><a href="javascript:void(0)">Import Spreadsheet</a></li>
-                        <li><a href="javascript:void(0)">Mass Action</a></li>
-                        <li><a href="javascript:void(0)">Initiate New Account</a></li>
-                    </ul>
-                </li>
-                <li class="leaf-width-8rem">
+
+                <li class="leaf-width-10rem">
                     <a href="javascript:void(0)">Site Links<i class="fas fa-angle-down leaf-nav-icon"></i></a>
                     <ul>
                         <li><a href="javascript:void(0)">Nexus: Org Charts</a></li>
@@ -77,7 +49,40 @@
                         <li><a href="javascript:void(0)">Sitemap Link Three</a></li>
                     </ul>
                 </li>
-                <li class="leaf-width-8rem"><a href="javascript:void(0)">Michael Gao</a></li>
+
+                <li class="leaf-width-9rem"><a href="javascript:void(0)">Admin<i class="fas fa-angle-down leaf-nav-icon"></i></a>
+                    <ul>
+                        <li><a href="javascript:void(0)">User Access<i class="fas fa-caret-down leaf-nav-icon"></i></a>
+                            <ul>
+                                <li><a href="javascript:void(0)">Template Editor</a></li>
+                                <li><a href="javascript:void(0)">LEAF Programmer</a></li>
+                                <li><a href="javascript:void(0)">Search Database</a></li>
+                                <li><a href="javascript:void(0)">Update Database</a></li>
+                                <li><a href="javascript:void(0)">File Manager</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="javascript:void(0)">Workflow Editor</a></li>
+                        <li><a href="javascript:void(0)">Form Editor</a></li>
+                        <li><a href="javascript:void(0)">LEAF Library</a></li>
+                        <li><a href="javascript:void(0)">Site Settings</a></li>
+                        <li><a href="javascript:void(0)">Timeline Explorer</a></li>
+                        <li><a href="javascript:void(0)">Toolbox<i class="fas fa-caret-down leaf-nav-icon"></i></a>
+                            <ul>
+                            <li><a href="javascript:void(0)">Import Spreadsheet</a></li>
+                            <li><a href="javascript:void(0)">Mass Action</a></li>
+                            <li><a href="javascript:void(0)">Initiate New Account</a></li>
+                        </ul>
+                        </li>
+                        <li><a href="javascript:void(0)">Advanced Editing<i class="fas fa-caret-down leaf-nav-icon"></i></a>
+                            <ul>
+                                <li><a href="javascript:void(0)">User Access Groups</a></li>
+                                <li><a href="javascript:void(0)">Service Chiefs</a></li>
+                                <li><a href="javascript:void(0)">Sync Services</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
             </ul>
         </div>
     </div>
