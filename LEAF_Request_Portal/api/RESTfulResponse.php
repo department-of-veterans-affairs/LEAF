@@ -547,8 +547,23 @@ abstract class RESTfulResponse
         return $columns;
     }
 
-    // filterDataS1 is a helper function for filterData
-    private function filterDataS1($s1)
+    // filterDataS1HtmlPrint is a helper function to filter out htmlPrint data
+    // returned by form data fields
+    private function filterDataS1HtmlPrint($s1)
+    {
+        $sids = array_keys($s1);
+        // iterate through keys within each s1 set
+        foreach($sids as $sKey) {
+            if(strpos($sKey, '_htmlPrint') !== false) {
+                unset($s1[$sKey]);
+            }
+        }
+        return $s1;
+    }
+
+    // filterDataS1Timestamp is a helper function to filter out timestamps
+    // returned by form data fields
+    private function filterDataS1Timestamp($s1)
     {
         $sids = array_keys($s1);
         // iterate through keys within each s1 set
@@ -580,6 +595,7 @@ abstract class RESTfulResponse
      * $_GET['x-filterData'] is a CSV of desired array keys. All other keys will be filtered out.
      * 
      * id_timestamp is a special key to signal a need for s1.id##_timestamp values.
+     * id_htmlPrint is a special key to signal a need for s1.id##_htmlPrint values.
      * 
      * Arrays nested within first level keys can be retrieved via [key].[subkey]
      * For example, action_history.approverName would enable all approverNames within
@@ -610,7 +626,14 @@ abstract class RESTfulResponse
                     if(isset($data[$key]['s1'])
                         && !isset($filter['id_timestamp'])
                     ) {
-                        $data[$key]['s1'] = $this->filterDataS1($data[$key]['s1']);
+                        $data[$key]['s1'] = $this->filterDataS1Timestamp($data[$key]['s1']);
+                    }
+
+                    // filter out s1 htmlPrint items if applicable
+                    if(isset($data[$key]['s1'])
+                        && !isset($filter['id_htmlPrint'])
+                    ) {
+                        $data[$key]['s1'] = $this->filterDataS1HtmlPrint($data[$key]['s1']);
                     }
 
                     // filter out action_history fields if applicable
