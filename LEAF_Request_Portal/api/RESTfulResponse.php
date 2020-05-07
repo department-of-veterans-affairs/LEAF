@@ -547,8 +547,10 @@ abstract class RESTfulResponse
         return $columns;
     }
 
-    // filterDataS1HtmlPrint is a helper function to filter out htmlPrint data
-    // returned by form data fields
+    /**
+     * filterDataS1HtmlPrint is a helper function to filter out htmlPrint data
+     * returned by form data fields
+     */
     private function filterDataS1HtmlPrint($s1)
     {
         $sids = array_keys($s1);
@@ -561,8 +563,10 @@ abstract class RESTfulResponse
         return $s1;
     }
 
-    // filterDataS1Timestamp is a helper function to filter out timestamps
-    // returned by form data fields
+    /**
+     * filterDataS1Timestamp is a helper function to filter out timestamps
+     * returned by form data fields
+     */
     private function filterDataS1Timestamp($s1)
     {
         $sids = array_keys($s1);
