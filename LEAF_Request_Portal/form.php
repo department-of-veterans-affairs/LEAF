@@ -1624,7 +1624,7 @@ class Form
                  else{
                     $empUID = $this->getEmpUID($resPerson[0]['userID']);
                                                                 
-                    return $this->checkUserAccess($empUID);
+                    return $this->checkIfBackup($empUID);
                  }
                
 
@@ -1675,7 +1675,7 @@ class Form
         return $response[0]["empUID"];
     }
 
-    public function checkUserAccess($empUID){
+    public function checkIfBackup($empUID){
 
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':empId' => $empUID);
@@ -1693,6 +1693,8 @@ class Form
 
             return false;
         }
+
+        return true;
     }
 
     /**

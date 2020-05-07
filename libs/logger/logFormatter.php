@@ -9,6 +9,7 @@ require_once __DIR__.'/formatters/serviceChiefFormatter.php';
 require_once __DIR__.'/formatters/formFormatter.php';
 require_once __DIR__.'/formatters/portalGroupFormatter.php';
 require_once __DIR__.'/formatters/workflowFormatter.php';
+require_once __DIR__.'/formatters/primaryAdminFormatter.php';
 
 class LogFormatter{
 
@@ -17,7 +18,8 @@ class LogFormatter{
         LoggableTypes::SERVICE_CHIEF=> ServiceChiefFormatter::TEMPLATES,
         LoggableTypes::FORM=> FormFormatter::TEMPLATES,
         LoggableTypes::PORTAL_GROUP=> PortalGroupFormatter::TEMPLATES,
-        LoggableTypes::WORKFLOW=> WorkflowFormatter::TEMPLATES
+        LoggableTypes::WORKFLOW=> WorkflowFormatter::TEMPLATES,
+        LoggableTypes::PRIMARY_ADMIN=> PrimaryAdminFormatter::TEMPLATES
     );
 
     public static function getFormattedString($logData, $logType){

@@ -425,6 +425,8 @@ class Inbox
 
             return false;
         }
+
+        return true;
     }
 
     /**
