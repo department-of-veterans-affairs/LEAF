@@ -220,24 +220,24 @@ final class FormControllerTest extends DatabaseTest
     {
         //gets all indicators for recordID=1 where format is text or textarea
         $indicators = self::$reqClient->get(array('a' => 'form/1/indicator/formatSearch', 'formats' => array('text', 'textarea')));
-        
+
         //checks text indicators for recordID=1
         $this->assertEquals('2', $indicators[0]['indicatorID']);
         $this->assertEquals('First Name', $indicators[0]['name']);
         $this->assertEquals('text', $indicators[0]['format']);
-        
+
         $this->assertEquals('3', $indicators[1]['indicatorID']);
         $this->assertEquals('Last Name', $indicators[1]['name']);
         $this->assertEquals('text', $indicators[1]['format']);
-        
+
         $this->assertEquals('4', $indicators[2]['indicatorID']);
         $this->assertEquals('Occupation', $indicators[2]['name']);
         $this->assertEquals('text', $indicators[2]['format']);
-        
+
         $this->assertEquals('5', $indicators[3]['indicatorID']);
         $this->assertEquals('Hobbies', $indicators[3]['name']);
         $this->assertEquals('textarea', $indicators[3]['format']);
-        
+
         $this->assertEquals('7', $indicators[4]['indicatorID']);
         $this->assertEquals('Masked', $indicators[4]['name']);
         $this->assertEquals('text', $indicators[4]['format']);
@@ -320,11 +320,11 @@ final class FormControllerTest extends DatabaseTest
         $this->assertEquals(2, count($res));
 
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/records_dependencies'));
-        $this->assertEquals(1, count($res));
+        $this->assertEquals(0, count($res));
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/records_dependencies'));
-        $this->assertEquals(1, count($res));
+        $this->assertEquals(0, count($res));
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_3.'/records_dependencies'));
-        $this->assertEquals(1, count($res));
+        $this->assertEquals(0, count($res));
 
         //delete first record
         $res = self::$reqClient->post(array('a' => 'form/'.$recordID_1.'/delete'));
@@ -372,9 +372,9 @@ final class FormControllerTest extends DatabaseTest
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_1.'/records_dependencies'));
         $this->assertEquals(0, count($res));
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_2.'/records_dependencies'));
-        $this->assertEquals(1, count($res));
+        $this->assertEquals(0, count($res));
         $res = self::$testEndpointClient->get(array('a' => 'form/'.$recordID_3.'/records_dependencies'));
-        $this->assertEquals(1, count($res));
+        $this->assertEquals(0, count($res));
 
         //check records_workflow_state
         //check tags
