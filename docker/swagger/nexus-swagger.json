@@ -15,6 +15,10 @@
   },
   "servers": [
     {
+      "url": "http://localhost/LEAF_Nexus/api/",
+      "description": "Local DEV server (uses test data)"
+    },
+    {
       "url": "https://localhost/LEAF_Nexus/api/",
       "description": "Local DEV server (uses test data)"
     },
