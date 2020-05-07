@@ -1,8 +1,8 @@
 <?php
 
-require_once 'loggableTypes.php';
-require_once 'dataActions.php';
-require_once 'formatOptions.php';
+require_once __DIR__.'/loggableTypes.php';
+require_once __DIR__.'/dataActions.php';
+require_once __DIR__.'/formatOptions.php';
 
 class FormFormatter{
 

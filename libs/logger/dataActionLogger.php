@@ -1,7 +1,7 @@
 <?php
 
-require_once 'logFormatter.php';
-require_once 'logItem.php';
+require_once __DIR__.'/logFormatter.php';
+require_once __DIR__.'/logItem.php';
 
 class DataActionLogger{
 
