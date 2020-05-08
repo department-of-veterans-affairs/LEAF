@@ -18,6 +18,10 @@
       "url": "https://localhost/LEAF_Nexus/api/",
       "description": "Local DEV server (uses test data)"
     },
+        {
+      "url": "http://localhost/LEAF_Nexus/api/",
+      "description": "Local DEV server (uses test data)"
+    },
     {
       "url": "https://leaf.va.gov:8443/LEAF_Nexus/api",
       "description": "Production server (uses live data)"
@@ -239,7 +243,7 @@
     },
     "/employee/{empUID}": {
       "get": {
-        "summary": "Get a user by ID",
+        "summary": "Get a employee with ID = empUID",
         "parameters": [
           {
             "name": "empUID",
@@ -263,6 +267,327 @@
                 }
               }
             }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a employee with ID = empUID",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "empUID",
+            "required": true,
+            "description": "empUID field in Employee table.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/employee"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a employee with ID = empUID",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "empUID",
+            "required": true,
+            "description": "empUID field in Employee table.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/employee"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/employee/{empUID}/activate": {
+      "post": {
+        "summary": "Enable a employee account",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "empUID",
+            "required": true,
+            "description": "empUID field in Employee table.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/employee/{empUID}/backup": {
+      "get": {
+        "summary": "Get a backup employee with ID = empUID",
+        "parameters": [
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "description": "original endpoint:employee/[digit]/backup; calls getBackups({empUID})",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single employee.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/employee"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/employee/{empUID}/backupFor": {
+      "get": {
+        "summary": "Get a backup for employee by ID",
+        "parameters": [
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "description": "original endpoint:employee/[digit]/backupFor; calls getBackupsFor({empUID})",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single employee.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/employee"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/employee/{empUID}/backup/{backupEmpUID}": {
+      "post": {
+        "summary": "Create employee who has backup ID",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "description": "empUID field in Employee table.",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "backupEmpUID",
+            "in": "path",
+            "required": true,
+            "description": "backupEmpUID field in Employee table.",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single employee.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/employee"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete employee who has backup ID",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "description": "empUID field in Employee table.",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "backupEmpUID",
+            "in": "path",
+            "required": true,
+            "description": "backupEmpUID field in Employee table.",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single employee.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/employee"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/employee/import/{userName}": {
+      "post": {
+        "summary": "Create a employee with Name = {userName}",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "userName",
+            "required": true,
+            "description": "empUID field in Employee table.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -309,6 +634,115 @@
         "parameters": [
           {
             "name": "groupID",
+            "in": "path",
+            "required": true,
+            "description": "groupID field in groups table.",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/groups"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/group/list/all/{offset}/{quantity}": {
+      "get": {
+        "summary": "Get list of all groups with the condition",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "path",
+            "required": true,
+            "description": "offset comes from ???",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "quantity",
+            "in": "path",
+            "required": true,
+            "description": "quantity comes from ???",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single group."
+          }
+        }
+      }
+    },
+    "/group/list/parentGroup/{parentID}/{offset}/{quantity}": {
+      "get": {
+        "summary": "Get list of all groups with the condition",
+        "parameters": [
+          {
+            "name": "parentID",
+            "in": "path",
+            "required": true,
+            "description": "parentID comes from ???",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "offset",
+            "in": "path",
+            "required": true,
+            "description": "offset comes from ???",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "quantity",
+            "in": "path",
+            "required": true,
+            "description": "quantity comes from ???",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single group."
+          }
+        }
+      }
+    },
+    "/group/list/tag/{tag}": {
+      "get": {
+        "summary": "Get list of tag",
+        "parameters": [
+          {
+            "name": "tag",
             "in": "path",
             "required": true,
             "description": "groupID field in groups table.",
