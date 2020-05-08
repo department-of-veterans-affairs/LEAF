@@ -366,11 +366,6 @@ function viewHistory(groupID){
             dialog_simple.setContent(res);
             dialog_simple.indicateIdle();
             dialog_simple.show();
-
-            if(type == "primaryAdmin"){
-            $("#historyName").text("Primary Admin History");
-
-            }
         },
         cache: false
     });

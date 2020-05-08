@@ -243,6 +243,10 @@ switch ($action) {
         //pagination
         $pageLength = 10;
 
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
         $type = null;
         switch ($typeName) {
             case 'service':
@@ -270,12 +274,10 @@ switch ($action) {
                 $type = new \System($db, $login);
                 $itemID = null;
                 $title = 'Primary Admin';
+                $t_form->assign('titleOverride', "Primary Admin History");
                 break;
         }
 
-        $t_form = new Smarty;
-        $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter = '}-->';
 
         $resHistory = $type->getHistory($itemID);
 
