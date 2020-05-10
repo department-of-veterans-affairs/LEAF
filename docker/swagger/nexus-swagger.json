@@ -18,10 +18,6 @@
       "url": "https://localhost/LEAF_Nexus/api/",
       "description": "Local DEV server (uses test data)"
     },
-        {
-      "url": "http://localhost/LEAF_Nexus/api/",
-      "description": "Local DEV server (uses test data)"
-    },
     {
       "url": "https://leaf.va.gov:8443/LEAF_Nexus/api",
       "description": "Production server (uses live data)"
@@ -129,11 +125,10 @@
       }
     }
   },
-  "style": "simple",
   "paths": {
     "/": {
       "get": {
-        "summary": "Give an API endpoint as query parameter for GET openeration",
+        "summary": "Give an API endpoint as query parameter for GET operation",
         "parameters": [
           {
             "in": "query",
@@ -148,12 +143,12 @@
         ],
         "responses": {
           "200": {
-            "description": "A single endpoint response"
+            "description": "Successful operation"
           }
         }
       },
       "post": {
-        "summary": "Give an API endpoint as query parameter for POST openeration",
+        "summary": "Give an API endpoint as query parameter for POST operation",
         "parameters": [
           {
             "in": "cookie",
@@ -199,14 +194,52 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Successful operation"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Give an API endpoint as query parameter for DELETE operation",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "a",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "allowReserved": true,
+            "example": "employee/{empUID}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
           }
         }
       }
     },
     "/employee/new": {
       "post": {
-        "summary": "Adds a new employee",
+        "summary": "Call addNew()",
+        "description": "original endpoint:employee/new; calls addNew({firstName}, {lastName}, {middleName}, {userName})",
+        "tags": [
+          "employee"
+        ],
         "parameters": [
           {
             "in": "cookie",
@@ -224,7 +257,6 @@
           }
         ],
         "requestBody": {
-          "description": "original endpoint:employee/new; calls addNew({firstName}, {lastName}, {middleName}, {userName})\"",
           "required": true,
           "content": {
             "application/json": {
@@ -236,20 +268,23 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Successful operation"
           }
         }
       }
     },
     "/employee/{empUID}": {
       "get": {
-        "summary": "Get a employee with ID = empUID",
+        "summary": "Call getSummary()",
+        "description": "original endpoint:employee/[digit]; calls getSummary({empUID})",
+        "tags": [
+          "employee"
+        ],
         "parameters": [
           {
             "name": "empUID",
             "in": "path",
             "required": true,
-            "description": "empUID field in Employee table.",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -259,7 +294,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A single employee.",
+            "description": "Successful operation",
             "content": {
               "application/json": {
                 "schema": {
@@ -271,7 +306,11 @@
         }
       },
       "post": {
-        "summary": "Create a employee with ID = empUID",
+        "summary": "Call modify()",
+        "description": "original endpoint:employee/[digit]; calls modify({empUID})",
+        "tags": [
+          "employee"
+        ],
         "parameters": [
           {
             "in": "cookie",
@@ -291,7 +330,6 @@
             "in": "path",
             "name": "empUID",
             "required": true,
-            "description": "empUID field in Employee table.",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -300,7 +338,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Successful operation",
             "content": {
               "application/json": {
                 "schema": {
@@ -312,7 +350,11 @@
         }
       },
       "delete": {
-        "summary": "Delete a employee with ID = empUID",
+        "summary": "Call disableAccount()",
+        "description": "original endpoint:employee/[digit]; calls disableAccount({empUID})",
+        "tags": [
+          "employee"
+        ],
         "parameters": [
           {
             "in": "cookie",
@@ -332,7 +374,6 @@
             "in": "path",
             "name": "empUID",
             "required": true,
-            "description": "empUID field in Employee table.",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -341,7 +382,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Successful operation",
             "content": {
               "application/json": {
                 "schema": {
@@ -355,7 +396,11 @@
     },
     "/employee/{empUID}/activate": {
       "post": {
-        "summary": "Enable a employee account",
+        "summary": "Call enableAccount()",
+        "description": "original endpoint:employee/[digit]/activate; calls enableAccount({empUID})",
+        "tags": [
+          "employee"
+        ],
         "parameters": [
           {
             "in": "cookie",
@@ -375,7 +420,6 @@
             "in": "path",
             "name": "empUID",
             "required": true,
-            "description": "empUID field in Employee table.",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -384,20 +428,23 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Successful operation"
           }
         }
       }
     },
     "/employee/{empUID}/backup": {
       "get": {
-        "summary": "Get a backup employee with ID = empUID",
+        "summary": "Call getBackups()",
+        "description": "original endpoint:employee/[digit]/backup; calls getBackups({empUID})",
+        "tags": [
+          "employee"
+        ],
         "parameters": [
           {
             "name": "empUID",
             "in": "path",
             "required": true,
-            "description": "original endpoint:employee/[digit]/backup; calls getBackups({empUID})",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -407,51 +454,18 @@
         ],
         "responses": {
           "200": {
-            "description": "A single employee.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/employee"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/employee/{empUID}/backupFor": {
-      "get": {
-        "summary": "Get a backup for employee by ID",
-        "parameters": [
-          {
-            "name": "empUID",
-            "in": "path",
-            "required": true,
-            "description": "original endpoint:employee/[digit]/backupFor; calls getBackupsFor({empUID})",
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "minimum": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A single employee.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/employee"
-                }
-              }
-            }
+            "description": "Successful operation"
           }
         }
       }
     },
     "/employee/{empUID}/backup/{backupEmpUID}": {
       "post": {
-        "summary": "Create employee who has backup ID",
+        "summary": "Call setBackup()",
+        "description": "original endpoint:employee/[digit]/backup; calls setBackup({empUID}, {backupEmpUID})",
+        "tags": [
+          "employee"
+        ],
         "parameters": [
           {
             "in": "cookie",
@@ -471,7 +485,6 @@
             "name": "empUID",
             "in": "path",
             "required": true,
-            "description": "empUID field in Employee table.",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -482,7 +495,6 @@
             "name": "backupEmpUID",
             "in": "path",
             "required": true,
-            "description": "backupEmpUID field in Employee table.",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -492,19 +504,16 @@
         ],
         "responses": {
           "200": {
-            "description": "A single employee.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/employee"
-                }
-              }
-            }
+            "description": "A single employee."
           }
         }
       },
       "delete": {
-        "summary": "Delete employee who has backup ID",
+        "summary": "Call removeBackup()",
+        "description": "original endpoint:employee/[digit]/backup/[digit]; calls removeBackup({empUID}, {backupEmpUID})",
+        "tags": [
+          "employee"
+        ],
         "parameters": [
           {
             "in": "cookie",
@@ -524,7 +533,6 @@
             "name": "empUID",
             "in": "path",
             "required": true,
-            "description": "empUID field in Employee table.",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -535,7 +543,6 @@
             "name": "backupEmpUID",
             "in": "path",
             "required": true,
-            "description": "backupEmpUID field in Employee table.",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -545,21 +552,44 @@
         ],
         "responses": {
           "200": {
-            "description": "A single employee.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/employee"
-                }
-              }
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/employee/{empUID}/backupFor": {
+      "get": {
+        "summary": "Call getBackupsFor()",
+        "description": "original endpoint:employee/[digit]/backupFor; calls getBackupsFor({empUID})",
+        "tags": [
+          "employee"
+        ],
+        "parameters": [
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
           }
         }
       }
     },
     "/employee/import/{userName}": {
       "post": {
-        "summary": "Create a employee with Name = {userName}",
+        "summary": "Call importFromNational()",
+        "description": "original endpoint:employee/import/[text]; calls importFromNational({userName})",
+        "tags": [
+          "employee"
+        ],
         "parameters": [
           {
             "in": "cookie",
@@ -587,14 +617,18 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Successful operation"
           }
         }
       }
     },
     "/group/new": {
       "post": {
-        "summary": "Adds a new group",
+        "summary": "Call addNew()",
+        "description": "original endpoint:employee/new; calls addNew({title}, {parentID})",
+        "tags": [
+          "group"
+        ],
         "parameters": [
           {
             "in": "cookie",
@@ -611,7 +645,6 @@
             }
           }
         ],
-        "description": "original endpoint:employee/new; calls addNew({title}, {parentID})",
         "requestBody": {
           "content": {
             "application/json": {
@@ -623,20 +656,23 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Successful operation"
           }
         }
       }
     },
     "/group/{groupID}": {
       "get": {
-        "summary": "Get a group by ID",
+        "summary": "Call Group.php getTitle()",
+        "description": "original endpoint:group/[digit]/data/[digit]; calls getAllData({groupID}), Group.php getTitle({groupID})",
+        "tags": [
+          "group"
+        ],
         "parameters": [
           {
             "name": "groupID",
             "in": "path",
             "required": true,
-            "description": "groupID field in groups table.",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -646,7 +682,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A single group.",
+            "description": "Successful operation",
             "content": {
               "application/json": {
                 "schema": {
@@ -654,19 +690,107 @@
                 }
               }
             }
+          }
+        }
+      },
+      "post": {
+        "summary": "Call modify()",
+        "description": "original endpoint:group/[digit]; calls modify({groupID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "description": "groupID field in group table.",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/groups"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Call deleteGroup()",
+        "description": "original endpoint:group/[digit]; calls deleteGroup({groupID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "groupID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
           }
         }
       }
     },
     "/group/list/all/{offset}/{quantity}": {
       "get": {
-        "summary": "Get list of all groups with the condition",
+        "summary": "Call listGroups()",
+        "description": "original endpoint:group/list; calls listGroups(0, {offset}, {quantity})",
+        "tags": [
+          "group"
+        ],
         "parameters": [
           {
             "name": "offset",
             "in": "path",
             "required": true,
-            "description": "offset comes from ???",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -677,7 +801,6 @@
             "name": "quantity",
             "in": "path",
             "required": true,
-            "description": "quantity comes from ???",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -687,20 +810,23 @@
         ],
         "responses": {
           "200": {
-            "description": "A single group."
+            "description": "Successful operation"
           }
         }
       }
     },
     "/group/list/parentGroup/{parentID}/{offset}/{quantity}": {
       "get": {
-        "summary": "Get list of all groups with the condition",
+        "summary": "Call listGroups()",
+        "description": "original endpoint:group/[digit]/list; calls listGroups({parentID}, {offset}, {quantity})",
+        "tags": [
+          "group"
+        ],
         "parameters": [
           {
             "name": "parentID",
             "in": "path",
             "required": true,
-            "description": "parentID comes from ???",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -711,7 +837,6 @@
             "name": "offset",
             "in": "path",
             "required": true,
-            "description": "offset comes from ???",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -722,7 +847,6 @@
             "name": "quantity",
             "in": "path",
             "required": true,
-            "description": "quantity comes from ???",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -732,20 +856,33 @@
         ],
         "responses": {
           "200": {
-            "description": "A single group."
+            "description": "Successful operation"
           }
         }
       }
     },
-    "/group/list/tag/{tag}": {
+    "/group/{groupID}/indicator/{indicatorID}": {
       "get": {
-        "summary": "Get list of tag",
+        "summary": "Call getAllData()",
+        "description": "original endpoint:group/[digit]/data/[digit]; calls getAllData({groupID}, {indicatorID})",
+        "tags": [
+          "group"
+        ],
         "parameters": [
           {
-            "name": "tag",
+            "name": "groupID",
             "in": "path",
             "required": true,
-            "description": "groupID field in groups table.",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -755,21 +892,676 @@
         ],
         "responses": {
           "200": {
-            "description": "A single group.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/groups"
-                }
-              }
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/employee": {
+      "get": {
+        "summary": "Call listGroupEmployees()",
+        "description": "original endpoint:group/[digit]/employees; calls listGroupEmployees({groupID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/employee/all": {
+      "get": {
+        "summary": "Call listGroupEmployeesAll()",
+        "description": "original endpoint:group/[digit]/employees/all; calls listGroupEmployeesAll({groupID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/employee/detailed/{offset}/{limit}": {
+      "get": {
+        "summary": "Calls listGroupEmployeesDetailed()",
+        "description": "original endpoint:group/[digit]/employees/detailed; calls listGroupEmployeesDetailed({groupID}, {offset}, {limit})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "offset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/employee/{empUID}": {
+      "post": {
+        "summary": "Calls addEmployee()",
+        "description": "original endpoint:'group/[digit]/employee; calls addEmployee({groupID}, {empUID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Call removeEmployee()",
+        "description": "original endpoint:group/[digit]/employee/[digit]; calls removeEmployee({groupID}, {empUID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/leader": {
+      "get": {
+        "summary": "Call getGroupLeader()",
+        "description": "original endpoint:group/[digit]/leader; calls getGroupLeader({groupID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/permissions/add/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "summary": "Call addPermission()",
+        "description": "original endpoint:group/[digit]/permissions/addEmployee || group/[digit]/permissions/addPosition || group/[digit]/permission/[text]/[digit]/[text]/toggle; calls addPermission({groupID}, {categoryID}, {categoryUID}, {permissionType})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "position",
+                "group",
+                "employee"
+              ]
+            }
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/permissions/toggle/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "summary": "Call togglePermission()",
+        "description": "original endpoint:group/[digit]/permission/[text]/[digit]/[text]/toggle; calls togglePermission({groupID}, {categoryID}, {categoryUID}",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/position": {
+      "get": {
+        "summary": "Call listGroupPositions()",
+        "description": "original endpoint:group/[digit]/positions; calls listGroupPositions({groupID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/position/{positionID}": {
+      "post": {
+        "summary": "Call addPosition()",
+        "description": "original endpoint:group/[digit]/position; calls addPosition({groupID}, {positionID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Call removePosition()",
+        "description": "original endpoint:group/[digit]/position/[digit]; calls removePosition({groupID}, {positionID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "groupID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "description": "groupID field in group table.",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/summary": {
+      "get": {
+        "summary": "Call getSummary()",
+        "description": "original endpoint:group/[digit]/summary; calls getSummary({groupID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/tag/{tag}": {
+      "post": {
+        "summary": "Call addTag()",
+        "description": "original endpoint:group/[digit]/tag; calls addTag({groupID}, {tag})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Call deleteTag()",
+        "description": "original endpoint:group/[digit]/tag; calls deleteTag({groupID}, {tag}))",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "groupID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/group/{groupID}/title/{title}/{abbreviatedTitle}": {
+      "post": {
+        "summary": "Call editTitle()",
+        "description": "original endpoint:group/[digit]/title; calls editTitle({groupID}, {title}, {abbreviatedTitle})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "title",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "abbreviatedTitle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
           }
         }
       }
     },
     "/position/new": {
       "post": {
-        "summary": "Adds a new position",
+        "summary": "Call addNew()",
+        "description": "original endpoint:position; calls addNew({title}, {parentID}, {groupID})",
+        "tags": [
+          "position"
+        ],
         "parameters": [
           {
             "in": "cookie",
@@ -786,7 +1578,6 @@
             }
           }
         ],
-        "description": "original endpoint:position; calls addNew({title}, {parentID}, {groupID})\"",
         "requestBody": {
           "content": {
             "application/json": {
@@ -798,20 +1589,23 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Successful operation"
           }
         }
       }
     },
     "/position/{positionID}": {
       "get": {
-        "summary": "Get a position by ID",
+        "summary": "Call getAllData()",
+        "description": "original endpoint:position/[digit]; calls getAllData({positionID}), getTitle({positionID}), getSubordinates({positionID}), getAllTags({positionID})",
+        "tags": [
+          "position"
+        ],
         "parameters": [
           {
             "name": "positionID",
             "in": "path",
             "required": true,
-            "description": "positionID field in positions table.",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -821,7 +1615,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A single group.",
+            "description": "Successful operation",
             "content": {
               "application/json": {
                 "schema": {
@@ -829,6 +1623,1529 @@
                 }
               }
             }
+          }
+        }
+      },
+      "post": {
+        "summary": "Call modify()",
+        "description": "original endpoint:position/[digit]; calls modify({positionID}",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Call deletePosition()",
+        "description": "original endpoint:position/[digit]; calls deletePosition({positionID})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/employee": {
+      "get": {
+        "summary": "Call getEmployees()",
+        "description": "original endpoint:position/[digit]/employees; calls getEmployees({positionID})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/employee/{empUID}": {
+      "delete": {
+        "summary": "Call removeEmployee()",
+        "description": "original endpoint:position/[digit]/employee/[digit]; calls removeEmployee({positionID}, {empUID})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/employee/{empUID}/{isActing}": {
+      "post": {
+        "summary": "Call addEmployee()",
+        "description": "original endpoint:position/[digit]/employee; calls addEmployee({positionID}, {empUID}, {isActing})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "empUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "isActing",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/permissions/add/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "summary": "Call addPermission()",
+        "description": "original endpoint:position/[digit]/permissions/addEmployee || position/[digit]/permissions/addPosition || position/[digit]/permissions/addGroup; calls addPermission({positionID}, {categoryID}, {categoryUID}, {permissionType})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "position",
+                "group",
+                "employee"
+              ]
+            }
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/permissions/toggle/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "summary": "Calls togglePermission()",
+        "description": "original endpoint:position/[digit]/permission/[text]/[digit]/[text]/toggle; calls togglePermission({positionID}, {categoryID}, {categoryUID}, {permissionType})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/quadrad": {
+      "get": {
+        "summary": "Call getQuadrad()",
+        "description": "original endpoint:position/[digit]/quadrad; calls getQuadrad({positionID})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/service": {
+      "get": {
+        "summary": "Call getService()",
+        "description": "original endpoint:position/[digit]/service; calls getService({positionID})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/subordinates": {
+      "get": {
+        "summary": "Call getSubordinates()",
+        "description": "original endpoint:position/[digit]/subordinates; calls getSubordinates({positionID})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/supervisor": {
+      "get": {
+        "summary": "Call getSupervisor()",
+        "description": "original endpoint:position/[digit]/supervisor; calls getSupervisor({positionID})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/setLeader": {
+      "post": {
+        "summary": "Call addTag()",
+        "description": "original endpoint:position/[digit]/setLeader'; calls addTag({positionID}, 'group_leader')",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/supervisor/{supervisorID}": {
+      "post": {
+        "summary": "Call setSupervisor()",
+        "description": "original endpoint:position/[digit]/supervisor; calls setSupervisor({positionID}, {supervisorID})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "supervisorID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/position/{positionID}/title/{title}": {
+      "post": {
+        "summary": "Call editTitle()",
+        "description": "original endpoint:position/[digit]/title; calls editTitle({positionID}, {title})",
+        "tags": [
+          "position"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "title",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/reportTemplates": {
+      "get": {
+        "summary": "Call getReportTemplateList()",
+        "description": "original endpoint:system/reportTemplates; calls getReportTemplateList()",
+        "tags": [
+          "reportTemplates"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/reportTemplates/new": {
+      "post": {
+        "summary": "Call newReportTemplate()",
+        "description": "original endpoint:system/reportTemplates; calls newReportTemplate({filename})",
+        "tags": [
+          "reportTemplates"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type": "string"
+                  }
+                }
+              },
+              "encoding": {
+                "filename": {
+                  "allowReserved": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/reportTemplates/{filename}": {
+      "get": {
+        "summary": "Call getReportTemplate()",
+        "description": "original endpoint:system/reportTemplates; calls getReportTemplate({filename})",
+        "tags": [
+          "reportTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+      "post": {
+        "summary": "Call setReportTemplate()",
+        "description": "original endpoint:system/reportTemplates/[text]; calls setReportTemplate({filename})",
+        "tags": [
+          "reportTemplates"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Call removeReportTemplate()",
+        "description": "original endpoint:system/reportTemplates/[text]; calls removeReportTemplate({filename})",
+        "tags": [
+          "reportTemplates"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/settings/heading/{heading}": {
+      "post": {
+        "summary": "Call setHeading()",
+        "description": "original endpoint:system/settings/heading; calls setHeading({heading})",
+        "tags": [
+          "settings"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "heading",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/settings/subHeading/{subHeading}": {
+      "post": {
+        "summary": "Call setSubHeading()",
+        "description": "original endpoint:system/settings/subHeading; calls setSubHeading({subHeading})",
+        "tags": [
+          "settings"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subHeading",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/templates": {
+      "get": {
+        "summary": "Call getTemplateList()",
+        "description": "original endpoint:system/templates; *** doesn't seem to exist; calls getTemplateList()",
+        "tags": [
+          "system"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/templates/{text}": {
+      "get": {
+        "summary": "Call getTemplate()",
+        "description": "original endpoint:system/templates/[text]; *** doesn't seem to exist; calls getTemplate({text})",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "name": "text",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+      "post": {
+        "summary": "Call setTemplate()",
+        "description": "original endpoint:system/templates/[text]; *** doesn't seem to exist; calls setTemplate({text})",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "text",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Call removeCustomTemplate()",
+        "description": "original endpoint:system/templates/[text]; *** doesn't seem to exist; calls removeCustomTemplate({text})",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "text",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/indicator/{indicatorID}/permissions": {
+      "get": {
+        "summary": "Call getPrivileges()",
+        "description": "original endpoint:indicator/[digit]/permissions; calls getPrivileges({indicatorID})",
+        "tags": [
+          "indicator"
+        ],
+        "parameters": [
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/indicator/{indicatorID}/permissions/add/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "summary": "Calls addPermission()",
+        "description": "original endpoint:indicator/[digit]/permissions/addEmployee || indicator/[digit]/permissions/addPosition || indicator/[digit]/permissions/addGroup; calls addPermission({indicatorID}, {categoryID}, {categoryUID}, {permissionType})",
+        "tags": [
+          "indicator"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "position",
+                "group",
+                "employee"
+              ]
+            }
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/indicator/{indicatorID}/permissions/toggle/{categoryID}/{categoryUID}/{permissionType}": {
+      "post": {
+        "summary": "Calls togglePermission()",
+        "description": "original endpoint:indicator/[digit]/permission/[text]/[digit]/[text]/toggle; calls togglePermission({indicatorID}, {categoryID}, {categoryUID}, {permissionType})",
+        "tags": [
+          "indicator"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "permissionType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/indicator/{indicatorID}/upload": {
+      "post": {
+        "summary": "Calls Data.php modify()",
+        "description": "original endpoint:ajaxIndex.php?a=doupload; calls Data.php modify({indicatorID})",
+        "tags": [
+          "indicator"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/indicator/{indicatorID}/deleteAttachment/category/{categoryID}/{UID}/file/{file}": {
+      "delete": {
+        "summary": "Calls Data.php deleteAttachment()",
+        "description": "original endpoint:ajaxIndex.php?a=deleteattachment; calls Data.php deleteAttachment({categoryID}, {UID}, {indicatorID}, {file})",
+        "tags": [
+          "indicator"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "UID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "file",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/tag/{tag}/parent": {
+      "get": {
+        "summary": "Call getParent()",
+        "description": "original endpoint:tag/[text]/parent; calls getParent({tag})",
+        "tags": [
+          "tag"
+        ],
+        "parameters": [
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/tag/{tag}/parent/{parentTag}": {
+      "post": {
+        "summary": "Calls setParent()",
+        "description": "original endpoint:tag/[text]/parent; calls setParent({tag}, {parentTag})",
+        "tags": [
+          "tag"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "PHPSESSID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "CSRFToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "parentTag",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/nationalEmployee/{digit}": {
+      "get": {
+        "summary": "Call getSummary()",
+        "description": "original endpoint:national/employee/[digit]; *** doesn't seem to exist; calls getSummary({digit})",
+        "tags": [
+          "nationalEmployee"
+        ],
+        "parameters": [
+          {
+            "name": "digit",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/nationalEmployee/search/{search_terms}/{indicatorID}": {
+      "get": {
+        "summary": "Call search()",
+        "description": "original endpoint:national/employee/search; calls search({search_terms}, {indicatorID})",
+        "tags": [
+          "nationalEmployee"
+        ],
+        "parameters": [
+          {
+            "name": "search_terms",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/search/employee/{search_terms}/indicator/{indicatorID}": {
+      "get": {
+        "summary": "Call search()",
+        "description": "original endpoint:employee/search; calls search({search_terms}, {indicatorID})",
+        "tags": [
+          "search"
+        ],
+        "parameters": [
+          {
+            "name": "search_terms",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/search/employee/national/{search_terms}/indicator/{indicatorID}": {
+      "get": {
+        "summary": "Call search()",
+        "description": "original endpoint:national/employee/search; calls search({search_terms}, {indicatorID})",
+        "tags": [
+          "search"
+        ],
+        "parameters": [
+          {
+            "name": "search_terms",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "indicatorID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/search/employee/userName/{userName}": {
+      "get": {
+        "summary": "Call lookupLogin()",
+        "description": "original endpoint:employee/search/userName/[text]; calls lookupLogin({userName})",
+        "tags": [
+          "search"
+        ],
+        "parameters": [
+          {
+            "name": "userName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/search/group/{search_terms}/tag/{tag}": {
+      "get": {
+        "summary": "Call search()",
+        "description": "original endpoint:group/search; calls search({search_terms}, {tag})",
+        "tags": [
+          "search"
+        ],
+        "parameters": [
+          {
+            "name": "search_terms",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/search/position/{positionID}/parentTag/{tag}": {
+      "get": {
+        "summary": "Call findRootPositionByGroupTag()",
+        "description": "original endpoint:position/[digit]/search/parentTag/[text]; calls findRootPositionByGroupTag({positionID}, {tag})",
+        "tags": [
+          "search"
+        ],
+        "parameters": [
+          {
+            "name": "positionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/search/position/{search_terms}/tag/{tag}/employeeSearch{employeeSearch}": {
+      "get": {
+        "summary": "Call search()",
+        "description": "original endpoint:position/search; calls search({search_terms}, {tag}, {employeeSearch})",
+        "tags": [
+          "search"
+        ],
+        "parameters": [
+          {
+            "name": "search_terms",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "employeeSearch",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
           }
         }
       }
