@@ -1,9 +1,13 @@
-Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.<br />
-<div id="sideBar" style="float: left; width: 150px">
-    <div id="btn_uploadFile" class="buttonNorm" onclick="uploadFile();" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Upload File" /> Upload File</div><br />
-</div>
+<div class="leaf-center-content">
 
-<div id="fileList" style="background-color: white; margin-left: 160px"></div>
+    Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.<br />
+    <div id="sideBar" style="float: left; width: 150px">
+        <div id="btn_uploadFile" class="buttonNorm" onclick="uploadFile();" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Upload File" /> Upload File</div><br />
+    </div>
+
+    <div id="fileList" style="background-color: white; margin-left: 160px"></div>
+
+</div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->

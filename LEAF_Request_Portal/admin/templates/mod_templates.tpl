@@ -15,48 +15,51 @@
 }
 </style>
 
+<div class="leaf-center-content">
 
-<div class="section group">
-    <div class="col span_1_of_6">
-        <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">
-        Templates:
-            <div id="fileList"></div>
-        </div>
-    </div>
-    <div id="codeArea" class="col span_4_of_6">
-        <div id="codeContainer" class="card" style="float: left; padding: 8px; display: none">
-            <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
-            <div style="border: 1px solid black">
-                <textarea id="code"></textarea>
-                <div id="codeCompare"></div>
-            </div>
-            <br />
-            <div>
-                <table class="table">
-                    <tr>
-                        <td colspan="2">Keyboard Shortcuts within coding area</td>
-                    </tr>
-                    <tr>
-                        <td>Save</td>
-                        <td>Ctrl + S</td>
-                    </tr>
-                    <tr>
-                        <td>Fullscreen</td>
-                        <td>F11</td>
-                    </tr>
-                </table>
+    <div class="section group">
+        <div class="col span_1_of_6">
+            <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">
+            Templates:
+                <div id="fileList"></div>
             </div>
         </div>
-    </div>
-    <div class="col span_1_of_6">
-        <div id="controls" style="float: right; width: 170px; visibility: hidden">
-            <div class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes<span id="saveStatus"></span></div><br /><br /><br />
-            <div class="buttonNorm modifiedTemplate" onclick="restore();"><img src="../../libs/dynicons/?img=x-office-document-template.svg&w=32" alt="Restore" /> Restore Original</div><br />
-            <div class="buttonNorm" id="btn_compareStop" style="display: none" onclick="loadContent();"><img src="../../libs/dynicons/?img=text-x-generic.svg&w=32" alt="Normal view" /> Stop Comparing</div>
-            <div class="buttonNorm modifiedTemplate" id="btn_compare" onclick="compare();"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Compare" /> Compare with Original</div><br /><br /><br />
-            <a class="buttonNorm" href="../../libs/dynicons/gallery.php" target="_blank" style="padding: 8px; text-decoration: none"><img src="../../libs/dynicons/?img=image-x-generic.svg&w=32" alt="Icon Library" /> Icon Library</a>
+        <div id="codeArea" class="col span_4_of_6">
+            <div id="codeContainer" class="card" style="float: left; padding: 8px; display: none">
+                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
+                <div style="border: 1px solid black">
+                    <textarea id="code"></textarea>
+                    <div id="codeCompare"></div>
+                </div>
+                <br />
+                <div>
+                    <table class="table">
+                        <tr>
+                            <td colspan="2">Keyboard Shortcuts within coding area</td>
+                        </tr>
+                        <tr>
+                            <td>Save</td>
+                            <td>Ctrl + S</td>
+                        </tr>
+                        <tr>
+                            <td>Fullscreen</td>
+                            <td>F11</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col span_1_of_6">
+            <div id="controls" style="float: right; width: 170px; visibility: hidden">
+                <div class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes<span id="saveStatus"></span></div><br />
+                <div class="buttonNorm modifiedTemplate" onclick="restore();"><img src="../../libs/dynicons/?img=x-office-document-template.svg&w=32" alt="Restore" /> Restore Original</div><br />
+                <div class="buttonNorm" id="btn_compareStop" style="display: none" onclick="loadContent();"><img src="../../libs/dynicons/?img=text-x-generic.svg&w=32" alt="Normal view" /> Stop Comparing</div>
+                <div class="buttonNorm modifiedTemplate" id="btn_compare" onclick="compare();"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Compare" /> Compare with Original</div><br />
+                <a class="buttonNorm" href="../../libs/dynicons/gallery.php" target="_blank" style="padding: 8px; text-decoration: none"><img src="../../libs/dynicons/?img=image-x-generic.svg&w=32" alt="Icon Library" /> Icon Library</a>
+            </div>
         </div>
     </div>
+
 </div>
 
 
@@ -219,7 +222,7 @@ $(function() {
 		type: 'GET',
 		url: '../api/system/templates',
 		success: function(res) {
-			var buffer = '<ul>';
+			var buffer = '<ul class="leaf-ul">';
 			for(var i in res) {
 				file = res[i].replace('.tpl', '');
 				buffer += '<li onclick="loadContent(\''+ res[i] +'\');"><a href="#">' + file + '</a></li>';

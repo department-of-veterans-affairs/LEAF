@@ -1,10 +1,14 @@
-<div id="toolbar" class="toolbar_right toolbar noprint" style="position: absolute; right: 2px"></div>
+<div class="leaf-center-content">
 
-<div style="width: 85%">
-    <span style="font-size: 18px; font-weight: bold">Syncing services from Org Chart...</span>
-    <br /><br />
+    <div id="toolbar" class="toolbar_right toolbar noprint" style="position: absolute; right: 2px"></div>
 
-    <div id="groupList"></div>
+    <div style="width: 85%">
+        <span style="font-size: 18px; font-weight: bold">Syncing services from Org Chart...</span>
+        <br /><br />
+
+        <div id="groupList"></div>
+    </div>
+
 </div>
 
 

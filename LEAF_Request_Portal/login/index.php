@@ -39,7 +39,7 @@ function getBaseDir()
 <body>
 <div id="header">
     <div>
-      <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
+      <span style="position: absolute"><img src="../images/VA_icon_small.png" alt="VA logo" /></span>
       <span id="headerLabel"><?php echo htmlentities($settings['subHeading']); ?></span>
       <span id="headerDescription"><?php echo htmlentities($settings['heading']); ?></span>
     </div>

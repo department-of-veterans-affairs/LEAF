@@ -13,75 +13,81 @@ input {
 }
 </style>
 
-<h2 id="progress" style="color: red; text-align: center">
-</h2>
+<div class="leaf-center-content">
 
-<div style="width: 70%; margin: auto">
-    <div style="border: 2px solid black; margin: 4px; background-color: white; padding: 16px">
-        <div class="item">
-        <label for="heading">Title of LEAF site:&nbsp;</label>
-        <input id="heading" type="text" title="" />
-        </div>
+    <h2 id="progress" style="color: red; text-align: center"></h2>
 
-        <div class="item">
-        <label for="subHeading">Facility Name:&nbsp;</label>
-        <input id="subHeading" type="text" title="" />
-        </div>
+    <div style="width: 70%; margin: auto">
 
-        <div class="item">
-        <label for="timeZone">Time Zone:&nbsp;</label>
-        <select id="timeZone">
-            <!--{foreach from=$timeZones item=tz}-->
-                <option value="<!--{$tz}-->"><!--{$tz}--></option>
-            <!--{/foreach}-->
-        </select>
-        </div>
+        <div style="border: 2px solid black; margin: 4px; background-color: white; padding: 16px">
 
-        <div class="item">
-        <label for="requestLabel">Label for "Request":&nbsp;</label>
-        <input id="requestLabel" type="text" title="" />
-        </div>
-
-        <div class="item">
-            <label for="leafSecureContent">LEAF Secure Status:&nbsp;</label>
-            <span id="leafSecureStatus">Loading...</span><br />
-        </div>
-
-<br /><br />
-        <div class="item">
-        <label for="subHeading">Import Tags [<a href="#" title="Groups in the Org. Chart with any one of these tags will be imported for use">?</a>]:&nbsp;</label>
-            <span style="font-style: italic">
-            <!--{foreach from=$importTags item=importTag}-->
-                <!--{$importTag}--><br />
-            <!--{/foreach}-->
-            </span>
-        </div>
-
-        <fieldset>
-            <legend>Advanced Settings</legend>
             <div class="item">
-                <label for="siteType">Type of Site:&nbsp;</label>
-                <select id="siteType">
-                    <option value="standard">Standard</option>
-                    <option value="national_primary">Nationally Standardized Primary</option>
-                    <option value="national_subordinate">Nationally Standardized Subordinate</option>
+                <label for="heading">Title of LEAF site:&nbsp;</label>
+                <input id="heading" type="text" title="" />
+            </div>
+
+            <div class="item">
+                <label for="subHeading">Facility Name:&nbsp;</label>
+                <input id="subHeading" type="text" title="" />
+            </div>
+
+            <div class="item">
+                <label for="timeZone">Time Zone:&nbsp;</label>
+                <select id="timeZone">
+                    <!--{foreach from=$timeZones item=tz}-->
+                        <option value="<!--{$tz}-->"><!--{$tz}--></option>
+                    <!--{/foreach}-->
                 </select>
             </div>
 
-            <div class="item siteType national_primary" style="display: none">
+            <div class="item">
+                <label for="requestLabel">Label for "Request":&nbsp;</label>
+                <input id="requestLabel" type="text" title="" />
+            </div>
+
+            <div class="item">
+                <label for="leafSecureContent">LEAF Secure Status:&nbsp;</label>
+                <span id="leafSecureStatus">Loading...</span><br />
+            </div>
+
+    <br />
+
+            <div class="item">
+                <label for="subHeading">Import Tags [<a href="#" title="Groups in the Org. Chart with any one of these tags will be imported for use">?</a>]:&nbsp;</label>
+                <span style="font-style: italic">
+                <!--{foreach from=$importTags item=importTag}-->
+                    <!--{$importTag}--><br />
+                <!--{/foreach}-->
+                </span>
+            </div>
+
+            <fieldset>
+                <legend>Advanced Settings</legend>
+                <div class="item">
+                    <label for="siteType">Type of Site:&nbsp;</label>
+                    <select id="siteType">
+                        <option value="standard">Standard</option>
+                        <option value="national_primary">Nationally Standardized Primary</option>
+                        <option value="national_subordinate">Nationally Standardized Subordinate</option>
+                    </select>
+                </div>
+
+                <div class="item siteType national_primary" style="display: none">
                     <label for="national_linkedSubordinateList">Nationally Standardized Subordinate Sites:<br /><span style="font-size: 12px; font-weight: normal">The first site in the list should be a TEST site.<br />URLs must end with a trailing slash.</span></label>
                     <textarea id="national_linkedSubordinateList" cols="50" rows="5"></textarea>
-            </div>
+                </div>
 
-            <div class="item siteType national_subordinate" style="display: none">
+                <div class="item siteType national_subordinate" style="display: none">
                     <label for="national_linkedPrimary">Nationally Standardized Primary Site<span style="font-size: 12px; font-weight: normal">URLs must end with a trailing slash.</span></label>
                     <input id="national_linkedPrimary" type="text" />
-            </div>
-        </fieldset>
+                </div>
+            </fieldset>
 
-        <button class="buttonNorm" onclick="saveSettings();" style="float: right"><img src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="save icon" /> Save</button>
-        <br /><br />
+            <button class="buttonNorm" onclick="saveSettings();" style="float: right"><img src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="save icon" /> Save</button>
+            <br /><br />
+        </div>
     </div>
+<!-- end main content -->
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
