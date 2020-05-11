@@ -14,7 +14,7 @@
   <div class="usa-accordion">
     <header class="usa-banner__header">
         <div class="grid-col-fill tablet:grid-col-auto">
-          <p class="usa-banner__header-text text-white">&nbsp;This website is not certified. <span class="leaf-bold">Do not enter PHI/PII.</span></p>
+          <p class="usa-banner__header-text text-white">&nbsp;Do not enter PHI/PII</p>
         </div>
     </header>
 </section>
@@ -41,8 +41,8 @@
                 <li class="leaf-width-10rem"><a href="javascript:void(0)">Report Builder</a></li>
 
                 <li class="leaf-width-10rem">
-                    <a href="javascript:void(0)">Site Links<i class="fas fa-angle-down leaf-nav-icon"></i></a>
-                    <ul>
+                    <a href="javascript:void(0)" aria-haspopup="true">Site Links<i class="fas fa-angle-down leaf-nav-icon"></i></a>
+                    <ul aria-hidden="true" aria-expanded="false" aria-label="Site Links submenu">
                         <li><a href="javascript:void(0)">Nexus: Org Charts</a></li>
                         <li><a href="javascript:void(0)">Sitemap Link One</a></li>
                         <li><a href="javascript:void(0)">Sitemap Link Two</a></li>
@@ -50,10 +50,11 @@
                     </ul>
                 </li>
 
-                <li class="leaf-width-9rem"><a href="javascript:void(0)">Admin<i class="fas fa-angle-down leaf-nav-icon"></i></a>
-                    <ul>
-                        <li><a href="javascript:void(0)">User Access<i class="fas fa-caret-down leaf-nav-icon"></i></a>
-                            <ul>
+                <li class="leaf-width-9rem">
+                    <a href="javascript:void(0)" aria-haspopup="true">Admin<i class="fas fa-angle-down leaf-nav-icon"></i></a>
+                    <ul aria-hidden="true" aria-expanded="false" aria-label="Admin submenu">
+                        <li><a href="javascript:void(0)" aria-haspopup="true">User Access<i class="fas fa-caret-down leaf-nav-icon"></i></a>
+                            <ul aria-hidden="true" aria-expanded="false" aria-label="User Access submenu">
                                 <li><a href="javascript:void(0)">Template Editor</a></li>
                                 <li><a href="javascript:void(0)">LEAF Programmer</a></li>
                                 <li><a href="javascript:void(0)">Search Database</a></li>
@@ -66,15 +67,15 @@
                         <li><a href="javascript:void(0)">LEAF Library</a></li>
                         <li><a href="javascript:void(0)">Site Settings</a></li>
                         <li><a href="javascript:void(0)">Timeline Explorer</a></li>
-                        <li><a href="javascript:void(0)">Toolbox<i class="fas fa-caret-down leaf-nav-icon"></i></a>
-                            <ul>
+                        <li><a href="javascript:void(0)" aria-haspopup="true">Toolbox<i class="fas fa-caret-down leaf-nav-icon"></i></a>
+                            <ul aria-hidden="true" aria-expanded="false" aria-label="Toolbox submenu">
                             <li><a href="javascript:void(0)">Import Spreadsheet</a></li>
                             <li><a href="javascript:void(0)">Mass Action</a></li>
-                            <li><a href="javascript:void(0)">Initiate New Account</a></li>
+                            <li><a href="javascript:void(0)">Initiator New Account</a></li>
                         </ul>
                         </li>
-                        <li><a href="javascript:void(0)">Advanced Editing<i class="fas fa-caret-down leaf-nav-icon"></i></a>
-                            <ul>
+                        <li><a href="javascript:void(0)" aria-haspopup="true">Advanced Editing<i class="fas fa-caret-down leaf-nav-icon"></i></a>
+                            <ul aria-hidden="true" aria-expanded="false" aria-label="Advanced Editing submenu">
                                 <li><a href="javascript:void(0)">User Access Groups</a></li>
                                 <li><a href="javascript:void(0)">Service Chiefs</a></li>
                                 <li><a href="javascript:void(0)">Sync Services</a></li>
@@ -89,6 +90,82 @@
 </header>
 
 <body>
-  <script src="js/scripts.js"></script>
+<script type="text/javascript">
+
+if (!Element.prototype.closest) {
+    Element.prototype.closest = function(s) {
+        var el = this;
+        if (!document.documentElement.contains(el)) return null;
+            do {
+                if (el.matches(s)) return el;
+                el = el.parentElement || el.parentNode;
+            } while (el !== null && el.nodeType === 1);
+            return null;
+    };
+}
+
+/*
+/ walk through all links
+/ watch out whether they have an 'aria-haspopup'
+/ as soon as a link has got the 'focus' (also key), then:
+/ set nested UL to 'display:block;'
+/ set attribute 'aria-hidden' of this UL to 'false'
+/ and set attribute 'aria-expanded' to 'true'
+*/
+
+var opened;
+
+// resets currently opened list style to CSS based value
+// sets 'aria-hidden' to 'true'
+// sets 'aria-expanded' to 'false'
+function reset() {
+    if (opened) {
+        opened.style.display = '';
+        opened.setAttribute('aria-hidden', 'true');
+        opened.setAttribute('aria-expanded', 'false');
+    }
+}
+
+// sets given list style to inline 'display: block;'
+// sets 'aria-hidden' to 'false'
+// sets 'aria-expanded' to 'true'
+// stores the opened list for later use
+function open(el) {
+    el.style.display = 'block';
+    el.setAttribute('aria-hidden', 'false');
+    el.setAttribute('aria-expanded', 'true');
+    opened = el;
+}
+
+// event delegation
+// reset navigation on click outside of list
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('[aria-hidden]')) {
+        reset();
+    }
+});
+
+// event delegation
+document.addEventListener('focusin', function(event) {
+    // reset list style on every focusin
+    reset();
+
+    // check if a[aria-haspopup="true"] got focus
+    var target = event.target;
+    var hasPopup = target.getAttribute('aria-haspopup') === 'true';
+    if (hasPopup) {
+        open(event.target.nextElementSibling);
+        return;
+    }
+
+    // check if anchor inside sub menu got focus
+    var popupAnchor = target.parentNode.parentNode.previousElementSibling;
+    var isSubMenuAnchor = popupAnchor && popupAnchor.getAttribute('aria-haspopup') === 'true';
+    if (isSubMenuAnchor) {
+        open(popupAnchor.nextElementSibling);
+        return;
+    }
+})
+</script>
 </body>
 </html>
