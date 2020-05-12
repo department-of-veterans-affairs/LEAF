@@ -15,7 +15,6 @@ include __DIR__.'/globals.php';
 include __DIR__.'/../libs/smarty/Smarty.class.php';
 include __DIR__.'/Login.php';
 include __DIR__.'/db_mysql.php';
-include __DIR__.'/db_config.php';
 include __DIR__.'/form.php';
 
 // Include XSSHelpers
@@ -24,8 +23,6 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DB_Config($sitePath);
-$config = new Config($sitePath);
 
 header('X-UA-Compatible: IE=edge');
 
