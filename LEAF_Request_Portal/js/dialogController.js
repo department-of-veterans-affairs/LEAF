@@ -20,10 +20,15 @@ function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCan
 	this.invalid = 0;
 	this.incomplete = 0;
 
+	//calculate min width of dialog based on min width of content div
+	var minWidth = parseInt($('#' + this.contentID).css('min-width'));
+	minWidth = (minWidth == 0) ? 0 : (minWidth + 30);
+
 	$('#' + this.containerID).dialog({autoOpen: false,
 										modal: true,
 										height: 'auto',
-										width: 'auto'});
+										width: 'auto',
+										minWidth: minWidth});
 	this.clearDialog();
     var t = this;
 

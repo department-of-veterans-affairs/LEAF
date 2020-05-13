@@ -1,6 +1,9 @@
 FROM php:7.3.5-apache
 MAINTAINER Dastan Rahimi <dastan.rahimi@ablevets.com>
 
+RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev libzip-dev git zip unzip
+RUN docker-php-ext-install zip
+
 RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git zip unzip iputils-ping netcat vim
 
 RUN docker-php-ext-install mysqli pdo pdo_mysql
