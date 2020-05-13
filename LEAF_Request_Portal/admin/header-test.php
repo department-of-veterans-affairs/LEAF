@@ -24,7 +24,7 @@
         
         <div class="usa-logo site-logo" id="logo">
             <em class="usa-logo__text">
-                <a onclick="window.location='./'" title="Home" aria-label="LEAF home" class="leaf-cursor-pointer">
+                <a href="/index.php" title="Home" aria-label="LEAF home" class="leaf-cursor-pointer">
                     <span class="leaf-logo"><img src="../images/VA_icon_small.png" /></span>
                     <span class="leaf-site-title">Site Portal Name</span>
                     <span id="headerDescription" class="leaf-header-description">Location Name</span>
