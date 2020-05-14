@@ -3,6 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE);
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/routing/Handlers.php';
 require_once __DIR__ . '/routing/portal_config.php';
+require_once __DIR__ . '/routing/nexus_config.php';
 require_once __DIR__ . '/routing/LEAFRoutes.php';
 
 // Fetch method and URI from somewhere
@@ -34,9 +35,15 @@ if(count($matches)){
 //TODO check for portal or orgchart
 
 
-//if portal
-$db_config = new DB_Config($sitePath);
-$config = new Config($sitePath);
+if(doesSiteExist('portal', $sitePath))//query for portal
+{
+    $db_config = new DB_Config($sitePath);
+    $config = new Config($sitePath);
+
+}elseif(doesSiteExist('nexus', $sitePath))//query for nexus
+{
+    $config = new Orgchart\Config($sitePath);
+}
 
 //pass in routes
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
@@ -70,4 +77,25 @@ switch ($routeInfo[0]) {
         header("HTTP/1.0 404 Not Found");
         exit;
         break;
+}
+
+function doesSiteExist($typeToCheck, $sitePath){
+    if($typeToCheck == 'portal'){
+        $table = 'portal_configs';
+    } elseif($typeToCheck == 'nexus' || $typeToCheck == 'orgchart') {
+        $table = 'orgchart_configs';
+    }
+
+    $db = new PDO(
+        "mysql:host=localhost;dbname=leaf_config;charset=UTF8",
+        'testuser',
+        'testuserpass',
+        array()
+    );
+    $sql = "SELECT * FROM $table WHERE path = '$sitePath';";
+    $query = $db->prepare($sql);
+    $query->execute(array());
+    $res = $query->fetchAll(PDO::FETCH_ASSOC);
+
+    return count($res) > 0;
 }

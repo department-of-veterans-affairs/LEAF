@@ -1,38 +1,43 @@
 <?php
 namespace Orgchart{
 
-ini_set('display_errors', 0); // Set to 1 to display errors
-$_SERVER['REMOTE_USER'] = '\\VACOLayJ';
-//$_SERVER['REMOTE_USER'] = '\\tester';
-class Config
-{
-    public $title = 'Organizational Chart';
+    ini_set('display_errors', 0); // Set to 1 to display errors
+    $_SERVER['REMOTE_USER'] = '\\VACOLayJ';
+    //$_SERVER['REMOTE_USER'] = '\\tester';
+    class Config
+    {
+        public $title;
+        public $city;
+        public $adminLogonName;    // Administrator's logon name
+        public $adPath; // Active directory paths
+        public static $uploadDir;
+        public $dbHost;
+        public $dbName;
+        public $dbUser;
+        public $dbPass;
+        public function __construct($sitePath)
+        {
+            $db = new PDO(
+                "mysql:host=localhost;dbname=leaf_config;charset=UTF8",
+                'testuser',
+                'testuserpass',
+                array()
+            );
+            $sql = "SELECT * FROM orgchart_configs WHERE path = '$sitePath';";
+            $query = $db->prepare($sql);
+            $query->execute(array());
+            $res = $query->fetchAll(PDO::FETCH_ASSOC);
+            
+            $this->title = $res[0]['title'];;
+            $this->city = $res[0]['city'];;
+            $this->adminLogonName = $res[0]['adminLogonName'];;
+            $this->adPath = $res[0]['active_directory_path'];;
+            $this->uploadDir = $res[0]['upload_directory'];;
 
-    public $city = 'Washington D.C. VAMC';
-
-    public $adminLogonName = 'admin';    // Administrator's logon name
-
-    public $adPath = array('OU=Users,DC=va,DC=gov'); // Active directory paths
-
-    //toggle LEAF-Secure on and off, default is off
-    public static $leafSecure = false;
-
-    public static $onPrem = false;         //used to display on-prem banner warning
-
-    public static $uploadDir = './UPLOADS/';
-
-    // Directory for user uploads
-    // using backslashes (/), with trailing slash
-
-    public static $ERM_Sites = array('resource_management' => ''); // URL to ERM sites with trailing slash
-
-    public $dbHost = 'localhost';
-
-    public $dbName = 'nexus_dev';
-    //public $dbName = 'nexus_testing';
-
-    public $dbUser = 'testuser';
-
-    public $dbPass = 'testuserpass';
-}
+            $this->dbHost = 'localhost';
+            $this->dbName = $res[0]['database_name'];
+            $this->dbUser = 'testuser';
+            $this->dbPass = 'testuserpass';
+        }
+    }
 }

@@ -79,4 +79,16 @@ namespace Handlers{
             require __DIR__.'/../LEAF_Request_Portal/api/index.php';
         }
     }
+
+    class Portal {
+        public $config;
+        public function __construct($config)
+        {
+            $this->config = $config;
+        }
+        function default(){
+            global $config;
+            require __DIR__.'/../LEAF_Nexus/index.php';
+        }
+    }
 }
