@@ -32,8 +32,8 @@
         
 	// insert button into sortable list and sidenav
     function addButtonToUI(button){
-        $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_'+button.id+'"><a onClick="editButtonDialog(\''+button.id+'\');" title="Edit Button">'+button.title+'</a></li>');
-        $('div#sortable').append('<div class="leaf-sitemap-button '+button.color+'" draggable="true" id="div_buttonID_'+button.id+'"><i class="fas fa-trash-alt leaf-delete-button" title="Delete Button"></i><h3>'+button.title+'</h3><p>'+button.description+'</p></div>');
+        $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_'+button.id+'"><a onClick="editButtonDialog(\''+button.id+'\');" title="Edit Card">'+button.title+'</a></li>');
+        $('div#sortable').append('<div class="leaf-sitemap-button '+button.color+'" draggable="true" id="div_buttonID_'+button.id+'"><i class="fas fa-trash-alt leaf-delete-button" title="Delete Card"></i><h3>'+button.title+'</h3><p>'+button.description+'</p></div>');
     }
     
 	// insert existing button in sortable list and sidenav
@@ -73,12 +73,12 @@
 	// brings up dialog to add a button
     function createGroup() {
         var dialog = createNewButtonDialog();
-        dialog.setTitle('Add New Button');
+        dialog.setTitle('Add New Card');
         dialog.setContent('<div>' +
-            '<div class="leaf-marginAll1rem"><div role="heading">Button Title</div><input id="button-title" size="48"></input></div>' +
-            '<div class="leaf-marginAll1rem"><div role="heading" class="leaf-bold">Button Description</div><input aria-label="Enter group name" id="button-description" size="48"></input></div>' +
+            '<div class="leaf-marginAll1rem"><div role="heading">Card Title</div><input id="button-title" size="48"></input></div>' +
+            '<div class="leaf-marginAll1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" size="48"></input></div>' +
             '<div class="leaf-marginAll1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input id="button-target" size="48"></input></div>' +
-            '<div class="leaf-marginAll1rem"><div role="heading" id="button-color" class="leaf-bold">Button Color</div>' +
+            '<div class="leaf-marginAll1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
                 '<div class="leaf-float-left" style="margin-right: 3rem;">' +
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-button-blue" checked><label for="blue">Blue</label></div>' +
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-green"></span><input type="radio" id="green" name="btnColor" value="leaf-button-green"><label for="green">Green</label></div>' +
@@ -131,12 +131,12 @@
             }
         });
     
-        dialog.setTitle('Edit Button');
+        dialog.setTitle('Edit Card');
         dialog.setContent('<div>' +
-        '<div class="leaf-marginAll1rem"><div role="heading">Button Title</div><input id="button-title" value="'+title+'"size="48"></input></div>' +
-        '<div class="leaf-marginAll1rem"><div role="heading">Button Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48"></input></div>' +
+        '<div class="leaf-marginAll1rem"><div role="heading">Card Title</div><input id="button-title" value="'+title+'"size="48"></input></div>' +
+        '<div class="leaf-marginAll1rem"><div role="heading">Card Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48"></input></div>' +
         '<div class="leaf-marginAll1rem"><div role="heading">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48" ></input></div>' +
-        '<div class="leaf-marginAll1rem"><div role="heading" id="button-color" class="leaf-bold">Button Color</div>' +
+        '<div class="leaf-marginAll1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
                 '<div class="leaf-float-left" style="margin-right: 3rem;">' +
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-blue"></span><input type="radio" id="blue" name="btnColor" value="value="leaf-button-blue"><label for="blue">Blue</label></div>' +
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-green"></span><input type="radio" id="green" name="btnColor" value="value="leaf-button-green"><label for="green">Green</label></div>' +
@@ -231,7 +231,7 @@
 
             <div class="grid-col-9">
 
-                <h1>Phoenix VA Sitemap&nbsp; <button class="usa-button leaf-btn-small" onclick="createGroup();"><i class="fas fa-plus" title="Delete Button"></i> Add Button</button></h1>
+                <h1>Phoenix VA Sitemap&nbsp; <button class="usa-button leaf-btn-small" onclick="createGroup();"><i class="fas fa-plus" title="Delete Card"></i> Add Card</button></h1>
                 <div id="sortable">
                 </div>
                 <!-- div class="leaf-marginAll1rem leaf-clearBoth">
