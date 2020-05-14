@@ -21,6 +21,7 @@
 .sidenav { display: block; float: left; margin-bottom: 3rem; margin-top: 2rem; padding-right: 0; padding-left: 2rem; width: 15rem;}
 .usa-banner {font-family: 'Public Sans Regular';}
 
+
 /* ############### USWDS BUTTON OVERRIDES ################# */
 .site-button-outline-secondary {
     -webkit-box-shadow: inset 0 0 0 2px rgba(255,255,255,.7);
@@ -182,6 +183,8 @@ ul.leaf-main-nav {list-style-type: none; font-size: 0.9rem; margin: 2.5rem 1.0re
     ul.leaf-main-nav > li > a {text-decoration: none; color: #f0f0ec;}
         .leaf-main-nav > li > a:hover {text-decoration: none;}
         .leaf-nav-icon {float: right; margin: 0.2rem 0.3rem 0.2rem 0;}
+        .leaf-nav-icon-3 {float: left; margin: 0.2rem 0.3rem 0.2rem 0;}
+        .leaf-nav-icon-space {float: left; width: 0.3rem; margin: 0.2rem 0.3rem 0.2rem 0;}
 
 /* level two */
 ul.leaf-main-nav > li > ul {
@@ -196,7 +199,7 @@ ul.leaf-main-nav > li > ul {
     ul.leaf-main-nav > li:hover > ul {display: block; width: 12.0rem; padding-inline-start: 0; background-color: #274863; font-size: 0.8rem;}
         ul.leaf-main-nav > li > ul > li {text-align: left; font-family: 'Public Sans Regular'; background-color: #274863; position: relative;}
             ul.leaf-main-nav > li > ul > li > a {padding: 0.4rem 0.5rem; text-decoration: none; color: #f0f0ec; display: block;}
-        ul.leaf-main-nav > li > ul > li:hover {font-family: 'Public Sans Bold';}
+        ul.leaf-main-nav > li > ul > li:hover {background-color: #2378c3;}
 
 /* level three */
 ul.leaf-main-nav > li > ul > li > ul {
@@ -205,7 +208,7 @@ ul.leaf-main-nav > li > ul > li > ul {
     padding-inline-start: 0; 
     background-color: #274863;
     margin: 0.6rem 0.0rem 0.0rem 0.0rem;
-    transition: display 0.3s ease-out, transform 0.3s ease-out;
+    position: absolute;
     } 
     ul.leaf-main-nav > li > ul > li:hover > ul {
         display: block; 
@@ -214,6 +217,8 @@ ul.leaf-main-nav > li > ul > li > ul {
         background-color: #2378c3; 
         font-size: 0.8rem; 
         margin: 0;
+        top: 0;
+        left: -12.0rem;
         }
         ul.leaf-main-nav > li > ul > li > ul > li {text-align: left; font-family: 'Public Sans Regular'; background-color: #2378c3;}
         ul.leaf-main-nav > li > ul > li > ul > li:hover {font-family: 'Public Sans Bold';}
@@ -430,3 +435,7 @@ ul.leaf-progress-bar {
 .leaf-width-10rem {width: 10rem;}
 .leaf-width-11rem {width: 11rem;}
 .leaf-width-12rem {width: 12rem;}
+
+
+/*! breakpoint styles for different screens */
+@import "leaf-midWidth.scss";

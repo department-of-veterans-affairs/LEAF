@@ -20,16 +20,18 @@
 </section>
 
 <header id="header" class="usa-header site-header">
-    <div class="usa-navbar site-header-navbar">
+    <nav class="usa-navbar site-header-navbar">
+        
         <div class="usa-logo site-logo" id="logo">
             <em class="usa-logo__text">
-                <a onclick="window.location='./'" title="Home" aria-label="LEAF home" class="leaf-cursor-pointer">
+                <a href="/index.php" title="Home" aria-label="LEAF home" class="leaf-cursor-pointer">
                     <span class="leaf-logo"><img src="../images/VA_icon_small.png" /></span>
                     <span class="leaf-site-title">Site Portal Name</span>
                     <span id="headerDescription" class="leaf-header-description">Location Name</span>
                 </a>
             </em>
         </div>
+        
         <div class="leaf-header-right">
             <div class="leaf-user-menu">
                 <span>Welcome, </span><a href="javascript:void(0)">Sample User</a>
@@ -53,8 +55,8 @@
                 <li class="leaf-width-9rem">
                     <a href="javascript:void(0)" aria-haspopup="true">Admin<i class="fas fa-angle-down leaf-nav-icon"></i></a>
                     <ul aria-hidden="true" aria-expanded="false" aria-label="Admin submenu">
-                        <li><a href="javascript:void(0)" aria-haspopup="true">User Access<i class="fas fa-caret-down leaf-nav-icon"></i></a>
-                            <ul aria-hidden="true" aria-expanded="false" aria-label="User Access submenu">
+                        <li><a href="javascript:void(0)">User Access<i class="fas fa-caret-left leaf-nav-icon-3"></i></a>
+                            <ul>
                                 <li><a href="javascript:void(0)">Template Editor</a></li>
                                 <li><a href="javascript:void(0)">LEAF Programmer</a></li>
                                 <li><a href="javascript:void(0)">Search Database</a></li>
@@ -62,20 +64,20 @@
                                 <li><a href="javascript:void(0)">File Manager</a></li>
                             </ul>
                         </li>
-                        <li><a href="javascript:void(0)">Workflow Editor</a></li>
-                        <li><a href="javascript:void(0)">Form Editor</a></li>
-                        <li><a href="javascript:void(0)">LEAF Library</a></li>
-                        <li><a href="javascript:void(0)">Site Settings</a></li>
-                        <li><a href="javascript:void(0)">Timeline Explorer</a></li>
-                        <li><a href="javascript:void(0)" aria-haspopup="true">Toolbox<i class="fas fa-caret-down leaf-nav-icon"></i></a>
-                            <ul aria-hidden="true" aria-expanded="false" aria-label="Toolbox submenu">
-                            <li><a href="javascript:void(0)">Import Spreadsheet</a></li>
-                            <li><a href="javascript:void(0)">Mass Action</a></li>
-                            <li><a href="javascript:void(0)">Initiator New Account</a></li>
-                        </ul>
+                        <li><a href="javascript:void(0)">Workflow Editor<i class="leaf-nav-icon-space"></i></a></li>
+                        <li><a href="javascript:void(0)">Form Editor<i class="leaf-nav-icon-space"></i></a></li>
+                        <li><a href="javascript:void(0)">LEAF Library<i class="leaf-nav-icon-space"></i></a></li>
+                        <li><a href="javascript:void(0)">Site Settings<i class="leaf-nav-icon-space"></i></a></li>
+                        <li><a href="javascript:void(0)">Timeline Explorer<i class="leaf-nav-icon-space"></i></a></li>
+                        <li><a href="javascript:void(0)">Toolbox<i class="fas fa-caret-left leaf-nav-icon-3"></i></a>
+                            <ul>
+                                <li><a href="javascript:void(0)">Import Spreadsheet</a></li>
+                                <li><a href="javascript:void(0)">Mass Action</a></li>
+                                <li><a href="javascript:void(0)">Initiator New Account</a></li>
+                            </ul>
                         </li>
-                        <li><a href="javascript:void(0)" aria-haspopup="true">Advanced Editing<i class="fas fa-caret-down leaf-nav-icon"></i></a>
-                            <ul aria-hidden="true" aria-expanded="false" aria-label="Advanced Editing submenu">
+                        <li><a href="javascript:void(0)">Advanced Editing<i class="fas fa-caret-left leaf-nav-icon-3"></i></a>
+                            <ul>
                                 <li><a href="javascript:void(0)">User Access Groups</a></li>
                                 <li><a href="javascript:void(0)">Service Chiefs</a></li>
                                 <li><a href="javascript:void(0)">Sync Services</a></li>
@@ -85,9 +87,13 @@
                 </li>
 
             </ul>
+
         </div>
-    </div>
+
+    </nav>
+
 </header>
+
 
 <body>
 <script type="text/javascript">
