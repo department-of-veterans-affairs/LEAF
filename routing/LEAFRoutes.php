@@ -29,6 +29,7 @@ class LEAFRoutes {
 
         $this->addRoute('GET', '/api/', 'Portal/api');
         $this->addRoute('GET', '/api/dynicons/', 'Portal/dynicons');
+        $this->addRoute('GET', '/auth_domain/', 'Portal/auth_domain');
     }
     private function nexusRoutes(){
         $this->addRoute('GET', '/', 'Nexus/default');

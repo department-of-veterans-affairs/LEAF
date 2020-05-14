@@ -1,9 +1,5 @@
 <?php
 namespace Orgchart{
-
-    ini_set('display_errors', 0); // Set to 1 to display errors
-    $_SERVER['REMOTE_USER'] = '\\VACOLayJ';
-    //$_SERVER['REMOTE_USER'] = '\\tester';
     class Config
     {
         public $title;
@@ -17,16 +13,16 @@ namespace Orgchart{
         public $dbPass;
         public function __construct($sitePath)
         {
-            $db = new PDO(
-                "mysql:host=localhost;dbname=leaf_config;charset=UTF8",
-                'testuser',
-                'testuserpass',
+            $db = new \PDO(
+                "mysql:host=".Routing_Config::$dbHost.";dbname=".Routing_Config::$dbName.";charset=UTF8",
+                Routing_Config::$dbUser,
+                Routing_Config::$dbPass,
                 array()
             );
             $sql = "SELECT * FROM orgchart_configs WHERE path = '$sitePath';";
             $query = $db->prepare($sql);
             $query->execute(array());
-            $res = $query->fetchAll(PDO::FETCH_ASSOC);
+            $res = $query->fetchAll(\PDO::FETCH_ASSOC);
             
             $this->title = $res[0]['title'];;
             $this->city = $res[0]['city'];;
@@ -34,10 +30,10 @@ namespace Orgchart{
             $this->adPath = $res[0]['active_directory_path'];;
             $this->uploadDir = $res[0]['upload_directory'];;
 
-            $this->dbHost = 'localhost';
+            $this->dbHost = Routing_Config::$dbHost;
             $this->dbName = $res[0]['database_name'];
-            $this->dbUser = 'testuser';
-            $this->dbPass = 'testuserpass';
+            $this->dbUser = Routing_Config::$dbUser;
+            $this->dbPass = Routing_Config::$dbPass;
         }
     }
 }

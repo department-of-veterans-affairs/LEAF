@@ -9,13 +9,9 @@
 
 */
 
-include '../globals.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include __DIR__ . '../globals.php';
+include __DIR__ . '../Login.php';
 
-$db_config = new DB_Config();
-$config = new Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 

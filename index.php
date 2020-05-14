@@ -2,6 +2,7 @@
 error_reporting(E_ALL & ~E_NOTICE);
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/routing/Handlers.php';
+require_once __DIR__ . '/routing/routing_config.php';
 require_once __DIR__ . '/routing/portal_config.php';
 require_once __DIR__ . '/routing/nexus_config.php';
 require_once __DIR__ . '/routing/LEAFRoutes.php';
@@ -92,10 +93,15 @@ function doesSiteExist($typeToCheck, $sitePath){
         'testuserpass',
         array()
     );
+    $db = new PDO(
+        "mysql:host=".Routing_Config::$dbHost.";dbname=".Routing_Config::$dbName.";charset=UTF8",
+        Routing_Config::$dbUser,
+        Routing_Config::$dbPass,
+        array()
+    );
     $sql = "SELECT * FROM $table WHERE path = '$sitePath';";
     $query = $db->prepare($sql);
     $query->execute(array());
     $res = $query->fetchAll(PDO::FETCH_ASSOC);
-
     return count($res) > 0;
 }

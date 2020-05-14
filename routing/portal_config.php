@@ -3,11 +3,6 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-
-
-ini_set('display_errors', 1); // Set to 1 to display errors
-$_SERVER['REMOTE_USER'] = '\\VACOLayJ';
-
 class DB_Config
 {
     public $dbHost;
@@ -18,9 +13,9 @@ class DB_Config
     public function __construct($sitePath)
     {
         $db = new PDO(
-            "mysql:host=localhost;dbname=leaf_config;charset=UTF8",
-            'testuser',
-            'testuserpass',
+            "mysql:host=".Routing_Config::$dbHost.";dbname=".Routing_Config::$dbName.";charset=UTF8",
+            Routing_Config::$dbUser,
+            Routing_Config::$dbPass,
             array()
         );
         $sql = "SELECT a.* FROM portal_configs as a WHERE a.path = '$sitePath';";
@@ -28,10 +23,10 @@ class DB_Config
         $query->execute(array());
         $res = $query->fetchAll(PDO::FETCH_ASSOC);
 
-        $this->dbHost = 'localhost';
+        $this->dbHost = Routing_Config::$dbHost;
         $this->dbName = $res[0]['database_name'];
-        $this->dbUser = 'testuser';
-        $this->dbPass = 'testuserpass';
+        $this->dbUser = Routing_Config::$dbUser;
+        $this->dbPass = Routing_Config::$dbPass;
     }
 
 }
@@ -43,7 +38,7 @@ class Config
     public $adminLogonName;
     public $adPath;
     public static $uploadDir;
-    public static $orgchartPath;
+    public static $orgchartPath = '../LEAF_Nexus';
     public static $orgchartImportTags;
     public static $leafSecure;
     public static $onPrem;
@@ -58,32 +53,29 @@ class Config
     public function __construct($sitePath)
     {
         $db = new PDO(
-            "mysql:host=localhost;dbname=leaf_config;charset=UTF8",
-            'testuser',
-            'testuserpass',
+            "mysql:host=".Routing_Config::$dbHost.";dbname=".Routing_Config::$dbName.";charset=UTF8",
+            Routing_Config::$dbUser,
+            Routing_Config::$dbPass,
             array()
         );
-        $sql = "SELECT b.* FROM portal_configs as a JOIN orgchart_configs as b ON a.orgchart_id = b.id WHERE a.path = '$sitePath';";
+        $sql = "SELECT a.*, b.path as orgchartPath, b.database_name as phonedbName FROM portal_configs as a JOIN orgchart_configs as b ON a.orgchart_id = b.id WHERE a.path = '$sitePath';";
         $query = $db->prepare($sql);
         $query->execute(array());
         $res = $query->fetchAll(PDO::FETCH_ASSOC);
-        
-        $this->dbHost = 'localhost';
         $this->title = $res[0]['title'];
         $this->city = $res[0]['city'];
-        $this->adminLogonName = 'myAdmin';    // Administrator's logon name
-        $this->adPath = array('OU=myOU,DC=domain,DC=tld'); // Active directory path
-        $this->uploadDir = './UPLOADS/';
-        $this->orgchartPath = '../LEAF_Nexus'; // HTTP Path to orgchart with no trailing slash
-        $this->orgchartImportTags = array('resources_site_access');
-        $this->onPrem = false;
-        $this->descriptionID = 16;
-        $this->emailPrefix = 'Resources: ';
-        $this->emailCC = array();    // CCed for every email
-        $this->emailBCC = array();    // BCCed for every email
-        $this->phonedbHost = 'localhost';
-        $this->phonedbName = $res[0]['database_name'];
-        $this->phonedbUser = 'testuser';
-        $this->phonedbPass = 'testuserpass';
+        $this->adminLogonName = $res[0]['adminLogonName'];    // Administrator's logon name
+        $this->adPath = $res[0]['active_directory_path']; // Active directory path
+        $this->uploadDir = $res[0]['upload_directory'];
+        $this->orgchartPath = trim($res[0]['orgchartPath'], '/'); // HTTP Path to orgchart with no trailing slash
+        $this->orgchartImportTags = $res[0]['orgchart_path'];
+        $this->descriptionID = $res[0]['descriptionID'];
+        $this->emailPrefix = $res[0]['emailPrefix'];
+        $this->emailCC = $res[0]['emailCC'];    // CCed for every email
+        $this->emailBCC = $res[0]['emailBCC'];    // BCCed for every email
+        $this->phonedbHost = Routing_Config::$dbHost;
+        $this->phonedbName = $res[0]['phonedbName'];
+        $this->phonedbUser = Routing_Config::$dbUser;
+        $this->phonedbPass = Routing_Config::$dbPass;
     }
 }

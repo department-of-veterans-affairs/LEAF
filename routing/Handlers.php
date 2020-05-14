@@ -78,9 +78,14 @@ namespace Handlers{
             global $config, $db_config;
             require __DIR__.'/../LEAF_Request_Portal/api/index.php';
         }
+
+        function auth_domain(){
+            global $config, $db_config;
+            require __DIR__.'/../LEAF_Request_Portal/auth_domain/index.php';
+        }
     }
 
-    class Portal {
+    class Nexus {
         public $config;
         public function __construct($config)
         {
