@@ -36,29 +36,31 @@ main {font-family: 'Public Sans Regular';}
 .leaf-grey-box {padding: 1rem; background-color: #e6e6e6;}
 .leaf-btn-small {padding: 0.5rem; font-size: 0.7rem;}
 .leaf-sidenav-bottomBtns {margin: 0.5rem;}
-.leaf-sitemap-card {
+.leaf-sitemap-button {
     width: 19rem;
     margin: 0.5rem;
-    padding: 0.4rem 1.0rem;
+    padding: 0.8rem;
     box-shadow: 2px 2px 2px #e6e6e6;
-    border: 1px solid #332d27;
-    min-height: 9rem;
+    border: 1px solid #ccc;
+    min-height: 3.4rem;
     float: left;
     background-color: #fff;
     cursor: move;
+    border-radius: 5px;
     }
     .active {background-color: #faf3d1;}
-.leaf-sitemap-addCard {
-        width: 19rem;
-        margin: 0.5rem;
-        padding: 0.4rem 1.0rem;
-        box-shadow: 2px 2px 2px #e6e6e6;
-        border: 1px solid #332d27;
-        border-style: dashed;
-        min-height: 6rem;
-        float: left;
-        background-color: #fff;
-        }
+    .leaf-sitemap-button h3 {margin: 0.0rem 0 0.7rem 0; font-size: 1.0rem;}
+.leaf-delete-button {color: #71767a; font-size: 1.0rem; vertical-align: middle; float: right; margin: 0.0rem; cursor: pointer;}
+.leaf-color-choice {margin: 0.4rem 0;}
+    .leaf-color-demo {display: inline-block; width: 24px; height: 24px; border: 1px solid #aaa; margin: 0.0rem 0.6rem 0.3rem 0; vertical-align: bottom;}
+    .leaf-color-choice input {display: inline-block; vertical-align: top; margin: 0.5rem 0.4rem 0.3rem 0;}
+    .leaf-color-choice label {display: inline-block; vertical-align: top; margin: 0.5rem 0.4rem 0.3rem 0;}
+.leaf-button-blue {background-color: #eff6fb;}
+.leaf-button-green {background-color: #dfeacd;}
+.leaf-button-yellow {background-color: #faf3d1;}
+.leaf-button-orange {background-color: #f2e4d4;}
+.leaf-button-red {background-color: #f8e1de;}
+.leaf-button-gold {background-color: #f1e5cd;}
 
 /* ################## step progress bar ################# */
 ul.leaf-progress-bar {
