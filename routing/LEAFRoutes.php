@@ -6,7 +6,7 @@ class LEAFRoutes {
     {
         if($routesToLoad == "portal"){
             $this->portalRoutes();
-        }else{
+        }elseif($routesToLoad == 'nexus' || $routesToLoad == 'orgchart'){
             $this->nexusRoutes();
         }
     }

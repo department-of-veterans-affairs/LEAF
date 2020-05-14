@@ -33,26 +33,31 @@ if(count($matches)){
     $uri = '/';
 }
 
-//TODO check for portal or orgchart
-
-
+$siteFound = false;
 if(doesSiteExist('portal', $sitePath))//query for portal
 {
     $db_config = new DB_Config($sitePath);
     $config = new Config($sitePath);
-
+    $leafRoutes = new LEAFRoutes('portal');
+    $siteFound = true;
 }elseif(doesSiteExist('nexus', $sitePath))//query for nexus
 {
     $config = new Orgchart\Config($sitePath);
+    $leafRoutes = new LEAFRoutes('nexus');
+    $siteFound = true;
 }
 
-//pass in routes
-$dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
-    $leafRoutes = new LEAFRoutes('portal');
+if(!$siteFound){
+    header("HTTP/1.0 404 Not Found");
+        exit;
+}
+$routeCollectorFunction = function (FastRoute\RouteCollector $r) use ($leafRoutes) {
     foreach($leafRoutes->routes as $leafRoute){
         $r->addRoute($leafRoute->httpMethod, $leafRoute->path, $leafRoute->callback);
     }
-});
+};
+//pass in routes
+$dispatcher = FastRoute\simpleDispatcher($routeCollectorFunction);
 
 $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 
@@ -79,7 +84,6 @@ switch ($routeInfo[0]) {
         exit;
         break;
 }
-
 function doesSiteExist($typeToCheck, $sitePath){
     if($typeToCheck == 'portal'){
         $table = 'portal_configs';
@@ -87,12 +91,6 @@ function doesSiteExist($typeToCheck, $sitePath){
         $table = 'orgchart_configs';
     }
 
-    $db = new PDO(
-        "mysql:host=localhost;dbname=leaf_config;charset=UTF8",
-        'testuser',
-        'testuserpass',
-        array()
-    );
     $db = new PDO(
         "mysql:host=".Routing_Config::$dbHost.";dbname=".Routing_Config::$dbName.";charset=UTF8",
         Routing_Config::$dbUser,

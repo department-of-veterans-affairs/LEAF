@@ -14,9 +14,9 @@ namespace Orgchart{
         public function __construct($sitePath)
         {
             $db = new \PDO(
-                "mysql:host=".Routing_Config::$dbHost.";dbname=".Routing_Config::$dbName.";charset=UTF8",
-                Routing_Config::$dbUser,
-                Routing_Config::$dbPass,
+                "mysql:host=".\Routing_Config::$dbHost.";dbname=".\Routing_Config::$dbName.";charset=UTF8",
+                \Routing_Config::$dbUser,
+                \Routing_Config::$dbPass,
                 array()
             );
             $sql = "SELECT * FROM orgchart_configs WHERE path = '$sitePath';";
@@ -30,10 +30,10 @@ namespace Orgchart{
             $this->adPath = $res[0]['active_directory_path'];;
             $this->uploadDir = $res[0]['upload_directory'];;
 
-            $this->dbHost = Routing_Config::$dbHost;
+            $this->dbHost = \Routing_Config::$dbHost;
             $this->dbName = $res[0]['database_name'];
-            $this->dbUser = Routing_Config::$dbUser;
-            $this->dbPass = Routing_Config::$dbPass;
+            $this->dbUser = \Routing_Config::$dbUser;
+            $this->dbPass = \Routing_Config::$dbPass;
         }
     }
 }
