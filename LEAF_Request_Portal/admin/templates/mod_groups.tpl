@@ -12,14 +12,16 @@
         </button>
     </div>
 
+    <h2>User Access Groups</h2>
+
     <div>
-        <h2 role="heading" tabindex="-1">Site Administrators</h2>
+        <h3 role="heading" tabindex="-1">Site Administrators</h3>
         <div id="adminList"></div>
         <div id="primaryAdmin"></div>
     </div>
     
     <div class="leaf-clear-both">
-        <h2 role="heading" tabindex="-1">User Groups</h2>
+        <h3 role="heading" tabindex="-1">User Groups</h3>
         <div id="groupList"></div>
     </div>
 

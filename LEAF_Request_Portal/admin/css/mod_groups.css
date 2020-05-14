@@ -18,18 +18,14 @@ div.groupBlock div {
 }
 
 div.groupBlock h2 {
-    font-size: 14px;
     margin: 0px;
     padding: 2px;
-    font-weight: normal;
     background-color: black;
     color: white;
     cursor: pointer;
-}
-
-div.groupBlock h2:first-letter {
-    font-size: 150%;
-    font-weight: bold;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
 }
 
 div#groupList div div span:hover {

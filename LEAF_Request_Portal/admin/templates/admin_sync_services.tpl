@@ -1,5 +1,7 @@
 <div class="leaf-center-content">
 
+    <h2>Sync Services</h2>
+    
     <div id="toolbar" class="toolbar_right toolbar noprint" style="position: absolute; right: 2px"></div>
 
     <div style="width: 85%">

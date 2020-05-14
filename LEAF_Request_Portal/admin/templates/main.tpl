@@ -69,7 +69,7 @@
                     <span id="headerLogin"></span>
                 </div>
                 <div class="leaf-hdr-bot">
-                    <span id="headerTab" class="leaf-hdr-section">{$emergency}{$tabText}</span>
+                    <span id="headerTab" class="leaf-hdr-section">{$emergency}</span>
                     <span id="headerMenu">{$menu}</span>
                 </div>
             </div>

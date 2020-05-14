@@ -1,5 +1,7 @@
 <div class="leaf-center-content">
 
+    <h2>Workflow Editor</h2>
+    
     <div id="sideBar" style="float: left; width: 180px; font-size: 0.7rem;">
         <div id="btn_createStep" class="buttonNorm" onclick="createStep();" display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
         Workflows: <br />

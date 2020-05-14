@@ -1,6 +1,7 @@
 <div class="leaf-center-content">
 
-    <div id="sideBar" style="float: right; width: 200px">
+    <h2>Service Chiefs</h2>
+    <div id="sideBar" style="width: 200px">
         <div class="buttonNorm" onclick="syncServices();" style="font-size: 120%"><img src="../../libs/dynicons/?img=go-down.svg&w=32" alt="Import from Nexus" /> Import from Nexus</div><br />
     </div>
     <br style="clear: both" />

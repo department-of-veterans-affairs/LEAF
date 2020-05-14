@@ -16,7 +16,7 @@
 </style>
 
 <div class="leaf-center-content">
-
+    <h2>Template Editor</h2>
     <div class="section group">
         <div class="col span_1_of_6">
             <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">

@@ -1,5 +1,5 @@
 <div class="leaf-center-content">
-
+    <h2>File Manager</h2>
     Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.<br />
     <div id="sideBar" style="float: left; width: 150px">
         <div id="btn_uploadFile" class="buttonNorm" onclick="uploadFile();" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Upload File" /> Upload File</div><br />
