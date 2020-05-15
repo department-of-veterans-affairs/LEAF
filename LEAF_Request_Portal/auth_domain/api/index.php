@@ -10,13 +10,13 @@
 header('Access-Control-Allow-Origin: *');
 error_reporting(E_ALL & ~E_NOTICE);
 
-include '../../globals.php';
-include '../Login.php';
-include '../../db_mysql.php';
-include '../../db_config.php';
-require '../../api/RESTfulResponse.php';
-require '../../sources/Exception.php';
-require '../../api/ControllerMap.php';
+include __DIR__ . '/../../globals.php';
+include __DIR__ . '/../Login.php';
+include __DIR__ . '/../../db_mysql.php';
+include __DIR__ . '/../../db_config.php';
+require __DIR__ . '/../../api/RESTfulResponse.php';
+require __DIR__ . '/../../sources/Exception.php';
+require __DIR__ . '/../../api/ControllerMap.php';
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -45,13 +45,13 @@ $login->loginUser();
 $controllerMap = new ControllerMap();
 
 $controllerMap->register('form', function () use ($db, $login, $action) {
-    require '../../api/controllers/FormController.php';
+    require __DIR__ . '/../../api/controllers/FormController.php';
     $formController = new FormController($db, $login);
     $formController->handler($action);
 });
 
 $controllerMap->register('open', function() use ($db, $login, $action) {
-    require '../../api/controllers/OpenController.php';
+    require __DIR__ . '/../../api/controllers/OpenController.php';
     $SignatureController = new OpenController($db, $login);
     $SignatureController->handler($action);
 });

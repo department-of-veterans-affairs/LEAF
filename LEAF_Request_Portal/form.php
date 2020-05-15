@@ -485,14 +485,6 @@ class Form
         $form[$idx]['parentID'] = $data[0]['parentID'];
         $form[$idx]['html'] = $data[0]['html'];
         $form[$idx]['htmlPrint'] = $data[0]['htmlPrint'];
-        if($parseTemplate) {
-            $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                              [$idx, $recordID],
-                                              $data[0]['html']);
-            $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                              [$idx, $recordID],
-                                              $data[0]['htmlPrint']);
-        }
         $form[$idx]['required'] = $data[0]['required'];
         $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
         $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
@@ -563,6 +555,15 @@ class Form
             }
         }
 
+        if($parseTemplate) {
+            $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                              [$idx, $recordID, $form[$idx]['value']],
+                                              $data[0]['html']);
+            $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                              [$idx, $recordID, $form[$idx]['value']],
+                                              $data[0]['htmlPrint']);
+        }
+
         $form[$idx]['format'] = trim($inputType[0]);
 
         $form[$idx]['child'] = $this->buildFormTree($data[0]['indicatorID'], $series, $recordID, $parseTemplate);
@@ -603,7 +604,7 @@ class Form
             $vars
         );
 
-        require_once 'VAMC_Directory.php';
+        require_once __DIR__ . '/VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $res2 = array();
@@ -861,7 +862,7 @@ class Form
             );
         }
 
-        require_once 'VAMC_Directory.php';
+        require_once __DIR__ . '/VAMC_Directory.php';
         $dir = new VAMC_Directory;
         $user = $dir->lookupLogin($res[0]['userID']);
         $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
@@ -1275,7 +1276,7 @@ class Form
 
         $errors = array();
         // trigger initial submit event
-        include_once 'FormWorkflow.php';
+        include_once __DIR__ . '/FormWorkflow.php';
         $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID);
         $FormWorkflow->setEventFolder('../scripts/events/');
         foreach ($workflowIDs as $id)
@@ -1623,7 +1624,7 @@ class Form
                  else{
                     $empUID = $this->getEmpUID($resPerson[0]['userID']);
                                                                 
-                    return $this->checkUserAccess($empUID);
+                    return $this->checkIfBackup($empUID);
                  }
                
 
@@ -1674,7 +1675,7 @@ class Form
         return $response[0]["empUID"];
     }
 
-    public function checkUserAccess($empUID){
+    public function checkIfBackup($empUID){
 
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':empId' => $empUID);
@@ -1692,6 +1693,8 @@ class Form
 
             return false;
         }
+
+        return true;
     }
 
     /**
@@ -2139,6 +2142,15 @@ class Form
 
                         $item['data'] = $groupTitle;
                         break;
+                    case 'raw_data':
+                        if($indicators[$item['indicatorID']]['htmlPrint'] != '') {
+                            $item['dataHtmlPrint'] = $indicators[$item['indicatorID']]['htmlPrint'];
+                            $pData = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
+                            $item['dataHtmlPrint'] = str_replace('{{ data }}',
+                                                        $pData,
+                                                        $item['dataHtmlPrint']);
+                        }
+                        break;
                     default:
                         if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
                         {
@@ -2223,7 +2235,7 @@ class Form
                                                 AND comment != ""
                                             ORDER BY time ASC', $vars);
 
-        require_once 'VAMC_Directory.php';
+        require_once __DIR__ . '/VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $total = count($res);
@@ -2376,7 +2388,7 @@ class Form
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
-            require_once 'VAMC_Directory.php';
+            require_once __DIR__ . '/VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $user = $dir->lookupLogin($userID);
@@ -2986,7 +2998,7 @@ class Form
 
         if ($joinActionHistory)
         {
-            require_once 'VAMC_Directory.php';
+            require_once __DIR__ . '/VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $res2 = $this->db->prepared_query('SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment FROM action_history
@@ -3351,14 +3363,6 @@ class Form
                 $child[$idx]['description'] = $field['description'];
                 $child[$idx]['html'] = $field['html'];
                 $child[$idx]['htmlPrint'] = $field['htmlPrint'];
-                if($parseTemplate) {
-                    $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                                      [$idx, $recordID],
-                                                      $field['html']);
-                    $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                                      [$idx, $recordID],
-                                                      $field['htmlPrint']);
-                }
                 $child[$idx]['required'] = $field['required'];
                 $child[$idx]['is_sensitive'] = $field['is_sensitive'];
                 $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;
@@ -3417,6 +3421,15 @@ class Form
                 {
                     $groupTitle = $this->group->getGroup($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
+                }
+
+                if($parseTemplate) {
+                    $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                      [$idx, $recordID, $child[$idx]['value']],
+                                                      $field['html']);
+                    $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                      [$idx, $recordID, $child[$idx]['value']],
+                                                      $field['htmlPrint']);
                 }
 
                 $child[$idx]['format'] = trim($inputType[0]);

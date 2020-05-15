@@ -9,7 +9,7 @@
 
 */
 
-require_once 'form.php';
+require_once __DIR__ . '/form.php';
 
 class Inbox
 {
@@ -253,7 +253,7 @@ class Inbox
                             // populate relevant info
                             if (!isset($this->dir))
                             {
-                                require_once 'VAMC_Directory.php';
+                                require_once __DIR__ . '/VAMC_Directory.php';
                                 $this->dir = new VAMC_Directory;
                             }
 
@@ -282,7 +282,7 @@ class Inbox
 
                                 if (!isset($this->dir))
                                 {
-                                    require_once 'VAMC_Directory.php';
+                                    require_once __DIR__ . '/VAMC_Directory.php';
                                     $this->dir = new VAMC_Directory;
                                 }
     
@@ -425,6 +425,8 @@ class Inbox
 
             return false;
         }
+
+        return true;
     }
 
     /**

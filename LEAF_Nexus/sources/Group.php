@@ -11,7 +11,7 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
+require_once __DIR__ . '/Data.php';
 if(!class_exists('LogFormatter'))
 {
     require_once dirname(__FILE__) . '/../../libs/logFormatter.php';
@@ -583,7 +583,7 @@ class Group extends Data
 
         // Employee->getAllData() relies on lots of variables defined in that class,
         // so let it do the hard work
-        require_once 'Employee.php';
+        require_once __DIR__ . '/Employee.php';
         $employee = new Employee($this->db, $this->login);
         foreach ($res as $key => $value)
         {
@@ -611,7 +611,7 @@ class Group extends Data
     public function listGroupEmployeesAll($groupID)
     {
         $output = array();
-        require_once 'Position.php';
+        require_once __DIR__ . '/Position.php';
         $position = new Position($this->db, $this->login);
 
         $positions = $this->listGroupPositions($groupID);

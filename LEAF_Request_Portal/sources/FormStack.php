@@ -84,7 +84,7 @@ class FormStack
     {
         if (!isset($this->formEditor))
         {
-            require_once 'FormEditor.php';
+            require_once __DIR__ . '/FormEditor.php';
             $this->formEditor = new FormEditor($this->db, $this->login);
         }
     }

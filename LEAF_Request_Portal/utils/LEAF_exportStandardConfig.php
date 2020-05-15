@@ -4,8 +4,8 @@ ini_set('display_errors', 0); // Set to 1 to display errors
 $tempFolder = str_replace('\\', '/', dirname(__FILE__)) . '/../files/temp/';
 
 define("LF", "\n");
-include '../db_mysql.php';
-include '../db_config.php';
+include __DIR__ . '/../db_mysql.php';
+include __DIR__ . '/../db_config.php';
 
 $debug = false;
 $db_config = new DB_Config();

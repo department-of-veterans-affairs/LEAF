@@ -11,7 +11,7 @@
 
 namespace Orgchart;
 
-require_once 'NationalData.php';
+require_once __DIR__ . '/NationalData.php';
 
 class NationalEmployee extends NationalData
 {

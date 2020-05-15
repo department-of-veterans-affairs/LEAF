@@ -17,12 +17,12 @@ if (false)
     exit();
 }
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include 'Login.php';
-include 'db_mysql.php';
-include 'db_config.php';
-include 'form.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/Login.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/db_config.php';
+include __DIR__ . '/form.php';
 
 if (!class_exists('XSSHelpers'))
 {

@@ -1008,6 +1008,10 @@ function getForm(indicatorID, series) {
                 <td><b>{{&nbsp;recordID&nbsp;}}</b></td>\
                 <td>The record ID # of the current request.</td>\
             </tr>\
+            <tr>\
+                <td><b>{{ data }}</b></td>\
+                <td>The contents of the current data field as stored in the database.</td>\
+            </tr>\
             </table><br />\
             html (for pages where the user can edit data): <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button><textarea id="html"></textarea><br />\
             htmlPrint (for pages where the user can only read data): <button id="btn_codeSave_htmlPrint" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button><textarea id="htmlPrint"></textarea><br />\
@@ -2078,6 +2082,7 @@ $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
+    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('../api/');

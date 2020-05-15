@@ -11,12 +11,12 @@ if (false)
     exit();
 }
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include 'Login.php';
-include 'db_mysql.php';
-include 'db_config.php';
-include 'form.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/Login.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/db_config.php';
+include __DIR__ . '/form.php';
 
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
@@ -77,7 +77,7 @@ switch ($action) {
         $main->assign('useLiteUI', true);
         $main->assign('javascripts', array('js/titleValidator.js'));
         $form = new Form($db, $login);
-        include './sources/FormStack.php';
+        include __DIR__ . '/./sources/FormStack.php';
         $stack = new FormStack($db, $login);
 
         $t_menu->assign('action', XSSHelpers::xscrub($action));
@@ -230,7 +230,7 @@ switch ($action) {
         }
 
         // get workflow status and check permissions
-        require_once 'FormWorkflow.php';
+        require_once __DIR__ . '/FormWorkflow.php';
         $formWorkflow = new FormWorkflow($db, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
 
@@ -280,7 +280,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        require_once 'Inbox.php';
+        require_once __DIR__ . '/Inbox.php';
         $inbox = new Inbox($db, $login);
 
         $inboxItems = $inbox->getInbox();
@@ -311,7 +311,7 @@ switch ($action) {
         break;
     case 'status':
         $form = new Form($db, $login);
-        include_once 'View.php';
+        include_once __DIR__ . '/View.php';
         $view = new View($db, $login);
         $recordIDForStatus = (int)$_GET['recordID'];
 
@@ -359,7 +359,7 @@ switch ($action) {
 
            break;
     case 'bookmarks':
-        include_once 'View.php';
+        include_once __DIR__ . '/View.php';
         $view = new View($db, $login);
 
         $t_form = new Smarty;
@@ -515,7 +515,7 @@ switch ($action) {
 
         $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
 
-        require_once 'Inbox.php';
+        require_once __DIR__ . '/Inbox.php';
         $inbox = new Inbox($db, $login);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
         $t_form->assign('inbox_status', 1);

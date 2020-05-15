@@ -11,8 +11,8 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include 'db_mysql.php';
-include 'db_config.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/db_config.php';
 
 $db_config = new DB_Config();
 $config = new Config();

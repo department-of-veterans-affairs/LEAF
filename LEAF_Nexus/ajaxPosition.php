@@ -11,13 +11,13 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
-include './sources/Exception.php';
-include './sources/Position.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/./sources/Login.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/config.php';
+include __DIR__ . '/./sources/Exception.php';
+include __DIR__ . '/./sources/Position.php';
 
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
