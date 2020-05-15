@@ -7,7 +7,7 @@ require_once __DIR__ . '/routing/portal_config.php';
 require_once __DIR__ . '/routing/nexus_config.php';
 require_once __DIR__ . '/routing/LEAFRoutes.php';
 
-// Fetch method and URI from somewhere
+// Fetch method and URI
 $httpMethod = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
 // Strip query string (?foo=bar) and decode URI
