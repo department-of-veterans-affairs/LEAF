@@ -5,9 +5,9 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include 'db_mysql.php';
-include 'db_config.php';
-require 'sources/Shortener.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/db_config.php';
+require __DIR__ . '/sources/Shortener.php';
 
 $db_config = new DB_Config();
 $config = new Config();

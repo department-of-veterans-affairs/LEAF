@@ -215,7 +215,7 @@ class Email
         // set up org chart assets
         if (!class_exists('DB'))
         {
-            include 'db_mysql.php';
+            include __DIR__ . '/db_mysql.php';
         }
         if (!class_exists('Orgchart\Config'))
         {
@@ -260,11 +260,11 @@ class Email
         // set up org chart assets
         if (!class_exists('DB'))
         {
-            include 'db_mysql.php';
+            include __DIR__ . '/db_mysql.php';
         }
         if (!class_exists('DB_Config'))
         {
-            include 'db_config.php';
+            include __DIR__ . '/db_config.php';
         }
 
         $db_config = new DB_Config;

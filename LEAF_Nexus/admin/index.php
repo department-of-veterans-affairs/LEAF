@@ -21,11 +21,11 @@ if (false)
     exit();
 }
 
-include '../globals.php';
-include '../../libs/smarty/Smarty.class.php';
-include '../sources/Login.php';
-include '../db_mysql.php';
-include '../config.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../../libs/smarty/Smarty.class.php';
+include __DIR__ . '/../sources/Login.php';
+include __DIR__ . '/../db_mysql.php';
+include __DIR__ . '/../config.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -123,7 +123,7 @@ switch ($action) {
            $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
            $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
-           require_once '../sources/Tag.php';
+           require_once __DIR__ . '/../sources/Tag.php';
            $tagObj = new Orgchart\Tag($db, $login);
            $t_form->assign('serviceParent', $tagObj->getParent('service'));
 

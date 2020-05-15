@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/Group.php';
+require __DIR__ . '/../../sources/Group.php';
 
 class GroupController extends RESTfulResponse
 {
@@ -27,7 +27,7 @@ class GroupController extends RESTfulResponse
             return $this->API_VERSION;
         });
 
-        include 'Group/GET.php';
+        include __DIR__ . '/Group/GET.php';
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
@@ -38,7 +38,7 @@ class GroupController extends RESTfulResponse
 
         $this->index['POST'] = new ControllerMap();
 
-        include 'Group/POST.php';
+        include __DIR__ . '/Group/POST.php';
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }

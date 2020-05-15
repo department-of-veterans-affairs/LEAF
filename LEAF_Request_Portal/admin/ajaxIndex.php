@@ -15,11 +15,11 @@
 */
 error_reporting(E_ALL & ~E_NOTICE);
 
-include '../globals.php';
-include '../../libs/smarty/Smarty.class.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../../libs/smarty/Smarty.class.php';
+include __DIR__ . '/../Login.php';
+include __DIR__ . '/../db_mysql.php';
+include __DIR__ . '/../db_config.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -63,7 +63,7 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 switch ($action) {
     case 'add_user_old':
         checkToken();
-        require 'Group.php';
+        require __DIR__ . '/Group.php';
 
         $group = new Group($db, $login);
         $group->addMember($_POST['userID'], $_POST['groups']);
@@ -71,7 +71,7 @@ switch ($action) {
         break;
     case 'remove_user_old':
         checkToken();
-        require 'Group.php';
+        require __DIR__ . '/Group.php';
 
         $deleteList = XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
@@ -84,7 +84,7 @@ switch ($action) {
         break;
     case 'add_user':
           checkToken();
-           require 'Group.php';
+           require __DIR__ . '/Group.php';
 
            $group = new Group($db, $login);
            $group->addMember($_POST['userID'], $_POST['groupID']);
@@ -92,7 +92,7 @@ switch ($action) {
            break;
     case 'remove_user':
            checkToken();
-           require 'Group.php';
+           require __DIR__ . '/Group.php';
 
            $group = new Group($db, $login);
            $group->removeMember($_POST['userID'], $_POST['groupID']);
@@ -101,7 +101,7 @@ switch ($action) {
     case 'printview':
         if ($login->isLogin())
         {
-            require '../form.php';
+            require __DIR__ . '/../form.php';
             $form = new Form($db, $login);
 
             $t_form = new Smarty;
@@ -117,7 +117,7 @@ switch ($action) {
 
         break;
     case 'importForm':
-        require '../sources/FormStack.php';
+        require __DIR__ . '/../sources/FormStack.php';
         $formStack = new FormStack($db, $login);
         $result = $formStack->importForm();
 
@@ -125,7 +125,7 @@ switch ($action) {
 
         break;
     case 'manualImportForm':
-           require '../sources/FormStack.php';
+           require __DIR__ . '/../sources/FormStack.php';
            $formStack = new FormStack($db, $login);
            $result = $formStack->importForm();
 
@@ -141,7 +141,7 @@ switch ($action) {
 
            break;
     case 'uploadFile':
-           require '../sources/System.php';
+           require __DIR__ . '/../sources/System.php';
            $system = new System($db, $login);
            $result = $system->newFile();
            if ($result === true)
@@ -160,8 +160,8 @@ switch ($action) {
         $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
         $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
-        
-        //pagination 
+
+        //pagination
         $pageLength = 10;
 
         $t_form = new Smarty;
@@ -171,21 +171,21 @@ switch ($action) {
         $type = null;
         switch ($typeName) {
             case 'service':
-                include '../sources/Service.php';
+                include __DIR__ . '/../sources/Service.php';
                 $dataName = "All Services";
                 $type = new \Service($db, $login);
                 break;
             case 'form':
-                include '../sources/FormEditor.php';
+                include __DIR__ . '/../sources/FormEditor.php';
                 $dataName = "All Forms";
                 $type = new \FormEditor($db, $login);
                 break;
             case 'group':
-                include 'Group.php';
+                include __DIR__ . '/Group.php';
                 $dataName = "All Groups";
                 $type = new \Group($db, $login);
 
-                include '../' . Config::$orgchartPath . '/sources/Group.php';
+                include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
                 $orgchartGroup = new OrgChart\Group($db_phonebook, $login);
                 break;
         }
@@ -207,8 +207,12 @@ switch ($action) {
             $resHistory = $resHistory ?? array();
             $totalHistory = array_merge($totalHistory, $resHistory);
         }
-        //if getting the history items or building the paginator
-        if($gethistoryslice) 
+        
+        /*
+            First time around, gethistoryslice = false, so this loads view_history_all which calls 
+            this method again which loads view_history & displays it appropriately in the paginator
+        */
+        if($gethistoryslice)
         {
             usort($totalHistory, function($a, $b) {
                 return $b['timestamp'] <=> $a['timestamp'];
@@ -216,7 +220,6 @@ switch ($action) {
 
             $pageStart = ($page * $pageLength) - $pageLength;
             $totalHistorySlice = array_slice($totalHistory, $pageStart, $pageLength);
-            
             $t_form->assign('dataType', ucwords($typeName));
             $t_form->assign('dataName', $dataName);
             $t_form->assign('history', $totalHistorySlice);
@@ -225,7 +228,6 @@ switch ($action) {
         else
         {
             $totalPages = ceil(count($totalHistory)/$pageLength);
-            
             $t_form->assign('totalPages', $totalPages);
             $t_form->assign('dataType', $typeName);
             $t_form->display('view_history_all.tpl');
@@ -234,52 +236,73 @@ switch ($action) {
         break;
     case 'gethistory':
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
+        $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
         $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
+        $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
+
+        //pagination
+        $pageLength = 10;
 
         $type = null;
         switch ($typeName) {
             case 'service':
-                include '../sources/Service.php';
+                include __DIR__ . '/../sources/Service.php';
                 $type = new \Service($db, $login);
                 $title = $type->getServiceName($itemID);
                 break;
             case 'form':
-                include '../sources/FormEditor.php';
+                include __DIR__ . '/../sources/FormEditor.php';
                 $type = new \FormEditor($db, $login);
                 $title = $type->getFormName($itemID);
                 break;
             case 'group':
-                include 'Group.php';
+                include __DIR__ . '/Group.php';
                 $type = new \Group($db, $login);
                 $title = $type->getGroupName($itemID);
                 break;
             case 'workflow':
-                include '../sources/Workflow.php';
+                include __DIR__ . '/../sources/Workflow.php';
                 $type = new \Workflow($db, $login);
                 $title = $type->getDescription($itemID);
                 break;
+            case 'primaryAdmin':
+                include '../sources/System.php';
+                $type = new \System($db, $login);
+                $itemID = null;
+                $title = 'Primary Admin';
+                break;
         }
 
-        if (!empty($itemID))
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $resHistory = $type->getHistory($itemID);
+
+        if($gethistoryslice)
         {
-            $t_form = new Smarty;
-            $t_form->left_delimiter = '<!--{';
-            $t_form->right_delimiter = '}-->';
+            usort($resHistory, function($a, $b) {
+                return $b['timestamp'] <=> $a['timestamp'];
+            });
 
-            $resHistory = $type->getHistory($itemID);
-
+            $pageStart = ($page * $pageLength) - $pageLength;
+            $totalHistorySlice = array_slice($resHistory, $pageStart, $pageLength);
             $t_form->assign('dataType', ucwords($typeName));
-            $t_form->assign('dataID', $itemID);
             $t_form->assign('dataName', $title);
-
-            $resHistory = $resHistory ?? array();
-
-            $t_form->assign('history', $resHistory);
-
+            $t_form->assign('history', $totalHistorySlice);
             $t_form->display('view_history.tpl');
         }
+        else
+        {
+            $totalPages = ceil(count($resHistory)/$pageLength);
+            $t_form->assign('itemId', $itemID);
+            $t_form->assign('totalPages', $totalPages);
+            $t_form->assign('dataName', $title);
+            $t_form->assign('dataType', $typeName);
+            $t_form->display('view_history_paginated.tpl');
+        }
 
-        break;           
+        break;
     default:
         /*
         echo "Action: $action<br /><br />Catchall...<br /><br />POST: <pre>";

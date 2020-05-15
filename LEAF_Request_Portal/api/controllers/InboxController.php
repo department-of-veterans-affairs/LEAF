@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../Inbox.php';
+require __DIR__ . '/../../Inbox.php';
 
 class InboxController extends RESTfulResponse
 {

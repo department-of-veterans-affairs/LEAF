@@ -11,13 +11,13 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
-include './sources/Exception.php';
-include './sources/Group.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/./sources/Login.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/config.php';
+include __DIR__ . '/./sources/Exception.php';
+include __DIR__ . '/./sources/Group.php';
 
 $config = new Orgchart\Config();
 
@@ -93,7 +93,7 @@ switch ($action) {
 
         break;
     case 'listPositionData':
-        include './sources/Employee.php';
+        include __DIR__ . '/./sources/Employee.php';
         $employee = new OrgChart\Employee($db, $login);
 
         $t_form = new Smarty;

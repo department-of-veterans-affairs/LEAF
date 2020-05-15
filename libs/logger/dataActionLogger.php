@@ -1,7 +1,7 @@
 <?php
 
-require_once 'logFormatter.php';
-require_once 'logItem.php';
+require_once __DIR__.'/logFormatter.php';
+require_once __DIR__.'/logItem.php';
 
 class DataActionLogger{
 
@@ -24,14 +24,14 @@ class DataActionLogger{
             ':userDisplay' =>  $this->login->getName()
         );
 
-        $sql = 
+        $sql =
             "BEGIN;
 
             INSERT INTO data_action_log (`userID`, `timestamp`, `action`, `userDisplay`)
                     VALUES (:userID, NOW(), :action, :userDisplay);
 
-            SELECT LAST_INSERT_ID() INTO @log_id; 
-            
+            SELECT LAST_INSERT_ID() INTO @log_id;
+
             INSERT INTO data_log_items (`data_action_log_fk`, `tableName`, `column`, `value`, `displayValue`)
                 VALUES";
 
@@ -53,7 +53,6 @@ class DataActionLogger{
     }
 
     public function getHistory($filterById, $filterByColumnName, $logType){
-        
         $logResults = $this->fetchLogData($filterById, $filterByColumnName, $logType);
 
         if($logResults != null){
@@ -62,13 +61,12 @@ class DataActionLogger{
                 $logResults[$i]["history"] = \LogFormatter::getFormattedString($logResults[$i], $logType);
             }
         }
-        
         return $logResults;
     }
 
     /**
      * Returns all history ids for all groups
-     * 
+     *
      * @return array all history ids for all groups
      */
     public function getAllHistoryIDs(){
@@ -77,10 +75,11 @@ class DataActionLogger{
                 WHERE `column` = 'groupID'
                 GROUP BY `value`;";
         return  $this->db->query_kv($sql, 'value', 'value', array());
-        
     }
 
     function fetchLogData($filterById, $filterByColumnName, $logType){
+
+        $filterResults = isset($filterById) && isset($filterByColumnName);
 
         $vars = array(
             ':filterBy' => $filterByColumnName,
@@ -90,20 +89,24 @@ class DataActionLogger{
         $sqlCreateTemp =
             "
             CREATE TEMPORARY TABLE group_logs
-            SELECT data_action_log_fk 
+            SELECT data_action_log_fk
             FROM data_log_items dli
             LEFT JOIN data_action_log dal ON dal.id = dli.data_action_log_fk
-            WHERE 
-                dli.column = :filterBy
-            AND 
+            WHERE ";
+
+        if($filterResults){
+            $sqlCreateTemp.="dli.column = :filterBy
+            AND
                 dli.VALUE = :filterById
-            AND 
-                dal.ACTION IN ".$this->buildInClause($logType).";";
-        
+            AND";
+        }
+
+        $sqlCreateTemp.=" dal.ACTION IN ".$this->buildInClause($logType).";";
+
         $this->db->prepared_query($sqlCreateTemp, $vars);
 
-        $sqlFetchLogData= 
-            " SELECT 
+        $sqlFetchLogData=
+            " SELECT
                     dal.ID,
                     dal.userDisplay as userName,
                     dal.action,
@@ -111,12 +114,10 @@ class DataActionLogger{
                 from data_action_log dal
                 Where id in (select * from group_logs)
                 order by dal.ID desc;";
-        
         $results = $this->db->query($sqlFetchLogData);
 
         $sqlCleanUp = "drop temporary table group_logs;";
         $this->db->query($sqlCleanUp);
-        
         return $results;
     }
 
@@ -144,7 +145,7 @@ class DataActionLogger{
             `column`,
             `value`,
             `displayValue`
-            from data_log_items 
+            from data_log_items
             WHERE data_action_log_fk = :dalFK
         ";
 

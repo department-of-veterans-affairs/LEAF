@@ -5,9 +5,9 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include '../libs/smarty/Smarty.class.php';
-include 'db_mysql.php';
-include 'db_config.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/db_config.php';
 
 $db_config = new DB_Config();
 $config = new Config();

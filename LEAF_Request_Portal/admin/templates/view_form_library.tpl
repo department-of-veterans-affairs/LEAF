@@ -58,6 +58,7 @@ var data;
 var dialog_simple;
 $(function() {
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
+    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     query = new LeafFormQuery();
     query.useJSONP(true);

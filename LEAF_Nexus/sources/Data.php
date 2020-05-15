@@ -533,7 +533,7 @@ abstract class Data
         $memberships = $this->login->getMembership();
         if (!isset($memberships['groupID'][1]))
         {
-            require_once 'Tag.php';
+            require_once __DIR__ . '/Tag.php';
             $tagObj = new Tag($this->db, $this->login);
             $tags = $tagObj->getAll();
             foreach ($tags as $item)

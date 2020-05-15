@@ -11,7 +11,7 @@
     This should be kept outside of web accessible directories
 */
 
-// require '../../../config.php';
+// require __DIR__ . '/../../../config.php';
 
 namespace Orgchart;
 

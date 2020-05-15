@@ -72,7 +72,7 @@ $main->assign('useDojoUI', true);
 
 switch ($action) {
     case 'navigator_service':
-        require 'sources/Group.php';
+        require __DIR__ . '/sources/Group.php';
         $group = new Orgchart\Group($db, $login);
         $_GET['rootID'] = $group->getGroupLeader((int)$_GET['groupID']);
         // no break
@@ -85,7 +85,7 @@ switch ($action) {
 
         $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
                                            'js/ui/position.js', ));
-        require 'sources/Position.php';
+        require __DIR__ . '/sources/Position.php';
         $position = new Orgchart\Position($db, $login);
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : $position->getTopSupervisorID(1);
@@ -115,7 +115,7 @@ switch ($action) {
                                            'js/dialogController.js',
                                            'js/ui/position.js',
                                            'js/positionSelector.js', ));
-        require 'sources/Position.php';
+        require __DIR__ . '/sources/Position.php';
         $position = new Orgchart\Position($db, $login);
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : 0;
@@ -159,7 +159,7 @@ switch ($action) {
         $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
         if ($empUID != 0)
         {
-            require 'sources/Employee.php';
+            require __DIR__ . '/sources/Employee.php';
             $employee = new Orgchart\Employee($db, $login);
             $summary = $employee->getSummary($empUID);
 
@@ -205,7 +205,7 @@ switch ($action) {
         $positionID = isset($_GET['positionID']) ? (int)$_GET['positionID'] : 0;
         if ($positionID != 0)
         {
-            require 'sources/Position.php';
+            require __DIR__ . '/sources/Position.php';
             $position = new Orgchart\Position($db, $login);
 
             $summary = $position->getSummary($positionID);
@@ -251,8 +251,8 @@ switch ($action) {
         $groupID = isset($_GET['groupID']) ? (int)$_GET['groupID'] : 0;
         if ($groupID != 0)
         {
-            require 'sources/Group.php';
-            require 'sources/Tag.php';
+            require __DIR__ . '/sources/Group.php';
+            require __DIR__ . '/sources/Tag.php';
             $group = new Orgchart\Group($db, $login);
             $tag = new Orgchart\Tag($db, $login);
             $resGroup = $group->getGroup($groupID);
@@ -289,7 +289,7 @@ switch ($action) {
                                            'css/view_employee.css', ));
         $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
 
-        require 'sources/Employee.php';
+        require __DIR__ . '/sources/Employee.php';
         $employee = new Orgchart\Employee($db, $login);
 
         $t_form->assign('empUID', $empUID);
@@ -354,7 +354,7 @@ switch ($action) {
 
         break;
     case 'view_permissions':
-        require 'sources/Indicators.php';
+        require __DIR__ . '/sources/Indicators.php';
         $indicators = new Orgchart\Indicators($db, $login);
 
         $t_form = new Smarty;
@@ -394,7 +394,7 @@ switch ($action) {
 
         break;
     case 'view_group_permissions':
-        require 'sources/Group.php';
+        require __DIR__ . '/sources/Group.php';
         $group = new Orgchart\Group($db, $login);
 
         $t_form = new Smarty;
@@ -425,7 +425,7 @@ switch ($action) {
 
         break;
     case 'view_position_permissions':
-        require 'sources/Position.php';
+        require __DIR__ . '/sources/Position.php';
         $position = new Orgchart\Position($db, $login);
 
         $t_form = new Smarty;
@@ -519,9 +519,9 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
-            require 'sources/Employee.php';
+            require __DIR__ . '/sources/Employee.php';
             $employee = new Orgchart\Employee($db, $login);
-            require 'sources/Position.php';
+            require __DIR__ . '/sources/Position.php';
             $position = new Orgchart\Position($db, $login);
 
             $currentEmployee = $employee->lookupLogin($login->getUserID());
@@ -535,7 +535,7 @@ switch ($action) {
             $groupLeader = '';
             if (count($resolvedService) > 0)
             {
-                require 'sources/Group.php';
+                require __DIR__ . '/sources/Group.php';
                 $group = new Orgchart\Group($db, $login);
 
                 $groupLeader = $group->getGroupLeader($resolvedService[0]['groupID']);

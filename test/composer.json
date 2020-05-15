@@ -1,8 +1,10 @@
 {
   "require": {
     "guzzlehttp/guzzle": "~6.0@dev",
-    "phpunit/phpunit": "^6.5",
-    "robmorgan/phinx": "^0.10.6"
+    "phpunit/phpunit": "^7.4",
+    "robmorgan/phinx": "^0.10.6",
+    "phpunit/phpcov": "^5.0.0",
+    "phpunit/php-code-coverage": "^6.0"
   },
   "autoload": {
     "files": [
