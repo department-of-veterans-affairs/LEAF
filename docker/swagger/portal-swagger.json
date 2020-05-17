@@ -53,16 +53,6 @@
         "schema": {
           "type": "string"
         }
-      },
-      "responseParam": {
-        "name": "Access-Control-Allow-Origin",
-        "in": "header",
-        "description": "C",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "default": "*"
-        }
       }
     }
   },
@@ -76,10 +66,17 @@
             "name": "a",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "form/1",
+                "group",
+                "indicator",
+                "service",
+                "workflow",
+                "system/dbversion"
+              ]
             },
-            "allowReserved": true,
-            "example": "form"
+            "allowReserved": true
           }
         ],
         "responses": {
@@ -92,18 +89,10 @@
         "summary": "Give an API endpoint as query parameter for POST operation",
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "query",
@@ -125,18 +114,10 @@
         "summary": "Give an API endpoint as query parameter for DELETE operation",
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "query",
@@ -155,41 +136,19 @@
         }
       }
     },
-    "/form": {
-      "get": {
-        "summary": "Call form.php getAllCategories()",
-        "description": "original endpont: form/categories; calls form.php getAllCategories()",
-        "tags": [
-          "form"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
     "/form/new": {
       "post": {
-        "summary": "Call calls FormEditor.php createForm()",
-        "description": "original endpont: create new form; calls FormEditor.php createForm({name},{description},{parentID})",
+        "summary": "Call createForm()",
+        "description": "original endpont: form/new calls FormEditor.php createForm({name},{description},{parentID})",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           }
         ],
         "requestBody": {
@@ -218,9 +177,23 @@
         }
       }
     },
+    "/form/categories": {
+      "get": {
+        "summary": "Call getAllCategories()",
+        "description": "original endpont: form/categories; calls form.php getAllCategories()",
+        "tags": [
+          "form"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
     "/form/{categoryID}": {
       "get": {
-        "summary": "Call form.php getFormByCategory()",
+        "summary": "Call getFormByCategory()",
         "description": "original endpont:form/category; calls form.php getFormByCategory({categoryID})",
         "tags": [
           "form"
@@ -241,26 +214,46 @@
           }
         }
       },
+      "post": {
+        "summary": "Call doModify()",
+        "description": "original endpont:form/[digit]; calls form.php doModify({categoryID})",
+        "tags": [
+          "form"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
+            "name": "categoryID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
       "delete": {
-        "summary": "Call FormStack.php deleteForm()",
+        "summary": "Call deleteForm()",
         "description": "original endpont:formStack/[text]; **move ths was formstack; calls FormStack.php deleteForm({categoryID})",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "name": "categoryID",
@@ -281,7 +274,7 @@
     "/form/{categoryID}/export": {
       "get": {
         "summary": "Call getFormByCategory()",
-        "description": "original endpont:form/category calls getFormByCategory({categoryID}, false)",
+        "description": "original endpont:form/category calls getFormByCategory({categoryID},false)",
         "tags": [
           "form"
         ],
@@ -352,7 +345,7 @@
     },
     "/form/{categoryID}/workflow/{workflowID}": {
       "get": {
-        "summary": "Call FormEditor.php setFormWorkflow()",
+        "summary": "Call setFormWorkflow()",
         "description": "original endpont:formEditor/formWorkflow; calls FormEditor.php setFormWorkflow({categoryID}, {workflowID})",
         "tags": [
           "form"
@@ -384,7 +377,7 @@
     },
     "/form/{categoryID}/privileges": {
       "get": {
-        "summary": "Call FormEditor.php getCategoryPrivileges()",
+        "summary": "Call getCategoryPrivileges()",
         "description": "original endpont:formEditor/[text]/privileges; calls FormEditor.php getCategoryPrivileges({categoryID})",
         "tags": [
           "form"
@@ -408,25 +401,17 @@
     },
     "/form/{categoryID}/privileges/{groupID}/{read}/{write}": {
       "post": {
-        "summary": "Call FormEditor.php setCategoryPrivileges()",
+        "summary": "Call setCategoryPrivileges()",
         "description": "original endpont:formEditor/[text]/privileges; calls FormEditor.php setCategoryPrivileges({categoryID}, {groupID}, {read}, {write})",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -470,25 +455,17 @@
     },
     "/form/{categoryID}/stapled/{stapledCategoryID}": {
       "post": {
-        "summary": "Call FormEditor.php addStapledCategor()",
+        "summary": "Call addStapledCategor()",
         "description": "original endpont:formEditor/[text]/stapled; calls FormEditor.php addStapledCategory({categoryID}, {stapledCategoryID})",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -514,25 +491,17 @@
         }
       },
       "delete": {
-        "summary": "Call FormEditor.php removeStapledCategory()",
+        "summary": "Call removeStapledCategory()",
         "description": "original endpont:formEditor/[text]/stapled/[text]; calls FormEditor.php removeStapledCategory({categoryID}, {stapledCategoryID})",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -560,25 +529,17 @@
     },
     "/form/{categoryID}/description/{description}": {
       "post": {
-        "summary": "Call FormEditor.php setFormDescription()",
+        "summary": "Call setFormDescription()",
         "description": "original endpont:formEditor/formDescription; calls FormEditor.php setFormDescription({categoryID},{description))",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -613,18 +574,10 @@
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -652,25 +605,17 @@
     },
     "/form/{categoryID}/sort/{sort}": {
       "post": {
-        "summary": "Call FormEditor.php setFormSort()",
+        "summary": "Call setFormSort()",
         "description": "original endpont:formEditor/formSort; calls FormEditor.php setFormSort({categoryID}, {sort})",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -698,25 +643,17 @@
     },
     "/form/{categoryID}/type/{type}": {
       "post": {
-        "summary": "Call FormEditor.php setFormType()",
+        "summary": "Call setFormType()",
         "description": "original endpont:formEditor/formType; calls FormEditor.php setFormType({categoryID}, {type})",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -744,25 +681,17 @@
     },
     "/form/{categoryID}/visible/{visible}": {
       "post": {
-        "summary": "Call FormEditor.php setFormVisible()",
+        "summary": "Call setFormVisible()",
         "description": "original endpont:formEditor/formVisible; calls FormEditor.php setFormVisible({categoryID}, {visible})",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -790,25 +719,17 @@
     },
     "/form/import": {
       "post": {
-        "summary": "Call formStack.php importForm()",
+        "summary": "Call importForm()",
         "description": "original endpont:ajaxIndex.php?a=importForm; calls formStack.php importForm()",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           }
         ],
         "responses": {
@@ -820,22 +741,60 @@
     },
     "/form/import/literal": {
       "post": {
-        "summary": "Call formStack.php importForm()",
-        "description": " original endpont:formStack/importLiteral; calls formStack.php importForm(true)",
+        "summary": "Call importForm()",
+        "description": "original endpont:formStack/importLiteral; calls formStack.php importForm(true)",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/form/import/manual": {
+      "post": {
+        "summary": "Call importForm()",
+        "description": "original endpont: calls formStack.php importForm(), header(''Location: ./?a=form'')",
+        "tags": [
+          "form"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/form/search/submitter/{search_terms}": {
+      "get": {
+        "summary": "Call query()",
+        "description": "original endpoint:form/search/submitter/[text]; calls form.php query({\"terms\":[{\"id\":\"userID\",\"operator\":\"=\",\"match\":\"{search_terms}\"}]})",
+        "tags": [
+          "form"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "search_terms",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -848,26 +807,20 @@
         }
       }
     },
-    "/form/import/manual": {
-      "post": {
-        "summary": "Call formStack.php importForm()",
-        "description": " original endpont: calls formStack.php importForm(), header('Location: ./?a=form')",
+    "/form/search/indicator/{indicatorID}": {
+      "get": {
+        "summary": "Call query()",
+        "description": "original endpoint:fform/search/indicator/[digit]; calls form.php query({\"terms\":[{\"id\":\"indicatorID\",\"operator\":\"=\",\"match\":\"{search_terms}\"}]})",
         "tags": [
           "form"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
+            "in": "path",
+            "name": "indicatorID",
+            "required": true,
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
+              "type": "integer"
             }
           }
         ],
@@ -904,25 +857,17 @@
     },
     "/indicator/new": {
       "post": {
-        "summary": "Call FormEditor.php addIndicator()",
+        "summary": "Call addIndicator()",
         "description": "original endpont:formEditor/newIndicator; calls FormEditor.php addIndicator(array({name}, {format}, {description}, {default}, {parentID}, {categoryID}, {html}, {htmlPrint}, {required}, {sort}))",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           }
         ],
         "requestBody": {
@@ -1021,25 +966,17 @@
     },
     "/indicator/{indicatorID}/categoryID/{categoryID}": {
       "post": {
-        "summary": "Call FormEditor.php setCategoryID()",
+        "summary": "Call setCategoryID()",
         "description": "original endpont:formEditor/[digit]/categoryID; calls FormEditor.php setCategoryID({indicatorID}, {categoryID})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1067,25 +1004,17 @@
     },
     "/indicator/{indicatorID}/default/{default}": {
       "post": {
-        "summary": "Call FormEditor.php setDefault()",
+        "summary": "Call setDefault()",
         "description": "original endpont:formEditor/[digit]/default; calls FormEditor.php setDefault({indicatorID}, {default})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1113,25 +1042,17 @@
     },
     "/indicator/{indicatorID}/description/{description}": {
       "post": {
-        "summary": "Call FormEditor.php setDescription()",
+        "summary": "Call setDescription()",
         "description": "original endpont:formEditor/[digit]/description; calls FormEditor.php setDescription({indicatorID}, {description})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1159,25 +1080,17 @@
     },
     "/indicator/{indicatorID}/disabled/{disabled}": {
       "post": {
-        "summary": "Call FormEditor.php setDisabled()",
+        "summary": "Call setDisabled()",
         "description": "original endpont:formEditor/[digit]/disabled; calls FormEditor.php setDisabled({indicatorID}, {disabled})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1205,25 +1118,17 @@
     },
     "/indicator/{indicatorID}/html/{html}": {
       "post": {
-        "summary": "Call FormEditor.php setHtml()",
+        "summary": "Call setHtml()",
         "description": "original endpont:formEditor/[digit]/html; calls FormEditor.php setHtml({indicatorID}, {html})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1251,25 +1156,17 @@
     },
     "/indicator/{indicatorID}/htmlPrint/{htmlPrint}": {
       "post": {
-        "summary": "Call FormEditor.php setHtmlPrint()",
+        "summary": "Call setHtmlPrint()",
         "description": "original endpont:formEditor/[digit]/htmlPrint; calls FormEditor.php setHtmlPrint({indicatorID}, {htmlPrint})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1297,25 +1194,17 @@
     },
     "/indicator/{indicatorID}/name/{name}": {
       "post": {
-        "summary": "Call FormEditor.php setName()",
+        "summary": "Call setName()",
         "description": "original endpont:formEditor/[digit]/name; calls FormEditor.php setName({indicatorID}, {name})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1343,25 +1232,17 @@
     },
     "/indicator/{indicatorID}/parentID/{parentID}": {
       "post": {
-        "summary": "Call FormEditor.php setParentID()",
+        "summary": "Call setParentID()",
         "description": "original endpont:formEditor/[digit]/parentID; calls FormEditor.php setParentID({indicatorID}, {parentID})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1389,25 +1270,17 @@
     },
     "/indicator/{indicatorID}/required/{required}": {
       "post": {
-        "summary": "Call FormEditor.php setRequired()",
+        "summary": "Call setRequired()",
         "description": "original endpont:formEditor/[digit]/required; calls FormEditor.php setRequired({indicatorID}, {required})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1435,25 +1308,17 @@
     },
     "/indicator/{indicatorID}/sort/{sort}": {
       "post": {
-        "summary": "Call FormEditor.php setSort()",
+        "summary": "Call setSort()",
         "description": "original endpont:formEditor/[digit]/sort; calls FormEditor.php setSort({indicatorID}, {sort})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1481,7 +1346,7 @@
     },
     "/indicator/{indicatorID}/privileges": {
       "get": {
-        "summary": "Call FormEditor.php getIndicatorPrivileges()",
+        "summary": "Call getIndicatorPrivileges()",
         "description": "original endpont:formEditor/indicator/[digit]/privileges; calls FormEditor.php getIndicatorPrivileges({indicatorID})",
         "tags": [
           "indicator"
@@ -1505,25 +1370,17 @@
     },
     "/indicator/{indicatorID}/privileges/{groupID}": {
       "post": {
-        "summary": "Call FormEditor.php setIndicatorPrivileges()",
+        "summary": "Call setIndicatorPrivileges()",
         "description": "original endpont:formEditor/indicator/[digit]/privileges; calls FormEditor.php setIndicatorPrivileges({indicatorID}, {groupID})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1549,25 +1406,17 @@
         }
       },
       "delete": {
-        "summary": "Call FormEditor.php removeIndicatorPrivilege()",
+        "summary": "Call removeIndicatorPrivilege()",
         "description": "original endpont:formEditor/indicator/[digit]/privileges/remove; calls FormEditor.php removeIndicatorPrivilege({indicatorID}, {groupID})",
         "tags": [
           "indicator"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1594,11 +1443,19 @@
       }
     },
     "/request/new": {
-      "get": {
+      "post": {
         "summary": "Call newForm()",
         "description": "original endpont:form/new; calls newForm($login->getUserID())",
         "tags": [
           "request"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          }
         ],
         "responses": {
           "200": {
@@ -1616,18 +1473,10 @@
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1652,18 +1501,10 @@
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1690,18 +1531,10 @@
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1776,18 +1609,10 @@
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1822,18 +1647,10 @@
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1861,25 +1678,17 @@
     },
     "/request/{recordID}/bookmark": {
       "post": {
-        "summary": "Call form.php addTag()",
+        "summary": "Call addTag()",
         "description": "original endpont:ajaxIndex.php?a=addbookmark; calls form.php addTag({recordID}, 'bookmark_' . $login->getUserID())",
         "tags": [
           "request"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1897,25 +1706,17 @@
         }
       },
       "delete": {
-        "summary": "Call form.php deleteTag()",
+        "summary": "Call deleteTag()",
         "description": "original endpont:ajaxIndex.php?a=removebookmark; calls form.php deleteTag({recordID}, 'bookmark_' . $login->getUserID())",
         "tags": [
           "request"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -1984,24 +1785,16 @@
     "/request/{recordID}/initiator/{initiator}": {
       "post": {
         "summary": "Call setInitiator()",
-        "description": " original endpont:form/[digit]/initiator; calls setInitiator({recordID}, {initiator}))",
+        "description": "original endpont:form/[digit]/initiator; calls setInitiator({recordID}, {initiator}))",
         "tags": [
           "request"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -2054,7 +1847,7 @@
     "/request/{recordID}/progress/json": {
       "get": {
         "summary": "Call getProgressJSON()",
-        "description": " original endpont:ajaJSON.php?a=getprogress; **not defined; calls getProgressJSON({recordID})",
+        "description": "original endpont:ajaJSON.php?a=getprogress; **not defined; calls getProgressJSON({recordID})",
         "tags": [
           "request"
         ],
@@ -2108,18 +1901,10 @@
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -2154,18 +1939,10 @@
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -2216,18 +1993,10 @@
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -2256,24 +2025,16 @@
     "/request/{recordID}/title/{title}": {
       "post": {
         "summary": "Call setTitle()",
-        "description": " original endpont:form/[digit]/title; calls setTitle({recordID}, {title}))",
+        "description": "original endpont:form/[digit]/title; calls setTitle({recordID}, {title}))",
         "tags": [
           "request"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -2301,7 +2062,7 @@
     },
     "/request/{recordID}/action/last": {
       "get": {
-        "summary": "Call FormWorkflow.php initRecordID()",
+        "summary": "Call initRecordID()",
         "description": "original endpont:ajaxJSON.php?a=getlastaction; calls FormWorkflow.php initRecordID({recordID}), getLastAction()",
         "tags": [
           "request"
@@ -2325,7 +2086,7 @@
     },
     "/request/{recordID}/action/{actionType}": {
       "get": {
-        "summary": "Call FormWorkflow.php initRecordID()",
+        "summary": "Call initRecordID()",
         "description": "original endpont:formWorkflow/[digit]/apply; calls FormWorkflow.php initRecordID({recordID}), handleAction({dependencyID}, {actionType}, {comment})",
         "tags": [
           "request"
@@ -2380,7 +2141,7 @@
     },
     "/request/{recordID}/step": {
       "get": {
-        "summary": "Call FormWorkflow.php initRecordID()",
+        "summary": "Call initRecordID()",
         "description": "original endpont:formWorkflow/[digit]/currentStep; calls FormWorkflow.php initRecordID({recordID}), getCurrentSteps()",
         "tags": [
           "request"
@@ -2404,25 +2165,17 @@
     },
     "/request/{recordID}/step/{stepID}": {
       "post": {
-        "summary": "Call FormWorkflow.php initRecordID()",
+        "summary": "Call initRecordID()",
         "description": "original endpont:formWorkflow/[digit]/step; calls initRecordID({recordID}), setStep({stepID}, false, {comment})",
         "tags": [
           "request"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -2534,24 +2287,16 @@
     "/request/{recordID}/indicator/{indicatorID}/attachment": {
       "delete": {
         "summary": "Call form.php deleteAttachment()",
-        "description": "original endpont:ajaxIndex.php?a=deleteAttachment calls form.php deleteAttachment({recordID},{indicatorID},{series},{file})",
+        "description": "original endpont:ajaxIndex.php?a=deleteAttachment call form.php deleteAttachment({recordID},{indicatorID},{series},{file})",
         "tags": [
           "request"
         ],
         "parameters": [
           {
-            "in": "cookie",
-            "name": "PHPSESSID",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "header",
-            "name": "CSRFToken",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/tokenParam"
           },
           {
             "in": "path",
@@ -2717,7 +2462,7 @@
     "/request/{recordID_list}/indicator/{indicatorID_list}/customData": {
       "get": {
         "summary": "Call getCustomData()",
-        "description": "original endpont:form/customData; calls form.php getCustomData( {recordID_list} , {indicatorID_list} )",
+        "description": "original endpiont:form/customData; calls form.php getCustomData({recordID_list} , {indicatorID_list} )",
         "tags": [
           "request"
         ],
@@ -2746,90 +2491,10 @@
         }
       }
     },
-    "/search/indicator/{indicatorID}/{search_terms}": {
-      "get": {
-        "summary": "Call query()",
-        "description": "originally /indicator/{indicatorID}/search/{search_terms}; calls query({\"terms\":[{\"id\":\"data\",\"indicatorID\":\"{indicatorID}\",\"operator\":\"=\",\"match\":\"{search_terms}\"}]})",
-        "tags": [
-          "search"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "indicatorID",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "in": "path",
-            "name": "search_terms",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
-    "/search/request/{search_terms}": {
-      "get": {
-        "summary": "Call form.php query()",
-        "description": "originally /request/query/{search_terms}; calls form.php query({search_terms})",
-        "tags": [
-          "search"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "search_terms",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
-    "/search/request/submitter/{search_terms}": {
-      "get": {
-        "summary": "Call form.php query()",
-        "description": "originally /request/search/submitter/{search_terms}; calls form.php query({\"terms\":[{\"id\":\"userID\",\"operator\":\"=\",\"match\":\"{search_terms}\"}]})",
-        "tags": [
-          "search"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "search_terms",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
     "/workflow": {
       "get": {
         "summary": "Call getAllUniqueWorkflows()",
-        "description": "original endpont:workflow; calls getAllUniqueWorkflows()",
+        "description": "original endpoint:workflow; calls getAllUniqueWorkflows()",
         "tags": [
           "workflow"
         ],
@@ -2848,6 +2513,12 @@
           "workflow"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "query",
             "name": "formData",
@@ -2889,12 +2560,22 @@
         }
       }
     },
-    "/workflow/actions/last": {
-      "post": {
-        "summary": "Call getrecentactions",
-        "description": "original endpont:ajaxJson.php?a=getrecentactions; returns json; from DB",
+    "/workflow/actions/{actionText}": {
+      "get": {
+        "summary": "Call getActions()",
+        "description": "original endpont:workflow/action/[text]; calls getActions({actionText})",
         "tags": [
           "workflow"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "actionText",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -2903,10 +2584,10 @@
         }
       }
     },
-    "/workflow/action/recent": {
-      "post": {
-        "summary": "Call ???",
-        "description": "original endpont: returns json; from DB",
+    "/workflow/userActions": {
+      "get": {
+        "summary": "Call getUserActions()",
+        "description": "original endpont:workflow/userActions; calls getUserActions()",
         "tags": [
           "workflow"
         ],
@@ -2931,7 +2612,31 @@
         }
       }
     },
-    "/workflow/categories/unabridged": {
+    "/workflow/{workflowID}/categories": {
+      "get": {
+        "summary": "Call getCategories()",
+        "description": "original endpont:workflow/[digit]/categories; calls setWorkflowID({workflowID}), getCategories()",
+        "tags": [
+          "workflow"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workflowID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/workflow/categoriesUnabridged": {
       "get": {
         "summary": "Call getCategoriesUnabridged()",
         "description": "original endpont:workflow/categoriesUnabridged; calls getCategoriesUnabridged()",
@@ -2982,6 +2687,12 @@
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
             "in": "path",
             "name": "description",
             "required": true,
@@ -3005,6 +2716,12 @@
           "workflow"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "dependencyID",
@@ -3038,6 +2755,12 @@
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
             "in": "path",
             "name": "dependencyID",
             "required": true,
@@ -3067,6 +2790,12 @@
           "workflow"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "dependencyID",
@@ -3114,6 +2843,12 @@
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
             "in": "path",
             "name": "stepID",
             "required": true,
@@ -3137,6 +2872,12 @@
           "workflow"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "stepID",
@@ -3194,6 +2935,12 @@
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
             "in": "path",
             "name": "stepID",
             "required": true,
@@ -3223,6 +2970,12 @@
           "workflow"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "stepID",
@@ -3256,6 +3009,12 @@
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
             "in": "path",
             "name": "stepID",
             "required": true,
@@ -3288,6 +3047,12 @@
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
             "in": "path",
             "name": "stepID",
             "required": true,
@@ -3312,9 +3077,9 @@
       }
     },
     "/workflow/{workflowID}": {
-      "post": {
-        "summary": "Call modify()",
-        "description": "original endpont:workflow/[digit]; calls modify({workflowID}); ***this function doesn't exist",
+      "get": {
+        "summary": "Call getSteps()",
+        "description": "original endpont:workflow/[digit]; calls getSteps({workflowID})",
         "tags": [
           "workflow"
         ],
@@ -3342,6 +3107,12 @@
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
             "in": "path",
             "name": "workflowID",
             "required": true,
@@ -3359,7 +3130,7 @@
     },
     "/workflow/{workflowID}/map/summary": {
       "get": {
-        "summary": "Call setWorkflowID()",
+        "summary": "Call getSummaryMap()",
         "description": "original endpont:'workflow/[digit]/map/summary; calls setWorkflowID({workflowID}), getSummaryMap()",
         "tags": [
           "workflow"
@@ -3383,7 +3154,7 @@
     },
     "/workflow/{workflowID}/route": {
       "get": {
-        "summary": "Call setWorkflowID()",
+        "summary": "Call getRoutes()",
         "description": "original endpont:workflow/[digit]/route; calls setWorkflowID({workflowID}), getRoutes()",
         "tags": [
           "workflow"
@@ -3407,7 +3178,7 @@
     },
     "/workflow/{workflowID}/step": {
       "get": {
-        "summary": "Call setWorkflowID()",
+        "summary": "Call getSteps()",
         "description": "original endpont:workflow/[digit]; calls setWorkflowID({workflowID}), getSteps()",
         "tags": [
           "workflow"
@@ -3429,12 +3200,18 @@
         }
       },
       "post": {
-        "summary": "Call setWorkflowID()",
-        "description": " original endpont:workflow/[digit]/step; calls setWorkflowID({workflowID}), createStep({stepTitle}, {stepBgColor}, {stepFontColor})",
+        "summary": "Call createStep()",
+        "description": "original endpont:workflow/[digit]/step; calls setWorkflowID({workflowID}), createStep({stepTitle}, {stepBgColor}, {stepFontColor})",
         "tags": [
           "workflow"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "workflowID",
@@ -3480,12 +3257,18 @@
     },
     "/workflow/{workflowID}/step/{stepID}/editorPosition/{x}/{y}": {
       "post": {
-        "summary": "Call setWorkflowID()",
+        "summary": "Call setEditorPosition()",
         "description": "original endpont:workflow/[digit]/editorPosition; calls setWorkflowID({workflowID}), setEditorPosition({stepID}, {x}, {y})",
         "tags": [
           "workflow"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "workflowID",
@@ -3528,12 +3311,18 @@
     },
     "/workflow/{workflowID}/step/{stepID}/setInitial": {
       "post": {
-        "summary": "Call setWorkflowID()",
+        "summary": "Call setInitialStep()",
         "description": "original endpont:workflow/[digit]/initialStep; calls setWorkflowID({workflowID}), setInitialStep({stepID})",
         "tags": [
           "workflow"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "workflowID",
@@ -3566,6 +3355,12 @@
           "workflow"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "workflowID",
@@ -3612,6 +3407,12 @@
           "workflow"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "workflowID",
@@ -3701,6 +3502,12 @@
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
             "in": "path",
             "name": "workflowID",
             "required": true,
@@ -3746,6 +3553,12 @@
           "workflow"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "workflowID",
@@ -3798,16 +3611,20 @@
             "description": "Successful operation"
           }
         }
-      }
-    },
-    "/group/new": {
+      },
       "post": {
         "summary": "Call addGroup()",
-        "description": "original endpont:group; calls addGroup({groupName},{groupDesc})",
+        "description": "original endpont:/group; calls addGroup({groupName},{groupDesc})",
         "tags": [
           "group"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "query",
             "name": "formData",
@@ -3853,6 +3670,30 @@
         }
       }
     },
+    "/group/{groupID}/members": {
+      "get": {
+        "summary": "Call getMembers()",
+        "description": "original endpont:group/[digit]/members; calls getMembers({groupID})",
+        "tags": [
+          "group"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "groupID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
     "/group/{groupID}": {
       "delete": {
         "summary": "Call removeGroup()",
@@ -3861,6 +3702,12 @@
           "group"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "groupID",
@@ -3886,29 +3733,11 @@
         ],
         "parameters": [
           {
-            "in": "path",
-            "name": "groupID",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
-    "/group/{groupID}/members": {
-      "get": {
-        "summary": "Call getMembers()",
-        "description": "original endpont:group/[digit]/members; calls getMembers({groupID})",
-        "tags": [
-          "group"
-        ],
-        "parameters": [
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "groupID",
@@ -3933,6 +3762,12 @@
           "group"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "userID",
@@ -3964,6 +3799,12 @@
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
             "in": "path",
             "name": "userID",
             "required": true,
@@ -3990,7 +3831,7 @@
     "/service": {
       "get": {
         "summary": "Call getGroupsAndMembers()",
-        "description": "original endpont:group/members; calls getGroupsAndMembers()",
+        "description": "original endpont:service; calls getGroupsAndMembers()",
         "tags": [
           "service"
         ],
@@ -3999,9 +3840,7 @@
             "description": "Successful operation"
           }
         }
-      }
-    },
-    "/service/new": {
+      },
       "post": {
         "summary": "Call addService()",
         "description": "original endpont:service; calls addService({service}, {groupID})",
@@ -4009,6 +3848,12 @@
           "service"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "query",
             "name": "formData",
@@ -4040,20 +3885,6 @@
         }
       }
     },
-    "/service/services": {
-      "get": {
-        "summary": "Call getServices()",
-        "description": "original endpont:system/services; calls System.php getServices()",
-        "tags": [
-          "service"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
     "/service/quadrads": {
       "get": {
         "summary": "Call getQuadrads()",
@@ -4068,55 +3899,9 @@
         }
       }
     },
-    "/service/{serviceID}": {
-      "post": {
-        "summary": "Call System.php updateService()",
-        "description": "original endpont:system/updateService/[digit]; calls System.php updateService({serviceID})",
-        "tags": [
-          "service"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "serviceID",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Call System.php removeService()",
-        "description": "original endpont:service/[digit]; calls removeService({serviceID})",
-        "tags": [
-          "service"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "serviceID",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
     "/service/{serviceID}/members": {
       "get": {
-        "summary": "Call System.php getMembers()",
+        "summary": "Call getMembers()",
         "description": "original endpont:service/[digit]/members; calls getMembers({serviceID})",
         "tags": [
           "service"
@@ -4140,13 +3925,19 @@
     },
     "/service/{serviceID}/members/{userID}": {
       "post": {
-        "summary": "Call System.php addMember()",
+        "summary": "Call addMember()",
         "description": "original endpont:service/[digit]/members; calls addMember({serviceID}, {userID})",
         "tags": [
           "service"
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
             "in": "path",
             "name": "serviceID",
             "required": true,
@@ -4170,13 +3961,19 @@
         }
       },
       "delete": {
-        "summary": "Call System.php removeMember()",
-        "description": " original endpont:service/[digit]/members/[text]; calls removeMember({serviceID}, {userID})",
+        "summary": "Call removeMember()",
+        "description": "original endpont:service/[digit]/members/[text]; calls removeMember({serviceID}, {userID})",
         "tags": [
           "service"
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
             "in": "path",
             "name": "serviceID",
             "required": true,
@@ -4200,12 +3997,28 @@
         }
       }
     },
-    "/settings/actions": {
-      "post": {
-        "summary": "Call System.php addAction()",
-        "description": " original endpont:system/actions; calls System.php addAction()",
+    "/service/{serviceID}": {
+      "delete": {
+        "summary": "Call emoveService()",
+        "description": "original endpont:service/[digit]; calls removeService({serviceID})",
         "tags": [
-          "settings"
+          "service"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
+            "in": "path",
+            "name": "serviceID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -4214,12 +4027,26 @@
         }
       }
     },
-    "/settings/files": {
+    "/system/dbversion": {
       "get": {
-        "summary": "Call System.php getFileList()",
+        "summary": "Call getFileList()",
+        "description": "original endpont:system/dbversion; calls System.php getDatabaseVersion()",
+        "tags": [
+          "system"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/files/": {
+      "get": {
+        "summary": "Call getFileList()",
         "description": "original endpont:system/files; calls System.php getFileList()",
         "tags": [
-          "settings"
+          "system"
         ],
         "responses": {
           "200": {
@@ -4228,20 +4055,48 @@
         }
       }
     },
-    "/settings/files/{fileName}": {
-      "delete": {
-        "summary": "Call System.php removeMember()",
-        "description": "original endpont:system/files/[text]; calls System.php removeFile({fileName})",
+    "/system/settings/": {
+      "get": {
+        "summary": "Call getSettings()",
+        "description": "original endpont:system/settings; calls System.php getSettings()",
         "tags": [
-          "settings"
+          "system"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/Service/": {
+      "get": {
+        "summary": "Call getServices()",
+        "description": "original endpont:system/updateService/; calls System.php getServices()",
+        "tags": [
+          "system"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/updateService/{serviceID}": {
+      "get": {
+        "summary": "Call updateService()",
+        "description": "original endpont:system/updateService/[digit]; calls System.php updateService()",
+        "tags": [
+          "system"
         ],
         "parameters": [
           {
             "in": "path",
-            "name": "fileName",
+            "name": "serviceID",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           }
         ],
@@ -4252,82 +4107,64 @@
         }
       }
     },
-    "/settings/requestLabel": {
-      "post": {
-        "summary": "Call System.php setRequestLabel()",
-        "description": "original endpont:system/settings/requestLabel; calls System.php setRequestLabel()",
-        "tags": [
-          "settings"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
-    "/settings/heading": {
-      "post": {
-        "summary": "Call System.php setRequestLabel()",
-        "description": "original endpont:system/settings/heading; calls System.php setHeading()",
-        "tags": [
-          "settings"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
-    "/settings/subHeading": {
-      "post": {
-        "summary": "Call System.php setSubHeading()",
-        "description": "original endpont:system/settings/subHeading; calls System.php setSubHeading()",
-        "tags": [
-          "settings"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
-    "/settings/timeZone": {
-      "post": {
-        "summary": "Call System.php setTimeZone()",
-        "description": "original endpont:system/settings/timeZone; calls System.php setTimeZone()",
-        "tags": [
-          "settings"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
-    "/templates": {
-      "post": {
-        "summary": "Call System.php getTemplateList()",
-        "description": " original endpont:system/templates; calls System.php getTemplateList()",
-        "tags": [
-          "templates"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
-    "/templates/{fileName}": {
+    "/system/Group/": {
       "get": {
-        "summary": "Call System.php getTemplate()",
+        "summary": "Call getGroups()",
+        "description": "original endpont:system/Group/; calls System.php getGroups()",
+        "tags": [
+          "system"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/updateGroup/{groupID}": {
+      "get": {
+        "summary": "Call updateGroup()",
+        "description": "original endpont:system/updateGroup/[digit]; calls System.php updateGroup()",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "groupID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/templates/": {
+      "get": {
+        "summary": "Call getTemplateList()",
+        "description": "original endpont:system/templates/; calls System.php getTemplateList()",
+        "tags": [
+          "system"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/templates/{fileName}": {
+      "get": {
+        "summary": "Call  getTemplate()",
         "description": "original endpont:system/templates/[text] calls System.php getTemplate({fileName})",
         "tags": [
-          "templates"
+          "system"
         ],
         "parameters": [
           {
@@ -4346,12 +4183,18 @@
         }
       },
       "post": {
-        "summary": "Call System.php setTemplate()",
+        "summary": "Call setTemplate()",
         "description": "original endpont:system/templates/[text]; calls setTemplate({fileName})",
         "tags": [
-          "templates"
+          "system"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "fileName",
@@ -4368,12 +4211,18 @@
         }
       },
       "delete": {
-        "summary": "Call System.php removeCustomTemplate()",
+        "summary": "Call removeCustomTemplate()",
         "description": "original endpont:system/templates/[text]; calls removeCustomTemplate({fileName})",
         "tags": [
-          "templates"
+          "system"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "fileName",
@@ -4390,12 +4239,12 @@
         }
       }
     },
-    "/templates/{fileName}/standard": {
+    "/system/templates/{fileName}/standard": {
       "get": {
-        "summary": "Call System.php getTemplate()",
+        "summary": "Call getTemplate()",
         "description": "original endpont:system/templates/[text]/standard; calls System.php getTemplate({fileName}, true)",
         "tags": [
-          "templates"
+          "system"
         ],
         "parameters": [
           {
@@ -4414,12 +4263,12 @@
         }
       }
     },
-    "/templates/reportTemplates": {
+    "/system/reportTemplates/": {
       "get": {
-        "summary": "Call System.php getReportTemplateList()",
+        "summary": "Call getReportTemplateList()",
         "description": "original endpont:system/reportTemplates; calls System.php getReportTemplateList()",
         "tags": [
-          "templates"
+          "system"
         ],
         "responses": {
           "200": {
@@ -4428,14 +4277,20 @@
         }
       }
     },
-    "/templates/reportTemplates/new": {
+    "/system/reportTemplates": {
       "post": {
-        "summary": "Call System.php getTemplate()",
+        "summary": "Call newReportTemplate()",
         "description": "original endpont:system/reportTemplates; calls newReportTemplate({filename})",
         "tags": [
-          "templates"
+          "system"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "query",
             "name": "formData",
@@ -4463,12 +4318,12 @@
         }
       }
     },
-    "/templates/reportTemplates/{fileName}": {
+    "/system/reportTemplates/{fileName}": {
       "get": {
-        "summary": "Call System.php getReportTemplate()",
+        "summary": "Call getReportTemplate()",
         "description": "original endpont:system/reportTemplates/[text]; calls System.php getReportTemplate({fileName})",
         "tags": [
-          "templates"
+          "system"
         ],
         "parameters": [
           {
@@ -4490,9 +4345,15 @@
         "summary": "Call System.php setReportTemplate()",
         "description": "original endpont:system/reportTemplates/[text]; calls setReportTemplate({fileName})",
         "tags": [
-          "templates"
+          "system"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "fileName",
@@ -4509,12 +4370,18 @@
         }
       },
       "delete": {
-        "summary": "Call System.php removeReportTemplate()",
+        "summary": "Call removeReportTemplate()",
         "description": "original endpont:system/reportTemplates/[text]; calls removeReportTemplate({fileName})",
         "tags": [
-          "templates"
+          "system"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "path",
             "name": "fileName",
@@ -4531,25 +4398,243 @@
         }
       }
     },
-    "/import/xls": {
+    "/system/actions": {
       "post": {
-        "summary": "Call SpreadSheetUtil::loadFileIntoArray()",
-        "description": "original endpont:import/xls; calls SpreadSheetUtil::loadFileIntoArray(__DIR__ . '/../../files/' . {fileName}}, {hasHeaders})",
+        "summary": "Call addAction()",
+        "description": "original endpont:system/actions; calls System.php addAction()",
         "tags": [
-          "import"
+          "system"
         ],
         "parameters": [
           {
-            "in": "query",
-            "name": "fileName",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/cookieParam"
           },
           {
-            "in": "query",
-            "name": "hasHeaders",
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/setPrimaryadmin": {
+      "post": {
+        "summary": "Call setPrimaryAdmin()",
+        "description": "original endpont:system/setPrimaryadmin; calls System.php setPrimaryAdmin()",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/unsetPrimaryadmin": {
+      "post": {
+        "summary": "Call unsetPrimaryAdmin()",
+        "description": "original endpont:system/unsetPrimaryadmin; calls System.php unsetPrimaryAdmin()",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/settings/heading": {
+      "post": {
+        "summary": "Call setRequestLabel()",
+        "description": "original endpont:system/settings/heading; calls System.php setHeading()",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/settings/subHeading": {
+      "post": {
+        "summary": "Call setSubHeading()",
+        "description": "original endpont:system/settings/subHeading; calls System.php setSubHeading()",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/settings/requestLabel": {
+      "post": {
+        "summary": "Call setRequestLabel()",
+        "description": "original endpont:system/settings/requestLabel; calls System.php setRequestLabel()",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/settings/timeZone": {
+      "post": {
+        "summary": "Call setTimeZone()",
+        "description": "original endpont:system/settings/timeZone; calls System.php setTimeZone()",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/settings/siteType": {
+      "post": {
+        "summary": "Call setSiteType()",
+        "description": "original endpont:system/settings/siteType; calls System.php setSiteType()",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/settings/national_linkedSubordinateList": {
+      "post": {
+        "summary": "Call setNationalLinkedSubordinateList()",
+        "description": "original endpont:system/settings/national_linkedSubordinateList; calls System.php setNationalLinkedSubordinateList()",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/settings/national_linkedPrimary": {
+      "post": {
+        "summary": "Call setNationalLinkedPrimary()",
+        "description": "original endpont:system/settings/national_linkedPrimary; calls System.php setNationalLinkedPrimary()",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/system/files/{fileName}": {
+      "delete": {
+        "summary": "Call removeFile()",
+        "description": "original endpont:syssystem/files/[text]; calls System.php removeFile({fileName})",
+        "tags": [
+          "system"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
+          {
+            "in": "path",
+            "name": "fileName",
             "required": true,
             "schema": {
               "type": "string"
@@ -4587,10 +4672,24 @@
         }
       }
     },
+    "/classicphonebook/search": {
+      "get": {
+        "summary": "Call search()",
+        "description": "riginal endpont:classicphonebook/search; calls search() function from VAMC_Directory()",
+        "tags": [
+          "classicphonebook"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
     "/classicphonebook/search/{searchText}": {
       "get": {
         "summary": "Call search()",
-        "description": " riginal endpont:classicphonebook/search/[text]; calls search({searchText}) function from VAMC_Directory()",
+        "description": "riginal endpont:classicphonebook/search/[text]; calls search({searchText}) function from VAMC_Directory()",
         "tags": [
           "classicphonebook"
         ],
@@ -4614,11 +4713,17 @@
     "/converter/json": {
       "post": {
         "summary": "Return json_decode()",
-        "description": " original endpont:converter/json; returns json_decode({input}, true)",
+        "description": "original endpont:converter/json; returns json_decode({input}, true)",
         "tags": [
           "converter"
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cookieParam"
+          },
+          {
+            "$ref": "#/components/parameters/tokenParam"
+          },
           {
             "in": "query",
             "name": "formData",
@@ -4694,6 +4799,46 @@
         }
       }
     },
+    "/simpledata/{indicatorID}/{series}/{recordID}": {
+      "get": {
+        "summary": "Call getIndicator()",
+        "description": "original endpont:simpledata/[digit]/[digit]/[digit]; calls  form.php getIndicator({indicatorID}, {series}}, {recordID})",
+        "tags": [
+          "simpledata"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "indicatorID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "series",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "recordID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
     "/simpledata/equiptest": {
       "get": {
         "summary": "Does all the logic in controller",
@@ -4710,7 +4855,7 @@
     },
     "/telemetry/summary/month": {
       "get": {
-        "summary": "Call Telemetry.php getRequestsPerMonth()",
+        "summary": "Call getRequestsPerMonth()",
         "description": "original endpont:telemetry/summary/month; calls Telemetry.php getRequestsPerMonth()",
         "tags": [
           "telemetry"
@@ -4724,7 +4869,7 @@
     },
     "/telemetry/simple/requests": {
       "get": {
-        "summary": "Call Telemetry.php getRequestsSimple()",
+        "summary": "Call getRequestsSimple()",
         "description": "original endpont:telemetry/simple/requests; calls Telemetry.php getRequestsSimple({startTime}, {endTime})",
         "tags": [
           "telemetry"
