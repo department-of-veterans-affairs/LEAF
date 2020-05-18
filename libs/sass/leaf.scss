@@ -20,6 +20,11 @@
 .default-container {background-color: #fcfcfc; width: 100%;}
 .sidenav { display: block; float: left; margin-bottom: 3rem; margin-top: 2rem; padding-right: 0; padding-left: 2rem; width: 15rem;}
 .usa-banner {font-family: 'Public Sans Regular';}
+.usa-input {height: 1rem; width: auto;}
+.ui-dialog-title {font-family: 'Public Sans Bold'; font-size: 1.1rem;}
+.ui-widget-header {border: 0; background-color: none;}
+h1, h2, h3, h4, h5, h6 {margin: 0; color: #3d4551;}
+    h3 {margin: 0.8rem 0;}
 
 
 /* ############### USWDS BUTTON OVERRIDES ################# */
@@ -38,14 +43,17 @@
         box-shadow: inset 0 0 0 2px rgba(255,255,255,1);
         text-decoration: none!important;
     }
+.usa-button {font-family: 'Public Sans Bold'; white-space: nowrap; padding: 0.8rem 0.6rem; min-width: 4rem;}
 .leaf-btn-icon {margin-right: 0.5rem;}
-.usa-button {font-family: 'Public Sans Bold'; white-space: nowrap; padding: 0.8rem 0.6rem;}
+.leaf-btn-small {padding: 0.5rem; font-size: 0.7rem;}
+.leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
 
 /* ############### GLOBAL OVERRIDES ################# */
 h1, h2, h3, h4, h5, h6 { font-family: 'Public Sans Bold'; }
 h1 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 h2 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
+label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
 
 /* ############### GLOBAL CLASSES ################# */
 .leaf-bold {font-family: 'Public Sans Bold';}
@@ -68,13 +76,14 @@ p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
 .leaf-valign-top {vertical-align: top;}
 
 /* ############### SPECIAL CLASSES ################# */
+.leaf-row-space {height: 1rem; margin: 0.2rem 0; clear: both;}
 .leaf-text-smaller {font-size: 0.9rem;}
 .leaf-buttonBar {text-align: center; margin: 1.0rem 0;}
 .leaf-content-show {display: block;}
 .leaf-content-hide {display: none;}
 .leaf-grey-box {padding: 1rem; background-color: #e6e6e6;}
-.leaf-btn-small {padding: 0.5rem; font-size: 0.7rem;}
 .leaf-sidenav-bottomBtns {margin: 0.5rem;}
+.leaf-title-inst {font-family: 'Public Sans Regular'; font-size: 0.8rem; margin-left: 0.7rem; display: inline-block;}
 .leaf-sitemap-card {
     width: 19rem;
     margin: 0.5rem;
@@ -404,7 +413,9 @@ ul.leaf-progress-bar {
 
 
 /* ############### PADDINGS, MARGINS ################# */
+.leaf-marginTop-halfRem {margin-top: 0.5rem;}
 .leaf-marginTop-1rem {margin-top: 1rem;}
+.leaf-marginTop-2rem {margin-top: 2rem;}
 .leaf-marginBot-1rem {margin-bottom: 1rem;}
 .leaf-marginBot-halfRem {margin-bottom: 0.5rem;}
 
@@ -435,6 +446,8 @@ ul.leaf-progress-bar {
 .leaf-width-10rem {width: 10rem;}
 .leaf-width-11rem {width: 11rem;}
 .leaf-width-12rem {width: 12rem;}
+
+.leaf-width-24rem {width: 24rem;}
 
 
 /*! breakpoint styles for different screens */

@@ -16,24 +16,31 @@
 </style>
 
 <div class="leaf-center-content">
+
     <h2>Template Editor</h2>
+
     <div class="section group">
+
         <div class="col span_1_of_6">
             <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">
             Templates:
                 <div id="fileList"></div>
             </div>
         </div>
+
         <div id="codeArea" class="col span_4_of_6">
+
             <div id="codeContainer" class="card" style="float: left; padding: 8px; display: none">
-                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
+
+                <div id="filename" style="padding: 8px;"></div>
+
                 <div style="border: 1px solid black">
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
                 </div>
-                <br />
+                
                 <div>
-                    <table class="table">
+                    <table class="usa-table">
                         <tr>
                             <td colspan="2">Keyboard Shortcuts within coding area</td>
                         </tr>
@@ -48,16 +55,35 @@
                     </table>
                 </div>
             </div>
+
         </div>
         <div class="col span_1_of_6">
-            <div id="controls" style="float: right; width: 170px; visibility: hidden">
-                <div class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes<span id="saveStatus"></span></div><br />
-                <div class="buttonNorm modifiedTemplate" onclick="restore();"><img src="../../libs/dynicons/?img=x-office-document-template.svg&w=32" alt="Restore" /> Restore Original</div><br />
-                <div class="buttonNorm" id="btn_compareStop" style="display: none" onclick="loadContent();"><img src="../../libs/dynicons/?img=text-x-generic.svg&w=32" alt="Normal view" /> Stop Comparing</div>
-                <div class="buttonNorm modifiedTemplate" id="btn_compare" onclick="compare();"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Compare" /> Compare with Original</div><br />
-                <a class="buttonNorm" href="../../libs/dynicons/gallery.php" target="_blank" style="padding: 8px; text-decoration: none"><img src="../../libs/dynicons/?img=image-x-generic.svg&w=32" alt="Icon Library" /> Icon Library</a>
+
+            <div id="controls" style="float:right; width: 200px; visibility: hidden">
+                
+                <button class="usa-button" onclick="save();">
+                    <i class="fas fa-save leaf-btn-icon"></i>Save Changes<span id="saveStatus"></span>
+                </button>
+                
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem" onclick="restore();">
+                    <i class="fas fa-trash-restore leaf-btn-icon"></i>Restore Original
+                </button>
+                
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
+                    <i class="fas fa-stop leaf-btn-icon"></i>Stop Comparing
+                </button>
+                
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem" id="btn_compare" onclick="compare();">
+                    <i class="fas fa-compress-alt leaf-btn-icon"></i>Compare to Original
+                </button>
+                
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem" target="_blank">
+                    <i class="fas fa-book leaf-btn-icon"></i><a href="../../libs/dynicons/gallery.php">Icon Library</a>
+                </button>
             </div>
+
         </div>
+
     </div>
 
 </div>
