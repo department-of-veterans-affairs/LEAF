@@ -17,10 +17,6 @@
     {
       "url": "https://localhost/LEAF_Nexus/api/",
       "description": "Local DEV server (uses test data)"
-    },
-    {
-      "url": "https://leaf.va.gov:8443/LEAF_Nexus/api",
-      "description": "Production server (uses live data)"
     }
   ],
   "components": {
