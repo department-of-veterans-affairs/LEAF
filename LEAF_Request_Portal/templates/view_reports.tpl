@@ -553,7 +553,7 @@ function openShareDialog() {
 function showJSONendpoint() {
     var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
     var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-	var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
+    var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
     var base64SitePath = btoa(window.location.pathname + 'api/form/query/?q=' + queryString);
     var authPath = '<!--{$powerQueryURL}-->';
 
@@ -609,20 +609,16 @@ function showJSONendpoint() {
         }
 
         if($('#msCompatMode').is(':checked')) {
-           var decodedSitePath = atob(base64SitePath);
+            var decodedSitePath = atob(base64SitePath);
 
            if($('#format').val() === 'json'){
-                 var encodedPath = btoa(decodedSitePath);
-                 
+                var encodedPath = btoa(decodedSitePath); 
             }else{
-
                 var encodedPath = btoa(decodedSitePath + '&format=' + $('#format').val());
             }
 
            $('#exportFormat').html('');
-          
            $('#exportPath').html(authPath + encodedPath);
-
         }
     }
 
