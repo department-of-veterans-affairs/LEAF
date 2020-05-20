@@ -445,6 +445,9 @@ switch ($action) {
 
         break;
     case 'reports':
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+        $powerQueryURL = "{$protocol}://" . AUTH_URL . "/report_auth.php?r=";
+
         $main->assign('stylesheets', array('css/report.css'));
            $main->assign('javascripts', array('js/form.js',
                'js/formGrid.js',
@@ -470,6 +473,8 @@ switch ($action) {
         $t_form->assign('title', XSSHelpers::sanitizeHTML($_GET['title']));
         $t_form->assign('version', (int)$_GET['v']);
         $t_form->assign('empMembership', $login->getMembership());
+        $t_form->assign('powerQueryURL', $powerQueryURL);
+
 
         $main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl')));
 
