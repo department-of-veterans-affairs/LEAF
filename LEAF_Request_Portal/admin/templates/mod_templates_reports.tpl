@@ -5,14 +5,28 @@
 
 <div class="leaf-center-content">
 
+    <h2>LEAF Programmer</h2>
+
     <div class="section group">
+
         <div class="col span_1_of_6">
+        
             <div id="fileBrowser" style="float: left; width: 200px; margin-right: 4px">
-                <div class="buttonNorm" onclick="newReport();"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="New File" /> New File</div><br />
-                <b>Files:</b>
+
+                <button class="usa-button" onclick="newReport();">
+                    <i class="fas fa-file-alt leaf-btn-icon"></i>New File
+                </button>
+
+                <div class="leaf-row-space"></div>
+                
+                <h5>Files:</h5>
+
                 <div id="fileList"></div>
+
             </div>
+
         </div>
+
         <div id="codeArea" class="col span_4_of_6">
             <div id="codeContainer" class="card" style="float: left; padding: 4px; width: 90%; display: none">
                 <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>

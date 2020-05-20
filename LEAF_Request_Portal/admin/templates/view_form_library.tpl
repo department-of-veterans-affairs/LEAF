@@ -153,7 +153,7 @@ $(function() {
 </script>
 
 <div class="leaf-center-content">
-
+    <h2>LEAF Library</h2>
     <div id="menu" style="float: left; width: 230px">
         <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="filterStatus" role="status"></span>
         <a role="button" class="buttonNorm leaf-marginBot-1rem" tabindex="0" href="?a=form" style="display: inherit; width: 220px; text-decoration: none; color: black" id="backToForm"><img src="../../libs/dynicons/?img=edit-undo.svg&amp;w=32" alt="Go back" title="Go back"/> Back to My Forms</a>

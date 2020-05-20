@@ -1,16 +1,37 @@
 <div class="leaf-center-content">
 
-    <div id="sideBar" style="float: left; width: 180px; font-size: 0.7rem;">
-        <div id="btn_createStep" class="buttonNorm" onclick="createStep();" display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
-        Workflows: <br />
-        <div id="workflowList"></div>
-        <br />
-        <div id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
-        <br />
-        <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
-        <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="display: none" role="button" tabindex="0">Edit Actions</div><br />
-        <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="display: none;" role="button" tabindex="0"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>
+    
+    
+    <div id="sideBar" style="float: left; width: 175px;">
+        
+        <h3>Workflow Editor</h3>
+        
+        <button id="btn_createStep" class="usa-button leaf-btn-med leaf-width-10rem" onclick="createStep();" role="button" tabindex="0">
+            <i class="fas fa-plus leaf-btn-icon"></i>Add Step
+        </button>
+        
+        <div class="leaf-marginTop-1rem">Workflows:</div>
+        
+        <div id="workflowList" class="leaf-marginTop-1rem"></div>
+        
+        <button id="btn_newWorkflow" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem" onclick="newWorkflow();" role="button" tabindex="0">
+            <i class="fas fa-plus-square leaf-btn-icon"></i>New Workflow
+        </button>
+        
+        <div id="btn_deleteWorkflow" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem" onclick="deleteWorkflow();" style="display: none" role="button" tabindex="0">
+            <i class="fas fa-trash-alt leaf-btn-icon"></i>Delete workflow
+        </div>
+        
+        <div id="btn_listActionType" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem" onclick="listActionType();" style="display: none" role="button" tabindex="0">
+            <i class="fas fa-edit leaf-btn-icon"></i>Edit Actions
+        </div>
+        
+        <div id="btn_viewHistory" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem" onclick="viewHistory();" style="display: none;" role="button" tabindex="0">
+            <i class="fas fa-clock leaf-btn-icon"></i>View History
+        </div>
+
     </div>
+
     <div id="workflow" style="margin-left: 184px; background-color: #777; font-size: 0.7rem;"></div>
 
 </div>
@@ -33,7 +54,7 @@ function newWorkflow() {
     $('.workflowStepInfo').css('display', 'none');
 
     dialog.setTitle('Create new workflow');
-    dialog.setContent('<br /><label for="description">Workflow Title:</label> <input type="text" id="description"></input>');
+    dialog.setContent('<label for="description">Workflow Title</label><div class="leaf-marginTop-halfRem"><input type="text" id="description" class="usa-input" size="27"></input></div>');
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
@@ -366,8 +387,8 @@ function createStep() {
 		return;
 	}
 
-	dialog.setTitle('Create new Step');
-	dialog.setContent('<br /><label for="stepTitle">Step Title:</label> <input type="text" id="stepTitle"></input><br /><br />Example: "Service Chief"');
+	dialog.setTitle('Create New Step');
+	dialog.setContent('<label for="stepTitle">Step Title:</label><div class="leaf-marginTop-1rem"><input type="text" id="stepTitle" class="usa-input" size="27"></input></div><div class="leaf-marginTop-1rem">Example: "Service Chief"</div>');
 	dialog.setSaveHandler(function() {
 		$.ajax({
 			type: 'POST',

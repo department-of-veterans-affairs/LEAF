@@ -1,31 +1,40 @@
 <div class="leaf-center-content">
 
-    <div id="sideBar" class="leaf-float-right">
-        <button class="usa-button usa-button--outline" onclick="importGroup();">
-            <i class="fas fa-copy leaf-btn-icon" alt="Import Existing Group"></i>Import Existing Group
-        </button>
-        <button class="usa-button usa-button--outline" onclick="createGroup();">
-            <i class="fas fa-plus leaf-btn-icon" alt="Create New Group"></i>Create New Group
-        </button>
-        <button class="usa-button usa-button--outline" onclick="showAllGroupHistory();">
-            <i class="fas fa-clock leaf-btn-icon" alt="Show All Group History"></i>Show All Group History
-        </button>
-    </div>
+        <h2>User Access Groups<span class="leaf-title-inst">Click cards to edit.</span></h2>
 
-    <div>
-        <h2 role="heading" tabindex="-1">Site Administrators</h2>
-        <div id="adminList"></div>
-        <div id="primaryAdmin"></div>
-    </div>
-    
-    <div class="leaf-clear-both">
-        <h2 role="heading" tabindex="-1">User Groups</h2>
-        <div id="groupList"></div>
-    </div>
+        <div>
+            <button class="usa-button usa-button--outline leaf-btn-med" onclick="importGroup();">
+                <i class="fas fa-copy leaf-btn-icon" alt="Import Existing Group"></i>Import Existing Group
+            </button>
+            <button class="usa-button usa-button--outline leaf-btn-med" onclick="createGroup();">
+                <i class="fas fa-plus leaf-btn-icon" alt="Create New Group"></i>Create New Group
+            </button>
+            <button class="usa-button usa-button--outline leaf-btn-med" onclick="showAllGroupHistory();">
+                <i class="fas fa-clock leaf-btn-icon" alt="Show All Group History"></i>Show All Group History
+            </button>
+        </div>
+
+        <div class="leaf-row-space"></div>
+        
+        <div>
+            <h3 role="heading" tabindex="-1">Site Administrators</h3>
+        </div>
+        <div>
+            <div id="adminList"></div>
+            <div id="primaryAdmin"></div>
+        </div>
+
+        <div class="leaf-row-space"></div>
+        
+        <div class="leaf-clear-both">
+            <h3 role="heading" tabindex="-1">User Groups</h3>
+            <div id="groupList"></div>
+        </div>
+
+        <div class="leaf-row-space"></div>
 
 </div>
 
-<br style="clear: both" />
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
@@ -62,7 +71,7 @@ function getPrimaryAdmin() {
             }
             if(!foundPrimary)
             {
-                $('#membersPrimaryAdmin').append("Primary Admin has not been set.");
+                $('#membersPrimaryAdmin').append("Primary Administrator has not been set");
             }
             $('#membersPrimaryAdmin').fadeIn();
         }
@@ -198,8 +207,8 @@ function getGroupList() {
                 else { // if is admin
                     function openAdminGroup(){
                         dialog.setContent(
-                            '<button style="float:right" class="buttonNorm" onclick="viewHistory(1)"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>'+
-                            '<h2 role="heading" tabindex="-1">System Administrators</h2><div id="adminSummary"></div><br /><h3 role="heading" tabindex="-1" >Add Administrator:</h3><div id="employeeSelector"></div>');
+                            '<button style="float:right" class="usa-button usa-button--secondary leaf-btn-small" onclick="viewHistory(1)"><i class="fas fa-clock leaf-btn-icon"></i>View History</button>'+
+                            '<h2 role="heading" tabindex="-1">System Administrators</h2><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><h3 role="heading" tabindex="-1" >Add Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -270,7 +279,7 @@ function getGroupList() {
                     focusGroupsAndMembers('primaryAdmin');
 
                     function openPrimaryAdminGroup(){
-                        dialog.setContent('<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><br /><h3 role="heading" tabindex="-1" >Set Primary Administrator:</h3><div id="employeeSelector"></div>');
+                        dialog.setContent('<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><div class="leaf-marginTop-2rem"><h3 role="heading" tabindex="-1" >Set Primary Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -408,7 +417,7 @@ function tagAndUpdate(groupID, callback) {
 
 function importGroup() {
     dialog.setTitle('Import Group');
-    dialog.setContent('<h2 role="heading" tabindex="-1">Import a group from another LEAF site.</h2><br /><div role="heading" tabindex="-1">Group Title: </div><div id="groupSel_container"></div>');
+    dialog.setContent('<h4 role="heading" tabindex="-1">Import a group from another LEAF site:</h4><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container" style="height: 40px;"></div></div>');
 
     var groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -441,7 +450,7 @@ function importGroup() {
 
 function createGroup() {
     dialog.setTitle('Create a new group');
-    dialog.setContent('<div><br /><div role="heading" style="display:inline">Group Title: </div><input aria-label="Enter group name" id="groupName"></input></div>');
+    dialog.setContent('<div><label role="heading">Group Title</label><div class="leaf-marginTop-halfRem"><input aria-label="Enter group name" id="groupName" class="usa-input" size="36"></input></div></div>');
 
     dialog.setSaveHandler(function() {
     	dialog.indicateBusy();

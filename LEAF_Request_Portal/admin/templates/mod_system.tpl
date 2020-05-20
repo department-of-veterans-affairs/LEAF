@@ -15,6 +15,8 @@ input {
 
 <div class="leaf-center-content">
 
+    <h2>Site Settings</h2>
+    
     <h2 id="progress" style="color: red; text-align: center"></h2>
 
     <div style="width: 70%; margin: auto">
