@@ -554,8 +554,7 @@ function showJSONendpoint() {
     var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
     var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
     var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
-    var base64SitePath = btoa(window.location.pathname + 'api/form/query/?q=' + queryString);
-    var authPath = '<!--{$powerQueryURL}-->';
+    var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
 	dialog_message.setTitle('Data Endpoints');
     dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
@@ -580,11 +579,7 @@ function showJSONendpoint() {
                            + '</fieldset>');
 
     $('#msCompatMode').on('click', function() {
-        $('#exportPath').html(authPath + base64SitePath);
-
-        if(!$('#msCompatMode').is(':checked')) {
-            $('#exportPath').html(jsonPath);
-        }
+        $('#shortenLink').click();
 
     });
 
@@ -607,19 +602,6 @@ function showJSONendpoint() {
                 $("#formatStatus").fadeOut(3000);
                 break;
         }
-
-        if($('#msCompatMode').is(':checked')) {
-            var decodedSitePath = atob(base64SitePath);
-
-           if($('#format').val() === 'json'){
-                var encodedPath = btoa(decodedSitePath); 
-            }else{
-                var encodedPath = btoa(decodedSitePath + '&format=' + $('#format').val());
-            }
-
-           $('#exportFormat').html('');
-           $('#exportPath').html(authPath + encodedPath);
-        }
     }
 
     $('#format').on('change', function() {
@@ -636,7 +618,6 @@ function showJSONendpoint() {
 
     $('#shortenLink').on('click', function() {
         $('#shortenLink').css('display', 'none');
-        $("#msCompatMode").prop("checked", false);
         $('#exportPath').on('focus', function() {
 		    document.execCommand("selectAll", false, null);
 	    });
@@ -647,10 +628,10 @@ function showJSONendpoint() {
                 CSRFToken: CSRFToken}
         })
         .then(function(res) {
-            $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
+            $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res);
             
-            if($('#msCompatMode').is(':checked')) {
-                $('#expandLink').css('display', 'inline');
+           if($('#msCompatMode').is(':checked')) {
+                $('#expandLink').css('display', 'none');
             }
             else {
                 $('#expandLink').css('display', 'inline');
