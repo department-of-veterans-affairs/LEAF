@@ -1,13 +1,19 @@
 
 <div> <!-- main content -->
-<span style="font-weight: bold; font-size: 16px"><!--{$dataType}--> Name : <!--{$dataName|sanitize}--></span>
+<span id="historyName" style="font-weight: bold; font-size: 16px">
+<!--{if $titleOverride != null}-->
+    <!--{$titleOverride}-->
+<!--{else}-->
+    <!--{$dataType}--> Name : <!--{$dataName|sanitize}-->
+<!--{/if}-->
+</span>
 <br />
 <!--{if !is_null($dataID) }-->
 History of <!--{$dataType}--> ID : <!--{$dataID|sanitize}-->
 <!--{/if}-->
 <br /><br />
 
-<div style="float: left; padding: 2px">
+<div style="padding: 2px">
     <!--{if count($history) == 0}-->
         No history to show!
     <!--{else}-->

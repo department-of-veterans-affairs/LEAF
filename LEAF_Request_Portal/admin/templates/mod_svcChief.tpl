@@ -276,6 +276,7 @@ $(function() {
 
     $('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
     $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
+    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     getGroupList();
 

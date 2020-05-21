@@ -6,7 +6,7 @@
 class CommonConfig
 {
     public $requestWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
-                                        'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
+                                        'csv', 'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
                                         'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm', 'ppts',
                                         'ai', 'eps',
                                         'pdf',
@@ -22,7 +22,7 @@ class CommonConfig
                                     );
     
     public $fileManagerWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
-                                            'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
+                                            'csv', 'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
                                             'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm', 'ppts',
                                             'ai', 'eps',
                                             'pdf',

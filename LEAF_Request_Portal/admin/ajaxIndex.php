@@ -160,8 +160,8 @@ switch ($action) {
         $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
         $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
-        
-        //pagination 
+
+        //pagination
         $pageLength = 10;
 
         $t_form = new Smarty;
@@ -207,8 +207,12 @@ switch ($action) {
             $resHistory = $resHistory ?? array();
             $totalHistory = array_merge($totalHistory, $resHistory);
         }
-        //if getting the history items or building the paginator
-        if($gethistoryslice) 
+        
+        /*
+            First time around, gethistoryslice = false, so this loads view_history_all which calls 
+            this method again which loads view_history & displays it appropriately in the paginator
+        */
+        if($gethistoryslice)
         {
             usort($totalHistory, function($a, $b) {
                 return $b['timestamp'] <=> $a['timestamp'];
@@ -216,7 +220,6 @@ switch ($action) {
 
             $pageStart = ($page * $pageLength) - $pageLength;
             $totalHistorySlice = array_slice($totalHistory, $pageStart, $pageLength);
-            
             $t_form->assign('dataType', ucwords($typeName));
             $t_form->assign('dataName', $dataName);
             $t_form->assign('history', $totalHistorySlice);
@@ -225,7 +228,6 @@ switch ($action) {
         else
         {
             $totalPages = ceil(count($totalHistory)/$pageLength);
-            
             $t_form->assign('totalPages', $totalPages);
             $t_form->assign('dataType', $typeName);
             $t_form->display('view_history_all.tpl');
@@ -234,7 +236,16 @@ switch ($action) {
         break;
     case 'gethistory':
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
+        $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
         $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
+        $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
+
+        //pagination
+        $pageLength = 10;
+
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
 
         $type = null;
         switch ($typeName) {
@@ -258,28 +269,42 @@ switch ($action) {
                 $type = new \Workflow($db, $login);
                 $title = $type->getDescription($itemID);
                 break;
+            case 'primaryAdmin':
+                include '../sources/System.php';
+                $type = new \System($db, $login);
+                $itemID = null;
+                $title = 'Primary Admin';
+                $t_form->assign('titleOverride', "Primary Admin History");
+                break;
         }
 
-        if (!empty($itemID))
+
+        $resHistory = $type->getHistory($itemID);
+
+        if($gethistoryslice)
         {
-            $t_form = new Smarty;
-            $t_form->left_delimiter = '<!--{';
-            $t_form->right_delimiter = '}-->';
+            usort($resHistory, function($a, $b) {
+                return $b['timestamp'] <=> $a['timestamp'];
+            });
 
-            $resHistory = $type->getHistory($itemID);
-
+            $pageStart = ($page * $pageLength) - $pageLength;
+            $totalHistorySlice = array_slice($resHistory, $pageStart, $pageLength);
             $t_form->assign('dataType', ucwords($typeName));
-            $t_form->assign('dataID', $itemID);
             $t_form->assign('dataName', $title);
-
-            $resHistory = $resHistory ?? array();
-
-            $t_form->assign('history', $resHistory);
-
+            $t_form->assign('history', $totalHistorySlice);
             $t_form->display('view_history.tpl');
         }
+        else
+        {
+            $totalPages = ceil(count($resHistory)/$pageLength);
+            $t_form->assign('itemId', $itemID);
+            $t_form->assign('totalPages', $totalPages);
+            $t_form->assign('dataName', $title);
+            $t_form->assign('dataType', $typeName);
+            $t_form->display('view_history_paginated.tpl');
+        }
 
-        break;           
+        break;
     default:
         /*
         echo "Action: $action<br /><br />Catchall...<br /><br />POST: <pre>";
