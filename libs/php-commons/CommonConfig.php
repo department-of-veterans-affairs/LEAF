@@ -39,4 +39,18 @@ class CommonConfig
                                             'mht', 'msg', 'xml',
                                             'zip', '7z',
                                         );
+
+    public $awsSharedConfig = array(
+        //'profile' => 'default',
+        'region' => 'us-east-1',
+        'credentials' => [
+            'key' => 'YOUR_AWS_KEY_HERE',
+            'secret' => 'YOUR_AWS_SECRET_HERE',
+        ],
+        'version' => 'latest',
+        'S3' => [
+            'bucket' => 'YOUR_AWS_BUCKET_HERE'
+            //'debug' => 'false' // default is false
+        ]
+    );
 }

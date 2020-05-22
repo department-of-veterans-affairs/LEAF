@@ -3,11 +3,20 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+<<<<<<< HEAD
 include __DIR__ . '/globals.php';
 include __DIR__ . '/db_mysql.php';
 include __DIR__ . '/db_config.php';
 include __DIR__ . '/Login.php';
 include __DIR__ . '/form.php';
+=======
+include 'globals.php';
+include 'db_mysql.php';
+include 'db_config.php';
+include 'Login.php';
+include 'form.php';
+require_once __DIR__ . "/../libs/php-commons/aws/AWSUtil.php";
+>>>>>>> replaces file attachments in form with s3
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -46,19 +55,34 @@ $_GET['form'] = (int)$_GET['form'];
 $_GET['id'] = (int)$_GET['id'];
 $_GET['series'] = (int)$_GET['series'];
 
-$uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+$uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : '';
 $filename = $uploadDir . Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
 
-if (file_exists($filename))
-{
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="' . addslashes($value[$_GET['file']]) . '"');
-    header('Content-Length: ' . filesize($filename));
+$awsUtil = new AWSUtil();
+
+if (!empty($uploadDir)) {
+    $result = $awsUtil->s3GetObject($filename);
+
+    header('Content-Type: {$result["ContentType"]}');
+    header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
+    header('Content-Length: ' . $result['ContentLength']);
     header('Cache-Control: maxage=1'); //In seconds
     header('Pragma: public');
 
-    readfile($filename);
+    echo $result['Body'] . "\n";
     exit();
 }
+
+// if (file_exists($filename))
+// {
+//     header('Content-Type: application/octet-stream');
+//     header('Content-Disposition: attachment; filename="' . addslashes($value[$_GET['file']]) . '"');
+//     header('Content-Length: ' . filesize($filename));
+//     header('Cache-Control: maxage=1'); //In seconds
+//     header('Pragma: public');
+
+//     readfile($filename);
+//     exit();
+// }
 
     echo 'Error: File does not exist or access may be restricted.';
