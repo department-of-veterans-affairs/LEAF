@@ -800,7 +800,7 @@ class Form
                 $awsUtil = new AWSUtil();
                 $awsUtil->s3deleteObject($uploadDir . $file);
             }
-            
+
             return 1;
         }
 
@@ -1058,17 +1058,11 @@ class Form
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
                         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : '';
-                        // if (!is_dir($uploadDir))
-                        // {
-                        //     mkdir($uploadDir, 755, true);
-                        // }
 
                         $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
                         if (!empty($uploadDir)) {
                             $awsUtil->s3putObject($uploadDir . $sanitizedFileName, $_FILES[$indicator]['tmp_name']);
-                            // return 0, for error if fails 
                         }
-                        //move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
                     }
                     else
                     {

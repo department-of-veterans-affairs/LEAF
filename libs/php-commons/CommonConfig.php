@@ -41,7 +41,6 @@ class CommonConfig
                                         );
 
     public $awsSharedConfig = array(
-        //'profile' => 'default',
         'region' => 'us-east-1',
         'credentials' => [
             'key' => 'YOUR_AWS_KEY_HERE',
