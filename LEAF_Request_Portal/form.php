@@ -778,7 +778,7 @@ class Form
         $value = $data[$indicatorID]['value'];
         $file = $this->getFileHash($recordID, $indicatorID, $series, $data[$indicatorID]['value'][$fileIdx]);
 
-        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : '';
 
         if (isset($value[$fileIdx]))
         {
@@ -795,10 +795,12 @@ class Form
 
             $this->doModify($recordID);
 
-            require_once __DIR__ . "/../libs/php-commons/aws/AWSUtil.php";
-            $awsUtil = new AWSUtil();
-            $awsUtil->s3deleteObject($uploadDir . $file);
-
+            if (!empty($uploadDir)) {
+                require_once __DIR__ . "/../libs/php-commons/aws/AWSUtil.php";
+                $awsUtil = new AWSUtil();
+                $awsUtil->s3deleteObject($uploadDir . $file);
+            }
+            
             return 1;
         }
 
