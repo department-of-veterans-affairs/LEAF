@@ -48,8 +48,11 @@ if (!$login->isLogin() || !$login->isInDB())
 }
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -83,7 +86,7 @@ if (isset($settings['timeZone']))
 switch ($action) {
     case 'getuploadprompt':
         $t_iframe = new Smarty;
-
+        $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_iframe->assign('recordID', (int)$_GET['recordID']);
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_iframe->assign('series', (int)$_GET['series']);
@@ -94,7 +97,7 @@ switch ($action) {
         break;
     case 'getimageuploadprompt':
            $t_iframe = new Smarty;
-
+           $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
            $t_iframe->assign('recordID', (int)$_GET['recordID']);
            $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
            $t_iframe->assign('series', (int)$_GET['series']);
@@ -116,6 +119,7 @@ switch ($action) {
         $comments = $form->getActionComments((int)$_GET['recordID']);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('orgchartPath', Config::$orgchartPath);

@@ -48,8 +48,11 @@ if (!$login->isLogin() || !$login->isInDB())
 }
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -89,6 +92,7 @@ switch ($action) {
         $resolvedService = $form->position->getService($employeePositions[0]['positionID']);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('services', $form->getServices2());
@@ -124,6 +128,7 @@ switch ($action) {
             $o_login = $t_login->fetch('login.tpl');
 
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);

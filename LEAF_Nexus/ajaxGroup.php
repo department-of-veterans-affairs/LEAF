@@ -37,6 +37,7 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 switch ($action) {
     case 'getForm':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -50,6 +51,7 @@ switch ($action) {
         if (is_numeric($_GET['indicatorID']))
         {
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
@@ -66,6 +68,7 @@ switch ($action) {
         break;
     case 'list':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -80,6 +83,7 @@ switch ($action) {
         break;
     case 'listPositions':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -97,6 +101,7 @@ switch ($action) {
         $employee = new OrgChart\Employee($db, $login);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -117,6 +122,7 @@ switch ($action) {
         break;
     case 'getData':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -128,6 +134,7 @@ switch ($action) {
         break;
     case 'getindicator':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 

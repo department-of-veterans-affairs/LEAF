@@ -44,14 +44,11 @@ $post_name = isset($_POST['name']) ? $_POST['name'] : '';
 $post_password = isset($_POST['password']) ? $_POST['password'] : '';
 
 $main = new Smarty;
-$main->template_dir = __DIR__."/templates/";
-$main->compile_dir = __DIR__."/templates_c/";
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
-$t_login->template_dir = __DIR__."/templates/";
-$t_login->compile_dir = __DIR__."/templates_c/";
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
-$t_menu->template_dir = __DIR__."/templates/";
-$t_menu->compile_dir = __DIR__."/templates_c/";
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -78,6 +75,7 @@ switch ($action) {
         // no break
     case 'navigator':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -106,6 +104,7 @@ switch ($action) {
         break;
     case 'editor':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -139,6 +138,7 @@ switch ($action) {
         break;
     case 'view_employee':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -187,6 +187,7 @@ switch ($action) {
         break;
     case 'view_position':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -235,6 +236,7 @@ switch ($action) {
         break;
     case 'view_group':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -280,6 +282,7 @@ switch ($action) {
         break;
     case 'browse_employee':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -304,6 +307,7 @@ switch ($action) {
         break;
     case 'browse_position':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -318,6 +322,7 @@ switch ($action) {
         break;
     case 'browse_group':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -333,6 +338,7 @@ switch ($action) {
         break;
     case 'browse_search':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -358,6 +364,7 @@ switch ($action) {
         $indicators = new Orgchart\Indicators($db, $login);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -398,6 +405,7 @@ switch ($action) {
         $group = new Orgchart\Group($db, $login);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -429,6 +437,7 @@ switch ($action) {
         $position = new Orgchart\Position($db, $login);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -457,6 +466,7 @@ switch ($action) {
         break;
     case 'admin':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -487,6 +497,7 @@ switch ($action) {
         break;
     case 'summary':
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
@@ -497,6 +508,7 @@ switch ($action) {
         break;
     case 'about':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -514,8 +526,7 @@ switch ($action) {
             $o_login = $t_login->fetch('login.tpl');
 
             $t_form = new Smarty;
-            $t_form->template_dir = __DIR__."/templates/";
-            $t_form->compile_dir = __DIR__."/templates_c/";
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 

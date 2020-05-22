@@ -72,7 +72,7 @@ switch ($action) {
         if (is_numeric($_GET['indicatorID']))
         {
             $t_form = new Smarty;
-
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $indicatorID = (int)$_GET['indicatorID'];
             $series = XSSHelpers::xscrub($_GET['series']);
             $recordID = (int)$_GET['recordID'];
@@ -111,6 +111,7 @@ switch ($action) {
         if (is_numeric($indicatorID))
         {
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
@@ -137,7 +138,7 @@ switch ($action) {
         if (is_numeric($indicatorID))
         {
             $t_form = new Smarty;
-
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             if ($indicatorID > 0 || $series > 0)
             {
                 $t_form->assign('log', $form->getIndicatorLog($indicatorID, $series, $recordID));
@@ -154,6 +155,7 @@ switch ($action) {
         break;
     case 'getsubmitcontrol':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $recordID = (int)$_GET['recordID'];
 
         $vars = array('recordID' => $recordID);
@@ -279,7 +281,9 @@ switch ($action) {
         $series = 0;
         $indicatorID = 0;
         $main = new Smarty;
+        $main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 
         if ($uploadOk)
         {
@@ -363,6 +367,7 @@ switch ($action) {
         $view = new View($db, $login);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $recordInfo = $form->getRecordInfo((int)$_GET['recordID']);
@@ -404,6 +409,7 @@ switch ($action) {
             }
 
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', $recordIDToPrint);
@@ -447,9 +453,11 @@ switch ($action) {
             else
             {
                 $t_login = new Smarty;
+                $t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
                 $t_login->assign('name', $login->getName());
 
                 $main = new Smarty;
+                $main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
                 if ($recordInfo['priority'] == -10)
                 {
                     $main->assign('emergency', '<span style="position: absolute; right: 0px; top: -28px; padding: 2px; border: 1px solid black; background-color: white; color: red; font-weight: bold; font-size: 20px">EMERGENCY</span> ');
@@ -472,7 +480,7 @@ switch ($action) {
         if (is_numeric($_GET['recordID']))
         {
             $t_form = new Smarty;
-
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             if ($_GET['recordID'] > 0)
             {
                 $t_form->assign('tags', $form->getTags((int)$_GET['recordID']));
@@ -487,7 +495,7 @@ switch ($action) {
         if (is_numeric($_GET['recordID']))
         {
             $t_form = new Smarty;
-
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             if ($_GET['recordID'] > 0)
             {
                 $t_form->assign('tags', $form->getTags((int)$_GET['recordID']));
@@ -500,6 +508,7 @@ switch ($action) {
         require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 

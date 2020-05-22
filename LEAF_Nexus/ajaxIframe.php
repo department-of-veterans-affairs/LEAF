@@ -44,8 +44,11 @@ if (!$login->isLogin() || !$login->isInDB())
 }
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -76,7 +79,7 @@ switch ($action) {
     case 'getuploadprompt':
         $main->assign('useDojoUI', false);
         $t_iframe = new Smarty;
-
+        $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_iframe->assign('categoryID', (int)$_GET['categoryID']);
         $t_iframe->assign('UID', (int)$_GET['UID']);
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
@@ -88,6 +91,7 @@ switch ($action) {
     case 'getdeleteprompt':
         $main->assign('useDojoUI', false);
         $t_iframe = new Smarty;
+        $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_iframe->left_delimiter = '<!--{';
         $t_iframe->right_delimiter = '}-->';
 
@@ -132,7 +136,7 @@ switch ($action) {
         }
 
         $t_iframe = new Smarty;
-
+        $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_iframe->left_delimiter = '<!--{';
         $t_iframe->right_delimiter = '}-->';
         $t_iframe->assign('privileges', $login->getIndicatorPrivileges(array((int)$_GET['indicatorID']), XSSHelpers::xscrub($type), (int)$_GET['UID']));
@@ -146,6 +150,7 @@ switch ($action) {
         $position = new Orgchart\Position($db, $login);
 
         $t_iframe = new Smarty;
+        $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_iframe->left_delimiter = '<!--{';
         $t_iframe->right_delimiter = '}-->';
 

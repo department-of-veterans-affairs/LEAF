@@ -105,6 +105,7 @@ switch ($action) {
             $form = new Form($db, $login);
 
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', (int)$_GET['recordID']);
@@ -165,6 +166,7 @@ switch ($action) {
         $pageLength = 10;
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -274,6 +276,7 @@ switch ($action) {
         }
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
