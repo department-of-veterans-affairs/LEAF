@@ -11,6 +11,10 @@ RUN docker-php-ext-install gd
 RUN a2enmod rewrite
 RUN a2enmod ssl
 RUN a2enmod env
+RUN a2enmod proxy
+RUN a2enmod proxy_http
+RUN a2enmod proxy_connect
+
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/certs/leaf.key -out /etc/ssl/certs/leaf.pem -subj "/C=US/ST=VA/L=Chantilly/O=LEAF/OU=LEAF/CN=%"
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
@@ -37,6 +41,7 @@ COPY /docker/php/etc/xdebug.ini "$PHP_INI_DIR/conf.d/xdebug.ini"
 
 
 COPY /docker/php/ssmtp/ssmtp.conf /etc/ssmtp/
+COPY /docker/php/swagger-proxy.conf /etc/apache2/conf-enabled/
 COPY /docker/php/000-default.conf /etc/apache2/sites-enabled/
 COPY /docker/php/default-ssl.conf /etc/apache2/sites-enabled/
 COPY /docker/php/apache2.conf /etc/apache2/

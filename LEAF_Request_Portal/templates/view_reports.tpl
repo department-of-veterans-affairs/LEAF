@@ -553,7 +553,8 @@ function openShareDialog() {
 function showJSONendpoint() {
     var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
     var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-	var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
+    var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
+    var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
 	dialog_message.setTitle('Data Endpoints');
     dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
@@ -568,6 +569,7 @@ function showJSONendpoint() {
                            + '<option value="debug">Plaintext</option>'
                            + '<option value="x-visualstudio">Visual Studio (testing)</option>'
                            + '</select>'
+                           + '<span id="formatStatus" style="background-color:green; padding:5px 5px; color:white; display:none;"></span>'
                            + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
 			               + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
                            + '<br /><br />'
@@ -578,6 +580,7 @@ function showJSONendpoint() {
 
     $('#msCompatMode').on('click', function() {
         $('#shortenLink').click();
+
     });
 
     function setExportFormat() {
@@ -587,12 +590,16 @@ function showJSONendpoint() {
         else {
             $('#exportFormat').html('&');
         }
+
+
         switch($('#format').val()) {
             case 'json':
                 $('#exportFormat').html('');
                 break;
             default:
                 $('#exportFormat').append('format=' + $('#format').val());
+                $("#formatStatus").show().text("Format changed to " + $('#format').val());
+                $("#formatStatus").fadeOut(3000);
                 break;
         }
     }
@@ -621,9 +628,9 @@ function showJSONendpoint() {
                 CSRFToken: CSRFToken}
         })
         .then(function(res) {
-            $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
+            $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res);
             
-            if($('#msCompatMode').is(':checked')) {
+           if($('#msCompatMode').is(':checked')) {
                 $('#expandLink').css('display', 'none');
             }
             else {
