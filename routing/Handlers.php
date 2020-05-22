@@ -13,6 +13,11 @@ namespace Handlers{
             require __DIR__.'/../LEAF_Request_Portal/index.php';
         }
 
+        function other($otherFile){
+            global $config, $db_config;
+            require __DIR__.'/../LEAF_Request_Portal/'.$otherFile;
+        }
+
         function js($jsFile){
             header('Content-Type: text/javascript');
             echo file_get_contents(__DIR__.'/../LEAF_Request_Portal/js/'.$jsFile);
@@ -33,9 +38,34 @@ namespace Handlers{
             require __DIR__.'/../LEAF_Request_Portal/api/index.php';
         }
 
+        function scripts($scriptFile){
+            global $config, $db_config;
+            require __DIR__.'/../LEAF_Request_Portal/scripts/'.$scriptFile;
+        }
+
         function auth_domain(){
             global $config, $db_config;
             require __DIR__.'/../LEAF_Request_Portal/auth_domain/index.php';
+        }
+
+        function admin_index(){
+            global $config, $db_config;
+            require __DIR__.'/../LEAF_Request_Portal/admin/index.php';
+        }
+
+        function admin_css($cssFile){
+            header('Content-Type: text/css');
+            require __DIR__.'/../LEAF_Request_Portal/admin/css/'.$cssFile;
+        }
+
+        function admin_js($jsFile){
+            header('Content-Type: text/javascript');
+            require __DIR__.'/../LEAF_Request_Portal/admin/js/'.$jsFile;
+        }
+        
+        function admin_other($adminFile){
+            global $config, $db_config;
+            require __DIR__.'/../LEAF_Request_Portal/admin/'.$adminFile;
         }
     }
 
