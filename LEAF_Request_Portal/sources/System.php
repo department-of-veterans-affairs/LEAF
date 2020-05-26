@@ -68,7 +68,7 @@ class System
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
-        $config = new Config();
+        global $config;
         $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $group = new Orgchart\Group($db_phonebook, $this->login);
         $position = new Orgchart\Position($db_phonebook, $this->login);
@@ -159,7 +159,7 @@ class System
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
-        $config = new Config();
+        global $config;
         $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $group = new Orgchart\Group($db_phonebook, $this->login);
         $position = new Orgchart\Position($db_phonebook, $this->login);

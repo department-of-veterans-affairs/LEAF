@@ -261,12 +261,8 @@ class Email
         {
             include __DIR__ . '/db_mysql.php';
         }
-        if (!class_exists('DB_Config'))
-        {
-            include __DIR__ . '/db_config.php';
-        }
 
-        $db_config = new DB_Config;
+        global $db_config;
         $this->portal_db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
     }
 

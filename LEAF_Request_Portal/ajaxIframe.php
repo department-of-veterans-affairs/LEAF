@@ -21,7 +21,6 @@ include __DIR__ . '/globals.php';
 include __DIR__ . '/../libs/smarty/Smarty.class.php';
 include __DIR__ . '/Login.php';
 include __DIR__ . '/db_mysql.php';
-include __DIR__ . '/db_config.php';
 include __DIR__ . '/form.php';
 
 if (!class_exists('XSSHelpers'))
@@ -29,8 +28,6 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DB_Config();
-$config = new Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);

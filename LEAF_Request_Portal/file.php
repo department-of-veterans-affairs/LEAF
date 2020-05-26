@@ -5,12 +5,8 @@
 
 include __DIR__ . '/globals.php';
 include __DIR__ . '/db_mysql.php';
-include __DIR__ . '/db_config.php';
 include __DIR__ . '/Login.php';
 include __DIR__ . '/form.php';
-
-$db_config = new DB_Config();
-$config = new Config();
 
 if (!class_exists('XSSHelpers'))
 {
