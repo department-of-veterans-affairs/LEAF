@@ -1,7 +1,21 @@
 <div class="leaf-admin-content">
 
-    <h3 role="heading" aria-level="1" tabindex="0">Request Portal Admin</h3>
+    <h3 role="heading" aria-level="1" tabindex="0">User Access</h3>
     
+        <a href="?a=mod_groups" role="button" class="leaf-admin-button bg-yellow-5 lf-trans-yellow">
+            <i class="leaf-admin-btnicon fas fa-users text-yellow-40" alt="Modify users and groups" title="Modify users and groups"></i>
+            <span class="leaf-admin-btntitle">User Access Groups</span>
+            <span class="leaf-admin-btndesc">Modify users and groups</span>
+        </a>
+
+        <a href="?a=mod_svcChief" role="button" class="leaf-admin-button bg-yellow-5 lf-trans-yellow">
+            <i class="leaf-admin-btnicon fas fa-user-friends text-yellow-40" alt="Modify service chief listing" title="Modify service chief listing"></i>
+            <span class="leaf-admin-btntitle">Service Chiefs</span>
+            <span class="leaf-admin-btndesc">Review service chiefs and set backups</span>
+        </a>
+
+    <h3 role="heading" aria-level="1" tabindex="0">Request Portal Admin</h3>
+        
         <!--{if $siteType != 'national_subordinate'}-->
         <a href="?a=workflow" role="button" class="leaf-admin-button bg-blue-cool-10 lf-trans-blue">
             <i class="leaf-admin-btnicon fas fa-cogs text-blue-cool-50" alt="Workflow Visualizer" title="Workflow Visualizer"></i>
@@ -52,7 +66,7 @@
         </a>
         <!--{/if}-->
 
-    <h3 role="heading" aria-level="1" tabindex="0">User Access</h3>
+    <h3 role="heading" aria-level="1" tabindex="0">LEAF Developer Console</h3>
 
         <a href="?a=mod_templates" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-green">
             <i class="leaf-admin-btnicon fas fa-edit text-green-cool-50 leaf-icn-narrow2" alt="Template Editor" title="Template Editor"></i>
@@ -66,16 +80,22 @@
             <span class="leaf-admin-btndesc">Advanced Reports and Custom Pages</span>
         </a>
 
-        <a href="../?a=search" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-green">
+        <a href="?a=mod_file_manager" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-green">
+            <i class="leaf-admin-btnicon fas fa-tasks text-green-cool-50" alt="File Manager" title="File Manager"></i>
+            <span class="leaf-admin-btntitle">File Manager</span>
+            <span class="leaf-admin-btndesc">Upload custom images and documents</span>
+        </a>
+
+        <a href="?a=mod_file_manager" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-green">
             <i class="leaf-admin-btnicon fas fa-search text-green-cool-50 leaf-icn-narrow2" alt="Search Database" title="Search Database"></i>
             <span class="leaf-admin-btntitle">Search Database</span>
             <span class="leaf-admin-btndesc">Perform custom queries</span>
         </a>
 
-        <a href="?a=mod_file_manager" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-green">
-            <i class="leaf-admin-btnicon fas fa-tasks text-green-cool-50" alt="File Manager" title="File Manager"></i>
-            <span class="leaf-admin-btntitle">File Manager</span>
-            <span class="leaf-admin-btndesc">Upload custom images and documents</span>
+        <a href="?a=admin_sync_services" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-yellow">
+            <i class="leaf-admin-btnicon fas fa-sync-alt text-green-cool-50" alt="Sync Services" title="Sync Services"></i>
+            <span class="leaf-admin-btntitle">Sync Services</span>
+            <span class="leaf-admin-btndesc">Update Service listing from Org Chart</span>
         </a>
 
         <a href="?a=admin_update_database" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-green">
@@ -103,26 +123,12 @@
             <span class="leaf-admin-btntitle">Initiator New Account</span>
             <span class="leaf-admin-btndesc">Replace account with request initiator</span>
         </a>
-    
-    <h3 role="heading" aria-level="1" tabindex="0" class="leaf-clear-both">Advanced Editing</h3>
 
-        <a href="?a=mod_groups" role="button" class="leaf-admin-button bg-yellow-5 lf-trans-yellow">
-            <i class="leaf-admin-btnicon fas fa-users text-yellow-40" alt="Modify users and groups" title="Modify users and groups"></i>
-            <span class="leaf-admin-btntitle">User Access Groups</span>
-            <span class="leaf-admin-btndesc">Modify users and groups</span>
-        </a>
+        
 
-        <a href="?a=admin_sync_services" role="button" class="leaf-admin-button bg-yellow-5 lf-trans-yellow">
-            <i class="leaf-admin-btnicon fas fa-sync-alt text-yellow-40" alt="Sync Services" title="Sync Services"></i>
-            <span class="leaf-admin-btntitle">Sync Services</span>
-            <span class="leaf-admin-btndesc">Update Service listing from Org Chart</span>
-        </a>
+        
 
-        <a href="?a=mod_svcChief" role="button" class="leaf-admin-button bg-yellow-5 lf-trans-yellow">
-            <i class="leaf-admin-btnicon fas fa-user-friends text-yellow-40" alt="Modify service chief listing" title="Modify service chief listing"></i>
-            <span class="leaf-admin-btntitle">Service Chiefs</span>
-            <span class="leaf-admin-btndesc">Review service chiefs and set backups</span>
-        </a>
+        
 
         
 

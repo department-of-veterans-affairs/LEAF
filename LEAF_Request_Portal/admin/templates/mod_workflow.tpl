@@ -6,7 +6,7 @@
         
         <h3>Workflow Editor</h3>
         
-        <button id="btn_createStep" class="usa-button leaf-btn-med leaf-width-10rem" onclick="createStep();" role="button" tabindex="0">
+        <button id="btn_createStep" class="usa-button leaf-btn-med leaf-width-10rem leaf-text-left" onclick="createStep();" role="button" tabindex="0">
             <i class="fas fa-plus leaf-btn-icon"></i>Add Step
         </button>
         
@@ -14,19 +14,19 @@
         
         <div id="workflowList" class="leaf-marginTop-1rem"></div>
         
-        <button id="btn_newWorkflow" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem" onclick="newWorkflow();" role="button" tabindex="0">
+        <button id="btn_newWorkflow" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem leaf-text-left" onclick="newWorkflow();" role="button" tabindex="0">
             <i class="fas fa-plus-square leaf-btn-icon"></i>New Workflow
         </button>
         
-        <div id="btn_deleteWorkflow" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem" onclick="deleteWorkflow();" style="display: none" role="button" tabindex="0">
+        <div id="btn_deleteWorkflow" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem leaf-text-left" onclick="deleteWorkflow();" style="display: none" role="button" tabindex="0">
             <i class="fas fa-trash-alt leaf-btn-icon"></i>Delete workflow
         </div>
         
-        <div id="btn_listActionType" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem" onclick="listActionType();" style="display: none" role="button" tabindex="0">
+        <div id="btn_listActionType" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem leaf-text-left" onclick="listActionType();" style="display: none" role="button" tabindex="0">
             <i class="fas fa-edit leaf-btn-icon"></i>Edit Actions
         </div>
         
-        <div id="btn_viewHistory" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem" onclick="viewHistory();" style="display: none;" role="button" tabindex="0">
+        <div id="btn_viewHistory" class="usa-button leaf-btn-med leaf-width-10rem leaf-marginTop-1rem leaf-text-left" onclick="viewHistory();" style="display: none;" role="button" tabindex="0">
             <i class="fas fa-clock leaf-btn-icon"></i>View History
         </div>
 
