@@ -23,7 +23,7 @@ if (false !== $pos = strpos($uri, '/api/')) {
 
 //Get sitepath
 $uri = rawurldecode($uri);
-$pattern = '(\/api\/|\/libs\/|\/js\/|\/css\/|\/images\/|\/admin\/|\/scripts\/)';//TODO fix regext to also catch any PHP file
+$pattern = '(\/api\/|\/libs\/|\/js\/|\/css\/|\/images\/|\/admin\/|\/scripts\/|\/[^\/]*\.php)';
 preg_match ($pattern , $uri, $matches, PREG_OFFSET_CAPTURE);
 if(count($matches)){
     $sitePath = substr($uri, 0, $matches[0][1]+1);

@@ -38,6 +38,11 @@ namespace Handlers{
             require __DIR__.'/../LEAF_Request_Portal/api/index.php';
         }
 
+        function login(){
+            global $config, $db_config;
+            echo file_get_contents(__DIR__.'/../LEAF_Request_Portal/login/index.php');
+        }
+
         function scripts($scriptFile){
             global $config, $db_config;
             require __DIR__.'/../LEAF_Request_Portal/scripts/'.$scriptFile;
@@ -46,6 +51,26 @@ namespace Handlers{
         function auth_domain(){
             global $config, $db_config;
             require __DIR__.'/../LEAF_Request_Portal/auth_domain/index.php';
+        }
+
+        function auth_domain_api(){
+            global $config, $db_config;
+            require __DIR__.'/../LEAF_Request_Portal/auth_domain/api/index.php';
+        }
+
+        function auth_cookie(){
+            global $config, $db_config;
+            require __DIR__.'/../LEAF_Request_Portal/auth_cookie/index.php';
+        }
+
+        function auth_token(){
+            global $config, $db_config;
+            require __DIR__.'/../LEAF_Request_Portal/auth_token/index.php';
+        }
+
+        function files(){
+            global $config, $db_config;
+            require __DIR__.'/../LEAF_Request_Portal/files/index.php';
         }
 
         function admin_index(){
