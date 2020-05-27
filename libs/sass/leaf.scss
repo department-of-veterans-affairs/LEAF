@@ -153,7 +153,8 @@ label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
 .lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'Public Sans Medium';}
 ul.leaf-user-menu {float: right; margin: 0.2rem 0.2rem 0 0; list-style-type: none; position: relative;}
     ul.leaf-user-menu .lf-um-icon {font-size: 1.2rem; margin: 0.0rem 0.3rem 0.2rem 0.4rem; vertical-align: middle; width: 1.4rem; height: 1.4rem; text-align: center;}
-        ul.leaf-user-menu > li > a {text-decoration: none; font-size: 0.7rem; color: #fff; }
+        ul.leaf-user-menu > li {font-size: 0.7rem; color: #fff; margin: 0 0.2rem 0 0.0rem; }
+        ul.leaf-user-menu > li > a {text-decoration: none; font-size: 0.6rem; color: #fff; margin: 0 0.2rem 0 0.7rem; }
         ul.leaf-user-menu > li > ul {
             list-style-type: none; 
             display: none;  
@@ -190,7 +191,7 @@ ul.leaf-user-menu {float: right; margin: 0.2rem 0.2rem 0 0; list-style-type: non
               display: block;
               float: right;
               clear: both;
-              margin: 0.35rem 3.4rem 0 0;
+              margin: 1.1rem 3.4rem 0 0;
             }
       }
       @media screen and (max-width: 650px) {
@@ -244,6 +245,7 @@ ul.leaf-user-menu {float: right; margin: 0.2rem 0.2rem 0 0; list-style-type: non
       #nav > ul > li {
           float: left;
           font-size: 0.9rem;
+          margin-left: 0.2rem;
           }
       }
     @media screen and (max-width: 650px) {

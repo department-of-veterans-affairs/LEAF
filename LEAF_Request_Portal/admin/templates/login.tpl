@@ -5,11 +5,7 @@
     </form>
 {else}
     <ul class="leaf-user-menu" aria-haspopup="true">
-        <li><a href="javascript:void(0);">Welcome, <span class="leaf-bold">{$name}</span><i class="fas fa-bars lf-um-icon" title="User Menu"></i></a>
-            <ul aria-hidden="true" aria-expanded="false" aria-label="User submenu">
-                <li><a href="../?a=logout">Sign Out</a></li>
-            </ul>
-        </li>
+        <li>Welcome, <span class="leaf-bold">{$name}</span><a href="../?a=logout">SIGN OUT</a></li>
     </ul>
 {/if}
 
