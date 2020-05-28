@@ -24,7 +24,6 @@ class LEAFRoutes {
         $this->addRoute('GET', '/auth_domain/api/', 'Portal/auth_domain_api');
         $this->addRoute('GET', '/auth_cookie/', 'Portal/auth_cookie');
         $this->addRoute('GET', '/auth_token/', 'Portal/auth_token');
-        $this->addRoute('GET', '/files/', 'Portal/auth_cookie');
         $this->addRoute('GET', '/scripts/{scriptFile:.+}', 'Portal/scripts');
         
         //admin routes
