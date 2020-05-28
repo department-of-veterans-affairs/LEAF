@@ -28,7 +28,7 @@ unset($db_config);
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $login = new Login($db_phonebook, $db);

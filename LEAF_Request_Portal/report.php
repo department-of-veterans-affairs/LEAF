@@ -60,7 +60,7 @@ $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" a
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $t_login->assign('name', $login->getName());
@@ -106,7 +106,7 @@ switch ($action) {
         break;
     default:
         if ($action != ''
-            && file_exists("templates/reports/{$action}.tpl"))
+            && file_exists(__DIR__."/templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
             $main->assign('javascripts', array(

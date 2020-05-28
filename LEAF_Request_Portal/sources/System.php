@@ -322,16 +322,16 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/custom_override/{$template}")
+            if (file_exists(__DIR__."/../templates/custom_override/{$template}")
                   && !$getStandard)
             {
                 $data['modified'] = 1;
-                $data['file'] = file_get_contents("../templates/custom_override/{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/{$template}");
             }
             else
             {
                 $data['modified'] = 0;
-                $data['file'] = file_get_contents("../templates/{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/{$template}");
             }
         }
 
@@ -362,9 +362,9 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/custom_override/{$template}"))
+            if (file_exists(__DIR__."/../templates/custom_override/{$template}"))
             {
-                return unlink("../templates/custom_override/{$template}");
+                return unlink(__DIR__."/../templates/custom_override/{$template}");
             }
         }
     }
@@ -546,9 +546,9 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/reports/{$template}"))
+            if (file_exists(__DIR__."/../templates/reports/{$template}"))
             {
-                $data['file'] = file_get_contents("../templates/reports/{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/reports/{$template}");
             }
         }
 
@@ -603,9 +603,9 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/reports/{$template}"))
+            if (file_exists(__DIR__."/../templates/reports/{$template}"))
             {
-                return unlink("../templates/reports/{$template}");
+                return unlink(__DIR__."/../templates/reports/{$template}");
             }
         }
     }
