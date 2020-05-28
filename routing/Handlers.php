@@ -68,11 +68,6 @@ namespace Handlers{
             require __DIR__.'/../LEAF_Request_Portal/auth_token/index.php';
         }
 
-        function files(){
-            global $config, $db_config;
-            require __DIR__.'/../LEAF_Request_Portal/files/index.php';
-        }
-
         function admin_index(){
             global $config, $db_config;
             require __DIR__.'/../LEAF_Request_Portal/admin/index.php';

@@ -17,8 +17,8 @@ if (false !== $pos = strpos($uri, '?')) {
 
 //rewrite for api
 if (false !== $pos = strpos($uri, '/api/')) {
-    $uri = substr($uri, 0, $pos+5);
     $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : substr($uri, $pos+5);
+    $uri = substr($uri, 0, $pos+5);
 }
 
 //Get sitepath
