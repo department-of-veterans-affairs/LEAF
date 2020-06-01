@@ -43,6 +43,7 @@ class Form
 
     public function __construct($db, $login)
     {
+        global $config;
         $this->db = $db;
         $this->login = $login;
 

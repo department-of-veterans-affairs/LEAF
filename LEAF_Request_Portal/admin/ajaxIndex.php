@@ -19,15 +19,11 @@ include __DIR__ . '/../globals.php';
 include __DIR__ . '/../../libs/smarty/Smarty.class.php';
 include __DIR__ . '/../Login.php';
 include __DIR__ . '/../db_mysql.php';
-include __DIR__ . '/../db_config.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
-
-$db_config = new DB_Config();
-$config = new Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
@@ -105,6 +101,7 @@ switch ($action) {
             $form = new Form($db, $login);
 
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', (int)$_GET['recordID']);
@@ -165,6 +162,7 @@ switch ($action) {
         $pageLength = 10;
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -244,6 +242,7 @@ switch ($action) {
         $pageLength = 10;
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -277,7 +276,6 @@ switch ($action) {
                 $t_form->assign('titleOverride', "Primary Admin History");
                 break;
         }
-
 
         $resHistory = $type->getHistory($itemID);
 

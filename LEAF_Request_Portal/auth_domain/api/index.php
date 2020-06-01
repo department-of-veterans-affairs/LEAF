@@ -13,13 +13,9 @@ error_reporting(E_ALL & ~E_NOTICE);
 include __DIR__ . '/../../globals.php';
 include __DIR__ . '/../Login.php';
 include __DIR__ . '/../../db_mysql.php';
-include __DIR__ . '/../../db_config.php';
 require __DIR__ . '/../../api/RESTfulResponse.php';
 require __DIR__ . '/../../sources/Exception.php';
 require __DIR__ . '/../../api/ControllerMap.php';
-
-$db_config = new DB_Config();
-$config = new Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);

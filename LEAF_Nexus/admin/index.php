@@ -56,8 +56,11 @@ $post_name = isset($_POST['name']) ? $_POST['name'] : '';
 $post_password = isset($_POST['password']) ? $_POST['password'] : '';
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -75,6 +78,7 @@ $main->assign('useDojoUI', true);
 switch ($action) {
     case 'admin_refresh_directory':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -93,6 +97,7 @@ switch ($action) {
         break;
     case 'admin_update_database':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -111,6 +116,7 @@ switch ($action) {
         break;
     case 'mod_system':
            $t_form = new Smarty;
+           $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
            $t_form->left_delimiter = '<!--{';
            $t_form->right_delimiter = '}-->';
 
@@ -142,6 +148,7 @@ switch ($action) {
            break;
     case 'setup_medical_center':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
            $t_form->left_delimiter = '<!--{';
            $t_form->right_delimiter = '}-->';
 
@@ -171,6 +178,7 @@ switch ($action) {
     case 'mod_templates':
     case 'mod_templates_reports':
            $t_form = new Smarty;
+           $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
            $t_form->left_delimiter = '<!--{';
            $t_form->right_delimiter = '}-->';
 
@@ -217,6 +225,7 @@ switch ($action) {
            break;
     default:
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 

@@ -17,13 +17,13 @@ if (false !== $pos = strpos($uri, '?')) {
 
 //rewrite for api
 if (false !== $pos = strpos($uri, '/api/')) {
-    $uri = substr($uri, 0, $pos+5);
     $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : substr($uri, $pos+5);
+    $uri = substr($uri, 0, $pos+5);
 }
 
 //Get sitepath
 $uri = rawurldecode($uri);
-$pattern = '(\/api\/|\/libs\/|\/js\/|\/css\/|\/images\/)';
+$pattern = '(\/api\/|\/libs\/|\/js\/|\/css\/|\/images\/|\/admin\/|\/scripts\/|\/[^\/]*\.php)';
 preg_match ($pattern , $uri, $matches, PREG_OFFSET_CAPTURE);
 if(count($matches)){
     $sitePath = substr($uri, 0, $matches[0][1]+1);
@@ -69,6 +69,7 @@ switch ($routeInfo[0]) {
     case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
         $allowedMethods = $routeInfo[1];
         header($_SERVER["SERVER_PROTOCOL"]." 405 Method Not Allowed", true, 405);
+
         exit;
         break;
     case FastRoute\Dispatcher::FOUND:

@@ -21,7 +21,6 @@ include __DIR__ . '/globals.php';
 include __DIR__ . '/../libs/smarty/Smarty.class.php';
 include __DIR__ . '/Login.php';
 include __DIR__ . '/db_mysql.php';
-include __DIR__ . '/db_config.php';
 include __DIR__ . '/form.php';
 
 if (!class_exists('XSSHelpers'))
@@ -29,8 +28,6 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DB_Config();
-$config = new Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
@@ -48,8 +45,11 @@ if (!$login->isLogin() || !$login->isInDB())
 }
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -58,7 +58,7 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 // HQ logo
@@ -83,7 +83,7 @@ if (isset($settings['timeZone']))
 switch ($action) {
     case 'getuploadprompt':
         $t_iframe = new Smarty;
-
+        $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_iframe->assign('recordID', (int)$_GET['recordID']);
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_iframe->assign('series', (int)$_GET['series']);
@@ -94,7 +94,7 @@ switch ($action) {
         break;
     case 'getimageuploadprompt':
            $t_iframe = new Smarty;
-
+           $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
            $t_iframe->assign('recordID', (int)$_GET['recordID']);
            $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
            $t_iframe->assign('series', (int)$_GET['series']);
@@ -116,6 +116,7 @@ switch ($action) {
         $comments = $form->getActionComments((int)$_GET['recordID']);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('orgchartPath', Config::$orgchartPath);

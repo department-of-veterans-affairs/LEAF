@@ -7,11 +7,8 @@ $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../globals.php';
 include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../db_config.php';
 include_once $currDir . '/../Login.php';
 
-$db_config = new DB_Config();
-$config = new Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 $login = new Login($db_phonebook, $db);

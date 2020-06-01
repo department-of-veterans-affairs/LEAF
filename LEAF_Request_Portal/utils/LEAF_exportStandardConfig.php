@@ -5,10 +5,8 @@ $tempFolder = str_replace('\\', '/', dirname(__FILE__)) . '/../files/temp/';
 
 define("LF", "\n");
 include __DIR__ . '/../db_mysql.php';
-include __DIR__ . '/../db_config.php';
 
 $debug = false;
-$db_config = new DB_Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 

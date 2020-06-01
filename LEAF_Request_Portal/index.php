@@ -45,14 +45,11 @@ if (!$login->isLogin() || !$login->isInDB())
 }
 
 $main = new Smarty;
-$main->template_dir = __DIR__."/templates/";
-$main->compile_dir = __DIR__."/templates_c/";
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
-$t_login->template_dir = __DIR__."/templates/";
-$t_login->compile_dir = __DIR__."/templates_c/";
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
-$t_menu->template_dir = __DIR__."/templates/";
-$t_menu->compile_dir = __DIR__."/templates_c/";
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -61,7 +58,7 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $t_login->assign('name', XSSHelpers::xscrub($login->getName()));
@@ -102,6 +99,7 @@ switch ($action) {
         }
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('categories', $categoryArray);
@@ -138,6 +136,7 @@ switch ($action) {
             // $thisRecord = $form->getRecord($_GET['recordID']);
 
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', $recordIDToView);
@@ -202,6 +201,7 @@ switch ($action) {
         $comments = $form->getActionComments($recordIDToPrint);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('canWrite', $form->hasWriteAccess($recordIDToPrint));
@@ -280,6 +280,7 @@ switch ($action) {
         $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js'));
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -323,6 +324,7 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $recordInfo = $form->getRecordInfo($recordIDForStatus);
@@ -351,6 +353,7 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -366,6 +369,7 @@ switch ($action) {
         $view = new View($db, $login);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -392,6 +396,7 @@ switch ($action) {
         }
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('total', $count);
@@ -404,6 +409,7 @@ switch ($action) {
     case 'gettagmembers':
         $form = new Form($db, $login);
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -419,6 +425,7 @@ switch ($action) {
         break;
     case 'about':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -436,6 +443,7 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -463,6 +471,7 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -484,6 +493,7 @@ switch ($action) {
         $login->logout();
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -504,8 +514,7 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
-        $t_form->template_dir = __DIR__."/templates/";
-        $t_form->compile_dir = __DIR__."/templates_c/";
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 

@@ -80,8 +80,7 @@ class Email
     {
         $i = str_replace("\r\n", '<br />', $i);
         $smarty = new Smarty;
-        $smarty->template_dir = __DIR__ . '/templates/email/';
-        $smarty->compile_dir = __DIR__ . '/templates_c/';
+        $smarty->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $smarty->left_delimiter = '{{';
         $smarty->right_delimiter = '}}';
         $smarty->assign('emailBody', $i);
@@ -262,12 +261,8 @@ class Email
         {
             include __DIR__ . '/db_mysql.php';
         }
-        if (!class_exists('DB_Config'))
-        {
-            include __DIR__ . '/db_config.php';
-        }
 
-        $db_config = new DB_Config;
+        global $db_config;
         $this->portal_db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
     }
 
@@ -345,8 +340,7 @@ class Email
     function setSubjectWithTemplate($subjectTemplate)
     {
         $smartySubject = new Smarty;
-        $smartySubject->template_dir = __DIR__ . '/templates/email/';
-        $smartySubject->compile_dir = __DIR__ . '/templates_c/';
+        $smartySubject->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $smartySubject->left_delimiter = '{{';
         $smartySubject->right_delimiter = '}}';
         $smartySubject->assign($this->smartyVariables);
@@ -362,8 +356,7 @@ class Email
     function setBodyWithTemplate($bodyTemplate)
     {
         $smartyBody = new Smarty;
-        $smartyBody->template_dir = __DIR__ . '/templates/email/';
-        $smartyBody->compile_dir = __DIR__ . '/templates_c/';
+        $smartyBody->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $smartyBody->left_delimiter = '{{';
         $smartyBody->right_delimiter = '}}';
         $smartyBody->assign($this->smartyVariables);

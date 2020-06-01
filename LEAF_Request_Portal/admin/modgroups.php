@@ -7,14 +7,11 @@ require __DIR__ . '/../VAMC_Directory.php';
 
 include __DIR__ . '/../globals.php';
 include __DIR__ . '/../db_mysql.php';
-include __DIR__ . '/../db_config.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
-
-$db_config = new DB_Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $dir = new VAMC_Directory();

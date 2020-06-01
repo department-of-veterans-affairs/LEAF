@@ -169,6 +169,7 @@ switch ($action) {
 function getSmarty(){
 
     $t_form = new Smarty;
+    $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
     $t_form->left_delimiter = '<!--{';
     $t_form->right_delimiter = '}-->';
 

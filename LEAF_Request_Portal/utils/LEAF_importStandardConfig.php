@@ -3,10 +3,8 @@ ini_set('display_errors', 0); // Set to 1 to display errors
 
 include __DIR__ . '/../globals.php';
 include __DIR__ . '/../db_mysql.php';
-include __DIR__ . '/../db_config.php';
 
 $debug = false;
-$db_config = new DB_Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 

@@ -21,16 +21,12 @@ include __DIR__ . '/globals.php';
 include __DIR__ . '/../libs/smarty/Smarty.class.php';
 include __DIR__ . '/Login.php';
 include __DIR__ . '/db_mysql.php';
-include __DIR__ . '/db_config.php';
 include __DIR__ . '/form.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
-
-$db_config = new DB_Config();
-$config = new Config();
 
 header('X-UA-Compatible: IE=edge');
 
@@ -48,8 +44,11 @@ if (!$login->isLogin() || !$login->isInDB())
 }
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -61,7 +60,7 @@ $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" a
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $t_login->assign('name', $login->getName());
@@ -89,6 +88,7 @@ switch ($action) {
         $resolvedService = $form->position->getService($employeePositions[0]['positionID']);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('services', $form->getServices2());
@@ -106,7 +106,7 @@ switch ($action) {
         break;
     default:
         if ($action != ''
-            && file_exists("templates/reports/{$action}.tpl"))
+            && file_exists(__DIR__."/templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
             $main->assign('javascripts', array(
@@ -124,6 +124,7 @@ switch ($action) {
             $o_login = $t_login->fetch('login.tpl');
 
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
