@@ -778,7 +778,7 @@ class Form
         $value = $data[$indicatorID]['value'];
         $file = $this->getFileHash($recordID, $indicatorID, $series, $data[$indicatorID]['value'][$fileIdx]);
 
-        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : '';
 
         if (isset($value[$fileIdx]))
         {
@@ -794,9 +794,11 @@ class Form
             }
 
             $this->doModify($recordID);
-            if (file_exists($uploadDir . $file))
-            {
-                unlink($uploadDir . $file);
+
+            if (!empty($uploadDir)) {
+                require_once __DIR__ . "/../libs/php-commons/aws/AWSUtil.php";
+                $awsUtil = new AWSUtil();
+                $awsUtil->s3deleteObject($uploadDir . $file);
             }
 
             return 1;
@@ -1033,7 +1035,9 @@ class Form
         // Check for file uploads
         if (is_array($_FILES))
         {
+            require_once __DIR__ . "/../libs/php-commons/aws/AWSUtil.php";
             $commonConfig = new CommonConfig();
+            $awsUtil = new AWSUtil();
             $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)
@@ -1053,14 +1057,12 @@ class Form
                     $fileExtension = strtolower($fileExtension);
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
-                        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
-                        if (!is_dir($uploadDir))
-                        {
-                            mkdir($uploadDir, 755, true);
-                        }
+                        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : '';
 
                         $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
-                        move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
+                        if (!empty($uploadDir)) {
+                            $awsUtil->s3putObject($uploadDir . $sanitizedFileName, $_FILES[$indicator]['tmp_name']);
+                        }
                     }
                     else
                     {

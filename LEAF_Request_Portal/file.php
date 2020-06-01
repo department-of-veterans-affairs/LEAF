@@ -8,6 +8,7 @@ include __DIR__ . '/db_mysql.php';
 include __DIR__ . '/db_config.php';
 include __DIR__ . '/Login.php';
 include __DIR__ . '/form.php';
+include __DIR__ . "/../libs/php-commons/aws/AWSUtil.php";
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -46,19 +47,22 @@ $_GET['form'] = (int)$_GET['form'];
 $_GET['id'] = (int)$_GET['id'];
 $_GET['series'] = (int)$_GET['series'];
 
-$uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+$uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : '';
 $filename = $uploadDir . Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
 
-if (file_exists($filename))
-{
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="' . addslashes($value[$_GET['file']]) . '"');
-    header('Content-Length: ' . filesize($filename));
+$awsUtil = new AWSUtil();
+
+if (!empty($uploadDir)) {
+    $result = $awsUtil->s3GetObject($filename);
+
+    header('Content-Type: {$result["ContentType"]}');
+    header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
+    header('Content-Length: ' . $result['ContentLength']);
     header('Cache-Control: maxage=1'); //In seconds
     header('Pragma: public');
 
-    readfile($filename);
+    echo $result['Body'] . "\n";
     exit();
 }
 
-    echo 'Error: File does not exist or access may be restricted.';
+echo 'Error: File does not exist or access may be restricted.';
