@@ -22,3 +22,5 @@ test_logins.txt
 */admin/templates_c/
 */auth_dev/*
 .vs
+vendor/*
+composer.lock

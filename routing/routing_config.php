@@ -4,8 +4,8 @@
     $_SESSION['userID'] = '\\tester';
     class Routing_Config
     {
-        public static $dbHost = 'localhost';
+        public static $dbHost = 'mysql';
         public static $dbName = 'leaf_config';
-        public static $dbUser = 'testuser';
-        public static $dbPass = 'testuserpass';
+        public static $dbUser = 'tester';
+        public static $dbPass = 'tester';
     }
