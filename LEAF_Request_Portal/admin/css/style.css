@@ -24,22 +24,6 @@
     text-align: left;
 }
 
-.alert {
-    font-weight: bold;
-    font-size: 16px;
-    background-color: #9d0000;
-    border: 2px solid black;
-    padding: 4px;
-}
-
-.alert>span {
-    color: white;
-}
-
-.alert a:link, .alert a:visited{
-    color: #bddcfb;
-}
-
 .item {
     padding-bottom: 4px;
 }

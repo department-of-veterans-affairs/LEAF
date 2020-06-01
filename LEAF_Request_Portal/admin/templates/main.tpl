@@ -1,6 +1,7 @@
 {strip}<!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     {if $tabText != ''}
         <title>{$tabText} - {$title} | {$city}</title>
     {else}
@@ -42,7 +43,19 @@
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
 
-<body class="page-side-navigation">
+<body>
+
+    <section class="usa-banner bg-orange-topbanner" aria-label="Official government website">
+        <header class="usa-banner__header">
+            <div class="grid-col-fill tablet:grid-col-auto">
+                <p class="usa-banner__header-text text-white">
+                    {if $leafSecure == 0}
+                        &nbsp;Do not enter PHI/PII
+                    {/if}
+                </p>
+            </div>
+        </header>
+    </section>
 
     <header id="header" class="usa-header site-header">
         <div class="usa-navbar site-header-navbar">
@@ -59,26 +72,15 @@
                 {/if}
             </div>
             <div class="leaf-header-right">
-                <div class="leaf-hdr-top">
-                    <span id="headerHelp">
-                        {if $leafSecure == 0}
-                            <span class="usa-tag bg-accent-warm-dark leaf-hdr-alert">Do not enter PHI/PII</span>
-                        {/if}
-                        {$login}
-                    </span>
-                    <span id="headerLogin"></span>
-                </div>
-                <div class="leaf-hdr-bot">
-                    <span id="headerTab" class="leaf-hdr-section">{$emergency}</span>
-                    <span id="headerMenu">{$menu}</span>
-                </div>
+                {$emergency}{$login}
+                <nav aria-label="main menu" id="nav">{$menu}</nav>
             </div>
         </div>
     </header>
 
     <div id="body">
         {if $status != ''}
-            <div class="alert"><span>{$status}</span></div>
+            <div class="lf-alert">{$status}</div>
         {/if}
         <div id="bodyarea" class="default-container">
             {$body}

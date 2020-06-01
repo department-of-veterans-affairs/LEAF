@@ -23,6 +23,8 @@
 .usa-input {height: 1rem; width: auto;}
 .ui-dialog-title {font-family: 'Public Sans Bold'; font-size: 1.1rem;}
 .ui-widget-header {border: 0; background-color: none;}
+.usa-banner__header {padding-bottom: .1rem; padding-top: .1rem; min-height: 0;}
+.usa-banner__header-close-text, .usa-banner__header-text {font-size: .7rem; letter-spacing: 0.01rem;}
 h1, h2, h3, h4, h5, h6 {margin: 0; color: #3d4551;}
     h3 {margin: 0.8rem 0;}
 
@@ -70,7 +72,8 @@ label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
 .leaf-float-left {float: left;}
 .leaf-displayBlock {display: block;}
 .leaf-displayInlineBlock {display: inline-block;}
-.leaf-textCentered {text-align: center!important;}
+.leaf-text-left {text-align: left;}
+.leaf-textCentered {text-align: center;}
 .leaf-clearBoth {clear: both;}
 .leaf-position-relative {position: relative;}
 .leaf-valign-top {vertical-align: top;}
@@ -147,91 +150,224 @@ label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
     .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; font-family: 'Public Sans Bold'; }
     .leaf-header-description {font-family: 'Public Sans Thin'; font-size: 1.1rem; display: block; font-family: 'Public Sans Regular';}
     .leaf-header-right {float: right; color: #fff; font-family: 'Public Sans Regular'; text-align: right;}
-        .leaf-user-menu {float: right; font-size: 0.7rem; margin: 0.7rem 0.8rem 0 0;}
-            .leaf-user-menu a {color: #73b3e7;}
-        .leaf-hdr-top {font-size: 0.7rem; line-height: 1.1rem; padding: 0.3rem;}
-            .leaf-hdr-alert {font-size: 0.7rem; letter-spacing: 0.04rem; margin-right: 0.6rem;}
-            .leaf-login-msg {margin-left: 0.9rem; color: #fff; margin-right: 0.6rem;}
-            .leaf-sign-out {margin: 0 0.5rem 0 0.9rem; font-size: 0.6rem; color: #fff; text-decoration: none;}
-                .leaf-sign-out:hover {text-decoration: underline;}
-        .leaf-hdr-bot {padding: 0.3rem;}
-            .leaf-hdr-section {float: right; font-family: 'Public Sans Bold'; font-size: 1.4rem;}
-                .leaf-hdr-section:not(:empty) {margin: 0.1rem 0.3rem 0 1.8rem;}
-            .leaf-hdr-menu {
-                display: none;
-                position: absolute;
-                padding: 1rem;
-                left: 0.0rem;
-                top: 1.8rem;
-                z-index: 100;
-                width: 12rem;
-                font-size: 1.1rem;
-                text-align: left;
-                background-color: #fcfcfc;
-                color: #000;
-                border: 1px solid #e5e5e5;
-                border-radius: 3px;
-                box-shadow: 0px 0px 5px #a9aeb1;
-            }
-            .leaf-hdr-menu ul {list-style-type: none; margin: 0; font-size: 0.8rem; padding-inline-start: 0;}  
-                .leaf-hdr-menu ul li {margin: 0; }
-                    .leaf-menu-link {font-family: 'Public Sans Bold'; font-size: 1.0rem; display: block;}
+.lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'Public Sans Medium';}
+ul.leaf-user-menu {float: right; margin: 0.2rem 0.2rem 0 0; list-style-type: none; position: relative;}
+    ul.leaf-user-menu .lf-um-icon {font-size: 1.2rem; margin: 0.0rem 0.3rem 0.2rem 0.4rem; vertical-align: middle; width: 1.4rem; height: 1.4rem; text-align: center;}
+        ul.leaf-user-menu > li {font-size: 0.7rem; color: #fff; margin: 0 0.2rem 0 0.0rem; }
+        ul.leaf-user-menu > li > a {text-decoration: none; font-size: 0.6rem; color: #fff; margin: 0 0.2rem 0 0.7rem; }
+        ul.leaf-user-menu > li > ul {
+            list-style-type: none; 
+            display: none;  
+            width: 9.0rem; 
+            padding-inline-start: 0; 
+            background-color: #fff; 
+            position: absolute;
+            right: 0.0rem;
+            top: 1.4rem;
+            z-index: 9999;
+        }
+        ul.leaf-user-menu > li > ul > li > a {text-decoration: none; font-size: 0.8rem;}
 
 /* ############### LEAF MAIN NAV ################# */
-/* top level */
-ul.leaf-main-nav {list-style-type: none; font-size: 0.9rem; margin: 2.5rem 1.0rem 0 0; padding-inline-start: 0;}
-    .leaf-main-nav > li {
-        float: left; 
-        text-align: left; 
-        font-family: 'Public Sans Medium'; 
-        margin: 0; 
-        padding: 0.4rem 0.8rem;
-        position: relative;
-    }
-    ul.leaf-main-nav > li:hover {background-color: #274863; font-family: 'Public Sans Bold';}
-    ul.leaf-main-nav > li > a {text-decoration: none; color: #f0f0ec;}
-        .leaf-main-nav > li > a:hover {text-decoration: none;}
-        .leaf-nav-icon {float: right; margin: 0.2rem 0.3rem 0.2rem 0;}
-        .leaf-nav-icon-3 {float: left; margin: 0.2rem 0.3rem 0.2rem 0;}
-        .leaf-nav-icon-space {float: left; width: 0.3rem; margin: 0.2rem 0.3rem 0.2rem 0;}
-
-/* level two */
-ul.leaf-main-nav > li > ul {
-    display: none; 
-    list-style-type: none; 
-    position: absolute; 
-    top: 2.1rem; 
-    right: 0; 
-    padding-inline-start: 0; 
-    background-color: #274863;
-    } 
-    ul.leaf-main-nav > li:hover > ul {display: block; width: 12.0rem; padding-inline-start: 0; background-color: #274863; font-size: 0.8rem;}
-        ul.leaf-main-nav > li > ul > li {text-align: left; font-family: 'Public Sans Regular'; background-color: #274863; position: relative;}
-            ul.leaf-main-nav > li > ul > li > a {padding: 0.4rem 0.5rem; text-decoration: none; color: #f0f0ec; display: block;}
-        ul.leaf-main-nav > li > ul > li:hover {background-color: #2378c3;}
-
-/* level three */
-ul.leaf-main-nav > li > ul > li > ul {
-    display: none; 
-    list-style-type: none; 
-    padding-inline-start: 0; 
-    background-color: #274863;
-    margin: 0.6rem 0.0rem 0.0rem 0.0rem;
-    position: absolute;
-    } 
-    ul.leaf-main-nav > li > ul > li:hover > ul {
-        display: block; 
-        width: 12.0rem; 
-        padding-inline-start: 0; 
-        background-color: #2378c3; 
-        font-size: 0.8rem; 
-        margin: 0;
-        top: 0;
-        left: -12.0rem;
-        }
-        ul.leaf-main-nav > li > ul > li > ul > li {text-align: left; font-family: 'Public Sans Regular'; background-color: #2378c3;}
-        ul.leaf-main-nav > li > ul > li > ul > li:hover {font-family: 'Public Sans Bold';}
-        ul.leaf-main-nav > li > ul > li > ul > li > a {text-decoration: none; color: #f0f0ec; display: block; padding: 0.4rem 0.5rem 0.4rem 0.8rem;}
+.leaf-nav-icon {float: right; margin: 0.2rem 0.3rem 0.2rem 0;}
+.leaf-nav-icon-space {float: left; margin: 0;}
+#nav, #nav ul, #nav li {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    list-style: none;
+    box-sizing: border-box;
+    padding-inline-start: 0;
+   }
+  
+  #nav {
+    position: relative;
+    min-height: 32px;
+    max-width: 100%;
+    background-color: #252f3e;
+  }
+      @media screen and (min-width: 650px) {
+          #nav {
+              display: block;
+              float: right;
+              clear: both;
+              margin: 1.1rem 3.4rem 0 0;
+            }
+      }
+      @media screen and (max-width: 650px) {
+          #nav {display: block;} 
+      }
+  
+  #nav li {position: relative;}
+  
+  #nav ul li a {
+      text-decoration: none;
+      height: 100%;
+      display: block;
+      padding: 8px;
+      color: #f0f0ec;
+  }
+  
+  @media screen and (min-width: 650px) {
+    #nav a:focus {} 
+  }
+  
+  .plusMark { margin-left: 10px; font-size: 20px;}
+  
+  @media screen and (min-width: 650px) {
+    #nav li {
+      text-align: left;
+      } 
+  }
+  @media screen and (max-width: 650px) {
+    #nav li {
+      text-align: left;
+      width: 100%; 
+      } 
+  }
+  
+  /* Any sub menu */
+  @media screen and (min-width: 650px) {
+    a + ul {position: absolute;}
+      a + ul:not(.js-showElement) {display: none;} 
+  }
+  @media screen and (max-width: 650px) {
+    a + ul {position: relative;}
+      a + ul:not(.js-hideElement) {display: block;}
+  }
+  
+  /* ////////////// Navigation Level One /////////////// */
+  
+  #nav > ul, .fa {height: 100%;}
+  
+  #nav > ul > li {position: relative; text-align: left; font-family: 'Public Sans Regular';}
+    @media screen and (min-width: 650px) {
+      #nav > ul > li {
+          float: left;
+          font-size: 0.9rem;
+          margin-left: 0.2rem;
+          }
+      }
+    @media screen and (max-width: 650px) {
+      #nav > ul > li {
+          float: none;
+          display: block;
+          width: 100%;
+          } 
+      }
+  
+  #nav > ul > li > a { background-color: #252f3e; }
+    #nav > ul > li > a:hover, 
+    #nav > ul > li > a:focus, 
+    #nav > ul > li > a.js-openSubMenu {
+      background-color: #274863;
+      font-family: 'Public Sans Bold';
+      }
+      #nav > ul > li:hover > a, 
+      #nav > ul > li:focus > a {
+          background-color: #274863;
+      }
+  
+  @media screen and (min-width: 650px) {
+    #nav > ul > li:not(:last-child) {
+      border-right: 0px solid #252f3e;
+      border-bottom: none;
+      }
+  }
+  @media screen and (max-width: 650px) {
+    #nav > ul > li:not(:last-child) {border-right: none;}
+      #nav > ul > li:not(:last-child):not(:first-child) {
+        border-bottom: 0px solid #252f3e;
+      }
+  }
+  
+  #nav > ul > li:not(#toggleMenu):not(.js-showElement) {/* first level nav li except toggleMenu icon */ }
+      @media screen and (min-width: 650px) {
+          #nav > ul > li:not(#toggleMenu):not(.js-showElement) {display: inline-block;}
+      }
+      @media screen and (max-width: 650px) {
+          #nav > ul > li:not(#toggleMenu):not(.js-showElement) {display: none;}
+      }
+      @media screen and (min-width: 650px) {
+          #nav #toggleMenu {display: none;}
+      }
+      @media screen and (max-width: 650px) {
+          #nav #toggleMenu {display: block; width: 100%;}
+          #nav #toggleMenu.js-open {border-bottom: 0px solid #274863;}
+          #nav #toggleMenu.js-open .fa-times {display: block;}
+          #nav #toggleMenu.js-open .fa-bars {display: none;}
+          #nav #toggleMenu.js-open a {background-color: #274863;}
+          #nav #toggleMenu:not(.js-open) .fa-times {display: none;}
+          #nav #toggleMenu:not(.js-open) .fa-bars {display: block;}
+      }
+  
+  span#toggleMenu-text {position: absolute; opacity: 0;}
+  
+  /* ///////////// Second Level Dropdown //////////////// */
+  
+  #nav > ul > li > ul {background-color: #274863;}
+      @media screen and (min-width: 650px) {
+          #nav > ul > li > ul {top: 37px; left: 0; width: 12rem; font-size: 0.8rem;}
+          #nav > ul > li > ul > li:hover,
+          #nav > ul > li > ul > li > a:hover,
+          #nav > ul > li > ul > li > a:focus,
+          #nav > ul > li > ul > li > a:focus-within {
+              background-color: #2378c3;
+              font-family: 'Public Sans Bold';
+          }
+      }
+      @media screen and (max-width: 650px) {
+          #nav > ul > li > ul {
+              width: 100%;
+              position: relative;
+          }
+          #nav > ul > li > ul:not(.js-showElement) {display: none;} 
+      }
+  
+  /* //////////////// Third Level Dropdown ////////////////// */
+  
+  @media screen and (min-width: 650px) {
+    #nav > ul > li > ul > li > ul {
+      top: 0;
+      left: -12.0rem;
+      width: 12.0rem;
+      font-size: 0.8rem;
+      font-family: 'Public Sans Regular';
+      z-index: 9999;
+      } 
+  }
+  @media screen and (max-width: 650px) {
+    #nav > ul > li > ul > li > ul {
+      width: 100%;
+      position: relative;
+      }
+      #nav > ul > li > ul > li > ul:not(.js-showElement) {display: none;}
+  }
+  
+  #nav > ul > li > ul > li > ul > li > a {background-color: #2378c3;}
+    #nav > ul > li > ul > li > ul > li > a:hover, 
+    #nav > ul > li > ul > li > ul > li > a:focus {
+      background-color: #2378c3; 
+      font-family: 'Public Sans Bold';
+      }
+  
+  /* Javascript classes */
+  #nav .js-hideElement {display: none;}
+  
+  #nav .js-showElement {display: block;}
+  
+  /* Fallback for users without javascript */
+  html.no-js li:hover > a + ul, html.no-js li:focus > a + ul {
+    display: block; }
+  @media screen and (max-width: 650px) {
+    html.no-js #nav:hover > ul > li:not(#toggleMenu),
+    html.no-js #nav:focus > ul > li:not(#toggleMenu) {
+      display: block; }
+    html.no-js #nav:hover li:hover > a + ul,
+    html.no-js #nav:hover li:focus > a + ul,
+    html.no-js #nav:focus li:hover > a + ul,
+    html.no-js #nav:focus li:focus > a + ul {
+      display: block; } }
 
 /* ################## LEAF FOOTER ################# */
 .leaf-footer {
@@ -313,6 +449,8 @@ ul.leaf-progress-bar {
         .bg-orange-warm-10v {background-color: #ffe2d1;}
         .bg-orange-20 {background-color: #f3bf90;}
         .bg-orange-40 {background-color: #e66f0e;}
+        .bg-orange-50 {background-color: #a86437;}
+        .bg-orange-topbanner {background-color: #d26a15;}
     /* gold */
         .bg-gold-5v {background-color: #fef0c8;}
         .bg-gold-10 {background-color: #f1e5cd;}
