@@ -1,5 +1,12 @@
 <div class="leaf-center-content">
 
+    <!--{assign var=right_nav_test value="
+        <button class='usa-button leaf-btn-med usa-button--base leaf-side-btn' onclick='importGroup();'>
+            <i class='fas fa-copy leaf-btn-icon' alt='Import Existing Group'></i>Sample Button
+        </button>
+    "}-->
+    <!--{include file="partial_layouts/right_side_nav.tpl" contentRight="$right_nav_test"}-->
+
     <!--{assign var=user_groups_controls value="
         <button class='usa-button leaf-btn-med leaf-side-btn' onclick='importGroup();'>
             <i class='fas fa-copy leaf-btn-icon' alt='Import Existing Group'></i>Import Existing Group
@@ -11,9 +18,10 @@
             <i class='fas fa-clock leaf-btn-icon' alt='Show All Group History'></i>Show All Group History
         </button>
     "}-->
-    <!--{include file="partial_layouts/left_side_nav.tpl" content="$user_groups_controls"}-->
+    <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$user_groups_controls"}-->
 
-    <main id="main-content" class="main-content">
+
+    <main class="main-content">
 
         <h2>User Access Groups<span class="leaf-title-inst">Click cards to edit.</span></h2>
 

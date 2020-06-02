@@ -18,8 +18,8 @@
 .leaf-admin-content {max-width: 68rem; margin: 1.0rem auto 1.0rem auto;}
 .leaf-show-opts {font-size: 0.9rem; margin-top: 1.2rem; cursor: pointer; }
 .leaf-center-content {
-    width: calc(100% - 5rem); 
-    margin: 1.0rem auto 1.0rem auto; 
+    width: calc(100% - 2rem); 
+    margin: 0.6rem auto 0.6rem auto; 
     font-family: 'Public Sans Regular';
     white-space: nowrap;
 }
@@ -29,7 +29,8 @@
 .usa-logo a {color: #fff; text-decoration: none;}
 .usa-navbar {border-bottom: 0; width: 100%;}
 .default-container {background-color: #fcfcfc; width: 100%;}
-.sidenav { display: block; float: left; margin: 1rem; padding-right: 0; padding-left: 1rem; width: 15rem;}
+.sidenav { display: block; float: left; margin: 1rem; padding-left: 1rem; width: 15rem;}
+.sidenav-right { display: block; float: right; margin: 1rem; padding-right: 1rem; width: 15rem;}
 .usa-banner {font-family: 'Public Sans Regular';}
 .usa-input {height: 1rem; width: auto;}
 .ui-dialog-title {font-family: 'Public Sans Bold'; font-size: 1.1rem;}
@@ -43,7 +44,7 @@ h1, h2, h3, h4, h5, h6 {margin: 0; color: #3d4551;}
     bottom: 0;
     display: inline-block;
     position: relative;
-    width: calc(100% - 18rem);
+    width: calc(100% - 30rem);
     white-space: normal;
 }
 
@@ -68,7 +69,7 @@ h1, h2, h3, h4, h5, h6 {margin: 0; color: #3d4551;}
 .leaf-btn-icon {margin-right: 0.5rem;}
 .leaf-btn-small {padding: 0.5rem; font-size: 0.7rem;}
 .leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
-.leaf-side-btn {width: 12.8rem; display: block; margin-top: 0.7rem; text-align: left;}
+.leaf-side-btn {width: 12.8rem; display: block; margin-bottom: 0.7rem; text-align: left;}
 
 /* ############### GLOBAL OVERRIDES ################# */
 h1, h2, h3, h4, h5, h6 { font-family: 'Public Sans Bold'; }

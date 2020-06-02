@@ -1,3 +1,3 @@
 <aside class="sidenav">
-    <!--{$content}-->
+    <!--{$contentLeft}-->
 </aside>
