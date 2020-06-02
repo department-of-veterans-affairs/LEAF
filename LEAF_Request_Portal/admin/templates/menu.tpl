@@ -22,9 +22,6 @@
         <a href="javascript:void(0);">Site Links</a>
         <ul>
             <li><a href="javascript:void(0);">Nexus: Org Charts</a></li>
-            <li><a href="javascript:void(0);">Sitemap Link One</a></li>
-            <li><a href="javascript:void(0);">Sitemap Link Two</a></li>
-            <li><a href="javascript:void(0);">Sitemap Link Three</a></li>
         </ul>
     </li>
 
