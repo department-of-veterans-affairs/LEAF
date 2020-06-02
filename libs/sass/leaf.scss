@@ -13,12 +13,23 @@
 @font-face { font-family: 'Public Sans Bold'; src: url(fonts/public-sans/PublicSans-Bold.ttf); }
 @font-face { font-family: 'Public Sans Black'; src: url(fonts/public-sans/PublicSans-Black.ttf); }
 
+
+/* ############### CONTENT CONTAINERS ################# */
+.leaf-admin-content {max-width: 68rem; margin: 1.0rem auto 1.0rem auto;}
+.leaf-show-opts {font-size: 0.9rem; margin-top: 1.2rem; cursor: pointer; }
+.leaf-center-content {
+    width: calc(100% - 5rem); 
+    margin: 1.0rem auto 1.0rem auto; 
+    font-family: 'Public Sans Regular';
+    white-space: nowrap;
+}
+
 /* ############### USWDS OVERRIDES ################# */
 .usa-logo {margin: 0; height: 4.6rem; float: left;}
 .usa-logo a {color: #fff; text-decoration: none;}
 .usa-navbar {border-bottom: 0; width: 100%;}
 .default-container {background-color: #fcfcfc; width: 100%;}
-.sidenav { display: block; float: left; margin-bottom: 3rem; margin-top: 2rem; padding-right: 0; padding-left: 2rem; width: 15rem;}
+.sidenav { display: block; float: left; margin: 1rem; padding-right: 0; padding-left: 1rem; width: 15rem;}
 .usa-banner {font-family: 'Public Sans Regular';}
 .usa-input {height: 1rem; width: auto;}
 .ui-dialog-title {font-family: 'Public Sans Bold'; font-size: 1.1rem;}
@@ -27,6 +38,14 @@
 .usa-banner__header-close-text, .usa-banner__header-text {font-size: .7rem; letter-spacing: 0.01rem;}
 h1, h2, h3, h4, h5, h6 {margin: 0; color: #3d4551;}
     h3 {margin: 0.8rem 0;}
+.main-content {
+    right: 0;
+    bottom: 0;
+    display: inline-block;
+    position: relative;
+    width: calc(100% - 18rem);
+    white-space: normal;
+}
 
 
 /* ############### USWDS BUTTON OVERRIDES ################# */
@@ -49,6 +68,7 @@ h1, h2, h3, h4, h5, h6 {margin: 0; color: #3d4551;}
 .leaf-btn-icon {margin-right: 0.5rem;}
 .leaf-btn-small {padding: 0.5rem; font-size: 0.7rem;}
 .leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
+.leaf-side-btn {width: 12.8rem; display: block; margin-top: 0.7rem; text-align: left;}
 
 /* ############### GLOBAL OVERRIDES ################# */
 h1, h2, h3, h4, h5, h6 { font-family: 'Public Sans Bold'; }
@@ -70,8 +90,8 @@ label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
 /* ############### CSS ATTRIBUTE CLASSES ################# */
 .leaf-float-right {float: right;}
 .leaf-float-left {float: left;}
-.leaf-displayBlock {display: block;}
-.leaf-displayInlineBlock {display: inline-block;}
+.leaf-display-block {display: block;}
+.leaf-display-inlineblock {display: inline-block;}
 .leaf-text-left {text-align: left;}
 .leaf-textCentered {text-align: center;}
 .leaf-clearBoth {clear: both;}
@@ -111,10 +131,6 @@ label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
         background-color: #fff;
         }
 
-/* ############### CONTENT CONTAINERS ################# */
-.leaf-admin-content {max-width: 68rem; margin: 1.0rem auto 1.0rem auto;}
-.leaf-show-opts {font-size: 0.9rem; margin-top: 1.2rem; cursor: pointer; }
-.leaf-center-content {width: calc(100% - 5rem); margin: 1.0rem auto 1.0rem auto; font-family: 'Public Sans Regular';}
 
 /* ############### LEAF ADMIN BUTTONS ################# */
 .leaf-admin-button {
@@ -584,7 +600,7 @@ ul.leaf-progress-bar {
 .leaf-width-10rem {width: 10rem;}
 .leaf-width-11rem {width: 11rem;}
 .leaf-width-12rem {width: 12rem;}
-
+.leaf-width-14rem {width: 14rem;}
 .leaf-width-24rem {width: 24rem;}
 
 
