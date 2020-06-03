@@ -1,0 +1,80 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'5'))
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        DOCKER_REGISTRY = "${env.DOCKER_REGISTRY}"
+        AWS_ECR_CREDENTIALS = "${env.AWS_ECR_CREDENTIALS}"
+        PROJECT = "leaf"
+        DOCKER_ORG = "application"
+        BUILD_UID = "1000"
+        FORTIFY_PROJ_NAME = "leaf"
+        IMAGE_NAME = "${env.DOCKER_REGISTRY}/${DOCKER_ORG}/leaf"
+        TAG_NAME = "latest"
+    }
+
+    stages {
+        stage('checkout') { steps { checkout scm } }
+
+        stage('fortify') {
+            steps {
+                script {
+                    docker.image('fortify-code-security:20.1.0').inside {
+                        sh './fort_report/FortifyReportGen.sh'
+                    }
+                }
+            }
+        }
+
+        stage('ecr login') {
+            steps {
+                script {
+                    def login = ecrLogin()
+                    sh "${login}"
+                }
+            }
+        }
+        stage('docker build') {
+            steps {
+                script {
+                    sh '''
+                    docker ps
+                    '''
+
+                    docker.withRegistry("https://${DOCKER_REGISTRY}") {
+
+                        stage('Docker Build') {
+                            customImage = docker.build("$DOCKER_ORG/${PROJECT}", "--build-arg BUILD_UID=${BUILD_UID} -f docker/php/Dockerfile .")
+                            println("Built image ${customImage.imageName()}")
+                        }
+
+                        stage('Docker Registry Push ') {
+                            docker.withRegistry("https://${DOCKER_REGISTRY}") {
+                                docker.image("$DOCKER_ORG/${PROJECT}").push("${env.TAG_NAME}")
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        stage('Clean Up') {
+            steps {
+                script {
+                    sh '''
+                    docker rmi -f ${IMAGE_NAME}:${TAG_NAME}
+                    docker rmi -f $DOCKER_ORG/${PROJECT}:${TAG_NAME}
+                    '''
+                }
+            }
+        }
+
+
+    }
+}
+
