@@ -17,9 +17,7 @@ function oldFileHash($categoryID, $uid, $indicatorID, $fileName)
 
 include __DIR__ . '/../sources/Login.php';
 include __DIR__ . '/../db_mysql.php';
-include __DIR__ . '/../config.php';
 
-$config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);

@@ -14,12 +14,9 @@ if (false)
 include __DIR__ . '/../globals.php';
 include __DIR__ . '/../sources/Login.php';
 include __DIR__ . '/../db_mysql.php';
-include __DIR__ . '/../config.php';
 require __DIR__ . '/RESTfulResponse.php';
 require __DIR__ . '/../sources/Exception.php';
 require __DIR__ . '/ControllerMap.php';
-
-$config = new Orgchart\Config();
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 

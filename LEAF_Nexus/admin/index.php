@@ -25,14 +25,11 @@ include __DIR__ . '/../globals.php';
 include __DIR__ . '/../../libs/smarty/Smarty.class.php';
 include __DIR__ . '/../sources/Login.php';
 include __DIR__ . '/../db_mysql.php';
-include __DIR__ . '/../config.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
-
-$config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
 

@@ -16,11 +16,9 @@ define("LOCATIONIID", 8);
 define("ADTITLEIID", 23);
 
 include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../config.php';
 include_once $currDir . '/../globals.php';
 include_once $currDir . '/../sources/Login.php';
 
-$config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 $phonedb = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 $login = new Orgchart\Login($phonedb, $db);
