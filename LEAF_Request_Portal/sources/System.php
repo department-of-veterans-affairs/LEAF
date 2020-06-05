@@ -298,7 +298,7 @@ class System
         {
             return 'Admin access required';
         }
-        $list = scandir('../templates/');
+        $list = scandir(__DIR__.'/../templates/');
         $out = array();
         foreach ($list as $item)
         {
@@ -487,7 +487,7 @@ class System
         {
             return 'Admin access required';
         }
-        $list = scandir('../templates/reports/');
+        $list = scandir(__DIR__.'/../templates/reports/');
         $out = array();
         foreach ($list as $item)
         {
@@ -617,7 +617,7 @@ class System
             return 'Admin access required';
         }
 
-        $list = scandir('../files/');
+        $list = scandir(__DIR__.'/../files/');
         $out = array();
         foreach ($list as $item)
         {

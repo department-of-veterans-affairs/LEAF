@@ -57,7 +57,7 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
@@ -83,7 +83,7 @@ switch ($action) {
         break;
     default:
         if ($action != ''
-            && file_exists("templates/reports/{$action}.tpl"))
+            && file_exists(__DIR__."/templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
 //    			$main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));

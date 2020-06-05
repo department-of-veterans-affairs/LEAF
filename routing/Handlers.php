@@ -96,6 +96,11 @@ namespace Handlers{
             $this->config = $config;
         }
 
+        function other($otherFile){
+            global $config;
+            require __DIR__.'/../LEAF_Nexus/'.$otherFile;
+        }
+
         function api(){
             global $config;
             require __DIR__.'/../LEAF_Nexus/api/index.php';
