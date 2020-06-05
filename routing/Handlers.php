@@ -95,6 +95,62 @@ namespace Handlers{
         {
             $this->config = $config;
         }
+
+        function api(){
+            global $config;
+            require __DIR__.'/../LEAF_Nexus/api/index.php';
+        }
+
+        function auth_domain(){
+            global $config;
+            require __DIR__.'/../LEAF_Nexus/auth_domain/index.php';
+        }
+
+        function auth_cookie(){
+            global $config;
+            require __DIR__.'/../LEAF_Nexus/auth_cookie/index.php';
+        }
+
+        function auth_token(){
+            global $config;
+            require __DIR__.'/../LEAF_Nexus/auth_token/index.php';
+        }
+
+        function js($jsFile){
+            header('Content-Type: text/javascript');
+            echo file_get_contents(__DIR__.'/../LEAF_Nexus/js/'.$jsFile);
+        }
+
+        function css($cssFile){
+            header('Content-Type: text/css');
+            echo file_get_contents(__DIR__.'/../LEAF_Nexus/css/'.$cssFile);
+        }
+
+        function image($image){
+            header('Content-Type: image/png');
+            readfile(__DIR__.'/../LEAF_Nexus/images/'.$image);
+        }
+
+        function login(){
+            global $config;
+            echo file_get_contents(__DIR__.'/../LEAF_Nexus/login/index.php');
+        }
+
+        function admin_index(){
+            global $config;
+            require __DIR__.'/../LEAF_Nexus/admin/index.php';
+        }
+
+        function admin_css($cssFile){
+            header('Content-Type: text/css');
+            require __DIR__.'/../LEAF_Nexus/admin/css/'.$cssFile;
+        }
+        
+        function admin_other($adminFile){
+            global $config;
+            require __DIR__.'/../LEAF_Nexus/admin/'.$adminFile;
+        }
+
         function default(){
             global $config;
             require __DIR__.'/../LEAF_Nexus/index.php';
