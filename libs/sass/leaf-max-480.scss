@@ -1,0 +1,28 @@
+/* ############# STYLES TO MAX WIDTH OF 30 REM (480px) ################# */
+
+@media (max-width: 30rem) {
+
+    /* ############### CONTENT CONTAINERS ################# */
+    .leaf-admin-content {max-width: 30rem; margin: 0.4rem 0.6rem;}
+
+    /* ############### USWDS OVERRIDES ################# */
+    .sidenav { display: block; margin: 1rem; width: 100%; padding: 0; float: none;}
+    .sidenav-right { display: block; margin: 1rem; width: 100%; padding: 0; float: none;}
+    .main-content {display: block; clear: both; width: 100%; margin: 1rem;}
+
+    /* ############### LEAF HEADER ################# */
+    .usa-header, .site-header {height: 3.6rem; width: 100%;}
+        .leaf-logo img {width: 48px; margin: 0.4rem 0.3rem 0 0.2rem;}
+        .usa-logo {
+            font-size: 1.3rem;
+            line-height: 1.1rem;
+            margin: 1.3rem 0 0 0.2rem;
+        }
+    .leaf-header-right {float: right; margin: 0 0.5rem 0 0; position: relative; width: 2.6rem; height: 2.6rem;}
+        ul.leaf-user-menu {
+            display: none;
+        }
+    #nav {margin: 1.0rem 0.4rem 0 0;}
+    
+
+}

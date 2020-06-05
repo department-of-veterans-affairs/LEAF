@@ -2,34 +2,26 @@
 
     <!-- Menu tooggle on smaller screens  -->
     <li id="toggleMenu" role="button" aria-haspopup="true">	
-        <a href="../"> 
-            <i aria-hidden="true" class="fas fa-bars"></i>
-            <i aria-hidden="true" class="fas fa-times"></i>
-            <!-- As icons are being used to represent open/close, 
-                provide hidden text for screen readers -->
-            <span id="toggleMenu-text">Toggle Navigation</span>	
-        </a>
+        <a href="javascript:void(0);"><i aria-hidden="true" class="fas fa-bars"></i><i aria-hidden="true" class="fas fa-times"></i><span id="toggleMenu-text">Toggle Navigation</span></a>
     </li>
     
-    <!-- Simple menu item without sub menu -->
-    <li class="leaf-width-7rem"><a href="../">Home</a></li>
+    <li class="leaf-width-7rem leaf-mob-menu"><a href="../">Home</a></li>
+
+    <li class="leaf-width-10rem leaf-mob-menu"><a href="../?a=reports">Report Builder</a></li>
     
-    <!-- Simple menu item without sub menu -->
-    <li class="leaf-width-10rem"><a href="../?a=reports">Report Builder</a></li>
-    
-    <!--  Menu item with one sub menu -->
-    <li class="leaf-width-10rem lev2">
+    <li class="leaf-width-10rem leaf-mob-menu lev2">
         <a href="javascript:void(0);">Site Links</a>
         <ul>
             <li><a href="javascript:void(0);">Nexus: Org Charts</a></li>
         </ul>
     </li>
 
-    <!--  Menu item with two levels of sub menu -->
-    <li class="leaf-width-9rem lev2">
-        <a href="./">Admin</a>
+    <li class="leaf-width-10rem leaf-mob-menu lev2">
+        <a href="javascript:void(0);">Admin</a>
         <ul>
 
+            <li><a href="./">Admin Home<i class="leaf-nav-icon-space"></i></a></li>
+            
             <li class="lev3">
                 <a href="javascript:void(0);">User Access</a>
                 <ul>
@@ -78,11 +70,19 @@
                     <li><a href="?a=admin_update_database">Update Database</a></li>
                 </ul>
             </li>
-            
+
         </ul>
+
     </li>
 
-    
+    <li class="leaf-width-4rem leaf-mob-menu lev2">
+        <a href="javascript:void(0);"><i class='fas fa-user-circle' alt='User Account Menu'></i></a>
+        <ul class="leaf-usernavmenu">
+            <li><a href="../?a=logout">User: <!--{$name}--></a></li>
+            <li><a href="../?a=logout">Sign Out</a></li>
+            <li><a href="javascript:void(0);">Primary Admin:</a></li> 
+        </ul>
+    </li>
 
 </ul>
 
@@ -96,19 +96,14 @@ $('html').removeClass('no-js');
 $('#toggleMenu').on('click', function() {
 
     if ( $(this).hasClass('js-open') ) {
-
         $('#nav > ul > li:not(#toggleMenu)').removeClass('js-showElement');
         $(this).removeClass('js-open');
-
         $(this).attr('aria-expanded', false);
 
     } else {
-
         $('#nav > ul > li:not(#toggleMenu)').addClass('js-showElement');
         $(this).addClass('js-open');
-
         $(this).attr('aria-expanded', true);
-
     }
 
     return false; 
@@ -117,8 +112,6 @@ $('#toggleMenu').on('click', function() {
 // Add plus mark to li that have a sub menu
 $('li.lev2:has("ul") > a').append('<i class="fas fa-angle-down leaf-nav-icon"></i>');
 $('li.lev3:has("ul") > a').append('<i class="fas fa-angle-left leaf-nav-icon"></i>');
-
-
 
 
 // sub menu
@@ -206,9 +199,6 @@ $('li > ul > li:last-child > a').on('keydown', function(e) {
     }
 
 })
-
-
-
 
 })
 </script>

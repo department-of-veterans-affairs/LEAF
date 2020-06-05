@@ -72,7 +72,7 @@
                 {/if}
             </div>
             <div class="leaf-header-right">
-                {$emergency}{$login}
+                {$emergency}<!--{$login}-->
                 <nav aria-label="main menu" id="nav">{$menu}</nav>
             </div>
         </div>
