@@ -628,10 +628,10 @@ function showJSONendpoint() {
                 CSRFToken: CSRFToken}
         })
         .then(function(res) {
-            $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res);
-            
+            $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
            if($('#msCompatMode').is(':checked')) {
                 $('#expandLink').css('display', 'none');
+                $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res);
             }
             else {
                 $('#expandLink').css('display', 'inline');
