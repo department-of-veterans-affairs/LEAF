@@ -1,6 +1,5 @@
 div.groupBlock {
     float: left;
-    border: 2px solid #dfe1e2;
     border-radius: 4px;
     width: 15rem;
     min-height: 5.2rem;
@@ -8,12 +7,13 @@ div.groupBlock {
     padding: 0.6rem;
     cursor: pointer;
     border-radius: 4px;
-    box-shadow: 1px 1px 3px #f0f0f0;
+    box-shadow: 1px 1px 3px #acaeaf;
     transition: background-color 0.3s ease;
     transition: box-shadow 0.3s ease;
+    background-color: #fff;
 }
-div.groupBlock:hover{box-shadow: 2px 2px 4px #dfe1e2; background-color: #f0f0f0;}
-div.groupBlock div { padding-top: 0.2rem; font-size: 0.8rem;}
+div.groupBlock:hover{box-shadow: 2px 2px 4px #838687;}
+div.groupBlock div { padding-top: 0.2rem; font-size: 0.8rem; background-color: #fff; }
 
 div.groupBlock h2 {
     cursor: pointer;

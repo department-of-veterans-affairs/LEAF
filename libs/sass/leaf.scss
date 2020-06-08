@@ -14,11 +14,16 @@
 @font-face { font-family: 'Public Sans Black'; src: url(fonts/public-sans/PublicSans-Black.ttf); }
 
 /* ############### GLOBAL OVERRIDES ################# */
+body {background-color: #dcdee0;}
 h1, h2, h3, h4, h5, h6 { font-family: 'Public Sans Bold'; }
 h1 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 h2 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
 label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
+
+/* ############### GLOBAL CONTAINER STYLES ################# */
+.sidenav {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
+.sidenav-right {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
 
 /* ############### GLOBAL CLASSES ################# */
 .leaf-bold {font-family: 'Public Sans Bold';}
@@ -231,9 +236,9 @@ ul.leaf-progress-bar {
     .usa-logo {margin: 0; height: 4.6rem; float: left;}
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
-    .default-container {background-color: #fcfcfc; width: 100%;}
-    .sidenav { display: block; float: left; margin: 1rem; padding-left: 1rem; width: 15rem;}
-    .sidenav-right { display: block; float: right; margin: 1rem; padding-right: 1rem; width: 15rem;}
+    .default-container {width: 100%;}
+    .sidenav { display: block; float: left; margin: 1rem; padding-left: 1rem; width: 15rem; text-align: center;}
+    .sidenav-right { display: block; float: right; margin: 1rem; padding-right: 1rem; width: 15rem; text-align: center;}
     .usa-banner {font-family: 'Public Sans Regular';}
     .usa-input {height: 1rem; width: auto;}
     .ui-dialog-title {font-family: 'Public Sans Bold'; font-size: 1.1rem;}
