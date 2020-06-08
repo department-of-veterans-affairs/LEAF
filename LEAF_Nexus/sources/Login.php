@@ -198,7 +198,7 @@ class Login
             $authType = '/auth_cookie/?r=';
             $nonBrowserAuth = '/auth_cookie/?r=';
         }
-        $_SESSION['userID'] = 'tester';//TODO MAKE STATELESS LOGIN WORK CORRECTLY
+        //$_SESSION['userID'] = 'tester';//TODO MAKE STATELESS LOGIN WORK CORRECTLY
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
         {
             if (php_sapi_name() != 'cli')
