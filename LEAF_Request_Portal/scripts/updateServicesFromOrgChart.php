@@ -162,7 +162,7 @@ foreach ($res as $service)
 }
 
 // import other groups
-foreach (Config::$orgchartImportTags as $tag)
+foreach ($config->orgchartImportTags as $tag)
 {
     $res = $group->listGroupsByTag($tag);
 
