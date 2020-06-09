@@ -34,14 +34,15 @@ class CustomEvent_LeafSecure_DeveloperConsole
      */
     public function execute()
     {
+        global $config;
         // get the request initiator
         $vars = array(':recordID' => $this->eventInfo['recordID']);
         $res = $this->db->prepared_query('SELECT userID FROM records WHERE recordID=:recordID', $vars);
 
         // get the initiator's empUID
         $currDir = dirname(__FILE__);
-        require_once $currDir . '/../../' . Config::$orgchartPath . '/sources/Employee.php';
-        require_once $currDir . '/../../' . Config::$orgchartPath . '/sources/Login.php';
+        require_once $currDir . '/../../' . $config->orgchartPath . '/sources/Employee.php';
+        require_once $currDir . '/../../' . $config->orgchartPath . '/sources/Login.php';
         global $config;
         $oc_db = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $login = new Orgchart\Login($oc_db, $oc_db);

@@ -50,25 +50,25 @@ class Form
         // set up org chart assets
         if (!class_exists('Orgchart\Config'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Position.php';
         }
         if (!class_exists('Orgchart\Login'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Login.php';
         }
         if (!class_exists('Orgchart\Employee'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Employee.php';
         }
         if (!class_exists('Orgchart\Position'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Position.php';
         }
         if (!class_exists('Orgchart\Group'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Group.php';
         }
         $oc_db = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $oc_login = new OrgChart\Login($oc_db, $oc_db);

@@ -85,7 +85,7 @@ switch ($action) {
                 $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
-                $t_form->assign('orgchartPath', Config::$orgchartPath);
+                $t_form->assign('orgchartPath', $config->orgchartPath);
                 $t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
@@ -118,7 +118,7 @@ switch ($action) {
                 $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
-                $t_form->assign('orgchartPath', Config::$orgchartPath);
+                $t_form->assign('orgchartPath', $config->orgchartPath);
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }
@@ -198,7 +198,7 @@ switch ($action) {
         $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
         $t_form->assign('requestLabel', $requestLabel);
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         if ($parallelProcessing)
@@ -417,7 +417,7 @@ switch ($action) {
             $t_form->assign('date', $recordInfo['submitted']);
             $t_form->assign('categoryText', XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
-            $t_form->assign('orgchartPath', Config::$orgchartPath);
+            $t_form->assign('orgchartPath', $config->orgchartPath);
             $t_form->assign('is_admin', $login->checkGroup(1));
 
             switch ($action) {

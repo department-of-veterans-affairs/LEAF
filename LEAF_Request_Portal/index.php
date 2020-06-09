@@ -207,7 +207,7 @@ switch ($action) {
         $t_form->assign('canWrite', $form->hasWriteAccess($recordIDToPrint));
         $t_form->assign('canRead', $form->hasReadAccess($recordIDToPrint));
         $t_form->assign('accessLogs', $form->log);
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);
         $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
@@ -447,7 +447,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl')));
@@ -475,7 +475,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('query', XSSHelpers::xscrub($_GET['query']));
         $t_form->assign('indicators', XSSHelpers::xscrub($_GET['indicators']));
@@ -524,7 +524,7 @@ switch ($action) {
         $t_form->assign('is_service_chief', (int)$login->isServiceChief());
         $t_form->assign('is_quadrad', (int)$login->isQuadrad() || (int)$login->checkGroup(1));
         $t_form->assign('is_admin', (int)$login->checkGroup(1));
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
@@ -549,7 +549,7 @@ switch ($action) {
 $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', XSSHelpers::xscrub($action));
-$t_menu->assign('orgchartPath', Config::$orgchartPath);
+$t_menu->assign('orgchartPath', $config->orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);

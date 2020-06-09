@@ -54,6 +54,7 @@ class System
 
     public function updateService($serviceID)
     {
+        global $config;
         if (!is_numeric($serviceID))
         {
             return 'Invalid Service';
@@ -63,12 +64,11 @@ class System
         $this->db->prepared_query('DELETE FROM services WHERE serviceID=:serviceID AND serviceID > 0', $vars);
         $this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars);
 
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Group.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Position.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Employee.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Tag.php';
 
-        global $config;
         $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $group = new Orgchart\Group($db_phonebook, $this->login);
         $position = new Orgchart\Position($db_phonebook, $this->login);
@@ -140,6 +140,7 @@ class System
 
     public function updateGroup($groupID)
     {
+        global $config;
         if (!is_numeric($groupID))
         {
             return 'Invalid Group';
@@ -154,12 +155,11 @@ class System
         $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Group.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Position.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Employee.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Tag.php';
 
-        global $config;
         $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $group = new Orgchart\Group($db_phonebook, $this->login);
         $position = new Orgchart\Position($db_phonebook, $this->login);

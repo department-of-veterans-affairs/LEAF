@@ -105,7 +105,7 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', (int)$_GET['recordID']);
-            $t_form->assign('orgchartPath', Config::$orgchartPath);
+            $t_form->assign('orgchartPath', $config->orgchartPath);
 
             $t_form->assign('form', $form->getFormByCategory($_GET['categoryID']));
             $t_form->display('print_form_ajax.tpl');
@@ -183,7 +183,7 @@ switch ($action) {
                 $dataName = "All Groups";
                 $type = new \Group($db, $login);
 
-                include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
+                include __DIR__ . '/../' . $config->orgchartPath . '/sources/Group.php';
                 $orgchartGroup = new OrgChart\Group($db_phonebook, $login);
                 break;
         }
