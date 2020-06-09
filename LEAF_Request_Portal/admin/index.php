@@ -228,6 +228,7 @@ switch ($action) {
         break;
     case 'mod_templates':
     case 'mod_templates_reports':
+    case 'mod_templates_email':
             if(!hasDevConsoleAccess($login, $db_phonebook)) {
                header('Location: ../report.php?a=LEAF_start_leaf_dev_console_request');
             }
@@ -268,6 +269,11 @@ switch ($action) {
                 case 'mod_templates_reports':
                     $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
                     $tabText = 'Editor';
+
+                    break;
+                case 'mod_templates_email':
+                    $main->assign('body', $t_form->fetch('mod_templates_email.tpl'));
+                    $tabText = 'Email Template Editor';
 
                     break;
                 default:
