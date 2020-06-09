@@ -58,7 +58,7 @@ class Config
             Routing_Config::$dbPass,
             array()
         );
-        $sql = "SELECT a.*, b.path as orgchartPath, b.database_name as phonedbName FROM portal_configs as a JOIN orgchart_configs as b ON a.orgchart_id = b.id WHERE a.path = '$sitePath';";
+        $sql = "SELECT a.*, b.database_name as phonedbName FROM portal_configs as a JOIN orgchart_configs as b ON a.orgchart_id = b.id WHERE a.path = '$sitePath';";
         $query = $db->prepare($sql);
         $query->execute(array());
         $res = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -67,7 +67,7 @@ class Config
         $this->adminLogonName = $res[0]['adminLogonName'];    // Administrator's logon name
         $this->adPath = $res[0]['active_directory_path']; // Active directory path
         $this->uploadDir = $res[0]['upload_directory'];
-        $this->orgchartPath = trim($res[0]['orgchartPath'], '/'); // HTTP Path to orgchart with no trailing slash
+        $this->orgchartPath = "../LEAF_Nexus"; // HTTP Path to orgchart with no trailing slash
         $this->orgchartImportTags = $res[0]['orgchart_path'];
         $this->descriptionID = $res[0]['descriptionID'];
         $this->emailPrefix = $res[0]['emailPrefix'];
