@@ -24,7 +24,7 @@ class FormWorkflow
     private $recordID;
 
     // workflow actions are triggered from ./api/ except on submit
-    private $eventFolder = '../scripts/events/';
+    private $eventFolder = __DIR__.'/scripts/events/';
 
     public function __construct($db, $login, $recordID)
     {
