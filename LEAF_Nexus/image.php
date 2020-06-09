@@ -40,7 +40,7 @@ $data = $type->getAllData($_GET['UID'], $_GET['indicatorID']);
 
 $value = $data[$_GET['indicatorID']]['data'];
 
-$filename = Orgchart\Config::$uploadDir . $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $value);
+$filename = $config->uploadDir . $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $value);
 $origFile = $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $value);
 
 $filenameParts = explode('.', $value);
@@ -66,10 +66,10 @@ if (in_array($fileExtension, $imageExtensionWhitelist) && file_exists($filename)
         // shrink images if they're too big
         if (filesize($filename) > 131072)
         {
-            if (file_exists(Orgchart\Config::$uploadDir . 'img_' . $origFile)
-                && filemtime(Orgchart\Config::$uploadDir . 'img_' . $origFile) > time() - 604800)
+            if (file_exists($config->uploadDir . 'img_' . $origFile)
+                && filemtime($config->uploadDir . 'img_' . $origFile) > time() - 604800)
             {
-                readfile(Orgchart\Config::$uploadDir . 'img_' . $origFile);
+                readfile($config->uploadDir . 'img_' . $origFile);
             }
             else
             {
@@ -102,8 +102,8 @@ if (in_array($fileExtension, $imageExtensionWhitelist) && file_exists($filename)
                     if ($src !== false)
                     {
                         imagecopyresampled($newImg, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                        imagejpeg($newImg, Orgchart\Config::$uploadDir . 'img_' . $origFile, 90);
-                        readfile(Orgchart\Config::$uploadDir . 'img_' . $origFile);
+                        imagejpeg($newImg, $config->uploadDir . 'img_' . $origFile, 90);
+                        readfile($config->uploadDir . 'img_' . $origFile);
                     }
                     else
                     {
