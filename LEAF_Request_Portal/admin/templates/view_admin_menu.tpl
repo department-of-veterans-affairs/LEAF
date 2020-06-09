@@ -46,6 +46,7 @@
 
 <a href="?a=mod_templates_email" role="button">
     <span class="menuButton" style="background-color: black">
+        <img class="menuIcon" src="../../libs/dynicons/?img=document-properties.svg&amp;w=96" style="position: relative" alt="Email Template Editor" title="Email Template Editor" />
         <span class="menuText" style="color: white">Email Template Editor</span><br />
         <span class="menuDesc" style="color: white">Add and Edit Email Templates</span>
     </span>

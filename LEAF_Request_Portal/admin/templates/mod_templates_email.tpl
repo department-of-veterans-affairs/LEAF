@@ -95,7 +95,6 @@
             <div class="buttonNorm modifiedTemplate" onclick="restore();"><img src="../../libs/dynicons/?img=x-office-document-template.svg&w=32" alt="Restore" /> Restore Original</div><br />
             <div class="buttonNorm" id="btn_compareStop" style="display: none" onclick="loadContent();"><img src="../../libs/dynicons/?img=text-x-generic.svg&w=32" alt="Normal view" /> Stop Comparing</div>
             <div class="buttonNorm modifiedTemplate" id="btn_compare" onclick="compare();"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Compare" /> Compare with Original</div><br /><br /><br />
-            <a class="buttonNorm" href="../../libs/dynicons/gallery.php" target="_blank" style="padding: 8px; text-decoration: none"><img src="../../libs/dynicons/?img=image-x-generic.svg&w=32" alt="Icon Library" /> Icon Library</a>
         </div>
     </div>
 </div>
