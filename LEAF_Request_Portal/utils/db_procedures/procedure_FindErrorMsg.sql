@@ -11,6 +11,16 @@ USE [LEAF_Database]
 GO
 */
 
+/**** CREATE TABLE temp_details ****/
+/**** a temporary tables for storing resultant output of find_errorMsg procedure ****/
+DROP TABLE IF EXISTS `temp_details`;
+CREATE TABLE `temp_details` (
+	`t_schema` varchar(45) NOT NULL,
+	`t_table` varchar(45) NOT NULL,
+	`t_field` varchar(45) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+GO
+
 /********* Create procedure for searching error string ****************/
 CREATE PROCEDURE `find_errorMsg`(in_search varchar(100))
     READS SQL DATA
@@ -21,18 +31,18 @@ BEGIN
 	DECLARE done INT DEFAULT 0;
 	DECLARE COUNTER INT;
 	DECLARE table_cur CURSOR FOR
-	SELECT concat('SELECT COUNT(*) INTO @CNT_VALUE 
-		FROM `',table_schema,'`.`',table_name,'` 
-		WHERE `', column_name,'` REGEXP "',in_search,'"') ,table_schema,table_name,column_name 
-	FROM information_schema.COLUMNS 
-	WHERE TABLE_SCHEMA NOT IN ('information_schema','test','mysql') 
+	SELECT concat('SELECT COUNT(*) INTO @CNT_VALUE
+		FROM `',table_schema,'`.`',table_name,'`
+		WHERE `', column_name,'` REGEXP "',in_search,'"') ,table_schema,table_name,column_name
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA NOT IN ('information_schema','test','mysql')
 	AND TABLE_SCHEMA NOT LIKE ('%orgchart%');
 
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=1;
 
 	#Truncating table for refill the data for new search.
 	PREPARE trunc_cmd FROM "TRUNCATE TABLE temp_details;";
-	EXECUTE trunc_cmd ; 
+	EXECUTE trunc_cmd ;
 	OPEN table_cur;
 	table_loop:LOOP
 		FETCH table_cur INTO search_string,db,tbl,clmn;
