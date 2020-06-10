@@ -60,6 +60,14 @@ Programmer Options:<br />
     </span>
 </a>
 
+<a href="?a=import_employees_from_spreadsheet" tabindex="-1">
+    <span class="menuButtonSmall" style="background-color: black" tabindex="0">
+        <img class="menuIconSmall" src="../../libs/dynicons/?img=list-add.svg&amp;w=72" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+        <span class="menuTextSmall" style="color: white">Spreadsheet Import</span><br />
+        <span class="menuDescSmall" style="color: white">Batch add employees from spreadsheet</span>
+    </span>
+</a>
+
 <a href="?a=mod_system" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: black" tabindex="0">
         <img class="menuIconSmall" src="../../libs/dynicons/?img=preferences-desktop.svg&amp;w=72" style="position: relative" alt="Bookmarks" title="Bookmarks" />
@@ -67,6 +75,8 @@ Programmer Options:<br />
         <span class="menuDescSmall" style="color: white">Edit site name and other parameters</span>
     </span>
 </a>
+
+
 
 <a href="?a=admin_update_database" tabindex="-1">
     <span class="menuButton" style="background-color: #ffefa5" tabindex="0">

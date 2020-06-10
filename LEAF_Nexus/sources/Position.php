@@ -126,14 +126,13 @@ class Position extends Data
     public function addNew($positionTitle, $parentID = 0, $groupID = 0)
     {
         $memberships = $this->login->getMembership();
-
         $groupID = (int)$groupID;
         if (!is_numeric($parentID))
         {
             throw new Exception('Invalid input: parentID');
         }
         if ($parentID == 0
-            && $memberships['groupID'] != 1)
+            && (!in_array(1, $memberships['groupID']))) 
         {
             throw new Exception('Admin access required to add a position without a supervisor.');
         }
@@ -335,6 +334,7 @@ class Position extends Data
         $this->db->prepared_query('INSERT INTO relation_position_employee (positionID, empUID, isActing)
                                         VALUES (:positionID, :empUID, :isActing)', $vars);
 
+        // since there's no ID for relation_position_employee, this always returns 0 - should it?
         return $this->db->getLastInsertID();
     }
 
