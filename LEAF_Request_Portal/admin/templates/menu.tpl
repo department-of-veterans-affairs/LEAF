@@ -5,18 +5,18 @@
         <a href="javascript:void(0);"><i aria-hidden="true" class="fas fa-bars"></i><i aria-hidden="true" class="fas fa-times"></i><span id="toggleMenu-text">Toggle Navigation</span></a>
     </li>
     
-    <li class="leaf-width-7rem leaf-mob-menu"><a href="../">Home</a></li>
+    <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>
 
-    <li class="leaf-width-10rem leaf-mob-menu"><a href="../?a=reports">Report Builder</a></li>
+    <li class="leaf-width-8rem leaf-mob-menu"><a href="../?a=reports">Report Builder</a></li>
     
-    <li class="leaf-width-10rem leaf-mob-menu lev2">
+    <li class="leaf-width-8rem leaf-mob-menu lev2">
         <a href="javascript:void(0);">Site Links</a>
         <ul>
             <li><a href="javascript:void(0);">Nexus: Org Charts</a></li>
         </ul>
     </li>
 
-    <li class="leaf-width-10rem leaf-mob-menu lev2">
+    <li class="leaf-width-8rem leaf-mob-menu lev2">
         <a href="javascript:void(0);">Admin</a>
         <ul>
 
@@ -76,7 +76,7 @@
     </li>
 
     <li class="leaf-width-4rem leaf-mob-menu lev2">
-        <a href="javascript:void(0);"><i class='fas fa-user-circle' alt='User Account Menu'></i></a>
+        <a href="javascript:void(0);"><i class='fas fa-user-circle leaf-usericon' alt='User Account Menu'></i></a>
         <ul class="leaf-usernavmenu">
             <li><a href="../?a=logout">User: <!--{$name}--></a></li>
             <li><a href="../?a=logout">Sign Out</a></li>

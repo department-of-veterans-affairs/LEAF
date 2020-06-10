@@ -66,7 +66,7 @@ label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
 .leaf-btn-icon {margin-right: 0.5rem;}
 .leaf-btn-small {padding: 0.5rem; font-size: 0.7rem;}
 .leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
-.leaf-side-btn {width: 12.8rem; display: block; margin-bottom: 0.7rem; text-align: left;}
+.leaf-side-btn {width: 13.0rem; display: block; margin-bottom: 0.7rem; text-align: left;}
 
 /* ############### SPECIAL CLASSES ################# */
 .leaf-row-space {height: 1rem; margin: 0.2rem 0; clear: both;}
@@ -237,8 +237,8 @@ ul.leaf-progress-bar {
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
     .default-container {width: 100%;}
-    .sidenav { display: block; float: left; margin: 1rem; padding-left: 1rem; width: 15rem; text-align: center;}
-    .sidenav-right { display: block; float: right; margin: 1rem; padding-right: 1rem; width: 15rem; text-align: center;}
+    .sidenav { display: block; float: left; margin: 0.6rem 1rem; padding: 1rem; width: 15rem; text-align: center;}
+    .sidenav-right { display: block; float: right; margin: 0.6rem 1rem; padding: 1rem; width: 15rem; text-align: center;}
     .usa-banner {font-family: 'Public Sans Regular';}
     .usa-input {height: 1rem; width: auto;}
     .ui-dialog-title {font-family: 'Public Sans Bold'; font-size: 1.1rem;}
@@ -254,6 +254,7 @@ ul.leaf-progress-bar {
         position: relative;
         width: calc(100% - 30rem);
         white-space: normal;
+        margin: 0.6rem 0.9rem;
     }
 
     /* ############### LEAF HEADER ################# */

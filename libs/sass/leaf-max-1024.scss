@@ -17,8 +17,8 @@
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
     .default-container {width: 100%;}
-    .sidenav {float: left; margin: 0.5rem; padding-left: 0.5rem; width: 15rem;}
-    .sidenav-right {float: right; margin: 0.5rem; padding-right: 0.5rem; width: 15rem;}
+    .sidenav {display: block; margin: 0.5rem; padding-left: 0.5rem; width: 15rem;}
+    .sidenav-right {display: block; margin: 0.5rem; padding-right: 0.5rem; width: 15rem;}
     .usa-banner__header {padding-bottom: .2rem; padding-top: .2rem; min-height: 0;}
     .usa-banner__header-close-text, .usa-banner__header-text {font-size: .6rem; letter-spacing: 0.01rem;}
     h1, h2, h3, h4, h5, h6 {margin: 0; color: #3d4551;}
@@ -46,7 +46,7 @@
         margin: 1.6rem 0 0 0.2rem;
         white-space: nowrap;
     }
-    #nav {margin: 1.2rem 2.4rem 0 0; font-size: 0.7rem;}
+    #nav {margin: 1.4rem 2.4rem 0 0; font-size: 0.7rem;}
 
     /* ############### widths by rems ################# */
     .leaf-width-1rem {width: 1rem;}

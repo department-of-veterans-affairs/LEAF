@@ -1,6 +1,6 @@
 <div class="leaf-center-content">
 
-    <h2>User Access Groups<span class="leaf-title-inst">Click cards to edit.</span></h2>
+    
 
     <!--{assign var=right_nav_test value="
         <button class='usa-button leaf-btn-med usa-button--base leaf-side-btn' onclick='importGroup();'>
@@ -25,6 +25,8 @@
 
     <main class="main-content">
 
+        <h2>User Access Groups<span class="leaf-title-inst">Click cards to edit.</span></h2>
+        
         <div>
             <h3 role="heading" tabindex="-1">Site Administrators</h3>
         </div>
