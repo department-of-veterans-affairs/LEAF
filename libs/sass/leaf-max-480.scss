@@ -3,12 +3,13 @@
 @media (max-width: 30rem) {
 
     /* ############### CONTENT CONTAINERS ################# */
-    .leaf-admin-content {max-width: 30rem; margin: 0.4rem 0.6rem;}
+    .leaf-admin-content {width: calc(100% - 2rem); margin: 0.4rem 0.6rem;}
 
     /* ############### USWDS OVERRIDES ################# */
-    .sidenav { display: block; margin: 1rem; padding: 1rem; float: none; text-align: center;}
-    .sidenav-right { display: block; margin: 1rem; padding: 1rem; float: none; text-align: center;}
-    .main-content {display: block; clear: both; width: 100%; margin: 1rem;}
+    .sidenav { display: block; margin: 1rem; padding: 1rem; float: none; width: calc(100% - 2rem); }
+    .sidenav-right { display: block; margin: 1rem; padding: 1rem; float: none; width: calc(100% - 2rem); }
+    .main-content {display: block; clear: both; width: 100%; margin: 1rem; padding: 1rem;}
+    .usa-button {width: 100%;}
 
     /* ############### LEAF HEADER ################# */
     .usa-header, .site-header {height: 3.6rem; width: 100%;}
@@ -23,6 +24,9 @@
             display: none;
         }
     #nav {margin: 1.0rem 0.4rem 0 0;}
+
+    /* ############### LEAF ADMIN BUTTONS ################# */
+    .leaf-admin-button {width: 99%;}
     
 
 }
