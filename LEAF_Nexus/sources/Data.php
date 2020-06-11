@@ -366,6 +366,7 @@ abstract class Data
      */
     public function modify($UID)
     {
+        global $config;
         if (!is_numeric($UID))
         {
             throw new Exception($this->dataTableDescription . ' ID required');
@@ -401,11 +402,11 @@ abstract class Data
                     {
                         $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
                         // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
-                        if (!is_dir(Config::$uploadDir))
+                        if (!is_dir($config->$uploadDir))
                         {
-                            mkdir(Config::$uploadDir, 755, true);
+                            mkdir($config->$uploadDir, 755, true);
                         }
-                        move_uploaded_file($_FILES[$indicator]['tmp_name'], Config::$uploadDir . $sanitizedFileName);
+                        move_uploaded_file($_FILES[$indicator]['tmp_name'], $config->$uploadDir . $sanitizedFileName);
                     }
                     else
                     {
@@ -622,6 +623,7 @@ abstract class Data
      */
     public function deleteAttachment($categoryID, $UID, $indicatorID, $file)
     {
+        global $config;
         if (!is_numeric($categoryID) || !is_numeric($UID) || !is_numeric($indicatorID) || $file == '')
         {
             return 0;
@@ -642,7 +644,7 @@ abstract class Data
         $inputFilename = html_entity_decode($this->sanitizeInput($file));
         $file = $this->getFileHash($categoryID, $UID, $indicatorID, $inputFilename);
 
-        $uploadDir = Config::$uploadDir;
+        $uploadDir = $config->$uploadDir;
 
         if (!is_array($value))
         {
