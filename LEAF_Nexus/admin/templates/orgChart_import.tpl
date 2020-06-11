@@ -151,7 +151,7 @@
                 valid = false;
             }
 
-            if(positionResponse && positionResponse.positionID){
+            if(positionResponse && positionResponse.positionID && supervisorResponse && supervisorResponse.empUID){
                 var found = false;
                 var fullSupervisorInfo = await getEmployeeData(supervisorResponse.empUID);
 
