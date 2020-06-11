@@ -37,7 +37,7 @@
                 #nav > ul > li.leaf-mob-menu {
                     width: 12.8rem; 
                     padding: 0.2rem 0;
-                    margin-left: -10.2rem;
+                    margin-left: -10.0rem;
                 }
             #nav > ul > li:not(#toggleMenu) > a {
                 text-decoration: none;
@@ -46,7 +46,7 @@
             }
             #nav > ul > li#toggleMenu {background-color: none;}
               #nav > ul > li#toggleMenu > a {text-decoration: none;}
-            #nav > ul > li:nth-child(2) {margin-top: 0.7rem;}
+            #nav > ul > li:nth-child(2) {margin-top: 1.2rem;}
       }
   
   /* Any sub menu */
@@ -102,13 +102,25 @@
         #nav #toggleMenu {display: none;}
     }
     @media screen and (max-width: 48.4rem) {
-        #nav #toggleMenu {font-size: 1.4rem; line-height: 1.4rem; background-color: #252f3e; }
-        #nav #toggleMenu.js-open {width: 27px; height: 27px; }
-        #nav #toggleMenu.js-open .fa-times {display: block; width: 27px; height: 27px; color: #fff;}
-        #nav #toggleMenu.js-open .fa-bars {display: none;}
-        #nav #toggleMenu.js-open a {width: 24px; height: 24px; display: block; text-decoration: none; margin-bottom: 0.8rem;}
+        #nav #toggleMenu {background-color: #252f3e;}
+        #nav #toggleMenu.js-open { }
+        #nav #toggleMenu.js-open .fa-times {display: block; color: #fff; font-size: 1.4rem; }
+        #nav #toggleMenu.js-open .leaf-menu {display: none;}
+          .leaf-menu button {
+            color: #fff; 
+            font-size: 0.5rem; 
+            font-family: 'Public Sans Bold';
+            border: 2px solid #fff; 
+            background: none; 
+            border-radius: 3px; 
+            width: 38px; 
+            height: 24px; 
+            padding: 0.2rem;
+            text-align: center;
+          }
+        #nav #toggleMenu.js-open a {display: block; text-decoration: none; margin-bottom: 0.8rem;}
         #nav #toggleMenu:not(.js-open) .fa-times {display: none;}
-        #nav #toggleMenu:not(.js-open) .fa-bars {display: block; width: 27px; height: 27px; color: #fff; text-decoration: none; }
+        #nav #toggleMenu:not(.js-open) .leaf-menu {display: block; color: #fff; text-decoration: none; }
         span#toggleMenu-text {position: absolute; opacity: 0;}
     }
   
