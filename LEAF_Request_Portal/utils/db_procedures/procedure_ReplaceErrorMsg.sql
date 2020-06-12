@@ -11,7 +11,7 @@ GO
 */
 
 /********* Create procedure for replacing error string ****************/
-CREATE DEFINER=`tester`@`%` PROCEDURE `ReplaceErrorMsg`(find varchar(255), 
+CREATE PROCEDURE `ReplaceErrorMsg`(find varchar(255), 
         replce varchar(255))
 BEGIN
 	DECLARE loopdone INTEGER DEFAULT 0;
