@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="../admin/css/leaf.css" />
+<link rel="stylesheet" href="../../../libs/css/leaf.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.1/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
@@ -128,9 +128,8 @@
 
             var responses = await Promise.all(validationPromises);
 
-            var userResponse = responses[0][1];
-
-            var supervisorResponse = responses[1][1];
+            var userResponse = responses[0][Object.keys(responses[0])[0]];
+            var supervisorResponse = responses[1][Object.keys(responses[1])[0]];
             var positionResponse = responses[2];
 
             if(userResponse && userResponse.userName){
@@ -529,7 +528,7 @@
             </div>
             <div class="grid-row leaf-buttonBar" style="text-align:left;">
                 <div class="leaf-displayInlineBlock leaf-width100pct">
-                    <button class="usa-button usa-button--big">Return to OC Admin</button>
+                    <a href="./"><button class="usa-button usa-button--big">Return to OC Admin</button></a>
                 </div>
             </div>
 
