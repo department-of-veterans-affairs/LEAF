@@ -22,7 +22,7 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 $script = isset($_GET['s']) ? XSSHelpers::scrubFilename(XSSHelpers::xscrub($_GET['s'])) : '';
 
 $main = new Smarty;
-$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
+$main->setTemplateDir(__DIR__."/")->setCompileDir(__DIR__."/templates_c/");
 $main->left_delimiter = '{{';
 $main->right_delimiter = '}}';
 
