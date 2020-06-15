@@ -15,9 +15,9 @@
 
     <!--{assign var=left_nav_content value="
         <h3>Access Categories</h3>
-        <ul class="usa-sidenav">
-            <li class="usa-sidenav__item">Site Administrators</li>
-            <li class="usa-sidenav__item">User Groups</li>
+        <ul class='usa-sidenav'>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)'>Site Administrators</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)'>User Groups</a></li>
         </ul>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
@@ -25,7 +25,7 @@
 
     <main class="main-content">
 
-        <h2>User Access Groups<span class="leaf-title-inst">Click cards to edit.</span></h2>
+        <h2>User Access Groups</h2>
         
         <div>
             <h3 role="heading" tabindex="-1">Site Administrators</h3>

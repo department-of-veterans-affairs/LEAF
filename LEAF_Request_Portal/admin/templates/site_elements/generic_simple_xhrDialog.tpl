@@ -1,20 +1,26 @@
-<div id="simplexhrDialog" style="visibility: hidden; display: none; background-color: white; padding: 4px">
+<div id="simplexhrDialog" role="dialog" class="leaf-dialog-container">
     
-    <div>
+    <div role="document">
 
-        <button id="simplebutton_cancelchange" class="usa-button usa-button--outline leaf-btn-med" style="display: none;">
-            <i class="fas fa-ban leaf-btn-icon"></i>Cancel
-        </button>
-
-        <button id="simplebutton_save" class="usa-button leaf-btn-med" style="display: none">
-            <i class="fas fa-save leaf-btn-icon"></i>Save Change
-        </button>
-
-        <div id="simpleloadIndicator" style="visibility: hidden; z-index: 9000; position: absolute; text-align: center; padding: 16px; height: 400px; width: 526px">
-            <img src="../images/largespinner.gif" alt="loading..." />
+        <div id="simpleloadIndicator" class="leaf-dialog-loader">
+            Loading...<img src="../images/largespinner.gif" alt="loading..." />
         </div>
 
-        <div id="simplexhr" style="width: 540px; height: 420px; padding: 8px; overflow: auto;"></div>
+        <main id="simplexhr" class="leaf-dialog-content" role="main"></main>
+
+        <aside class="leaf-buttonBar" role="complementary">
+            <div class="leaf-float-right">
+                <button id="simplebutton_cancelchange" class="usa-button usa-button--outline" style="display: none;">
+                    Cancel
+                </button>
+            </div>
+
+            <div class="leaf-float-left">
+                <button id="simplebutton_save" class="usa-button" style="display: none">
+                    Save
+                </button>
+            </div>
+        </aside>
 
     </div>
 
