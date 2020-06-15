@@ -172,11 +172,11 @@ groupSelector.prototype.search = function() {
 	            	t.jsonResponse = response;
 
 	            	$('#' + t.prefixID + 'result').html('');
-	            	var buffer = '<table class="groupSelectorTable"><tr><th>Group Title</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+	            	var buffer = '<table class="groupSelectorTable usa-table"><thead><tr><th>Group Title</th></tr></thead><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
                         $('#' + t.prefixID + 'result').html(buffer + $('#' + t.prefixID + 'result').html());
 
                         if(response.length == 0) {
-                            $('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center">No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
+                            $('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="text-align: center">No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
                             $('#' + t.prefixID + 'emp0_message').text(txt);
                             $('#' + t.prefixID + 'status').text('No results found for term ' + txt);
                         } else {

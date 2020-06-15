@@ -151,8 +151,8 @@ function editGroupName() {
     if(groupAbbr === '') {
         groupAbbr = 'none';
     }
-    dialog.setContent('<div style="display: inline">Group Name: </div><input aria-label="Group Name is <!--{$group[0].groupTitle}-->" id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
-    		<div style="display: inline">Alternate Names: </div><input aria-label="Alternate Names are '+ groupAbbr +'" id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
+    dialog.setContent('<div>Group Name: </div><input aria-label="Group Name is <!--{$group[0].groupTitle}-->" id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
+    		<div>Alternate Names: </div><input aria-label="Alternate Names are '+ groupAbbr +'" id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
 
     dialog.show(); // need to show early because of ie6
 
@@ -174,7 +174,7 @@ function editGroupName() {
 
 function addEmployeePosition() {
 
-    dialog.setContent('<div style="display: inline">Employee/Position: </div><div id="positionSelector"></div><div id="employeeSelector"></div><br />\
+    dialog.setContent('<div>Employee/Position: </div><div id="positionSelector"></div><div id="employeeSelector"></div><br />\
     		       		<fieldset><legend>Options</legend>\
     		       		<div id="container_ignorePositions"><input aria-label="Search employees only" id="ignorePositions" type="checkbox" value="employeeOnly" /> Search Employees Only</div>\
     		       		<div id="container_includeSub"><input aria-label="Apply to all subordinates" id="includeSub" type="checkbox" value="applyRecursive" disable="disabled" /> Apply to all subordinates</div>\

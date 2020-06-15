@@ -1,9 +1,9 @@
 <div id="history-slice">
 </div>
-
-<a id="prev" class="buttonNorm" style="float: left;cursor:pointer;"><- Prev</a>
-
-<a id="next" class="buttonNorm" style="float:right;cursor:pointer;">Next -></a>
+<div class="leaf-buttonBar">
+    <a id="prev" class="usa-button usa-button--base leaf-btn-small" style="color: #fff;">&lt; Prev</a>
+    <a id="next" class="usa-button usa-button--base leaf-btn-small" style="color: #fff;">Next &gt;</a>
+</div>
 
 
 

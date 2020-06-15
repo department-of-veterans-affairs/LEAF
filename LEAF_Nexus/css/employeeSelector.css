@@ -1,7 +1,6 @@
 .employeeSelectorBorder {
-    border: 0px;
-    padding: 4px;
-    margin-bottom: 8px;
+    margin-bottom: 1.2rem;
+    height: 3rem;
 }
 
 .employeeSelectorInput {
@@ -41,32 +40,11 @@
     cursor: pointer;
 }
 
-.employeeSelected > td > a {
-    color: white;
-}
+.employeeSelected > td > a {color: white;}
 
-table.employeeSelectorTable {
-    width: 100%;
-    border: 1px solid black;
-    border-collapse: collapse;
-    margin-top: 3rem;
-}
+table.employeeSelectorTable {width: 100%;}
 
-.employeeSelectorTable th {
-    background-color: #ececec;
-    text-align: center;
-    color: #888888;
-    font-size: 80%
-}
-
-.employeeSelectorTable td {
-    border: 1px solid black;
-    padding: 8px;
-}
-
-.employeeSelectorName {
-    font-weight: bold;
-}
+.employeeSelectorTable th {font-size: 80%}
 
 .employeeSelectorPhoto {
     float: right;

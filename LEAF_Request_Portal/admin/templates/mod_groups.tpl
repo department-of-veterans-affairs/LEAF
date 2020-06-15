@@ -154,7 +154,7 @@ function focusGroupsAndMembers(groupID) {
     });
 }
 function getGroupList() {
-    $('#groupList').html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
+    $('#groupList').html('<div style="text-align: center; font-size: 24px; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
 
     $.ajax({
         type: 'GET',
@@ -218,8 +218,8 @@ function getGroupList() {
                 else { // if is admin
                     function openAdminGroup(){
                         dialog.setContent(
-                            '<button style="float:right" class="usa-button usa-button--secondary leaf-btn-small" onclick="viewHistory(1)"><i class="fas fa-clock leaf-btn-icon"></i>View History</button>'+
-                            '<h2 role="heading" tabindex="-1">System Administrators</h2><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><h3 role="heading" tabindex="-1" >Add Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
+                            '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
+                            '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><h3 role="heading" tabindex="-1" >Add Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -428,7 +428,7 @@ function tagAndUpdate(groupID, callback) {
 
 function importGroup() {
     dialog.setTitle('Import Group');
-    dialog.setContent('<h4 role="heading" tabindex="-1">Import a group from another LEAF site:</h4><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container" style="height: 40px;"></div></div>');
+    dialog.setContent('<h4 role="heading" tabindex="-1">Import a group from another LEAF site:</h4><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
 
     var groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';

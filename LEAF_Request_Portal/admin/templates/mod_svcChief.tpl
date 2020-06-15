@@ -1,20 +1,22 @@
 <div class="leaf-center-content">
 
-    <h2>Service Chiefs</h2>
+    <main class="main-content">
+        <h2>Service Chiefs</h2>
 
-    <div id="sideBar" style="width: 200px">
+        <div id="sideBar">
 
-        <button id="btn_uploadFile" class="usa-button" onclick="syncServices();">
-            <i class="fas fa-file-import leaf-btn-icon"></i>Import from Nexus
-        </button>
-        
+            <button id="btn_uploadFile" class="usa-button" onclick="syncServices();">
+                <i class="fas fa-file-import leaf-btn-icon"></i>Import from Nexus
+            </button>
+            
+        </div>
+
+        <div>
+            <div id="groupList"></div>
+        </div>
+
+        <div class="leaf-row-space"></div>
     </div>
-
-    <div>
-        <div id="groupList"></div>
-    </div>
-
-    <div class="leaf-row-space"></div>
     
 </div>
 

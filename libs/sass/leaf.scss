@@ -66,7 +66,7 @@ label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
     }
 .usa-button {font-family: 'Public Sans Bold'; white-space: nowrap; padding: 0.8rem 0.6rem; min-width: 4rem;}
 .leaf-btn-icon {margin-right: 0.5rem;}
-.leaf-btn-small {padding: 0.5rem; font-size: 0.7rem;}
+.leaf-btn-small {padding: 0.5rem; font-size: 0.4rem;}
 .leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
 .leaf-side-btn {width: 13.0rem; display: block; margin-bottom: 0.7rem;}
 .leaf-btn-green {background-color: #00a91c;}
@@ -199,6 +199,7 @@ ul.leaf-progress-bar {
             }
 
 /* ############### PADDINGS, MARGINS ################# */
+.leaf-marginAll-1rem {margin: 1rem;}
 .leaf-marginTop-halfRem {margin-top: 0.5rem;}
 .leaf-marginTop-1rem {margin-top: 1rem;}
 .leaf-marginTop-2rem {margin-top: 2rem;}
@@ -218,6 +219,14 @@ ul.leaf-progress-bar {
 .leaf-width80pct { width: 80%; }
 .leaf-width90pct { width: 90%; }
 .leaf-width100pct { width: 100%; }
+
+/* ############### FONT SIZES ################# */
+.leaf-font0-5rem { font-size: 0.5rem; }
+.leaf-font0-6rem { font-size: 0.6rem; }
+.leaf-font0-7rem { font-size: 0.7rem; }
+.leaf-font0-8rem { font-size: 0.8rem; }
+.leaf-font0-9rem { font-size: 0.9rem; }
+.leaf-font1rem { font-size: 1.0rem; }
 
 
 /* ###################################################################### */
@@ -240,29 +249,28 @@ ul.leaf-progress-bar {
     .usa-logo {margin: 0; height: 4.6rem; float: left;}
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
-    .sidenav { display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; width: 15rem;}
-    .sidenav-right { display: block; float: right; margin: 0.6rem 1rem; padding: 1.0rem; width: 15rem;}
+    .sidenav { display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
+    .sidenav-right { display: block; float: right; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
     .usa-banner {font-family: 'Public Sans Regular';}
     .usa-input {height: 1rem; width: auto;}
     .usa-banner__header {padding-bottom: .3rem; padding-top: .3rem; min-height: 0;}
     .usa-banner__header-close-text, .usa-banner__header-text {font-size: .7rem; letter-spacing: 0.01rem;}
+    .usa-table {font-size: 0.9rem;}
     .main-content {
-        right: 0;
-        bottom: 0;
         display: inline-block;
         position: relative;
-        width: calc(100% - 30rem);
+        width: calc(100% - 32rem);
         white-space: normal;
         margin: 0.6rem 0.9rem;
     }
 
     /* ############### UI DIALOG OVERRIDES ################# */
-    .ui-dialog-title {font-family: 'Public Sans Bold'; font-size: 1.3rem; padding-top: 0.4rem;}
+    .ui-dialog-title {font-family: 'Public Sans Bold'; font-size: 1.6rem; padding-top: 0.4rem;}
     .ui-dialog {border-radius: 6px;}
     .ui-widget-header {border: 0; background-color: none; background: none;}
     .leaf-dialog-container {visibility: hidden; display: none;}
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
-    .leaf-dialog-content {min-height: 6rem; padding: 0.5rem; max-width: 36rem;}
+    .leaf-dialog-content {min-height: 6rem; padding: 0.5rem; max-width: 54rem;}
     
 
     /* ############### LEAF HEADER ################# */

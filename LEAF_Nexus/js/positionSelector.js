@@ -154,7 +154,7 @@ positionSelector.prototype.search = function() {
 	            	$('#' + t.prefixID + 'result').html(buffer);
 
                         if(response.length == 0) {
-                            $('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=2>No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
+                            $('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'emp0"><td style="text-align: center" colspan=2>No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
                             $('#' + t.prefixID + 'emp0_message').text(txt);
                             $('#' + t.prefixID + 'status').text('No results found for term ' + txt);
                         }else {
