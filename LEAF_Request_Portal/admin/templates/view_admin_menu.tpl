@@ -44,6 +44,14 @@
 </a>
 <!--{/if}-->
 
+<a href="?a=mod_templates_email" role="button">
+    <span class="menuButton" style="background-color: black">
+        <img class="menuIcon" src="../../libs/dynicons/?img=document-properties.svg&amp;w=96" style="position: relative" alt="Email Template Editor" title="Email Template Editor" />
+        <span class="menuText" style="color: white">Email Template Editor</span><br />
+        <span class="menuDesc" style="color: white">Add and Edit Email Templates</span>
+    </span>
+</a>
+
 <a href="../?a=reports" role="button">
     <span class="menuButton" style="background-color: black">
         <img class="menuIcon" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
@@ -116,6 +124,7 @@
             <span class="menuDesc" style="color: white">Advanced Reports and Custom Pages</span>
         </span>
     </a>
+
 </div>
 
 <br style="clear: both" />
