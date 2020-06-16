@@ -15,7 +15,6 @@ $login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 $login->loginUser();
 
-include_once $currDir . '/../' . Config::$orgchartPath . '/config.php';
 include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Employee.php';
 include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Group.php';
 include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Position.php';
