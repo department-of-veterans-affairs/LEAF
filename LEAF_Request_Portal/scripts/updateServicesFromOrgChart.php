@@ -15,11 +15,10 @@ $login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 $login->loginUser();
 
-include_once $currDir . '/../' . $config->orgchartPath . '/config.php';
-include_once $currDir . '/../' . $config->orgchartPath . '/sources/Employee.php';
-include_once $currDir . '/../' . $config->orgchartPath . '/sources/Group.php';
-include_once $currDir . '/../' . $config->orgchartPath . '/sources/Position.php';
-include_once $currDir . '/../' . $config->orgchartPath . '/sources/Tag.php';
+include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Group.php';
+include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Position.php';
+include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
 $employee = new Orgchart\Employee($db_phonebook, $login);
 $group = new Orgchart\Group($db_phonebook, $login);

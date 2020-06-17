@@ -6,7 +6,7 @@ namespace Orgchart{
         public $city;
         public $adminLogonName;    // Administrator's logon name
         public $adPath; // Active directory paths
-        public static $uploadDir;
+        public $uploadDir;
         public $dbHost;
         public $dbName;
         public $dbUser;

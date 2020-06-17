@@ -46,7 +46,7 @@ $value = $data[$_GET['indicatorID']]['data'];
 
 $inputFilename = html_entity_decode($type->sanitizeInput($_GET['file']));
 
-$filename = Orgchart\Config::$uploadDir . $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $inputFilename);
+$filename = $config->uploadDir . $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $inputFilename);
 
 if (is_array($value)
     && array_search($inputFilename, $value) === false)
