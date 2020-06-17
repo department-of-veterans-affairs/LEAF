@@ -50,25 +50,25 @@ class Form
         // set up org chart assets
         if (!class_exists('Orgchart\Config'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Position.php';
         }
         if (!class_exists('Orgchart\Login'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Login.php';
         }
         if (!class_exists('Orgchart\Employee'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Employee.php';
         }
         if (!class_exists('Orgchart\Position'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Position.php';
         }
         if (!class_exists('Orgchart\Group'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Group.php';
         }
         $oc_db = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $oc_login = new OrgChart\Login($oc_db, $oc_db);
@@ -761,6 +761,7 @@ class Form
      */
     public function deleteAttachment($recordID, $indicatorID, $series, $fileIdx)
     {
+        global $config;
         if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series) || !is_numeric($fileIdx))
         {
             return 0;
@@ -779,7 +780,7 @@ class Form
         $value = $data[$indicatorID]['value'];
         $file = $this->getFileHash($recordID, $indicatorID, $series, $data[$indicatorID]['value'][$fileIdx]);
 
-        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : '';
+        $uploadDir = isset($config->uploadDir) ? $config->uploadDir : '';
 
         if (isset($value[$fileIdx]))
         {
@@ -1022,6 +1023,7 @@ class Form
      */
     public function doModify($recordID)
     {
+        global $config;
         if (!is_numeric($recordID))
         {
             return 0;
@@ -1058,7 +1060,7 @@ class Form
                     $fileExtension = strtolower($fileExtension);
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
-                        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : '';
+                        $uploadDir = isset($config->uploadDir) ? $config->uploadDir : '';
 
                         $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
                         if (!empty($uploadDir)) {
@@ -3489,6 +3491,7 @@ class Form
      * @return int 1 for success, errors for failure
      */
     public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID, $series) {
+        global $config;
         if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series))
         {
             $errors = array('type' => 2);
@@ -3496,7 +3499,7 @@ class Form
         }
 
         // prepends $uploadDir with '../' if $uploadDir ends up being relative './UPLOADS/'
-        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+        $uploadDir = isset($config->uploadDir) ? $config->uploadDir : UPLOAD_DIR;
         $uploadDir = $uploadDir === UPLOAD_DIR ? '../' . UPLOAD_DIR : $uploadDir;
 
         $cleanedFile = XSSHelpers::scrubFilename($fileName);

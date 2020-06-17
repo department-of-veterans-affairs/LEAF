@@ -42,7 +42,7 @@ $_GET['form'] = (int)$_GET['form'];
 $_GET['id'] = (int)$_GET['id'];
 $_GET['series'] = (int)$_GET['series'];
 
-$uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+$uploadDir = isset($config->uploadDir) ? $config->uploadDir : UPLOAD_DIR;
 $filename = $uploadDir . Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
 
 $filenameParts = explode('.', $filename);

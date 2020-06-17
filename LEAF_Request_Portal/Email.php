@@ -72,7 +72,8 @@ class Email
 
     public function setSubject($i)
     {
-        $prefix = isset(Config::$emailPrefix) ? Config::$emailPrefix : 'Resources: ';
+        global $config;
+        $prefix = isset($config->emailPrefix) ? $config->emailPrefix : 'Resources: ';
         $this->emailSubject = $prefix . strip_tags($i);
     }
 
@@ -167,18 +168,19 @@ class Email
 
     public function sendMail()
     {
+        global $config;
         $currDir = dirname(__FILE__);
 
-        if (isset(Config::$emailCC) && count(Config::$emailCC) > 0)
+        if (isset($config->emailCC) && count($config->emailCC) > 0)
         {
-            foreach (Config::$emailCC as $recipient)
+            foreach ($config->emailCC as $recipient)
             {
                 $this->addCC($recipient);
             }
         }
-        if (isset(Config::$emailBCC) && count(Config::$emailBCC) > 0)
+        if (isset($config->emailBCC) && count($config->emailBCC) > 0)
         {
-            foreach (Config::$emailBCC as $recipient)
+            foreach ($config->emailBCC as $recipient)
             {
                 $this->addBCC($recipient);
             }
@@ -219,26 +221,26 @@ class Email
         }
         if (!class_exists('Orgchart\Config'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Group.php';
         }
         if (!class_exists('Orgchart\Login'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Login.php';
         }
         if (!class_exists('Orgchart\Employee'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Employee.php';
         }
         if (!class_exists('Orgchart\Position'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Position.php';
         }
         if (!class_exists('Orgchart\Group'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Group.php';
         }
         
         $oc_db = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);

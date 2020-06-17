@@ -118,18 +118,18 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
-                                           '../' . Config::$orgchartPath . '/js/groupSelector.js',
+        $main->assign('javascripts', array('../' . $config->orgchartPath . '/js/nationalEmployeeSelector.js',
+                                           '../' . $config->orgchartPath . '/js/groupSelector.js',
         ));
 
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('orgchartPath', '../' . $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
+        $t_form->assign('orgchartImportTag', $config->orgchartImportTags[0]);
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
-                                           '../' . Config::$orgchartPath . '/css/employeeSelector.css',
-                                           '../' . Config::$orgchartPath . '/css/groupSelector.css',
+                                           '../' . $config->orgchartPath . '/css/employeeSelector.css',
+                                           '../' . $config->orgchartPath . '/css/groupSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl')));
 
@@ -144,14 +144,14 @@ switch ($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
+        $main->assign('javascripts', array('../' . $config->orgchartPath . '/js/nationalEmployeeSelector.js',
         ));
 
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('orgchartPath', '../' . $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('stylesheets', array('css/mod_groups.css',
-                '../' . Config::$orgchartPath . '/css/employeeSelector.css',
+                '../' . $config->orgchartPath . '/css/employeeSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_svcChief.tpl')));
 
@@ -167,15 +167,15 @@ switch ($action) {
         $main->assign('useUI', true);
 
         $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
-                                           '../' . Config::$orgchartPath . '/js/groupSelector.js',
+                                           '../' . $config->orgchartPath . '/js/groupSelector.js',
                                            '../../libs/jsapi/portal/LEAFPortalAPI.js',
                                            '../../libs/js/LEAF/XSSHelpers.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
-                                           '../' . Config::$orgchartPath . '/css/groupSelector.css',
+                                           '../' . $config->orgchartPath . '/css/groupSelector.css',
         ));
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
-        $t_form->assign('orgchartImportTags', Config::$orgchartImportTags);
+        $t_form->assign('orgchartPath', '../' . $config->orgchartPath);
+        $t_form->assign('orgchartImportTags', $config->orgchartImportTags);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch('mod_workflow.tpl'));
@@ -386,14 +386,14 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
-//   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+//   		$t_form->assign('orgchartPath', '../' . $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('javascripts', array('../../libs/js/LEAF/XSSHelpers.js',
                                            '../js/formQuery.js'));
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
-        $t_form->assign('importTags', $config::$orgchartImportTags);
+        $t_form->assign('importTags', $$config->orgchartImportTags);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));
         $main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl')));
 
@@ -407,9 +407,9 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
 
             $main->assign('useUI', true);
-            //   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+            //   		$t_form->assign('orgchartPath', '../' . $config->orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('importTags', $config::$orgchartImportTags);
+            $t_form->assign('importTags', $$config->orgchartImportTags);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
             $main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl')));
 
@@ -438,7 +438,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPath);
 
         $main->assign('javascripts', array(
             '../../libs/js/LEAF/XSSHelpers.js',
@@ -466,7 +466,7 @@ switch ($action) {
             $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
-            $t_form->assign('orgchartPath', Config::$orgchartPath);
+            $t_form->assign('orgchartPath', $config->orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
 
@@ -494,7 +494,7 @@ switch ($action) {
 $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
-$t_menu->assign('orgchartPath', Config::$orgchartPath);
+$t_menu->assign('orgchartPath', $config->orgchartPath);
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';

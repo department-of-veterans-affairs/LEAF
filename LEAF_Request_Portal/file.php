@@ -43,7 +43,7 @@ $_GET['form'] = (int)$_GET['form'];
 $_GET['id'] = (int)$_GET['id'];
 $_GET['series'] = (int)$_GET['series'];
 
-$uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : '';
+$uploadDir = isset($config->uploadDir) ? $config->uploadDir : '';
 $filename = $uploadDir . Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
 
 $awsUtil = new AWSUtil();
