@@ -269,7 +269,7 @@ switch ($action) {
                 $title = $type->getDescription($itemID);
                 break;
             case 'primaryAdmin':
-                include '../sources/System.php';
+                include __DIR__ . '/../sources/System.php';
                 $type = new \System($db, $login);
                 $itemID = null;
                 $title = 'Primary Admin';

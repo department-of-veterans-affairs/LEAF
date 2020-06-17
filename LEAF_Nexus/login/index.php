@@ -5,14 +5,12 @@ $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
 include __DIR__ . '/../db_mysql.php';
-include __DIR__ . '/../config.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
 
-$config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);

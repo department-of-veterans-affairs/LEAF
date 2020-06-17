@@ -57,7 +57,7 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
@@ -170,7 +170,7 @@ switch ($action) {
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('is_admin', $login->getMembership()['groupID'][1]);
 
-            $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
+            $t_form->assign('ERM_site_resource_management', '');
 
             if (count($summary['employee']) > 0)
             {
@@ -219,7 +219,7 @@ switch ($action) {
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $login->getDomain());
-            $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
+            $t_form->assign('ERM_site_resource_management', '');
 
             if (count($summary) > 0)
             {

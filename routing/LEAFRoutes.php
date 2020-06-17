@@ -38,6 +38,20 @@ class LEAFRoutes {
     }
     private function nexusRoutes(){
         $this->addRoute('GET', '/', 'Nexus/default');
+        $this->addRoute(['GET','POST','DELETE'], '/api/', 'Nexus/api');
+        $this->addRoute('GET', '/auth_domain/', 'Nexus/auth_domain');
+        $this->addRoute('GET', '/auth_cookie/', 'Nexus/auth_cookie');
+        $this->addRoute('GET', '/auth_token/', 'Nexus/auth_token');
+        $this->addRoute('GET', '/js/{jsFile:.+}', 'Nexus/js');
+        $this->addRoute('GET', '/css/{cssFile:.+}', 'Nexus/css');
+        $this->addRoute('GET', '/images/{imageFile:.+}', 'Nexus/image');
+        $this->addRoute('GET', '/login/', 'Nexus/login');
+
+        $this->addRoute('GET', '/admin/', 'Nexus/admin_index');
+        $this->addRoute('GET', '/admin/css/{cssFile:.+}', 'Nexus/admin_css');
+        $this->addRoute(['GET','POST','DELETE'], '/admin/{adminFile:.+}', 'Nexus/admin_other');
+        //default
+        $this->addRoute(['GET','POST','DELETE'], '/{otherFile:.+}', 'Nexus/other');
     }
     private function addRoute($httpMethod, $path, $callback){
         $route = new stdClass;

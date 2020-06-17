@@ -66,10 +66,9 @@ class NationalEmployeeController extends RESTfulResponse
 
                 require_once __DIR__ . "/../../sources/Employee.php";
                 require_once __DIR__ . "/../../sources/Login.php";
-                require_once __DIR__ . "/../../config.php";
                 require_once __DIR__ . "/../../db_mysql.php";
 
-                $config = new Orgchart\Config();
+                global $config;
                 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
                 $login = new Orgchart\Login($db, $db);
                 $localEmp = new Orgchart\Employee($db, $login);

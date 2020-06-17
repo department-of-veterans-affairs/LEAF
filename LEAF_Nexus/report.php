@@ -21,14 +21,11 @@ include __DIR__ . '/globals.php';
 include __DIR__ . '/../libs/smarty/Smarty.class.php';
 include __DIR__ . '/./sources/Login.php';
 include __DIR__ . '/db_mysql.php';
-include __DIR__ . '/config.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
-
-$config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
 
@@ -60,7 +57,7 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
@@ -86,7 +83,7 @@ switch ($action) {
         break;
     default:
         if ($action != ''
-            && file_exists("templates/reports/{$action}.tpl"))
+            && file_exists(__DIR__."/templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
 //    			$main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));

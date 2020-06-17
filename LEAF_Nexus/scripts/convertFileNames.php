@@ -17,9 +17,7 @@ function oldFileHash($categoryID, $uid, $indicatorID, $fileName)
 
 include __DIR__ . '/../sources/Login.php';
 include __DIR__ . '/../db_mysql.php';
-include __DIR__ . '/../config.php';
 
-$config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
@@ -29,15 +27,15 @@ $login->loginUser();
 $uploadPath = '';
 $queue = array();
 clearstatcache();
-if (strpos(Orgchart\Config::$uploadDir, '.') !== 0)
+if (strpos($config->uploadDir, '.') !== 0)
 {
-    $uploadPath = Orgchart\Config::$uploadDir;
-    $queue = scandir(Orgchart\Config::$uploadDir);
+    $uploadPath = $config->uploadDir;
+    $queue = scandir($config->uploadDir);
 }
 else
 {
-    $uploadPath = '../' . Orgchart\Config::$uploadDir;
-    $queue = scandir('../' . Orgchart\Config::$uploadDir);
+    $uploadPath = '../' . $config->uploadDir;
+    $queue = scandir('../' . $config->uploadDir);
 }
 
 foreach ($queue as $file)

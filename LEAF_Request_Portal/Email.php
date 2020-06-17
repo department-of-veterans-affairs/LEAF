@@ -80,7 +80,7 @@ class Email
     {
         $i = str_replace("\r\n", '<br />', $i);
         $smarty = new Smarty;
-        $smarty->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
+        $smarty->setTemplateDir(__DIR__."/templates/email/")->setCompileDir(__DIR__."/templates_c/");
         $smarty->left_delimiter = '{{';
         $smarty->right_delimiter = '}}';
         $smarty->assign('emailBody', $i);
@@ -211,6 +211,7 @@ class Email
 
     private function initOrgchart()
     {
+        global $config;
         // set up org chart assets
         if (!class_exists('DB'))
         {
@@ -218,7 +219,6 @@ class Email
         }
         if (!class_exists('Orgchart\Config'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/config.php';
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
@@ -240,8 +240,8 @@ class Email
         {
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
         }
-        $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        
+        $oc_db = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $oc_login = new OrgChart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
         $this->employee = new OrgChart\Employee($oc_db, $oc_login);
@@ -340,7 +340,7 @@ class Email
     function setSubjectWithTemplate($subjectTemplate)
     {
         $smartySubject = new Smarty;
-        $smartySubject->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
+        $smartySubject->setTemplateDir(__DIR__."/templates/email/")->setCompileDir(__DIR__."/templates_c/");
         $smartySubject->left_delimiter = '{{';
         $smartySubject->right_delimiter = '}}';
         $smartySubject->assign($this->smartyVariables);
@@ -356,7 +356,7 @@ class Email
     function setBodyWithTemplate($bodyTemplate)
     {
         $smartyBody = new Smarty;
-        $smartyBody->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
+        $smartyBody->setTemplateDir(__DIR__."/templates/email/")->setCompileDir(__DIR__."/templates_c/");
         $smartyBody->left_delimiter = '{{';
         $smartyBody->right_delimiter = '}}';
         $smartyBody->assign($this->smartyVariables);

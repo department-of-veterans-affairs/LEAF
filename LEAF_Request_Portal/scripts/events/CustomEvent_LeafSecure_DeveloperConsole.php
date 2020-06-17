@@ -40,11 +40,10 @@ class CustomEvent_LeafSecure_DeveloperConsole
 
         // get the initiator's empUID
         $currDir = dirname(__FILE__);
-        require_once $currDir . '/../../' . Config::$orgchartPath . '/config.php';
         require_once $currDir . '/../../' . Config::$orgchartPath . '/sources/Employee.php';
         require_once $currDir . '/../../' . Config::$orgchartPath . '/sources/Login.php';
-        $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        global $config;
+        $oc_db = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $login = new Orgchart\Login($oc_db, $oc_db);
         $employee = new Orgchart\Employee($oc_db, $login);
 

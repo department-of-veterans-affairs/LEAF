@@ -5,15 +5,12 @@
 
 include __DIR__ . '/globals.php';
 include __DIR__ . '/db_mysql.php';
-include __DIR__ . '/config.php';
 include __DIR__ . '/./sources/Login.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
-
-$config = new Orgchart\Config();
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
@@ -49,7 +46,7 @@ $value = $data[$_GET['indicatorID']]['data'];
 
 $inputFilename = html_entity_decode($type->sanitizeInput($_GET['file']));
 
-$filename = Orgchart\Config::$uploadDir . $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $inputFilename);
+$filename = $config->uploadDir . $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $inputFilename);
 
 if (is_array($value)
     && array_search($inputFilename, $value) === false)

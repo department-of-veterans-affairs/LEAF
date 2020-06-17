@@ -84,7 +84,7 @@ class System
         {
             return 'Admin access required';
         }
-        $list = scandir('../templates/reports/');
+        $list = scandir(__DIR__.'/../templates/reports/');
         $out = array();
         foreach ($list as $item)
         {
@@ -144,9 +144,9 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/reports/{$template}"))
+            if (file_exists(__DIR__."/../templates/reports/{$template}"))
             {
-                $data['file'] = file_get_contents("../templates/reports/{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/reports/{$template}");
             }
         }
 
@@ -193,9 +193,9 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/reports/{$template}"))
+            if (file_exists(__DIR__."/../templates/reports/{$template}"))
             {
-                return unlink("../templates/reports/{$template}");
+                return unlink(__DIR__."/../templates/reports/{$template}");
             }
         }
     }
