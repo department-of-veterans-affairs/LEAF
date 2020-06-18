@@ -978,7 +978,7 @@ function showStepInfo(stepID) {
                         	if(res[i].indicatorID_for_assigned_empUID == null || res[i].indicatorID_for_assigned_empUID == 0) {
                         		indicatorWarning = '<li><span style="color: red; font-weight: bold">A data field (indicatorID) must be set.</span></li>';
                         	}
-                            output += '<li><b style="color: green">'+ res[i].description +'</b> '+ control_unlinkDependency +' (depID: '+ res[i].dependencyID +')<ul class="leaf-ul">'+ indicatorWarning +'<li>indicatorID: '+ res[i].indicatorID_for_assigned_empUID +'<br /><div class="usa-button usa-button--accent-cool leaf-btn-small" onclick="setDynamicApprover('+ res[i].stepID +')">Set Data Field</div></li></ul></li>';
+                            output += '<li><b style="color: green">'+ res[i].description +'</b> '+ control_unlinkDependency +' (depID: '+ res[i].dependencyID +')<ul class="leaf-ul">'+ indicatorWarning +'<li>indicatorID: '+ res[i].indicatorID_for_assigned_empUID +'<br /><button class="usa-button usa-button--accent-cool leaf-btn-small" onclick="setDynamicApprover('+ res[i].stepID +')">Set Data Field</button</li></ul></li>';
                         }
                         else if(res[i].dependencyID == -2) { // dependencyID -2 : requestor followup
                         	output += '<li><b style="color: green">'+ res[i].description +'</b> '+ control_unlinkDependency +' (depID: '+ res[i].dependencyID +')</li>';
@@ -988,13 +988,13 @@ function showStepInfo(stepID) {
                             if(res[i].indicatorID_for_assigned_groupID == null || res[i].indicatorID_for_assigned_groupID == 0) {
                                 indicatorWarning = '<li><span style="color: red; font-weight: bold">A data field (indicatorID) must be set.</span></li>';
                             }
-                            output += '<li><b style="color: green">'+ res[i].description +'</b> '+ control_unlinkDependency +' (depID: '+ res[i].dependencyID +')<ul>'+ indicatorWarning +'<li>indicatorID: '+ res[i].indicatorID_for_assigned_groupID +'<br /><div class="buttonNorm" onclick="setDynamicGroupApprover('+ res[i].stepID +')">Set Data Field</div></li></ul></li>';
+                            output += '<li><b style="color: green">'+ res[i].description +'</b> '+ control_unlinkDependency +' (depID: '+ res[i].dependencyID +')<ul>'+ indicatorWarning +'<li>indicatorID: '+ res[i].indicatorID_for_assigned_groupID +'<br /><button class="usa-button usa-button--accent-cool leaf-btn-small" onclick="setDynamicGroupApprover('+ res[i].stepID +')">Set Data Field</button></li></ul></li>';
                         }
                         else {
                         	if(tDeps[res[i].dependencyID] == undefined) { //
                         		tDeps[res[i].dependencyID] = 1;
-                                output += '<li style="padding-bottom: 8px"><b title="depID: '+ res[i].dependencyID +'" onclick="dependencyGrantAccess('+ res[i].dependencyID +')">'+ res[i].description +'</b> ' + control_editDependency + ' ' + control_unlinkDependency
-                                + '<ul id="step_'+ stepID +'_dep'+ res[i].dependencyID +'"><li style="padding-top: 8px"><span class="buttonNorm" onclick="dependencyGrantAccess('+ res[i].dependencyID +')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" alt="Add" /> Add Group</span></li>\
+                                output += '<li><b title="depID: '+ res[i].dependencyID +'" onclick="dependencyGrantAccess('+ res[i].dependencyID +')">'+ res[i].description +'</b> ' + control_editDependency + ' ' + control_unlinkDependency
+                                + '<ul id="step_'+ stepID +'_dep'+ res[i].dependencyID +'"><li><button class="usa-button usa-button--accent-cool leaf-btn-small" onclick="dependencyGrantAccess('+ res[i].dependencyID +')">Add Group</button></li>\
                                 </ul></li>';
                         	}
                         }
@@ -1021,7 +1021,7 @@ function showStepInfo(stepID) {
                     for(var i in res) {
                         group = '';
                         if(res[i].groupID != null) {
-                            $('#step_'+ stepID +'_dep' + res[i].dependencyID).prepend('<li><span style="white-space: nowrap"><b title="groupID: '+ res[i].groupID +'">'+ res[i].name +'</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="dependencyRevokeAccess('+ res[i].dependencyID +', '+ res[i].groupID +')" alt="Remove" /></span></li>');
+                            $('#step_'+ stepID +'_dep' + res[i].dependencyID).prepend('<li><b title="groupID: '+ res[i].groupID +'">'+ res[i].name +'</b> <i class="fas fa-trash-alt primary" onclick="dependencyRevokeAccess('+ res[i].dependencyID +', '+ res[i].groupID +')" alt="Remove" /></i></li>');
                             counter++;
                         }
                     }
