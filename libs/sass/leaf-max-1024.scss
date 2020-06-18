@@ -17,8 +17,12 @@
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
     .default-container {width: 100%;}
-    .sidenav {display: block; margin: 0.5rem; padding-left: 0.5rem; width: 15rem;}
-    .sidenav-right {display: block; margin: 0.5rem; padding-right: 0.5rem; width: 15rem;}
+    .sidenav { display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; }
+        .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
+        .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
+    .sidenav-right { display: block; float: right; margin: 0.6rem 1rem; padding: 1.0rem;}
+        .sidenav-right:hidden {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none;}
+        .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .usa-banner__header {padding-bottom: .2rem; padding-top: .2rem; min-height: 0;}
     .usa-banner__header-close-text, .usa-banner__header-text {font-size: .6rem; letter-spacing: 0.01rem;}
     h1, h2, h3, h4, h5, h6 {margin: 0; color: #3d4551;}
@@ -33,7 +37,7 @@
     }
 
     /* ############### LEAF HEADER ################# */
-    .site-header {background-color: #252f3e; height: 3.8rem;}
+    .site-header {background-color: #252f3e; height: 3.8rem; box-shadow: 0px 3px 4px #a9aeb1;}
     .leaf-site-title {color: #fff; display: inline-block; font-size: 1.0rem; margin-top: 0.9rem; font-family: 'Public Sans Bold'; }
     .leaf-header-description {font-family: 'Public Sans Thin'; font-size: 0.9rem; display: block; font-family: 'Public Sans Regular';}
     .leaf-logo {float: left;}

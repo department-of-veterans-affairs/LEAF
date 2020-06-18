@@ -1,11 +1,5 @@
 
 
-.item label {
-    float: left;
-    width: 150px;
-    text-align: right;
-}
-
 .link {
     text-decoration: underline;
     cursor: pointer;
@@ -24,9 +18,6 @@
     text-align: left;
 }
 
-.item {
-    padding-bottom: 4px;
-}
 
 .numspinner {
     width: 70px;

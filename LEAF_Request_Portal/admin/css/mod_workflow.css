@@ -33,7 +33,9 @@
     position: absolute;
     background-color: white;
     padding: 8px;
-    border: 2px solid black;
+    border: 1px solid #1b1b1b;
+    border-radius: 4px;
+    box-shadow: 0px 0px 4px #1b1b1b;
     z-index: 5000;
     min-width: 300px;
 }

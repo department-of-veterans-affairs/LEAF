@@ -1,20 +1,24 @@
 <div class="leaf-center-content">
 
-    <h2>File Manager</h2>
+    <aside class="sidenav-right"></aside>
 
-    <p>Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.</p>
-    
-    <div id="sideBar" style="float: left; width: 150px">
+    <aside id="sideBar" class="sidenav">
         <button id="btn_uploadFile" class="usa-button" onclick="uploadFile();">
-            <i class="fas fa-upload leaf-btn-icon"></i>Upload File
+            Upload File
         </button>
+    </aside>
+    
+    <main class="main-content">
+    
+        <h2>File Manager</h2>
+
+        <p>Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.</p>
+        
+        <div id="fileList" style="background-color: white; margin-left: 160px"></div>
+
+        <div class="leaf-row-space"></div>
+
     </div>
-
-    <div class="leaf-row-space"></div>
-
-    <div id="fileList" style="background-color: white; margin-left: 160px"></div>
-
-    <div class="leaf-row-space"></div>
 
 </div>
 

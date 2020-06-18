@@ -28,11 +28,7 @@
         }
     .menuDesc {font-size: 0.9rem;}
 
-.item label {
-    float: left;
-    width: 150px;
-    text-align: right;
-}
+
 
 #headerMenu > a, #headerMenu_container > a, #headerMenuHelp_container > a {text-decoration: none;}
 
@@ -832,6 +828,7 @@ button.buttonNorm {
 .card {
     box-shadow: 0 2px 6px #8e8e8e;
     background-color: white;
+    padding: 0.8rem;
 }
 
 .nodisplay {

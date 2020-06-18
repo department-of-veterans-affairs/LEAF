@@ -1,7 +1,7 @@
 <div class="leaf-center-content">
 
     <!--{assign var=right_nav_content value="
-        <button class='usa-button leaf-btn-med leaf-side-btn leaf-btn-green' onclick='createGroup();'>
+        <button class='usa-button leaf-btn-med leaf-side-btn' onclick='createGroup();'>
             + Create Group
         </button>
         <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='importGroup();'>
@@ -154,7 +154,7 @@ function focusGroupsAndMembers(groupID) {
     });
 }
 function getGroupList() {
-    $('#groupList').html('<div style="text-align: center; font-size: 24px; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
+    $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
 
     $.ajax({
         type: 'GET',
@@ -219,7 +219,7 @@ function getGroupList() {
                     function openAdminGroup(){
                         dialog.setContent(
                             '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
-                            '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><h3 role="heading" tabindex="-1" >Add Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
+                            '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><label class="usa-label" role="heading" tabindex="-1" >Add Administrator</label></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -284,13 +284,13 @@ function getGroupList() {
                 //Primary Admin Section
                 if(res[i].groupID == 1) {
                     $('#primaryAdmin').append('<div tabindex="0" class="groupBlock">\
-                        <h2 id="groupTitlePrimaryAdmin">Primary Admin</h2>\
+                        <h3 id="groupTitlePrimaryAdmin">Primary Admin</h3>\
                         <div id="membersPrimaryAdmin"></div>\
                         </div>');
                     focusGroupsAndMembers('primaryAdmin');
 
                     function openPrimaryAdminGroup(){
-                        dialog.setContent('<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><div class="leaf-marginTop-2rem"><h3 role="heading" tabindex="-1" >Set Primary Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
+                        dialog.setContent('<h3 role="heading" tabindex="-1">Primary Administrator</h3><div id="primaryAdminSummary"></div><div class="leaf-marginTop-2rem"><label class="usa-label" role="heading" tabindex="-1">Set Primary Administrator</label></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -428,7 +428,7 @@ function tagAndUpdate(groupID, callback) {
 
 function importGroup() {
     dialog.setTitle('Import Group');
-    dialog.setContent('<h4 role="heading" tabindex="-1">Import a group from another LEAF site:</h4><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
+    dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
 
     var groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';

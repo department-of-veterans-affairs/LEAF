@@ -32,11 +32,8 @@
 }
 
 .employeeSelected {
-    width: 99%;
     background-color: #2372b0;
-    color: white;
-    border: 1px solid black;
-    padding: 2px;
+    font-family: 'Public Sans Bold';
     cursor: pointer;
 }
 

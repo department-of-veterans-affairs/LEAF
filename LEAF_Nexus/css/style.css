@@ -214,15 +214,7 @@ span#headerTab {
     color: #bddcfb;
 }
 
-.item {
-    padding-bottom: 4px;
-}
 
-.item label {
-    float: left;
-    width: 150px;
-    text-align: right;
-}
 
 .numspinner {
     width: 70px;

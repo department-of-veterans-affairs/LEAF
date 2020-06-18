@@ -19,25 +19,22 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Public Sans Bold'; color: #3d4551;}
 h1 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 h2 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 h3 {margin: 0.0rem 0.0rem 0.4rem 0.0rem;}
-p {margin: 0.5rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
+p {margin: 0.7rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
 label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
+hr {border: 1px solid #dfe1e2;}
 
 
 /* ############### GLOBAL CONTAINER STYLES ################# */
 .sidenav {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
 .sidenav-right {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
 
-/* ############### GLOBAL CLASSES ################# */
+/* ############### GLOBAL ATTRIBUTE CLASSES ################# */
 .leaf-bold {font-family: 'Public Sans Bold';}
+.leaf-font-normal {font-family: 'Public Sans Regular';}
 .leaf-textCentered {text-align: center;}
 .leaf-textLeft {text-align: left;}
-.leaf-padAll1rem {padding: 1rem;}
 .leaf-cursor-pointer {cursor: pointer;}
 .leaf-clear-both {clear: both;}
-.leaf-ul {list-style-type: none; margin: 0.5rem 0; padding-inline-start: 5px;}
-    .leaf-ul li {margin: 0; font-size: 0.8rem; line-height: 1.4rem;}
-
-/* ############### CSS ATTRIBUTE CLASSES ################# */
 .leaf-float-right {float: right;}
 .leaf-float-left {float: left;}
 .leaf-display-block {display: block;}
@@ -47,6 +44,8 @@ label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
 .leaf-clearBoth {clear: both;}
 .leaf-position-relative {position: relative;}
 .leaf-valign-top {vertical-align: top;}
+.leaf-ul {list-style-type: none; margin: 0.5rem 0; padding-inline-start: 5px;}
+    .leaf-ul li {margin: 0; font-size: 0.7rem; line-height: 1.2rem;}
 
 /* ############### USWDS BUTTON OVERRIDES ################# */
 .site-button-outline-secondary {
@@ -64,7 +63,7 @@ label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
         box-shadow: inset 0 0 0 2px rgba(255,255,255,1);
         text-decoration: none!important;
     }
-.usa-button {font-family: 'Public Sans Bold'; white-space: nowrap; padding: 0.8rem 0.6rem; min-width: 4rem;}
+.usa-button {font-family: 'Public Sans Bold'; white-space: nowrap; padding: 0.8rem 0.6rem; min-width: 6rem;}
 .leaf-btn-icon {margin-right: 0.5rem;}
 .leaf-btn-small {padding: 0.5rem; font-size: 0.4rem;}
 .leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
@@ -136,7 +135,7 @@ label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
     font-size: 0.7rem; 
     font-family: 'Public Sans Thin'; 
     padding: 0.0rem 0.6rem; 
-    border-top: 1px solid #dfe1e2;
+    border-top: 1px solid #a9aeb1;
     width: calc(100% - 5rem);
     margin: 1.0rem auto 0 auto;
     text-align: right;
@@ -198,35 +197,7 @@ ul.leaf-progress-bar {
             border-bottom: 1.5rem solid transparent;
             }
 
-/* ############### PADDINGS, MARGINS ################# */
-.leaf-marginAll-1rem {margin: 1rem;}
-.leaf-marginTop-halfRem {margin-top: 0.5rem;}
-.leaf-marginTop-1rem {margin-top: 1rem;}
-.leaf-marginTop-2rem {margin-top: 2rem;}
-.leaf-marginBot-1rem {margin-bottom: 1rem;}
-.leaf-marginBot-halfRem {margin-bottom: 0.5rem;}
 
-.leaf-padAll1rem {padding: 1rem;}
-
-/* ############### widths by percent ################# */
-.leaf-width10pct { width: 10%; }
-.leaf-width20pct { width: 20%; }
-.leaf-width30pct { width: 30%; }
-.leaf-width40pct { width: 40%; }
-.leaf-width50pct { width: 50%; }
-.leaf-width60pct { width: 60%; }
-.leaf-width70pct { width: 70%; }
-.leaf-width80pct { width: 80%; }
-.leaf-width90pct { width: 90%; }
-.leaf-width100pct { width: 100%; }
-
-/* ############### FONT SIZES ################# */
-.leaf-font0-5rem { font-size: 0.5rem; }
-.leaf-font0-6rem { font-size: 0.6rem; }
-.leaf-font0-7rem { font-size: 0.7rem; }
-.leaf-font0-8rem { font-size: 0.8rem; }
-.leaf-font0-9rem { font-size: 0.9rem; }
-.leaf-font1rem { font-size: 1.0rem; }
 
 
 /* ###################################################################### */
@@ -249,32 +220,43 @@ ul.leaf-progress-bar {
     .usa-logo {margin: 0; height: 4.6rem; float: left;}
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
-    .sidenav { display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
-    .sidenav-right { display: block; float: right; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
+    .sidenav {display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
+        .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
+        .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
+    .sidenav-right {display: block; float: right; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
+        .sidenav-right:hidden {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none;}
+        .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .usa-banner {font-family: 'Public Sans Regular';}
-    .usa-input {height: 1rem; width: auto;}
     .usa-banner__header {padding-bottom: .3rem; padding-top: .3rem; min-height: 0;}
     .usa-banner__header-close-text, .usa-banner__header-text {font-size: .7rem; letter-spacing: 0.01rem;}
+    .usa-form {max-width: 24rem;}
     .usa-table {font-size: 0.9rem;}
+    .usa-label {line-height: 1.2rem;}
+    .usa-input {padding: 0.2rem;}
+    .usa-select {font-size: 0.9rem; padding: 0.0rem 0.4rem;}
+    .usa-ro-text {margin: 0.5rem 0; font-size: 0.9rem;}
     .main-content {
         display: inline-block;
         position: relative;
         width: calc(100% - 32rem);
         white-space: normal;
         margin: 0.6rem 0.9rem;
+        min-height: 27rem;
+        overflow: visible;
     }
+        .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative;}
 
     /* ############### UI DIALOG OVERRIDES ################# */
-    .ui-dialog-title {font-family: 'Public Sans Bold'; font-size: 1.6rem; padding-top: 0.4rem;}
-    .ui-dialog {border-radius: 6px;}
+    .ui-dialog-title {font-family: 'Public Sans Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
+    .ui-dialog {border-radius: 6px; padding-bottom: 0.8rem;}
+    .ui-dialog .ui-dialog-content {overflow: visible;}
     .ui-widget-header {border: 0; background-color: none; background: none;}
-    .leaf-dialog-container {visibility: hidden; display: none;}
+    .leaf-dialog-container {visibility: hidden; display: none; overflow: visible;}
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
-    .leaf-dialog-content {min-height: 6rem; padding: 0.5rem; max-width: 54rem;}
+    .leaf-dialog-content {min-height: 6rem; padding: 0.5rem; max-width: 54rem; min-width: 27rem; overflow: visible;}
     
-
     /* ############### LEAF HEADER ################# */
-    .site-header {background-color: #252f3e; height: 4.6rem;}
+    .site-header {background-color: #252f3e; height: 4.6rem; box-shadow: 0px 4px 6px #a9aeb1;}
     .leaf-logo {float: left;}
         .leaf-logo img {width: 56px; margin: 0.6rem 0.5rem 0 0.6rem;}
     .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; font-family: 'Public Sans Bold'; }
@@ -301,6 +283,38 @@ ul.leaf-progress-bar {
 
 /* ########### END LARGE SCREEN STYLES DEF ############### */
 }
+
+/* ############### PADDINGS, MARGINS ################# */
+.leaf-padAll1rem {padding: 1rem;}
+
+.leaf-marginAll-1rem {margin: 1rem;}
+.leaf-marginTop-halfRem {margin-top: 0.5rem;}
+.leaf-marginTop-1rem {margin-top: 1rem;}
+.leaf-marginTop-2rem {margin-top: 2rem;}
+.leaf-marginBot-1rem {margin-bottom: 1rem;}
+.leaf-marginBot-halfRem {margin-bottom: 0.5rem;}
+.leaf-marginTopBot-1rem {margin-bottom: 1rem; margin-top: 1rem;}
+
+/* ############### widths by percent ################# */
+.leaf-width10pct { width: 10%; }
+.leaf-width20pct { width: 20%; }
+.leaf-width30pct { width: 30%; }
+.leaf-width40pct { width: 40%; }
+.leaf-width50pct { width: 50%; }
+.leaf-width60pct { width: 60%; }
+.leaf-width70pct { width: 70%; }
+.leaf-width80pct { width: 80%; }
+.leaf-width90pct { width: 90%; }
+.leaf-width100pct { width: 100%; }
+
+/* ############### FONT SIZES ################# */
+.leaf-font0-5rem { font-size: 0.5rem; }
+.leaf-font0-6rem { font-size: 0.6rem; }
+.leaf-font0-7rem { font-size: 0.7rem; }
+.leaf-font0-8rem { font-size: 0.8rem; }
+.leaf-font0-9rem { font-size: 0.9rem; }
+.leaf-font1rem { font-size: 1.0rem; }
+
 
 /*! breakpoint styles, nav, colors...additional SCSS files */
 @import "leaf-colors.scss";

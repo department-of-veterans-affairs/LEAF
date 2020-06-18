@@ -15,8 +15,6 @@
 
 <div class="leaf-center-content">
 
-    
-
     <div class="section group">
 
         <aside class="sidenav">
@@ -32,7 +30,7 @@
             <div id="controls">
                 
                 <button class="usa-button leaf-display-block leaf-btn-med leaf-width-11rem" onclick="save();">
-                    Save Changes<span id="saveStatus"></span>
+                    Save Changes<span id="saveStatus" class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                 </button>
                 
                 <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" onclick="restore();">
