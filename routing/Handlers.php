@@ -18,6 +18,11 @@ namespace Handlers{
             require __DIR__.'/../LEAF_Request_Portal/'.$otherFile;
         }
 
+        function favicon($favicon){
+            header('Content-Type: image/png');
+            readfile(__DIR__.'/../LEAF_Request_Portal/'.$favicon);
+        }
+
         function js($jsFile){
             header('Content-Type: text/javascript');
             echo file_get_contents(__DIR__.'/../LEAF_Request_Portal/js/'.$jsFile);
