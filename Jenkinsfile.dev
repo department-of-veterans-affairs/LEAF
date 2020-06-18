@@ -20,16 +20,6 @@ pipeline {
     stages {
         stage('checkout') { steps { checkout scm } }
 
-        stage('fortify') {
-            steps {
-                script {
-                    docker.image('fortify-code-security:20.1.0').inside {
-                        sh './fort_report/FortifyReportGen.sh'
-                    }
-                }
-            }
-        }
-
         stage('ecr login') {
             steps {
                 script {
@@ -38,6 +28,30 @@ pipeline {
                 }
             }
         }
+
+        stage('fortify') {
+            steps {
+                script {
+                    sh 'pwd'
+                    sh 'ls'
+                    sh 'ls fort_report/'
+	            docker.withRegistry("https://${DOCKER_REGISTRY}") {
+			docker.image('infrastructure/fortify:latest').inside {
+			    sh 'pwd'
+			    sh 'ls'
+			    sh 'id -u'
+			    sh 'cd ; pwd ; ls .fortify || true'
+			    sh 'ls /opt/Fortify/Fortify_SCA_and_Apps/bin'
+			    sh 'ls -alh /workspace/fort_report/'
+			    sh './fort_report/FortifyReportGen.sh'
+			}
+		    }
+
+		    fileExists('./fort_report/leaf.pdf')
+                }
+            }
+        }
+
         stage('docker build') {
             steps {
                 script {

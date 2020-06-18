@@ -1,4 +1,5 @@
-export PATH="$PATH:/opt/Fortify/Fortify_SCA_and_Apps_19.1.0/bin:/opt/Fortify/Fortify_SCA_and_Apps_18.10/bin"
+#!/bin/bash
+
 export SCA_VM_OPTS=-Xmx800M
 
 #cd
@@ -10,7 +11,7 @@ export SCA_VM_OPTS=-Xmx800M
 #FPR="fortify/${FILE_PREFIX}.fpr"
 #PDF="fortify/${FILE_PREFIX}.pdf"
 
-# Using hardcoded values for now. Will update when integrat with pipeline
+# Using hardcoded values for now. Will update when integrate with pipeline
 BUILD_NUMBER="1"
 FILE_PREFIX="leaf"
 ARTIFACT_ID="${FILE_PREFIX}"
@@ -20,25 +21,22 @@ PROPERTIES_FILE="$PWD/fort_report/fortify.properties"
 
 MEMORY="-Xmx1600M -Xms1000M -Xss48M"
 
-
 TEMPLATE="/workspace/fortify_templates/Security_Report.xml"
 REPORT_OPTIONS="-showRemoved -showSuppressed -showHidden -verbose"
 
-DEBUG=true
-
-# enable debug
 set -x
+# enable debug
 
+set -eo pipefail
+# strict mode
+#   script aborts if any command returns non-zero exit-code
+#   http://redsymbol.net/articles/unofficial-bash-strict-mode/
 
-#cd /workspace/source_code/
-#ls
-#ls /workspace/fort_report/fortify.properties
-
-fortifyupdate
+# fortifyupdate 
 
 echo --------------------------------------
 echo Cleaning previous scan artifacts...
-sourceanalyzer $MEMORY -b $ARTIFACT_ID -build-label $ARTIFACT_ID -clean -verbose
+sourceanalyzer $MEMORY -b $ARTIFACT_ID -build-label $ARTIFACT_ID -clean -verbose 
 
 echo --------------------------------------
 echo Translating project...
@@ -50,5 +48,5 @@ sourceanalyzer $MEMORY $LAUNCHERSWITCHES -b $ARTIFACT_ID -build-label $ARTIFACT_
 
 echo --------------------------------------
 echo -e "\nGenerating PDF report...";
-ReportGenerator -format pdf -f $PDF -source "${FPR}" -template $TEMPLATE $REPORT_OPTIONS || true;
+ReportGenerator -format pdf -f $PDF -source "${FPR}" -template $TEMPLATE $REPORT_OPTIONS
 
