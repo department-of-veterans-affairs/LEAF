@@ -43,31 +43,31 @@
             	<fieldset><legend>Template Variables</legend><br />
 	            <table class="table">
 		            <tr>
-		                <td><b>{{ $recordID }}</b></td>
+		                <td><b>{{$recordID}}</b></td>
 		                <td>The ID number of the request</td>
 		            </tr>
 		            <tr>
-		                <td><b>{{ $fullTitle }}</b></td>
+		                <td><b>{{$fullTitle}}</b></td>
 		                <td>The full title of the request</td>
 		            </tr>
 		            <tr>
-		                <td><b>{{ $truncatedTitle }}</b></td>
+		                <td><b>{{$truncatedTitle}}</b></td>
 		                <td>A truncated version of the request title</td>
 		            </tr>
 		            <tr>
-		            	<td><b>{{ $lastStatus }}</b></td>
+		            	<td><b>{{$lastStatus}}</b></td>
 		            	<td>The last action taken for the request</td>
 		            </tr>
 		            <tr>
-		            	<td><b>{{ $comment }}</b></td>
+		            	<td><b>{{$comment}}</b></td>
 		            	<td>The last comment associated with the request</td>
 		            </tr>
 		            <tr>
-		            	<td><b>{{ $service }}</b></td>
+		            	<td><b>{{$service}}</b></td>
 		            	<td>The service associated with the request</td>
 		            </tr>
 		            <tr>
-		            	<td><b>{{ $siteRoot }}</b></td>
+		            	<td><b>{{$siteRoot}}</b></td>
 		            	<td>The root URL of the LEAF site</td>
 		            </tr>
 	            </table>
@@ -240,11 +240,14 @@ function loadContent(file, subjectFile) {
 
 	if (subjectFile == '')
 	{
-		$('#subject').html('Subject');
+		$('#subject').hide();
+        $('#divSubject').hide();
 		subjectEditor.setOption("readOnly", true);
 	}
 	else
 	{
+        $('#subject').show();
+        $('#divSubject').show();
 		$('#subject').html(subjectFile.replace('.tpl', ''));
 	}
 
