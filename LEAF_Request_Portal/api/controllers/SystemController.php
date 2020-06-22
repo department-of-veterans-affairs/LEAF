@@ -73,6 +73,18 @@ class SystemController extends RESTfulResponse
             return $system->getTemplate($args[0], true);
         });
 
+        $this->index['GET']->register('system/emailtemplates', function ($args) use ($system) {
+            return $system->getEmailAndSubjectTemplateList();
+        });
+
+        $this->index['GET']->register('system/emailtemplates/[text]', function($args) use ($system) {
+            return $system->getEmailTemplate($args[0]);
+        });
+
+        $this->index['GET']->register('system/emailtemplates/[text]/standard', function ($args) use ($system) {
+            return $system->getEmailTemplate($args[0], true);
+        });
+
         $this->index['GET']->register('system/reportTemplates', function ($args) use ($system) {
             return $system->getReportTemplateList();
         });
@@ -114,6 +126,10 @@ class SystemController extends RESTfulResponse
 
         $this->index['POST']->register('system/templates/[text]', function ($args) use ($system) {
             return $system->setTemplate($args[0]);
+        });
+
+        $this->index['POST']->register('system/emailtemplates/[text]', function ($args) use ($system) {
+            return $system->setEmailTemplate($args[0]);
         });
 
         $this->index['POST']->register('system/reportTemplates', function ($args) use ($system) {
@@ -182,6 +198,10 @@ class SystemController extends RESTfulResponse
 
         $this->index['DELETE']->register('system/templates/[text]', function ($args) use ($db, $login, $system) {
             return $system->removeCustomTemplate($args[0]);
+        });
+
+        $this->index['DELETE']->register('system/emailtemplates/[text]', function ($args) use ($db, $login, $system) {
+            return $system->removeCustomEmailTemplate($args[0]);
         });
 
         $this->index['DELETE']->register('system/reportTemplates/[text]', function ($args) use ($db, $login, $system) {
