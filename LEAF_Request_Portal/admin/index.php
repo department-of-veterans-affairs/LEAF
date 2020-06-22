@@ -415,7 +415,7 @@ switch ($action) {
             $main->assign('useUI', true);
             //   		$t_form->assign('orgchartPath', '../' . $config->orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('importTags', $$config->orgchartImportTags);
+            $t_form->assign('importTags', $config->orgchartImportTags);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
             $main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl')));
 

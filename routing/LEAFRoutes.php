@@ -25,6 +25,7 @@ class LEAFRoutes {
         $this->addRoute('GET', '/auth_cookie/', 'Portal/auth_cookie');
         $this->addRoute('GET', '/auth_token/', 'Portal/auth_token');
         $this->addRoute('GET', '/scripts/{scriptFile:.+}', 'Portal/scripts');
+        $this->addRoute(['GET','POST','DELETE'], '/{favicon:[a-zA-Z]+\b.ico}', 'Portal/favicon');
         
         //admin routes
         $this->addRoute('GET', '/admin/', 'Portal/admin_index');
