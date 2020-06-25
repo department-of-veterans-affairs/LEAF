@@ -32,6 +32,9 @@
     var results;
     var totalRecords;
     var totalImported = 0;
+    var workbookData = [];
+    var previewData = [];
+    var previewShowing = false;
 
     $(async function() {
         $("body").prepend($("#modal-background"));
@@ -56,6 +59,17 @@
             complete: function() {
                 closeImport();
             }
+        });
+
+        $(".header-select").change(function(){
+            
+            if(previewShowing){
+                $("#preview-tbody").empty();
+                $("#preview-data").hide();
+                $("#step2btn").hide();
+                $("#preview-btn").show();
+            }
+
         });
 
         // step 1
@@ -83,6 +97,44 @@
             $("#importStep2").hide();
             moveToComplete(results);
         });
+
+        $("#preview-btn").click(function(){
+            
+            var employeeEmailIndex = $('#employee-select').val();
+            var supervisorEmailIndex = $('#supervisor-select').val();
+            var positionIndex = $('#position-select').val();
+
+            if(previewData.length == 0){
+                previewData = workbook.getData(1, 6); //getting first five rows, skipping first row of headers
+            }
+
+            totalRecords = previewData.length;
+
+            var recordsToShow = (totalRecords > 5) ? 5 : totalRecords;
+
+            $("#preview-number").html(recordsToShow);
+
+            for(var i=0; i< recordsToShow; i++){
+                var workbookItem = previewData[i];
+                $("#preview-tbody").append("<tr>"+
+                    "<td>"+
+                        workbookItem[employeeEmailIndex] +
+                    "</td>"+
+                    "<td>"+
+                        workbookItem[supervisorEmailIndex] +
+                    "</td>"+
+                    "<td>"+
+                        workbookItem[positionIndex] +
+                    "</td>"+
+                "</tr>");
+            }
+            
+            previewShowing = true;
+            $("#preview-btn").hide();
+            $("#step2btn").show();
+            $("#preview-data").show();
+        });
+
         $("#step2backBtn").click(function(){
             $("#importStep1").show();
             $("#step1").removeClass('complete').addClass('current');
@@ -95,9 +147,7 @@
             var supervisorEmailIndex = $('#supervisor-select').val();
             var positionIndex = $('#position-select').val();
 
-            var workbookData = workbook.getData(1); //skipping first row of headers
-
-            totalRecords = workbookData.length;
+            workbookData = workbook.getData(1); //skipping first row of headers
 
             var importedDataPromises = [];
             
@@ -150,9 +200,29 @@
                 valid = false;
             }
 
-            if(positionResponse && positionResponse.positionID && supervisorResponse && supervisorResponse.empUID){
+            if(userResponse && userResponse.empUID 
+                && positionResponse && positionResponse.positionID 
+                && supervisorResponse && supervisorResponse.empUID){
+                
                 var found = false;
-                var fullSupervisorInfo = await getEmployeeData(supervisorResponse.empUID);
+
+                var fullDataPromises = [];
+                fullDataPromises.push(getEmployeeData(userResponse.empUID));
+                fullDataPromises.push(getEmployeeData(supervisorResponse.empUID));
+
+                var fullDataResponses = await Promise.all(fullDataPromises);
+
+                var fullEmployeeInfo = fullDataResponses[0];
+
+                var fullSupervisorInfo = fullDataResponses[1];
+
+                var onlyInNational = true;
+
+                if(fullDataResponses[0].employee){
+
+                    onlyInNational = false;
+                    employee.errorMessage += "Employee has already been imported. ";
+                }
 
                 var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
 
@@ -169,7 +239,7 @@
                 if(!found){
                     employee.errorMessage += "Provided supervisor not assigned to position. ";
                 }
-                valid = found;
+                valid = onlyInNational && found;
             }
             else{
                 employee.errorMessage += "Position not found. ";
@@ -494,10 +564,29 @@
                     </table>
                 </div>
             </div>
+
+            <div class="grid-col-12" id="preview-data" style="display:none;">
+            <p>
+                <em>Showing preview of first <span id="preview-number"></span> records:</em>
+            </p>
+                <table class="usa-table" >
+                    <thead>
+                        <th scope="col">Employee Email</th>
+                        <th scope="col">Supervisor Email</th>
+                        <th scope="col">Position</th>
+                    </thead>
+                    <tbody id="preview-tbody">
+                    </tbody>
+                </table>
+            </div>
             <div class="grid-row leaf-buttonBar" style="text-align:left;">
                 <div class="leaf-displayInlineBlock leaf-width100pct">
-                    <button class="usa-button usa-button--big" id="step2btn">
+
+                    <button class="usa-button usa-button--big" id="step2btn" style="display:none;">
                         Import Data
+                    </button>
+                    <button class="usa-button usa-button--big" id="preview-btn">
+                        Preview Import
                     </button>
                     <button class="usa-button usa-button--base usa-button--big" id="step2backBtn">Go Back</button>
                 </div>

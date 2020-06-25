@@ -41,6 +41,10 @@ function WorkbookHelper(upload){
         if(indexRowEnd == undefined){
             indexRowEnd = range.e.r;
         }
+        else{
+            indexRowEnd = (indexRowEnd > range.e.r) ? range.e.r :indexRowEnd;
+        }
+
         for(rowNum = indexRowStart; rowNum <= indexRowEnd; rowNum++){
            
             for(colNum=range.s.c; colNum<=range.e.c; colNum++){
