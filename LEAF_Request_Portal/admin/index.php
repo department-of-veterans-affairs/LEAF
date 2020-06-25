@@ -399,7 +399,7 @@ switch ($action) {
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
-        $t_form->assign('importTags', $$config->orgchartImportTags);
+        $t_form->assign('importTags', $config->orgchartImportTags);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));
         $main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl')));
 
