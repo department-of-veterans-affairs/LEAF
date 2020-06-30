@@ -66,7 +66,7 @@ class Config
         $this->city = $res[0]['city'];
         $this->adminLogonName = $res[0]['adminLogonName'];    // Administrator's logon name
         $this->adPath = $res[0]['active_directory_path']; // Active directory path
-        $this->uploadDir = $res[0]['upload_directory'];
+        $this->uploadDir = ltrim($res[0]['path'], "/") . $res[0]['upload_directory'];
         $this->orgchartPath = "../LEAF_Nexus"; // HTTP Path to orgchart with no trailing slash
         $this->orgchartImportTags = $res[0]['orgchart_path'];
         $this->descriptionID = $res[0]['descriptionID'];
