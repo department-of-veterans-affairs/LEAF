@@ -65,6 +65,7 @@ $t_login->assign('name', XSSHelpers::xscrub($login->getName()));
 $t_menu->assign('is_admin', $login->checkGroup(1));
 
 $main->assign('useUI', false);
+$main->assign('userID', $login->getUserID());
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
