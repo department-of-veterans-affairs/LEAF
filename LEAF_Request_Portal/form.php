@@ -3212,6 +3212,31 @@ class Form
     }
 
     /**
+     * Retrieves all indicators associated with categoryID in a given array of names
+     * returns array of indicators.indicatorID, indicators.name, indicators.format
+     * @param int $categoryID
+     * @param array $formats
+     * @return array
+     */
+    public function getIndicatorsByRecordAndName($categoryID, $names)
+    {
+        $vars = array(
+            ':categoryID' => $categoryID,
+        );
+
+        $res = $this->db->prepared_query(
+            'SELECT indicatorID, name, format, parentID
+                FROM indicators
+                WHERE categoryID=:categoryID
+                AND name IN ("' . implode('","', $names) . '")
+                ORDER BY parentID',
+            $vars
+            );
+
+        return $res;
+    }
+
+    /**
      * Retrieves all indicators associated with recordID in a given array of format
      * returns array of indicators.indicatorID, indicators.name, indicators.format
      * @param int $recordID
