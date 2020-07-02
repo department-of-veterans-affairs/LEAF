@@ -93,7 +93,7 @@
 
             dialog.dialog( "open" );
             var results = await importFromWorkbook();
-
+            
             $("#importStep2").hide();
             moveToComplete(results);
         });
@@ -167,109 +167,102 @@
         }
 
         async function doImport(employee){
-            
-            var valid = true;
-
-            var validationPromises = [];
-
-            validationPromises.push(checkEmailExists(employee.email));
-            validationPromises.push(checkEmailExists(employee.supervisorEmail));
-            validationPromises.push(checkPosition(employee.position));
-
-            var responses = await Promise.all(validationPromises);
-
-            var userResponse = responses[0][Object.keys(responses[0])[0]];
-            var supervisorResponse = responses[1][Object.keys(responses[1])[0]];
-            var positionResponse = responses[2];
-
-            if(userResponse && userResponse.userName){
-                employee.userName = userResponse.userName;
-                employee.empUID = userResponse.empUID;
-                employee.displayName = userResponse.firstName + ' ' + userResponse.lastName;
-            }
-            else{
-                employee.errorMessage += "User not found. ";
-                valid = false;
-            }
-
-            if(supervisorResponse && supervisorResponse.userName){
-                employee.supervisorDisplayName = supervisorResponse.firstName + ' ' + supervisorResponse.lastName;
-            }
-            else{
-                employee.errorMessage += "Supervisor not found. ";
-                valid = false;
-            }
-
-            if(userResponse && userResponse.empUID 
-                && positionResponse && positionResponse.positionID 
-                && supervisorResponse && supervisorResponse.empUID){
-                
-                var found = false;
-
-                var fullDataPromises = [];
-                fullDataPromises.push(getEmployeeData(userResponse.empUID));
-                fullDataPromises.push(getEmployeeData(supervisorResponse.empUID));
-
-                var fullDataResponses = await Promise.all(fullDataPromises);
-
-                var fullEmployeeInfo = fullDataResponses[0];
-
-                var fullSupervisorInfo = fullDataResponses[1];
-
-                var onlyInNational = true;
-
-                if(fullDataResponses[0].employee){
-
-                    onlyInNational = false;
-                    employee.errorMessage += "Employee has already been imported. ";
-                }
-
-                var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
-
-                if(fullSupervisorInfo.employee && fullSupervisorInfo.employee.positions){
-                    var positions = fullSupervisorInfo.employee.positions;
-
-                    for(var i=0; i< positions.length; i++){
-                        if(positionSupervisors.indexOf(positions[i].positionID) >= 0){
-                            found = true;
-                        }
-                    }
-                }
-
-                if(!found){
-                    employee.errorMessage += "Provided supervisor not assigned to position. ";
-                }
-                valid = onlyInNational && found;
-            }
-            else{
-                employee.errorMessage += "Position not found. ";
-                valid = false;
-            }
-
-            if(!valid){
-                totalImported++;
-                return employee;
-            }
 
             return new Promise(async function(resolve){
-                var importSuccess = await addEmployee(employee);
+                var valid = true;
 
-                if(parseFloat(importSuccess) > 0){
+                var validationPromises = [];
 
-                    employee.userID = importSuccess;
+                validationPromises.push(checkUserExistsNational(employee.email));
+                validationPromises.push(checkUserExistsNational(employee.supervisorEmail));
+                validationPromises.push(checkPosition(employee.position));
 
-                    try{
-                        await addEmployeeToPosition(employee.empUID, positionResponse.positionID);
-                        employee.success = true;
+                var responses = await Promise.all(validationPromises);
+                var userResponse = responses[0][Object.keys(responses[0])[0]];
+                var supervisorResponse = responses[1][Object.keys(responses[1])[0]];
+                var positionResponse = responses[2];
+                var userValid = userResponse && userResponse.userName;
+                var supervisorValid = supervisorResponse && supervisorResponse.userName;
+                var positionValid = positionResponse && positionResponse.positionID;
+                var localEmployeeData;
+                var userImported = false;
+
+                if(userValid){
+                    // user exists in National
+                    employee.userName = userResponse.userName;
+                    employee.empUID = userResponse.empUID;
+                    employee.displayName = userResponse.firstName + ' ' + userResponse.lastName;
+
+                    // check if user exists in local to see if it needs to be imported
+                    localEmployeeData = await getLocalEmployeeData(userResponse.empUID);
+
+                    if(!localEmployeeData.employee.empUID){
+
+                        // if user does not exist in local, import them.
+                        var importResult = await addEmployee(employee);
+
+                        if(importResult < 0){
+                            userValid = false;
+                            employee.errorMessage += "Unable to import user. ";
+                        }
+                        else{
+                            userImported = true;
+                        }
                     }
-                    catch{
-                        employee.errorMessage += "Import successful, unable to add position. "
-                    }
 
-                } 
-                else{
-                    employee.errorMessage += "Unable to add employee. ";
                 }
+                else{
+                    employee.errorMessage += "User not found in national orgchart. ";
+                    userValid = false;
+                }
+
+                if(supervisorValid){
+                    employee.supervisorDisplayName = supervisorResponse.firstName + ' ' + supervisorResponse.lastName;
+                }
+                else{
+                    employee.errorMessage += "Supervisor not found in national orgchart. ";
+                    supervisorValid = false;
+                }
+
+                valid = userValid && supervisorValid && positionValid;
+
+                if(valid){
+                    
+                    var found = false;
+
+                    var fullSupervisorInfo = await getLocalEmployeeData(userResponse.empUID);
+
+                    var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
+
+                    if(fullSupervisorInfo.employee && fullSupervisorInfo.employee.positions){
+                        var positions = fullSupervisorInfo.employee.positions;
+
+                        for(var i=0; i< positions.length; i++){
+                            if(positionSupervisors.indexOf(positions[i].positionID) >= 0){
+                                found = true;
+                            }
+                        }
+                    }
+
+                    if(found){
+                        try{
+                            await addEmployeeToPosition(employee.empUID, positionResponse.positionID);
+                            employee.success = true;
+                        }
+                        catch{
+                            employee.errorMessage += "Import successful, unable to add position. "
+                        }
+                        
+                    }
+                    else{
+                        employee.errorMessage += "Provided supervisor not assigned to position. ";
+                    }
+                }
+                else{
+                    employee.errorMessage += "Position not found. ";
+                    valid = false;
+                }
+
                 totalImported++;
                 resolve(employee);
             });
@@ -305,7 +298,7 @@
             });
         }
 
-        function getEmployeeData(empUID){
+        function getLocalEmployeeData(empUID){
 
             return new Promise(function(resolve, reject){
                 $.ajax({
@@ -370,7 +363,7 @@
             });
         }
 
-        function checkEmailExists(email){
+        function checkUserExistsNational(email){
 
             return new Promise(function(resolve, reject){
                 $.ajax({
