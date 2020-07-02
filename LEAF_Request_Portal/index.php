@@ -17,6 +17,8 @@ include __DIR__ . '/Login.php';
 include __DIR__ . '/db_mysql.php';
 include __DIR__ . '/form.php';
 
+define("TPL_TIME_LIMIT", 120000);
+
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
 {
@@ -56,9 +58,21 @@ $tabText = '';
 
 $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
-function customTemplate($tpl)
+/**
+ First checks for custom template on filesystem (cache), if does not exist then check S3 and download
+ @return default template if does cannot find override
+*/
+function customTemplate($tpl, $config)
 {
-    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    $templateFound = false;
+    $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+    //var_dump(__DIR__."/templates/custom_override/". $cleanPortalPath . "{$tpl}");
+    $customTemplatePath = __DIR__."/templates/custom_override/". $cleanPortalPath . "{$tpl}";
+    if (file_exists($customTemplatePath)) {
+        return "custom_override/". $cleanPortalPath . "{$tpl}";
+    } else {
+        return $tpl;
+    }
 }
 
 $t_login->assign('name', XSSHelpers::xscrub($login->getName()));
@@ -540,14 +554,14 @@ switch ($action) {
         $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-        $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
+        $t_form->assign('tpl_search', customTemplate('view_search.tpl', $config));
 
         require_once __DIR__ . '/Inbox.php';
         $inbox = new Inbox($db, $login);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
         $t_form->assign('inbox_status', 1);
 
-        $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
+        $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl', $config)));
 
         if ($action != 'menu' && $action != '' && $action != 'dosubmit')
         {
@@ -564,7 +578,7 @@ $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('orgchartPath', $config->orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
-$o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
+$o_menu = $t_menu->fetch(customTemplate('menu.tpl', $config));
 $main->assign('menu', $o_menu);
 $main->assign('tabText', XSSHelpers::sanitizeHTML($tabText));
 
@@ -574,9 +588,9 @@ $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
 
 if (!isset($_GET['iframe']))
 {
-    $main->display(customTemplate('main.tpl'));
+    $main->display(customTemplate('main.tpl', $config));
 }
 else
 {
-    $main->display(customTemplate('main_iframe.tpl'));
+    $main->display(customTemplate('main_iframe.tpl', $config));
 }

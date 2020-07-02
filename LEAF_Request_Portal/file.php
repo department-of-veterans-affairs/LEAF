@@ -51,14 +51,16 @@ $awsUtil = new AWSUtil();
 if (!empty($uploadDir)) {
     $result = $awsUtil->s3GetObject($filename);
 
-    header('Content-Type: {$result["ContentType"]}');
-    header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
-    header('Content-Length: ' . $result['ContentLength']);
-    header('Cache-Control: maxage=1'); //In seconds
-    header('Pragma: public');
+    if ($result != "NoSuchKey") {
+        header('Content-Type: {$result["ContentType"]}');
+        header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
+        header('Content-Length: ' . $result['ContentLength']);
+        header('Cache-Control: maxage=1'); //In seconds
+        header('Pragma: public');
 
-    echo $result['Body'] . "\n";
-    exit();
+        echo $result['Body'] . "\n";
+        exit();
+    }
 }
 
 echo 'Error: File does not exist or access may be restricted.';

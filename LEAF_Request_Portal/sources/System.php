@@ -21,6 +21,10 @@ if (!class_exists('CommonConfig'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
 }
+if (!class_exists('AWSUtil'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/aws/AWSUtil.php';
+}
 
 if(!class_exists('DataActionLogger'))
 {
@@ -35,6 +39,8 @@ class System
 
     private $login;
 
+    private $awsUtil;
+
     private $fileExtensionWhitelist;
 
     private $dataActionLogger;
@@ -47,6 +53,8 @@ class System
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $commonConfig = new CommonConfig();
+        $this->awsUtil = new AWSUtil();
+
         $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
 
         $this->dataActionLogger = new \DataActionLogger($db, $login);
@@ -393,6 +401,7 @@ class System
 
     public function getTemplate($template, $getStandard = false)
     {
+        global $config;
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -402,11 +411,14 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__."/../templates/custom_override/{$template}")
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            $results = $this->awsUtil->s3getObject($config->s3TemplateDir . $template, __DIR__."/../templates/custom_override/" . $cleanPortalPath . "{$template}");
+
+            if ($results != "NoSuchKey"
                   && !$getStandard)
             {
                 $data['modified'] = 1;
-                $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/" . $cleanPortalPath . "{$template}");
             }
             else
             {
@@ -449,6 +461,7 @@ class System
 
     public function setTemplate($template)
     {
+        global $config;
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -457,7 +470,9 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            file_put_contents(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}", $_POST['file']);
+
         }
     }
 
