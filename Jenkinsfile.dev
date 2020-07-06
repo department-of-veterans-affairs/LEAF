@@ -32,6 +32,16 @@ pipeline {
         stage('fortify') {
             steps {
                 script {
+
+                    annotated_fprs = s3FindFiles(bucket: 'leaf-pipeline', onlyFiles: true, path: 'fortify/annotated', glob: '*.fpr')
+                    if( annotated_fprs ) {
+                        println("Found annotated fprs: ${annotated_fprs}")
+                        def annotated_fpr = annotated_fprs[0]
+                        println("Using annotated fpr for annotations: ${annotated_fpr}")
+                        s3Download bucket: 'leaf-pipeline', file: "fort_report/leaf_orig.fpr", path: "fortify/annotated/${annotated_fpr}", force:true
+                    }
+
+
                     sh 'pwd'
                     sh 'ls'
                     sh 'ls fort_report/'
