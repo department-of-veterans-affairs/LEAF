@@ -17,6 +17,7 @@ pipeline {
         FORTIFY_PROJ_NAME = "leaf"
         IMAGE_NAME = "${env.DOCKER_REGISTRY}/${DOCKER_ORG}/leaf"
         TAG_NAME = "latest"
+        SID = sprintBuildId()
     }
 
     stages {
@@ -96,7 +97,22 @@ pipeline {
             }
         }
 
+        stage('archive'){
+            steps {
+                script {
+                    archiveArtifacts artifacts: 'fort_report/leaf.pdf', onlyIfSuccessful: true
 
+                    def archive_file = "${sprintBuildId()}"            
+
+                    s3Upload(bucket: 'leaf-pipeline', file: "fort_report/leaf.pdf", path: "fortify/reports/${archive_file}.pdf")
+                    s3Upload(bucket: 'leaf-pipeline', file: "fort_report/leaf_merged.fpr", path: "fortify/reports/${archive_file}.fpr")
+                }
+            }
+        }
     }
+}
+
+String sprintBuildId() {
+    return "test"
 }
 

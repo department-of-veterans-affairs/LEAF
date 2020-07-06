@@ -12,7 +12,6 @@ export SCA_VM_OPTS=-Xmx800M
 #PDF="fortify/${FILE_PREFIX}.pdf"
 
 # Using hardcoded values for now. Will update when integrate with pipeline
-BUILD_NUMBER="1"
 FILE_PREFIX="leaf"
 ARTIFACT_ID="${FILE_PREFIX}"
 FPR="$PWD/fort_report/${FILE_PREFIX}.fpr"
@@ -21,6 +20,9 @@ FPR_MERGED="$PWD/fort_report/${FILE_PREFIX}_merged.fpr"
 PDF="$PWD/fort_report/${FILE_PREFIX}.pdf"
 PROPERTIES_FILE="$PWD/fort_report/fortify.properties"
 
+SPRINT_ID="BLD2020-07-06XX"
+BUILD_ID="${SPRINT_ID}_${GIT_BRANCH}_${GIT_COMMIT}_${SID}"
+
 MEMORY="-Xmx1600M -Xms1000M -Xss48M"
 
 TEMPLATE="/workspace/fortify_templates/Security_Report.xml"
@@ -28,6 +30,8 @@ REPORT_OPTIONS="-showRemoved -showSuppressed -showHidden -verbose"
 
 set -x
 # enable debug
+
+env
 
 set -eo pipefail
 # strict mode
@@ -42,11 +46,11 @@ sourceanalyzer $MEMORY -b $ARTIFACT_ID -build-label $ARTIFACT_ID -clean -verbose
 
 echo --------------------------------------
 echo Translating project...
-sourceanalyzer -php-source-root libs/ $MEMORY $LAUNCHERSWITCHES -b $ARTIFACT_ID -build-label $ARTIFACT_ID @$PROPERTIES_FILE
+sourceanalyzer -php-source-root libs/ $MEMORY $LAUNCHERSWITCHES -b $ARTIFACT_ID -build-label $ARTIFACT_ID -build-version $BUILD_ID -build-project $BUILD_ID  @$PROPERTIES_FILE
 
 echo --------------------------------------
 echo Starting scan
-sourceanalyzer $MEMORY $LAUNCHERSWITCHES -b $ARTIFACT_ID -build-label $ARTIFACT_ID -scan -f $FPR -verbose
+sourceanalyzer $MEMORY $LAUNCHERSWITCHES -b $ARTIFACT_ID -build-label $ARTIFACT_ID -build-version $BUILD_ID -build-project $BUILD_ID -scan -f $FPR -verbose
 
 if [ -f $FPR_ORIG ]; then
 echo --------------------------------------
