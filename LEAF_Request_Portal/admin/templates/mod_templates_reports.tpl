@@ -30,7 +30,7 @@
         <div id="codeArea" class="col span_4_of_6">
             <div id="codeContainer" class="card" style="float: left; padding: 4px; width: 90%; display: none">
                 <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
-                <div id="reportURL" style="padding-left: 8px;"></div><br />
+                <div id="reportURL" style="padding-left: 8px; width: 52rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div><br />
                 <div style="border: 1px solid black">
                     <textarea id="code"></textarea>
                 </div>
