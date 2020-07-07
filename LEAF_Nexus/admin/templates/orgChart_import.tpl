@@ -273,7 +273,7 @@
             var result = [];
 
             for(var i=0; i < supervisors.length; i++){
-                result.push(supervisors[i].positionID);
+                result.push(supervisors[i].empUID);
             }
 
             return result;
