@@ -17,7 +17,7 @@ pipeline {
         FORTIFY_PROJ_NAME = "leaf"
         IMAGE_NAME = "${env.DOCKER_REGISTRY}/${DOCKER_ORG}/leaf"
         TAG_NAME = "latest"
-        SID = sprintBuildId()
+        SPRINT_ID = sprintBuildId()
     }
 
     stages {
@@ -102,7 +102,8 @@ pipeline {
                 script {
                     archiveArtifacts artifacts: 'fort_report/leaf.pdf', onlyIfSuccessful: true
 
-                    def archive_file = "${sprintBuildId()}"            
+                    def archive_file = "${env.SPRINT_ID}"
+                    println("archiving as ${archive_file}")
 
                     s3Upload(bucket: 'leaf-pipeline', file: "fort_report/leaf.pdf", path: "fortify/reports/${archive_file}.pdf")
                     s3Upload(bucket: 'leaf-pipeline', file: "fort_report/leaf_merged.fpr", path: "fortify/reports/${archive_file}.fpr")
@@ -129,21 +130,14 @@ String sprintBuildId(ofDate = LocalDate.now()) {
         if(ofDate.getDayOfWeek().getValue() > 2) {
             // adds two weeks to the odd week to land the last sprint day on a tuesday
             lastDayOfSprint = lastDayOfSprint.plus(14, ChronoUnit.DAYS).with(DayOfWeek.TUESDAY)
-        }
-        // if day of the week is on or before Tuesday
-        else { // if(ofDate.getDayOfWeek().getValue() <= 2)
+        } else {        // else the day of the week is on or before Tuesday
             // last day of sprint is in the week of the date
             lastDayOfSprint = ofDate.with(DayOfWeek.TUESDAY)
         }
-    }
-    // if week is EVEN
-    else { // if(weekOfYear % 2 == 0)
+    } else { // week is EVEN
         // adds a week to the even week to land the last sprint day on a tuesday in the following odd week
         lastDayOfSprint = lastDayOfSprint.plus(7, ChronoUnit.DAYS).with(DayOfWeek.TUESDAY)
     }
     
-    println("${buildPrefix}${lastDayOfSprint}${buildSuffix}")
     return "${buildPrefix}${lastDayOfSprint}${buildSuffix}".toString()
-    
 }
-
