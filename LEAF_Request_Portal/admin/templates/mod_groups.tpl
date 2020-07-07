@@ -19,6 +19,7 @@
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script type="text/javascript">
+var tz = '<!--{$timeZone}-->';
 /* <![CDATA[ */
 
 function getMembers(groupID) {
@@ -360,7 +361,7 @@ function viewHistory(groupID){
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID,
+        url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID+'&tz='+tz,
         dataType: 'text',
         success: function(res) {
             dialog_simple.setContent(res);
@@ -379,7 +380,7 @@ function viewPrimaryAdminHistory(){
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=primaryAdmin',
+        url: 'ajaxIndex.php?a=gethistory&type=primaryAdmin&tz='+tz,
         dataType: 'text',
         success: function(res) {
             dialog_simple.setContent(res);
