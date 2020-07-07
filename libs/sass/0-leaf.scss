@@ -144,7 +144,7 @@ hr {border: 1px solid #dfe1e2;}
     .leaf-footer a {text-decoration: none; color: #565c65; }
     .leaf-footer a:hover {text-decoration: underline;}
 
-    /* ################## STEPPED PROGRESS BAR ################# */
+/* ################## STEPPED PROGRESS BAR ################# */
 ul.leaf-progress-bar {
     list-style-type: none;
     margin: 0;
@@ -316,8 +316,10 @@ ul.leaf-progress-bar {
 .leaf-font1rem { font-size: 1.0rem; }
 
 
-/*! breakpoint styles, nav, colors...additional SCSS files */
+
+/*! breakpoint styles, nav, colors...additional SCSS files 
 @import "leaf-colors.scss";
 @import "leaf-global-nav.scss";
 @import "leaf-max-1024.scss";
 @import "leaf-max-480.scss";
+*/
