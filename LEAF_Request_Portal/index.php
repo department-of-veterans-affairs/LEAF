@@ -286,6 +286,12 @@ switch ($action) {
 
         $inboxItems = $inbox->getInbox();
 
+        $errors = [];
+        if(array_key_exists("errors", $inboxItems))
+        {
+            $errors = $inboxItems['errors'];
+            unset($inboxItems['errors']);
+        }
         $depIndex = array_keys($inboxItems);
         $depColors = array();
         foreach ($depIndex as $depID)
@@ -304,6 +310,7 @@ switch ($action) {
         $t_form->assign('depColors', $depColors);
         $t_form->assign('descriptionID', $config->descriptionID);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('errors', $errors);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_inbox.tpl')));
 
