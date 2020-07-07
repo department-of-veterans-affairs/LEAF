@@ -124,18 +124,6 @@
             <span class="leaf-admin-btndesc">Replace account with request initiator</span>
         </a>
 
-        
-
-        
-
-        
-
-        
-
-    
-
-        
-
 </div>
 
 <script type="text/javascript">
@@ -145,10 +133,10 @@ $(function() {
   var subMenu = $('#programmerMode');
   var subMenuButton = $('#programmerMode').find('a');
 
-	$('#btn_programmerMode').on('click', function(e) {
+    $('#btn_programmerMode').on('click', function(e) {
     $(menuButton).attr('aria-expanded', 'true');
-		$('#programmerMode').toggle();
-	});
+        $('#programmerMode').toggle();
+    });
 
     $.ajax({
         type: 'GET',
