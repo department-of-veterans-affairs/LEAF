@@ -261,7 +261,7 @@ ul.leaf-progress-bar {
     .leaf-logo {float: left;}
         .leaf-logo img {width: 56px; margin: 0.6rem 0.5rem 0 0.6rem;}
     .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; font-family: 'Public Sans Bold'; }
-    .leaf-header-description {font-family: 'Public Sans Thin'; font-size: 1.1rem; display: block; font-family: 'Public Sans Regular';}
+    .leaf-header-description {font-family: 'Public Sans Thin'; font-size: 1.1rem; display: block; font-family: 'Public Sans Regular'; white-space: nowrap; overflow: hidden; }
     .leaf-header-right {float: right; color: #fff; font-family: 'Public Sans Regular'; text-align: right;}
     .lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'Public Sans Medium';}
     #nav {margin: 2.3rem 3.4rem 0 0;}

@@ -13,9 +13,7 @@
         
             <div id="fileBrowser" style="float: left; width: 200px; margin-right: 4px">
 
-                <button class="usa-button" onclick="newReport();">
-                    <i class="fas fa-file-alt leaf-btn-icon"></i>New File
-                </button>
+                <button class="usa-button" onclick="newReport();">New File</button>
 
                 <div class="leaf-row-space"></div>
                 
@@ -29,8 +27,8 @@
 
         <div id="codeArea" class="col span_4_of_6">
             <div id="codeContainer" class="card" style="float: left; padding: 4px; width: 90%; display: none">
-                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
-                <div id="reportURL" style="padding-left: 8px;"></div><br />
+                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold; width: 36rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+                <div id="reportURL" style="padding-left: 8px; width: 36rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div><br />
                 <div style="border: 1px solid black">
                     <textarea id="code"></textarea>
                 </div>
@@ -193,10 +191,10 @@ function updateFileList() {
 			for(var i in res) {
 				file = res[i].replace('.tpl', '');
 				if(!isExcludedFile(file)) {
-					buffer += '<li onclick="loadContent(\''+ file +'\');"><a href="#'+ file +'">' + file + '</a></li>';
+					buffer += '<li onclick="loadContent(\''+ file +'\');" style="display: block; width: 12rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><a href="#'+ file +'">' + file + '</a></li>';
                 }
                 else {
-                    bufferExamples += '<li onclick="loadContent(\''+ file +'\');"><a href="#'+ file +'">' + file + '</a></li>';
+                    bufferExamples += '<li onclick="loadContent(\''+ file +'\');" style="display: block; width: 12rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><a href="#'+ file +'">' + file + '</a></li>';
                 }
 			}
             buffer += '</ul>';
