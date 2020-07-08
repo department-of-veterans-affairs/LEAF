@@ -284,7 +284,9 @@
             var result = [];
 
             for(var i=0; i < supervisors.length; i++){
-                result.push(supervisors[i].empUID);
+                if(supervisors[i] && supervisors[i].empUID){
+                    result.push(supervisors[i].empUID);
+                }
             }
 
             return result;
