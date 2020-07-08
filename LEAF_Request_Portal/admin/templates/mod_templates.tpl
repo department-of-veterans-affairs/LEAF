@@ -61,24 +61,24 @@
 
             <div id="controls" style="float:right; width: 200px; visibility: hidden">
                 
-                <button class="usa-button" onclick="save();">
-                    <i class="fas fa-save leaf-btn-icon"></i>Save Changes<span id="saveStatus"></span>
+                <button class="usa-button leaf-display-block leaf-width-12rem" onclick="save();">
+                    Save Changes<div id="saveStatus" style="font-size: 0.6rem;"></div>
                 </button>
                 
-                <button class="usa-button usa-button--secondary leaf-marginTop-1rem" onclick="restore();">
-                    <i class="fas fa-trash-restore leaf-btn-icon"></i>Restore Original
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-width-12rem" onclick="restore();">
+                    Restore Original
                 </button>
                 
-                <button class="usa-button usa-button--secondary leaf-marginTop-1rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
-                    <i class="fas fa-stop leaf-btn-icon"></i>Stop Comparing
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-width-12rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
+                    Stop Comparing
                 </button>
                 
-                <button class="usa-button usa-button--outline leaf-marginTop-1rem" id="btn_compare" onclick="compare();">
-                    <i class="fas fa-compress-alt leaf-btn-icon"></i>Compare to Original
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-width-12rem" id="btn_compare" onclick="compare();">
+                    Compare to Original
                 </button>
                 
-                <button class="usa-button usa-button--outline leaf-marginTop-1rem" target="_blank">
-                    <i class="fas fa-book leaf-btn-icon"></i><a href="../../libs/dynicons/gallery.php">Icon Library</a>
+                <button onclick="location.href='../../libs/dynicons/gallery.php';" class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-width-12rem" target="_blank">
+                    Icon Library
                 </button>
             </div>
 
