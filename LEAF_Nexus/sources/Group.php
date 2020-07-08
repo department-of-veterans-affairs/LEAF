@@ -11,7 +11,15 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
+require_once __DIR__ . '/Data.php';
+if(!class_exists('LogFormatter'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logFormatter.php';
+}
+if(!class_exists('LogItem'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logItem.php';
+}
 
 class Group extends Data
 {
@@ -135,7 +143,7 @@ class Group extends Data
         $groupTitle = $this->sanitizeInput($groupTitle);
 
         $vars = array(':groupTitle' => $groupTitle);
-        $res = $this->db->prepared_query('SELECT * FROM groups
+        $res = $this->db->prepared_query('SELECT * FROM `groups`
         							WHERE groupTitle = :groupTitle', $vars);
         if (count($res) > 0)
         {
@@ -147,7 +155,14 @@ class Group extends Data
                       ':phoGroupTitle' => metaphone($groupTitle), );
         $this->db->prepared_query('INSERT INTO groups (groupTitle, parentID, phoneticGroupTitle)
                VALUES (:groupTitle, :parentID, :phoGroupTitle)', $vars);
+
         $groupID = $this->db->getLastInsertID();
+
+        $this->logAction(\DataActions::ADD, \LoggableTypes::GROUP, [
+            new \LogItem("groups", "groupID", $groupID),
+            new \LogItem("groups", "groupTitle", $groupTitle),
+            new \LogItem("groups", "parentID", $parentGroupID)
+        ]);
 
         // Give admin to the person creating the group
         // If available, add their position instead of empUID
@@ -162,8 +177,17 @@ class Group extends Data
                 $vars = array(':groupID' => $groupID,
                               ':categoryID' => 'position',
                               ':UID' => $position['positionID'], );
+                
                 $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
-                                            		VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
+                                                    VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
+                
+                $this->logAction(\DataActions::MODIFY,\LoggableTypes::PRIVILEGES,[
+                    new \LogItem("group_privileges", "groupID", $groupID, $groupTitle),
+                    new \LogItem("group_privileges", "UID", $position['positionID'], $this->getPositionDisplay($position['positionID'])),
+                    new \LogItem("group_privileges", "read", "true"),
+                    new \LogItem("group_privileges", "write", "true"),
+                    new \LogItem("group_privileges", "grant", "true")
+                ]);
             }
         }
         else
@@ -172,7 +196,15 @@ class Group extends Data
                           ':categoryID' => 'employee',
                           ':UID' => $this->login->getEmpUID(), );
             $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
-                                            	VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
+                                                VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
+                                                
+            $this->logAction(\DataActions::MODIFY,\LoggableTypes::PRIVILEGES,[
+                new \LogItem("group_privileges", "groupID", $groupID, $groupTitle ),
+                new \LogItem("group_privileges", "UID", $this->login->getEmpUID(), $this->login->getName()),
+                new \LogItem("group_privileges", "read", "true"),
+                new \LogItem("group_privileges", "write", "true"),
+                new \LogItem("group_privileges", "grant", "true")
+            ]);
         }
 
         // Give admin to admins
@@ -209,7 +241,7 @@ class Group extends Data
         {
             throw new Exception('You do not have access to delete this group.');
         }
-
+        $groupName = $this->getTitle($groupID);
         $this->db->beginTransaction();
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('DELETE FROM relation_group_employee
@@ -227,11 +259,15 @@ class Group extends Data
         $res = $this->db->prepared_query('DELETE FROM group_data
                                             WHERE groupID=:groupID', $vars);
 
-        $res = $this->db->prepared_query('DELETE FROM groups
+        $res = $this->db->prepared_query('DELETE FROM `groups`
                                             WHERE groupID=:groupID', $vars);
 
         $this->db->commitTransaction();
         $this->updateLastModified();
+
+        $this->logAction(\DataActions::DELETE, \LoggableTypes::GROUP, [
+            new \LogItem("groups", "groupID", $groupID, $groupName)
+        ]);
 
         return 1;
     }
@@ -298,7 +334,13 @@ class Group extends Data
                       ':groupID' => $groupID,
                       ':phoTitle' => metaphone($newTitle), );
         $this->db->prepared_query('UPDATE groups SET groupTitle=:groupTitle, groupAbbreviation=:abbrTitle, phoneticGroupTitle=:phoTitle
-        								WHERE groupID=:groupID', $vars);
+                                        WHERE groupID=:groupID', $vars);
+        
+        $this->logAction(\DataActions::MODIFY,\LoggableTypes::GROUP,[
+            new \LogItem("groups", "groupID", $groupID),
+            new \LogItem("groups", "groupTitle", $newTitle)
+        ]);
+
         $this->updateLastModified();
 
         return $groupID;
@@ -319,6 +361,11 @@ class Group extends Data
                 						WHERE groupID=:groupID', $vars);
         $this->updateLastModified();
 
+        $this->logAction(\DataActions::MODIFY, \LoggableTypes::GROUP, [
+            new \LogItem("groups", "groupID", $groupID, $this->getTitle($groupID)),
+            new \LogItem("groups", "parentID", $newParentID, $this->getTitle($groupID))
+        ]);
+
         return $groupID;
     }
 
@@ -337,7 +384,7 @@ class Group extends Data
     public function getNumberOfSubgroups($parentID)
     {
         $vars = array(':parentID' => $parentID);
-        $res = $this->db->prepared_query('SELECT COUNT(*) FROM groups WHERE parentID=:parentID', $vars);
+        $res = $this->db->prepared_query('SELECT COUNT(*) FROM `groups` WHERE parentID=:parentID', $vars);
 
         return $res[0]['COUNT(*)'];
     }
@@ -359,7 +406,7 @@ class Group extends Data
 
         $this->db->limit($offset, $quantity);
         $vars = array(':parentID' => $parentID);
-        $res = $this->db->prepared_query('SELECT * FROM groups WHERE parentID=:parentID
+        $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE parentID=:parentID
         									ORDER BY groupTitle ASC', $vars);
         if ($noData == null)
         {
@@ -406,7 +453,7 @@ class Group extends Data
         }
 
         $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM groups WHERE parentID=:groupID', $vars);
+        $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE parentID=:groupID', $vars);
 
         return $res;
     }
@@ -536,7 +583,7 @@ class Group extends Data
 
         // Employee->getAllData() relies on lots of variables defined in that class,
         // so let it do the hard work
-        require_once 'Employee.php';
+        require_once __DIR__ . '/Employee.php';
         $employee = new Employee($this->db, $this->login);
         foreach ($res as $key => $value)
         {
@@ -564,7 +611,7 @@ class Group extends Data
     public function listGroupEmployeesAll($groupID)
     {
         $output = array();
-        require_once 'Position.php';
+        require_once __DIR__ . '/Position.php';
         $position = new Position($this->db, $this->login);
 
         $positions = $this->listGroupPositions($groupID);
@@ -703,7 +750,7 @@ class Group extends Data
     {
         $data = array();
         $vars = array(':groupID' => $groupID);
-        /*$res = $this->db->prepared_query('SELECT * FROM groups
+        /*$res = $this->db->prepared_query('SELECT * FROM `groups`
                                             LEFT JOIN relation_group_position USING (groupID)
                                             LEFT JOIN positions USING (positionID)
                                             WHERE groupID=:groupID', $vars);*/
@@ -725,7 +772,7 @@ class Group extends Data
             return $this->cache["getGroup_{$groupID}"];
         }
         $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM groups
+        $res = $this->db->prepared_query('SELECT * FROM `groups`
                                             WHERE groupID=:groupID', $vars);
         $this->cache["getGroup_{$groupID}"] = $res;
 
@@ -758,7 +805,15 @@ class Group extends Data
         $this->db->prepared_query('INSERT INTO relation_group_position (groupID, positionID)
                                     VALUES (:groupID, :positionID)', $vars);
 
-        return $this->db->getLastInsertID();
+        $newRecordID = $this->db->getLastInsertID();                                    
+                
+        $this->logAction(\DataActions::ADD, \LoggableTypes::POSITION, [
+            new \LogItem("relation_group_position", "groupID", $groupID, $this->getTitle($groupID)),
+            new \LogItem("relation_group_position", "positionID", $positionID, $this->getPositionDisplay($positionID))
+        ]);
+
+        
+        return $newRecordID;
     }
 
     /**
@@ -782,6 +837,11 @@ class Group extends Data
         $this->db->prepared_query('DELETE FROM relation_group_position
                                     WHERE positionID=:positionID AND groupID=:groupID', $vars);
         $this->updateLastModified();
+
+        $this->logAction(\DataActions::DELETE, \LoggableTypes::POSITION, [
+            new \LogItem("relation_group_position", "groupID", $groupID, $this->getTitle($groupID)),
+            new \LogItem("relation_group_position", "positionID", $positionID, $this->getPositionDisplay($positionID))
+        ]);
 
         return 1;
     }
@@ -810,6 +870,13 @@ class Group extends Data
         $this->db->prepared_query('INSERT INTO relation_group_employee (groupID, empUID)
                                     VALUES (:groupID, :employeeID)', $vars);
 
+        $employeeDisplay = $this->getEmployeeDisplay($employeeID);
+                
+        $this->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
+            new \LogItem("relation_group_employee", "groupID", $groupID, $this->getTitle($groupID)),
+            new \LogItem("relation_group_employee", "empUID", $employeeID, $employeeDisplay)
+        ]);
+
         return $this->db->getLastInsertID();
     }
 
@@ -834,6 +901,13 @@ class Group extends Data
         $this->db->prepared_query('DELETE FROM relation_group_employee
                                     WHERE empUID=:empUID AND groupID=:groupID', $vars);
         $this->updateLastModified();
+
+        $employeeDisplay = $this->getEmployeeDisplay($empUID);
+        
+        $this->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
+            new \LogItem("relation_group_employee", "groupID", $groupID, $this->getTitle($groupID)),
+            new \LogItem("relation_group_employee", "empUID", $empUID, $employeeDisplay)
+        ]);
 
         return 1;
     }
@@ -907,24 +981,10 @@ class Group extends Data
             return;
         }
 
-        switch ($permissionType) {
-            case 'read':
-                $permissionType = '`read`';
-
-                break;
-            case 'write':
-                $permissionType = '`write`';
-
-                break;
-            case 'grant':
-                $permissionType = '`grant`';
-
-                break;
-            default:
-                return false;
-
-                break;
+        if($permissionType != 'read' && $permissionType != 'write' && $permissionType != 'grant'){
+            return false;
         }
+
         $vars = array(':groupID' => $groupID,
                       ':categoryID' => $categoryID,
                       ':UID' => $UID, );
@@ -935,11 +995,23 @@ class Group extends Data
                       ':categoryID' => $categoryID,
                       ':UID' => $UID, );
         $res = $this->db->prepared_query("UPDATE group_privileges
-                                            SET {$permissionType}=1
+                                            SET `$permissionType`=1
                                             WHERE groupID=:groupID
                                                 AND categoryID=:categoryID
                                                 AND UID=:UID", $vars);
-
+        
+        $newPermissions = $this->db->prepared_query("SELECT * from group_privileges WHERE groupID=:groupID
+                                            AND categoryID=:categoryID
+                                            AND UID=:UID", $vars)[0];
+        
+        $this->logAction(\DataActions::MODIFY,\LoggableTypes::PRIVILEGES,[
+            new \LogItem("group_privileges", "read", ($newPermissions["read"]? "true": "false")),
+            new \LogItem("group_privileges", "write", ($newPermissions["write"]? "true": "false")),
+            new \LogItem("group_privileges", "grant", ($newPermissions["grant"]? "true": "false")),
+            new \LogItem("group_privileges", "groupID", $groupID, $this->getTitle($groupID)),
+            new \LogItem("group_privileges", "categoryID", $categoryID),
+            new \LogItem("group_privileges", "UID", $UID, $this->getUIDDisplay($categoryID, $UID))
+        ]);
         return 1;
     }
 
@@ -958,24 +1030,8 @@ class Group extends Data
         {
             return;
         }
-
-        switch ($permissionType) {
-            case 'read':
-                $permissionType = '`read`';
-
-                break;
-            case 'write':
-                $permissionType = '`write`';
-
-                break;
-            case 'grant':
-                $permissionType = '`grant`';
-
-                break;
-            default:
-                return false;
-
-                break;
+        if($permissionType != 'read' && $permissionType != 'write' && $permissionType != 'grant'){
+            return false;
         }
 
         $vars = array(':groupID' => $groupID,
@@ -988,10 +1044,22 @@ class Group extends Data
                       ':categoryID' => $categoryID,
                       ':UID' => $UID, );
         $res = $this->db->prepared_query("UPDATE group_privileges
-                                            SET {$permissionType}=0
+                                            SET `$permissionType`=0
                                             WHERE groupID=:groupID
                                                 AND categoryID=:categoryID
                                                 AND UID=:UID", $vars);
+        $newPermissions = $this->db->prepared_query("SELECT * from group_privileges WHERE groupID=:groupID
+                                            AND categoryID=:categoryID
+                                            AND UID=:UID", $vars)[0];
+        
+        $this->logAction(\DataActions::MODIFY, \LoggableTypes::PRIVILEGES, [
+            new \LogItem("group_privileges", "read", ($newPermissions["read"] ? "true" : "false")),
+            new \LogItem("group_privileges", "write", ($newPermissions["write"] ? "true" : "false")),
+            new \LogItem("group_privileges", "grant", ($newPermissions["grant"] ? "true" : "false")),
+            new \LogItem("group_privileges", "groupID", $groupID, $this->getTitle($groupID)),
+            new \LogItem("group_privileges", "categoryID", $categoryID),
+            new \LogItem("group_privileges", "UID", $this->getUIDDisplay($categoryID,$UID))
+        ]);
 
         // if subject has all permissions removed, delete the row from the table
         $vars = array(':groupID' => $groupID,
@@ -1036,5 +1104,29 @@ class Group extends Data
     private function metaphone_query($in)
     {
         return '%' . metaphone($in) . '%';
+    }
+
+    private function getUIDDisplay($categoryID, $UID){
+
+        switch($categoryID){
+            case "employee":
+                return $this->getEmployeeDisplay($UID);
+            case "group":
+                return $this->getTitle($UID);
+            case "position":
+                return $this->getPositionDisplay($UID);
+            default:
+                return '';
+        }
+    }
+
+    private function getPositionDisplay($UID){
+        $positionVars = array(':positionId'=> $UID);
+        return $this->db->prepared_query('SELECT positionTitle from positions where positionId = :positionId', $positionVars)[0]['positionTitle'];                                    
+    }
+
+    private function getEmployeeDisplay($employeeID){
+        $employeeVars = array(':employeeId'=> $employeeID);
+        return $this->db->prepared_query('SELECT concat(firstName," ",lastName) as user from employee where empUID = :employeeId', $employeeVars)[0]['user'];                                    
     }
 }

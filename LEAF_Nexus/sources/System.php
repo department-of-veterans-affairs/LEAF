@@ -23,7 +23,7 @@ class System
         $this->login = $login;
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
+        $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
 
         if (!class_exists('XSSHelpers'))
         {
@@ -84,7 +84,7 @@ class System
         {
             return 'Admin access required';
         }
-        $list = scandir('../templates/reports/');
+        $list = scandir(__DIR__.'/../templates/reports/');
         $out = array();
         foreach ($list as $item)
         {
@@ -144,9 +144,9 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/reports/{$template}"))
+            if (file_exists(__DIR__."/../templates/reports/{$template}"))
             {
-                $data['file'] = file_get_contents("../templates/reports/{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/reports/{$template}");
             }
         }
 
@@ -193,10 +193,31 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/reports/{$template}"))
+            if (file_exists(__DIR__."/../templates/reports/{$template}"))
             {
-                return unlink("../templates/reports/{$template}");
+                return unlink(__DIR__."/../templates/reports/{$template}");
             }
         }
+    }
+
+    /**
+     * Checks for admin priviledges and runs batch refresh local orgchart employee 
+     *
+     * @return $ret returns last echo from script
+     */
+    public function refreshOrgchartEmployees()
+    {
+        $memberships = $this->login->getMembership();
+        if (!isset($memberships['groupID'][1]))
+        {
+            return 'Admin access required';
+        }
+        
+        header('Cache-Control: no-cache');
+        exec('php ../scripts/refreshOrgchartEmployees.php &', $output);
+        
+        $ret = $output[count($output) - 1]; 
+
+        return $ret;
     }
 }

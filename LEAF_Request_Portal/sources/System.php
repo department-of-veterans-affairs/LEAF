@@ -9,6 +9,10 @@
 
 */
 
+$currDir = dirname(__FILE__);
+
+include_once $currDir . '/../globals.php';
+
 if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
@@ -16,6 +20,11 @@ if (!class_exists('XSSHelpers'))
 if (!class_exists('CommonConfig'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
+}
+
+if(!class_exists('DataActionLogger'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
 }
 
 class System
@@ -28,19 +37,24 @@ class System
 
     private $fileExtensionWhitelist;
 
+    private $dataActionLogger;
+
     public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
+        $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $commonConfig = new CommonConfig();
         $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
+
+        $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
 
     public function updateService($serviceID)
     {
+        global $config;
         if (!is_numeric($serviceID))
         {
             return 'Invalid Service';
@@ -50,12 +64,11 @@ class System
         $this->db->prepared_query('DELETE FROM services WHERE serviceID=:serviceID AND serviceID > 0', $vars);
         $this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars);
 
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Group.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Position.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Employee.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Tag.php';
 
-        $config = new Config();
         $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $group = new Orgchart\Group($db_phonebook, $this->login);
         $position = new Orgchart\Position($db_phonebook, $this->login);
@@ -127,6 +140,7 @@ class System
 
     public function updateGroup($groupID)
     {
+        global $config;
         if (!is_numeric($groupID))
         {
             return 'Invalid Group';
@@ -139,14 +153,13 @@ class System
         // clear out old data first
         $vars = array(':groupID' => $groupID);
         $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
-        $this->db->prepared_query('DELETE FROM groups WHERE groupID=:groupID', $vars);
+        $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Group.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Position.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Employee.php';
+        include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Tag.php';
 
-        $config = new Config();
         $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $group = new Orgchart\Group($db_phonebook, $this->login);
         $position = new Orgchart\Position($db_phonebook, $this->login);
@@ -246,7 +259,7 @@ class System
 
     public function getGroups()
     {
-        return $this->db->prepared_query('SELECT * FROM groups
+        return $this->db->prepared_query('SELECT * FROM `groups`
     								WHERE groupID > 1
         							ORDER BY name ASC', array());
     }
@@ -285,13 +298,93 @@ class System
         {
             return 'Admin access required';
         }
-        $list = scandir('../templates/');
+        $list = scandir(__DIR__.'/../templates/');
         $out = array();
         foreach ($list as $item)
         {
             if (preg_match('/.tpl$/', $item))
             {
                 $out[] = $item;
+            }
+        }
+
+        return $out;
+    }
+
+    public function getEmailSubjectData($template, $getStandard = false)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $data['subjectFileName'] = '';
+        $data['subjectFile'] = '';
+
+        if (preg_match('/_body.tpl$/', $template))
+        {
+            $subject = str_replace("_body.tpl", "_subject.tpl", $template, $count);
+            if ($count == 1)
+            {
+                $data['subjectFileName'] = $subject;
+
+                if (file_exists("../templates/email/custom_override/{$subject}") && !$getStandard)
+                    $data['subjectFile'] = file_get_contents("../templates/email/custom_override/{$subject}");          
+                else if (file_exists("../templates/email/{$subject}"))
+                    $data['subjectFile'] = file_get_contents("../templates/email/{$subject}");
+                else
+                    $data['subjectFile'] = '';
+            }
+        }
+
+        return $data;
+    }
+
+    public function getEmailAndSubjectTemplateList()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $list = scandir('../templates/email');
+        $out = array();
+        foreach ($list as $item)
+        {
+            if (preg_match('/.tpl$/', $item))
+            {
+                $temp =  array();
+                preg_match('/subject/', $item, $temp);
+                if (count($temp) == 0) 
+                {                    
+                    $data['fileName'] = $item;
+                    $res = $this->getEmailSubjectData($item);
+                    $data['subjectFileName'] = $res['subjectFileName'];
+                    $out[] = $data;
+                }
+            }
+        }
+
+        return $out;
+    }
+
+    public function getEmailTemplateList()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $list = scandir('../templates/email');
+        $out = array();
+        foreach ($list as $item)
+        {
+            if (preg_match('/.tpl$/', $item))
+            {
+                $temp =  array();
+                preg_match('/subject/', $item, $temp);
+                if (count($temp) == 0) 
+                {                    
+                    $out[] = $item;
+                }
             }
         }
 
@@ -309,17 +402,46 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/custom_override/{$template}")
+            if (file_exists(__DIR__."/../templates/custom_override/{$template}")
                   && !$getStandard)
             {
                 $data['modified'] = 1;
-                $data['file'] = file_get_contents("../templates/custom_override/{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/{$template}");
             }
             else
             {
                 $data['modified'] = 0;
-                $data['file'] = file_get_contents("../templates/{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/{$template}");
             }
+        }
+
+        return $data;
+    }
+
+    public function getEmailTemplate($template, $getStandard = false)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $list = $this->getEmailTemplateList();
+        $data = array();
+        if (array_search($template, $list) !== false)
+        {
+            if (file_exists("../templates/email/custom_override/{$template}")
+                  && !$getStandard)
+            {
+                $data['modified'] = 1;
+                $data['file'] = file_get_contents("../templates/email/custom_override/{$template}");
+            }
+            else
+            {
+                $data['modified'] = 0;
+                $data['file'] = file_get_contents("../templates/email/{$template}");
+            }
+
+            $res = $this->getEmailSubjectData($template, $getStandard);
+            $data['subjectFile'] = $res['subjectFile'];
         }
 
         return $data;
@@ -339,6 +461,22 @@ class System
         }
     }
 
+    public function setEmailTemplate($template)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $list = $this->getEmailTemplateList();
+        if (array_search($template, $list) !== false)
+        {
+            file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
+        
+            if ($_POST['subjectFileName'] != '')
+                file_put_contents("../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
+        }
+    }
+
     public function removeCustomTemplate($template)
     {
         if (!$this->login->checkGroup(1))
@@ -349,9 +487,32 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/custom_override/{$template}"))
+            if (file_exists(__DIR__."/../templates/custom_override/{$template}"))
             {
-                return unlink("../templates/custom_override/{$template}");
+                return unlink(__DIR__."/../templates/custom_override/{$template}");
+            }
+        }
+    }
+
+    public function removeCustomEmailTemplate($template)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $list = $this->getEmailTemplateList();
+
+        if (array_search($template, $list) !== false)
+        {
+            if (file_exists("../templates/email/custom_override/{$template}"))
+            {
+                unlink("../templates/email/custom_override/{$template}");
+            }
+
+            $subjectFileName = $_REQUEST['subjectFileName'];
+            if ($subjectFileName != '' && file_exists("../templates/email/custom_override/{$subjectFileName}"))
+            {
+                unlink("../templates/email/custom_override/{$subjectFileName}");
             }
         }
     }
@@ -474,7 +635,7 @@ class System
         {
             return 'Admin access required';
         }
-        $list = scandir('../templates/reports/');
+        $list = scandir(__DIR__.'/../templates/reports/');
         $out = array();
         foreach ($list as $item)
         {
@@ -533,9 +694,9 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/reports/{$template}"))
+            if (file_exists(__DIR__."/../templates/reports/{$template}"))
             {
-                $data['file'] = file_get_contents("../templates/reports/{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/reports/{$template}");
             }
         }
 
@@ -590,9 +751,9 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/reports/{$template}"))
+            if (file_exists(__DIR__."/../templates/reports/{$template}"))
             {
-                return unlink("../templates/reports/{$template}");
+                return unlink(__DIR__."/../templates/reports/{$template}");
             }
         }
     }
@@ -604,7 +765,7 @@ class System
             return 'Admin access required';
         }
 
-        $list = scandir('../files/');
+        $list = scandir(__DIR__.'/../files/');
         $out = array();
         foreach ($list as $item)
         {
@@ -621,6 +782,10 @@ class System
 
     public function newFile()
     {
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        {
+            return 'Invalid Token.';
+        }
         $in = $_FILES['file']['name'];
         $fileName = XSSHelpers::scrubFilename($in);
         $fileName = XSSHelpers::xscrub($fileName);
@@ -676,5 +841,89 @@ class System
     public function getSettings()
     {
         return $this->db->query_kv('SELECT * FROM settings', 'setting', 'data');
+    }
+
+    /**
+     * Get primary admin.
+     *
+     * @return array array with primary admin's info
+     */
+    public function getPrimaryAdmin()
+    {
+        $primaryAdminRes = $this->db->prepared_query('SELECT * FROM `users`
+                                    WHERE `primary_admin` = 1', array());
+        $result = array();
+        if(count($primaryAdminRes))
+        {
+            require_once __DIR__ . '/../VAMC_Directory.php';
+            $dir = new VAMC_Directory;
+            $user = $dir->lookupLogin($primaryAdminRes[0]['userID']);
+            $result = isset($user[0]) ? $user[0] : $primaryAdminRes[0]['userID'];
+        }
+        return $result;
+    }
+
+    /**
+     * Set primary admin.
+     *
+     * @return array array with response array
+     */
+    public function setPrimaryAdmin()
+    {
+        $vars = array(':userID' => XSSHelpers::xscrub($_POST['userID']));
+        $resultArray = array('success' => false, 'response' => $res);
+        //check if user is system admin
+        $res = $this->db->prepared_query('SELECT *
+                                            FROM `users`
+                                            WHERE `userID` = :userID
+                                            AND `groupID` = 1', $vars);
+        $resultArray = array();
+        if(count($res))
+        {
+            $this->db->prepared_query('UPDATE `users`
+    								        SET `primary_admin` = 0', array());
+            $res = $this->db->prepared_query('UPDATE `users`
+                                                SET `primary_admin` = 1
+                                                WHERE `userID` = :userID;', $vars);
+            $resultArray = array('success' => true, 'response' => $res);
+
+            $primary = $this->getPrimaryAdmin();
+
+            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PRIMARY_ADMIN, [
+                new LogItem("users", "primary_admin", 1),
+                new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+            ]);
+        }
+        else
+        {
+            $resultArray = array('success' => false, 'response' => $res);
+        }
+
+        return json_encode($resultArray);
+    }
+
+    /**
+     * Unset primary admin.
+     *
+     * @return array array with query response
+     */
+    public function unsetPrimaryAdmin()
+    {
+
+        $primary = $this->getPrimaryAdmin();
+
+        $result = $this->db->prepared_query('UPDATE `users` SET `primary_admin` = 0', array());
+
+        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PRIMARY_ADMIN, [
+            new LogItem("users", "primary_admin", 1),
+            new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+        ]);
+
+        return $result;
+    }
+
+    public function getHistory($filterById)
+    {
+        return $this->dataActionLogger->getHistory($filterById, null, \LoggableTypes::PRIMARY_ADMIN);
     }
 }

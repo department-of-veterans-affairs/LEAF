@@ -5,12 +5,8 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include '../libs/smarty/Smarty.class.php';
-include 'db_mysql.php';
-include 'db_config.php';
-
-$db_config = new DB_Config();
-$config = new Config();
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/db_mysql.php';
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 
@@ -26,6 +22,7 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 $script = isset($_GET['s']) ? XSSHelpers::scrubFilename(XSSHelpers::xscrub($_GET['s'])) : '';
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/")->setCompileDir(__DIR__."/templates_c/");
 $main->left_delimiter = '{{';
 $main->right_delimiter = '}}';
 
@@ -34,8 +31,8 @@ switch ($action) {
     case 'workflowStepModules':
         $stepID = (int)$_GET['stepID'];
         if ($script != ''
-            && file_exists("scripts/workflowStepModules/{$script}.tpl")
-            && $stepID > 0)
+            && file_exists(__DIR__."/scripts/workflowStepModules/{$script}.tpl")
+            && is_numeric($stepID))
         {
             $vars = array(':stepID' => $stepID,
                           ':moduleName' => $script);

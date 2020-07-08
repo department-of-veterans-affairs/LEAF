@@ -3,17 +3,14 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-include 'globals.php';
-include 'db_mysql.php';
-include 'config.php';
-include './sources/Login.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/./sources/Login.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
-
-$config = new Orgchart\Config();
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
@@ -23,17 +20,17 @@ $login->loginUser();
 $type = null;
 switch ($_GET['categoryID']) {
     case 1:    // employee
-        include './sources/Employee.php';
+        include __DIR__ . '/./sources/Employee.php';
         $type = new OrgChart\Employee($db, $login);
 
         break;
     case 2:    // position
-        include './sources/Position.php';
+        include __DIR__ . '/./sources/Position.php';
         $type = new OrgChart\Position($db, $login);
 
         break;
     case 3:    // group
-        include './sources/Group.php';
+        include __DIR__ . '/./sources/Group.php';
         $type = new OrgChart\Group($db, $login);
 
         break;
@@ -49,7 +46,7 @@ $value = $data[$_GET['indicatorID']]['data'];
 
 $inputFilename = html_entity_decode($type->sanitizeInput($_GET['file']));
 
-$filename = Orgchart\Config::$uploadDir . $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $inputFilename);
+$filename = $config->uploadDir . $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $inputFilename);
 
 if (is_array($value)
     && array_search($inputFilename, $value) === false)

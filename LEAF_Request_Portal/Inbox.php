@@ -9,7 +9,7 @@
 
 */
 
-require_once 'form.php';
+require_once __DIR__ . '/form.php';
 
 class Inbox
 {
@@ -253,7 +253,7 @@ class Inbox
                             // populate relevant info
                             if (!isset($this->dir))
                             {
-                                require_once 'VAMC_Directory.php';
+                                require_once __DIR__ . '/VAMC_Directory.php';
                                 $this->dir = new VAMC_Directory;
                             }
 
@@ -271,6 +271,27 @@ class Inbox
                         {
                             $res[$i]['hasAccess'] = true;
                             $out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
+                        }
+
+                        if(!$res[$i]['hasAccess'])
+                        {                            
+                            $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
+                            $res[$i]['hasAccess'] = $this->checkIfBackup($empUID);
+
+                            if($res[$i]['hasAccess']){
+
+                                if (!isset($this->dir))
+                                {
+                                    require_once __DIR__ . '/VAMC_Directory.php';
+                                    $this->dir = new VAMC_Directory;
+                                }
+    
+                                $user = $this->dir->lookupEmpUID($empUID);
+    
+                                $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "unknown user";
+                                
+                                $out[$res[$i]['dependencyID']]['approverName'] = 'Backup for '.$approverName;
+                            }
                         }
                     }
 
@@ -307,7 +328,7 @@ class Inbox
                             else
                             {
                                 $vars = array(':groupID' => $groupID);
-                                $resDepGroup = $this->db->prepared_query('SELECT name FROM groups WHERE groupID=:groupID', $vars);
+                                $resDepGroup = $this->db->prepared_query('SELECT name FROM `groups` WHERE groupID=:groupID', $vars);
                                 $this->cache["getInbox_resDepGroup_{$groupID}"] = $resDepGroup;
                             }
                             $approverName = '';
@@ -366,6 +387,46 @@ class Inbox
         }
 
         return $out;
+    }
+
+    /**
+     * Gets empuID for given username
+     * @param string $userName Username
+     * @return string
+     */
+    public function getEmpUIDByUserName($userName)
+    {
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':userName' => $userName);
+        $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
+        return $response[0]["empUID"];
+    }
+
+    /**
+     * Checks if logged in user serves as a backup for given empUID
+     * @param string $empUID empUID to check 
+     * @return boolean
+     */
+    public function checkIfBackup($empUID)
+    {
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':empId' => $empUID);
+        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
+
+        if ($empUID != $this->login->getEmpUID())
+        {
+            foreach ($backupIds as $row)
+            {
+                if ($row['backupEmpUID'] == $this->login->getEmpUID())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

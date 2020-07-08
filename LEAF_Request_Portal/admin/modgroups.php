@@ -3,23 +3,20 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../VAMC_Directory.php';
+require __DIR__ . '/../VAMC_Directory.php';
 
-include '../globals.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../db_mysql.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DB_Config();
-
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $dir = new VAMC_Directory();
 
-$groups = $db->prepared_query('SELECT * FROM groups ORDER BY name ASC', array());
+$groups = $db->prepared_query('SELECT * FROM `groups` ORDER BY name ASC', array());
 echo 'Access Groups:';
 echo '<ul>';
 foreach ($groups as $group)

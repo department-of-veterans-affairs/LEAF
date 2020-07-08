@@ -45,13 +45,13 @@ class VAMC_Directory
     // Connect to the database
     public function __construct()
     {
+        global $config;
         $currDir = dirname(__FILE__);
-        require_once $currDir . '/' . Config::$orgchartPath . '/config.php';
-        require_once $currDir . '/' . Config::$orgchartPath . '/sources/Employee.php';
-        require_once $currDir . '/' . Config::$orgchartPath . '/sources/Group.php';
-        require_once $currDir . '/' . Config::$orgchartPath . '/sources/Login.php';
-        $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        require_once $currDir . '/' . $config->orgchartPath . '/sources/Employee.php';
+        require_once $currDir . '/' . $config->orgchartPath . '/sources/Group.php';
+        require_once $currDir . '/' . $config->orgchartPath . '/sources/Login.php';
+        
+        $oc_db = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $login = new Orgchart\Login($oc_db, $oc_db);
 //        $login->loginUser();
         $this->Employee = new Orgchart\Employee($oc_db, $login);

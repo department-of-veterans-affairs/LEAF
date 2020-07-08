@@ -5,6 +5,9 @@
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <script>
+
+var indicatorEditing;
+
 function checkSensitive(indicator) {
     var result = 0;
     $.each(indicator, function( index, value )
@@ -88,7 +91,9 @@ function editProperties(isSubForm) {
                     var buffer = '<select id="workflowID">';
                     buffer += '<option value="0">No Workflow</option>';
                     for(var i in res) {
-                        buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
+                        if(res[i].workflowID > 0) {
+                            buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
+                        }
                     }
                     buffer += '</select>';
                     $('#container_workflowID').html(buffer);
@@ -103,8 +108,18 @@ function editProperties(isSubForm) {
         });
 
         dialog.setSaveHandler(function() {
-            $.when(
-                $.ajax({
+            var calls = [];
+            
+            var nameChanged = (categories[currCategoryID].categoryName || "") != $('#name').val();
+            var descriptionChanged  = (categories[currCategoryID].categoryDescription || "") != $('#description').val();
+            var workflowChanged  = (categories[currCategoryID].workflowID || "") != $('#workflowID').val();
+            var needToKnowChanged = (categories[currCategoryID].needToKnow || "") != $('#needToKnow').val();
+            var sortChanged = (categories[currCategoryID].sort || "") != $('#sort').val();
+            var visibleChanged = (categories[currCategoryID].visible || "") != $('#visible').val();
+            var typeChanged = (categories[currCategoryID].type || "") != $('#formType').val();
+
+            if(nameChanged){
+                calls.push($.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formName',
                     data: {name: $('#name').val(),
@@ -113,9 +128,13 @@ function editProperties(isSubForm) {
                     success: function(res) {
                         if(res != null) {
                         }
+                        categories[currCategoryID].name = $('#name').val();
                     }
-                }),
-                $.ajax({
+                }));
+            }
+
+            if(descriptionChanged){
+                calls.push($.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formDescription',
                     data: {description: $('#description').val(),
@@ -124,9 +143,14 @@ function editProperties(isSubForm) {
                     success: function(res) {
                         if(res != null) {
                         }
+                        categories[currCategoryID].description = $('#description').val();
                     }
-                }),
-                $.ajax({
+                }));
+            }
+
+            if(workflowChanged){
+                calls.push(
+                    $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formWorkflow',
                     data: {workflowID: $('#workflowID').val(),
@@ -136,8 +160,13 @@ function editProperties(isSubForm) {
                         if(res == false) {
                         	alert('Workflow cannot be set because this form has been merged into another form');
                         }
+                        categories[currCategoryID].workflowID = $('#workflowID').val();
                     }
-                }),
+                }));
+            }
+
+            if(needToKnowChanged){
+                calls.push(
                 $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formNeedToKnow',
@@ -147,8 +176,13 @@ function editProperties(isSubForm) {
                     success: function(res) {
                         if(res != null) {
                         }
+                        categories[currCategoryID].needToKnow = $('#needToKnow').val();
                     }
-                }),
+                }));
+            }
+
+            if(sortChanged){
+                calls.push(                
                 $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formSort',
@@ -158,8 +192,12 @@ function editProperties(isSubForm) {
                     success: function(res) {
                         if(res != null) {
                         }
+                        categories[currCategoryID].sort = $('#sort').val();
                     }
-                }),
+                }));
+            }
+
+            if(visibleChanged){
                 $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formVisible',
@@ -167,11 +205,16 @@ function editProperties(isSubForm) {
                         categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
                     success: function(res) {
+                        categories[currCategoryID].visible= $('#visible').val();
                         if(res != null) {
                         }
                     }
-                }),
-             $.ajax({
+                });
+            }
+
+            if(typeChanged){
+                calls.push( 
+                    $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/formType',
                     data: {type: $('#formType').val(),
@@ -180,8 +223,11 @@ function editProperties(isSubForm) {
                     success: function(res) {
                         if(res != null) {
                         }
+                        categories[currCategoryID].formType = $('#formType').val();
                     }
-                })).then(function() {
+                }));
+            }
+            $.when.apply(undefined, calls).then(function() {
                 categories[currCategoryID].categoryName = $('#name').val();
                 categories[currCategoryID].categoryDescription = $('#description').val();
                 categories[currCategoryID].description = '';
@@ -927,28 +973,31 @@ function getForm(indicatorID, series) {
                 <table>\
                     <tr>\
                         <td>Required</td>\
-                        <td><input id="required" name="required" type="checkbox" /></td>\
+                        <td colspan="2" style="width: 300px;"><input id="required" name="required" type="checkbox" /></td>\
                     </tr>\
                     </tr>\
                         <td>Sensitive Data (PHI/PII)</td>\
-                        <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
+                        <td colspan="2"><input id="sensitive" name="sensitive" type="checkbox" /></td>\
                     </tr>\
                     <tr>\
                         <td>Sort Priority</td>\
-                        <td><input id="sort" name="sort" type="number" style="width: 40px" /></td>\
+                        <td colspan="2"><input id="sort" name="sort" type="number" style="width: 40px" /></td>\
                     </tr>\
                     <tr>\
                         <td>Parent Question ID</td>\
-                        <td><div id="container_parentID"></div></td>\
+                        <td colspan="2"><div id="container_parentID"></div></td>\
                     </tr>\
                     <tr>\
                         <td>Disabled</td>\
-                        <td><input id="disabled" name="disabled" type="checkbox" /></td>\
+                        <td colspan="1"><input id="disabled" name="disabled" type="checkbox" /></td>\
+                        <td style="width: 275px;">\
+                            <span id="disabled-warning" style="color: red; visibility: hidden;">This field will be disabled. It can be</br>re-enabled within 30 days under</br>Form Editor -&gt; Restore Fields</span>\
+                        </td>\
                     </tr>\
                 </table>\
         </fieldset>\
         <span class="buttonNorm" id="button_advanced">Advanced Options</span>\
-        <div><fieldset id="advanced" style="visibility: hidden"><legend>Advanced Options</legend>\
+        <div><fieldset id="advanced" style="visibility: hidden; height: 0;"><legend>Advanced Options</legend>\
             Template Variables:<br />\
             <table class="table">\
             <tr>\
@@ -958,6 +1007,10 @@ function getForm(indicatorID, series) {
             <tr>\
                 <td><b>{{&nbsp;recordID&nbsp;}}</b></td>\
                 <td>The record ID # of the current request.</td>\
+            </tr>\
+            <tr>\
+                <td><b>{{ data }}</b></td>\
+                <td>The contents of the current data field as stored in the database.</td>\
             </tr>\
             </table><br />\
             html (for pages where the user can edit data): <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button><textarea id="html"></textarea><br />\
@@ -1014,6 +1067,16 @@ function getForm(indicatorID, series) {
             event.preventDefault();
         }
     });
+    $('#disabled').on("change", function(event) {
+        if($(this).is(':checked'))
+        {
+            $('#disabled-warning').css('visibility','visible');
+        }
+        else
+        {
+            $('#disabled-warning').css('visibility','hidden');
+        }
+    });
     $('#required').keypress(function(e){
         if((e.keyCode ? e.keyCode : e.which) === 13){
             $(this).trigger('click');
@@ -1062,8 +1125,16 @@ function getForm(indicatorID, series) {
         });
     });
     $('#button_advanced').on('click', function() {
-    	$('#button_advanced').css('display', 'none');
-    	$('#advanced').css('visibility', 'visible');
+        if(<!--{$hasDevConsoleAccess}--> == 1) {
+            $('#button_advanced').css('display', 'none');
+    	    $('#advanced').css('visibility', 'visible');
+        }
+        else {
+            //alert('Please go to Admin Panel -> LEAF Programmer to gain access to this area.');
+            alert('Notice: Please go to Admin Panel -> LEAF Programmer to ensure continued access to this area.');
+            $('#button_advanced').css('display', 'none');
+    	    $('#advanced').css('visibility', 'visible');
+        }
     });
 
     function saveCodeHTML() {
@@ -1159,6 +1230,7 @@ function getForm(indicatorID, series) {
             type: 'GET',
             url: '../api/formEditor/indicator/' + indicatorID,
             success: function(res) {
+                indicatorEditing = res[indicatorID];
                 var format = res[indicatorID].format;
                 if(res[indicatorID].options != undefined
                     && res[indicatorID].options.length > 0
@@ -1306,120 +1378,179 @@ function getForm(indicatorID, series) {
         	return false;
         }
 
+        var calls = [];
+        var nameChanged = (indicatorEditing.name || "") != $('#name').val();
+        var formatChanged = (indicatorEditing.format || "") != $('#format').val();
+        var descriptionChanged = (indicatorEditing.description || "") != $('#description').val();
+        var defaultChanged = (indicatorEditing.default || "") != $('#default').val();
+        var requiredChanged = (indicatorEditing.required || "") != isRequired;
+        var sensitiveChanged = (indicatorEditing.is_sensitive || "") != isSensitive;
+        var parentIDChanged = (indicatorEditing.parentID || "") != $("#parentID").val();
+        var sortChanged = (indicatorEditing.sort || "") != $("#sort").val();
+        var htmlChanged = (indicatorEditing.html || "") != codeEditorHtml.getValue();
+        var htmlPrintChanged =  (indicatorEditing.htmlPrint || "") != codeEditorHtmlPrint.getValue();
+        
+        if(nameChanged){
+            calls.push(
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/name',
+                    data: {name: $('#name').val(),
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+                })
+            );
+        }
 
-    	$.when(
-   	        $.ajax({
-   	            type: 'POST',
-   	            url: '../api/?a=formEditor/' + indicatorID + '/name',
-   	            data: {name: $('#name').val(),
-   	                CSRFToken: '<!--{$CSRFToken}-->'},
-   	            success: function(res) {
-   	                if(res != null) {
-   	                }
-   	            }
-   	        }),
-   	        $.ajax({
-   	            type: 'POST',
-   	            url: '../api/?a=formEditor/' + indicatorID + '/format',
-   	            data: {format: $('#format').val(),
-   	                CSRFToken: '<!--{$CSRFToken}-->'},
-   	            success: function(res) {
-   	                if(res != null) {
-   	                }
-   	            }
-   	        }),
-   	        $.ajax({
-   	            type: 'POST',
-   	            url: '../api/?a=formEditor/' + indicatorID + '/description',
-   	            data: {description: $('#description').val(),
-   	                CSRFToken: '<!--{$CSRFToken}-->'},
-   	            success: function(res) {
-   	                if(res != null) {
-   	                }
-   	            }
-   	        }),
-   	        $.ajax({
-   	            type: 'POST',
-   	            url: '../api/?a=formEditor/' + indicatorID + '/default',
-   	            data: {default: $('#default').val(),
-   	                CSRFToken: '<!--{$CSRFToken}-->'},
-   	            success: function(res) {
-   	                if(res != null) {
-   	                }
-   	            }
-   	        }),
-   	        $.ajax({
-   	            type: 'POST',
-   	            url: '../api/?a=formEditor/' + indicatorID + '/required',
-   	            data: {required: isRequired,
-   	                CSRFToken: '<!--{$CSRFToken}-->'},
-   	            success: function(res) {
-   	                if(res != null) {
-   	                }
-   	            }
-   	        }),
-            $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/' + indicatorID + '/sensitive',
-                data: {is_sensitive: isSensitive,
-                CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    if(res != null) {
+        if(formatChanged){
+            calls.push(
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/format',
+                    data: {format: $('#format').val(),
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
                     }
-                }
-            }),
-   	        $.ajax({
-   	            type: 'POST',
-   	            url: '../api/?a=formEditor/' + indicatorID + '/disabled',
-   	            data: {disabled: isDisabled,
-   	                CSRFToken: '<!--{$CSRFToken}-->'},
-   	            success: function(res) {
-   	                if(res != null) {
-   	                }
-   	            }
-   	        }),
-    	    $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/' + indicatorID + '/parentID',
-                data: {parentID: $('#parentID').val(),
+                })
+            );
+        }
+
+        if(descriptionChanged){
+            calls.push(
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/description',
+                    data: {description: $('#description').val(),
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+                })
+            );
+        }
+
+        if(defaultChanged){
+            calls.push(
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/default',
+                    data: {default: $('#default').val(),
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+                })
+            );
+        }
+
+        if(requiredChanged){
+            calls.push(   	        
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/required',
+                    data: {required: isRequired,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+                }));
+        }
+
+        if(sensitiveChanged){
+            calls.push(            
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/sensitive',
+                    data: {is_sensitive: isSensitive,
                     CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    if(res != null) {
-                    	alert(res);
+                    success: function(res) {
+                        if(res != null) {
+                        }
                     }
-                }
-            }),
-            $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/' + indicatorID + '/sort',
-                data: {sort: $('#sort').val(),
-                    CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    if(res != null) {
+                }));
+        }
+
+        if(isDisabled == 1){
+            calls.push(   	        
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/disabled',
+                    data: {disabled: isDisabled,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
                     }
-                }
-            }),
-            $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/' + indicatorID + '/html',
-                data: {html: codeEditorHtml.getValue(),
-                    CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    if(res != null) {
+                }));
+        }
+
+        if(parentIDChanged){
+            calls.push(
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/parentID',
+                    data: {parentID: $('#parentID').val(),
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                            alert(res);
+                        }
                     }
-                }
-            }),
-            $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/' + indicatorID + '/htmlPrint',
-                data: {htmlPrint: codeEditorHtmlPrint.getValue(),
-                    CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
-                    if(res != null) {
+                })
+            );
+        }
+
+        if(sortChanged){
+            calls.push(            
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/sort',
+                    data: {sort: $('#sort').val(),
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
                     }
-                }
-            })
-   	     ).then(function() {
+            }));
+        }
+
+        if(htmlChanged){
+            calls.push(
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/html',
+                    data: {html: codeEditorHtml.getValue(),
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+            }));
+        }
+
+        if(htmlPrintChanged){
+            calls.push(            
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/htmlPrint',
+                    data: {htmlPrint: codeEditorHtmlPrint.getValue(),
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function(res) {
+                        if(res != null) {
+                        }
+                    }
+                }));
+        }
+
+    	$.when.apply(undefined, calls).then(function() {
    	    	openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
    	    	dialog.hide();
    	     });
@@ -1645,7 +1776,7 @@ function deleteForm() {
 }
 
 function buildMenu(categoryID) {
-	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser();" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
+	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser(); fetchFormSecureInfo();" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
 	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" style="font-size: 120%" onkeypress="onKeyPressClick(event)" role="button"><img src="../../libs/dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
     $('#' + categoryID).on('click', function(categoryID) {
         return function() {
@@ -1674,6 +1805,9 @@ function buildMenu(categoryID) {
 
     $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event);" onclick="mergeFormDialog(\''+ categoryID +'\');" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=tab-new.svg&w=32" alt="Staple Form" /> Staple other form</div>\
                           <div id="stapledArea"></div><br />');
+
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" style="font-size: 120%" role="button"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>\
+                        <div id="stapledArea"></div><br />');                      
 
     // show stapled forms in the menu area
     $.ajax({
@@ -1753,11 +1887,127 @@ function showFormBrowser() {
                     }(res[i].categoryID));
             	}
             }
+            
             if(postRenderFormBrowser != undefined) {
             	postRenderFormBrowser();
             }
         },
         cache: false
+    });
+}
+
+function renderSecureFormsInfo(res) {
+    $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: red; display:none;" ></div>');
+    $('#secure_forms_info').append('<span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span> ');
+    $('#secure_forms_info').append('<a id="secureBtn" class="buttonNorm">View Details</a>');
+    if(res['leafSecure'] >= 1) { // Certified
+        $.when(fetchIndicators(), fetchLEAFSRequests(true)).then(function(indicators, leafSRequests) {
+            var mostRecentID = null;
+            var newIndicator = false;
+            var mostRecentDate = 0;
+
+            for(var i in leafSRequests) {
+                if(leafSRequests[i].recordResolutionData.lastStatus === 'Approved'
+                    && leafSRequests[i].recordResolutionData.fulfillmentTime > mostRecentDate) {
+                    mostRecentDate = leafSRequests[i].recordResolutionData.fulfillmentTime;
+                    mostRecentID = i;
+                }
+            }
+            
+            $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ mostRecentID);
+            var mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
+
+            // check for new indicators since certification
+            for(var i in indicators) {
+                if(new Date(indicators[i].timeAdded).getTime() > mostRecentTimestamp.getTime()) {
+                    newIndicator = true;
+                    break;
+                }
+            }
+
+            // if newIndicator found, look for existing leaf-s request and assign proper next step
+            if (newIndicator) {
+                fetchLEAFSRequests(false).then(function(unresolvedLeafSRequests) {
+                    if (unresolvedLeafSRequests.length == 0) { // if no new request, create one
+                        $('#secureStatus').text('Forms have been modified.');
+                        $('#secureBtn').text('Please Recertify Your Site');
+                        $('#secureBtn').attr('href', '../report.php?a=LEAF_start_leaf_secure_certification');
+                    } else {
+                        var recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
+
+                        $('#secureStatus').text('Re-certification in progress.');
+                        $('#secureBtn').text('Check Certification Progress');
+                        $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ recordID);
+                    }
+
+                    $('#secure_forms_info').show();
+                });
+            }
+        });
+    }
+}
+
+function viewHistory(categoryId){
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('Form History');
+    dialog_simple.show();
+	dialog_simple.indicateBusy();
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type=form&id='+categoryId,
+        dataType: 'text',
+        success: function(res) {
+            dialog_simple.setContent(res);
+            dialog_simple.indicateIdle();
+        },
+        cache: false
+    });
+}
+
+function fetchLEAFSRequests(searchResolved) {
+    var deferred = $.Deferred();
+    var query = new LeafFormQuery();
+    query.setRootURL('../');
+    query.addTerm('categoryID', '=', 'leaf_secure');
+
+    if (searchResolved) {
+        query.addTerm('stepID', '=', 'resolved');
+        query.join('recordResolutionData');
+    } else {
+        query.addTerm('stepID', '!=', 'resolved');
+    }
+
+    query.onSuccess(function(data) {
+        deferred.resolve(data);
+    });
+
+    query.execute();
+    return deferred.promise();
+}
+
+
+function fetchIndicators() {
+    var deferred = $.Deferred();
+    $.ajax({
+        type: 'GET',
+        url: '../api/form/indicator/list',
+        cache: false,
+        success: function(resp) {
+            deferred.resolve(resp);
+        }
+    });
+    return deferred.promise();
+}
+
+function fetchFormSecureInfo() {
+    $.ajax({
+        type: 'GET',
+        url: '../api/system/settings',
+        cache: false
+    })
+    .then(function(res) {
+        renderSecureFormsInfo(res)
     });
 }
 
@@ -1832,12 +2082,15 @@ $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
+    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('../api/');
     portalAPI.setCSRFToken('<!--{$CSRFToken}-->');
 
     showFormBrowser();
+    fetchFormSecureInfo();
+
     <!--{if $form != ''}-->
     postRenderFormBrowser = function() { selectForm('<!--{$form}-->') };
     <!--{/if}-->

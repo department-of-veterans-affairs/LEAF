@@ -4,15 +4,12 @@ header('X-UA-Compatible: IE=edge');
 $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
-include '../db_mysql.php';
-include '../db_config.php';
+include __DIR__ . '/../db_mysql.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
-$config = new Config();
-$db_config = new DB_Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);

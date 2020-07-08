@@ -1,13 +1,12 @@
 <?php
-ini_set('display_errors', 1); // Set to 1 to display errors
+ini_set('display_errors', 0); // Set to 1 to display errors
 
 $tempFolder = str_replace('\\', '/', dirname(__FILE__)) . '/../files/temp/';
 
 define("LF", "\n");
-include '../db_mysql.php';
-include '../db_config.php';
+include __DIR__ . '/../db_mysql.php';
 
-$db_config = new DB_Config();
+$debug = false;
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 
@@ -17,7 +16,9 @@ if($res['siteType'] != 'national_primary') {
     exit();
 }
 
-$db->enableDebug();
+if ($debug) {
+    $db->enableDebug();
+}
 echo "Running Package Builder...<br />\n";
 array_map('unlink', glob($tempFolder . '*.sql'));
 

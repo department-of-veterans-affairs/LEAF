@@ -9,13 +9,10 @@
 
 */
 
-include '../globals.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../Login.php';
+include __DIR__ . '/../db_mysql.php';
 
-$db_config = new DB_Config();
-$config = new Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 
@@ -31,11 +28,11 @@ if (isset($_SERVER['REMOTE_USER']))
     $redirect = '';
     if (isset($_GET['r']))
     {
-        $redirect = $protocol . $_SERVER['HTTP_HOST'] . base64_decode($_GET['r']);
+        $redirect = $protocol . HTTP_HOST . base64_decode($_GET['r']);
     }
     else
     {
-        $redirect = $protocol . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/../';
+        $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
     }
 
     list($domain, $user) = explode('\\', $_SERVER['REMOTE_USER']);
@@ -73,9 +70,10 @@ if (isset($_SERVER['REMOTE_USER']))
                     ':phoFirstName' => $res[0]['phoneticFirstName'],
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(), );
-            $db_phonebook->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
-        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
+                    ':lastUpdated' => time(), 
+                    ':new_empUUID' => $res[0]['new_empUUID'] );
+            $db_phonebook->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
+                                  VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
     								ON DUPLICATE KEY UPDATE deleted=0', $vars);
             $empUID = $db_phonebook->getLastInsertID();
 

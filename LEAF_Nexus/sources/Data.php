@@ -19,6 +19,10 @@ if (!class_exists('CommonConfig'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
 }
+if(!class_exists('DataActionLogger'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
+}
 abstract class Data
 {
     protected $db;
@@ -37,6 +41,8 @@ abstract class Data
 
     protected $dataTableCategoryID = 0;
 
+    protected $dataActionLogger;
+
     private $cache = array();
 
     public function __construct($db, $login)
@@ -44,6 +50,7 @@ abstract class Data
         $this->db = $db;
         $this->login = $login;
         $this->initialize();
+        $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
 
     /**
@@ -84,6 +91,11 @@ abstract class Data
     public function getDataTableCategoryID()
     {
         return $this->dataTableCategoryID;
+    }
+
+    public function getDataTableDescription()
+    {
+        return $this->dataTableDescription;
     }
 
     /**
@@ -354,6 +366,7 @@ abstract class Data
      */
     public function modify($UID)
     {
+        global $config;
         if (!is_numeric($UID))
         {
             throw new Exception($this->dataTableDescription . ' ID required');
@@ -367,7 +380,7 @@ abstract class Data
         if (is_array($_FILES))
         {
             $commonConfig = new \CommonConfig();
-            $fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
+            $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)
             {
@@ -389,11 +402,11 @@ abstract class Data
                     {
                         $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
                         // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
-                        if (!is_dir(Config::$uploadDir))
+                        if (!is_dir($config->$uploadDir))
                         {
-                            mkdir(Config::$uploadDir, 755, true);
+                            mkdir($config->$uploadDir, 755, true);
                         }
-                        move_uploaded_file($_FILES[$indicator]['tmp_name'], Config::$uploadDir . $sanitizedFileName);
+                        move_uploaded_file($_FILES[$indicator]['tmp_name'], $config->$uploadDir . $sanitizedFileName);
                     }
                     else
                     {
@@ -521,7 +534,7 @@ abstract class Data
         $memberships = $this->login->getMembership();
         if (!isset($memberships['groupID'][1]))
         {
-            require_once 'Tag.php';
+            require_once __DIR__ . '/Tag.php';
             $tagObj = new Tag($this->db, $this->login);
             $tags = $tagObj->getAll();
             foreach ($tags as $item)
@@ -550,7 +563,13 @@ abstract class Data
 
         $res = $this->db->prepared_query("INSERT INTO {$this->dataTagTable} ({$this->dataTableUID}, tag)
                                             VALUES (:UID, :tag)", $vars);
+
         $this->updateLastModified();
+        
+        $this->logAction(\DataActions::ADD, \LoggableTypes::TAG, [
+            new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        ]);
 
         return true;
     }
@@ -569,7 +588,13 @@ abstract class Data
         $res = $this->db->prepared_query("DELETE FROM {$this->dataTagTable}
                                             WHERE {$this->dataTableUID}=:UID
                                                 AND tag=:tag", $vars);
+
         $this->updateLastModified();
+        
+        $this->logAction(\DataActions::DELETE, \LoggableTypes::TAG, [
+            new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        ]);
 
         return true;
     }
@@ -598,6 +623,7 @@ abstract class Data
      */
     public function deleteAttachment($categoryID, $UID, $indicatorID, $file)
     {
+        global $config;
         if (!is_numeric($categoryID) || !is_numeric($UID) || !is_numeric($indicatorID) || $file == '')
         {
             return 0;
@@ -618,7 +644,7 @@ abstract class Data
         $inputFilename = html_entity_decode($this->sanitizeInput($file));
         $file = $this->getFileHash($categoryID, $UID, $indicatorID, $inputFilename);
 
-        $uploadDir = Config::$uploadDir;
+        $uploadDir = $config->$uploadDir;
 
         if (!is_array($value))
         {
@@ -671,4 +697,31 @@ abstract class Data
 
         return true;
     }
+
+    /**
+     * Adds action to Data Action log table.
+     * @param DataAction $verb      The action to log
+     * @param LoggableType $type    The type the action was performed against
+     * @param LogItem $data         The values changed
+     * @return void
+     */
+    public function logAction($verb, $type, $data)
+    {
+        $this->dataActionLogger->logAction($verb, $type, $data);
+    }
+
+    public function getHistory($filterById){
+        return $this->dataActionLogger->getHistory($filterById, $this->dataTableUID, \LoggableTypes::GROUP);
+    }
+
+    /**
+     * Returns all history ids for all groups
+     * 
+     * @return array all history ids for all groups
+     */
+    public function getAllHistoryIDs()
+    {
+        return $this->dataActionLogger->getAllHistoryIDs($this->dataTableUID, \LoggableTypes::GROUP);
+    }
+
 }

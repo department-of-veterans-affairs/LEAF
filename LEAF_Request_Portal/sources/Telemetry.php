@@ -8,6 +8,9 @@
     Date Created: March 3, 2016
 
 */
+$currDir = dirname(__FILE__);
+
+include_once $currDir . '/../globals.php';
 
 class Telemetry
 {
@@ -23,7 +26,7 @@ class Telemetry
         $this->login = $login;
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['REQUEST_URI']) . '/';
+        $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
     }
 
     public function getRequestsSimple($from = 0, $to = 0)

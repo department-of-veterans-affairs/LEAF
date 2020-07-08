@@ -7,22 +7,18 @@ $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../globals.php';
 include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../db_config.php';
 include_once $currDir . '/../Login.php';
 
-$db_config = new DB_Config();
-$config = new Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 $login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 $login->loginUser();
 
-include_once $currDir . '/../' . Config::$orgchartPath . '/config.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Group.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Position.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Tag.php';
+include_once $currDir . '/../' . $config->orgchartPath . '/sources/Employee.php';
+include_once $currDir . '/../' . $config->orgchartPath . '/sources/Group.php';
+include_once $currDir . '/../' . $config->orgchartPath . '/sources/Position.php';
+include_once $currDir . '/../' . $config->orgchartPath . '/sources/Tag.php';
 
 $employee = new Orgchart\Employee($db_phonebook, $login);
 $group = new Orgchart\Group($db_phonebook, $login);
@@ -50,7 +46,7 @@ $db->beginTransaction();
 echo 'Clearing out existing users/groups.<br />';
 
 $db->prepared_query('DELETE FROM users WHERE groupID > 1', array());
-$db->prepared_query('DELETE FROM groups WHERE groupID > 1', array());
+$db->prepared_query('DELETE FROM `groups` WHERE groupID > 1', array());
 
 // import quadrads
 foreach ($resquadrad as $quadrad)
@@ -165,7 +161,7 @@ foreach ($res as $service)
 }
 
 // import other groups
-foreach (Config::$orgchartImportTags as $tag)
+foreach ($config->orgchartImportTags as $tag)
 {
     $res = $group->listGroupsByTag($tag);
 

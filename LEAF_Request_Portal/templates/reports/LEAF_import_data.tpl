@@ -376,6 +376,15 @@
         }
     }
 
+    // Converts Excel Date into a Short Date String
+    // param excelDate int date in excel formatted integer field
+    // return formattedJSDate MM/DD/YYY formatted string of excel date
+    function convertExcelDateToShortString(excelDate) {
+        var jsDate = new Date((excelDate - (25567 + 1))*86400*1000);
+        var formattedJSDate = (jsDate.getMonth() + 1) + '/' + jsDate.getDate() + '/' + jsDate.getFullYear();
+        return formattedJSDate;
+    }
+
     $(function () {
 
         /*builds select options of workflows */
@@ -488,12 +497,10 @@
                                                         if (typeof (emp) !== "undefined" && emp !== null && res.length === 1) {
                                                             nexusAPI.Employee.importFromNational({
                                                                 'onSuccess': function (results) {
-                                                                    if (results.length === 1) {
+                                                                    if (!isNaN(results)) {
                                                                         requestData[indicatorArray[completed]] = parseInt(results);
-                                                                    } else if (results.length > 1) {
-                                                                        requestData['failed'] = currentCol + titleIndex + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
                                                                     } else {
-                                                                        requestData['failed'] = currentCol + titleIndex + ': Employee ' + sheetEmp + ' not found.';
+                                                                        requestData['failed'] = currentCol + titleIndex + ': Employee ' + sheetEmp + ' not found. Error: '+ results;
                                                                     }
                                                                     completed++;
                                                                     answerQuestions();
@@ -573,6 +580,20 @@
                                                     'async': true
                                                 }, sheetPosition);
                                                 break;
+                                            case 'date':
+                                                var cellDate = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
+
+                                                // check if excel formatted number
+                                                if (!isNaN(cellDate) && cellDate !== '') {
+                                                    var convertedDate = convertExcelDateToShortString(parseInt(cellDate));
+                                                    requestData[indicatorArray[completed]] = convertedDate;
+                                                } else {
+                                                    requestData[indicatorArray[completed]] = cellDate;
+                                                }
+
+                                                completed++;
+                                                answerQuestions();
+                                                break;
                                             default:
                                                 requestData[indicatorArray[completed]] = row[currentCol];
                                                 completed++;
@@ -633,12 +654,10 @@
                                             if (typeof (emp) !== "undefined" && emp !== null && res.length === 1) {
                                                 nexusAPI.Employee.importFromNational({
                                                     'onSuccess': function (results) {
-                                                        if (results.length === 1) {
+                                                        if (!isNaN(results)) {
                                                             requestData[currentIndicator] = parseInt(results);
-                                                        } else if (results.length > 1) {
-                                                            requestData['failed'] = indicatorColumn + titleIndex + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
                                                         } else {
-                                                            requestData['failed'] = indicatorColumn + titleIndex + ': Employee ' + sheetEmp + ' not found.';
+                                                            requestData['failed'] = indicatorColumn + titleIndex + ': Employee ' + sheetEmp + ' not found. Error: '+ results;
                                                         }
                                                         completed++;
                                                         answerQuestions();
@@ -717,6 +736,20 @@
                                         },
                                         'async': true
                                     }, sheetPosition);
+                                    break;
+                                case 'date':
+                                    var cellDate = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
+
+                                    // check if excel formatted number
+                                    if (!isNaN(cellDate) && cellDate !== '') {
+                                        var convertedDate = convertExcelDateToShortString(parseInt(cellDate));
+                                        requestData[currentIndicator] = convertedDate;
+                                    } else {
+                                        requestData[currentIndicator] = cellDate;
+                                    }
+
+                                    completed++;
+                                    answerQuestions();
                                     break;
                                 default:
                                     requestData[currentIndicator] = row[indicatorColumn];

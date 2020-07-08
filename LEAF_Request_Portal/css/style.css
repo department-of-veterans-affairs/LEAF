@@ -124,7 +124,7 @@ span#headerMenu {
     font-weight: normal;
 }
 
-#headerMenu > a, #headerMenu_container > a {
+#headerMenu > a, #headerMenu_container > a, #headerMenuHelp_container > a {
     text-decoration: none;
     margin-left: 8px;
     color: black;
@@ -135,22 +135,22 @@ span#headerMenu {
     padding-right: 4px;
 }
 
-#headerMenu > a:hover, #headerMenu_container > a:hover{
+#headerMenu > a:hover, #headerMenu_container > a:hover, #headerMenuHelp_container > a:hover{
     text-decoration: underline;
     color: white;
 }
 
-#headerMenu > a:focus, #headerMenu_container > a:focus{
+#headerMenu > a:focus, #headerMenu_container > a:focus, #headerMenuHelp_container > a:focus{
     text-decoration: underline;
     color: white;
 }
 
-#headerMenu_links a:focus > .menuButtonSmall{
+#headerMenu_links a:focus > .menuButtonSmall, #headerMenu_help a:focus > .menuButtonSmall{
     outline-style: dotted;
     box-shadow: 0 4px 6px 2px #8e8e8e;
 }
 
-#headerMenu_links {
+#headerMenu_links,  #headerMenu_help{
     display: none;
     position: absolute;
     background-color: white;
@@ -161,15 +161,15 @@ span#headerMenu {
     z-index: 100;
 }
 
-#headerMenu_container:hover #headerMenu_links  {
+#headerMenu_container:hover #headerMenu_links, #headerMenuHelp_container:hover #headerMenu_help  {
     display: block;
 }
 
-#headerMenu_container > a::after {
+#headerMenu_container > a::after, #headerMenuHelp_container > a::after {
     content:'\25BC';
 }
 
-#headerMenu_links > a:focus > .menuButtonSmall{
+#headerMenu_links > a:focus > .menuButtonSmall, #headerMenu_help > a:focus > .menuButtonSmall{
   box-shadow: 0 4px 6px 2px #8e8e8e;
   margin: 12px;
   outline-style: dotted;
@@ -1052,6 +1052,10 @@ button.buttonNorm {
 
 .ui-progressbar-value {
     transition: width 0.5s;
+}
+
+.ui-dialog, .ui-dialog-content {
+    box-sizing: content-box;
 }
 
 .card {

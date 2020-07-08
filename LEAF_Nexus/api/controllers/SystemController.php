@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/System.php';
+require __DIR__ . '/../../sources/System.php';
 
 class SystemController extends RESTfulResponse
 {
@@ -54,6 +54,11 @@ class SystemController extends RESTfulResponse
 
         $this->index['GET']->register('system/reportTemplates/[text]', function ($args) use ($system) {
             return $system->getReportTemplate($args[0]);
+        });
+
+
+        $this->index['GET']->register('system/employee/update/all', function() use ($system) {
+            return $system->refreshOrgchartEmployees();
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);

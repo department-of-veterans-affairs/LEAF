@@ -17,18 +17,15 @@ if (false)
     exit();
 }
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/sources/Login.php';
+include __DIR__ . '/db_mysql.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
-
-$config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
 
@@ -47,8 +44,11 @@ $post_name = isset($_POST['name']) ? $_POST['name'] : '';
 $post_password = isset($_POST['password']) ? $_POST['password'] : '';
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -57,7 +57,7 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
@@ -69,12 +69,13 @@ $main->assign('useDojoUI', true);
 
 switch ($action) {
     case 'navigator_service':
-        require 'sources/Group.php';
+        require __DIR__ . '/sources/Group.php';
         $group = new Orgchart\Group($db, $login);
         $_GET['rootID'] = $group->getGroupLeader((int)$_GET['groupID']);
         // no break
     case 'navigator':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -82,7 +83,7 @@ switch ($action) {
 
         $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
                                            'js/ui/position.js', ));
-        require 'sources/Position.php';
+        require __DIR__ . '/sources/Position.php';
         $position = new Orgchart\Position($db, $login);
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : $position->getTopSupervisorID(1);
@@ -91,7 +92,7 @@ switch ($action) {
         $t_form->assign('header', XSSHelpers::sanitizeHTML($_GET['header']));
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $HTTP_HOST = XSSHelpers::sanitizeHTML($_SERVER['HTTP_HOST']);
+        $HTTP_HOST = XSSHelpers::sanitizeHTML(HTTP_HOST);
         $qrcodeURL = "{$protocol}://{$HTTP_HOST}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css'));
@@ -103,6 +104,7 @@ switch ($action) {
         break;
     case 'editor':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -112,7 +114,7 @@ switch ($action) {
                                            'js/dialogController.js',
                                            'js/ui/position.js',
                                            'js/positionSelector.js', ));
-        require 'sources/Position.php';
+        require __DIR__ . '/sources/Position.php';
         $position = new Orgchart\Position($db, $login);
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : 0;
@@ -123,7 +125,7 @@ switch ($action) {
         $t_form->assign('resolvedService', $position->getService($rootID));
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $scrubbedHost = XSSHelpers::sanitizeHTML($_SERVER['HTTP_HOST']);
+        $scrubbedHost = XSSHelpers::sanitizeHTML(HTTP_HOST);
         $qrcodeURL = "{$protocol}://{$scrubbedHost}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css',
@@ -136,6 +138,7 @@ switch ($action) {
         break;
     case 'view_employee':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -156,7 +159,7 @@ switch ($action) {
         $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
         if ($empUID != 0)
         {
-            require 'sources/Employee.php';
+            require __DIR__ . '/sources/Employee.php';
             $employee = new Orgchart\Employee($db, $login);
             $summary = $employee->getSummary($empUID);
 
@@ -165,8 +168,9 @@ switch ($action) {
             $t_form->assign('groups', $employee->listGroups($empUID));
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+            $t_form->assign('is_admin', $login->getMembership()['groupID'][1]);
 
-            $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
+            $t_form->assign('ERM_site_resource_management', '');
 
             if (count($summary['employee']) > 0)
             {
@@ -183,6 +187,7 @@ switch ($action) {
         break;
     case 'view_position':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -201,7 +206,7 @@ switch ($action) {
         $positionID = isset($_GET['positionID']) ? (int)$_GET['positionID'] : 0;
         if ($positionID != 0)
         {
-            require 'sources/Position.php';
+            require __DIR__ . '/sources/Position.php';
             $position = new Orgchart\Position($db, $login);
 
             $summary = $position->getSummary($positionID);
@@ -214,7 +219,7 @@ switch ($action) {
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $login->getDomain());
-            $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
+            $t_form->assign('ERM_site_resource_management', '');
 
             if (count($summary) > 0)
             {
@@ -231,6 +236,7 @@ switch ($action) {
         break;
     case 'view_group':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -247,8 +253,8 @@ switch ($action) {
         $groupID = isset($_GET['groupID']) ? (int)$_GET['groupID'] : 0;
         if ($groupID != 0)
         {
-            require 'sources/Group.php';
-            require 'sources/Tag.php';
+            require __DIR__ . '/sources/Group.php';
+            require __DIR__ . '/sources/Tag.php';
             $group = new Orgchart\Group($db, $login);
             $tag = new Orgchart\Tag($db, $login);
             $resGroup = $group->getGroup($groupID);
@@ -276,6 +282,7 @@ switch ($action) {
         break;
     case 'browse_employee':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -285,7 +292,7 @@ switch ($action) {
                                            'css/view_employee.css', ));
         $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
 
-        require 'sources/Employee.php';
+        require __DIR__ . '/sources/Employee.php';
         $employee = new Orgchart\Employee($db, $login);
 
         $t_form->assign('empUID', $empUID);
@@ -300,6 +307,7 @@ switch ($action) {
         break;
     case 'browse_position':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -314,6 +322,7 @@ switch ($action) {
         break;
     case 'browse_group':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -329,6 +338,7 @@ switch ($action) {
         break;
     case 'browse_search':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -350,10 +360,11 @@ switch ($action) {
 
         break;
     case 'view_permissions':
-        require 'sources/Indicators.php';
+        require __DIR__ . '/sources/Indicators.php';
         $indicators = new Orgchart\Indicators($db, $login);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -390,10 +401,11 @@ switch ($action) {
 
         break;
     case 'view_group_permissions':
-        require 'sources/Group.php';
+        require __DIR__ . '/sources/Group.php';
         $group = new Orgchart\Group($db, $login);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -421,10 +433,11 @@ switch ($action) {
 
         break;
     case 'view_position_permissions':
-        require 'sources/Position.php';
+        require __DIR__ . '/sources/Position.php';
         $position = new Orgchart\Position($db, $login);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -453,6 +466,7 @@ switch ($action) {
         break;
     case 'admin':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -483,6 +497,7 @@ switch ($action) {
         break;
     case 'summary':
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
@@ -493,6 +508,7 @@ switch ($action) {
         break;
     case 'about':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -510,12 +526,13 @@ switch ($action) {
             $o_login = $t_login->fetch('login.tpl');
 
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
-            require 'sources/Employee.php';
+            require __DIR__ . '/sources/Employee.php';
             $employee = new Orgchart\Employee($db, $login);
-            require 'sources/Position.php';
+            require __DIR__ . '/sources/Position.php';
             $position = new Orgchart\Position($db, $login);
 
             $currentEmployee = $employee->lookupLogin($login->getUserID());
@@ -529,7 +546,7 @@ switch ($action) {
             $groupLeader = '';
             if (count($resolvedService) > 0)
             {
-                require 'sources/Group.php';
+                require __DIR__ . '/sources/Group.php';
                 $group = new Orgchart\Group($db, $login);
 
                 $groupLeader = $group->getGroupLeader($resolvedService[0]['groupID']);
@@ -570,8 +587,6 @@ switch ($action) {
 }
 
 $memberships = $login->getMembership();
-$onPrem = !isset(Orgchart\Config::$onPrem) ? true : Orgchart\Config::$onPrem;
-$main->assign('onPrem', $onPrem);
 $t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
 $main->assign('login', $t_login->fetch('login.tpl'));
@@ -582,7 +597,7 @@ $main->assign('tabText', $tabText);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 $main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))

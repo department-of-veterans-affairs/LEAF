@@ -6,7 +6,7 @@ declare(strict_types = 1);
  */
 
 use LEAFTest\LEAFClient;
-
+ini_set("display_errors", '1');
 
 /**
  * Tests LEAF_Request_Portal/api/?a=system API
@@ -55,7 +55,7 @@ final class SystemControllerTest extends DatabaseTest
 
         $fromDB = $this->getSetting('heading');
         $this->assertNotNull($fromDB);
-        $this->assertEquals('Heading that is too long for the field and this is', $fromDB);
+        $this->assertEquals('Heading that is too long for the field and this is very long', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/heading'), array('heading' => "LEAF's Header"));
 
@@ -237,7 +237,7 @@ final class SystemControllerTest extends DatabaseTest
 
         $fromDB = $this->getSetting('subheading');
         $this->assertNotNull($fromDB);
-        $this->assertEquals('Heading that is too long for the field and this is', $fromDB);
+        $this->assertEquals('Heading that is too long for the field and this is very long', $fromDB);
 
         self::$reqClient->post(array('a' => 'system/settings/subHeading'), array('subHeading' => "LEAF's Header"));
 
@@ -427,7 +427,7 @@ final class SystemControllerTest extends DatabaseTest
             self::$db->query("INSERT INTO category_privs (`categoryID`, `groupID`, `readable`, `writable`)
                                 VALUES ('form_f4687', '20', '1', '1')");
             //assert they are inserted
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $users = self::$db->query("SELECT * FROM users WHERE groupID = '20'");
             $category_privs = self::$db->query("SELECT * FROM category_privs WHERE groupID = '20'");
             $this->assertTrue(count($groups) > 0);
@@ -438,7 +438,7 @@ final class SystemControllerTest extends DatabaseTest
             self::$reqClient->get(array('a' => 'system/updateGroup/20'));
 
             //assert they are gone
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $users = self::$db->query("SELECT * FROM users WHERE groupID = '20'");
             $category_privs = self::$db->query("SELECT * FROM category_privs WHERE groupID = '20'");
             $this->assertTrue(count($groups) == 0);
@@ -453,7 +453,7 @@ final class SystemControllerTest extends DatabaseTest
             self::$db->query("INSERT INTO users (`userID`, `groupID`)
                                 VALUES ('tester', '20')");
             //assert they are inserted
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $users = self::$db->query("SELECT * FROM users WHERE groupID = '20'");
             $this->assertTrue(count($groups) > 0);
             $this->assertTrue(count($users) > 0);
@@ -462,7 +462,7 @@ final class SystemControllerTest extends DatabaseTest
             self::$reqClient->get(array('a' => 'system/updateGroup/20'));
 
             //assert they are gone
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $users = self::$db->query("SELECT * FROM users WHERE groupID = '20'");
             $this->assertTrue(count($groups) == 0);
             $this->assertTrue(count($users) == 0);
@@ -475,7 +475,7 @@ final class SystemControllerTest extends DatabaseTest
             self::$db->query("INSERT INTO category_privs (`categoryID`, `groupID`, `readable`, `writable`)
                                 VALUES ('form_f4687', '20', '1', '1')");
             //assert they are inserted
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $category_privs = self::$db->query("SELECT * FROM category_privs WHERE groupID = '20'");
             $this->assertTrue(count($groups) > 0);
             $this->assertTrue(count($category_privs) > 0);
@@ -484,7 +484,7 @@ final class SystemControllerTest extends DatabaseTest
             self::$reqClient->get(array('a' => 'system/updateGroup/20'));
 
             //assert they are gone
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $category_privs = self::$db->query("SELECT * FROM category_privs WHERE groupID = '20'");
             $this->assertTrue(count($groups) == 0);
             $this->assertTrue(count($category_privs) == 0);
@@ -516,14 +516,14 @@ final class SystemControllerTest extends DatabaseTest
             self::$db->query("INSERT INTO groups (`groupID`, `parentGroupID`, `name`, `groupDescription`)
                                 VALUES ('20', NULL, 'faker', 'faker')");
             //assert they are inserted
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $this->assertTrue(count($groups) > 0);
 
             //call update, this should remove all since the group isn't in nexus
             self::$reqClient->get(array('a' => 'system/updateGroup/20'));
 
             //assert they are gone
-            $groups = self::$db->query("SELECT * FROM groups WHERE groupID = '20'");
+            $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
             $this->assertTrue(count($groups) == 0);
 
         //CASE 6, REMOVE users only:

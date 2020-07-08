@@ -11,7 +11,7 @@
     This should be kept outside of web accessible directories
 */
 
-// require '../../../db_config.php';
+// require __DIR__ . '/../../../db_config.php';
 
 ini_set('display_errors', 0); // Set to 1 to display errors
 
@@ -43,8 +43,6 @@ class Config
     public static $orgchartPath = '../orgchart'; // HTTP Path to orgchart with no trailing slash
 
     public static $orgchartImportTags = array('resources_site_access'); // Import org chart groups if they match these tags
-
-    public static $onPrem = false;         //used to display on-prem banner warning
 
     public $descriptionID = 16;    // indicator ID for description field
 

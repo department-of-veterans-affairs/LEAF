@@ -1,11 +1,13 @@
 <div id="sideBar" style="float: right">
     <button class="buttonNorm" onclick="importGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Import Group" /> Import Existing Group</button>
     <button class="buttonNorm" onclick="createGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Group" /> Create New Group</button>
+    <button class="buttonNorm" onclick="showAllGroupHistory();" style="font-size: 120%"><img src="../../libs/dynicons/?img=appointment.svg&w=32" alt="All Group History" /> Show All Group History</button>
 </div>
 <br style="clear: both" />
 <div>
     <h2 role="heading" tabindex="-1">Site Administrators</h2>
     <div id="adminList"></div>
+    <div id="primaryAdmin"></div>
     <br style="clear: both" />
     <h2 role="heading" tabindex="-1">User Groups</h2>
     <div id="groupList"></div>
@@ -27,6 +29,30 @@ function getMembers(groupID) {
             $('#members' + groupID).fadeOut();
             populateMembers(groupID, response);
             $('#members' + groupID).fadeIn();
+        }
+    });
+}
+
+function getPrimaryAdmin() {
+    $.ajax({
+        url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
+        dataType: "json",
+        success: function(response) {
+            $('#membersPrimaryAdmin').fadeOut();
+            $('#membersPrimaryAdmin').html('');
+            var foundPrimary = false;
+            for(var i in response) {
+                if(response[i].primary_admin == 1)
+                {
+                    foundPrimary = true;
+                    $('#membersPrimaryAdmin').append(response[i].Lname + ', ' + response[i].Fname + '<br />');
+                }
+            }
+            if(!foundPrimary)
+            {
+                $('#membersPrimaryAdmin').append("Primary Admin has not been set.");
+            }
+            $('#membersPrimaryAdmin').fadeIn();
         }
     });
 }
@@ -60,6 +86,29 @@ function removeAdmin(userID) {
         	   'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getMembers(1);
+            getPrimaryAdmin();
+        }
+    });
+}
+
+function unsetPrimaryAdmin() {
+    $.ajax({
+    	type: 'POST',
+        url: "../api/system/unsetPrimaryadmin",
+        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+        success: function(response) {
+        	getPrimaryAdmin();
+        }
+    });
+}
+
+function setPrimaryAdmin(userID) {
+        $.ajax({
+    	type: 'POST',
+        url: "../api/system/setPrimaryadmin",
+        data: {'userID': userID, 'CSRFToken': '<!--{$CSRFToken}-->'},
+        success: function(response) {
+        	getPrimaryAdmin();
         }
     });
 }
@@ -136,7 +185,9 @@ function getGroupList() {
                 }
                 else { // if is admin
                     function openAdminGroup(){
-                        dialog.setContent('<h2 role="heading" tabindex="-1">System Administrators</h2><div id="adminSummary"></div><br /><h3 role="heading" tabindex="-1" >Add Administrator:</h3><div id="employeeSelector"></div>');
+                        dialog.setContent(
+                            '<button style="float:right" class="buttonNorm" onclick="viewHistory(1)"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>'+
+                            '<h2 role="heading" tabindex="-1">System Administrators</h2><div id="adminSummary"></div><br /><h3 role="heading" tabindex="-1" >Add Administrator:</h3><div id="employeeSelector"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -197,7 +248,143 @@ function getGroupList() {
                     });
                 }
                 populateMembers(res[i].groupID, res[i].members);
+
+                //Primary Admin Section
+                if(res[i].groupID == 1) {
+                    $('#primaryAdmin').append('<div tabindex="0" class="groupBlock">\
+                        <h2 id="groupTitlePrimaryAdmin">Primary Admin</h2>\
+                        <div id="membersPrimaryAdmin"></div>\
+                        </div>');
+                    focusGroupsAndMembers('primaryAdmin');
+
+                    function openPrimaryAdminGroup(){
+                        
+                        dialog.setContent('<button style="float:right" class="buttonNorm" onclick="viewHistory()"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>'+
+                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><br /><h3 role="heading" tabindex="-1" >Set Primary Administrator:</h3><div id="employeeSelector"></div>');
+
+                        empSel = new nationalEmployeeSelector('employeeSelector');
+                        empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+                        empSel.rootPath = '<!--{$orgchartPath}-->/';
+                        empSel.outputStyle = 'micro';
+                        empSel.initialize();
+
+                        dialog.setSaveHandler(function() {
+                            if(empSel.selection != '') {
+                                var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                                $.ajax({
+                                    url: 'ajaxJSON.php?a=mod_groups_getMembers&groupID=1',
+                                    dataType: "json",
+                                    data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                                    success: function(res) {
+                                        var selectedUserIsAdmin = false;
+                                        for(var i in res) 
+                                        {
+                                            selectedUserIsAdmin = res[i].userName == selectedUserName;
+                                            if(selectedUserIsAdmin){break;}
+                                        }
+                                        if(selectedUserIsAdmin) 
+                                        {
+                                            setPrimaryAdmin(selectedUserName);
+                                        }
+                                        else 
+                                        {
+                                            alert('Primary Admin must be a member of the Sysadmin group');
+                                        }
+                                    }
+                                });
+                            }
+                            dialog.hide();
+                        });
+                        $.ajax({
+                            url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
+                            dataType: "json",
+                            success: function(res) {
+                                $('#primaryAdminSummary').html('');
+                                var foundPrimary = false;
+                                for(var i in res) {
+                                    if(res[i].primary_admin == 1)
+                                    {
+                                        foundPrimary = true;
+                                        $('#primaryAdminSummary').append('<div>&bull; '+ res[i].Lname  + ', ' + res[i].Fname +' [ <a tabindex="0" aria-label="Unset '+ res[i].Lname  + ', ' + res[i].Fname +'" href="#" id="unsetPrimaryAdmin">Unset</a> ]</div>');
+                                        $('#unsetPrimaryAdmin').on('click', function() {
+                                                unsetPrimaryAdmin();
+                                                dialog.hide();
+                                        });
+                                    }
+                                }
+                                if(!foundPrimary)
+                                {
+                                   $('#primaryAdminSummary').append("Primary Admin has not been set.");
+                                }
+                                
+                            }
+                        });
+                        setTimeout(function () {
+                            dialog.show();
+                        }, 0);
+                    }
+                    $('#primaryAdmin').on('click', function() {
+                		openPrimaryAdminGroup();
+                	});
+
+                    //508 fix
+                    $('#primaryAdmin').on('keydown', function(event) {
+                        if(event.keyCode === 13 || event.keyCode === 32) {
+                            openPrimaryAdminGroup();
+                        }
+                    });
+                    $('#membersPrimaryAdmin').html('');
+                    primaryAdminName = "Primary Admin has not been set.";
+                    for(var j in res[i].members) {
+                        if(res[i].members[j].primary_admin == 1)
+                        {
+                            primaryAdminName = res[i].members[j].Lname + ', ' + res[i].members[j].Fname;
+                        }
+                    }
+                    $('#membersPrimaryAdmin').append(primaryAdminName + '<br />');
+                }
             }
+        },
+        cache: false
+    });
+}
+
+function viewHistory(groupID){
+    $('#simplexhr').css({width: $(window).width() * .5, height: $(window).height() * .7});
+
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('Group History');
+	dialog_simple.indicateBusy();
+    
+    var type = (groupID)? "group": "primaryAdmin";
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID,
+        dataType: 'text',
+        success: function(res) {
+            dialog_simple.setContent(res);
+            dialog_simple.indicateIdle();
+            dialog_simple.show();
+        },
+        cache: false
+    });
+
+}
+
+function viewPrimaryAdminHistory(){
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('Primary Admin History');
+	dialog_simple.indicateBusy();
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type=primaryAdmin',
+        dataType: 'text',
+        success: function(res) {
+            dialog_simple.setContent(res);
+            dialog_simple.indicateIdle();
+            dialog_simple.show();
         },
         cache: false
     });
@@ -272,8 +459,8 @@ function createGroup() {
     	dialog.indicateBusy();
         //list of possible errors returned by the api call
         possibleErrors = [
-            "Group title must not be blank", 
-            "Group title already exists", 
+            "Group title must not be blank",
+            "Group title already exists",
             "invalid parent group"
         ];
         $.ajax({
@@ -298,13 +485,35 @@ function createGroup() {
     $('input:visible:first, select:visible:first').focus();
 }
 
+function showAllGroupHistory() {
+    dialog.setTitle('All Group History');
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistoryall&type=group',
+        dataType: 'text',
+        success: function(res) {
+            dialog.setContent(res);
+            dialog.indicateIdle();
+            dialog.show();
+        },
+        cache: false
+    });
+    
+}
+
 var dialog;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
 
 	$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
+
+    dialog_simple.setCancelHandler(function(){
+        $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
+        dialog_simple.setTitle("");
+    });
 	$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
+    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     getGroupList();
 });

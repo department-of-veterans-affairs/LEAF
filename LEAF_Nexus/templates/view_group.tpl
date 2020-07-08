@@ -42,6 +42,7 @@
         <!--{/if}-->
         <button class="options" onclick="editGroupName()" style="width: 100%"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</button>
         <button class="options" id="button_addEmployeePosition" onclick="addEmployeePosition()" style="width: 100%"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee/" title="Add Employee/Position" /> Add Employee/Position</button>
+        <button class="options" onclick="viewHistory()"><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>
         <br />
         <br />
         <button class="options" onclick="confirmRemove()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
@@ -89,6 +90,7 @@
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <div id="orgchartForm"></div>
 
@@ -125,6 +127,24 @@ function triggerClickViewOrgChart(e) {
 
 function announceAction(actionName) {
     $('#buttonClick').attr('aria-label', 'clicked ' + actionName);
+}
+
+function viewHistory(){
+    dialog_message.setContent('');
+    dialog_message.setTitle('Access Group History');
+	dialog_message.show();
+	dialog_message.indicateBusy();
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&categoryID=3&itemID=<!--{$groupID}-->',
+        dataType: 'text',
+        success: function(res) {
+            dialog_message.setContent(res);
+            dialog_message.indicateIdle();
+        },
+        cache: false
+    });
 }
 
 function editGroupName() {
@@ -262,7 +282,7 @@ function addEmployeePosition() {
 function confirmRemove() {
 	var warning = '';
 	<!--{if count($tags) > 1}-->
-	   warning = '<br /><span style="color: red">WARNING: This group may be shared by other projects. Check &quot;Tags&quot; to see which projects are using this group.</span>';
+	   warning = '<br /><br /><span style="color: red">WARNING: This group may be shared by other projects. Check &quot;Tags&quot; to see which projects are using this group.</span>';
 	<!--{/if}-->
     confirm_dialog.setContent('<img src="../libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this group?</span>' + warning);
     confirm_dialog.setTitle('Confirmation');
@@ -320,7 +340,10 @@ function confirmUnlinkEmployee(empUID) {
 }
 
 function confirmDeleteTag(inTag) {
-    confirm_dialog.setContent('<img src="../libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this tag?</span>');
+    var warning = '';
+    warning = '<br /><br /><span style="color: red">WARNING!! removal of service would potentially impact your org chart structure, if you are trying to grant service chief access go to Request Portal->Admin panel-> Service Chief</span>';
+
+    confirm_dialog.setContent('<img src="../libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this tag?</span>'+ warning);
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
@@ -455,6 +478,7 @@ $(function() {
 
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     confirm_dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+    dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
 });
 
 </script>

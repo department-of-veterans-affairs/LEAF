@@ -11,7 +11,7 @@
     This should be kept outside of web accessible directories
 */
 
-// require '../../../config.php';
+// require __DIR__ . '/../../../config.php';
 
 namespace Orgchart;
 
@@ -26,8 +26,6 @@ class Config
     public $adminLogonName = 'admin';    // Administrator's logon name
 
     public $adPath = array('OU=Users,DC=va,DC=gov'); // Active directory paths
-
-    public static $onPrem = false;         //used to display on-prem banner warning
 
     public static $uploadDir = './UPLOADS/';
 

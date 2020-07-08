@@ -2,6 +2,9 @@
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
+$currDir = dirname(__FILE__);
+
+include_once $currDir . '/../globals.php';
 
 class Shortener
 {
@@ -21,7 +24,7 @@ class Shortener
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         // todo: replace with config based URL
-        $this->siteRoot = "{$protocol}://{$_SERVER['HTTP_HOST']}" . dirname($_SERVER['PHP_SELF']);
+        $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['PHP_SELF']);
     }
 
     // Algo based in part on https://helloacm.com/base62/

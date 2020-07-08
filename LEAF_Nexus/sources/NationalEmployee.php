@@ -11,7 +11,7 @@
 
 namespace Orgchart;
 
-require_once 'NationalData.php';
+require_once __DIR__ . '/NationalData.php';
 
 class NationalEmployee extends NationalData
 {
@@ -87,6 +87,7 @@ class NationalEmployee extends NationalData
 
     public function lookupLogin($login)
     {
+        $login = str_replace('userName:', '', $login);
         $cacheHash = "lookupLogin{$login}";
         if (isset($this->cache[$cacheHash]))
         {
@@ -292,6 +293,17 @@ class NationalEmployee extends NationalData
         return $res;
     }
 
+    /**
+     * Runs additional search lookup by AD title to filter on larger sets of employees
+     * 
+     * @param string $input text of employee name to search
+     * @return list of results from active directory query 
+     */
+    private function searchDeeper($input)
+    {
+        return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
+    }
+
     public function search($input, $indicatorID = '')
     {
         $input = html_entity_decode($input, ENT_QUOTES);
@@ -322,7 +334,16 @@ class NationalEmployee extends NationalData
                 }
                 $last = trim(substr($input, 0, $idx));
                 $first = trim(substr($input, $idx + 1));
-                $searchResult = $this->lookupName($last, $first);
+                $midIdx = strpos($first, ' ');
+
+                if ($midIdx > 0)
+                {
+                    $this->log[] = 'Detected possible Middle initial';
+                    $middle = trim(trim(substr($first, $midIdx + 1)), '.');
+                    $first = trim(substr($first, 0, $midIdx + 1));
+                }
+
+                $searchResult = $this->lookupName($last, $first, $middle);
 
                 break;
             // Format: First Last
@@ -359,15 +380,8 @@ class NationalEmployee extends NationalData
                 break;
             // Format: Loginname
             case strpos(strtolower($input), 'vha') !== false:
-                if ($this->debug)
-                {
-                    $this->log[] = 'Format Detected: Loginname';
-                }
-                   $searchResult = $this->lookupLogin($input);
-
-                   break;
-            // Format: Loginname (vaco)
             case strpos(strtolower($input), 'vaco') !== false:
+            case strpos(strtolower($input), 'username:') !== false:
                    if ($this->debug)
                    {
                        $this->log[] = 'Format Detected: Loginname';

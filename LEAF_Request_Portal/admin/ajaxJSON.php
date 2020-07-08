@@ -11,13 +11,9 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include '../globals.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
-
-$db_config = new DB_Config();
-$config = new Config();
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../Login.php';
+include __DIR__ . '/../db_mysql.php';
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
@@ -37,7 +33,7 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'mod_groups_getMembers':
-        require 'Group.php';
+        require __DIR__ . '/Group.php';
 
         $group = new Group($db, $login);
 
@@ -45,7 +41,7 @@ switch ($action) {
 
         break;
     case 'directory_lookup':
-        require '../VAMC_Directory.php';
+        require __DIR__ . '/../VAMC_Directory.php';
         $dir = new VAMC_Directory();
         $results = $dir->search($_GET['query']);
 

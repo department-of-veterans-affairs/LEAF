@@ -7,7 +7,8 @@ var LeafFormQuery = function() {
 	var query = {};
 	var successCallback = null;
 	var rootURL = '';
-	var useJSONP = false;
+    var useJSONP = false;
+    var extraParams = '';
 
 	clearTerms();
 
@@ -182,6 +183,14 @@ var LeafFormQuery = function() {
     }
 
     /**
+     * Add extra parameters to the end of the query API URL
+     * @param string params
+     */
+    function setExtraParams(params) {
+        extraParams = params;
+    }
+
+    /**
      * @param funct - Success callback (see format for jquery ajax success)
      * @memberOf LeafFormQuery
      */
@@ -203,7 +212,7 @@ var LeafFormQuery = function() {
     	if(useJSONP == false) {
         	return $.ajax({
         		type: 'GET',
-        		url: rootURL + 'api/?a=form/query&q=' + JSON.stringify(query),
+        		url: rootURL + 'api/?a=form/query&q=' + JSON.stringify(query) + extraParams,
         		dataType: 'json',
         		success: successCallback,
         		cache: false
@@ -212,7 +221,7 @@ var LeafFormQuery = function() {
     	else {
         	return $.ajax({
         		type: 'GET',
-        		url: rootURL + 'api/?a=form/query&q=' + JSON.stringify(query) + '&format=jsonp',
+        		url: rootURL + 'api/?a=form/query&q=' + JSON.stringify(query) + '&format=jsonp' + extraParams,
         		dataType: 'jsonp',
         		success: successCallback,
         		cache: false
@@ -234,7 +243,8 @@ var LeafFormQuery = function() {
 		setLimitOffset: setLimitOffset,
 		setRootURL: function(url) { rootURL = url; },
 		getRootURL: function() { return rootURL; },
-		useJSONP: function(state) { useJSONP = state; },
+        useJSONP: function(state) { useJSONP = state; },
+        setExtraParams: setExtraParams,
 		join: join,
 		sort: sort,
 		onSuccess: onSuccess,

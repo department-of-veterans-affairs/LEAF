@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../form.php';
+require __DIR__ . '/../../form.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -226,6 +226,10 @@ class FormController extends RESTfulResponse
         $this->index['POST']->register('form/[digit]/cancel', function ($args) use ($form) {
             return $form->deleteRecord((int)$args[0]);
         });
+        
+        $this->index['POST']->register('form/[digit]/delete', function ($args) use ($form) {
+            return $form->permanentlyDeleteRecord((int)$args[0]);
+        });
 
         // form/customData/ recordID list (csv) / indicatorID list (csv)
         $this->index['POST']->register('form/customData', function ($args) use ($form) {
@@ -242,6 +246,10 @@ class FormController extends RESTfulResponse
             }
 
             return $form->getCustomData($recordIDs, $_POST['indicatorList']);
+        });
+
+        $this->index['POST']->register('form/files/copy', function ($args) use ($form) {
+            return $form->copyAttachment($_POST['indicatorID'], $_POST['fileName'], $_POST['recordID'], $_POST['newRecordID'], $_POST['series']);
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

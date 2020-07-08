@@ -136,7 +136,9 @@ function initiateWidget(serviceID) {
                     if(serviceID > 0) {
                         button_deleteGroup = '';
                     }
-                    dialog.setContent('<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />' + button_deleteGroup);
+                    dialog.setContent(
+                        '<button style="float:right" class="buttonNorm" onclick="viewHistory('+serviceID+')"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="vertical-align: middle"> View History</button>'+
+                        '<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />' + button_deleteGroup);
                     $('#employees').html('<table id="employee_table" class="table"></table>');
                     var counter = 0;
                     for(var i in res) {
@@ -239,6 +241,24 @@ function getGroupList() {
 	});
 }
 
+function viewHistory(groupID){
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('Service Chief History');
+	dialog_simple.show();
+	dialog_simple.indicateBusy();
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type=service&id='+groupID,
+        dataType: 'text',
+        success: function(res) {
+            dialog_simple.setContent(res);
+            dialog_simple.indicateIdle();
+        },
+        cache: false
+    });
+}
+
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
@@ -246,6 +266,7 @@ $(function() {
 
     $('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
     $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
+    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     getGroupList();
 

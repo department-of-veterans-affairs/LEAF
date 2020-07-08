@@ -21,18 +21,15 @@ if (false)
     exit();
 }
 
-include '../globals.php';
-include '../../libs/smarty/Smarty.class.php';
-include '../sources/Login.php';
-include '../db_mysql.php';
-include '../config.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../../libs/smarty/Smarty.class.php';
+include __DIR__ . '/../sources/Login.php';
+include __DIR__ . '/../db_mysql.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
-
-$config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
 
@@ -56,8 +53,11 @@ $post_name = isset($_POST['name']) ? $_POST['name'] : '';
 $post_password = isset($_POST['password']) ? $_POST['password'] : '';
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -75,6 +75,7 @@ $main->assign('useDojoUI', true);
 switch ($action) {
     case 'admin_refresh_directory':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -93,6 +94,7 @@ switch ($action) {
         break;
     case 'admin_update_database':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -111,6 +113,7 @@ switch ($action) {
         break;
     case 'mod_system':
            $t_form = new Smarty;
+           $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
            $t_form->left_delimiter = '<!--{';
            $t_form->right_delimiter = '}-->';
 
@@ -121,9 +124,9 @@ switch ($action) {
 
            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
            $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
+           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
-           require_once '../sources/Tag.php';
+           require_once __DIR__ . '/../sources/Tag.php';
            $tagObj = new Orgchart\Tag($db, $login);
            $t_form->assign('serviceParent', $tagObj->getParent('service'));
 
@@ -142,6 +145,7 @@ switch ($action) {
            break;
     case 'setup_medical_center':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
            $t_form->left_delimiter = '<!--{';
            $t_form->right_delimiter = '}-->';
 
@@ -153,7 +157,7 @@ switch ($action) {
 
            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
            $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
+           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
            $memberships = $login->getMembership();
            if (isset($memberships['groupID'][1]))
@@ -171,6 +175,7 @@ switch ($action) {
     case 'mod_templates':
     case 'mod_templates_reports':
            $t_form = new Smarty;
+           $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
            $t_form->left_delimiter = '<!--{';
            $t_form->right_delimiter = '}-->';
 
@@ -217,6 +222,7 @@ switch ($action) {
            break;
     default:
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -253,8 +259,6 @@ switch ($action) {
 $memberships = $login->getMembership();
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
 $main->assign('login', $t_login->fetch('login.tpl'));
-$onPrem = !isset(Orgchart\Config::$onPrem) ? true : Orgchart\Config::$onPrem;
-$main->assign('onPrem', $onPrem);
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
@@ -262,7 +266,7 @@ $main->assign('tabText', $tabText);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 $main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))

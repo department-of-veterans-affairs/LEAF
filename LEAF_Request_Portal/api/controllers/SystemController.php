@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/System.php';
+require __DIR__ . '/../../sources/System.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -73,6 +73,18 @@ class SystemController extends RESTfulResponse
             return $system->getTemplate($args[0], true);
         });
 
+        $this->index['GET']->register('system/emailtemplates', function ($args) use ($system) {
+            return $system->getEmailAndSubjectTemplateList();
+        });
+
+        $this->index['GET']->register('system/emailtemplates/[text]', function($args) use ($system) {
+            return $system->getEmailTemplate($args[0]);
+        });
+
+        $this->index['GET']->register('system/emailtemplates/[text]/standard', function ($args) use ($system) {
+            return $system->getEmailTemplate($args[0], true);
+        });
+
         $this->index['GET']->register('system/reportTemplates', function ($args) use ($system) {
             return $system->getReportTemplateList();
         });
@@ -87,6 +99,10 @@ class SystemController extends RESTfulResponse
 
         $this->index['GET']->register('system/settings', function ($args) use ($system) {
             return $system->getSettings();
+        });
+
+        $this->index['GET']->register('system/primaryadmin', function ($args) use ($system) {
+            return $system->getPrimaryAdmin();
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -110,6 +126,10 @@ class SystemController extends RESTfulResponse
 
         $this->index['POST']->register('system/templates/[text]', function ($args) use ($system) {
             return $system->setTemplate($args[0]);
+        });
+
+        $this->index['POST']->register('system/emailtemplates/[text]', function ($args) use ($system) {
+            return $system->setEmailTemplate($args[0]);
         });
 
         $this->index['POST']->register('system/reportTemplates', function ($args) use ($system) {
@@ -152,6 +172,15 @@ class SystemController extends RESTfulResponse
             return $system->setNationalLinkedPrimary();
         });
 
+        $this->index['POST']->register('system/setPrimaryadmin', function ($args) use ($system) {
+            $_POST['userID'] = XSSHelpers::sanitizeHTML($_POST['userID']);
+            return $system->setPrimaryAdmin();
+        });
+
+        $this->index['POST']->register('system/unsetPrimaryadmin', function ($args) use ($system) {
+            return $system->unsetPrimaryAdmin();
+        });
+
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
 
@@ -169,6 +198,10 @@ class SystemController extends RESTfulResponse
 
         $this->index['DELETE']->register('system/templates/[text]', function ($args) use ($db, $login, $system) {
             return $system->removeCustomTemplate($args[0]);
+        });
+
+        $this->index['DELETE']->register('system/emailtemplates/[text]', function ($args) use ($db, $login, $system) {
+            return $system->removeCustomEmailTemplate($args[0]);
         });
 
         $this->index['DELETE']->register('system/reportTemplates/[text]', function ($args) use ($db, $login, $system) {

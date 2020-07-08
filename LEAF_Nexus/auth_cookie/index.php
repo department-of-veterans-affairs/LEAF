@@ -9,12 +9,10 @@
 
 */
 
-include '../globals.php';
-include '../sources/Login.php';
-include '../db_mysql.php';
-include '../config.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../sources/Login.php';
+include __DIR__ . '/../db_mysql.php';
 
-$config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
@@ -26,11 +24,11 @@ if (isset($_COOKIE['REMOTE_USER']))
     $redirect = '';
     if (isset($_GET['r']))
     {
-        $redirect = $protocol . $_SERVER['HTTP_HOST'] . base64_decode($_GET['r']);
+        $redirect = $protocol . HTTP_HOST . base64_decode($_GET['r']);
     }
     else
     {
-        $redirect = $protocol . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/../';
+        $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
     }
 
     $user = decryptUser($_COOKIE['REMOTE_USER']);
@@ -68,9 +66,10 @@ if (isset($_COOKIE['REMOTE_USER']))
                     ':phoFirstName' => $res[0]['phoneticFirstName'],
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(), );
-            $db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
-                                  VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
+                    ':lastUpdated' => time(), 
+                    ':new_empUUID' => $res[0]['new_empUUID'] );
+            $db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
+                                  VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
                                   ON DUPLICATE KEY UPDATE deleted=0', $vars);
 
             $empUID = $db->getLastInsertID();

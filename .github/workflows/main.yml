@@ -1,0 +1,28 @@
+name: PR
+
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the master branch
+  pull_request:
+    branches:
+      - dev
+jobs:
+  send-team-notification:
+    name: PullRequestAction
+    runs-on: ubuntu-latest
+    steps:     
+     - name: Pull Request
+       uses: aliencube/microsoft-teams-actions@v0.8.0
+       with:
+          webhook_uri: https://outlook.office.com/webhook/90839495-dd23-4205-853a-6c78911c0803@af16bf88-a652-447e-8dd5-9dd06181c6bd/IncomingWebhook/a01017dda5304e609c22b15170b0adbb/e864689d-4721-4807-9618-fed5b5c36541
+          title: 'New Pull Request Has Been Created'
+          # Message summary
+          summary: 'Please Review Pull Request on Github'
+          # Message text
+          text: 'Please Review Pull Request on Github'
+          # Message theme color
+          theme_color: ''
+          # JSON array for message sections
+          sections: '' 
+          # JSON array for message actions
+          actions: ''

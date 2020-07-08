@@ -11,11 +11,10 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include 'Login.php';
-include 'db_mysql.php';
-include 'db_config.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/Login.php';
+include __DIR__ . '/db_mysql.php';
 
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
@@ -23,16 +22,13 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DB_Config();
-$config = new Config();
-
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $login = new Login($db_phonebook, $db);
@@ -52,7 +48,7 @@ if (isset($settings['timeZone']))
 
 switch ($action) {
     case 'newform':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         $recordID = $form->newForm($_SESSION['userID']);
         if (is_numeric($recordID))
@@ -67,12 +63,12 @@ switch ($action) {
 
         break;
     case 'getindicator':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         if (is_numeric($_GET['indicatorID']))
         {
             $t_form = new Smarty;
-
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $indicatorID = (int)$_GET['indicatorID'];
             $series = XSSHelpers::xscrub($_GET['series']);
             $recordID = (int)$_GET['recordID'];
@@ -89,8 +85,8 @@ switch ($action) {
                 $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
-                $t_form->assign('orgchartPath', Config::$orgchartPath);
-                $t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
+                $t_form->assign('orgchartPath', $config->orgchartPath);
+                $t_form->assign('orgchartImportTag', $config->orgchartImportTags[0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
             }
@@ -102,7 +98,7 @@ switch ($action) {
 
         break;
     case 'getprintindicator':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
         $series = XSSHelpers::xscrub($_GET['series']);
@@ -111,6 +107,7 @@ switch ($action) {
         if (is_numeric($indicatorID))
         {
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
@@ -121,14 +118,14 @@ switch ($action) {
                 $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
-                $t_form->assign('orgchartPath', Config::$orgchartPath);
+                $t_form->assign('orgchartPath', $config->orgchartPath);
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }
 
         break;
     case 'getindicatorlog':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
         $series = XSSHelpers::xscrub($_GET['series']);
@@ -137,7 +134,7 @@ switch ($action) {
         if (is_numeric($indicatorID))
         {
             $t_form = new Smarty;
-
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             if ($indicatorID > 0 || $series > 0)
             {
                 $t_form->assign('log', $form->getIndicatorLog($indicatorID, $series, $recordID));
@@ -147,13 +144,14 @@ switch ($action) {
 
         break;
     case 'domodify':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         echo $form->doModify((int)$_POST['recordID']);
 
         break;
     case 'getsubmitcontrol':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $recordID = (int)$_GET['recordID'];
 
         $vars = array('recordID' => $recordID);
@@ -200,7 +198,7 @@ switch ($action) {
         $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
         $t_form->assign('requestLabel', $requestLabel);
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         if ($parallelProcessing)
@@ -214,7 +212,7 @@ switch ($action) {
 
         break;
     case 'dosubmit': // legacy action
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         $recordID = (int)$_GET['recordID'];
         if (is_numeric($recordID) && $form->getProgress($recordID) >= 100)
@@ -236,7 +234,7 @@ switch ($action) {
 
         break;
     case 'cancel':
-        require 'form.php';
+        require __DIR__ . '/form.php';
 
         if (is_numeric($_POST['cancel']))
         {
@@ -246,7 +244,7 @@ switch ($action) {
 
         break;
     case 'restore':
-        require 'form.php';
+        require __DIR__ . '/form.php';
 
         if (is_numeric($_POST['restore']))
         {
@@ -257,12 +255,12 @@ switch ($action) {
         break;
     case 'doapproval':
         // old
-        //require 'Action.php';
+        //require __DIR__ . '/Action.php';
         //$approval = new Action($db, $login, $_GET['recordID']);
         //$approval->addApproval($_POST['groupID'], $_POST['status'], $_POST['comment'], $_POST['dependencyID']);
         break;
     case 'doupload': // handle file upload
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $uploadOk = true;
         $uploadedFilename = '';
         foreach ($_FILES as $file)
@@ -279,7 +277,9 @@ switch ($action) {
         $series = 0;
         $indicatorID = 0;
         $main = new Smarty;
+        $main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 
         if ($uploadOk)
         {
@@ -350,19 +350,20 @@ switch ($action) {
 
         break;
     case 'deleteattachment':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
 
         echo $form->deleteAttachment((int)$_POST['recordID'], (int)$_POST['indicatorID'], XSSHelpers::xscrub($_POST['series']), XSSHelpers::xscrub($_POST['file']));
 
         break;
     case 'getstatus':
-        require 'form.php';
-        require 'View.php';
+        require __DIR__ . '/form.php';
+        require __DIR__ . '/View.php';
         $form = new Form($db, $login);
         $view = new View($db, $login);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $recordInfo = $form->getRecordInfo((int)$_GET['recordID']);
@@ -384,7 +385,7 @@ switch ($action) {
     case 'printview':
         if ($login->isLogin())
         {
-            require 'form.php';
+            require __DIR__ . '/form.php';
             $form = new Form($db, $login);
             $recordIDToPrint = (int)$_GET['recordID'];
 
@@ -404,6 +405,7 @@ switch ($action) {
             }
 
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', $recordIDToPrint);
@@ -415,7 +417,7 @@ switch ($action) {
             $t_form->assign('date', $recordInfo['submitted']);
             $t_form->assign('categoryText', XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
-            $t_form->assign('orgchartPath', Config::$orgchartPath);
+            $t_form->assign('orgchartPath', $config->orgchartPath);
             $t_form->assign('is_admin', $login->checkGroup(1));
 
             switch ($action) {
@@ -447,9 +449,11 @@ switch ($action) {
             else
             {
                 $t_login = new Smarty;
+                $t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
                 $t_login->assign('name', $login->getName());
 
                 $main = new Smarty;
+                $main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
                 if ($recordInfo['priority'] == -10)
                 {
                     $main->assign('emergency', '<span style="position: absolute; right: 0px; top: -28px; padding: 2px; border: 1px solid black; background-color: white; color: red; font-weight: bold; font-size: 20px">EMERGENCY</span> ');
@@ -467,12 +471,12 @@ switch ($action) {
 
         break;
     case 'gettags':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         if (is_numeric($_GET['recordID']))
         {
             $t_form = new Smarty;
-
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             if ($_GET['recordID'] > 0)
             {
                 $t_form->assign('tags', $form->getTags((int)$_GET['recordID']));
@@ -482,12 +486,12 @@ switch ($action) {
 
         break;
     case 'getformtags':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         if (is_numeric($_GET['recordID']))
         {
             $t_form = new Smarty;
-
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             if ($_GET['recordID'] > 0)
             {
                 $t_form->assign('tags', $form->getTags((int)$_GET['recordID']));
@@ -497,9 +501,10 @@ switch ($action) {
 
         break;
     case 'gettagmembers':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -512,7 +517,7 @@ switch ($action) {
 
         break;
     case 'updatetags':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         $form->parseTags((int)$_POST['recordID'], XSSHelpers::xscrub($_POST['taginput']));
 
@@ -522,7 +527,7 @@ switch ($action) {
         {
             exit();
         }
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         $form->addTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 
@@ -532,7 +537,7 @@ switch ($action) {
         {
             exit();
         }
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 

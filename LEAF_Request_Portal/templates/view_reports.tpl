@@ -53,6 +53,8 @@ function prepareEmail(link) {
     $('body').append($('<iframe id="ie9workaround" style="display:none;" src="' + mailtoHref + '"/>'));
 }
 
+var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help Excel users
+var delimLF = "\r\n";
 var tDepHeader = [];
 var tStepHeader = [];
 function addHeader(column) {
@@ -154,7 +156,9 @@ function addHeader(column) {
                             	 var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
                                  var formattedDate = date.toLocaleDateString();
                                  if(blob[data.recordID].action_history[i]['comment'] != '') {
-                                     buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">' + formattedDate + '</td><td>' + blob[data.recordID].action_history[i]['comment'] + '.</td></tr>';
+                                     buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
+                                        + formattedDate + delim + '</td><td style="padding-left: 4px">' + blob[data.recordID].action_history[i]['comment'] + '.</td>'
+                                        + delimLF + '</tr>';
                                  }
                              }
                              buffer += '</table>';
@@ -164,17 +168,19 @@ function addHeader(column) {
         case 'approval_history':
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({name: 'Approval History', indicatorID: 'approval_history', editable: false, callback: function(data, blob) {
-                             var buffer = '<table style="min-width: 300px">';
+                             var buffer = '<table class="table" style="min-width: 300px">';
                              var now = new Date();
 
                              for(var i in blob[data.recordID].action_history) {
                                  var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
                                  var formattedDate = date.toLocaleDateString();
-                                 buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
-                                	   + formattedDate + '</td><td>'
-                                	   + blob[data.recordID].action_history[i]['description']
-                                	   + ' ('+ blob[data.recordID].action_history[i]['approverName'] +'): '
-                                	   + blob[data.recordID].action_history[i]['actionTextPasttense'] + '.</td></tr>';
+                                 var actionDescription = blob[data.recordID].action_history[i]['description'] != null ? blob[data.recordID].action_history[i]['description'] : '';
+                                 buffer += '<tr><td>'
+                                       + formattedDate + delim + '</td>'
+                                       + '<td>' + actionDescription + delim  + '</td>'
+                                       + '<td>' + blob[data.recordID].action_history[i]['actionTextPasttense'] + delim + '</td>'
+                                       + '<td>' + blob[data.recordID].action_history[i]['approverName'] + '</td>'
+                                	   + delimLF + '</tr>';
                              }
                              buffer += '</table>';
                              $('#'+data.cellContainerID).html(buffer);
@@ -540,14 +546,15 @@ function openShareDialog() {
             CSRFToken: CSRFToken}
     })
     .then(function(res) {
-        $('#reportLink').html(pwd + 'open?report=' + res);
+        $('#reportLink').html(pwd + 'open.php?report=' + res);
     });
 }
 
 function showJSONendpoint() {
     var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
     var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-	var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
+    var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
+    var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
 	dialog_message.setTitle('Data Endpoints');
     dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
@@ -562,6 +569,7 @@ function showJSONendpoint() {
                            + '<option value="debug">Plaintext</option>'
                            + '<option value="x-visualstudio">Visual Studio (testing)</option>'
                            + '</select>'
+                           + '<span id="formatStatus" style="background-color:green; padding:5px 5px; color:white; display:none;"></span>'
                            + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
 			               + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
                            + '<br /><br />'
@@ -572,6 +580,7 @@ function showJSONendpoint() {
 
     $('#msCompatMode').on('click', function() {
         $('#shortenLink').click();
+
     });
 
     function setExportFormat() {
@@ -581,12 +590,16 @@ function showJSONendpoint() {
         else {
             $('#exportFormat').html('&');
         }
+
+
         switch($('#format').val()) {
             case 'json':
                 $('#exportFormat').html('');
                 break;
             default:
                 $('#exportFormat').append('format=' + $('#format').val());
+                $("#formatStatus").show().text("Format changed to " + $('#format').val());
+                $("#formatStatus").fadeOut(3000);
                 break;
         }
     }
@@ -615,12 +628,12 @@ function showJSONendpoint() {
                 CSRFToken: CSRFToken}
         })
         .then(function(res) {
-            if($('#msCompatMode').is(':checked')) {
-                $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'auth_domain/api/open/form/query/_' + res);
+            $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
+           if($('#msCompatMode').is(':checked')) {
                 $('#expandLink').css('display', 'none');
+                $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res);
             }
             else {
-                $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
                 $('#expandLink').css('display', 'inline');
             }
             setExportFormat();

@@ -3,11 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-include '../db_mysql.php';
-include_once '../db_config.php';
-require_once '../VAMC_Directory.php';
-
-$db_config = new DB_Config();
+include __DIR__ . '/../db_mysql.php';
+require_once __DIR__ . '/../VAMC_Directory.php';
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 
@@ -16,7 +13,6 @@ $res = $db->prepared_query('SELECT * FROM users WHERE groupID=1', $vars);
 
 if (count($res) == 0)
 {
-    $config = new Config();
 
     if (strlen($config->adminLogonName) > 0)
     {

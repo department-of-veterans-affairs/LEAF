@@ -6,7 +6,7 @@
 class CommonConfig
 {
     public $requestWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
-                                        'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
+                                        'csv', 'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
                                         'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm', 'ppts',
                                         'ai', 'eps',
                                         'pdf',
@@ -14,17 +14,20 @@ class CommonConfig
                                         'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif',
                                         'vsd',
                                         'rtf',
-                                        'mht', 'htm', 'html', 'msg', 'xml',
+                                        'json',
                                         'pub',
+                                        'msg', 'ics',
+                                        'mht', 'msg', 'xml',
+                                        'zip', '7z',
                                     );
     
     public $fileManagerWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
-                                            'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
+                                            'csv', 'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
                                             'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm', 'ppts',
                                             'ai', 'eps',
                                             'pdf',
                                             'txt',
-                                            'html',
+                                            'htm', 'html',
                                             'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif', 'svg',
                                             'vsd',
                                             'rtf',
@@ -33,18 +36,20 @@ class CommonConfig
                                             'css',
                                             'pub',
                                             'msg', 'ics',
-                                            'mht', 'htm', 'html', 'msg', 'xml',
+                                            'mht', 'msg', 'xml',
                                             'zip', '7z',
                                         );
 
-    public $fileManagerWhitelist_nexus = array('doc', 'docx', 'docm', 'dotx', 'dotm',
-                                                'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
-                                                'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm', 'ppts',
-                                                'ai', 'eps',
-                                                'pdf',
-                                                'txt',
-                                                'png', 'jpg', 'jpeg', 'bmp', 'gif', 'tif',
-                                                'vsd',
-                                                'rtf',
-                                                'mht', 'htm', 'html', 'msg', 'xml', );
+    public $awsSharedConfig = array(
+        'region' => 'us-east-1',
+        'credentials' => [
+            'key' => 'YOUR_AWS_KEY_HERE',
+            'secret' => 'YOUR_AWS_SECRET_HERE',
+        ],
+        'version' => 'latest',
+        'S3' => [
+            'bucket' => 'YOUR_AWS_BUCKET_HERE'
+            //'debug' => 'false' // default is false
+        ]
+    );
 }

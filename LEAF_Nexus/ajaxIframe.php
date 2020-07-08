@@ -17,18 +17,15 @@ if (false)
     exit();
 }
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/./sources/Login.php';
+include __DIR__ . '/db_mysql.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
-
-$config = new Orgchart\Config();
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
@@ -44,8 +41,11 @@ if (!$login->isLogin() || !$login->isInDB())
 }
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -76,7 +76,7 @@ switch ($action) {
     case 'getuploadprompt':
         $main->assign('useDojoUI', false);
         $t_iframe = new Smarty;
-
+        $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_iframe->assign('categoryID', (int)$_GET['categoryID']);
         $t_iframe->assign('UID', (int)$_GET['UID']);
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
@@ -88,6 +88,7 @@ switch ($action) {
     case 'getdeleteprompt':
         $main->assign('useDojoUI', false);
         $t_iframe = new Smarty;
+        $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_iframe->left_delimiter = '<!--{';
         $t_iframe->right_delimiter = '}-->';
 
@@ -132,7 +133,7 @@ switch ($action) {
         }
 
         $t_iframe = new Smarty;
-
+        $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_iframe->left_delimiter = '<!--{';
         $t_iframe->right_delimiter = '}-->';
         $t_iframe->assign('privileges', $login->getIndicatorPrivileges(array((int)$_GET['indicatorID']), XSSHelpers::xscrub($type), (int)$_GET['UID']));
@@ -142,10 +143,11 @@ switch ($action) {
 
         break;
     case 'view_position_permissions':
-        require 'sources/Position.php';
+        require __DIR__ . '/sources/Position.php';
         $position = new Orgchart\Position($db, $login);
 
         $t_iframe = new Smarty;
+        $t_iframe->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_iframe->left_delimiter = '<!--{';
         $t_iframe->right_delimiter = '}-->';
 

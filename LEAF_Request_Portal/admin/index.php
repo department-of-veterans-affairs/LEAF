@@ -17,20 +17,16 @@ if (false)
     exit();
 }
 
-include '../globals.php';
-include '../../libs/smarty/Smarty.class.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
-include '../form.php';
+include __DIR__ . '/../globals.php';
+include __DIR__ . '/../../libs/smarty/Smarty.class.php';
+include __DIR__ . '/../Login.php';
+include __DIR__ . '/../db_mysql.php';
+include __DIR__ . '/../form.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
-
-$db_config = new DB_Config();
-$config = new Config();
 
 header('X-UA-Compatible: IE=edge');
 
@@ -54,8 +50,11 @@ if (!$login->checkGroup(1))
 }
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -64,7 +63,37 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+}
+
+function hasDevConsoleAccess($login, $db_phonebook)
+{
+    // automatically allow coaches
+    $db_national = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+    $vars = array(':userID' => $login->getUserID());
+    $res = $db_national->prepared_query('SELECT * FROM employee WHERE userName=:userID', $vars);
+    if(count($res) == 0) {
+        return 0;
+    }
+    $empUID = $res[0]['empUID'];
+
+    $vars = array(':groupID' => 17,
+                  ':empUID' => $empUID);
+    $res = $db_national->prepared_query('SELECT * FROM relation_group_employee WHERE groupID=:groupID AND empUID=:empUID', $vars);
+    if(count($res) > 0) {
+        return 1;
+    }
+
+    $vars = array(':empUID' => $login->getEmpUID());
+    $res = $db_phonebook->prepared_query('SELECT data FROM employee_data
+                                            WHERE empUID=:empUID
+                                                AND indicatorID=27
+                                                AND data="Yes"
+                                                AND author="DevConsoleWorkflow"', $vars);
+    if(count($res) > 0) {
+        return 1;
+    }
+    return 0;
 }
 
 // HQ logo
@@ -85,21 +114,22 @@ $main->assign('useDojoUI', true);
 switch ($action) {
     case 'mod_groups':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
-                                           '../' . Config::$orgchartPath . '/js/groupSelector.js',
+        $main->assign('javascripts', array('../' . $config->orgchartPath . '/js/nationalEmployeeSelector.js',
+                                           '../' . $config->orgchartPath . '/js/groupSelector.js',
         ));
 
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('orgchartPath', '../' . $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
+        $t_form->assign('orgchartImportTag', $config->orgchartImportTags[0]);
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
-                                           '../' . Config::$orgchartPath . '/css/employeeSelector.css',
-                                           '../' . Config::$orgchartPath . '/css/groupSelector.css',
+                                           '../' . $config->orgchartPath . '/css/employeeSelector.css',
+                                           '../' . $config->orgchartPath . '/css/groupSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl')));
 
@@ -108,19 +138,20 @@ switch ($action) {
         break;
     case 'mod_svcChief':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
+        $main->assign('javascripts', array('../' . $config->orgchartPath . '/js/nationalEmployeeSelector.js',
         ));
 
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('orgchartPath', '../' . $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('stylesheets', array('css/mod_groups.css',
-                '../' . Config::$orgchartPath . '/css/employeeSelector.css',
+                '../' . $config->orgchartPath . '/css/employeeSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_svcChief.tpl')));
 
@@ -129,21 +160,22 @@ switch ($action) {
         break;
     case 'workflow':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
 
         $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
-                                           '../' . Config::$orgchartPath . '/js/groupSelector.js',
+                                           '../' . $config->orgchartPath . '/js/groupSelector.js',
                                            '../../libs/jsapi/portal/LEAFPortalAPI.js',
                                            '../../libs/js/LEAF/XSSHelpers.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
-                                           '../' . Config::$orgchartPath . '/css/groupSelector.css',
+                                           '../' . $config->orgchartPath . '/css/groupSelector.css',
         ));
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
-        $t_form->assign('orgchartImportTags', Config::$orgchartImportTags);
+        $t_form->assign('orgchartPath', '../' . $config->orgchartPath);
+        $t_form->assign('orgchartImportTags', $config->orgchartImportTags);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch('mod_workflow.tpl'));
@@ -152,9 +184,10 @@ switch ($action) {
 
         break;
     case 'form':
-          $t_form = new Smarty;
-           $t_form->left_delimiter = '<!--{';
-           $t_form->right_delimiter = '}-->';
+        $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
         $main->assign('javascripts', array('../../libs/js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
@@ -168,6 +201,7 @@ switch ($action) {
                                             '../../libs/js/LEAF/XSSHelpers.js',
                                             '../../libs/jsapi/portal/LEAFPortalAPI.js',
                                             '../js/gridInput.js',
+                                            '../js/formQuery.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
                                             '../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
@@ -178,6 +212,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
+        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
 
         if (isset($_GET['form']))
         {
@@ -196,51 +231,63 @@ switch ($action) {
         break;
     case 'mod_templates':
     case 'mod_templates_reports':
-          $t_form = new Smarty;
-           $t_form->left_delimiter = '<!--{';
-           $t_form->right_delimiter = '}-->';
+    case 'mod_templates_email':
+            if(!hasDevConsoleAccess($login, $db_phonebook)) {
+               header('Location: ../report.php?a=LEAF_start_leaf_dev_console_request');
+            }
 
-           $main->assign('useUI', true);
-           $main->assign('javascripts', array('../../libs/js/codemirror/lib/codemirror.js',
-                                              '../../libs/js/codemirror/mode/xml/xml.js',
-                                              '../../libs/js/codemirror/mode/javascript/javascript.js',
-                                              '../../libs/js/codemirror/mode/css/css.js',
-                                              '../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-                                              '../../libs/js/codemirror/addon/search/search.js',
-                                              '../../libs/js/codemirror/addon/search/searchcursor.js',
-                                              '../../libs/js/codemirror/addon/dialog/dialog.js',
-                                              '../../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
-                                              '../../libs/js/codemirror/addon/search/matchesonscrollbar.js',
-                                              '../../libs/js/codemirror/addon/display/fullscreen.js',
-           ));
-           $main->assign('stylesheets', array('../../libs/js/codemirror/lib/codemirror.css',
-                                              '../../libs/js/codemirror/addon/dialog/dialog.css',
-                                              '../../libs/js/codemirror/addon/scroll/simplescrollbars.css',
-                                              '../../libs/js/codemirror/addon/search/matchesonscrollbar.css',
-                                              '../../libs/js/codemirror/addon/display/fullscreen.css',
-           ));
+            $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
+            $t_form->left_delimiter = '<!--{';
+            $t_form->right_delimiter = '}-->';
 
-           $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-           $t_form->assign('APIroot', '../api/');
+            $main->assign('useUI', true);
+            $main->assign('javascripts', array('../../libs/js/codemirror/lib/codemirror.js',
+                                                '../../libs/js/codemirror/mode/xml/xml.js',
+                                                '../../libs/js/codemirror/mode/javascript/javascript.js',
+                                                '../../libs/js/codemirror/mode/css/css.js',
+                                                '../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
+                                                '../../libs/js/codemirror/addon/search/search.js',
+                                                '../../libs/js/codemirror/addon/search/searchcursor.js',
+                                                '../../libs/js/codemirror/addon/dialog/dialog.js',
+                                                '../../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
+                                                '../../libs/js/codemirror/addon/search/matchesonscrollbar.js',
+                                                '../../libs/js/codemirror/addon/display/fullscreen.js',
+            ));
+            $main->assign('stylesheets', array('../../libs/js/codemirror/lib/codemirror.css',
+                                                '../../libs/js/codemirror/addon/dialog/dialog.css',
+                                                '../../libs/js/codemirror/addon/scroll/simplescrollbars.css',
+                                                '../../libs/js/codemirror/addon/search/matchesonscrollbar.css',
+                                                '../../libs/js/codemirror/addon/display/fullscreen.css',
+            ));
 
-           switch ($action) {
-               case 'mod_templates':
-                   $main->assign('body', $t_form->fetch('mod_templates.tpl'));
-                   $tabText = 'Template Editor';
+            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+            $t_form->assign('APIroot', '../api/');
 
-                   break;
-               case 'mod_templates_reports':
-                   $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
-                   $tabText = 'Editor';
+            switch ($action) {
+                case 'mod_templates':
+                    $main->assign('body', $t_form->fetch('mod_templates.tpl'));
+                    $tabText = 'Template Editor';
 
-                   break;
-               default:
-                   break;
-           }
+                    break;
+                case 'mod_templates_reports':
+                    $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
+                    $tabText = 'Editor';
+
+                    break;
+                case 'mod_templates_email':
+                    $main->assign('body', $t_form->fetch('mod_templates_email.tpl'));
+                    $tabText = 'Email Template Editor';
+
+                    break;
+                default:
+                    break;
+            }
 
         break;
     case 'admin_update_database':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -258,6 +305,7 @@ switch ($action) {
         break;
     case 'admin_sync_services':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -275,6 +323,7 @@ switch ($action) {
         break;
     case 'formLibrary':
           $t_form = new Smarty;
+          $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
            $t_form->left_delimiter = '<!--{';
            $t_form->right_delimiter = '}-->';
 
@@ -296,6 +345,7 @@ switch ($action) {
            break;
     case 'importForm':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -313,6 +363,7 @@ switch ($action) {
         break;
     case 'uploadFile':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         if (!class_exists('CommonConfig'))
@@ -321,6 +372,7 @@ switch ($action) {
         }
         $commonConfig = new CommonConfig();
         $t_form->assign('fileExtensions', $commonConfig->fileManagerWhitelist);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         if ($login->checkGroup(1))
         {
             $main->assign('body', $t_form->fetch('admin_upload_file.tpl'));
@@ -335,18 +387,19 @@ switch ($action) {
         break;
     case 'mod_system':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
-//   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+//   		$t_form->assign('orgchartPath', '../' . $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('javascripts', array('../../libs/js/LEAF/XSSHelpers.js',
                                            '../js/formQuery.js'));
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
-        $t_form->assign('importTags', $config::$orgchartImportTags);
+        $t_form->assign('importTags', $config->orgchartImportTags);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));
         $main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl')));
 
@@ -355,13 +408,14 @@ switch ($action) {
         break;
     case 'mod_file_manager':
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
             $main->assign('useUI', true);
-            //   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+            //   		$t_form->assign('orgchartPath', '../' . $config->orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('importTags', $config::$orgchartImportTags);
+            $t_form->assign('importTags', $config->orgchartImportTags);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
             $main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl')));
 
@@ -370,6 +424,7 @@ switch ($action) {
             break;
     case 'disabled_fields':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -384,11 +439,12 @@ switch ($action) {
     case 'import_data':
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPath);
 
         $main->assign('javascripts', array(
             '../../libs/js/LEAF/XSSHelpers.js',
@@ -413,9 +469,10 @@ switch ($action) {
             $o_login = $t_login->fetch('login.tpl');
 
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
-            $t_form->assign('orgchartPath', Config::$orgchartPath);
+            $t_form->assign('orgchartPath', $config->orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
 
@@ -442,10 +499,8 @@ switch ($action) {
 
 $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
-$onPrem = !isset(Config::$onPrem) ? true :  Config::$onPrem;
-$main->assign('onPrem', $onPrem);
 $t_menu->assign('action', $action);
-$t_menu->assign('orgchartPath', Config::$orgchartPath);
+$t_menu->assign('orgchartPath', $config->orgchartPath);
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';

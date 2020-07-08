@@ -88,6 +88,24 @@ var NexusEmployeeAPI = function (baseAPIURL) {
                 .fail(onFail);
                 // .always(function () {});
         },
+        importFromNationalByEmail = function (parameters, email) {
+            var fetchURL = apiBaseURL + 'national/employee/import/email';
+            var postData = {};
+            postData['CSRFToken'] = csrfToken;
+            postData['email'] = email;
+
+            $.ajax({
+                method: 'POST',
+                url: fetchURL,
+                data: postData,
+                dataType: "json",
+                async: parameters.async,
+                cache: false
+            })
+            .done(parameters.onSuccess)
+            .fail(parameters.onFail);
+        },
+        
 
         getByEmailNational = function (parameters, emailAddress) {
             var fetchURL = apiBaseURL + 'national/employee/search&q=' + emailAddress + '&noLimit=0';
@@ -134,6 +152,7 @@ var NexusEmployeeAPI = function (baseAPIURL) {
         getAPIURL: getAPIURL,
         getBaseAPIURL: getBaseAPIURL,
         getByEmail: getByEmail,
+        importFromNationalByEmail: importFromNationalByEmail,
         getByEmailNational: getByEmailNational,
         importFromNational: importFromNational,
         setBaseAPIURL: setBaseAPIURL,

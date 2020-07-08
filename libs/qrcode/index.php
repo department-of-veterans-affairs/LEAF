@@ -1,12 +1,33 @@
 <?php 
-include 'qrlib.php';
+include __DIR__ . '/../php-commons/XSSHelpers.php';
+include __DIR__ . '/qrlib.php';
 $cacheDir = 'cache/';
 
 $encode = 'Invalid Input.';
 if(isset($_GET['encode'])) {
+    $input = XSSHelpers::xssafe($_GET['encode']); // first pass scrub and character encoding enforcement
+
     $len = strlen($_GET['encode']);
-    if($len > 0 && $len < 4000) {
-        $encode = $_GET['encode'];
+    if($len > 0 && $len < 4000) { // check QR container limits
+        $encode = $input;
+    }
+
+    // TODO: Replace this with centrally managed server config variable
+    $HTTP_HOST = '';
+    if(file_exists('../../orgchart/globals.php')) {
+        include __DIR__ . '/../../orgchart/globals.php';
+    }
+    else if(file_exists('../../LEAF_Nexus/globals.php')) {
+        include __DIR__ . '/../../LEAF_Nexus/globals.php';
+    }
+
+    if(defined('HTTP_HOST')) {
+        $HTTP_HOST = XSSHelpers::xssafe(HTTP_HOST);
+    }
+
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+    if(strpos($input, "{$protocol}://{$HTTP_HOST}/") !== 0) {
+        $encode = "Invalid Input.";
     }
 }
 
@@ -43,5 +64,3 @@ else {
     header('Content-Type: image/png');
     echo file_get_contents($cacheFile);
 }
-
-?>

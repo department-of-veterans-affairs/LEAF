@@ -11,19 +11,15 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include 'globals.php';
-include 'Login.php';
-include 'db_mysql.php';
-include 'db_config.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/Login.php';
+include __DIR__ . '/db_mysql.php';
 
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
-
-$db_config = new DB_Config();
-$config = new Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
@@ -37,14 +33,14 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'getform':
-        require 'form.php';
+        require __DIR__ . '/form.php';
         $form = new Form($db, $login);
         header('Content-type: application/json');
         echo $form->getFormJSON($_GET['recordID']);
 
         break;
     case 'getprogress': // support legacy customizations
-          require 'form.php';
+          require __DIR__ . '/form.php';
            $form = new Form($db, $login);
            header('Content-type: application/json');
            echo $form->getProgressJSON($_GET['recordID']);

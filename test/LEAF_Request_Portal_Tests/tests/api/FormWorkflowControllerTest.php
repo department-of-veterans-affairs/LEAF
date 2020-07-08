@@ -84,9 +84,9 @@ final class FormWorkflowControllerTest extends DatabaseTest
 
         $result = self::$client->post(array('a' => 'formWorkflow/2/apply'), $vars);
 
-        //process finished with no errors
-        $this->assertEquals('1', $result['status']);
-        $this->assertEquals(0, count($result['errors']));
+        //since no steps are present - an error should be raised
+        $this->assertEquals('0', $result['status']);
+        $this->assertEquals(1, count($result['errors']));
     }
 
     public function testSetStep() : void

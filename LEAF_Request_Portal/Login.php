@@ -149,6 +149,7 @@ class Login
         return $this->name;
     }
 
+    // getUserID returns NT Username
     public function getUserID()
     {
         return $this->userID;
@@ -166,30 +167,9 @@ class Login
 
     public function parseURL($in)
     {
-        $paths = explode('/', $in);
-        $out = array();
+      $url = str_replace('/var/www/html', '', $in);
 
-        foreach ($paths as $path)
-        {
-            if ($path != '')
-            {
-                if ($path == '..')
-                {
-                    array_pop($out);
-                }
-                else
-                {
-                    $out[] = $path;
-                }
-            }
-        }
-        $buffer = '';
-        foreach ($out as $path)
-        {
-            $buffer .= "/{$path}";
-        }
-
-        return $buffer;
+      return $url;
     }
 
     public function loginUser()
@@ -201,7 +181,8 @@ class Login
             $authType = '/auth_cookie/?r=';
             $nonBrowserAuth = '/auth_cookie/?r=';
           }
-
+          
+          //$_SESSION['userID'] = 'tester';//TODO MAKE STATELESS LOGIN WORK CORRECTLY
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
         {
             if (php_sapi_name() != 'cli')
@@ -219,11 +200,11 @@ class Login
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
                 {
-                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . $authType . base64_encode($_SERVER['REQUEST_URI']));
+                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $authType . base64_encode($_SERVER['REQUEST_URI']));
                     exit();
                 }
 
-                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
+                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
                 exit();
             }
 
@@ -273,6 +254,7 @@ class Login
 
     /**
      * Checks if the current user is part of a group
+     * Magic variable $_GET['masquerade'] = nonAdmin enables admins to view content as non-admins
      * @param int $groupID Group ID number
      * @return boolean
      */
@@ -298,6 +280,10 @@ class Login
         if (!isset($this->cache['checkGroup']))
         {
             $this->cache['checkGroup'] = array();
+        }
+
+        if($groupID == 1 && isset($_GET['masquerade']) && $_GET['masquerade'] == 'nonAdmin') {
+            return false;
         }
 
         return isset($this->cache['checkGroup'][$groupID]);
@@ -362,7 +348,7 @@ class Login
             return $this->cache['getQuadradGroupID'];
         }
         $var = array(':userID' => $this->userID);
-        $result = $this->userDB->prepared_query('SELECT * FROM groups
+        $result = $this->userDB->prepared_query('SELECT * FROM `groups`
                                             LEFT JOIN users USING (groupID)
                                             WHERE parentGroupID=-1
                                                 AND userID=:userID', $var);
@@ -394,7 +380,7 @@ class Login
         }
 
         $var = array(':userID' => $this->userID);
-        $result = $this->userDB->prepared_query('SELECT * FROM groups
+        $result = $this->userDB->prepared_query('SELECT * FROM `groups`
                                             LEFT JOIN users USING (groupID)
                                             WHERE parentGroupID=-1
                                                 AND userID=:userID', $var);

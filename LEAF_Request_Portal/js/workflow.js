@@ -352,9 +352,14 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         antiDblClick = 0
         currRecordID = recordID;
 
+        var masquerade = '';
+        if(window.location.href.indexOf('masquerade=nonAdmin') != -1) {
+            masquerade = '&masquerade=nonAdmin';
+        }
+
         $.ajax({
             type: 'GET',
-            url: rootURL + 'api/?a=formWorkflow/'+ recordID +'/currentStep',
+            url: rootURL + 'api/?a=formWorkflow/'+ recordID +'/currentStep' + masquerade,
             dataType: 'json',
             success: function(res) {
                 for(var i in res) {

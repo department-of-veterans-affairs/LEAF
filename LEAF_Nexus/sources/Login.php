@@ -178,30 +178,10 @@ class Login
 
     public function parseURL($in)
     {
-        $paths = explode('/', $in);
-        $out = array();
+      // TODO: Put this in a config var
+      $url = str_replace(array('/var/www/html', '/sources'), array('', ''), $in);
 
-        foreach ($paths as $path)
-        {
-            if ($path != '')
-            {
-                if ($path == '..')
-                {
-                    array_pop($out);
-                }
-                else
-                {
-                    $out[] = $path;
-                }
-            }
-        }
-        $buffer = '';
-        foreach ($out as $path)
-        {
-            $buffer .= "/{$path}";
-        }
-
-        return $buffer;
+      return $url;
     }
 
     public function generateCSRFToken()
@@ -218,7 +198,7 @@ class Login
             $authType = '/auth_cookie/?r=';
             $nonBrowserAuth = '/auth_cookie/?r=';
         }
-
+        //$_SESSION['userID'] = 'tester';//TODO MAKE STATELESS LOGIN WORK CORRECTLY
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
         {
             if (php_sapi_name() != 'cli')
@@ -236,11 +216,11 @@ class Login
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
                 {
-                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . $authType . base64_encode($_SERVER['REQUEST_URI']));
+                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $authType . base64_encode($_SERVER['REQUEST_URI']));
                     exit();
                 }
 
-                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname($_SERVER['PHP_SELF']) . $this->baseDir) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
+                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
                 exit();
             }
 
@@ -282,9 +262,10 @@ class Login
                     ':phoFirstName' => $res[0]['phoneticFirstName'],
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(), );
-            $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated)
-        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated)
+                    ':lastUpdated' => time(), 
+                    ':new_empUUID' => $res[0]['new_empUUID'] );
+            $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
+                                  VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
     								ON DUPLICATE KEY UPDATE deleted=0', $vars);
             $empUID = $this->db->getLastInsertID();
 

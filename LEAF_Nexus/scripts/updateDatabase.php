@@ -15,9 +15,7 @@ else
 $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../config.php';
 
-$config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());

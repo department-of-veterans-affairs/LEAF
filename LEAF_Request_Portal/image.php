@@ -3,19 +3,15 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-include 'globals.php';
-include 'db_mysql.php';
-include 'db_config.php';
-include 'Login.php';
-include 'form.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/Login.php';
+include __DIR__ . '/form.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
-
-$db_config = new DB_Config();
-$config = new Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
@@ -46,7 +42,7 @@ $_GET['form'] = (int)$_GET['form'];
 $_GET['id'] = (int)$_GET['id'];
 $_GET['series'] = (int)$_GET['series'];
 
-$uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+$uploadDir = isset($config->uploadDir) ? $config->uploadDir : UPLOAD_DIR;
 $filename = $uploadDir . Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
 
 $filenameParts = explode('.', $filename);

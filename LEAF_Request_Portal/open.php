@@ -5,12 +5,8 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include 'db_mysql.php';
-include 'db_config.php';
-require 'sources/Shortener.php';
-
-$db_config = new DB_Config();
-$config = new Config();
+include __DIR__ . '/db_mysql.php';
+require __DIR__ . '/sources/Shortener.php';
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $short = new Shortener($db, null);

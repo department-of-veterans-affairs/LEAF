@@ -11,12 +11,11 @@ if (false)
     exit();
 }
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include 'Login.php';
-include 'db_mysql.php';
-include 'db_config.php';
-include 'form.php';
+include __DIR__ . '/globals.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/Login.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/form.php';
 
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
@@ -24,8 +23,6 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DB_Config();
-$config = new Config();
 
 header('X-UA-Compatible: IE=edge');
 
@@ -48,8 +45,11 @@ if (!$login->isLogin() || !$login->isInDB())
 }
 
 $main = new Smarty;
+$main->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_login = new Smarty;
+$t_login->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $t_menu = new Smarty;
+$t_menu->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
 $o_login = '';
 $o_menu = '';
 $tabText = '';
@@ -58,7 +58,7 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
-    return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
 $t_login->assign('name', XSSHelpers::xscrub($login->getName()));
@@ -75,9 +75,9 @@ if (isset($settings['timeZone']))
 switch ($action) {
     case 'newform':
         $main->assign('useLiteUI', true);
-
+        $main->assign('javascripts', array('js/titleValidator.js'));
         $form = new Form($db, $login);
-        include './sources/FormStack.php';
+        include __DIR__ . '/./sources/FormStack.php';
         $stack = new FormStack($db, $login);
 
         $t_menu->assign('action', XSSHelpers::xscrub($action));
@@ -99,6 +99,7 @@ switch ($action) {
         }
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('categories', $categoryArray);
@@ -106,6 +107,8 @@ switch ($action) {
         $t_form->assign('services', $servicesArray);
         $t_form->assign('city', XSSHelpers::sanitizeHTML($config->city));
         $t_form->assign('phone', XSSHelpers::sanitizeHTML($currEmployeeData[5]['data']));
+        $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
+        $t_form->assign('empUID', (int)$login->getEmpUID());
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
 
@@ -133,12 +136,16 @@ switch ($action) {
             // $thisRecord = $form->getRecord($_GET['recordID']);
 
             $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', $recordIDToView);
             $t_form->assign('lastStatus', XSSHelpers::sanitizeHTMl($form->getLastStatus($recordIDToView)));
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('isIframe', (int)$_GET['iframe'] == 1 ? 1 : 0);
+            $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
+            $t_form->assign('empUID', (int)$login->getEmpUID());
+            $t_form->assign('empMembership', $login->getMembership());
 
             // since $thisRecord was already commented out above, this can probably be removed
             // if(isset($thisRecord['approval'])) {
@@ -179,7 +186,8 @@ switch ($action) {
             '../libs/js/es6-promise/es6-promise.min.js',
             '../libs/js/es6-promise/es6-promise.auto.min.js',
             '../libs/js/jspdf/jspdf.min.js',
-            '../libs/js/jspdf/jspdf.plugin.autotable.min.js'
+            '../libs/js/jspdf/jspdf.plugin.autotable.min.js',
+            'js/titleValidator.js'
         ));
 
         $recordIDToPrint = (int)$_GET['recordID'];
@@ -193,14 +201,17 @@ switch ($action) {
         $comments = $form->getActionComments($recordIDToPrint);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('canWrite', $form->hasWriteAccess($recordIDToPrint));
         $t_form->assign('canRead', $form->hasReadAccess($recordIDToPrint));
         $t_form->assign('accessLogs', $form->log);
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);
+        $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
+        $t_form->assign('empUID', (int)$login->getEmpUID());
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
         $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
@@ -222,13 +233,13 @@ switch ($action) {
         }
 
         // get workflow status and check permissions
-        require_once 'FormWorkflow.php';
+        require_once __DIR__ . '/FormWorkflow.php';
         $formWorkflow = new FormWorkflow($db, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
 
         //url
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $qrcodeURL = "{$protocol}://{$_SERVER['HTTP_HOST']}" . $_SERVER['REQUEST_URI'];
+        $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
         $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
         switch ($action) {
@@ -269,10 +280,11 @@ switch ($action) {
         $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js'));
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        require_once 'Inbox.php';
+        require_once __DIR__ . '/Inbox.php';
         $inbox = new Inbox($db, $login);
 
         $inboxItems = $inbox->getInbox();
@@ -303,7 +315,7 @@ switch ($action) {
         break;
     case 'status':
         $form = new Form($db, $login);
-        include_once 'View.php';
+        include_once __DIR__ . '/View.php';
         $view = new View($db, $login);
         $recordIDForStatus = (int)$_GET['recordID'];
 
@@ -312,6 +324,7 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $recordInfo = $form->getRecordInfo($recordIDForStatus);
@@ -340,6 +353,7 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -351,14 +365,15 @@ switch ($action) {
 
            break;
     case 'bookmarks':
-        include_once 'View.php';
+        include_once __DIR__ . '/View.php';
         $view = new View($db, $login);
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('is_service_chief', (bool)$login->isServiceChief());
+        $t_form->assign('is_service_chief', (int)$login->isServiceChief());
         $t_form->assign('empMembership', $login->getMembership());
 
         $t_form->assign('bookmarks', $view->buildViewBookmarks($login->getUserID()));
@@ -381,6 +396,7 @@ switch ($action) {
         }
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('total', $count);
@@ -393,6 +409,7 @@ switch ($action) {
     case 'gettagmembers':
         $form = new Form($db, $login);
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -408,6 +425,7 @@ switch ($action) {
         break;
     case 'about':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -425,10 +443,11 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl')));
@@ -437,6 +456,9 @@ switch ($action) {
 
         break;
     case 'reports':
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+        $powerQueryURL = "{$protocol}://" . AUTH_URL . "/report_auth.php?r=";
+
         $main->assign('stylesheets', array('css/report.css'));
            $main->assign('javascripts', array('js/form.js',
                'js/formGrid.js',
@@ -452,16 +474,19 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('query', XSSHelpers::xscrub($_GET['query']));
         $t_form->assign('indicators', XSSHelpers::xscrub($_GET['indicators']));
         $t_form->assign('title', XSSHelpers::sanitizeHTML($_GET['title']));
         $t_form->assign('version', (int)$_GET['v']);
         $t_form->assign('empMembership', $login->getMembership());
+        $t_form->assign('powerQueryURL', $powerQueryURL);
+
 
         $main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl')));
 
@@ -473,6 +498,7 @@ switch ($action) {
         $login->logout();
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -493,21 +519,22 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
         $t_form->assign('empUID', (int)$login->getEmpUID());
         $t_form->assign('empMembership', $login->getMembership());
-        $t_form->assign('is_service_chief', (bool)$login->isServiceChief());
-        $t_form->assign('is_quadrad', (bool)$login->isQuadrad() || (bool)$login->checkGroup(1));
-        $t_form->assign('is_admin', (bool)$login->checkGroup(1));
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('is_service_chief', (int)$login->isServiceChief());
+        $t_form->assign('is_quadrad', (int)$login->isQuadrad() || (int)$login->checkGroup(1));
+        $t_form->assign('is_admin', (int)$login->checkGroup(1));
+        $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
 
-        require_once 'Inbox.php';
+        require_once __DIR__ . '/Inbox.php';
         $inbox = new Inbox($db, $login);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
         $t_form->assign('inbox_status', 1);
@@ -526,10 +553,8 @@ switch ($action) {
 
 $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
-$onPrem = !isset(Config::$onPrem) ? true :  Config::$onPrem;
-$main->assign('onPrem', $onPrem);
 $t_menu->assign('action', XSSHelpers::xscrub($action));
-$t_menu->assign('orgchartPath', Config::$orgchartPath);
+$t_menu->assign('orgchartPath', $config->orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);

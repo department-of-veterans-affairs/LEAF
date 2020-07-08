@@ -11,7 +11,7 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
+require_once __DIR__ . '/Data.php';
 
 class Employee extends Data
 {
@@ -108,8 +108,8 @@ class Employee extends Data
                       ':phoFirstName' => metaphone($this->sanitizeInput($firstName)),
                       ':phoLastName' => metaphone($this->sanitizeInput($lastName)),
                       ':lastUpdated' => time(), );
-        $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, lastUpdated)
-        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :lastUpdated)
+        $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, lastUpdated, new_empUUID)
+        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :lastUpdated, UUID())
         							ON DUPLICATE KEY UPDATE deleted=0', $vars);
 
         $empUID = $this->lookupLogin($this->sanitizeInput($userName))[0]['empUID'];
@@ -125,6 +125,7 @@ class Employee extends Data
      */
     public function importFromNational($userName)
     {
+        $userName = htmlspecialchars_decode($userName,ENT_QUOTES);
         if ($userName == '')
         {
             return 'Invalid user';
@@ -142,7 +143,7 @@ class Employee extends Data
         $db_nat = new \DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $login_nat = new Login($db_nat, $db_nat);
 
-        require_once 'NationalEmployee.php';
+        require_once __DIR__ . '/NationalEmployee.php';
         $natEmployee = new NationalEmployee($db_nat, $login_nat);
 
         $res = $natEmployee->lookupLogin($userName);
@@ -344,6 +345,13 @@ class Employee extends Data
 
         $vars = array(':empUID' => $empUID);
         $result = $this->db->prepared_query($sql, $vars);
+        $resEmail = $this->db->prepared_query("SELECT data as email FROM {$this->dataTable}
+                                                WHERE empUID=:empUID
+                                                    AND indicatorID=6", $vars);
+        if(isset($result[0]) && isset($resEmail[0])) {
+            $result[0] = array_merge($result[0], $resEmail[0]);
+        }
+
         $this->cache["lookupEmpUID_{$empUID}"] = $result;
 
         return $result;
@@ -723,15 +731,8 @@ class Employee extends Data
                 break;
             // Format: Loginname
             case strpos(strtolower($input), 'vha') !== false:
-                if ($this->debug)
-                {
-                    $this->log[] = 'Format Detected: Loginname';
-                }
-                   $searchResult = $this->lookupLogin($input);
-
-                   break;
-            // Format: Loginname (vaco)
             case strpos(strtolower($input), 'vaco') !== false:
+            case strpos(strtolower($input), 'userName:') !== false:
                    if ($this->debug)
                    {
                        $this->log[] = 'Format Detected: Loginname';
@@ -790,7 +791,7 @@ class Employee extends Data
         }
         else
         {
-            require_once 'Position.php';
+            require_once __DIR__ . '/Position.php';
             $position = new Position($this->db, $this->login);
         }
 

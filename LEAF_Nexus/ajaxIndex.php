@@ -11,14 +11,11 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
-include './sources/Exception.php';
-
-$config = new Orgchart\Config();
+include __DIR__ . '/globals.php';
+include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include __DIR__ . '/./sources/Login.php';
+include __DIR__ . '/db_mysql.php';
+include __DIR__ . '/./sources/Exception.php';
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
@@ -32,17 +29,17 @@ if ($login)
 $type = null;
 switch ($_GET['categoryID']) {
     case 1:    // employee
-        include './sources/Employee.php';
+        include __DIR__ . '/./sources/Employee.php';
         $type = new OrgChart\Employee($db, $login);
 
         break;
     case 2:    // position
-        include './sources/Position.php';
+        include __DIR__ . '/./sources/Position.php';
         $type = new OrgChart\Position($db, $login);
 
         break;
     case 3:    // group
-        include './sources/Group.php';
+        include __DIR__ . '/./sources/Group.php';
         $type = new OrgChart\Group($db, $login);
 
         break;
@@ -134,6 +131,25 @@ switch ($action) {
         echo $type->deleteAttachment($_POST['categoryID'], $_POST['UID'], $_POST['indicatorID'], $_POST['file']);
 
         break;
+    case 'gethistory':
+        $t_form = getSmarty();
+        $itemID = isset($_GET['itemID']) ? (int)$_GET['itemID'] : 0;
+        if ($itemID != 0)
+        {
+            $resHistory = $type->getHistory($itemID);
+
+            $t_form->assign('dataType', $type->getDataTableDescription());
+            $t_form->assign('dataID', $itemID);
+            $t_form->assign('dataName', $type->getTitle($itemID));
+
+            $resHistory = $resHistory ?? array();
+
+            $t_form->assign('history', $resHistory);
+
+            $t_form->display('view_history.tpl');
+        }
+        
+        break;
     default:
         /*
         echo "Action: $action<br /><br />Catchall...<br /><br />POST: <pre>";
@@ -146,3 +162,14 @@ switch ($action) {
         */
         break;
 }
+
+function getSmarty(){
+
+    $t_form = new Smarty;
+    $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
+    $t_form->left_delimiter = '<!--{';
+    $t_form->right_delimiter = '}-->';
+
+    return $t_form;
+}
+

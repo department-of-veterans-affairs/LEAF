@@ -43,38 +43,37 @@ class Form
 
     public function __construct($db, $login)
     {
+        global $config;
         $this->db = $db;
         $this->login = $login;
 
         // set up org chart assets
         if (!class_exists('Orgchart\Config'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/config.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Position.php';
         }
         if (!class_exists('Orgchart\Login'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Login.php';
         }
         if (!class_exists('Orgchart\Employee'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Employee.php';
         }
         if (!class_exists('Orgchart\Position'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Position.php';
         }
         if (!class_exists('Orgchart\Group'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
+            include __DIR__ . '/' . $config->orgchartPath . '/sources/Group.php';
         }
-        $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_db = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $oc_login = new OrgChart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
-        $this->oc_dbName = $config->dbName;
+        $this->oc_dbName = $config->phonedbName;
         $this->employee = new OrgChart\Employee($oc_db, $oc_login);
         $this->position = new OrgChart\Position($oc_db, $oc_login);
         $this->group = new OrgChart\Group($oc_db, $oc_login);
@@ -237,7 +236,7 @@ class Form
 
         foreach ($form as $item)
         {
-            $fullForm = array_merge($fullForm, $this->getIndicator($item['indicatorID'], 1, $recordID, $parseTemplate));
+            $fullForm = array_merge($fullForm, $this->getIndicator($item['indicatorID'], 1, null, $parseTemplate));
         }
 
         return $fullForm;
@@ -384,6 +383,7 @@ class Form
 
         $keys = array_keys($_POST);
 
+        $containsFieldData = false;
         if (isset($_POST['title']))
         {
             foreach ($keys as $key)
@@ -421,9 +421,16 @@ class Form
                         }
                     }
                 }
+
+                if(is_numeric($key) && !$containsFieldData) {
+                    $containsFieldData = true;
+                }
             }
         }
 
+        if($containsFieldData) {
+            $this->doModify($recordID);
+        }
         return (int)$recordID;
     }
 
@@ -477,14 +484,6 @@ class Form
         $form[$idx]['parentID'] = $data[0]['parentID'];
         $form[$idx]['html'] = $data[0]['html'];
         $form[$idx]['htmlPrint'] = $data[0]['htmlPrint'];
-        if($parseTemplate) {
-            $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                              [$idx, $recordID],
-                                              $data[0]['html']);
-            $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                              [$idx, $recordID],
-                                              $data[0]['htmlPrint']);
-        }
         $form[$idx]['required'] = $data[0]['required'];
         $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
         $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
@@ -555,6 +554,15 @@ class Form
             }
         }
 
+        if($parseTemplate) {
+            $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                              [$idx, $recordID, $form[$idx]['value']],
+                                              $data[0]['html']);
+            $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                              [$idx, $recordID, $form[$idx]['value']],
+                                              $data[0]['htmlPrint']);
+        }
+
         $form[$idx]['format'] = trim($inputType[0]);
 
         $form[$idx]['child'] = $this->buildFormTree($data[0]['indicatorID'], $series, $recordID, $parseTemplate);
@@ -595,7 +603,7 @@ class Form
             $vars
         );
 
-        require_once 'VAMC_Directory.php';
+        require_once __DIR__ . '/VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $res2 = array();
@@ -753,6 +761,7 @@ class Form
      */
     public function deleteAttachment($recordID, $indicatorID, $series, $fileIdx)
     {
+        global $config;
         if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series) || !is_numeric($fileIdx))
         {
             return 0;
@@ -771,7 +780,7 @@ class Form
         $value = $data[$indicatorID]['value'];
         $file = $this->getFileHash($recordID, $indicatorID, $series, $data[$indicatorID]['value'][$fileIdx]);
 
-        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+        $uploadDir = isset($config->uploadDir) ? $config->uploadDir : '';
 
         if (isset($value[$fileIdx]))
         {
@@ -787,9 +796,11 @@ class Form
             }
 
             $this->doModify($recordID);
-            if (file_exists($uploadDir . $file))
-            {
-                unlink($uploadDir . $file);
+
+            if (!empty($uploadDir)) {
+                require_once __DIR__ . "/../libs/php-commons/aws/AWSUtil.php";
+                $awsUtil = new AWSUtil();
+                $awsUtil->s3deleteObject($uploadDir . $file);
             }
 
             return 1;
@@ -853,7 +864,7 @@ class Form
             );
         }
 
-        require_once 'VAMC_Directory.php';
+        require_once __DIR__ . '/VAMC_Directory.php';
         $dir = new VAMC_Directory;
         $user = $dir->lookupLogin($res[0]['userID']);
         $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
@@ -1012,6 +1023,7 @@ class Form
      */
     public function doModify($recordID)
     {
+        global $config;
         if (!is_numeric($recordID))
         {
             return 0;
@@ -1026,7 +1038,9 @@ class Form
         // Check for file uploads
         if (is_array($_FILES))
         {
+            require_once __DIR__ . "/../libs/php-commons/aws/AWSUtil.php";
             $commonConfig = new CommonConfig();
+            $awsUtil = new AWSUtil();
             $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)
@@ -1046,14 +1060,12 @@ class Form
                     $fileExtension = strtolower($fileExtension);
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
-                        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
-                        if (!is_dir($uploadDir))
-                        {
-                            mkdir($uploadDir, 755, true);
-                        }
+                        $uploadDir = isset($config->uploadDir) ? $config->uploadDir : '';
 
                         $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
-                        move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
+                        if (!empty($uploadDir)) {
+                            $awsUtil->s3putObject($uploadDir . $sanitizedFileName, $_FILES[$indicator]['tmp_name']);
+                        }
                     }
                     else
                     {
@@ -1102,8 +1114,6 @@ class Form
                                                 title=:title,
                                                 priority=:priority
                                                 WHERE recordID=:recordID', $vars);
-
-            return 1;
         }
 
         foreach ($keys as $key)
@@ -1269,7 +1279,7 @@ class Form
 
         $errors = array();
         // trigger initial submit event
-        include_once 'FormWorkflow.php';
+        include_once __DIR__ . '/FormWorkflow.php';
         $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID);
         $FormWorkflow->setEventFolder('../scripts/events/');
         foreach ($workflowIDs as $id)
@@ -1407,7 +1417,7 @@ class Form
 
             return 1;
         }
-        $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You is not a writable user or initiator of record {$recordID}, {$categoryID}.";
+        $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are not a writable user or initiator of record {$recordID}, {$categoryID}.";
 
         // give admins access
         if ($this->login->checkGroup(1))
@@ -1609,12 +1619,17 @@ class Form
             case -2: // dependencyID -2 : requestor followup
                 $varsPerson = array(':recordID' => (int)$details['recordID']);
                 $resPerson = $this->db->prepared_query('SELECT userID FROM records
-               												WHERE recordID=:recordID', $varsPerson);
-
-                if ($resPerson[0]['userID'] == $this->login->getUserID())
-                {
-                    return true;
-                }
+                                                               WHERE recordID=:recordID', $varsPerson);
+                 if ($resPerson[0]['userID'] == $this->login->getUserID())
+                 {
+                     return true;
+                 }
+                 else{
+                    $empUID = $this->getEmpUID($resPerson[0]['userID']);
+                                                                
+                    return $this->checkIfBackup($empUID);
+                 }
+               
 
                 break;
             case -3: // dependencyID -3 : group designated by the requestor
@@ -1654,6 +1669,35 @@ class Form
         }
 
         return false;
+    }
+
+    public function getEmpUID($userName){
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':userName' => $userName);
+        $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
+        return $response[0]["empUID"];
+    }
+
+    public function checkIfBackup($empUID){
+
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':empId' => $empUID);
+        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
+
+        if ($empUID != $this->login->getEmpUID())
+        {
+            foreach ($backupIds as $row)
+            {
+                if ($row['backupEmpUID'] == $this->login->getEmpUID())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -1803,11 +1847,13 @@ class Form
                 }
 
                 // grants backups the ability to access records of their backupFor
-                foreach ($this->employee->getBackupsFor($this->login->getEmpUID()) as $emp)
-                {
-                    if ($dep['userID'] == $emp["userName"])
+                if($temp[$dep['recordID']] == 0) {
+                    foreach ($this->employee->getBackupsFor($this->login->getEmpUID()) as $emp)
                     {
-                        $temp[$dep['recordID']] = 1;
+                        if ($dep['userID'] == $emp["userName"])
+                        {
+                            $temp[$dep['recordID']] = 1;
+                        }
                     }
                 }
 
@@ -2099,6 +2145,15 @@ class Form
 
                         $item['data'] = $groupTitle;
                         break;
+                    case 'raw_data':
+                        if($indicators[$item['indicatorID']]['htmlPrint'] != '') {
+                            $item['dataHtmlPrint'] = $indicators[$item['indicatorID']]['htmlPrint'];
+                            $pData = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
+                            $item['dataHtmlPrint'] = str_replace('{{ data }}',
+                                                        $pData,
+                                                        $item['dataHtmlPrint']);
+                        }
+                        break;
                     default:
                         if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
                         {
@@ -2120,7 +2175,7 @@ class Form
                         if (substr($indicators[$item['indicatorID']]['format'], 0, 4) == 'grid')
                         {
                             $values = @unserialize($item['data']);
-                            $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']');
+                            $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']', true);
                             $item['gridInput'] = array_merge($values, array("format" => $format));
                             $item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
                         }
@@ -2183,7 +2238,7 @@ class Form
                                                 AND comment != ""
                                             ORDER BY time ASC', $vars);
 
-        require_once 'VAMC_Directory.php';
+        require_once __DIR__ . '/VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $total = count($res);
@@ -2336,7 +2391,7 @@ class Form
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
-            require_once 'VAMC_Directory.php';
+            require_once __DIR__ . '/VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $user = $dir->lookupLogin($userID);
@@ -2685,7 +2740,7 @@ class Form
                                                                     WHERE indicatorID=:indicatorID', $tVarTypeHint);
 
                         $vars[':indicatorID' . $count] = $q['indicatorID'];
-                        $joins .= "LEFT JOIN (SELECT * FROM data
+                        $joins .= "LEFT JOIN (SELECT recordID, indicatorID, series, data FROM data
 										WHERE indicatorID=:indicatorID{$count}) lj_data{$count}
 										USING (recordID) ";
                     }
@@ -2872,7 +2927,7 @@ class Form
         if ($joinSearchAllData
             || $joinSearchOrgchartEmployeeData)
         {
-            $joins .= 'LEFT JOIN data lj_data USING (recordID) ';
+            $joins .= 'LEFT JOIN (SELECT recordID, indicatorID, series, data FROM data) lj_data ON (lj_data.recordID = records.recordID) ';
         }
         if ($joinSearchAllData)
         {
@@ -2946,7 +3001,7 @@ class Form
 
         if ($joinActionHistory)
         {
-            require_once 'VAMC_Directory.php';
+            require_once __DIR__ . '/VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $res2 = $this->db->prepared_query('SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment FROM action_history
@@ -3113,6 +3168,7 @@ class Form
             $temp['categoryName'] = $item['categoryName'];
             $temp['categoryID'] = $item['categoryID'];
             $temp['is_sensitive'] = $item['is_sensitive'];
+            $temp['timeAdded'] = $item['timeAdded'] . ' GMT';
             $isActiveIndicator[$item['indicatorID']] = $temp;
             $isActiveCategory[$item['categoryID']] = 1;
         }
@@ -3135,6 +3191,7 @@ class Form
                     $temp['categoryName'] = $item['categoryName'];
                     $temp['categoryID'] = $item['categoryID'];
                     $temp['is_sensitive'] = $item['is_sensitive'];
+                    $temp['timeAdded'] = $item['timeAdded'] . ' GMT';
                     $temp['parentCategoryID'] = $item['parentCategoryID'];
                     $temp['parentStaples'] = $dataStaples[$item['categoryID']];
                     if(count($forms) > 0) {
@@ -3309,14 +3366,6 @@ class Form
                 $child[$idx]['description'] = $field['description'];
                 $child[$idx]['html'] = $field['html'];
                 $child[$idx]['htmlPrint'] = $field['htmlPrint'];
-                if($parseTemplate) {
-                    $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                                      [$idx, $recordID],
-                                                      $field['html']);
-                    $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}'],
-                                                      [$idx, $recordID],
-                                                      $field['htmlPrint']);
-                }
                 $child[$idx]['required'] = $field['required'];
                 $child[$idx]['is_sensitive'] = $field['is_sensitive'];
                 $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;
@@ -3325,6 +3374,7 @@ class Form
                 $child[$idx]['timestamp'] = isset($data[$idx]['timestamp']) ? $data[$idx]['timestamp'] : 0;
                 $child[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $field['categoryID']);
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
+                $child[$idx]['sort'] = $field['sort'];
 
                 if ($child[$idx]['isMasked'])
                 {
@@ -3362,7 +3412,7 @@ class Form
                     $child[$idx]['displayedValue'] = '';
                     if (isset($empRes[0]))
                     {
-                        $child[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                      $child[$idx]['displayedValue'] = ($child[$idx]['isMasked']) ? '[protected data]' : "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
                     }
                 }
                 if ($field['format'] == 'orgchart_position')
@@ -3374,6 +3424,15 @@ class Form
                 {
                     $groupTitle = $this->group->getGroup($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
+                }
+
+                if($parseTemplate) {
+                    $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                      [$idx, $recordID, $child[$idx]['value']],
+                                                      $field['html']);
+                    $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                      [$idx, $recordID, $child[$idx]['value']],
+                                                      $field['htmlPrint']);
                 }
 
                 $child[$idx]['format'] = trim($inputType[0]);
@@ -3422,6 +3481,38 @@ class Form
 
         return 0;
     }
+    /**
+     * Copies file attachment from record to new record
+     * @param int $indicatorID
+     * @param string $fileName
+     * @param int $recordID
+     * @param int $newRecordID
+     * @param int $series
+     * @return int 1 for success, errors for failure
+     */
+    public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID, $series) {
+        global $config;
+        if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series))
+        {
+            $errors = array('type' => 2);
+            return $errors;
+        }
+
+        // prepends $uploadDir with '../' if $uploadDir ends up being relative './UPLOADS/'
+        $uploadDir = isset($config->uploadDir) ? $config->uploadDir : UPLOAD_DIR;
+        $uploadDir = $uploadDir === UPLOAD_DIR ? '../' . UPLOAD_DIR : $uploadDir;
+
+        $cleanedFile = XSSHelpers::scrubFilename($fileName);
+
+        $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+        $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+
+        if (!copy($sourceFile, $destFile)) {
+            $errors = error_get_last();
+            return $errors;
+        } 
+        return 1;
+    }
 
     public function getRecordsByCategory($categoryID)
     {
@@ -3432,5 +3523,68 @@ class Form
                                             WHERE categoryID=:categoryID', $vars);
 
         return $data;
+    }
+    
+    public function permanentlyDeleteRecord($recordID) {
+        /*if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
+            return 0;
+        }*/
+        
+        $vars = array(
+            ':time' => time(),
+            ':date' => '0',
+            ':serviceID' => '0',
+            ':userID' => '',
+            ':title' => 'record has been deleted',
+            ':priority' => '0',
+            ':lastStatus' => '',
+            ':submitted' => '0',
+            ':isWritableUser' => '0',
+            ':isWritableGroup' => '0',
+            ':recordID' => $recordID);
+                          
+        $res = $this->db->prepared_query('UPDATE records SET
+        deleted=:time,
+        date=:date,
+        serviceID=:serviceID,
+        userID=:userID,
+        title=:title,
+        priority=:priority,
+        lastStatus=:lastStatus,
+        submitted=:submitted,
+        isWritableUser=:isWritableUser,
+        isWritableGroup=:isWritableGroup
+        WHERE recordID=:recordID', $vars);
+
+        $vars = array(':recordID' => $recordID);
+            
+        $res = $this->db->prepared_query('DELETE FROM action_history WHERE recordID=:recordID', $vars);
+            
+        $vars = array(':recordID' => $recordID,
+            ':userID' => '',
+            ':dependencyID' => 0,
+            ':actionType' => 'deleted',
+            ':actionTypeID' => 4,
+            ':time' => time() );
+                
+        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
+        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
+            
+            
+        $vars = array(':recordID' => $recordID);
+            
+        $this->db->prepared_query('DELETE FROM records_workflow_state WHERE recordID=:recordID', $vars);
+            
+            
+        $vars = array(':recordID' => $recordID);
+            
+        $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID', $vars);
+            
+            
+        $vars = array(':recordID' => $recordID);
+            
+        $this->db->prepared_query('DELETE FROM records_dependencies WHERE recordID=:recordID', $vars);
+            
+        return 1;
     }
 }

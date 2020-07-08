@@ -58,19 +58,37 @@ var data;
 var dialog_simple;
 $(function() {
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
+    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     query = new LeafFormQuery();
     query.useJSONP(true);
     query.setRootURL('<!--{$LEAF_NEXUS_URL}-->LEAF/library/');
     query.onSuccess(function(res) {
         data = res;
+        var tData = [];
+        for(var i in res) {
+            tData.push(res[i]);
+        }
+        tData.sort(function(a, b) {
+            if(a.s1.id53 == "Yes" && b.s1.id53 != "Yes") {
+                return -1;
+            }
+            if(a.s1.id53 != "Yes" && b.s1.id53 == "Yes") {
+                return 1;
+            }
+            return 0;
+        });
+
         
         grid = new LeafFormGrid('forms', {readOnly: true});
         grid.setRootURL('../');
         grid.hideIndex();
-        grid.importQueryResult(res);
+        grid.importQueryResult(tData);
         grid.setHeaders([
             {name: 'Form', indicatorID: 'form', editable: false, sortable: false, callback: function(data, blob) {
+                if(blob[data.index].s1.id53 == "Yes") {
+                    $('#' + grid.getPrefixID() + "tbody_tr" + data.recordID).css('background-color', '#ffff99');
+                }
             	$('#'+data.cellContainerID).html('<span style="font-weight: bold; font-size: 120%">' + blob[data.index].title + '</span>');
             }},
             {name: 'Description', indicatorID: 5, sortable: false, editable: false},
@@ -124,7 +142,7 @@ $(function() {
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.setSearchFunc(function(search) {
         query.clearTerms();
-        query.importQuery({"terms":[{"id":"categoryID","operator":"=","match":"form_68aa4"},{"id":"dependencyID","indicatorID":"9","operator":"=","match":"1"},{"id":"deleted","operator":"=","match":0}],"getData":["3","5","4","1","9","10","11","6"]});
+        query.importQuery({"terms":[{"id":"categoryID","operator":"=","match":"form_68aa4"},{"id":"dependencyID","indicatorID":"9","operator":"=","match":"1"},{"id":"deleted","operator":"=","match":0}],"getData":["3","5","4","1","9","10","11","6","53"]});
         query.addDataTerm('data', '0', 'LIKE', '*' + search + '*');
         query.execute();
     });

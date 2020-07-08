@@ -51,10 +51,14 @@ var LeafFormGrid = function(containerID, options) {
         var rows = values.cells === undefined ? 0 : values.cells.length;
         var columns = values.format.length;
         var columnOrder = [];
+        var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help Excel users
+        var delimLF = "\r\n";
+        var tDelim = '';
 
         //finds and displays column names
         for(var i = 0; i < columns; i++){
-            gridHeadBuffer +='<td style="width: 100px;">' + values.format[i].name + '</td>';
+            tDelim = (i == columns-1) ? '' : delim;
+            gridHeadBuffer +='<td style="width: 100px;">' + values.format[i].name + tDelim + '</td>';
             columnOrder.push(values.format[i].id)
         }
 
@@ -70,17 +74,18 @@ var LeafFormGrid = function(containerID, options) {
 
             //for all values with matching column id, replaces cell with value
             for (var j = 0; j < values.columns.length; j++) {
+                tDelim = (j == values.columns.length-1) ? '' : delim;
                 if(columnOrder.indexOf(values.columns[j]) !== -1) {
                     var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
-                    rowBuffer.splice(columnOrder.indexOf(values.columns[j]), 1, '<td style="width:100px">' + value + '</td>');
+                    rowBuffer.splice(columnOrder.indexOf(values.columns[j]), 1, '<td style="width:100px">' + value + tDelim + '</td>');
                 }
             }
 
             //combines cells into html and pushes row to body buffer
-            gridRow += rowBuffer.join("") + '</tr>';
+            gridRow += rowBuffer.join("") + delimLF + '</tr>';
             gridBodyBuffer += gridRow;
         }
-        return '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer + '</thead><tbody>' + gridBodyBuffer + '</tbody></table>';
+        return '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' + gridHeadBuffer + delimLF + '</thead><tbody>' + gridBodyBuffer + '</tbody></table>';
     }
 
     /**
@@ -298,7 +303,6 @@ var LeafFormGrid = function(containerID, options) {
                 // IE workaround... it adds zero-width "left-to-right mark" spaces for some reason, and we need to take it out
                 currentData[i][key] = currentData[i][key].replace(/[\u200B-\u200E]/g, '');
             }
-
             if(currentData[i].s1 == undefined) {
                 currentData[i].s1 = {};
             }
@@ -311,18 +315,39 @@ var LeafFormGrid = function(containerID, options) {
                 currentData[i].s1[idKey] = !isNaN(currentData[i][key]) ? currentData[i][key] : '';
                 currentData[i].sDate[key] = 0;
             }
-            tDate = null;
-            if(isNaN(currentData[i].s1[idKey]) && (currentData[i].s1[idKey].indexOf('-') != -1
-                || currentData[i].s1[idKey].indexOf('/') != -1)) {
-                  tDate = Date.parse(currentData[i].s1[idKey]);
+            if(isIndicatorID){
+                tDate = null;
+                if(isNaN(currentData[i].s1[idKey]) && (currentData[i].s1[idKey].indexOf('-') != -1
+                    || currentData[i].s1[idKey].indexOf('/') != -1)) {
+                    tDate = Date.parse(currentData[i].s1[idKey]);
+                }
+                if(isDate || (tDate != null && !isNaN(tDate))) {
+                    isDate = true;
+                    if(currentData[i].sDate == undefined) {
+                        currentData[i].sDate = {};
+                    }
+                    currentData[i].sDate[key] = 0;
+                    currentData[i].sDate[key] = !isNaN(tDate) ? tDate : 0;
+                }
             }
-            if(isDate || (tDate != null && !isNaN(tDate))) {
-                isDate = true;
+            // detect date fields for other non-indicatorID columns
+            else {
+                tDate = null;
                 if(currentData[i].sDate == undefined) {
-                      currentData[i].sDate = {};
+                    currentData[i].sDate = {};
                 }
                 currentData[i].sDate[key] = 0;
-                currentData[i].sDate[key] = !isNaN(tDate) ? tDate : 0;
+
+                if(isNaN(currentData[i][key])
+                    && (currentData[i][key].indexOf('-') != -1
+                        || currentData[i][key].indexOf('/') != -1)) {
+                        tDate = Date.parse(currentData[i][key]);
+                }
+                if(isDate || (tDate != null && !isNaN(tDate))) {
+                    isDate = true;
+
+                    currentData[i].sDate[key] = !isNaN(tDate) && tDate != null ? tDate : 0;
+                }
             }
 
             if($.isNumeric(currentData[i].s1[idKey])
@@ -332,7 +357,6 @@ var LeafFormGrid = function(containerID, options) {
             else {
                 isNumeric= false;
             }
-
             array.push(currentData[i]);
         }
         if(isDate) {
@@ -452,6 +476,7 @@ var LeafFormGrid = function(containerID, options) {
             $('#' + prefixID + 'tbody').append('<tr><td colspan="'+ colspan +'" style="text-align: center">No Results</td></tr>');
         }
         var counter = 0;
+        var validateHtml = document.createElement('div');
         for(var i = startIdx; i < currentData.length; i++) {
             if(counter >= limit) {
                 currentRenderIndex = i;
@@ -485,6 +510,8 @@ var LeafFormGrid = function(containerID, options) {
                             currentData[i].s1 = {};
                         }
                         data.data = currentData[i].s1['id'+headers[j].indicatorID] != undefined ? currentData[i].s1['id'+headers[j].indicatorID] : '';
+                        validateHtml.innerHTML = data.data;
+                        data.data = validateHtml.innerHTML;
                         if(currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint'] != undefined) {
                             var htmlPrint = '<textarea id="data_'+currentData[i].recordID+'_'+headers[j].indicatorID+'_1" style="display: none">'+ data.data +'</textarea>';
                             htmlPrint += currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint']
@@ -684,9 +711,16 @@ var LeafFormGrid = function(containerID, options) {
             var thisSite = document.createElement('a');
             var numColumns = headers.length - 1;
             $('#' + prefixID + 'tbody>tr>td').each(function(idx, val) {
-                line[i] = $(val).text().trim();
+                var foundScripts = val.querySelectorAll('script');
+
+                for(var tIdx = 0; tIdx < foundScripts.length; tIdx++) {
+                    foundScripts[tIdx].parentNode.removeChild(foundScripts[tIdx]);
+                }
+
+                var trimmedText = val.innerText.trim();
+                line[i] = trimmedText;
                 if(i == 0 && headers[i] == 'UID') {
-                    line[i] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + $(val).text().trim() +'", "'+ $(val).text().trim() +'")';
+                    line[i] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + trimmedText +'", "'+ trimmedText +'")';
                 }
                 i++;
                 if(i > numColumns) {
