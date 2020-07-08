@@ -16,6 +16,8 @@ BUILD_NUMBER="1"
 FILE_PREFIX="leaf"
 ARTIFACT_ID="${FILE_PREFIX}"
 FPR="$PWD/fort_report/${FILE_PREFIX}.fpr"
+FPR_ORIG="$PWD/fort_report/${FILE_PREFIX}_orig.fpr"
+FPR_MERGED="$PWD/fort_report/${FILE_PREFIX}_merged.fpr"
 PDF="$PWD/fort_report/${FILE_PREFIX}.pdf"
 PROPERTIES_FILE="$PWD/fort_report/fortify.properties"
 
@@ -46,7 +48,20 @@ echo --------------------------------------
 echo Starting scan
 sourceanalyzer $MEMORY $LAUNCHERSWITCHES -b $ARTIFACT_ID -build-label $ARTIFACT_ID -scan -f $FPR -verbose
 
+if [ -f $FPR_ORIG ]; then
+echo --------------------------------------
+echo Merging FPR...
+FPRUtility -merge -project $FPR_ORIG -source $FPR -f $FPR_MERGED
+fi
+
 echo --------------------------------------
 echo -e "\nGenerating PDF report...";
-ReportGenerator -format pdf -f $PDF -source "${FPR}" -template $TEMPLATE $REPORT_OPTIONS
+if [ -f $FPR_MERGED ]; then
+        export FPR_SRC="$FPR_MERGED"
+else
+        export FPR_SRC="$FPR"
+fi
+
+ReportGenerator -format pdf -f $PDF -source "${FPR_SRC}" -template $TEMPLATE $REPORT_OPTIONS || true;
+
 
