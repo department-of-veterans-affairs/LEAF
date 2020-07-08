@@ -194,10 +194,14 @@
                     employee.displayName = userResponse.firstName + ' ' + userResponse.lastName;
 
                     // check if user exists in local to see if it needs to be imported
-                    localEmployeeData = await getLocalEmployeeData(userResponse.empUID);
+                    var localResult = await getLocalEmployeeData(employee.email);
+                    var localEmployeeData = null;
 
-                    if(!localEmployeeData.employee.empUID){
+                    if(Object.keys(localResult).length > 0){
+                        localEmployeeData = localResult[Object.keys(localResult)[0]];
+                    }
 
+                    if(localEmployeeData){
                         // if user does not exist in local, import them.
                         var importResult = await addEmployee(employee);
 
@@ -229,13 +233,20 @@
                 if(valid){
                     
                     var found = false;
+                    
+                    var supervisorLocalResult = await getLocalEmployeeData(employee.email);
 
-                    var fullSupervisorInfo = await getLocalEmployeeData(userResponse.empUID);
+                    var fullSupervisorInfo = null;
 
+                    if(Object.keys(supervisorLocalResult).length > 0){
+                        fullSupervisorInfo = supervisorLocalResult[Object.keys(supervisorLocalResult)[0]];
+                    }
+                    var supervisorPositions = await getEmployeePositionData(fullSupervisorInfo.empUID);
+                    
                     var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
 
-                    if(fullSupervisorInfo.employee && fullSupervisorInfo.employee.positions){
-                        var positions = fullSupervisorInfo.employee.positions;
+                    if(supervisorPositions){
+                        var positions = supervisorPositions;
 
                         for(var i=0; i< positions.length; i++){
                             if(positionSupervisors.indexOf(positions[i].positionID) >= 0){
@@ -298,8 +309,29 @@
             });
         }
 
-        function getLocalEmployeeData(empUID){
+        function getLocalEmployeeData(email){
 
+            return new Promise(function(resolve, reject){
+                $.ajax({
+                    type: 'GET',
+                    url: '../api/employee/search&q=' + email + '&noLimit=0',
+                    dataType: 'json',
+                    data: {CSRFToken: CSRFToken},
+                    success: function(response) {
+                        
+                        resolve(response);
+                    },
+                    error: function(response){
+                        
+                        reject(response);
+                    },
+                    cache: false
+                })
+
+            });
+        }
+
+        function getEmployeePositionData(empUID){
             return new Promise(function(resolve, reject){
                 $.ajax({
                     type: 'GET',
@@ -307,8 +339,7 @@
                     dataType: 'json',
                     data: {CSRFToken: CSRFToken},
                     success: function(response) {
-                        
-                        resolve(response);
+                        resolve(response.employee.positions);
                     },
                     error: function(response){
                         
