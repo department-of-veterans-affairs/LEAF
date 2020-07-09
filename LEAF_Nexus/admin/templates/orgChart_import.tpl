@@ -249,7 +249,7 @@
                             var positions = supervisorPositions;
 
                             for(var i=0; i< positions.length; i++){
-                                if(positionSupervisors.indexOf(positions[i].positionID) >= 0){
+                                if(positionSupervisors.indexOf(positions[i].empUID) >= 0){
                                     found = true;
                                 }
                             }
