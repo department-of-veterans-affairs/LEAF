@@ -240,20 +240,22 @@
 
                     if(Object.keys(supervisorLocalResult).length > 0){
                         fullSupervisorInfo = supervisorLocalResult[Object.keys(supervisorLocalResult)[0]];
-                    }
-                    var supervisorPositions = await getEmployeePositionData(fullSupervisorInfo.empUID);
+
+                        var supervisorPositions = await getEmployeePositionData(fullSupervisorInfo.empUID);
                     
-                    var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
+                        var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
 
-                    if(supervisorPositions){
-                        var positions = supervisorPositions;
+                        if(supervisorPositions){
+                            var positions = supervisorPositions;
 
-                        for(var i=0; i< positions.length; i++){
-                            if(positionSupervisors.indexOf(positions[i].positionID) >= 0){
-                                found = true;
+                            for(var i=0; i< positions.length; i++){
+                                if(positionSupervisors.indexOf(positions[i].positionID) >= 0){
+                                    found = true;
+                                }
                             }
                         }
                     }
+
 
                     if(found){
                         try{
