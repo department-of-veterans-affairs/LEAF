@@ -201,7 +201,7 @@
                         localEmployeeData = localResult[Object.keys(localResult)[0]];
                     }
 
-                    if(localEmployeeData){
+                    if(!localEmployeeData){
                         // if user does not exist in local, import them.
                         var importResult = await addEmployee(employee);
 
