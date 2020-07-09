@@ -234,7 +234,7 @@
                     
                     var found = false;
                     
-                    var supervisorLocalResult = await getLocalEmployeeData(employee.email);
+                    var supervisorLocalResult = await getLocalEmployeeData(employee.supervisorEmail);
 
                     var fullSupervisorInfo = null;
 
