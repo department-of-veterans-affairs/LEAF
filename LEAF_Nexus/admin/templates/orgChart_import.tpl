@@ -210,8 +210,13 @@
                             employee.errorMessage += "Unable to import user. ";
                         }
                         else{
+                            employee.userID = importResult;
                             userImported = true;
                         }
+                    }
+                    else{
+                        userValid = false;
+                        employee.errorMessage += "User already imported!";
                     }
 
                 }
@@ -220,61 +225,66 @@
                     userValid = false;
                 }
 
-                if(supervisorValid){
-                    employee.supervisorDisplayName = supervisorResponse.firstName + ' ' + supervisorResponse.lastName;
-                }
-                else{
-                    employee.errorMessage += "Supervisor not found in national orgchart. ";
-                    supervisorValid = false;
-                }
-
-                valid = userValid && supervisorValid && positionValid;
-
-                if(valid){
+                if(userImported){
                     
-                    var found = false;
-                    
-                    var supervisorLocalResult = await getLocalEmployeeData(employee.supervisorEmail);
+                    if(supervisorValid){
+                        employee.supervisorDisplayName = supervisorResponse.firstName + ' ' + supervisorResponse.lastName;
+                    }
+                    else{
+                        employee.errorMessage += "Supervisor not found in national orgchart. ";
+                        supervisorValid = false;
+                    }
 
-                    var fullSupervisorInfo = null;
+                    valid = userValid && supervisorValid && positionValid;
 
-                    if(Object.keys(supervisorLocalResult).length > 0){
-                        fullSupervisorInfo = supervisorLocalResult[Object.keys(supervisorLocalResult)[0]];
+                    if(valid){
+                        
+                        var found = false;
+                        
+                        var supervisorLocalResult = await getLocalEmployeeData(employee.supervisorEmail);
 
-                        var supervisorPositions = await getEmployeePositionData(fullSupervisorInfo.empUID);
-                    
-                        var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
+                        var fullSupervisorInfo = null;
 
-                        if(supervisorPositions){
-                            var positions = supervisorPositions;
+                        if(Object.keys(supervisorLocalResult).length > 0){
+                            fullSupervisorInfo = supervisorLocalResult[Object.keys(supervisorLocalResult)[0]];
 
-                            for(var i=0; i< positions.length; i++){
-                                if(positionSupervisors.indexOf(positions[i].empUID) >= 0){
-                                    found = true;
+                            var supervisorPositions = await getEmployeePositionData(fullSupervisorInfo.empUID);
+                        
+                            var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
+
+                            if(supervisorPositions){
+                                var positions = supervisorPositions;
+
+                                for(var i=0; i< positions.length; i++){
+                                    if(positionSupervisors.indexOf(positions[i].empUID) >= 0){
+                                        found = true;
+                                    }
                                 }
                             }
                         }
-                    }
 
 
-                    if(found){
-                        try{
-                            await addEmployeeToPosition(employee.empUID, positionResponse.positionID);
-                            employee.success = true;
+                        if(found){
+                            try{
+                                await addEmployeeToPosition(employee.empUID, positionResponse.positionID);
+                                employee.success = true;
+                            }
+                            catch{
+                                employee.errorMessage += "Import successful, unable to add position. "
+                            }
+                            
                         }
-                        catch{
-                            employee.errorMessage += "Import successful, unable to add position. "
+                        else{
+                            employee.errorMessage += "Provided supervisor not assigned to position. ";
                         }
-                        
                     }
                     else{
-                        employee.errorMessage += "Provided supervisor not assigned to position. ";
+                        employee.errorMessage += "Position not found. ";
+                        valid = false;
                     }
                 }
-                else{
-                    employee.errorMessage += "Position not found. ";
-                    valid = false;
-                }
+
+                
 
                 totalImported++;
                 resolve(employee);
