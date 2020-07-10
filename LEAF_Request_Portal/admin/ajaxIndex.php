@@ -208,6 +208,12 @@ switch ($action) {
             //special case for getting group history, since the only group tracked in portal is sysadmin
             $resHistory = $type->getHistory(1);
             $resHistory = $resHistory ?? array();
+
+            for($i = 0; $i<count($resHistory); $i++){
+                $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
+                $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');;
+            }
+
             $totalHistory = array_merge($totalHistory, $resHistory);
             $type = $orgchartGroup;
         }
