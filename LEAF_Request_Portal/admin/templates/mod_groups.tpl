@@ -151,7 +151,7 @@ function getGroupList() {
                 focusGroupsAndMembers(res[i].groupID);
                 if(res[i].groupID != 1) { // if not admin
                     function openGroup(groupID, parentGroupID) {
-                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" tabindex="0" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
+                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1&tz='+ tz +'" tabindex="0" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
                         dialog_simple.setCancelHandler(function() {
                             $.ajax({
                                 type: 'GET',
