@@ -317,7 +317,7 @@ switch ($action) {
 
         for($i = 0; $i<count($resHistory); $i++){
             $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
-            $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');;
+            $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');
         }
 
         if($gethistoryslice)
