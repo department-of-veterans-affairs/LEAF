@@ -5,9 +5,8 @@ export SCA_VM_OPTS=-Xmx800M
 # Contents of PROJECT_ID, VERSION_ID, and BUILD_ID will be present the published artifact
 
 # SPRINT_ID is used to name the artifacts published to S3
-PROJECT_ID="${SPRINT_ID}_${GIT_BRANCH}_${GIT_COMMIT}"
+PROJECT_ID="${SPRINT_ID}"
 VERSION_ID="${GIT_BRANCH}_${GIT_COMMIT}"
-
 
 FILE_PREFIX="leaf"
 BUILD_ID="${FILE_PREFIX}"
