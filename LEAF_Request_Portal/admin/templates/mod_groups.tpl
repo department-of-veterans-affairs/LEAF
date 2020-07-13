@@ -2,25 +2,27 @@
 
     
 
-    <!--{assign var=right_nav_test value="
-        <button class='usa-button leaf-btn-med usa-button--base leaf-side-btn' onclick='importGroup();'>
-            <i class='fas fa-copy leaf-btn-icon' alt='Import Existing Group'></i>Sample Button
-        </button>
-    "}-->
-    <!--{include file="partial_layouts/right_side_nav.tpl" contentRight="$right_nav_test"}-->
-
-    <!--{assign var=user_groups_controls value="
-        <button class='usa-button leaf-btn-med leaf-side-btn' onclick='importGroup();'>
-            <i class='fas fa-copy leaf-btn-icon' alt='Import Existing Group'></i>Import Existing Group
-        </button>
+    <!--{assign var=right_nav_content value="
         <button class='usa-button leaf-btn-med leaf-side-btn' onclick='createGroup();'>
-            <i class='fas fa-plus leaf-btn-icon' alt='Create New Group'></i>Create New Group
+            + Create Group
         </button>
-        <button class='usa-button leaf-btn-med leaf-side-btn' onclick='showAllGroupHistory();'>
-            <i class='fas fa-clock leaf-btn-icon' alt='Show All Group History'></i>Show All Group History
+        <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='importGroup();'>
+            Import Group
+        </button>
+        <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='showAllGroupHistory();'>
+            Show Group History
         </button>
     "}-->
-    <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$user_groups_controls"}-->
+    <!--{include file="partial_layouts/right_side_nav.tpl" contentRight="$right_nav_content"}-->
+
+    <!--{assign var=left_nav_content value="
+        <h3>Access Categories</h3>
+        <ul class='usa-sidenav'>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)'>Site Administrators</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)'>User Groups</a></li>
+        </ul>
+    "}-->
+    <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
 
 
     <main class="main-content">
