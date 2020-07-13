@@ -102,14 +102,20 @@ pipeline {
             }
         }
 
-        stage('archive'){
+        stage('archive') {
             steps {
                 script {
                     archiveArtifacts artifacts: 'fort_report/leaf.pdf', onlyIfSuccessful: true
+                }
+            }
+        }
 
+        stage('archive S3') {
+            when { branch 'master' }
+            steps {
+                script {
                     def archive_file = "${env.SPRINT_ID}"
                     println("archiving as ${archive_file}")
-
                     s3Upload(bucket: 'leaf-pipeline', file: "fort_report/leaf.pdf", path: "fortify/reports/${archive_file}.pdf")
                     s3Upload(bucket: 'leaf-pipeline', file: "fort_report/leaf_merged.fpr", path: "fortify/reports/${archive_file}.fpr")
                 }
