@@ -27,13 +27,11 @@
     <script type="text/javascript" src="../../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="../../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <script type="text/javascript" src="../../libs/js/jquery/icheck/icheck.js"></script>
-    <script type="text/javascript" src="../../libs/js/vuejs/vue.min.js"></script>
     {else if $useLiteUI == true}
     <script type="text/javascript" src="../js/dialogController.js"></script>
     <script type="text/javascript" src="../../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="../../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <script type="text/javascript" src="../../libs/js/jquery/icheck/icheck.js"></script>
-    <script type="text/javascript" src="../../libs/js/vuejs/vue.min.js"></script>
     {/if}
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="{$javascripts[i]}"></script>
