@@ -1,6 +1,6 @@
 START TRANSACTION;
 
-ALTER TABLE `leaf_users`.`data_log_items` 
+ALTER TABLE `data_log_items` 
 CHANGE COLUMN `value` `value` TEXT NOT NULL ;
 
 SET SQL_SAFE_UPDATES=0;
