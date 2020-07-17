@@ -197,6 +197,11 @@
         });
     }
 
+    // saves sitemap json into the custom report
+    function clearButtons() { 
+        sitemapOBJ.buttons = [];
+        refreshButtons();
+    }
 </script>
 
 <main id="main-content">
@@ -222,8 +227,8 @@
                 <div id="sortable">
                 </div>
                 <div class="leaf-marginAll1rem leaf-clearBoth">
-                    <button class="usa-button leaf-float-left" id="saveButton" onclick=" save()">Save Sitemap</button>
-                    <button class="usa-button usa-button--outline leaf-float-right">Delete Sitemap</button>
+                    <button class="usa-button leaf-float-left" id="saveButton" onclick="save()">Save Sitemap</button>
+                    <button class="usa-button usa-button--outline leaf-float-right" onclick="clearButtons()">Delete Sitemap</button>
                 </div>
 
             </div>
