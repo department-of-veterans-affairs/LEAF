@@ -19,6 +19,7 @@
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script type="text/javascript">
+var tz = '<!--{$timeZone}-->';
 /* <![CDATA[ */
 
 function getMembers(groupID) {
@@ -150,7 +151,7 @@ function getGroupList() {
                 focusGroupsAndMembers(res[i].groupID);
                 if(res[i].groupID != 1) { // if not admin
                     function openGroup(groupID, parentGroupID) {
-                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" tabindex="0" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
+                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1&tz='+ tz +'" tabindex="0" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
                         dialog_simple.setCancelHandler(function() {
                             $.ajax({
                                 type: 'GET',
@@ -360,7 +361,7 @@ function viewHistory(groupID){
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID,
+        url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID+'&tz='+tz,
         dataType: 'text',
         success: function(res) {
             dialog_simple.setContent(res);
@@ -379,7 +380,7 @@ function viewPrimaryAdminHistory(){
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=primaryAdmin',
+        url: 'ajaxIndex.php?a=gethistory&type=primaryAdmin&tz='+tz,
         dataType: 'text',
         success: function(res) {
             dialog_simple.setContent(res);
@@ -489,7 +490,7 @@ function showAllGroupHistory() {
     dialog.setTitle('All Group History');
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistoryall&type=group',
+        url: 'ajaxIndex.php?a=gethistoryall&type=group&tz='+tz,
         dataType: 'text',
         success: function(res) {
             dialog.setContent(res);
