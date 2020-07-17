@@ -6,7 +6,10 @@
 	var sitemapOBJ;
     $(function() {
 		//load existing sitemap on page load
-        parseSitemapJSON();
+        parseSitemapJSON();            
+        $("#sortable").sortable({
+            revert: true
+        });
     });
 
 	// parses sitemap json into sitemapOBJ
@@ -16,15 +19,8 @@
             url: './api/system/settings',
             cache: false,
             success: function(res) {
-                console.log(res['sitemap_json']);
                 sitemapOBJ = jQuery.parseJSON(res['sitemap_json']);
-                $.each(sitemapOBJ.buttons, function(index, value){
-                    addButtonToUI(value);
-                });
-            
-                $("#sortable").sortable({
-                    revert: true
-                });
+                refreshButtons();
             },
         });
     }
@@ -34,21 +30,19 @@
     	return JSON.stringify(sitemapOBJ);
     }
         
+    //refresh buttons after edit
+    function refreshButtons(){
+        $('ul.usa-sidenav').html('');
+        $('div#sortable').html('');
+        $.each(sitemapOBJ.buttons, function(index, value){
+            addButtonToUI(value);
+        });
+    }
+                    
 	// insert button into sortable list and sidenav
     function addButtonToUI(button){
         $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_'+button.id+'"><a onClick="editButtonDialog(\''+button.id+'\');" title="Edit Card">'+button.title+'</a></li>');
         $('div#sortable').append('<div class="leaf-sitemap-button '+button.color+'" draggable="true" id="div_buttonID_'+button.id+'"><i class="fas fa-trash-alt leaf-delete-button" title="Delete Card"></i><h3>'+button.title+'</h3><p>'+button.description+'</p></div>');
-    }
-    
-	// insert existing button in sortable list and sidenav
-    function updateButtonUI(buttonID){
-        $.each(sitemapOBJ.buttons, function(index, value){
-            if(value.id == buttonID){
-                $('#li_buttonID_'+buttonID+' a').text(value.title);
-                $('#div_buttonID_'+buttonID+' h3').text(value.title);
-                $('#div_buttonID_'+buttonID+' p').text(value.description);
-            }
-        });
     }
     
 	// generate unique id for sitemap button
@@ -142,13 +136,13 @@
         '<div class="leaf-marginAll1rem"><div role="heading">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48" ></input></div>' +
         '<div class="leaf-marginAll1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
                 '<div class="leaf-float-left" style="margin-right: 3rem;">' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-blue"></span><input type="radio" id="blue" name="btnColor" value="value="leaf-button-blue"><label for="blue">Blue</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-green"></span><input type="radio" id="green" name="btnColor" value="value="leaf-button-green"><label for="green">Green</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-yellow"></span><input type="radio" id="yellow" name="btnColor" value="value="leaf-button-yellow"><label for="yellow">Yellow</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-button-blue" ' + (color == 'leaf-button-blue' ? 'checked' : '') + '><label for="blue">Blue</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-green"></span><input type="radio" id="green" name="btnColor" value="leaf-button-green" ' + (color == 'leaf-button-green' ? 'checked' : '') + '><label for="green">Green</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-yellow"></span><input type="radio" id="yellow" name="btnColor" value="leaf-button-yellow" ' + (color == 'leaf-button-yellow' ? 'checked' : '') + '><label for="yellow">Yellow</label></div>' +
                 '</div><div class="leaf-float-left">' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-orange"></span><input type="radio" id="orange" name="btnColor" value="value="leaf-button-orange"><label for="orange">Orange</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-red"></span><input type="radio" id="red" name="btnColor" value="value="leaf-button-red"><label for="red">Red</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-gold"></span><input type="radio" id="gold" name="btnColor" value="value="leaf-button-gold"><label for="gold">Gold</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-orange"></span><input type="radio" id="orange" name="btnColor" value="leaf-button-orange" ' + (color == 'leaf-button-orange' ? 'checked' : '') + '><label for="orange">Orange</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-red"></span><input type="radio" id="red" name="btnColor" value="leaf-button-red" ' + (color == 'leaf-button-red' ? 'checked' : '') + '><label for="red">Red</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-gold"></span><input type="radio" id="gold" name="btnColor" value="leaf-button-gold" ' + (color == 'leaf-button-gold' ? 'checked' : '') + '><label for="gold">Gold</label></div>' +
                 '</div>' +
         '</div></div>');
 
@@ -169,7 +163,7 @@
                     sitemapOBJ.buttons[index].color = color;
                 }
             });
-            updateButtonUI(buttonID);
+            refreshButtons();
             dialog.hide();
         });
         $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
