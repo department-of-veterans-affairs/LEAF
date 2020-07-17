@@ -42,7 +42,18 @@
 	// insert button into sortable list and sidenav
     function addButtonToUI(button){
         $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_'+button.id+'"><a onClick="editButtonDialog(\''+button.id+'\');" title="Edit Card">'+button.title+'</a></li>');
-        $('div#sortable').append('<div class="leaf-sitemap-button '+button.color+'" draggable="true" id="div_buttonID_'+button.id+'"><i class="fas fa-trash-alt leaf-delete-button" title="Delete Card"></i><h3>'+button.title+'</h3><p>'+button.description+'</p></div>');
+        $('div#sortable').append('<div class="leaf-sitemap-button '+button.color+'" draggable="true" id="div_buttonID_'+button.id+'"><i class="fas fa-trash-alt leaf-delete-button" title="Delete Card" onClick="deleteButtonFromUI(\'' + button.id + '\')"></i><h3>'+button.title+'</h3><p>'+button.description+'</p></div>');
+    }
+
+    //remove button from sortable list and sidenav
+    function deleteButtonFromUI(buttonID){
+        $.each(sitemapOBJ.buttons,  function(index, value){
+        	if(value.id == buttonID){
+            	sitemapOBJ.buttons.splice(index, 1);
+                return false;
+            }
+        });
+        refreshButtons();
     }
     
 	// generate unique id for sitemap button
