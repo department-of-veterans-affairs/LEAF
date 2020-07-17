@@ -5,24 +5,28 @@
 <script>
 	var sitemapOBJ;
     $(function() {
-
 		//load existing sitemap on page load
-        sitemapOBJ = parseSitemapJSON();
-        $.each(sitemapOBJ.buttons, function(index, value){
-			addButtonToUI(value);
-        });
-        
-        $("#sortable").sortable({
-            revert: true
-        });
-
+        parseSitemapJSON();
     });
 
 	// parses sitemap json into sitemapOBJ
     function parseSitemapJSON(){
-		sitemapJSON = $('span#sitemap-json').text();
-    	result = jQuery.parseJSON(sitemapJSON);
-        return result;
+        $.ajax({
+            type: 'GET',
+            url: './api/system/settings',
+            cache: false,
+            success: function(res) {
+                console.log(res['sitemap_json']);
+                sitemapOBJ = jQuery.parseJSON(res['sitemap_json']);
+                $.each(sitemapOBJ.buttons, function(index, value){
+                    addButtonToUI(value);
+                });
+            
+                $("#sortable").sortable({
+                    revert: true
+                });
+            },
+        });
     }
     
 	// builds sitemap JSON from sitemapOBJ
@@ -175,36 +179,14 @@
     
 	// saves sitemap json into the custom report
     function save() { 
+        var newJson = buildSitemapJSON();
         $.ajax({
-            type: 'GET',
-            url: './api/system/reportTemplates/_sitemaps_template',
+            type: 'POST',
+            url: './api/system/settings/sitemap_json',
+            data: {CSRFToken: '<!--{$CSRFToken}-->',
+                    sitemap_json: newJson},
             success: function(res) {
-                var newjson = buildSitemapJSON();
-                html = $.parseHTML( res.file );
-               // var newFile = $(res.file).find('span#sitemap-json').replaceWith('other_element').end().get(0).outerHTML;
-                var newFile = $(res.file);
-                newFile.siblings('span#sitemap-json')[0].innerHTML = newjson;
-                resultString = '';
-                $.each(newFile, function( index, value ) {
-                  if($.type(value.outerHTML) == 'string'){
-                    	resultString += value.outerHTML;
-                  } else if(value.nodeName == "#text"){
-                  		resultString += value.data;
-                  } else if(value.nodeName == "#comment"){
-                        resultString += "<!--" + value.data + "-->";
-                  }
-                });
-                $.ajax({
-                    type: 'POST',
-                    data: {CSRFToken: '<!--{$CSRFToken}-->',
-                           file: resultString},
-                    url: './api/system/reportTemplates/_sitemaps_template',
-                    success: function(res) {
-                        if(res != null) {
-                            alert(res);
-                        }
-                    }
-                });
+                console.log(res);
             },
             cache: false
         });
@@ -234,10 +216,10 @@
                 <h1>Phoenix VA Sitemap&nbsp; <button class="usa-button leaf-btn-small" onclick="createGroup();"><i class="fas fa-plus" title="Delete Card"></i> Add Card</button></h1>
                 <div id="sortable">
                 </div>
-                <!-- div class="leaf-marginAll1rem leaf-clearBoth">
+                <div class="leaf-marginAll1rem leaf-clearBoth">
                     <button class="usa-button leaf-float-left" id="saveButton" onclick=" save()">Save Sitemap</button>
                     <button class="usa-button usa-button--outline leaf-float-right">Delete Sitemap</button>
-                </div -->
+                </div>
 
             </div>
             
@@ -245,4 +227,3 @@
 
     </div>
 </main>
-<span style="display: none;" id="sitemap-json">{"buttons":[{"id":"abc","title":"Communication Department","description":"Publicity, AV, Graphic Design","target":"www.a.com","color":"leaf-button-green","order":0},{"id":"def","title":"Education/CME","description":"Request Education Services","target":"www.b.com", "color":"leaf-button-gold","order":1},{"id":"ghi","title":"Fiscal Service","description":"Budget Request, Employee Travel","target":"www.c.com","color":"leaf-button-blue","order":2}]}</span>

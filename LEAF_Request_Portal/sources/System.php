@@ -481,6 +481,19 @@ class System
         return 1;
     }
 
+    public function setSitemapJSON()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $vars = array(':input' => $_POST['sitemap_json']);
+        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="sitemap_json"', $vars);
+
+        return 1;
+    }
+
     public function getReportTemplateList()
     {
         if (!$this->login->checkGroup(1))

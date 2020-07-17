@@ -1,0 +1,1 @@
+INSERT INTO `leaf_portal`.`settings` (`setting`, `data`) VALUES ('sitemap_json', '{\"buttons\":[]}');
