@@ -119,7 +119,10 @@ switch ($action) {
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
+           $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
+
            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+           $t_form->assign('timeZone', $settings['timeZone']);
            $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
            $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
