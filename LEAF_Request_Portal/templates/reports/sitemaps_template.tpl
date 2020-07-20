@@ -19,6 +19,7 @@
             url: './api/system/settings',
             cache: false,
             success: function(res) {
+                $("#spinner").hide();
                 sitemapOBJ = jQuery.parseJSON(res['sitemap_json']);
                 refreshButtons();
             },
@@ -225,6 +226,9 @@
 
                 <h1>Phoenix VA Sitemap&nbsp; <button class="usa-button leaf-btn-small" onclick="createGroup();"><i class="fas fa-plus" title="Delete Card"></i> Add Card</button></h1>
                 <div id="sortable">
+                </div>
+                <div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%" id="spinner">
+                    Loading... <img src="./images/largespinner.gif" alt="loading..." />
                 </div>
                 <div class="leaf-marginAll1rem leaf-clearBoth">
                     <button class="usa-button leaf-float-left" id="saveButton" onclick="save()">Save Sitemap</button>
