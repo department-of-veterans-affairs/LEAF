@@ -246,6 +246,8 @@ switch ($action) {
                                            'css/employeeSelector.css', ));
 
         $groupID = isset($_GET['groupID']) ? (int)$_GET['groupID'] : 0;
+        $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
+
         if ($groupID != 0)
         {
             require 'sources/Group.php';
@@ -261,6 +263,7 @@ switch ($action) {
             $t_form->assign('tag_hierarchy', $tag->getAll());
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $login->getDomain());
+            $t_form->assign('timeZone', $tz);
 
             if (count($resGroup) > 0)
             {

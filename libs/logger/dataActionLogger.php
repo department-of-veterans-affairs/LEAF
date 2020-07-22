@@ -28,7 +28,7 @@ class DataActionLogger{
             "BEGIN;
 
             INSERT INTO data_action_log (`userID`, `timestamp`, `action`, `userDisplay`)
-                    VALUES (:userID, NOW(), :action, :userDisplay);
+                    VALUES (:userID, UTC_TIMESTAMP(), :action, :userDisplay);
 
             SELECT LAST_INSERT_ID() INTO @log_id;
 
@@ -52,7 +52,9 @@ class DataActionLogger{
         $this->db->prepared_query($sql, $vars);
     }
 
+
     public function getHistory($filterById, $filterByColumnName, $logType){
+
         $logResults = $this->fetchLogData($filterById, $filterByColumnName, $logType);
 
         if($logResults != null){
@@ -62,6 +64,7 @@ class DataActionLogger{
             }
         }
         return $logResults;
+
     }
 
     /**
