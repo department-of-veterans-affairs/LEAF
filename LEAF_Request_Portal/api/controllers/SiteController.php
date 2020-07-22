@@ -39,4 +39,17 @@ class SiteController extends RESTfulResponse
 
 		return $this->index['GET']->runControl($act['key'], $act['args']);
 	}
+
+	public function post($act)
+    {
+		$site = $this->site;
+
+		$this->index['POST'] = new ControllerMap();
+
+		$this->index['POST']->register('site/settings/sitemap_json', function ($args) use ($site) {
+			return $site->setSitemapJSON();
+		});
+
+		return $this->index['POST']->runControl($act['key'], $act['args']);
+	}
 }

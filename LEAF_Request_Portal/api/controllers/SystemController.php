@@ -156,10 +156,6 @@ class SystemController extends RESTfulResponse
             return $system->setNationalLinkedPrimary();
         });
 
-        $this->index['POST']->register('system/settings/sitemap_json', function ($args) use ($system) {
-            return $system->setSitemapJSON();
-        });
-
         $this->index['POST']->register('system/setPrimaryadmin', function ($args) use ($system) {
             $_POST['userID'] = XSSHelpers::sanitizeHTML($_POST['userID']);
             return $system->setPrimaryAdmin();

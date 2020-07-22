@@ -8,7 +8,17 @@
 		//load existing sitemap on page load
         parseSitemapJSON();            
         $("#sortable").sortable({
-            revert: true
+            revert: true,
+            stop: function(){
+                var idsInOrder = $("#sortable").sortable("toArray");
+                idsInOrder = $.map( idsInOrder, function( val ) {
+                    return val.replace("div_buttonID_","");
+                });
+                $.each(sitemapOBJ.buttons,  function(index, value){
+                    //set order = arraykeyat(id)
+                    sitemapOBJ.buttons[index].order = idsInOrder.indexOf(value.id)
+                });
+            }
         });
     });
 
@@ -35,7 +45,11 @@
     function refreshButtons(){
         $('ul.usa-sidenav').html('');
         $('div#sortable').html('');
-        $.each(sitemapOBJ.buttons, function(index, value){
+        var buttons = sitemapOBJ.buttons;
+        buttons.sort(function(a, b){
+            return a.order-b.order;
+        });
+        $.each(buttons, function(index, value){
             addButtonToUI(value);
         });
     }
@@ -188,7 +202,7 @@
         var newJson = buildSitemapJSON();
         $.ajax({
             type: 'POST',
-            url: './api/system/settings/sitemap_json',
+            url: './api/site/settings/sitemap_json',
             data: {CSRFToken: '<!--{$CSRFToken}-->',
                     sitemap_json: newJson},
             success: function(res) {
