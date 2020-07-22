@@ -18,6 +18,7 @@
                     //set order = arraykeyat(id)
                     sitemapOBJ.buttons[index].order = idsInOrder.indexOf(value.id)
                 });
+                refreshButtons();
             }
         });
     });
