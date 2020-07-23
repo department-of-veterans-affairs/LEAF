@@ -11,6 +11,7 @@ LEAF_Request_Portal/globals.php
 LEAF_Nexus/UPLOADS
 LEAF_Request_Portal/UPLOADS
 .vscode
+routing/routing_config.php
 LEAF_Request_Portal/db_config-bk.php
 LEAF_Nexus/config-bk.php
 LEAF_Nexus/globals-bk.php
