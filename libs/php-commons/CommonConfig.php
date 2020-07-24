@@ -41,14 +41,10 @@ class CommonConfig
                                         );
 
     public $awsSharedConfig = array(
-        'region' => 'us-east-1',
-        'credentials' => [
-            'key' => 'YOUR_AWS_KEY_HERE',
-            'secret' => 'YOUR_AWS_SECRET_HERE',
-        ],
+        'region' => 'us-gov-west-1',
         'version' => 'latest',
         'S3' => [
-            'bucket' => 'YOUR_AWS_BUCKET_HERE'
+            'bucket' => 'leaf-bucket-vaec-infra'
             //'debug' => 'false' // default is false
         ]
     );
