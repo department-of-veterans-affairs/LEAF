@@ -1,7 +1,11 @@
 <link rel="stylesheet" href="../libs/css/leaf.css">
 
 <!--{include file="../site_elements/generic_xhrDialog.tpl"}-->
-
+<style>
+.usa-sidenav__item{
+    cursor: pointer;
+}
+</style>
 <script>
 	var sitemapOBJ;
     $(function() {
@@ -230,10 +234,10 @@
                 <nav aria-label="Secondary navigation">
                     <ul class="usa-sidenav">
                     </ul>
-                    <div class="leaf-sidenav-bottomBtns">
+                    <!--<div class="leaf-sidenav-bottomBtns">
                         <button class="usa-button usa-button--outline leaf-btn-small">Move Up</button>
                         <button class="usa-button usa-button--outline leaf-btn-small leaf-float-right">Move Down</button>
-                    </div>
+                    </div>-->
                 </nav>
             </div>
 
