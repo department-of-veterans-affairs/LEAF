@@ -10,7 +10,7 @@ div.groupBlock {
 }
 
 div.groupBlock:hover {
-   
+    background-color: #fffdc2;
 }
 
 div.groupBlock div {
