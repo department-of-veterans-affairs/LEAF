@@ -21,12 +21,12 @@ $theme-font-path: "fonts" !default;
 
 /* ############### GLOBAL OVERRIDES ################# */
 body {background-color: #dcdee0;}
-h1, h2, h3, h4, h5, h6 { font-family: 'Public Sans Bold'; color: #3d4551;}
+h1, h2, h3, h4, h5, h6 { font-family: 'PublicSans-Bold'; color: #3d4551;}
 h1 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 h2 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 h3 {margin: 0.0rem 0.0rem 0.4rem 0.0rem;}
 p {margin: 0.7rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
-label {font-family: 'Public Sans Bold'; font-size: 0.9rem;}
+label {font-family: 'PublicSans-Bold'; font-size: 0.9rem;}
 hr {border: 1px solid #dfe1e2;}
 
 
@@ -35,8 +35,8 @@ hr {border: 1px solid #dfe1e2;}
 .sidenav-right {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
 
 /* ############### GLOBAL ATTRIBUTE CLASSES ################# */
-.leaf-bold {font-family: 'Public Sans Bold';}
-.leaf-font-normal {font-family: 'Public Sans Regular';}
+.leaf-bold {font-family: 'PublicSans-Bold';}
+.leaf-font-normal {font-family: 'PublicSans-Regular';}
 .leaf-textCentered {text-align: center;}
 .leaf-textLeft {text-align: left;}
 .leaf-cursor-pointer {cursor: pointer;}
@@ -69,7 +69,7 @@ hr {border: 1px solid #dfe1e2;}
         box-shadow: inset 0 0 0 2px rgba(255,255,255,1);
         text-decoration: none!important;
     }
-.usa-button {font-family: 'Public Sans Bold'; white-space: nowrap; padding: 0.8rem 0.6rem; min-width: 6rem;}
+.usa-button {font-family: 'PublicSans-Bold'; white-space: nowrap; padding: 0.8rem 0.6rem; min-width: 6rem;}
 .leaf-btn-icon {margin-right: 0.5rem;}
 .leaf-btn-small {padding: 0.5rem; font-size: 0.4rem;}
 .leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
@@ -232,7 +232,7 @@ ul.leaf-progress-bar {
     .sidenav-right {display: block; float: right; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
         .sidenav-right:hidden {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
-    .usa-banner {font-family: 'Public Sans Regular';}
+    .usa-banner {font-family: 'PublicSans-Regular';}
     .usa-banner {font-family: 'PublicSans-Regular';}
     .usa-input {height: 1rem; width: auto;}
     .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.1rem;}
@@ -257,7 +257,7 @@ ul.leaf-progress-bar {
         .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative;}
 
     /* ############### UI DIALOG OVERRIDES ################# */
-    .ui-dialog-title {font-family: 'Public Sans Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
+    .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
     .ui-dialog {border-radius: 6px; padding-bottom: 0.8rem;}
     .ui-dialog .ui-dialog-content {overflow: visible;}
     .ui-widget-header {border: 0; background-color: none; background: none;}
