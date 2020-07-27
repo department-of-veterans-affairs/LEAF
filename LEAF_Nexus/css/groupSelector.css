@@ -1,12 +1,13 @@
 .groupSelectorBorder {
-    padding: 0.8rem;
-    margin-bottom: 2.0rem;
+    height: 28px;
+    padding: 4px;
+    margin-bottom: 8px;
 }
 
 .groupSelectorInput {
     border: 1px solid #bbb;
     border-right: 1px solid #bbb!important;
-    padding: 0.8rem;
+    padding: 4px;
     width: 21rem!important;
 }
 
@@ -17,28 +18,45 @@
 
 .groupSelector {
     width: 99%;
+    font-size: 14px;
+    background-color: white;
+    border: 1px solid black;
+    padding: 2px;
     cursor: pointer;
 }
-table.groupSelectorTable > tbody > tr.groupSelector:hover {
-    background-color: #dae9ee;
+
+.groupSelector:hover {
+    background-color: #e1f3f8;
 }
 
 .groupSelected {
-    font-family: 'Public Sans Bold';
-    background-color: #dae9ee;
-}
-.groupSelectorTitle {
+    width: 99%;
+    font-size: 14px;
+    background-color: #2372b0;
+    color: white;
+    border: 1px solid black;
+    padding: 2px;
     cursor: pointer;
 }
 
 table.groupSelectorTable {
     width: 100%;
+    border: 1px solid #bbb;
+    border-collapse: collapse;
 }
 
 .groupSelectorTable th {
-    font-size: 0.8rem;
+    background-color: #ececec;
+    text-align: center;
+    color: #565c65;
+    font-size: 80%
 }
 
 .groupSelectorTable td {
-    font-size: 0.8rem;
+    border: 1px solid #bbb;
+    padding: 8px;
+}
+
+.groupSelectorTitle {
+    font-weight: bold;
 }

@@ -158,16 +158,16 @@ employeeSelector.prototype.search = function() {
 		            	$('#' + t.prefixID + 'result').html('');
 		            	var buffer = '';
 		            	if(t.outputStyle == 'micro') {
-		            		buffer = '<table class="employeeSelectorTable usa-table"><tr><th>Name</th><th>Contact</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+		            		buffer = '<table class="employeeSelectorTable"><tr><th>Name</th><th>Contact</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 		            	}
 		            	else {
-		            		buffer = '<table class="employeeSelectorTable usa-table"><tr><th>Name</th><th>Location</th><th>Contact</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
+		            		buffer = '<table class="employeeSelectorTable"><tr><th>Name</th><th>Location</th><th>Contact</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 		            	}
 
                                 $('#' + t.prefixID + 'result').html(buffer);
 
                                 if(response.length == 0) {
-                                    $('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="text-align: center" colspan=3>No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
+                                    $('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
                                     $('#' + t.prefixID + 'emp0_message').text(txt);
                                     $('#' + t.prefixID + 'status').text('No results for ' + txt);
                                 }else{
