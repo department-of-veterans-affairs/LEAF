@@ -86,7 +86,7 @@
             <span class="leaf-admin-btndesc">Upload custom images and documents</span>
         </a>
 
-        <a href="?a=mod_file_manager" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-green">
+        <a href="../?a=search" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-green">
             <i class="leaf-admin-btnicon fas fa-search text-green-cool-50 leaf-icn-narrow2" alt="Search Database" title="Search Database"></i>
             <span class="leaf-admin-btntitle">Search Database</span>
             <span class="leaf-admin-btndesc">Perform custom queries</span>

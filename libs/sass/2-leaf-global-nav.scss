@@ -61,7 +61,7 @@
   
   /* ////////////// Navigation Level One /////////////// */
   
-  #nav > ul > li {text-align: left; font-family: 'Public Sans Regular';}
+  #nav > ul > li {text-align: left; font-family: 'PublicSans-Regular';}
 
     @media screen and (min-width: 48.5rem) {
 
@@ -75,7 +75,7 @@
         #nav > ul > li > a { background-color: #252f3e; }
         #nav > ul > li > a:hover, 
         #nav > ul > li > a:focus, 
-        #nav > ul > li > a.js-openSubMenu {background-color: #274863; font-family: 'Public Sans Bold';}
+        #nav > ul > li > a.js-openSubMenu {background-color: #274863; font-family: 'PublicSans-Bold';}
         #nav > ul > li:hover > a, 
         #nav > ul > li:focus > a {background-color: #274863;}
         #nav > ul > li:not(:last-child) {border: 0;}
@@ -109,7 +109,7 @@
           .leaf-menu button {
             color: #fff; 
             font-size: 0.5rem; 
-            font-family: 'Public Sans Bold';
+            font-family: 'PublicSans-Bold';
             border: 2px solid #fff; 
             background: none; 
             border-radius: 3px; 
@@ -136,7 +136,7 @@
           #nav > ul > li > ul > li > a:focus,
           #nav > ul > li > ul > li > a:focus-within {
               background-color: #2378c3;
-              font-family: 'Public Sans Bold';
+              font-family: 'PublicSans-Bold';
           }
       }
       @media screen and (max-width: 48.4rem) {
@@ -157,8 +157,8 @@
     #nav > ul > li > ul > li > ul {
       top: 0;
       left: -12.0rem;
-      width: 12.0rem;
-      font-family: 'Public Sans Regular';
+      width: 13.0rem;
+      font-family: 'PublicSans-Regular';
       z-index: 9999;
       box-shadow: -2px 2px 4px #a9aeb1;
       background-color: #2378c3;
@@ -191,7 +191,7 @@
     #nav > ul > li > ul > li > ul > li > a:hover, 
     #nav > ul > li > ul > li > ul > li > a:focus {
       background-color: #2378c3; 
-      font-family: 'Public Sans Bold';
+      font-family: 'PublicSans-Bold';
       }
   
   /* Javascript classes */

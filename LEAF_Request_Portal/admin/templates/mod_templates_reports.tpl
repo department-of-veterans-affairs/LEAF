@@ -179,10 +179,10 @@ function updateFileList() {
 			for(var i in res) {
 				file = res[i].replace('.tpl', '');
 				if(!isExcludedFile(file)) {
-					buffer += '<li onclick="loadContent(\''+ file +'\');"><a href="#'+ file +'">' + file + '</a></li>';
+					buffer += '<li onclick="loadContent(\''+ file +'\');" style="display: block; width: 12rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><a href="#'+ file +'">' + file + '</a></li>';
                 }
                 else {
-                    bufferExamples += '<li onclick="loadContent(\''+ file +'\');"><a href="#'+ file +'">' + file + '</a></li>';
+                    bufferExamples += '<li onclick="loadContent(\''+ file +'\');" style="display: block; width: 12rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><a href="#'+ file +'">' + file + '</a></li>';
                 }
 			}
             buffer += '</ul>';

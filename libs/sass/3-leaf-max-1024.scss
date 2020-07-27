@@ -8,7 +8,7 @@
     .leaf-center-content {
         width: calc(100% - 2rem); 
         margin: 0.6rem auto 0.6rem auto; 
-        font-family: 'Public Sans Regular';
+        font-family: 'PublicSans-Regular';
         white-space: nowrap;
     }
 
@@ -37,13 +37,13 @@
     }
 
     /* ############### LEAF HEADER ################# */
-    .site-header {background-color: #252f3e; height: 3.8rem; box-shadow: 0px 3px 4px #a9aeb1;}
-    .leaf-site-title {color: #fff; display: inline-block; font-size: 1.0rem; margin-top: 0.9rem; font-family: 'Public Sans Bold'; }
-    .leaf-header-description {font-family: 'Public Sans Thin'; font-size: 0.9rem; display: block; font-family: 'Public Sans Regular';}
+    .site-header {background-color: #252f3e; height: 3.8rem;}
+    .leaf-site-title {color: #fff; display: inline-block; font-size: 1.0rem; margin-top: 0.9rem; font-family: 'PublicSans-Bold'; }
+    .leaf-header-description {font-family: 'Public Sans Thin'; font-size: 0.9rem; display: block; font-family: 'PublicSans-Regular';}
     .leaf-logo {float: left;}
         .leaf-logo img {width: 52px; margin: 0.2rem 0.5rem 0 0.2rem;}
-    .leaf-header-right {margin-top: 0.5rem; float: right; color: #fff; font-family: 'Public Sans Regular'; text-align: right;}
-    .lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'Public Sans Medium';}
+    .leaf-header-right {margin-top: 0.5rem; float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
+    .lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'PublicSans-Medium';}
     .usa-logo {
         font-size: 1.2rem;
         line-height: 1.1rem;
