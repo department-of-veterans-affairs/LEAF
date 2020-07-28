@@ -92,7 +92,7 @@
             <span class="leaf-admin-btndesc">Perform custom queries</span>
         </a>
 
-        <a href="?a=admin_sync_services" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-yellow">
+        <a href="?a=admin_sync_services" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-green">
             <i class="leaf-admin-btnicon fas fa-sync-alt text-green-cool-50" alt="Sync Services" title="Sync Services"></i>
             <span class="leaf-admin-btntitle">Sync Services</span>
             <span class="leaf-admin-btndesc">Update Service listing from Org Chart</span>
@@ -123,18 +123,6 @@
             <span class="leaf-admin-btntitle">Initiator New Account</span>
             <span class="leaf-admin-btndesc">Replace account with request initiator</span>
         </a>
-
-        
-
-        
-
-        
-
-        
-
-    
-
-        
 
 </div>
 

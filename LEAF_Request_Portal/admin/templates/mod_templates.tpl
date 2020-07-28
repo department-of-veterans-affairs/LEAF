@@ -2,8 +2,6 @@
 <script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
 <script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
 <style>
-/* Grid of 6 */
-.group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_6_of_6{width:100%}.span_5_of_6{width:83.06%}.span_4_of_6{width:66.13%}.span_3_of_6{width:49.2%}.span_2_of_6{width:32.26%}.span_1_of_6{width:15.33%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_6,.span_2_of_6,.span_3_of_6,.span_4_of_6,.span_5_of_6,.span_6_of_6{width:100%}}
 
 /* Glyph to improve usability of code compare */
 .CodeMirror-merge-copybuttons-left > .CodeMirror-merge-copy {
@@ -17,24 +15,51 @@
 
 <div class="leaf-center-content">
 
-    <h2>Template Editor</h2>
-
     <div class="section group">
 
-        <div class="col span_1_of_6">
-            <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">
+        <aside class="sidenav">
+            <div id="fileBrowser">
             Templates:
                 <div id="fileList"></div>
             </div>
-        </div>
+        </aside>
 
-        <div id="codeArea" class="col span_4_of_6">
 
-            <div id="codeContainer" class="card" style="float: left; padding: 8px; display: none">
+        <aside class="sidenav-right">
 
-                <div id="filename" style="padding: 8px;"></div>
+            <div id="controls">
+                
+                <button class="usa-button leaf-display-block leaf-btn-med leaf-width-11rem" onclick="save();">
+                    Save Changes<span id="saveStatus" class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
+                </button>
+                
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" onclick="restore();">
+                    Restore Original
+                </button>
+                
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
+                    Stop Comparing
+                </button>
+                
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" id="btn_compare" onclick="compare();">
+                    Compare to Original
+                </button>
+                
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" target="_blank">
+                    <a href="../../libs/dynicons/gallery.php">Icon Library</a>
+                </button>
+            </div>
 
-                <div style="border: 1px solid black">
+        </aside>
+
+        <main id="codeArea" class="main-content">
+            <h2>Template Editor</h2>
+
+            <div id="codeContainer" class="card" style="padding: 8px; display: none">
+
+                <div id="filename"></div>
+
+                <div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
                 </div>
@@ -54,32 +79,6 @@
                         </tr>
                     </table>
                 </div>
-            </div>
-
-        </div>
-        <div class="col span_1_of_6">
-
-            <div id="controls" style="float:right; width: 200px; visibility: hidden">
-                
-                <button class="usa-button leaf-display-block leaf-width-12rem" onclick="save();">
-                    Save Changes<div id="saveStatus" style="font-size: 0.6rem;"></div>
-                </button>
-                
-                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-width-12rem" onclick="restore();">
-                    Restore Original
-                </button>
-                
-                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-width-12rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
-                    Stop Comparing
-                </button>
-                
-                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-width-12rem" id="btn_compare" onclick="compare();">
-                    Compare to Original
-                </button>
-                
-                <button onclick="location.href='../../libs/dynicons/gallery.php';" class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-width-12rem" target="_blank">
-                    Icon Library
-                </button>
             </div>
 
         </div>
@@ -209,7 +208,7 @@ function loadContent(file) {
 }
 
 function updateEditorSize() {
-    codeWidth = $('#codeArea').width() - 30;
+    codeWidth = $('#codeArea').width() - 66;
     $('#codeContainer').css('width', codeWidth + 'px');
     $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
 }

@@ -1,40 +1,35 @@
 <style>
 /* Grid of 6 */
-.group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_6_of_6{width:100%}.span_5_of_6{width:83.06%}.span_4_of_6{width:60.13%}.span_3_of_6{width:49.2%}.span_2_of_6{width:32.26%}.span_1_of_6{width:18.33%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_6,.span_2_of_6,.span_3_of_6,.span_4_of_6,.span_5_of_6,.span_6_of_6{width:100%}}
+.group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}
 </style>
 
 <div class="leaf-center-content">
 
-    <h2>LEAF Programmer</h2>
-
     <div class="section group">
 
-        <div class="col span_1_of_6">
-        
-            <div id="fileBrowser" style="float: left; width: 200px; margin-right: 4px">
+        <aside class="sidenav" id="fileBrowser">
+            <button class="usa-button leaf-btn-med" onclick="newReport();">New File</button>
+            <p class="leaf-bold leaf-marginTop-1rem">Files</p>
+            <div id="fileList"></div>
+        </aside>
 
-                <button class="usa-button" onclick="newReport();">New File</button>
+        <aside class="sidenav-right" id="controls">
+            <button id="saveButton" class="usa-button leaf-btn-med leaf-display-block leaf-width-10rem" onclick="save();">Save Changes<span id="saveStatus" class="leaf-display-block leaf-font0-5rem"></span></button>
+            <button class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-10rem"" onclick="runReport();">Open Report</button>
+            <button id="deleteButton" class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-10rem"" onclick="deleteReport();">Delete Report</button>
+        </aside>
 
-                <div class="leaf-row-space"></div>
-                
-                <h5>Files:</h5>
-
-                <div id="fileList"></div>
-
-            </div>
-
-        </div>
-
-        <div id="codeArea" class="col span_4_of_6">
-            <div id="codeContainer" class="card" style="float: left; padding: 4px; width: 90%; display: none">
-                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold; width: 36rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
-                <div id="reportURL" style="padding-left: 8px; width: 36rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div><br />
-                <div style="border: 1px solid black">
+        <main id="codeArea" class="main-content">
+            <h2>LEAF Programmer</h2>
+            
+            <div id="codeContainer" class="card">
+                <div id="filename"></div>
+                <div id="reportURL"></div>
+                <div>
                     <textarea id="code"></textarea>
                 </div>
-                <br />
                 <div>
-                    <table class="table">
+                    <table class="usa-table">
                         <tr>
                             <td colspan="2">Keyboard Shortcuts within coding area</td>
                         </tr>
@@ -49,15 +44,8 @@
                     </table>
                 </div>
             </div>
-        </div>
-        <div class="col span_1_of_6">
-            <div id="controls" style="float: right; visibility: hidden">
-                <div id="saveButton" class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes<span id="saveStatus"></span></div><br />
-                <div class="buttonNorm" onclick="runReport();"><img id="saveIndicator" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Open Report" /> Open Report</div>
-                <br />
-                <div id="deleteButton" class="buttonNorm" onclick="deleteReport();"><img src="../../libs/dynicons/?img=process-stop.svg&w=32" alt="Delete Report" /> Delete Report</div>
-            </div>
-        </div>
+        </main>
+
     </div>
 
 </div>
@@ -187,7 +175,7 @@ function updateFileList() {
 		url: '../api/system/reportTemplates',
 		success: function(res) {
             var buffer = '<ul class="leaf-ul">';
-            var bufferExamples = '<div class="leaf-bold">Examples:</div><ul class="leaf-ul">';
+            var bufferExamples = '<div class="leaf-bold">Examples</div><ul class="leaf-ul">';
 			for(var i in res) {
 				file = res[i].replace('.tpl', '');
 				if(!isExcludedFile(file)) {

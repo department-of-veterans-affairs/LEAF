@@ -1,94 +1,75 @@
-<style>
-input {
-    min-width: 300px;
-}
-.item label {
-    font-size: 120%;
-    font-weight: bold;
-    width: 250px;
-}
-
-.item {
-    padding-bottom: 16px;
-}
-</style>
-
 <div class="leaf-center-content">
 
-    <h2>Site Settings</h2>
-    
-    <h2 id="progress" style="color: red; text-align: center"></h2>
+    <aside class="sidenav-right"></aside>
 
-    <div style="width: 70%; margin: auto">
+    <aside class="sidenav"></aside>
 
-        <div style="border: 2px solid black; margin: 4px; background-color: white; padding: 16px">
+    <main class="main-content">
 
-            <div class="item">
-                <label for="heading">Title of LEAF site:&nbsp;</label>
-                <input id="heading" type="text" title="" />
-            </div>
+        <h2>Site Settings</h2>
+        
+        <h2 id="progress" style="color: red;"></h2>
 
-            <div class="item">
-                <label for="subHeading">Facility Name:&nbsp;</label>
-                <input id="subHeading" type="text" title="" />
-            </div>
+        <form class="usa-form">
+        
+            <label for="heading" class="usa-label">Title of LEAF site</label>
+            <input id="heading" class="usa-input" type="text" title="" />
 
-            <div class="item">
-                <label for="timeZone">Time Zone:&nbsp;</label>
-                <select id="timeZone">
-                    <!--{foreach from=$timeZones item=tz}-->
-                        <option value="<!--{$tz}-->"><!--{$tz}--></option>
-                    <!--{/foreach}-->
-                </select>
-            </div>
+            <label for="subHeading" class="usa-label">Facility Name</label>
+            <input id="subHeading" class="usa-input" type="text" title="" />
 
-            <div class="item">
-                <label for="requestLabel">Label for "Request":&nbsp;</label>
-                <input id="requestLabel" type="text" title="" />
-            </div>
-
-            <div class="item">
-                <label for="leafSecureContent">LEAF Secure Status:&nbsp;</label>
-                <span id="leafSecureStatus">Loading...</span><br />
-            </div>
-
-    <br />
-
-            <div class="item">
-                <label for="subHeading">Import Tags [<a href="#" title="Groups in the Org. Chart with any one of these tags will be imported for use">?</a>]:&nbsp;</label>
-                <span style="font-style: italic">
-                <!--{foreach from=$importTags item=importTag}-->
-                    <!--{$importTag}--><br />
+            <label for="timeZone" class="usa-label">Time Zone</label>
+            <select id="timeZone" class="usa-select">
+                <!--{foreach from=$timeZones item=tz}-->
+                    <option value="<!--{$tz}-->"><!--{$tz}--></option>
                 <!--{/foreach}-->
+            </select>
+
+            <label for="requestLabel" class="usa-label">Label for Request</label>
+            <input id="requestLabel" class="usa-input" type="text" title="" />
+
+            <div class="leaf-row-space"></div>
+
+            <label for="leafSecureContent">LEAF Secure Status</label>
+            <div class="leaf-marginTop-halfRem"><span id="leafSecureStatus">Loading...</span></div>
+
+            <div>
+                <label for="subHeading" class="usa-label">Import Tags [<a href="#" title="Groups in the Org. Chart with any one of these tags will be imported for use">?</a>]:&nbsp;</label>
+                <div class="leaf-marginTop-1rem">
+                    <!--{foreach from=$importTags item=importTag}-->
+                        <!--{$importTag}--><br />
+                    <!--{/foreach}-->
                 </span>
             </div>
 
-            <fieldset>
-                <legend>Advanced Settings</legend>
-                <div class="item">
-                    <label for="siteType">Type of Site:&nbsp;</label>
-                    <select id="siteType">
-                        <option value="standard">Standard</option>
-                        <option value="national_primary">Nationally Standardized Primary</option>
-                        <option value="national_subordinate">Nationally Standardized Subordinate</option>
-                    </select>
-                </div>
+            <h3 class="leaf-marginTop-1rem">Advanced Settings</h3>
 
-                <div class="item siteType national_primary" style="display: none">
-                    <label for="national_linkedSubordinateList">Nationally Standardized Subordinate Sites:<br /><span style="font-size: 12px; font-weight: normal">The first site in the list should be a TEST site.<br />URLs must end with a trailing slash.</span></label>
-                    <textarea id="national_linkedSubordinateList" cols="50" rows="5"></textarea>
-                </div>
+            <div class="item">
+                <label for="siteType" class="usa-label">Type of Site</label>
+                <select id="siteType" class="usa-select">
+                    <option value="standard">Standard</option>
+                    <option value="national_primary">Nationally Standardized Primary</option>
+                    <option value="national_subordinate">Nationally Standardized Subordinate</option>
+                </select>
+            </div>
 
-                <div class="item siteType national_subordinate" style="display: none">
-                    <label for="national_linkedPrimary">Nationally Standardized Primary Site<span style="font-size: 12px; font-weight: normal">URLs must end with a trailing slash.</span></label>
-                    <input id="national_linkedPrimary" type="text" />
-                </div>
-            </fieldset>
+            <div class="item siteType national_primary" style="display: none">
+                <label for="national_linkedSubordinateList" class="usa-label">Nationally Standardized Subordinate Sites</label>
+                <div>The first site in the list should be a TEST site.<br />URLs must end with a trailing slash.</div>
+                <textarea id="national_linkedSubordinateList" cols="50" rows="5" class="usa-textarea"></textarea>
+            </div>
 
-            <button class="buttonNorm" onclick="saveSettings();" style="float: right"><img src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="save icon" /> Save</button>
-            <br /><br />
-        </div>
-    </div>
+            <div class="item siteType national_subordinate" style="display: none">
+                <label for="national_linkedPrimary" class="usa-label">Nationally Standardized Primary Site URLs must end with a trailing slash.</label>
+                <input id="national_linkedPrimary" type="text" class="usa-input" size="42" />
+            </div>
+
+            <button class="usa-button" onclick="saveSettings();">Save</button>
+
+        </form>
+
+    </main>
+
 <!-- end main content -->
 </div>
 
@@ -200,7 +181,7 @@ function renderSettings(res) {
                             mostRecentID = i;
                         }
                     }
-                    $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: green; color: white; font-weight: bold">Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID='+ mostRecentID +'">View details</a>');
+                    $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: green; color: white; font-weight: bold">Certified</span> <button class="usa-button usa-button--accent-cool leaf-btn-med" href="../index.php?a=printview&recordID='+ mostRecentID +'">View Details</button>');
                 });
                 query.execute();
             }
@@ -208,11 +189,11 @@ function renderSettings(res) {
                 query.addTerm('stepID', '!=', 'resolved');
                 query.onSuccess(function(data) {
                     if(data.length == 0) {
-                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</a>');
+                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <button class="usa-button usa-button--accent-cool leaf-btn-med" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</button>');
                     }
                     else {
                         var recordID = data[Object.keys(data)[0]].recordID;
-                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID='+ recordID +'">Check Certification Progress</a>');
+                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <button class="usa-button usa-button--accent-cool leaf-btn-med" href="../index.php?a=printview&recordID='+ recordID +'">Check Certification Progress</button>');
                     }
                 });
                 query.execute();

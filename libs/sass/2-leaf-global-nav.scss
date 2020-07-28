@@ -127,7 +127,7 @@
   /* ///////////// Second Level Dropdown //////////////// */
   
       @media screen and (min-width: 48.5rem) {
-          #nav > ul > li > ul {background-color: #274863; top: 32px; left: -4.0rem; width: 12.0rem; font-size: 0.8rem;}
+          #nav > ul > li > ul {background-color: #274863; top: 32px; left: -4.0rem; width: 12.0rem; font-size: 0.8rem; box-shadow: -2px 4px 4px #a9aeb1;}
           #nav > ul > li > ul.leaf-usernavmenu {left: -8rem;}
           #nav > ul > li > ul > li {padding: 0.2rem; width: 12.0rem;}
           #nav > ul > li > ul > li > a {padding: 0.2rem;}
@@ -157,16 +157,17 @@
     #nav > ul > li > ul > li > ul {
       top: 0;
       left: -12.0rem;
-      width: 13.0rem;
+      width: 12.0rem;
       font-family: 'PublicSans-Regular';
       z-index: 9999;
+      box-shadow: -2px 2px 4px #a9aeb1;
+      background-color: #2378c3;
       } 
       #nav > ul > li > ul > li > ul > li > a {
-        background-color: #2378c3;
         color: #f0f0ec;
-        padding: 0.3rem 0.3rem 0.3rem 0.5rem;
+        padding: 0.3rem 0.3rem 0.3rem 0.3rem;
         text-decoration: none;
-        margin-left: 0.7rem;
+        margin-left: 0.1rem;
       }
   }
   @media screen and (max-width: 48.4rem) {

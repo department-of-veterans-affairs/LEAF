@@ -27,7 +27,7 @@
 
     <main class="main-content">
 
-        <h2>User Access Groups<span class="leaf-title-inst">Click cards to edit.</span></h2>
+        <h2>User Access Groups</h2>
         
         <div>
             <h3 role="heading" tabindex="-1">Site Administrators</h3>
@@ -156,7 +156,7 @@ function focusGroupsAndMembers(groupID) {
     });
 }
 function getGroupList() {
-    $('#groupList').html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
+    $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
 
     $.ajax({
         type: 'GET',
@@ -220,8 +220,8 @@ function getGroupList() {
                 else { // if is admin
                     function openAdminGroup(){
                         dialog.setContent(
-                            '<button style="float:right" class="usa-button usa-button--secondary leaf-btn-small" onclick="viewHistory(1)"><i class="fas fa-clock leaf-btn-icon"></i>View History</button>'+
-                            '<h2 role="heading" tabindex="-1">System Administrators</h2><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><h3 role="heading" tabindex="-1" >Add Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
+                            '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
+                            '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><label class="usa-label" role="heading" tabindex="-1" >Add Administrator</label></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -286,15 +286,13 @@ function getGroupList() {
                 //Primary Admin Section
                 if(res[i].groupID == 1) {
                     $('#primaryAdmin').append('<div tabindex="0" class="groupBlock">\
-                        <h2 id="groupTitlePrimaryAdmin">Primary Admin</h2>\
+                        <h3 id="groupTitlePrimaryAdmin">Primary Admin</h3>\
                         <div id="membersPrimaryAdmin"></div>\
                         </div>');
                     focusGroupsAndMembers('primaryAdmin');
 
                     function openPrimaryAdminGroup(){
-                        
-                        dialog.setContent('<button style="float:right" class="buttonNorm" onclick="viewHistory()"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>'+
-                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><br /><h3 role="heading" tabindex="-1" >Set Primary Administrator:</h3><div id="employeeSelector"></div>');
+                        dialog.setContent('<h3 role="heading" tabindex="-1">Primary Administrator</h3><div id="primaryAdminSummary"></div><div class="leaf-marginTop-2rem"><label class="usa-label" role="heading" tabindex="-1">Set Primary Administrator</label></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -384,17 +382,13 @@ function getGroupList() {
 }
 
 function viewHistory(groupID){
-    $('#simplexhr').css({width: $(window).width() * .5, height: $(window).height() * .7});
-
     dialog_simple.setContent('');
     dialog_simple.setTitle('Group History');
 	dialog_simple.indicateBusy();
-    
-    var type = (groupID)? "group": "primaryAdmin";
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID,
+        url: 'ajaxIndex.php?a=gethistory&type=group&id='+groupID,
         dataType: 'text',
         success: function(res) {
             dialog_simple.setContent(res);
@@ -404,24 +398,6 @@ function viewHistory(groupID){
         cache: false
     });
 
-}
-
-function viewPrimaryAdminHistory(){
-    dialog_simple.setContent('');
-    dialog_simple.setTitle('Primary Admin History');
-	dialog_simple.indicateBusy();
-
-    $.ajax({
-        type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=primaryAdmin',
-        dataType: 'text',
-        success: function(res) {
-            dialog_simple.setContent(res);
-            dialog_simple.indicateIdle();
-            dialog_simple.show();
-        },
-        cache: false
-    });
 }
 
 // used to import and add groups
@@ -454,7 +430,7 @@ function tagAndUpdate(groupID, callback) {
 
 function importGroup() {
     dialog.setTitle('Import Group');
-    dialog.setContent('<h4 role="heading" tabindex="-1">Import a group from another LEAF site:</h4><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container" style="height: 40px;"></div></div>');
+    dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
 
     var groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -493,8 +469,8 @@ function createGroup() {
     	dialog.indicateBusy();
         //list of possible errors returned by the api call
         possibleErrors = [
-            "Group title must not be blank",
-            "Group title already exists",
+            "Group title must not be blank", 
+            "Group title already exists", 
             "invalid parent group"
         ];
         $.ajax({
@@ -541,13 +517,7 @@ $(function() {
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
 
 	$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
-
-    dialog_simple.setCancelHandler(function(){
-        $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
-        dialog_simple.setTitle("");
-    });
 	$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
-    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     getGroupList();
 });

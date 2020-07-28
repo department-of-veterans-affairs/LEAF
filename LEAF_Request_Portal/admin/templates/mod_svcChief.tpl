@@ -1,20 +1,25 @@
 <div class="leaf-center-content">
 
-    <h2>Service Chiefs</h2>
+    <aside class="sidenav-right"></aside>
+    
+    <!--{assign var=left_nav_content value="
+        <div id='sideBar'>
+            <button id='btn_uploadFile' class='usa-button' onclick='syncServices();'>
+                Import from Nexus
+            </button>
+        </div>
+    "}-->
+    <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
+    
+    <main class="main-content">
+        <h2>Service Chiefs</h2>
 
-    <div id="sideBar" style="width: 200px">
+        <div>
+            <div id="groupList"></div>
+        </div>
 
-        <button id="btn_uploadFile" class="usa-button" onclick="syncServices();">
-            <i class="fas fa-file-import leaf-btn-icon"></i>Import from Nexus
-        </button>
-        
+        <div class="leaf-row-space"></div>
     </div>
-
-    <div>
-        <div id="groupList"></div>
-    </div>
-
-    <div class="leaf-row-space"></div>
     
 </div>
 
