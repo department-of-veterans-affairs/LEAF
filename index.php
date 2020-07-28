@@ -15,6 +15,15 @@ if (false !== $pos = strpos($uri, '?')) {
     $uri = substr($uri, 0, $pos);
 }
 
+//301 to add trailing slash
+if (substr($uri, -1) !== '/') {
+    $parts = explode('?', $_SERVER['REQUEST_URI'], 2);
+    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
+    $redirectUri = $protocol . '://' . $_SERVER[HTTP_HOST] . $parts[0] . '/' . (isset($parts[1]) ? '?' . $parts[1] : '');
+    header('Location: '.$redirectUri, true, 301);
+    exit;
+}
+
 //rewrite for api
 if (false !== $pos = strpos($uri, '/api/')) {
     $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : substr($uri, $pos+5);
