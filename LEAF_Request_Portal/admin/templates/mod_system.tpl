@@ -13,7 +13,7 @@
         <form class="usa-form">
         
             <label for="heading" class="usa-label">Title of LEAF site</label>
-            <input id="heading" class="usa-input" type="text" title="" s />
+            <input id="heading" class="usa-input" type="text" title="" />
 
             <label for="subHeading" class="usa-label">Facility Name</label>
             <input id="subHeading" class="usa-input" type="text" title="" />
