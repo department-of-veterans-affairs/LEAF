@@ -1,11 +1,10 @@
 <link rel="stylesheet" href="../../../libs/css/leaf.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.1/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
+<script src="../../../libs/js/promise-pollyfill/polyfill.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <style>
-
     .errorMessage{
         font-size: smaller;
         max-width: 30%;
@@ -36,7 +35,7 @@
     var previewData = [];
     var previewShowing = false;
 
-    $(async function() {
+    $( function() {
         $("body").prepend($("#modal-background"));
         var progressTimer;
         var progressbar = $( "#progressbar" );
@@ -73,12 +72,12 @@
         });
 
         // step 1
-        $("#step1btn").click(async function(){
+        $("#step1btn").click( function(){
             
             var input = document.getElementById('import-fileInput');
             if (input.files[0] != null) {
                 workbook = new WorkbookHelper(input.files[0]);
-                await workbook.init().then(function(){
+                workbook.init().then(function(){
                     headers = workbook.getHeaders();
                     fillDropdown();
                     moveToStepTwo();
@@ -89,13 +88,14 @@
             }
         });
         // step 2
-        $("#step2btn").click(async function(){
+        $("#step2btn").click( function(){
 
             dialog.dialog( "open" );
-            var results = await importFromWorkbook();
+            importFromWorkbook().then(function(results){
+                $("#importStep2").hide();
+                moveToComplete(results);
+            });
             
-            $("#importStep2").hide();
-            moveToComplete(results);
         });
 
         $("#preview-btn").click(function(){
@@ -142,7 +142,7 @@
             $("#step2").removeClass('current').addClass('next');
         });
 
-        async function importFromWorkbook(){
+         function importFromWorkbook(){
             var employeeEmailIndex = $('#employee-select').val();
             var supervisorEmailIndex = $('#supervisor-select').val();
             var positionIndex = $('#position-select').val();
@@ -162,13 +162,13 @@
                     )
                 );
             } 
-            return await Promise.all(importedDataPromises);
+            return Promise.all(importedDataPromises);
             
         }
 
-        async function doImport(employee){
+         function doImport(employee){
 
-            return new Promise(async function(resolve){
+            return new Promise( function(resolve){
                 var valid = true;
 
                 var validationPromises = [];
@@ -177,7 +177,9 @@
                 validationPromises.push(checkUserExistsNational(employee.supervisorEmail));
                 validationPromises.push(checkPosition(employee.position));
 
-                var responses = await Promise.all(validationPromises);
+                var responses;
+                Promise.all(validationPromises).then(function(res){
+                responses = res;
                 var userResponse = responses[0][Object.keys(responses[0])[0]];
                 var supervisorResponse = responses[1][Object.keys(responses[1])[0]];
                 var positionResponse = responses[2];
@@ -194,100 +196,130 @@
                     employee.displayName = userResponse.firstName + ' ' + userResponse.lastName;
 
                     // check if user exists in local to see if it needs to be imported
-                    var localResult = await getLocalEmployeeData(employee.email);
-                    var localEmployeeData = null;
+                    var localResult;
+                    
+                    getLocalEmployeeData(employee.email).then(function(result){
+                        localResult = result;
+                        var localEmployeeData = null;
 
-                    if(Object.keys(localResult).length > 0){
-                        localEmployeeData = localResult[Object.keys(localResult)[0]];
-                    }
+                        if(Object.keys(localResult).length > 0){
+                            localEmployeeData = localResult[Object.keys(localResult)[0]];
+                        }
 
-                    if(!localEmployeeData){
-                        // if user does not exist in local, import them.
-                        var importResult = await addEmployee(employee);
+                        if(!localEmployeeData){
+                            // if user does not exist in local, import them.
+                            addEmployee(employee).then(function(importResult){
+                                if(importResult < 0){
+                                    userValid = false;
+                                    employee.errorMessage += "Unable to import user. ";
+                                }
+                                else{
+                                    employee.userID = importResult;
+                                    userImported = true;
+                                }
 
-                        if(importResult < 0){
-                            userValid = false;
-                            employee.errorMessage += "Unable to import user. ";
+                                if(userImported){
+                                
+                                    if(supervisorValid){
+                                        employee.supervisorDisplayName = supervisorResponse.firstName + ' ' + supervisorResponse.lastName;
+                                    }
+                                    else{
+                                        employee.errorMessage += "Supervisor not found in national orgchart. ";
+                                        supervisorValid = false;
+                                        totalImported++;
+                                        resolve(employee);
+                                    }
+
+                                    valid = userValid && supervisorValid && positionValid;
+
+                                    if(valid){
+                                        
+                                        var found = false;
+                                        
+                                        var supervisorLocalResult; 
+                                        
+                                        getLocalEmployeeData(employee.supervisorEmail).then(function(result){
+
+                                            supervisorLocalResult = result;
+
+                                            var fullSupervisorInfo = null;
+
+                                            if(Object.keys(supervisorLocalResult).length > 0){
+                                                fullSupervisorInfo = supervisorLocalResult[Object.keys(supervisorLocalResult)[0]];
+
+                                                var supervisorPositions;
+                                                
+                                                getEmployeePositionData(fullSupervisorInfo.empUID).then(function(result){
+
+                                                    supervisorPositions = result;
+                                                    var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
+
+                                                    if(supervisorPositions){
+                                                        var positions = supervisorPositions;
+
+                                                        for(var i=0; i< positions.length; i++){
+                                                            if(positionSupervisors.indexOf(positions[i].empUID) >= 0){
+                                                                found = true;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if(found){
+                                                        addEmployeeToPosition(employee.empUID, positionResponse.positionID).then(function(){
+                                                            employee.success = true;
+                                                            totalImported++;
+                                                            resolve(employee);
+                                                        });
+                                                    }
+                                                    else{
+                                                        employee.errorMessage += "Provided supervisor not assigned to position. ";
+                                                        totalImported++;
+                                                        resolve(employee);
+                                                    }
+                                                });
+                                                
+                                            }
+
+                                        });
+
+
+                                    }
+                                    else{
+                                        employee.errorMessage += "Position not found. ";
+                                        valid = false;
+                                        totalImported++;
+                                        resolve(employee);
+                                    }
+                                }
+                                else{
+                                    totalImported++;
+                                    resolve(employee);
+                                }
+
+                            });
+
+
                         }
                         else{
-                            employee.userID = importResult;
-                            userImported = true;
+                            userValid = false;
+                            employee.errorMessage += "User already imported!";
+                            totalImported++;
+                            resolve(employee);
                         }
-                    }
-                    else{
-                        userValid = false;
-                        employee.errorMessage += "User already imported!";
-                    }
+
+
+                    });
+
 
                 }
                 else{
                     employee.errorMessage += "User not found in national orgchart. ";
                     userValid = false;
+                    totalImported++;
+                    resolve(employee);
                 }
+                });
 
-                if(userImported){
-                    
-                    if(supervisorValid){
-                        employee.supervisorDisplayName = supervisorResponse.firstName + ' ' + supervisorResponse.lastName;
-                    }
-                    else{
-                        employee.errorMessage += "Supervisor not found in national orgchart. ";
-                        supervisorValid = false;
-                    }
-
-                    valid = userValid && supervisorValid && positionValid;
-
-                    if(valid){
-                        
-                        var found = false;
-                        
-                        var supervisorLocalResult = await getLocalEmployeeData(employee.supervisorEmail);
-
-                        var fullSupervisorInfo = null;
-
-                        if(Object.keys(supervisorLocalResult).length > 0){
-                            fullSupervisorInfo = supervisorLocalResult[Object.keys(supervisorLocalResult)[0]];
-
-                            var supervisorPositions = await getEmployeePositionData(fullSupervisorInfo.empUID);
-                        
-                            var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
-
-                            if(supervisorPositions){
-                                var positions = supervisorPositions;
-
-                                for(var i=0; i< positions.length; i++){
-                                    if(positionSupervisors.indexOf(positions[i].empUID) >= 0){
-                                        found = true;
-                                    }
-                                }
-                            }
-                        }
-
-
-                        if(found){
-                            try{
-                                await addEmployeeToPosition(employee.empUID, positionResponse.positionID);
-                                employee.success = true;
-                            }
-                            catch{
-                                employee.errorMessage += "Import successful, unable to add position. "
-                            }
-                            
-                        }
-                        else{
-                            employee.errorMessage += "Provided supervisor not assigned to position. ";
-                        }
-                    }
-                    else{
-                        employee.errorMessage += "Position not found. ";
-                        valid = false;
-                    }
-                }
-
-                
-
-                totalImported++;
-                resolve(employee);
             });
             
         };
