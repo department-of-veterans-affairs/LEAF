@@ -36,7 +36,7 @@ function WorkbookHelper(upload){
             var fileReader = new FileReader();
     
             fileReader.onload = function (event) {    
-                debugger;
+                
                 if(!event){
                     var data = this.content;
                 }

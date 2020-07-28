@@ -219,6 +219,84 @@
                                     userImported = true;
                                 }
 
+                                if(userImported){
+                                
+                                    if(supervisorValid){
+                                        employee.supervisorDisplayName = supervisorResponse.firstName + ' ' + supervisorResponse.lastName;
+                                    }
+                                    else{
+                                        employee.errorMessage += "Supervisor not found in national orgchart. ";
+                                        supervisorValid = false;
+                                        totalImported++;
+                                        resolve(employee);
+                                    }
+
+                                    valid = userValid && supervisorValid && positionValid;
+
+                                    if(valid){
+                                        
+                                        var found = false;
+                                        
+                                        var supervisorLocalResult; 
+                                        
+                                        getLocalEmployeeData(employee.supervisorEmail).then(function(result){
+
+                                            supervisorLocalResult = result;
+
+                                            var fullSupervisorInfo = null;
+
+                                            if(Object.keys(supervisorLocalResult).length > 0){
+                                                fullSupervisorInfo = supervisorLocalResult[Object.keys(supervisorLocalResult)[0]];
+
+                                                var supervisorPositions;
+                                                
+                                                getEmployeePositionData(fullSupervisorInfo.empUID).then(function(result){
+
+                                                    supervisorPositions = result;
+                                                    var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
+
+                                                    if(supervisorPositions){
+                                                        var positions = supervisorPositions;
+
+                                                        for(var i=0; i< positions.length; i++){
+                                                            if(positionSupervisors.indexOf(positions[i].empUID) >= 0){
+                                                                found = true;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if(found){
+                                                        addEmployeeToPosition(employee.empUID, positionResponse.positionID).then(function(){
+                                                            employee.success = true;
+                                                            totalImported++;
+                                                            resolve(employee);
+                                                        });
+                                                    }
+                                                    else{
+                                                        employee.errorMessage += "Provided supervisor not assigned to position. ";
+                                                        totalImported++;
+                                                        resolve(employee);
+                                                    }
+                                                });
+                                                
+                                            }
+
+                                        });
+
+
+                                    }
+                                    else{
+                                        employee.errorMessage += "Position not found. ";
+                                        valid = false;
+                                        totalImported++;
+                                        resolve(employee);
+                                    }
+                                }
+                                else{
+                                    totalImported++;
+                                    resolve(employee);
+                                }
+
                             });
 
 
@@ -226,83 +304,11 @@
                         else{
                             userValid = false;
                             employee.errorMessage += "User already imported!";
-                        }
-
-                        if(userImported){
-                        
-                            if(supervisorValid){
-                                employee.supervisorDisplayName = supervisorResponse.firstName + ' ' + supervisorResponse.lastName;
-                            }
-                            else{
-                                employee.errorMessage += "Supervisor not found in national orgchart. ";
-                                supervisorValid = false;
-                            }
-
-                            valid = userValid && supervisorValid && positionValid;
-
-                            if(valid){
-                                
-                                var found = false;
-                                
-                                var supervisorLocalResult; 
-                                
-                                getLocalEmployeeData(employee.supervisorEmail).then(function(result){
-
-                                    supervisorLocalResult = result;
-
-                                    var fullSupervisorInfo = null;
-
-                                    if(Object.keys(supervisorLocalResult).length > 0){
-                                        fullSupervisorInfo = supervisorLocalResult[Object.keys(supervisorLocalResult)[0]];
-
-                                        var supervisorPositions;
-                                        
-                                        getEmployeePositionData(fullSupervisorInfo.empUID).then(function(result){
-
-                                            supervisorPositions = result;
-                                            var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
-
-                                            if(supervisorPositions){
-                                                var positions = supervisorPositions;
-
-                                                for(var i=0; i< positions.length; i++){
-                                                    if(positionSupervisors.indexOf(positions[i].empUID) >= 0){
-                                                        found = true;
-                                                    }
-                                                }
-                                            }
-
-                                            if(found){
-                                                addEmployeeToPosition(employee.empUID, positionResponse.positionID).then(function(){
-                                                    employee.success = true;
-                                                    totalImported++;
-                                                    resolve(employee);
-                                                });
-                                            }
-                                            else{
-                                                employee.errorMessage += "Provided supervisor not assigned to position. ";
-                                                totalImported++;
-                                                resolve(employee);
-                                            }
-                                        });
-                                        
-                                    }
-
-                                });
-
-
-                            }
-                            else{
-                                employee.errorMessage += "Position not found. ";
-                                valid = false;
-                                totalImported++;
-                                resolve(employee);
-                            }
-                        }
-                        else{
                             totalImported++;
                             resolve(employee);
                         }
+
+
                     });
 
 
