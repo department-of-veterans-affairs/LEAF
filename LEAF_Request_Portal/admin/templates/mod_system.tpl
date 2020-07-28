@@ -13,7 +13,7 @@
         <form class="usa-form">
         
             <label for="heading" class="usa-label">Title of LEAF site</label>
-            <input id="heading" class="usa-input" type="text" title="" />
+            <input id="heading" class="usa-input" type="text" title="" s />
 
             <label for="subHeading" class="usa-label">Facility Name</label>
             <input id="subHeading" class="usa-input" type="text" title="" />
@@ -42,30 +42,27 @@
                 </span>
             </div>
 
-            <fieldset>
+            <h3 class="leaf-marginTop-1rem">Advanced Settings</h3>
 
-                <legend>Advanced Settings</legend>
-                <div class="item">
-                    <label for="siteType" class="usa-label">Type of Site</label>
-                    <select id="siteType" class="usa-select">
-                        <option value="standard">Standard</option>
-                        <option value="national_primary">Nationally Standardized Primary</option>
-                        <option value="national_subordinate">Nationally Standardized Subordinate</option>
-                    </select>
-                </div>
+            <div class="item">
+                <label for="siteType" class="usa-label">Type of Site</label>
+                <select id="siteType" class="usa-select">
+                    <option value="standard">Standard</option>
+                    <option value="national_primary">Nationally Standardized Primary</option>
+                    <option value="national_subordinate">Nationally Standardized Subordinate</option>
+                </select>
+            </div>
 
-                <div class="item siteType national_primary" style="display: none">
-                    <label for="national_linkedSubordinateList" class="usa-label">Nationally Standardized Subordinate Sites</label>
-                    <div>The first site in the list should be a TEST site.<br />URLs must end with a trailing slash.</div>
-                    <textarea id="national_linkedSubordinateList" cols="50" rows="5" class="usa-textarea"></textarea>
-                </div>
+            <div class="item siteType national_primary" style="display: none">
+                <label for="national_linkedSubordinateList" class="usa-label">Nationally Standardized Subordinate Sites</label>
+                <div>The first site in the list should be a TEST site.<br />URLs must end with a trailing slash.</div>
+                <textarea id="national_linkedSubordinateList" cols="50" rows="5" class="usa-textarea"></textarea>
+            </div>
 
-                <div class="item siteType national_subordinate" style="display: none">
-                    <label for="national_linkedPrimary" class="usa-label">Nationally Standardized Primary Site URLs must end with a trailing slash.</label>
-                    <input id="national_linkedPrimary" type="text" class="usa-text" />
-                </div>
-
-            </fieldset>
+            <div class="item siteType national_subordinate" style="display: none">
+                <label for="national_linkedPrimary" class="usa-label">Nationally Standardized Primary Site URLs must end with a trailing slash.</label>
+                <input id="national_linkedPrimary" type="text" class="usa-input" size="42" />
+            </div>
 
             <button class="usa-button" onclick="saveSettings();">Save</button>
 
