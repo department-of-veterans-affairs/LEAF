@@ -21,7 +21,8 @@ if (substr($uri, -1) !== '/' && strpos(end($segments), ".") === false) {
     $parts = explode('?', $_SERVER['REQUEST_URI'], 2);
     $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
     $redirectUri = $protocol . '://' . $_SERVER[HTTP_HOST] . $parts[0] . '/' . (isset($parts[1]) ? '?' . $parts[1] : '');
-    header('Location: '.$redirectUri, true, 301);
+    $code = $httpMethod == "GET" ? 301 : 308;
+    header('Location: '.$redirectUri, true, $code);
     exit;
 }
 
