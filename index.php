@@ -16,7 +16,8 @@ if (false !== $pos = strpos($uri, '?')) {
 }
 
 //301 to add trailing slash
-if (substr($uri, -1) !== '/') {
+$segments = explode('/', $uri);
+if (substr($uri, -1) !== '/' && strpos(end($segments), ".") === false) {
     $parts = explode('?', $_SERVER['REQUEST_URI'], 2);
     $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
     $redirectUri = $protocol . '://' . $_SERVER[HTTP_HOST] . $parts[0] . '/' . (isset($parts[1]) ? '?' . $parts[1] : '');
