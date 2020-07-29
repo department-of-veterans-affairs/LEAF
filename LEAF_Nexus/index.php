@@ -66,6 +66,7 @@ $t_login->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
+$main->assign('userID', $login->getUserID());
 
 switch ($action) {
     case 'navigator_service':
