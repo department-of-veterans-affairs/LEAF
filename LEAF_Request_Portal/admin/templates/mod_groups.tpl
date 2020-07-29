@@ -1,25 +1,24 @@
 <div class="leaf-center-content">
 
-    
-
     <!--{assign var=right_nav_content value="
-        <button class='usa-button leaf-btn-med leaf-side-btn' onclick='createGroup();'>
-            + Create Group
+        <h3 class='navhead'>Access groups</h3>
+        <button class='usa-button leaf-btn-green leaf-btn-med leaf-side-btn' onclick='createGroup();'>
+            + Create group
         </button>
         <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='importGroup();'>
-            Import Group
+            Import group
         </button>
         <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='showAllGroupHistory();'>
-            Show Group History
+            Show group history
         </button>
     "}-->
     <!--{include file="partial_layouts/right_side_nav.tpl" contentRight="$right_nav_content"}-->
 
     <!--{assign var=left_nav_content value="
-        <h3>Access Categories</h3>
+        <h3 class='navhead'>Access categories</h3>
         <ul class='usa-sidenav'>
-            <li class='usa-sidenav__item'><a href='javascript:void(0)'>Site Administrators</a></li>
-            <li class='usa-sidenav__item'><a href='javascript:void(0)'>User Groups</a></li>
+            <li class='usa-sidenav__item usa-current'><a href='javascript:void(0)'>System administrators (2)</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)'>User groups</a></li>
         </ul>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
@@ -27,10 +26,10 @@
 
     <main class="main-content">
 
-        <h2>User Access Groups</h2>
+        <h2><a href="/LEAF_Request_Portal/admin" class="leaf-font-normal">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2>
         
         <div>
-            <h3 role="heading" tabindex="-1">Site Administrators</h3>
+            <h3 role="heading" tabindex="-1">System administrators</h3>
         </div>
         <div>
             <div id="adminList"></div>
@@ -40,7 +39,7 @@
         <div class="leaf-row-space"></div>
         
         <div class="leaf-clear-both">
-            <h3 role="heading" tabindex="-1">User Groups</h3>
+            <h3 role="heading" tabindex="-1">User groups</h3>
             <div id="groupList"></div>
         </div>
 
