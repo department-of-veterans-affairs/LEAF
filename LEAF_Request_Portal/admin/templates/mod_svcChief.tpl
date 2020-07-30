@@ -4,7 +4,7 @@
     
     <!--{assign var=left_nav_content value="
         <div id='sideBar'>
-            <button id='btn_uploadFile' class='usa-button' onclick='syncServices();'>
+            <button id='btn_uploadFile' class='usa-button leaf-side-btn' onclick='syncServices();'>
                 Import from Nexus
             </button>
         </div>

@@ -76,13 +76,13 @@ hr {border: 1px solid #dfe1e2;}
 .leaf-btn-icon {margin-right: 0.5rem;}
 .leaf-btn-small {padding: 0.5rem; font-size: 0.4rem;}
 .leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
-.leaf-side-btn {width: 13.0rem; display: block; margin: 1.0rem 0.0rem;}
+.leaf-side-btn {width: 14.5rem; display: block; margin: 1.0rem 0.0rem;}
 .leaf-btn-green {background-color: #00a91c;}
 .leaf-btn-green:hover {background-color: #008817;}
 
 /* ############### SPECIAL CLASSES ################# */
 .leaf-row-space {height: 1rem; margin: 0.2rem 0; clear: both;}
-.leaf-crumb-caret {font-size: 1.1rem; margin: 0 0.7rem 0 0.7rem; color: #0c60a0;}
+.leaf-crumb-caret {font-size: 1.1rem; margin: 0 0.4rem 0 0.5rem; color: #0c60a0;}
 .leaf-text-smaller {font-size: 0.9rem;}
 .leaf-buttonBar {text-align: center; margin: 1.0rem 0;}
 .leaf-content-show {display: block;}
@@ -262,11 +262,11 @@ ul.leaf-progress-bar {
     .usa-logo {margin: 0; height: 4.6rem; float: left;}
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
-    .sidenav {display: block; float: left; margin: 1.0rem 1.0rem 0 0.2rem; padding: 1.0rem; width: 16.5rem;}
-        h3.navhead {font-family: 'PublicSans-Medium'; font-weight: normal; margin-bottom: 1.0rem;}
+    .sidenav {display: block; float: left; margin: 1.5rem 1.0rem 0 0.2rem; padding: 0.5rem 1.0rem 0.2rem 1.0rem; width: 16.5rem;}
+        h3.navhead {font-family: 'PublicSans-Medium'; font-weight: normal; margin-bottom: 1.0rem; margin-top: 0.4rem;}
         .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
-    .sidenav-right {display: block; float: right; margin: 1.0rem 0.2rem 0 1.0rem; padding: 0.5rem 1.0rem 0.2rem 1.0rem; max-width: 17.5rem;}
+    .sidenav-right {display: block; float: right; margin: 1.5rem 0.2rem 0 1.0rem; padding: 0.5rem 1.0rem 0.2rem 1.0rem; width: 16.5rem;}
         .sidenav-right:hidden {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .usa-banner {font-family: 'PublicSans-Regular';}
@@ -281,13 +281,23 @@ ul.leaf-progress-bar {
     .usa-label {line-height: 1.2rem;}
     .usa-input {padding: 1.0rem;}
     .usa-select {font-size: 0.9rem; padding: 0.0rem 0.4rem;}
+    .usa-sidenav {margin-bottom: 0.6rem; border-bottom: 0;}
     .usa-ro-text {margin: 0.5rem 0; font-size: 0.9rem;}
     .main-content {
         display: inline-block;
         position: relative;
-        width: calc(100% - 33rem);
+        width: calc(100% - 38rem);
         white-space: normal;
-        margin: 0.6rem 0.9rem;
+        margin: 0.6rem 2.9rem;
+        min-height: 27rem;
+        overflow: visible;
+    }
+    .main-content-noRight {
+        display: inline-block;
+        position: relative;
+        width: 70%;
+        white-space: normal;
+        margin: 0.6rem 2.9rem;
         min-height: 27rem;
         overflow: visible;
     }
@@ -307,7 +317,7 @@ ul.leaf-progress-bar {
     .site-header {background-color: #252f3e; height: 4.6rem; box-shadow: 0px 4px 6px #a9aeb1;}
     .leaf-logo {float: left;}
         .leaf-logo img {width: 56px; margin: 0.6rem 1.0rem 0 0.6rem;}
-    .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; font-family: 'PublicSans-Bold'; font-size: 1.3rem; }
+    .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; margin-bottom: 0.2rem;font-family: 'PublicSans-Bold'; font-size: 1.2rem; }
     .leaf-header-description {font-family: 'PublicSans-Regular'; font-size: 1.0rem; display: block; white-space: nowrap; max-width: 21rem; font-weight: normal; }
     .leaf-header-right {float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
     .lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'PublicSans-Medium';}

@@ -35,6 +35,17 @@
         width: calc(100% - 15rem);
         white-space: normal;
     }
+    .main-content-noRight {
+        display: inline-block;
+        position: relative;
+        width: 70%;
+        white-space: normal;
+        margin: 0.6rem 2.9rem;
+        min-height: 27rem;
+        overflow: visible;
+    }
+    .main-content h2 {font-weight: normal; font-family: 'PublicSans-Medium';}
+    .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative;}
 
     /* ############### LEAF HEADER ################# */
     .site-header {background-color: #252f3e; height: 3.8rem;}

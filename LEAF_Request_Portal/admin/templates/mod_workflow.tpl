@@ -2,7 +2,7 @@
 
     <aside class="sidenav" id="sideBar">
         
-        <button id="btn_createStep" class="usa-button leaf-btn-med leaf-width-10rem leaf-side-btn" onclick="createStep();" role="button" tabindex="0">
+        <button id="btn_createStep" class="usa-button leaf-btn-green leaf-btn-med leaf-side-btn" onclick="createStep();" role="button" tabindex="0">
             Add Step
         </button>
         
@@ -10,27 +10,27 @@
         
         <div id="workflowList" class="leaf-marginTopBot-1rem"></div>
         
-        <button id="btn_newWorkflow" class="usa-button leaf-btn-med leaf-width-10rem leaf-side-btn" onclick="newWorkflow();" role="button" tabindex="0">
+        <button id="btn_newWorkflow" class="usa-button leaf-btn-med leaf-side-btn" onclick="newWorkflow();" role="button" tabindex="0">
             New Workflow
         </button>
         
-        <div id="btn_deleteWorkflow" class="usa-button usa-button--secondary leaf-btn-med leaf-width-10rem leaf-side-btn" onclick="deleteWorkflow();" style="display: none" role="button" tabindex="0">
+        <div id="btn_deleteWorkflow" class="usa-button usa-button--secondary leaf-btn-med leaf-side-btn" onclick="deleteWorkflow();" style="display: none" role="button" tabindex="0">
             Delete workflow
         </div>
         
-        <div id="btn_listActionType" class="usa-button usa-button--accent-cool leaf-btn-med leaf-width-10rem leaf-side-btn" onclick="listActionType();" style="display: none" role="button" tabindex="0">
+        <div id="btn_listActionType" class="usa-button usa-button--accent-cool leaf-btn-med leaf-side-btn" onclick="listActionType();" style="display: none" role="button" tabindex="0">
             Edit Actions
         </div>
         
-        <div id="btn_viewHistory" class="usa-button usa-button--outline leaf-btn-med leaf-width-10rem leaf-side-btn" onclick="viewHistory();" style="display: none;" role="button" tabindex="0">
+        <div id="btn_viewHistory" class="usa-button usa-button--outline leaf-btn-med leaf-side-btn" onclick="viewHistory();" style="display: none;" role="button" tabindex="0">
             View History
         </div>
 
     </aside>
 
-    <main class="main-content leaf-width80pct">
+    <main class="main-content-noRight">
     
-        <h2>Workflow Editor</h2>
+        <h2>Workflow editor</h2>
 
         <div class="leaf-workflow-box" id="workflow"></div>
 
