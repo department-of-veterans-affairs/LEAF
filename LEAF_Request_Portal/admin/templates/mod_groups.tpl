@@ -17,8 +17,8 @@
     <!--{assign var=left_nav_content value="
         <h3 class='navhead'>Access categories</h3>
         <ul class='usa-sidenav'>
-            <li class='usa-sidenav__item usa-current'><a href='javascript:void(0)'>System administrators (2)</a></li>
-            <li class='usa-sidenav__item'><a href='javascript:void(0)'>User groups</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)'>System administrators (2)</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)'>User groups (1)</a></li>
         </ul>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
@@ -26,7 +26,7 @@
 
     <main class="main-content">
 
-        <h2><a href="/LEAF_Request_Portal/admin" class="leaf-font-normal">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2>
+        <h2><a href="/LEAF_Request_Portal/admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2>
         
         <div>
             <h3 role="heading" tabindex="-1">System administrators</h3>
@@ -148,10 +148,10 @@ function setPrimaryAdmin(userID) {
 
 function focusGroupsAndMembers(groupID) {
     $('#' + groupID).on('focusin', function() {
-        $('#' + groupID).css('background-color', '#fffdc2');
+        $('#' + groupID).css('background-color', 'none');
     });
     $('#' + groupID).on('focusout', function() {
-        $('#' + groupID).css('background-color', 'white');
+        $('#' + groupID).css('background-color', 'none');
     });
 }
 function getGroupList() {
