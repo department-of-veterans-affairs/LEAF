@@ -199,6 +199,7 @@ function getGroupList() {
                             type: 'GET',
                             url: '../api/group/' + groupID + '/members',
                             success: function(res) {
+                                dialog.clear();
                                 dialog.setContent(
                                     '<button style="float:right" class="buttonNorm" onclick="viewHistory('+groupID+')"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="vertical-align: middle"> View History</button>'+
                                     '<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />');
@@ -255,7 +256,8 @@ function getGroupList() {
                                     $("#simplebutton_save").remove();
                                     dialog.show();
                                 }, 0);
-                            }
+                            },
+                            cache: false
                         });
                     }
 
