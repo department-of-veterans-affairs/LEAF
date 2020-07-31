@@ -21,10 +21,6 @@ if (!class_exists('CommonConfig'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
 }
-if (!class_exists('AWSUtil'))
-{
-    require_once dirname(__FILE__) . '/../../libs/php-commons/aws/AWSUtil.php';
-}
 
 if(!class_exists('DataActionLogger'))
 {
@@ -39,8 +35,6 @@ class System
 
     private $login;
 
-    private $awsUtil;
-
     private $fileExtensionWhitelist;
 
     private $dataActionLogger;
@@ -53,7 +47,6 @@ class System
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $commonConfig = new CommonConfig();
-        $this->awsUtil = new AWSUtil();
 
         $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
 
@@ -414,8 +407,7 @@ class System
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
             $results = $this->awsUtil->s3getObject($config->s3TemplateDir . $template, __DIR__."/../templates/custom_override/" . $cleanPortalPath . "{$template}");
 
-            if ($results != "NoSuchKey"
-                  && !$getStandard)
+            if (!$getStandard)
             {
                 $data['modified'] = 1;
                 $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/" . $cleanPortalPath . "{$template}");

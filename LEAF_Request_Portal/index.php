@@ -17,8 +17,6 @@ include __DIR__ . '/Login.php';
 include __DIR__ . '/db_mysql.php';
 include __DIR__ . '/form.php';
 
-define("TPL_TIME_LIMIT", 120000);
-
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
 {
@@ -66,8 +64,8 @@ function customTemplate($tpl, $config)
 {
     $templateFound = false;
     $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-    //var_dump(__DIR__."/templates/custom_override/". $cleanPortalPath . "{$tpl}");
-    $customTemplatePath = __DIR__."/templates/custom_override/". $cleanPortalPath . "{$tpl}";
+
+    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
     if (file_exists($customTemplatePath)) {
         return "custom_override/". $cleanPortalPath . "{$tpl}";
     } else {
