@@ -62,7 +62,6 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 */
 function customTemplate($tpl, $config)
 {
-    $templateFound = false;
     $cleanPortalPath = str_replace("/", "_", $config->portalPath);
 
     $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
