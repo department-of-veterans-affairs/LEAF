@@ -5,6 +5,7 @@ $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
 include __DIR__ . '/../db_mysql.php';
+include __DIR__ . '/../globals.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -21,6 +22,10 @@ function getBaseDir()
 
     return str_replace('login', '', $dir);
 }
+
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+
+$authURL = $protocol . AUTH_URL . '/auth_token/index.php?r=' . base64_encode(getBaseDir());
 
 ?>
 <!DOCTYPE html>
@@ -57,8 +62,7 @@ When logging into this system, you agree to the following:<br />
     This information system is provided for U.S. Government-authorized use only. Unauthorized or improper use of this system may result in disciplinary action, as well as civil and criminal penalties.<br /><br />
 
     <div style="font-size: 150%">
-        <a href="<?php echo '//' . $_SERVER['SERVER_NAME'] . ':444' . getBaseDir() . 'auth_token/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV card</b><img src="../../libs/dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV card" title="Icon for PIV card" /></div></a><br />
-        <a href="//' . $_SERVER['SERVER_NAME'] . getBaseDir() . 'auth_cookie/?' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES | ENT_HTML5, 'UTF-8') . '"><div class="buttonNorm" style="text-align: center">Login with Windows Credentials</div></a>
+        <a href="<?php echo $authURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV card</b><img src="../../libs/dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV card" title="Icon for PIV card" /></div></a>
     </div>
 </div>
 

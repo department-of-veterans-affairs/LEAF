@@ -65,6 +65,7 @@ $t_login->assign('name', XSSHelpers::xscrub($login->getName()));
 $t_menu->assign('is_admin', $login->checkGroup(1));
 
 $main->assign('useUI', false);
+$main->assign('userID', $login->getUserID());
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
@@ -289,6 +290,12 @@ switch ($action) {
 
         $inboxItems = $inbox->getInbox();
 
+        $errors = [];
+        if(array_key_exists("errors", $inboxItems))
+        {
+            $errors = $inboxItems['errors'];
+            unset($inboxItems['errors']);
+        }
         $depIndex = array_keys($inboxItems);
         $depColors = array();
         foreach ($depIndex as $depID)
@@ -307,6 +314,7 @@ switch ($action) {
         $t_form->assign('depColors', $depColors);
         $t_form->assign('descriptionID', $config->descriptionID);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('errors', $errors);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_inbox.tpl')));
 
