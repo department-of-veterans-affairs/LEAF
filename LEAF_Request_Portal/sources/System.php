@@ -405,7 +405,8 @@ class System
         {
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
 
-            if (!$getStandard)
+            if (file_exists(__DIR__."/../templates/custom_override/" . $cleanPortalPath . "{$template}")
+                && !$getStandard)
             {
                 $data['modified'] = 1;
                 $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/" . $cleanPortalPath . "{$template}");
