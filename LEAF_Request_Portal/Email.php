@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+define('APP_EMAIL_FROM',     getenv('APP_EMAIL_FROM', true)   ?:   getenv('APP_EMAIL_FROM'));
+
 /*
     Emailer
     Date Created: September 19, 2008
@@ -21,7 +23,7 @@ class Email
 
     public $emailBody = '';
 
-    private $emailFrom = 'LEAF@localhost';
+    private $emailFrom = APP_EMAIL_FROM;
 
     private $emailRecipient = '';
 
