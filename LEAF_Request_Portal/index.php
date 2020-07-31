@@ -125,7 +125,7 @@ switch ($action) {
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
 
-        $main->assign('body', $t_form->fetch(customTemplate('initial_form.tpl')));
+        $main->assign('body', $t_form->fetch(customTemplate('initial_form.tpl', $config)));
 
         $o_login = $t_login->fetch('login.tpl');
         $tabText = 'Resource Request';
@@ -169,7 +169,7 @@ switch ($action) {
                 case 'review':
                     break;
                 default:
-                    $main->assign('body', $t_form->fetch(customTemplate('form.tpl')));
+                    $main->assign('body', $t_form->fetch(customTemplate('form.tpl', $config)));
 
                     break;
             }
@@ -278,7 +278,7 @@ switch ($action) {
                     }
                 }
 
-                $main->assign('body', $t_form->fetch(customTemplate('print_form.tpl')));
+                $main->assign('body', $t_form->fetch(customTemplate('print_form.tpl', $config)));
                 $t_menu->assign('hide_main_control', true);
 
                 break;
@@ -328,7 +328,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('errors', $errors);
 
-        $main->assign('body', $t_form->fetch(customTemplate('view_inbox.tpl')));
+        $main->assign('body', $t_form->fetch(customTemplate('view_inbox.tpl', $config)));
 
         $tabText = 'Inbox';
 
@@ -470,7 +470,7 @@ switch ($action) {
         $t_form->assign('orgchartPath', $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-        $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl')));
+        $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl', $config)));
 
         $o_login = $t_login->fetch('login.tpl');
 
@@ -508,7 +508,7 @@ switch ($action) {
         $t_form->assign('powerQueryURL', $powerQueryURL);
 
 
-        $main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl')));
+        $main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl', $config)));
 
            $o_login = $t_login->fetch('login.tpl');
            $tabText = 'Report Builder';
@@ -527,8 +527,8 @@ switch ($action) {
         $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
         $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
 
-        $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
-        $main->display(customTemplate('main.tpl'));
+        $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl', $config)));
+        $main->display(customTemplate('main.tpl', $config));
         exit();
 
         break;
