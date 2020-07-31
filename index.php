@@ -6,6 +6,7 @@ require_once __DIR__ . '/routing/routing_config.php';
 require_once __DIR__ . '/routing/portal_config.php';
 require_once __DIR__ . '/routing/nexus_config.php';
 require_once __DIR__ . '/routing/LEAFRoutes.php';
+require_once __DIR__ . '/LEAF_Request_Portal/globals.php';
 
 // Fetch method and URI
 $httpMethod = $_SERVER['REQUEST_METHOD'];
@@ -16,11 +17,13 @@ if (false !== $pos = strpos($uri, '?')) {
 }
 
 //301 to add trailing slash
-if (substr($uri, -1) !== '/') {
+$segments = explode('/', $uri);
+if (substr($uri, -1) !== '/' && strpos(end($segments), ".") === false) {
     $parts = explode('?', $_SERVER['REQUEST_URI'], 2);
     $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
-    $redirectUri = $protocol . '://' . $_SERVER[HTTP_HOST] . $parts[0] . '/' . (isset($parts[1]) ? '?' . $parts[1] : '');
-    header('Location: '.$redirectUri, true, 301);
+    $redirectUri = $protocol . '://' . HTTP_HOST . $parts[0] . '/' . (isset($parts[1]) ? '?' . $parts[1] : '');
+    $code = $httpMethod == "GET" ? 301 : 308;
+    header('Location: '.$redirectUri, true, $code);
     exit;
 }
 
