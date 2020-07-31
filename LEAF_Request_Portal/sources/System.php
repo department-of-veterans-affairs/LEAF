@@ -393,6 +393,7 @@ class System
 
     public function getTemplate($template, $getStandard = false)
     {
+        global $config;
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -402,11 +403,12 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__."/../templates/custom_override/{$template}")
-                  && !$getStandard)
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+
+            if (!$getStandard)
             {
                 $data['modified'] = 1;
-                $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/" . $cleanPortalPath . "{$template}");
             }
             else
             {
@@ -449,6 +451,7 @@ class System
 
     public function setTemplate($template)
     {
+        global $config;
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -457,7 +460,10 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            file_put_contents(__DIR__ ."/../templates/custom_override/{$template}", $_POST['file']);
+          
+          
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            file_put_contents(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}", $_POST['file']);
         }
     }
 
@@ -479,6 +485,7 @@ class System
 
     public function removeCustomTemplate($template)
     {
+        global $config;
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -487,9 +494,10 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__."/../templates/custom_override/{$template}"))
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            if (file_exists(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}"))
             {
-                return unlink(__DIR__."/../templates/custom_override/{$template}");
+                return unlink(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}");
             }
         }
     }
