@@ -9,6 +9,8 @@
 
 */
 
+
+
 error_reporting(E_ALL & ~E_NOTICE);
 
 include __DIR__ . '/globals.php';
@@ -20,6 +22,13 @@ include __DIR__ . '/./sources/Exception.php';
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
+
+$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+if (isset($settings['timeZone']))
+{
+    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
+}
+
 
 $login->loginUser();
 if ($login)
@@ -134,6 +143,19 @@ switch ($action) {
     case 'gethistory':
         $t_form = getSmarty();
         $itemID = isset($_GET['itemID']) ? (int)$_GET['itemID'] : 0;
+        $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
+
+        if($tz == null){
+            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+            if(isset($settings['timeZone']))
+            {
+                $tz = $settings['timeZone'];
+            }
+            else{
+                $tz = 'America/New_York';
+            }
+        }
+
         if ($itemID != 0)
         {
             $resHistory = $type->getHistory($itemID);
@@ -144,6 +166,12 @@ switch ($action) {
 
             $resHistory = $resHistory ?? array();
 
+            for($i = 0; $i<count($resHistory); $i++){
+                $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
+                $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');;
+            }
+    
+            
             $t_form->assign('history', $resHistory);
 
             $t_form->display('view_history.tpl');

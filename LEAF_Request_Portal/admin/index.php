@@ -122,8 +122,12 @@ switch ($action) {
                                            '../' . $config->orgchartPath . '/js/groupSelector.js',
         ));
 
+        $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+        $tz = isset($settings['timeZone']) ? $settings['timeZone'] : null;
+
         $t_form->assign('orgchartPath', '../' . $config->orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('timeZone', $tz);
         $t_form->assign('orgchartImportTag', $config->orgchartImportTags[0]);
 
         $main->assign('useUI', true);

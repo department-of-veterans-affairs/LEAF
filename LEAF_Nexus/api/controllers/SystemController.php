@@ -94,6 +94,10 @@ class SystemController extends RESTfulResponse
             return $system->setSubHeading($_POST['subHeading']);
         });
 
+        $this->index['POST']->register('system/settings/timeZone', function ($args) use ($system) {
+            return $system->setTimeZone();
+        });
+
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
 

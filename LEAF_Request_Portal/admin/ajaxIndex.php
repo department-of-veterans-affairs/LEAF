@@ -157,6 +157,18 @@ switch ($action) {
         $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
         $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
+        $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
+
+        if($tz == null){
+            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+            if(isset($settings['timeZone']))
+            {
+                $tz = $settings['timeZone'];
+            }
+            else{
+                $tz = 'America/New_York';
+            }
+        }
 
         //pagination
         $pageLength = 10;
@@ -194,6 +206,12 @@ switch ($action) {
             //special case for getting group history, since the only group tracked in portal is sysadmin
             $resHistory = $type->getHistory(1);
             $resHistory = $resHistory ?? array();
+
+            for($i = 0; $i<count($resHistory); $i++){
+                $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
+                $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');;
+            }
+
             $totalHistory = array_merge($totalHistory, $resHistory);
             $type = $orgchartGroup;
         }
@@ -203,6 +221,11 @@ switch ($action) {
         {
             $resHistory = $type->getHistory($itemID);
             $resHistory = $resHistory ?? array();
+
+            for($i = 0; $i<count($resHistory); $i++){
+                $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
+                $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');;
+            }
             $totalHistory = array_merge($totalHistory, $resHistory);
         }
         
@@ -236,8 +259,19 @@ switch ($action) {
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
         $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
         $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
+        $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
         $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
-
+        
+        if($tz == null){
+            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+            if(isset($settings['timeZone']))
+            {
+                $tz = $settings['timeZone'];
+            }
+            else{
+                $tz = 'America/New_York';
+            }
+        }
         //pagination
         $pageLength = 10;
 
@@ -278,6 +312,11 @@ switch ($action) {
         }
 
         $resHistory = $type->getHistory($itemID);
+
+        for($i = 0; $i<count($resHistory); $i++){
+            $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
+            $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');
+        }
 
         if($gethistoryslice)
         {

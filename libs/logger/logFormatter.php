@@ -32,7 +32,9 @@ class LogFormatter{
 
         $message = $dictionaryItem["message"];
 
-        if($dictionaryItem["loggableColumns"] != null){
+        $loggableColumns = array();
+
+        if(array_key_exists("loggableColumns", $dictionaryItem) && $dictionaryItem["loggableColumns"] != null){
             $loggableColumns = explode(",", $dictionaryItem["loggableColumns"]);
         }
 

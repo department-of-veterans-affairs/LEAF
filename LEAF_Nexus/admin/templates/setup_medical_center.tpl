@@ -569,6 +569,7 @@ $(function() {
 	}
 
 	$('#setupContainer').css('width', $(document).width() - 200 - 40);
+    $('#plainDialogLarge').dialog({minWidth: ($(window).width() * .8) + 30});
 });
 
 </script>

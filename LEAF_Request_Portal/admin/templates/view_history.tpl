@@ -31,7 +31,7 @@ History of <!--{$dataType}--> ID : <!--{$dataID|sanitize}-->
 
         <tr>
             <td>
-                <!--{$log.timestamp|date_format:"%B %e, %Y. %l:%M %p"}-->
+                <!--{$log.timestamp}-->
             </td>
             <td>
                 <span><b><!--{$log.action|sanitize}--></b> by <!--{$log.userName|sanitize}-->

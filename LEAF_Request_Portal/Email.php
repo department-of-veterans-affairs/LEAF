@@ -8,7 +8,7 @@
     Date Created: September 19, 2008
 
 */
-include __DIR__ . '/../libs/smarty/Smarty.class.php';
+include_once __DIR__ . '/../libs/smarty/Smarty.class.php';
 
 if (!class_exists('XSSHelpers'))
 {
