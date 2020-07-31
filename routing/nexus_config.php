@@ -24,11 +24,11 @@ namespace Orgchart{
             $query->execute(array());
             $res = $query->fetchAll(\PDO::FETCH_ASSOC);
             
-            $this->title = $res[0]['title'];;
-            $this->city = $res[0]['city'];;
-            $this->adminLogonName = $res[0]['adminLogonName'];;
-            $this->adPath = $res[0]['active_directory_path'];;
-            $this->uploadDir = $res[0]['upload_directory'];;
+            $this->title = $res[0]['title'];
+            $this->city = $res[0]['city'];
+            $this->adminLogonName = $res[0]['adminLogonName'];
+            $this->adPath = json_decode($res[0]['active_directory_path']);
+            $this->uploadDir = $res[0]['upload_directory'];
 
             $this->dbHost = \Routing_Config::$dbHost;
             $this->dbName = $res[0]['database_name'];
