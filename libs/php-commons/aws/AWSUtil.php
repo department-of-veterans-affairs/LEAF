@@ -57,18 +57,31 @@ class AWSUtil
         } 
     }
 
-    function s3getObject($sanitizedFileName) {
+    function s3getObject($sanitizedFileName, $saveAs = "") {
         try {
-            $result = $this->s3Client->getObject([
-                'Bucket' => $this->s3BucketName, // REQUIRED
-                'Key' => $sanitizedFileName // REQUIRED
-            ]);
+
+            if ($saveAs != "") {
+                $result = $this->s3Client->getObject([
+                    'Bucket' => $this->s3BucketName, // REQUIRED
+                    'Key' => $sanitizedFileName, // REQUIRED
+                    'SaveAs' => $saveAs
+                ]);
+            } else {
+                $result = $this->s3Client->getObject([
+                    'Bucket' => $this->s3BucketName, // REQUIRED
+                    'Key' => $sanitizedFileName // REQUIRED
+                ]);
+            }
+
 
             return $result;
         } catch (S3Exception $e) {
-            echo $e->getMessage();
+            // If file DNE in S3, delete failed downlaod
+            if ($e->getAwsErrorCode() == "NoSuchKey" && $saveAs != "") {
+                unlink($saveAs);
+            }
 
-            return $e;
+            return $e->getAwsErrorCode();
         } catch (AwsException $e) {
             echo $e->getAwsRequestId() . "\n";
             echo $e->getAwsErrorType() . "\n";

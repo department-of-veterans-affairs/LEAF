@@ -328,9 +328,9 @@ class System
             {
                 $data['subjectFileName'] = $subject;
 
-                if (file_exists("../templates/email/custom_override/{$subject}") && !$getStandard)
+                if (file_exists(__DIR__ ."/../templates/email/custom_override/{$subject}") && !$getStandard)
                     $data['subjectFile'] = file_get_contents("../templates/email/custom_override/{$subject}");          
-                else if (file_exists("../templates/email/{$subject}"))
+                else if (file_exists(__DIR__ ."/../templates/email/{$subject}"))
                     $data['subjectFile'] = file_get_contents("../templates/email/{$subject}");
                 else
                     $data['subjectFile'] = '';
@@ -346,7 +346,7 @@ class System
         {
             return 'Admin access required';
         }
-        $list = scandir('../templates/email');
+        $list = scandir(__DIR__ .'/../templates/email');
         $out = array();
         foreach ($list as $item)
         {
@@ -373,7 +373,7 @@ class System
         {
             return 'Admin access required';
         }
-        $list = scandir('../templates/email');
+        $list = scandir(__DIR__ .'/../templates/email');
         $out = array();
         foreach ($list as $item)
         {
@@ -393,6 +393,7 @@ class System
 
     public function getTemplate($template, $getStandard = false)
     {
+        global $config;
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -402,11 +403,12 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__."/../templates/custom_override/{$template}")
-                  && !$getStandard)
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+
+            if (!$getStandard)
             {
                 $data['modified'] = 1;
-                $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/" . $cleanPortalPath . "{$template}");
             }
             else
             {
@@ -428,16 +430,16 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/email/custom_override/{$template}")
+            if (file_exists(__DIR__ ."/../templates/email/custom_override/{$template}")
                   && !$getStandard)
             {
                 $data['modified'] = 1;
-                $data['file'] = file_get_contents("../templates/email/custom_override/{$template}");
+                $data['file'] = file_get_contents(__DIR__ ."/../templates/email/custom_override/{$template}");
             }
             else
             {
                 $data['modified'] = 0;
-                $data['file'] = file_get_contents("../templates/email/{$template}");
+                $data['file'] = file_get_contents(__DIR__ ."/../templates/email/{$template}");
             }
 
             $res = $this->getEmailSubjectData($template, $getStandard);
@@ -449,6 +451,7 @@ class System
 
     public function setTemplate($template)
     {
+        global $config;
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -457,7 +460,10 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
+          
+          
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            file_put_contents(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}", $_POST['file']);
         }
     }
 
@@ -470,15 +476,16 @@ class System
         $list = $this->getEmailTemplateList();
         if (array_search($template, $list) !== false)
         {
-            file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
+            file_put_contents(__DIR__ ."/../templates/email/custom_override/{$template}", $_POST['file']);
         
             if ($_POST['subjectFileName'] != '')
-                file_put_contents("../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
+                file_put_contents(__DIR__ ."/../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
         }
     }
 
     public function removeCustomTemplate($template)
     {
+        global $config;
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -487,9 +494,10 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__."/../templates/custom_override/{$template}"))
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            if (file_exists(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}"))
             {
-                return unlink(__DIR__."/../templates/custom_override/{$template}");
+                return unlink(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}");
             }
         }
     }
@@ -504,15 +512,15 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/email/custom_override/{$template}"))
+            if (file_exists(__DIR__ ."/../templates/email/custom_override/{$template}"))
             {
-                unlink("../templates/email/custom_override/{$template}");
+                unlink(__DIR__ ."/../templates/email/custom_override/{$template}");
             }
 
             $subjectFileName = $_REQUEST['subjectFileName'];
-            if ($subjectFileName != '' && file_exists("../templates/email/custom_override/{$subjectFileName}"))
+            if ($subjectFileName != '' && file_exists(__DIR__ ."/../templates/email/custom_override/{$subjectFileName}"))
             {
-                unlink("../templates/email/custom_override/{$subjectFileName}");
+                unlink(__DIR__ ."/../templates/email/custom_override/{$subjectFileName}");
             }
         }
     }
@@ -667,7 +675,7 @@ class System
 
         if (array_search($template, $list) === false)
         {
-            file_put_contents("../templates/reports/{$template}", '');
+            file_put_contents(__DIR__ ."/../templates/reports/{$template}", '');
         }
         else
         {
@@ -730,7 +738,7 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            file_put_contents("../templates/reports/{$template}", $_POST['file']);
+            file_put_contents(__DIR__ ."/../templates/reports/{$template}", $_POST['file']);
         }
     }
 
