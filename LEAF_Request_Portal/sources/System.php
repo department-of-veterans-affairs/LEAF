@@ -47,7 +47,6 @@ class System
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $commonConfig = new CommonConfig();
-
         $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
 
         $this->dataActionLogger = new \DataActionLogger($db, $login);
@@ -405,7 +404,6 @@ class System
         if (array_search($template, $list) !== false)
         {
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-            $results = $this->awsUtil->s3getObject($config->s3TemplateDir . $template, __DIR__."/../templates/custom_override/" . $cleanPortalPath . "{$template}");
 
             if (!$getStandard)
             {
@@ -486,6 +484,7 @@ class System
 
     public function removeCustomTemplate($template)
     {
+        global $config;
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -494,9 +493,10 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__."/../templates/custom_override/{$template}"))
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            if (file_exists(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}"))
             {
-                return unlink(__DIR__."/../templates/custom_override/{$template}");
+                return unlink(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}");
             }
         }
     }
