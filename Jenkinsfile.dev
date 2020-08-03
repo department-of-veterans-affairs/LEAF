@@ -1,0 +1,154 @@
+import java.time.*
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
+import java.time.temporal.IsoFields
+
+/* vim: set ts=4 sw=4 tw=0 et : */
+
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'5'))
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        DOCKER_REGISTRY = "${env.DOCKER_REGISTRY}"
+        AWS_ECR_CREDENTIALS = "${env.AWS_ECR_CREDENTIALS}"
+        PROJECT = "leaf"
+        DOCKER_ORG = "application"
+        BUILD_UID = "1000"
+        FORTIFY_PROJ_NAME = "leaf"
+        IMAGE_NAME = "${env.DOCKER_REGISTRY}/${DOCKER_ORG}/leaf"
+        TAG_NAME = "latest"
+        SPRINT_ID = sprintBuildId()
+    }
+
+    stages {
+        stage('checkout') { steps { checkout scm } }
+
+        stage('ecr login') {
+            steps {
+                script {
+                    def login = ecrLogin()
+                    sh "${login}"
+                }
+            }
+        }
+
+        stage('fortify') {
+            steps {
+                script {
+
+                    annotated_fprs = s3FindFiles(bucket: 'leaf-pipeline', onlyFiles: true, path: 'fortify/annotated', glob: '*.fpr')
+                    if( annotated_fprs ) {
+                        println("Found annotated fprs: ${annotated_fprs}")
+                        def annotated_fpr = annotated_fprs[0]
+                        println("Using annotated fpr for annotations: ${annotated_fpr}")
+                        s3Download(bucket: 'leaf-pipeline', file: "fort_report/leaf_orig.fpr", path: "fortify/annotated/${annotated_fpr}", force:true)
+                    }
+
+                    sh 'pwd'
+                    sh 'ls'
+                    sh 'ls fort_report/'
+                    docker.withRegistry("https://${DOCKER_REGISTRY}") {
+                        docker.image('infrastructure/fortify:latest').inside {
+                            sh 'pwd'
+                            sh 'ls'
+                            sh 'id -u'
+                            sh './fort_report/FortifyReportGen.sh'
+                        }
+                    }
+
+                    fileExists('./fort_report/leaf.pdf')
+                }
+            }
+        }
+
+        stage('docker build') {
+            steps {
+                script {
+                    sh '''
+                    docker ps
+                    '''
+
+                    docker.withRegistry("https://${DOCKER_REGISTRY}") {
+
+                        stage('Docker Build') {
+                            customImage = docker.build("$DOCKER_ORG/${PROJECT}", "--build-arg BUILD_UID=${BUILD_UID} -f docker/php/Dockerfile .")
+                            println("Built image ${customImage.imageName()}")
+                        }
+
+                        stage('Docker Registry Push ') {
+                            docker.withRegistry("https://${DOCKER_REGISTRY}") {
+                                docker.image("$DOCKER_ORG/${PROJECT}").push("${env.TAG_NAME}")
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        stage('Clean Up') {
+            steps {
+                script {
+                    sh '''
+                    docker rmi -f ${IMAGE_NAME}:${TAG_NAME}
+                    docker rmi -f $DOCKER_ORG/${PROJECT}:${TAG_NAME}
+                    '''
+                }
+            }
+        }
+
+        stage('archive') {
+            steps {
+                script {
+                    archiveArtifacts artifacts: 'fort_report/leaf.pdf', onlyIfSuccessful: true
+                }
+            }
+        }
+
+        stage('archive S3') {
+            when { branch 'master' }
+            steps {
+                script {
+                    def archive_file = "${env.SPRINT_ID}"
+                    println("archiving as ${archive_file}")
+                    s3Upload(bucket: 'leaf-pipeline', file: "fort_report/leaf.pdf", path: "fortify/reports/${archive_file}.pdf")
+                    s3Upload(bucket: 'leaf-pipeline', file: "fort_report/leaf_merged.fpr", path: "fortify/reports/${archive_file}.fpr")
+                }
+            }
+        }
+    }
+}
+
+String sprintBuildId(ofDate = LocalDate.now()) {
+    // return "test"
+    
+    def buildPrefix = "BLD"
+    def buildSuffix = "XX"
+
+    // Captures week number of the year
+    int weekOfYear = ofDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)
+    // last day of sprint are always on Tuesdays
+    def lastDayOfSprint = ofDate.with(DayOfWeek.TUESDAY)
+
+    // if week is ODD
+    if(weekOfYear % 2 != 0) {
+        // if day of the week is after Tuesday
+        if(ofDate.getDayOfWeek().getValue() > 2) {
+            // adds two weeks to the odd week to land the last sprint day on a tuesday
+            lastDayOfSprint = lastDayOfSprint.plus(14, ChronoUnit.DAYS).with(DayOfWeek.TUESDAY)
+        } else {        // else the day of the week is on or before Tuesday
+            // last day of sprint is in the week of the date
+            lastDayOfSprint = ofDate.with(DayOfWeek.TUESDAY)
+        }
+    } else { // week is EVEN
+        // adds a week to the even week to land the last sprint day on a tuesday in the following odd week
+        lastDayOfSprint = lastDayOfSprint.plus(7, ChronoUnit.DAYS).with(DayOfWeek.TUESDAY)
+    }
+    
+    return "${buildPrefix}${lastDayOfSprint}${buildSuffix}".toString()
+}

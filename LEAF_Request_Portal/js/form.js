@@ -18,7 +18,7 @@ var LeafForm = function(containerID) {
 			        <button id="'+prefixID+'button_save" class="buttonNorm" style="position: absolute; right: 10px"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=16" alt="save" /> Save Change</button>\
 			        <div style="border-bottom: 2px solid black; line-height: 30px"><br /></div>\
 			        <div id="'+prefixID+'loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 300px; width: 460px">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>\
-			        <div id="'+prefixID+'xhr" style="width: 540px; height: 420px; padding: 8px; overflow: auto"></div>\
+			        <div id="'+prefixID+'xhr" style="min-width: 540px; min-height: 420px; padding: 8px; overflow: auto"></div>\
 			    </div>\
 			</form>\
 			</div>');

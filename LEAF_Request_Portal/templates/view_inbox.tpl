@@ -6,7 +6,15 @@ The following is a list of requests that are pending your action:
 </div>
 <!--{/if}-->
 
+<!--{if count($errors) > 0 && $errors[0].code == 1}-->
+<br /><br />
+<div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px; background-color: white">
+<img src="../libs/dynicons/?img=folder-open.svg&amp;w=96" alt="empty" style="float: left; padding-right: 16px"/><div style="font-size: 200%">Warning: Inbox limit is in place to ensure consistent performance</div>
+</div>
+<!--{/if}-->
+
 <div id="inbox">
+<!--{if count($errors) == 0}-->
 <!--{foreach from=$inbox item=dep}-->
 <br /><br />
 <table onKeypress="toggleDepVisibilityKeypress(event, '<!--{$dep.dependencyID|strip_tags}-->')" tabindex="0" id="depTitle_<!--{$dep.dependencyID}-->" class="agenda" style="width: 100%; margin: 0px auto">
@@ -30,6 +38,7 @@ The following is a list of requests that are pending your action:
     </div>
 </div>
 <!--{/foreach}-->
+<!--{/if}-->
 </div>
 
 <!-- DIALOG BOXES -->

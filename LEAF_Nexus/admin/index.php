@@ -119,7 +119,10 @@ switch ($action) {
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
+           $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
+
            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+           $t_form->assign('timeZone', $settings['timeZone']);
            $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
            $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
@@ -168,6 +171,17 @@ switch ($action) {
            $tabText = 'Setup Medical Center';
 
            break;
+    case 'import_employees_from_spreadsheet':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('APIroot', '../api/');
+        $main->assign('javascripts', array('../libs/js/LEAF/workbookhelper.js'));
+
+        $main->assign('body', $t_form->fetch('orgChart_import.tpl'));
+        
+        break;
     case 'mod_templates':
     case 'mod_templates_reports':
            $t_form = new Smarty;
