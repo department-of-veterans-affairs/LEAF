@@ -81,7 +81,8 @@ function getPrimaryAdmin() {
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
     for(var i in members) {
-        if(members[i].active == 1){
+        if(members[i].active == 1
+            || groupID == 1) {
             $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
         }
     }
