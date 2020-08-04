@@ -34,6 +34,26 @@ function getMembers(groupID) {
     });
 }
 
+function updateAndGetMembers(groupID) {
+    $.ajax({
+        type: 'GET',
+        url: '../api/?a=system/updateGroup/' + groupID,
+        success: function() {
+            $.ajax({
+                url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=" + groupID,
+                dataType: "json",
+                success: function(response) {
+                    $('#members' + groupID).fadeOut();
+                    populateMembers(groupID, response);
+                    $('#members' + groupID).fadeIn();
+                },
+                cache: false
+            });
+        },
+        cache: false
+    });
+}
+
 function getPrimaryAdmin() {
     $.ajax({
         url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
@@ -61,8 +81,32 @@ function getPrimaryAdmin() {
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
     for(var i in members) {
-        $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
+        if(members[i].active == 1){
+            $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
+        }
     }
+}
+
+function removeMember(groupID, userID) {
+    $.ajax({
+        type: 'DELETE',
+        url: "../api/group/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
+        success: function(response) {
+            updateAndGetMembers(groupID);
+        }
+    });
+}
+
+function addMember(groupID, userID) {
+    $.ajax({
+        type: 'POST',
+        url: "../api/group/" + groupID + "/members",
+        data: {'userID': userID,
+               'CSRFToken': '<!--{$CSRFToken}-->'},
+        success: function(response) {
+            updateAndGetMembers(groupID);
+        }
+    });
 }
 
 function addAdmin(userID) {
@@ -151,23 +195,70 @@ function getGroupList() {
                 focusGroupsAndMembers(res[i].groupID);
                 if(res[i].groupID != 1) { // if not admin
                     function openGroup(groupID, parentGroupID) {
-                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1&tz='+ tz +'" tabindex="0" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
-                        dialog_simple.setCancelHandler(function() {
-                            $.ajax({
-                                type: 'GET',
-                                url: '../api/?a=system/updateGroup/' + groupID,
-                                success: function() {
-                                    getMembers(groupID);
-                                },
-                                cache: false
-                            });
+                        $.ajax({
+                            type: 'GET',
+                            url: '../api/group/' + groupID + '/members',
+                            success: function(res) {
+                                dialog.clear();
+                                dialog.setContent(
+                                    '<button style="float:right" class="buttonNorm" onclick="viewHistory('+groupID+')"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="vertical-align: middle"> View History</button>'+
+                                    '<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />');
+                                $('#employees').html('<table id="employee_table" class="table"></table>');
+                                var counter = 0;
+                                for(var i in res) {
+                                    var removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove</span>';
+                                    var managedBy = '';
+                                    if(res[i].locallyManaged != 1) {
+                                        managedBy += '<br /> * Managed in Org. Chart';
+                                    }
+                                    if(res[i].active != 1) {
+                                        managedBy += '<br /> * Managed in Org. Chart';
+                                        managedBy += '<br /> * Override set, and they do not have access';
+                                        removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove Override</span>';
+                                    }
+                                    $('#employee_table').append('<tr><td>'+ res[i].Lname + ', ' + res[i].Fname + managedBy +'</td><td>'+ removeButton +'</td></tr>');
+                                    $('#removeMember_' + counter).on('click', function(userID) {
+                                        return function() {
+                                            removeMember(groupID, userID);
+                                            dialog.hide();
+                                        };
+                                    }(res[i].userName));
+                                    counter++;
+                                }
+                                empSel = new nationalEmployeeSelector('employeeSelector');
+                                empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+                                empSel.rootPath = '<!--{$orgchartPath}-->/';
+                                empSel.outputStyle = 'micro';
+                                empSel.initialize();
+
+                                dialog.setSaveHandler(function() {
+                                    if(empSel.selection != '') {
+                                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                                        $.ajax({
+                                            type: 'POST',
+                                            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                            data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                                            success: function(res) {
+                                                if(!isNaN(res)) {
+                                                    addMember(groupID, selectedUserName);
+                                                }
+                                                else {
+                                                    alert(res);
+                                                }
+                                            }
+                                        });
+                                    }
+                                    dialog.hide();
+                                });
+                                //508 fix
+                                setTimeout(function () {
+                                    $("#simplebutton_cancelchange").remove();
+                                    $("#simplebutton_save").remove();
+                                    dialog.show();
+                                }, 0);
+                            },
+                            cache: false
                         });
-                        //508 fix
-                        setTimeout(function () {
-                            $("#simplebutton_cancelchange").remove();
-                            $("#simplebutton_save").remove();
-                            dialog_simple.show();
-                        }, 0);
                     }
 
                     //508 fix
