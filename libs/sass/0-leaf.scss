@@ -48,6 +48,7 @@ hr {border: 1px solid #dfe1e2;}
 .leaf-float-left {float: left;}
 .leaf-display-block {display: block;}
 .leaf-display-inlineblock {display: inline-block;}
+.leaf-displayFlexRow {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: left; align-items: stretch;}
 .leaf-text-left {text-align: left;}
 .leaf-textCentered {text-align: center;}
 .leaf-clearBoth {clear: both;}

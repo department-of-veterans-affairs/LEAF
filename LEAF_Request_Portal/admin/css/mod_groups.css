@@ -1,7 +1,10 @@
 div.groupBlock {
-    float: left;
     border-radius: 4px;
-    width: 20rem;
+    flex-shrink: 0;
+    flex-grow: 4;
+    flex-basis: 16rem;
+    max-width: 18rem;
+    min-width: 14rem;
     min-height: 5.2rem;
     margin: 0.4rem 1.0rem 0.4rem 0.0rem;
     padding: 1.0rem;
@@ -12,8 +15,8 @@ div.groupBlock {
     transition: box-shadow 0.3s ease;
     background-color: #0c60a0;
 }
-div.groupBlock:hover{box-shadow: 2px 2px 4px #838687; background-color: none;}
-div.groupBlock div { padding-top: 0.4rem; font-size: 0.8rem; color: #fff; }
+    div.groupBlock:hover{box-shadow: 2px 2px 4px #838687; background-color: none;}
+    div.groupBlock div { padding-top: 0.4rem; font-size: 0.8rem; color: #fff; }
 
 div.groupBlock h2 {
     cursor: pointer;

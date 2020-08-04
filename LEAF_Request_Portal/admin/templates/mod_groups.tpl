@@ -32,18 +32,19 @@
             <h3 role="heading" tabindex="-1">System administrators</h3>
         </div>
         <div>
-            <div id="adminList"></div>
-            <div id="primaryAdmin"></div>
+            <div id="adminList" class="leaf-displayFlexRow"></div>
+            <div id="primaryAdmin" class="leaf-displayFlexRow"></div>
         </div>
 
         <div class="leaf-row-space"></div>
         
         <div class="leaf-clear-both">
             <h3 role="heading" tabindex="-1">User groups</h3>
-            <div id="groupList"></div>
+            <div id="groupList" class="leaf-displayFlexRow"></div>
         </div>
 
         <div class="leaf-row-space"></div>
+
     </main>
 
 </div>
