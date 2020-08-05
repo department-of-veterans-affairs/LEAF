@@ -1,3 +1,17 @@
+<script src="../../../libs/js/promise-pollyfill/polyfill.min.js"></script>
+<style>
+    div#emailReminder label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 2px;
+    }
+    div#emailReminder input,  div#emailReminder .chosen-container {
+        margin-bottom: 15px;
+    }
+    div#emailReminder .groupSelectorInput {
+        margin-bottom: 0px;
+    }
+</style>
 <div id="sideBar" style="float: left; width: 180px">
     <div id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size: 120%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
     Workflows: <br />
@@ -91,7 +105,7 @@ function unlinkEvent(workflowID, stepID, actionType, eventID) {
 function addEventDialog(workflowID, stepID, actionType) {
     $('.workflowStepInfo').css('display', 'none');
     dialog.setTitle('Add Event');
-    dialog.setContent('<div id="addEventDialog"></div>');
+    dialog.setContent('<div id="addEventDialog"></div><div id="eventData"></div>');
     dialog.indicateBusy();
     dialog.show();
     $.ajax({
@@ -109,8 +123,15 @@ function addEventDialog(workflowID, stepID, actionType) {
 
             buffer += '</select></div>';
             $('#addEventDialog').html(buffer);
-            $('#eventID').chosen({disable_search_threshold: 5});
-
+            $('#eventID').chosen({disable_search_threshold: 5})
+            .change(function(){
+                $('#eventData').html('');
+                if($( "#eventID" ).val() == 'automated_email_reminder')
+                { 
+                    setEmailReminderHTML();
+                }
+            })
+            .trigger("change");
             dialog.setSaveHandler(function() {
             	$.ajax({
             		type: 'POST',
@@ -1310,6 +1331,122 @@ function viewHistory(){
     });
 }
 
+/*
+    START: EMAIL REMINDER BLOCK
+*/
+function setEmailReminderHTML(){
+    Promise.all([getEmailTemplates(),getDateIndicators()])
+    .then(function(data) {
+        var emailTemplates = data[0];
+        var dateIndicators = data[1];
+        
+        var indicatorList = '';
+        for(var i in dateIndicators) {
+            indicatorList += '<option value="' + dateIndicators[i].indicatorID + '">' + dateIndicators[i].categoryName + ': ' + dateIndicators[i].name + ' (id: ' + dateIndicators[i].indicatorID + ')</option>';
+        }
+        var emailTemplateList = '';
+        for(var i in emailTemplates) {
+            emailID = emailTemplates[i].fileName.replace(".tpl", "");;
+            emailTemplateList += '<option value="' + emailID + '">' + emailID + '</option>';
+        }
+
+        eventDataHTML  = '<div id="emailReminder">';
+        eventDataHTML += '<h2>Email Reminder Details</h2>';
+
+        eventDataHTML += '<div class="eventDataInput">';
+        eventDataHTML += '<label for="frequency">Frequency of Reminders (in Business Days)</label>';
+        eventDataHTML += '<input type="number" id="frequency" name="frequency">';
+        eventDataHTML += '</div>';
+
+        eventDataHTML += '<div class="eventDataInput">';
+        eventDataHTML += '<label for="dateIndicator">Reminder Start Date</label>';
+        eventDataHTML += '<select id="dateIndicator" name="dateIndicator">';
+        eventDataHTML += indicatorList;
+        eventDataHTML += '</select>';
+        eventDataHTML += '</div>';
+
+        eventDataHTML += '<div class="eventDataInput">';
+        eventDataHTML += '<label for="emailTemplate">Email Template</label>';
+        eventDataHTML += '<select id="emailTemplate" name="emailTemplate">';
+        eventDataHTML += emailTemplateList;
+        eventDataHTML += '</select>';
+        eventDataHTML += '</div>';
+
+        eventDataHTML += '<div class="eventDataInput">';
+        eventDataHTML += '<label for="emailGroupSelector">Recipient Group</label>';
+        eventDataHTML += '<div id="emailGroupSelector"></div>';
+        eventDataHTML += '</div>';
+
+        eventDataHTML += '</div>';//emailReminder div
+        $('#eventData').html(eventDataHTML);
+
+        $('#emailTemplate').chosen({disable_search_threshold: 5});
+        $('#dateIndicator').chosen({disable_search_threshold: 5});
+
+        var grpSel = new groupSelector('emailGroupSelector');
+        grpSel.basePath = '<!--{$orgchartPath}-->/';
+        grpSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+        grpSel.tag = '<!--{$orgchartImportTags[0]}-->';
+        grpSel.initialize();
+    
+        //grpSel.selection
+    });
+    
+/*
+    //Frequency of reminders (number of days fields "# days till notice")
+
+    
+    //Which e-mail template to use
+    eventDataHTML += '<div></div>';
+    //Recipients  (use Orgchart group selector)
+    eventDataHTML += '';
+    //Which data field to calculate reminder date from (indicator drop-down)
+    eventDataHTML += '';
+
+    return eventDataHTML;
+    */
+}
+
+function getEmailTemplates(){
+	return new Promise(function(resolve,reject){
+		$.ajax({
+            url: '../api/system/emailtemplates/',
+            type: 'GET',
+            success: function (res) {
+                resolve(res);
+            },
+            error: function () {
+                reject();
+            },
+            cache: false
+        });
+	});
+}
+
+function getDateIndicators(){
+	return new Promise(function(resolve,reject){
+		$.ajax({
+            url: '../api/form/indicator/list',
+            type: 'GET',
+            success: function (res) {
+                var data = []
+                for(var i in res) {
+    			    if(res[i]['format'] == 'date') {
+                        data.push(res[i]);
+                    }
+                }
+                resolve(data);
+            },
+            error: function () {
+                reject();
+            },
+            cache: false
+        });
+	});
+}
+/*
+    END: EMAIL REMINDER BLOCK
+*/
 var dialog, dialog_confirm, dialog_simple;
 var workflows = {};
 var steps = {};
