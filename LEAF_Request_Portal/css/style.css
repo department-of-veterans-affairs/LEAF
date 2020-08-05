@@ -1,44 +1,205 @@
-/*  leaf req. portal > css > style.css */
-.menuButton {
+body {
+    background-color: #f3f3f3;
+    font-family: verdana;
+    font-size: 12px;
+    margin: 0px;
+}
+
+
+
+body a:link, body a:visited {
+    color: #004b76;
+}
+
+body a:hover {
+    color: #f04e0b;
+}
+
+span {
+    color: black;
+    font-family: verdana;
+}
+
+button {
+    font-family: verdana;
+}
+
+.item label {
     float: left;
-    width: 350px;
-    height: 70px;
-    cursor: pointer;
-    margin: 0.6rem 0.6rem;
-    box-shadow: 1px 2px 4px #a9aeb1;
-    transition: box-shadow 0.3s ease;
-    border-radius: 4px;
-    padding: 0.4rem 0.5rem 0.4rem 0.1rem;
-    }
-    .menuButton:hover, .menuButton:focus {
-        box-shadow: 1px 2px 6px #71767a;
-        }
-    .menuIcon {
-        float: left;
-        width: 58px;
-        height: 58px;
-        background-position: center center;
-        background-repeat: no-repeat;
-        margin-right: 0.4rem;
-        }   
-    .menuText {
-        font-size: 1.1rem;
-        line-height: 1.4rem;
-        font-family: 'Public Sans Bold';
-        }
-    .menuDesc {font-size: 0.9rem;}
+    width: 150px;
+    text-align: right;
+}
 
+input {
+    border: 1px solid gray;
+    padding: 4px;
+}
 
+textarea {
+    border: 1px solid gray;
+    padding: 4px;
+}
 
-#headerMenu > a, #headerMenu_container > a, #headerMenuHelp_container > a {text-decoration: none;}
+select {
+    border: 1px solid gray;
+    padding: 4px;
+}
 
-#headerMenu > a:hover, #headerMenu_container > a:hover, #headerMenuHelp_container > a:hover{text-decoration: underline; color: white;}
+img {
+    border: 0px;
+}
 
-#headerMenu > a:focus, #headerMenu_container > a:focus, #headerMenuHelp_container > a:focus{text-decoration: underline; color: white;}
+#body {
+    padding: 0px;
+    text-align: center;
+    width: 100%;
+}
 
-#headerMenu_container:hover #headerMenu_links, #headerMenuHelp_container:hover #headerMenu_help  {display: block;}
+#header {
+    font-family: serif;
+    font-weight: bold;
+    background-image: url('../images/gradient.png');
+    background-size: 100% 100%;
+    width: 100%;
+    height: 80px;
+    border-bottom: 2px solid #5A79A5;
+    margin-bottom: 4px;
+}
 
-#headerMenu_container > a::after, #headerMenuHelp_container > a::after {content:'\25BC'; font-size: 0.7rem; margin-left: 0.4rem;}
+#footer {
+    float: right;
+    clear: both;
+    text-align: right;
+    padding: 4px;
+    font-size: 10px;
+}
+
+#footer a:link, #footer a:visited {
+    color: #6f6f6f;
+    text-decoration: none;
+}
+
+#footer a:hover {
+    color: #f04e0b;
+}
+
+span#headerLabel {
+    position: absolute;
+    color: #17008a;
+    left: 90px;
+    top: 44px;
+    font-size: 16px;
+}
+
+span#headerDescription {
+    position: absolute;
+    font-size: 24px;
+    color: black;
+    left: 90px;
+    top: 16px;
+}
+
+span#headerHelp {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 10px;
+    font-weight: normal;
+}
+
+span#headerLogin {
+    position: absolute;
+    top: 24px;
+    right: 10px;
+    font-size: 12px;
+    font-weight: normal;
+    text-align: right;
+}
+
+span#headerMenu {
+    position: relative;
+    top: 55px;
+    float: right;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+#headerMenu > a, #headerMenu_container > a, #headerMenuHelp_container > a {
+    text-decoration: none;
+    margin-left: 8px;
+    color: black;
+}
+
+#headerMenu > a > img {
+    padding-bottom: 2px;
+    padding-right: 4px;
+}
+
+#headerMenu > a:hover, #headerMenu_container > a:hover, #headerMenuHelp_container > a:hover{
+    text-decoration: underline;
+    color: white;
+}
+
+#headerMenu > a:focus, #headerMenu_container > a:focus, #headerMenuHelp_container > a:focus{
+    text-decoration: underline;
+    color: white;
+}
+
+#headerMenu_links a:focus > .menuButtonSmall, #headerMenu_help a:focus > .menuButtonSmall{
+    outline-style: dotted;
+    box-shadow: 0 4px 6px 2px #8e8e8e;
+}
+
+#headerMenu_links,  #headerMenu_help{
+    display: none;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 2px 60px #8e8e8e;
+    padding: 16px;
+    border: 1px solid black;
+    right: 0px;
+    z-index: 100;
+}
+
+#headerMenu_container:hover #headerMenu_links, #headerMenuHelp_container:hover #headerMenu_help  {
+    display: block;
+}
+
+#headerMenu_container > a::after, #headerMenuHelp_container > a::after {
+    content:'\25BC';
+}
+
+#headerMenu_links > a:focus > .menuButtonSmall, #headerMenu_help > a:focus > .menuButtonSmall{
+  box-shadow: 0 4px 6px 2px #8e8e8e;
+  margin: 12px;
+  outline-style: dotted;
+}
+
+span#headerTabImg {
+    position: relative;
+    top: 49px;
+    height: 32px;
+    float: right;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: right;
+/*    background-image: url(../images/tab.gif);
+    background-repeat: no-repeat;*/
+}
+
+span#headerTab {
+    position: relative;
+    top: 49px;
+    height: 32px;
+    float: right;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: right;
+    background-color: #5a79a5;
+    padding-right: 0.25em;
+}
 
 .link {
     text-decoration: underline;
@@ -53,6 +214,8 @@
 }
 
 #content {
+    padding: 4px;
+    margin: 0px auto;
     text-align: left;
 }
 
@@ -81,6 +244,22 @@
 }
 
 
+.mainform {
+
+}
+
+.formblock {
+
+}
+
+.mainlabel {
+
+}
+
+.sublabel {
+
+}
+
 .response {
     padding-top: 5px;
 }
@@ -101,6 +280,10 @@ div.tableinput::-webkit-scrollbar-thumb {
     border-radius: 8px;
     border: 2px solid white;
     background-color: rgba(0, 0, 0, .5);
+}
+
+.text {
+
 }
 
 table#tform {
@@ -250,6 +433,7 @@ table.table {
     padding: 6px;
     border: 1px solid black;
     font-size: 11px;
+    font-family: verdana;
 }
 
 .table_important {
@@ -383,7 +567,41 @@ span.approval_disapproved {
   outline-style: dotted;
  }
 
+.menuButton {
+    float: left;
+    width: 350px;
+    height: 70px;
+    cursor: pointer;
+    margin: 14px;
+    box-shadow: 0 2px 6px #8e8e8e;
+    transition: box-shadow 0.3s ease;
+}
 
+.menuButton:hover, .menuButton:focus {
+    box-shadow: 0 4px 6px 2px #8e8e8e;
+    margin: 14px;
+    outline-color: 0 4px 6px 2px #5d5959;
+}
+
+
+.menuIcon {
+    float: left;
+    width: 96px;
+    height: 96px;
+    padding-right: 4px;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.menuText {
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 160%;
+}
+
+.menuDesc {
+    font-size: 14px;
+}
 
 .menuButtonSmall {
     float: left;
@@ -395,11 +613,13 @@ span.approval_disapproved {
     box-shadow: 0 2px 6px #8e8e8e;
     transition: box-shadow 0.3s ease;
 }
+
 .menuButtonSmall:hover, .menuButtonSmall:focus {
     box-shadow: 0 4px 6px 2px #8e8e8e;
     margin: 12px;
     outline-style: dotted;
   }
+
 .menuIconSmall {
     float: left;
     width: 76px;
@@ -408,15 +628,16 @@ span.approval_disapproved {
     background-position: center center;
     background-repeat: no-repeat;
 }
+
 .menuTextSmall {
     font-size: 16px;
     font-weight: bold;
     line-height: 160%;
 }
+
 .menuDescSmall {
     font-size: 12px;
 }
-
 
 .signatureArea {
     display: none;
@@ -585,6 +806,7 @@ button.tools:hover, button.tools:focus{
     font-size: 120%;
 }
 
+
 #adminTools>div {
     background-color: #ffe8e8;
 }
@@ -636,6 +858,7 @@ button.tools:hover, button.tools:focus{
     background-color: #e3e3e3;
 }
 
+
 .buttonPermission {
     width: 100%;
     padding: 2px;
@@ -653,6 +876,9 @@ button.tools:hover, button.tools:focus{
 .buttonPermission:focus {
     background-color: #2372b0;
     color: white;
+}
+
+.toolbar_right div {
 }
 
 .toolbar {
@@ -687,6 +913,10 @@ button.tools:hover, button.tools:focus{
     text-align: center;
     background-color: #d4d8e0;
     margin: 2px;
+}
+
+.toolbar_inline {
+
 }
 
 .toolbar_inline div {
@@ -738,6 +968,10 @@ div.workflowbox {
     margin: 0px;
 }
 
+.openlate {
+
+}
+
 span.browsecounter a {
     padding: 4px;
     margin-right: 4px;
@@ -784,7 +1018,6 @@ span.browsetypes {
     border: 1px solid black;
     cursor: pointer;
     white-space: nowrap;
-    font-size: 0.9rem;
 }
 
 .buttonNorm:hover, .buttonNormSelected, .buttonNorm:hover>span .buttonNorm:focus {
@@ -828,7 +1061,6 @@ button.buttonNorm {
 .card {
     box-shadow: 0 2px 6px #8e8e8e;
     background-color: white;
-    padding: 0.8rem;
 }
 
 .nodisplay {
@@ -843,6 +1075,9 @@ button.buttonNorm {
 
 @media(max-width: 520px) {
     #header {
+        height: 120px;
+        border-bottom: 2px solid #5A79A5;
+        margin-bottom: 4px;
     }
 
     span#headerDescription {
