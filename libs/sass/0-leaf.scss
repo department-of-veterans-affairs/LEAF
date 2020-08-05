@@ -83,7 +83,7 @@ hr {border: 1px solid #dfe1e2;}
 
 /* ############### SPECIAL CLASSES ################# */
 .leaf-row-space {height: 1rem; margin: 0.2rem 0; clear: both;}
-.leaf-crumb-link {font-weight: normal; color: #005EA2;}
+.leaf-crumb-link {font-weight: normal; color: #005EA2; font-family: 'PublicSans-Medium'!important;}
 .leaf-crumb-caret {font-size: 1.1rem; margin: 0 0.4rem 0 0.5rem; color: #0c60a0;}
 .leaf-text-smaller {font-size: 0.9rem;}
 .leaf-buttonBar {text-align: center; margin: 1.0rem 0;}
@@ -303,7 +303,7 @@ ul.leaf-progress-bar {
         min-height: 27rem;
         overflow: visible;
     }
-    .main-content h2 {font-weight: normal; font-family: 'PublicSans-Medium';}
+    .main-content h2 {font-weight: normal; font-family: 'PublicSans-Bold'; margin-bottom: 1.5rem;}
     .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative;}
 
     /* ############### UI DIALOG OVERRIDES ################# */
