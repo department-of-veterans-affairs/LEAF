@@ -32,8 +32,8 @@
             <h3 role="heading" tabindex="-1">System administrators</h3>
         </div>
         <div>
-            <div id="adminList" class="leaf-displayFlexRow"></div>
-            <div id="primaryAdmin" class="leaf-displayFlexRow"></div>
+            <div id="adminList" class="leaf-sysadmin-cards"></div>
+            <div id="primaryAdmin" class="leaf-sysadmin-cards"></div>
         </div>
 
         <div class="leaf-row-space"></div>
