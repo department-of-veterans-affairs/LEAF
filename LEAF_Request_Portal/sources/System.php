@@ -313,6 +313,8 @@ class System
 
     public function getEmailSubjectData($template, $getStandard = false)
     {
+        global $config;
+
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -327,11 +329,14 @@ class System
             if ($count == 1)
             {
                 $data['subjectFileName'] = $subject;
+                $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+                $portalTplPath = __DIR__ ."/../templates/email/custom_override/" . $cleanPortalPath . "{$subject}";
+                $defaultTplPath = __DIR__ ."/../templates/email/{$subject}";
 
-                if (file_exists(__DIR__ ."/../templates/email/custom_override/{$subject}") && !$getStandard)
-                    $data['subjectFile'] = file_get_contents("../templates/email/custom_override/{$subject}");          
-                else if (file_exists(__DIR__ ."/../templates/email/{$subject}"))
-                    $data['subjectFile'] = file_get_contents("../templates/email/{$subject}");
+                if (file_exists($portalTplPath) && !$getStandard) 
+                    $data['subjectFile'] = file_get_contents($portalTplPath);
+                else if (file_exists($defaultTplPath))
+                    $data['subjectFile'] = file_get_contents($defaultTplPath);
                 else
                     $data['subjectFile'] = '';
             }
@@ -423,6 +428,8 @@ class System
 
     public function getEmailTemplate($template, $getStandard = false)
     {
+        global $config;
+
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -431,16 +438,19 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__ ."/../templates/email/custom_override/{$template}")
-                  && !$getStandard)
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            $portalTplPath = __DIR__ ."/../templates/email/custom_override/" . $cleanPortalPath . "{$template}";
+            $defaultTplPath = __DIR__ ."/../templates/email/{$template}";
+
+            if (file_exists($portalTplPath) && !$getStandard)
             {
                 $data['modified'] = 1;
-                $data['file'] = file_get_contents(__DIR__ ."/../templates/email/custom_override/{$template}");
+                $data['file'] = file_get_contents($portalTplPath);
             }
             else
             {
                 $data['modified'] = 0;
-                $data['file'] = file_get_contents(__DIR__ ."/../templates/email/{$template}");
+                $data['file'] = file_get_contents($defaultTplPath);
             }
 
             $res = $this->getEmailSubjectData($template, $getStandard);
@@ -461,8 +471,6 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-          
-          
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
             file_put_contents(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}", $_POST['file']);
         }
@@ -470,6 +478,8 @@ class System
 
     public function setEmailTemplate($template)
     {
+        global $config;
+
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -477,10 +487,13 @@ class System
         $list = $this->getEmailTemplateList();
         if (array_search($template, $list) !== false)
         {
-            file_put_contents(__DIR__ ."/../templates/email/custom_override/{$template}", $_POST['file']);
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            $portalTplPath = __DIR__ ."/../templates/email/custom_override/" . $cleanPortalPath;
+
+            file_put_contents($portalTplPath . "{$template}", $_POST['file']);
         
             if ($_POST['subjectFileName'] != '')
-                file_put_contents(__DIR__ ."/../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
+                file_put_contents($portalTplPath . $_POST['subjectFileName'], $_POST['subjectFile']);
         }
     }
 
@@ -505,6 +518,8 @@ class System
 
     public function removeCustomEmailTemplate($template)
     {
+        global $config;
+
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
@@ -513,15 +528,19 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__ ."/../templates/email/custom_override/{$template}"))
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            $portalTplPath = __DIR__ . "/../templates/email/custom_override/" . $cleanPortalPath;
+            //$defaultTplPath = __DIR__ ."/../templates/email/{$template}";
+
+            if (file_exists($portalTplPath . "{$template}"))
             {
-                unlink(__DIR__ ."/../templates/email/custom_override/{$template}");
+                unlink($portalTplPath . "{$template}"); 
             }
 
             $subjectFileName = $_REQUEST['subjectFileName'];
-            if ($subjectFileName != '' && file_exists(__DIR__ ."/../templates/email/custom_override/{$subjectFileName}"))
+            if ($subjectFileName != '' && file_exists($portalTplPath . "{$subjectFileName}"))
             {
-                unlink(__DIR__ ."/../templates/email/custom_override/{$subjectFileName}");
+                unlink($portalTplPath . "{$subjectFileName}");
             }
         }
     }
