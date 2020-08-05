@@ -57,7 +57,7 @@ $tabText = '';
 $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 // HQ logo
-$main->assign('logo', '<img src="images/VA_icon_small.png" alt="VA logo" />');
+$main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
 function customTemplate($tpl)
 {

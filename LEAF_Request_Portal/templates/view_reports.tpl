@@ -3,35 +3,31 @@
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
 </style>
 
-<div class="leaf-center-content">
-
-    <div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: 70%; background-color: white; border: 1px solid black; margin: auto; padding: 0px">
-        <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
-            Step 1: Develop search filter
-        </div>
-        <div style="padding: 8px">
-            <div id="searchContainer"></div>
-        </div>
+<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: 70%; background-color: white; border: 1px solid black; margin: auto; padding: 0px">
+    <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
+        Step 1: Develop search filter
     </div>
-
-    <div id="step_2" style="display: none; width: 95%; background-color: white; border: 1px solid black; margin: auto; padding: 0px">
-        <div style="background-color: #0059a4; color: white; padding: 4px; font-size: 22px; font-weight: bold">
-            Step 2: Select Data Columns
-        </div>
-        <div style="padding: 8px">
-            <div id="indicatorList" class="section group" style="padding: 8px">Loading...</div>
-            <br style="clear: both" />
-            <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="../libs/dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
-        </div>
+    <div style="padding: 8px">
+        <div id="searchContainer"></div>
     </div>
-
-    <div id="saveLinkContainer" style="display: none">
-        <div id="reportTitleDisplay" style="font-size: 200%"></div>
-        <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
-    </div>
-    <div id="results" style="display: none">Loading...</div>
-    
 </div>
+
+<div id="step_2" style="display: none; width: 95%; background-color: white; border: 1px solid black; margin: auto; padding: 0px">
+    <div style="background-color: #0059a4; color: white; padding: 4px; font-size: 22px; font-weight: bold">
+        Step 2: Select Data Columns
+    </div>
+    <div style="padding: 8px">
+        <div id="indicatorList" class="section group" style="padding: 8px">Loading...</div>
+        <br style="clear: both" />
+        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="../libs/dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
+    </div>
+</div>
+
+<div id="saveLinkContainer" style="display: none">
+    <div id="reportTitleDisplay" style="font-size: 200%"></div>
+    <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
+</div>
+<div id="results" style="display: none">Loading...</div>
 
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->

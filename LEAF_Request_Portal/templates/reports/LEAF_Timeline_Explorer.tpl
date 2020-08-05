@@ -927,146 +927,141 @@ $(function() {
 });
 
 </script>
+<div id="progressContainer" style="width: 50%; border: 1px solid black; background-color: white; margin: auto; padding: 16px">
+    <h1 style="text-align: center">Loading...</h1>
+    <div id="progressbar"></div>
+</div>
 
-<div class="leaf-center-content">
+<div id="chartBody" style="display: none">
+    <h1 style="text-align: center">Timeline Data Explorer <span style="background-color: white; color: red; border: 2px solid black; padding: 8px; font-style: italic">BETA</span></h1>
+    <h2 style="text-align: center">Requests submitted since:
+        <select id="showDateSubmitted">
+            <option value="1 month ago">1 month ago</option>
+            <option value="3 months ago" selected="selected">3 months ago</option>
+            <option value="6 months ago">6 month ago</option>
+            <option value="1 year ago">1 year ago</option>
+        </select>
+    </h2>
+    
+    <span class="buttonNorm" style="float: right" onclick="dc.filterAll(); dc.filterAll(); dc.renderAll(); resetFilters();">Reset Filters</span>
+    <br style="clear: both" />
 
-    <div id="progressContainer" style="width: 50%; border: 1px solid black; background-color: white; margin: auto; padding: 16px">
-        <h1 style="text-align: center">Loading...</h1>
-        <div id="progressbar"></div>
+    <div>
+        Stats for data in the selected set:
+        <table id="container_count" class="table">
+            <tr class="label">
+                <td>Number of Requests</td>
+            </tr>
+            <tr>
+                <td id="chart_countResolvedRequests" style="text-align: center"></td>
+            </tr>
+        </table>
     </div>
 
-    <div id="chartBody" style="display: none">
-        <h1 style="text-align: center">Timeline Data Explorer <span style="background-color: white; color: red; border: 2px solid black; padding: 8px; font-style: italic">BETA</span></h1>
-        <h2 style="text-align: center">Requests submitted since:
-            <select id="showDateSubmitted">
-                <option value="1 month ago">1 month ago</option>
-                <option value="3 months ago" selected="selected">3 months ago</option>
-                <option value="6 months ago">6 month ago</option>
-                <option value="1 year ago">1 year ago</option>
-            </select>
-        </h2>
-        
-        <span class="buttonNorm" style="float: right" onclick="dc.filterAll(); dc.filterAll(); dc.renderAll(); resetFilters();">Reset Filters</span>
-        <br style="clear: both" />
-
-        <div>
-            Stats for data in the selected set:
-            <table id="container_count" class="table">
-                <tr class="label">
-                    <td>Number of Requests</td>
-                </tr>
-                <tr>
-                    <td id="chart_countResolvedRequests" style="text-align: center"></td>
-                </tr>
-            </table>
+    <div id="lt-grid" class="lt-container lt-xs-h-10
+                                          lt-md-h-6
+                                          lt-lg-h-6" data-arrange="lt-grid">
+        <!-- main overview chart -->
+        <div class="lt lt-xs-x-0 lt-xs-y-0 lt-xs-w-1 lt-xs-h-1
+                              lt-md-x-0 lt-md-y-0 lt-md-w-2 lt-md-h-2
+                              lt-lg-x-0 lt-lg-y-0 lt-lg-w-2 lt-lg-h-2" draggable="true">
+            <div class="lt-body card chartContainer">
+                <div class="label">Average Completion Time (business days)</div>
+                <div id="chart_count_avgCompletionTime" class="chart" style="height: 30%; text-align: center; font-size: 700%"></div>
+                <div id="chart_workload_timescale" class="chart" style="height: 60%"></div>
+            </div>
         </div>
 
-        <div id="lt-grid" class="lt-container lt-xs-h-10
-                                            lt-md-h-6
-                                            lt-lg-h-6" data-arrange="lt-grid">
-            <!-- main overview chart -->
-            <div class="lt lt-xs-x-0 lt-xs-y-0 lt-xs-w-1 lt-xs-h-1
-                                lt-md-x-0 lt-md-y-0 lt-md-w-2 lt-md-h-2
-                                lt-lg-x-0 lt-lg-y-0 lt-lg-w-2 lt-lg-h-2" draggable="true">
-                <div class="lt-body card chartContainer">
-                    <div class="label">Average Completion Time (business days)</div>
-                    <div id="chart_count_avgCompletionTime" class="chart" style="height: 30%; text-align: center; font-size: 700%"></div>
-                    <div id="chart_workload_timescale" class="chart" style="height: 60%"></div>
-                </div>
+        <!-- chart for complexity -->
+        <div class="lt lt-xs-x-0 lt-xs-y-1 lt-xs-w-1 lt-xs-h-1
+                              lt-md-x-2 lt-md-y-0 lt-md-w-1 lt-md-h-2
+                              lt-lg-x-3 lt-lg-y-0 lt-lg-w-1 lt-lg-h-2" draggable="true">
+            <div class="lt-body card">
+                <div class="label">Type of Form</div>
+                <div id="chart_pie_category" class="chart" style="padding: 8px; width: 95%"></div>
             </div>
+        </div>
 
-            <!-- chart for complexity -->
-            <div class="lt lt-xs-x-0 lt-xs-y-1 lt-xs-w-1 lt-xs-h-1
-                                lt-md-x-2 lt-md-y-0 lt-md-w-1 lt-md-h-2
-                                lt-lg-x-3 lt-lg-y-0 lt-lg-w-1 lt-lg-h-2" draggable="true">
-                <div class="lt-body card">
-                    <div class="label">Type of Form</div>
-                    <div id="chart_pie_category" class="chart" style="padding: 8px; width: 95%"></div>
-                </div>
+
+        <!-- chart for services/facilities -->
+        <div class="lt lt-xs-x-0 lt-xs-y-2 lt-xs-w-1 lt-xs-h-1
+                              lt-md-x-0 lt-md-y-2 lt-md-w-1 lt-md-h-1
+                              lt-lg-x-2 lt-lg-y-0 lt-lg-w-1 lt-lg-h-2" draggable="true">
+            <div class="lt-body card chartContainer">
+                <div class="label">Average Completion Time per Service (business days)</div>
+                <div id="chart_facilities" class="chart"></div>
             </div>
+        </div>
 
-
-            <!-- chart for services/facilities -->
-            <div class="lt lt-xs-x-0 lt-xs-y-2 lt-xs-w-1 lt-xs-h-1
-                                lt-md-x-0 lt-md-y-2 lt-md-w-1 lt-md-h-1
-                                lt-lg-x-2 lt-lg-y-0 lt-lg-w-1 lt-lg-h-2" draggable="true">
-                <div class="lt-body card chartContainer">
-                    <div class="label">Average Completion Time per Service (business days)</div>
-                    <div id="chart_facilities" class="chart"></div>
-                </div>
+        <!-- chart for service workload -->
+        <div class="lt lt-xs-x-0 lt-xs-y-3 lt-xs-w-1 lt-xs-h-1
+                              lt-md-x-2 lt-md-y-4 lt-md-w-1 lt-md-h-1
+                              lt-lg-x-0 lt-lg-y-2 lt-lg-w-1 lt-lg-h-1" draggable="true">
+            <div class="lt-body card chartContainer">
+                <div class="label">Handoffs per Service</div>
+                <div id="chart_workload_facilities" class="chart"></div>
             </div>
+        </div>
 
-            <!-- chart for service workload -->
-            <div class="lt lt-xs-x-0 lt-xs-y-3 lt-xs-w-1 lt-xs-h-1
-                                lt-md-x-2 lt-md-y-4 lt-md-w-1 lt-md-h-1
-                                lt-lg-x-0 lt-lg-y-2 lt-lg-w-1 lt-lg-h-1" draggable="true">
-                <div class="lt-body card chartContainer">
-                    <div class="label">Handoffs per Service</div>
-                    <div id="chart_workload_facilities" class="chart"></div>
-                </div>
+        <!-- chart for service workload number of requests -->
+        <div class="lt lt-xs-x-0 lt-xs-y-4 lt-xs-w-1 lt-xs-h-1
+                              lt-md-x-2 lt-md-y-3 lt-md-w-1 lt-md-h-1
+                              lt-lg-x-1 lt-lg-y-2 lt-lg-w-2 lt-lg-h-1" draggable="true">
+            <div class="lt-body card chartContainer">
+                <div class="label">Active Requests per Service</div>
+                <div id="chart_workload_facilities_numRequests" class="chart"></div>
             </div>
+        </div>
 
-            <!-- chart for service workload number of requests -->
-            <div class="lt lt-xs-x-0 lt-xs-y-4 lt-xs-w-1 lt-xs-h-1
-                                lt-md-x-2 lt-md-y-3 lt-md-w-1 lt-md-h-1
-                                lt-lg-x-1 lt-lg-y-2 lt-lg-w-2 lt-lg-h-1" draggable="true">
-                <div class="lt-body card chartContainer">
-                    <div class="label">Active Requests per Service</div>
-                    <div id="chart_workload_facilities_numRequests" class="chart"></div>
-                </div>
+        <!-- chart for classification type -->
+        <div class="lt lt-xs-x-0 lt-xs-y-6 lt-xs-w-1 lt-xs-h-1
+                              lt-md-x-1 lt-md-y-2 lt-md-w-1 lt-md-h-1
+                              lt-lg-x-3 lt-lg-y-2 lt-lg-w-1 lt-lg-h-1" draggable="true">
+            <div class="lt-body card chartContainer">
+                <div class="label">Type of Form</div>
+                <div id="chart_form_type" class="chart"></div>
             </div>
+        </div>
 
-            <!-- chart for classification type -->
-            <div class="lt lt-xs-x-0 lt-xs-y-6 lt-xs-w-1 lt-xs-h-1
-                                lt-md-x-1 lt-md-y-2 lt-md-w-1 lt-md-h-1
-                                lt-lg-x-3 lt-lg-y-2 lt-lg-w-1 lt-lg-h-1" draggable="true">
-                <div class="lt-body card chartContainer">
-                    <div class="label">Type of Form</div>
-                    <div id="chart_form_type" class="chart"></div>
-                </div>
+        <!-- chart for table: top slowest -->
+        <div class="lt lt-xs-x-0 lt-xs-y-7 lt-xs-w-1 lt-xs-h-1
+                              lt-md-x-0 lt-md-y-5 lt-md-w-3 lt-md-h-1
+                              lt-lg-x-2 lt-lg-y-3 lt-lg-w-2 lt-lg-h-3" draggable="true">
+            <div class="lt-body card chartContainer">
+                <div class="label">Snapshot of slow actions</div>
+                <table id="chart_table_requests" class="chart table" style="width: 99%; padding: 8px">
+                    <thead>
+                        <td>Service</td>
+                        <td>recordID</td>
+                        <td>Action</td>
+                        <td>Business days for the action</td>
+                    </thead>
+                </table>
             </div>
+        </div>
 
-            <!-- chart for table: top slowest -->
-            <div class="lt lt-xs-x-0 lt-xs-y-7 lt-xs-w-1 lt-xs-h-1
-                                lt-md-x-0 lt-md-y-5 lt-md-w-3 lt-md-h-1
-                                lt-lg-x-2 lt-lg-y-3 lt-lg-w-2 lt-lg-h-3" draggable="true">
-                <div class="lt-body card chartContainer">
-                    <div class="label">Snapshot of slow actions</div>
-                    <table id="chart_table_requests" class="chart table" style="width: 99%; padding: 8px">
-                        <thead>
-                            <td>Service</td>
-                            <td>recordID</td>
-                            <td>Action</td>
-                            <td>Business days for the action</td>
-                        </thead>
-                    </table>
-                </div>
+        <!-- chart for steps - cumulative -->
+        <div class="lt lt-xs-x-0 lt-xs-y-8 lt-xs-w-1 lt-xs-h-1
+                              lt-md-x-0 lt-md-y-3 lt-md-w-1 lt-md-h-2
+                              lt-lg-x-0 lt-lg-y-3 lt-lg-w-1 lt-lg-h-3" draggable="true">
+            <div class="lt-body card">
+                <div class="label">Total time spent per step</div>
+                <div id="chart_pie_steps_total" class="chart" style="height: 40%"></div>
+                <div id="chart_row_steps_total" class="chart" style="height: 50%"></div>
+                <div style="text-align: center">Business Days</div>
             </div>
+        </div>
 
-            <!-- chart for steps - cumulative -->
-            <div class="lt lt-xs-x-0 lt-xs-y-8 lt-xs-w-1 lt-xs-h-1
-                                lt-md-x-0 lt-md-y-3 lt-md-w-1 lt-md-h-2
-                                lt-lg-x-0 lt-lg-y-3 lt-lg-w-1 lt-lg-h-3" draggable="true">
-                <div class="lt-body card">
-                    <div class="label">Total time spent per step</div>
-                    <div id="chart_pie_steps_total" class="chart" style="height: 40%"></div>
-                    <div id="chart_row_steps_total" class="chart" style="height: 50%"></div>
-                    <div style="text-align: center">Business Days</div>
-                </div>
+        <!-- chart for steps - average -->
+        <div class="lt lt-xs-x-0 lt-xs-y-9 lt-xs-w-1 lt-xs-h-1
+                              lt-md-x-1 lt-md-y-3 lt-md-w-1 lt-md-h-2
+                              lt-lg-x-1 lt-lg-y-3 lt-lg-w-1 lt-lg-h-3" draggable="true">
+            <div class="lt-body card">
+                <div class="label">Avg. time spent per step</div>
+                <div id="chart_pie_steps" class="chart" style="height: 40%"></div>
+                <div id="chart_row_steps" class="chart" style="height: 50%"></div>
+                <div style="text-align: center">Business Days</div>
             </div>
-
-            <!-- chart for steps - average -->
-            <div class="lt lt-xs-x-0 lt-xs-y-9 lt-xs-w-1 lt-xs-h-1
-                                lt-md-x-1 lt-md-y-3 lt-md-w-1 lt-md-h-2
-                                lt-lg-x-1 lt-lg-y-3 lt-lg-w-1 lt-lg-h-3" draggable="true">
-                <div class="lt-body card">
-                    <div class="label">Avg. time spent per step</div>
-                    <div id="chart_pie_steps" class="chart" style="height: 40%"></div>
-                    <div id="chart_row_steps" class="chart" style="height: 50%"></div>
-                    <div style="text-align: center">Business Days</div>
-                </div>
-            </div>
-
         </div>
 
     </div>

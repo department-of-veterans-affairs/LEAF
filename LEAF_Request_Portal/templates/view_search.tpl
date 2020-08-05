@@ -1,10 +1,5 @@
-<div class="leaf-center-content">
-
-    <div id="searchContainer"></div>
-    <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; float: right">Show more records</button>
-
-</div>
-
+<div id="searchContainer"></div>
+<button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; float: right">Show more records</button>
 <script>
 var CSRFToken = '<!--{$CSRFToken}-->';
 

@@ -458,7 +458,7 @@ switch ($action) {
                 $tabText = 'Request #' . (int)$_GET['recordID'];
                 $main->assign('tabText', $tabText);
 
-                $main->assign('logo', '<img src="images/VA_icon_small.png" alt="VA logo" />');
+                $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
                 $main->assign('login', $t_login->fetch('login.tpl'));
                 $main->display('main.tpl');
