@@ -530,7 +530,6 @@ class System
         {
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
             $portalTplPath = __DIR__ . "/../templates/email/custom_override/" . $cleanPortalPath;
-            //$defaultTplPath = __DIR__ ."/../templates/email/{$template}";
 
             if (file_exists($portalTplPath . "{$template}"))
             {
