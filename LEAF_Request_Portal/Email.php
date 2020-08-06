@@ -134,7 +134,7 @@ class Email
                                                 array(':groupID' => $groupID));
         foreach($res as $user) {
             $tmp = $dir->lookupLogin($user['userID']);
-            $email->addRecipient($tmp[0]['Email']);
+            $this->addRecipient($tmp[0]['Email']);
         }
     }
 
