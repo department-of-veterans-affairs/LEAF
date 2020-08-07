@@ -197,7 +197,10 @@ class WorkflowController extends RESTfulResponse
 
         $this->index['POST']->register('workflow/[digit]/step/[digit]/[text]/events', function ($args) use ($workflow) {
             $workflow->setWorkflowID((int)$args[0]);
-
+            if($_POST['eventID'] == 'automated_email_reminder')
+            {
+                $workflow->setEmailReminderData((int)$args[1], XSSHelpers::xscrub($args[2]), XSSHelpers::xscrub($_POST['frequency']), XSSHelpers::xscrub($_POST['recipientGroupID']), XSSHelpers::xscrub($_POST['emailTemplateID']), XSSHelpers::xscrub($_POST['startDateIndicatorID']));
+            }
             return $workflow->linkEvent((int)$args[1], XSSHelpers::xscrub($args[2]), XSSHelpers::xscrub($_POST['eventID']));
         });
 
@@ -239,6 +242,10 @@ class WorkflowController extends RESTfulResponse
         $this->index['DELETE']->register('workflow/[digit]/step/[digit]/[text]/events', function ($args) use ($workflow) {
             $workflow->setWorkflowID((int)$args[0]);
 
+            if($_GET['eventID'] == 'automated_email_reminder')
+            {
+                $workflow->deleteEmailReminderData((int)$args[1], XSSHelpers::xscrub($args[2]));
+            }
             return $workflow->unlinkEvent((int)$args[1], XSSHelpers::xscrub($args[2]), XSSHelpers::xscrub($_GET['eventID']));
         });
 

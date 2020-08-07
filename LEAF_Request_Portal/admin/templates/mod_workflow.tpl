@@ -133,11 +133,20 @@ function addEventDialog(workflowID, stepID, actionType) {
             })
             .trigger("change");
             dialog.setSaveHandler(function() {
+                var ajaxData = {eventID: $('#eventID').val(),
+            			   CSRFToken: CSRFToken};
+                if($('#eventID').val() == 'automated_email_reminder'){
+                    var formObj = {};
+                    $.each($('#eventData :input').serializeArray(), function() {
+                        formObj[this.name] = this.value;
+                    });
+                    Object.assign(ajaxData, formObj);
+                }
+
             	$.ajax({
             		type: 'POST',
             		url: '../api/?a=workflow/'+ workflowID +'/step/'+ stepID +'/_'+ actionType +'/events',
-            		data: {eventID: $('#eventID').val(),
-            			   CSRFToken: CSRFToken},
+            		data: ajaxData,
             		success: function() {
             			loadWorkflow(workflowID);
             		}
@@ -1359,15 +1368,15 @@ function setEmailReminderHTML(){
         eventDataHTML += '</div>';
 
         eventDataHTML += '<div class="eventDataInput">';
-        eventDataHTML += '<label for="dateIndicator">Reminder Start Date</label>';
-        eventDataHTML += '<select id="dateIndicator" name="dateIndicator">';
+        eventDataHTML += '<label for="startDateIndicatorID">Reminder Start Date</label>';
+        eventDataHTML += '<select id="startDateIndicatorID" name="startDateIndicatorID">';
         eventDataHTML += indicatorList;
         eventDataHTML += '</select>';
         eventDataHTML += '</div>';
 
         eventDataHTML += '<div class="eventDataInput">';
-        eventDataHTML += '<label for="emailTemplate">Email Template</label>';
-        eventDataHTML += '<select id="emailTemplate" name="emailTemplate">';
+        eventDataHTML += '<label for="emailTemplateID">Email Template</label>';
+        eventDataHTML += '<select id="emailTemplateID" name="emailTemplateID">';
         eventDataHTML += emailTemplateList;
         eventDataHTML += '</select>';
         eventDataHTML += '</div>';
@@ -1375,21 +1384,23 @@ function setEmailReminderHTML(){
         eventDataHTML += '<div class="eventDataInput">';
         eventDataHTML += '<label for="emailGroupSelector">Recipient Group</label>';
         eventDataHTML += '<div id="emailGroupSelector"></div>';
+        eventDataHTML += '<input id="recipientGroupID" name="recipientGroupID" style="display: none;">';
         eventDataHTML += '</div>';
 
         eventDataHTML += '</div>';//emailReminder div
         $('#eventData').html(eventDataHTML);
 
-        $('#emailTemplate').chosen({disable_search_threshold: 5});
-        $('#dateIndicator').chosen({disable_search_threshold: 5});
+        $('#emailTemplateID').chosen({disable_search_threshold: 5});
+        $('#startDateIndicatorID').chosen({disable_search_threshold: 5});
 
         var grpSel = new groupSelector('emailGroupSelector');
         grpSel.basePath = '<!--{$orgchartPath}-->/';
         grpSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
         grpSel.tag = '<!--{$orgchartImportTags[0]}-->';
+        grpSel.setSelectHandler(function() {
+            $('#recipientGroupID').val(grpSel.selection);
+        });
         grpSel.initialize();
-    
-        //grpSel.selection
     });
     
 /*

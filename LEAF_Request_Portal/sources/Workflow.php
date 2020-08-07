@@ -1116,4 +1116,55 @@ class Workflow
         return $this->dataActionLogger->getHistory($filterById, "workflowID", \LoggableTypes::WORKFLOW);
     }
 
+    public function setEmailReminderData($stepID, $actionType, $frequency, $recipientGroupID, $emailTemplateID, $startDateIndicatorID)
+    {
+        $vars = array(
+            ':workflowID' => $this->workflowID,
+            ':stepID' => (int)$stepID,
+            ':actionType' => $actionType,
+            ':frequency' => (int)$frequency,
+            ':recipientGroupID' => (int)$recipientGroupID,
+            ':emailTemplateID' => (int)$emailTemplateID,
+            ':startDateIndicatorID' => (int)$startDateIndicatorID
+        );
+        
+        $res = $this->db->prepared_query(
+            'INSERT INTO email_reminders (workflowID, stepID, actionType, frequency, recipientGroupID, emailTemplateID, startDateIndicatorID)
+            VALUES (:workflowID, :stepID, :actionType, :frequency, :recipientGroupID, :emailTemplateID, :startDateIndicatorID)
+            ON DUPLICATE KEY UPDATE frequency = :frequency, recipientGroupID = :recipientGroupID, emailTemplateID = :emailTemplateID, startDateIndicatorID = :startDateIndicatorID;',
+            $vars);
+            
+        return 1;
+    }
+
+    public function getEmailReminderData($stepID, $actionType)
+    {
+        $vars = array(
+            ':workflowID' => $this->workflowID,
+            ':stepID' => (int)$stepID,
+            ':actionType' => $actionType
+        );
+        $res = $this->db->prepared_query(
+            'SELECT * FROM email_reminders WHERE (workflowID = :workflowID AND stepID = :stepID AND actionType = :actionType);',
+            $vars);
+
+        return $res;
+    }
+
+    public function deleteEmailReminderData($stepID, $actionType)
+    {
+        $vars = array(
+            ':workflowID' => $this->workflowID,
+            ':stepID' => (int)$stepID,
+            ':actionType' => $actionType
+        );
+        
+        trigger_error('08072020: ' . (int)$args[1] . ", " . XSSHelpers::xscrub($args[2]));
+        $res = $this->db->prepared_query(
+            'DELETE FROM email_reminders WHERE (workflowID = :workflowID AND stepID = :stepID AND actionType = :actionType);',
+            $vars);
+
+        return 1;
+    }
+
 }
