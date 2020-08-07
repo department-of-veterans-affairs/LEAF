@@ -28,10 +28,11 @@ h3 {margin: 0.0rem 0.0rem 0.4rem 0.0rem;}
 p {margin: 0.7rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
 label {font-family: 'PublicSans-Bold'; font-size: 0.9rem;}
 hr {border: 1px solid #dfe1e2;}
+a:focus, a:active {border: 0!important; outline: none!important;}
+button:focus, button:active {border: 0!important; outline: none!important;}
 
 /* ############### USWDS OVERRIDES ################# */
 .usa-sidenav {font-family: 'PublicSans-Regular'; font-size: 0.9rem;}
-.usa-sidenav a:focus, .usa-sidenav a:active {border: 0; outline: none;}
 .usa-current a {color: #005ea2!important;}
 
 /* ############### GLOBAL CONTAINER STYLES ################# */

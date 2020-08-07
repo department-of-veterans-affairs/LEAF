@@ -16,6 +16,7 @@ div.groupBlock {
     background-color: #0c60a0;
 }
     div.groupBlock:hover{box-shadow: 2px 2px 4px #838687; background-color: none;}
+    div.groupBlock:focus, div.groupBlock:active {outline: none; border: 0;}
     div.groupBlock div { padding-top: 0.4rem; font-size: 0.8rem; color: #fff; }
 
 div.groupBlock h2 {
