@@ -31,6 +31,7 @@ hr {border: 1px solid #dfe1e2;}
 
 /* ############### USWDS OVERRIDES ################# */
 .usa-sidenav {font-family: 'PublicSans-Regular'; font-size: 0.9rem;}
+.usa-sidenav a:focus, .usa-sidenav a:active {border: 0; outline: none;}
 .usa-current a {color: #005ea2!important;}
 
 /* ############### GLOBAL CONTAINER STYLES ################# */
