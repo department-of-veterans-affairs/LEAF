@@ -153,7 +153,7 @@ function restore() {
 	dialog.setSaveHandler(function() {
 		$.ajax({
 	        type: 'DELETE',
-	        url: '../api/system/emailtemplates/_' + currentFile + '&subjectFileName=' + currentSubjectFile + '&CSRFToken=<!--{$CSRFToken}-->',
+	        url: '../api/?a=system/emailtemplates/_' + currentFile + '&subjectFileName=' + currentSubjectFile + '&CSRFToken=<!--{$CSRFToken}-->',
 	        success: function() {
 	            loadContent(currentFile, currentSubjectFile);
 	        }
