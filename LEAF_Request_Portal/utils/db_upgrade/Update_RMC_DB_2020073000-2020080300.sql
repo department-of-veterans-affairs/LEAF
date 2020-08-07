@@ -9,12 +9,12 @@ CREATE TABLE `email_reminders` (
   `actionType` varchar(50) NOT NULL,
   `frequency` smallint(5) NOT NULL,
   `recipientGroupID` mediumint(9) NOT NULL,
-  `emailTemplateID` mediumint(8) NOT NULL,
+  `emailTemplate` text NOT NULL,
   `startDateIndicatorID` smallint(5) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `routeID` (`workflowID`,`stepID`,`actionType`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
-SELECT * FROM leaf_portal.email_reminders;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=latin1;
+
 
 UPDATE `settings` SET `data` = '2020080300' WHERE `settings`.`setting` = 'dbversion';
 

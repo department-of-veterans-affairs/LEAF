@@ -128,7 +128,7 @@ function addEventDialog(workflowID, stepID, actionType) {
                 $('#eventData').html('');
                 if($( "#eventID" ).val() == 'automated_email_reminder')
                 { 
-                    setEmailReminderHTML();
+                    setEmailReminderHTML(workflowID, stepID, actionType);
                 }
             })
             .trigger("change");
@@ -1343,11 +1343,12 @@ function viewHistory(){
 /*
     START: EMAIL REMINDER BLOCK
 */
-function setEmailReminderHTML(){
-    Promise.all([getEmailTemplates(),getDateIndicators()])
+function setEmailReminderHTML(workflowID, stepID, actionType){
+    Promise.all([getEmailTemplates(),getDateIndicators(),getSavedEmailReminderData(workflowID, stepID, actionType)])
     .then(function(data) {
         var emailTemplates = data[0];
         var dateIndicators = data[1];
+        var formFields = data[2];
         
         var indicatorList = '';
         for(var i in dateIndicators) {
@@ -1355,8 +1356,8 @@ function setEmailReminderHTML(){
         }
         var emailTemplateList = '';
         for(var i in emailTemplates) {
-            emailID = emailTemplates[i].fileName.replace(".tpl", "");;
-            emailTemplateList += '<option value="' + emailID + '">' + emailID + '</option>';
+            emailTemplate = emailTemplates[i].fileName;
+            emailTemplateList += '<option value="' + emailTemplate + '">' + emailTemplate + '</option>';
         }
 
         eventDataHTML  = '<div id="emailReminder">';
@@ -1375,8 +1376,8 @@ function setEmailReminderHTML(){
         eventDataHTML += '</div>';
 
         eventDataHTML += '<div class="eventDataInput">';
-        eventDataHTML += '<label for="emailTemplateID">Email Template</label>';
-        eventDataHTML += '<select id="emailTemplateID" name="emailTemplateID">';
+        eventDataHTML += '<label for="emailTemplate">Email Template</label>';
+        eventDataHTML += '<select id="emailTemplate" name="emailTemplate">';
         eventDataHTML += emailTemplateList;
         eventDataHTML += '</select>';
         eventDataHTML += '</div>';
@@ -1390,7 +1391,11 @@ function setEmailReminderHTML(){
         eventDataHTML += '</div>';//emailReminder div
         $('#eventData').html(eventDataHTML);
 
-        $('#emailTemplateID').chosen({disable_search_threshold: 5});
+        $.each( formFields, function( key, value ) {
+            $('#emailReminder #' + key).val(value)
+        });
+
+        $('#emailTemplate').chosen({disable_search_threshold: 5});
         $('#startDateIndicatorID').chosen({disable_search_threshold: 5});
 
         var grpSel = new groupSelector('emailGroupSelector');
@@ -1400,22 +1405,14 @@ function setEmailReminderHTML(){
         grpSel.setSelectHandler(function() {
             $('#recipientGroupID').val(grpSel.selection);
         });
+        grpSel.setResultHandler(function() {
+            $('#recipientGroupID').val(grpSel.selection);
+        });
         grpSel.initialize();
+        if($('#recipientGroupID').val() != ''){
+            grpSel.forceSearch('group#' + $('#recipientGroupID').val());
+        }
     });
-    
-/*
-    //Frequency of reminders (number of days fields "# days till notice")
-
-    
-    //Which e-mail template to use
-    eventDataHTML += '<div></div>';
-    //Recipients  (use Orgchart group selector)
-    eventDataHTML += '';
-    //Which data field to calculate reminder date from (indicator drop-down)
-    eventDataHTML += '';
-
-    return eventDataHTML;
-    */
 }
 
 function getEmailTemplates(){
@@ -1447,6 +1444,22 @@ function getDateIndicators(){
                     }
                 }
                 resolve(data);
+            },
+            error: function () {
+                reject();
+            },
+            cache: false
+        });
+	});
+}
+
+function getSavedEmailReminderData(workflowID, stepID, actionType){
+    return new Promise(function(resolve,reject){
+		$.ajax({
+            url: '../api/workflow/'+ workflowID +'/step/'+ stepID +'/_'+ actionType +'/events/emailReminder?CSRFToken=' + CSRFToken,
+            type: 'GET',
+            success: function (res) {
+                resolve(res[0]);
             },
             error: function () {
                 reject();
