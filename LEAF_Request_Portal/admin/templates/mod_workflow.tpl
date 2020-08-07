@@ -126,9 +126,10 @@ function addEventDialog(workflowID, stepID, actionType) {
             $('#eventID').chosen({disable_search_threshold: 5})
             .change(function(){
                 $('#eventData').html('');
+                dialog.clearValidators();
                 if($( "#eventID" ).val() == 'automated_email_reminder')
                 { 
-                    setEmailReminderHTML(workflowID, stepID, actionType);
+                    setEmailReminderHTML(workflowID, stepID, actionType, dialog);
                 }
             })
             .trigger("change");
@@ -1392,7 +1393,7 @@ function setEmailReminderHTML(workflowID, stepID, actionType){
         $('#eventData').html(eventDataHTML);
 
         $.each( formFields, function( key, value ) {
-            $('#emailReminder #' + key).val(value)
+            $('#emailReminder #' + key).val(value);
         });
 
         $('#emailTemplate').chosen({disable_search_threshold: 5});
@@ -1412,6 +1413,34 @@ function setEmailReminderHTML(workflowID, stepID, actionType){
         if($('#recipientGroupID').val() != ''){
             grpSel.forceSearch('group#' + $('#recipientGroupID').val());
         }
+
+        dialog.setValidator('frequency', function() {
+            return $('#emailReminder #frequency').val() != '';
+        });
+        dialog.setValidatorError('frequency', function() {
+            alert('Frequency is required.');
+        });
+
+        dialog.setValidator('startDateIndicatorID', function() {
+            return $('#emailReminder #startDateIndicatorID').val() != '';
+        });
+        dialog.setValidatorError('startDateIndicatorID', function() {
+            alert('Please select a start date indicator.');
+        });
+
+        dialog.setValidator('emailTemplate', function() {
+            return $('#emailReminder #emailTemplate').val() != '';
+        });
+        dialog.setValidatorError('emailTemplate', function() {
+            alert('Please select an email template.');
+        });
+
+        dialog.setValidator('recipientGroupID', function() {
+            return $('#emailReminder #recipientGroupID').val() != '';
+        });
+        dialog.setValidatorError('recipientGroupID', function() {
+            alert('Please select a group.');
+        });
     });
 }
 
