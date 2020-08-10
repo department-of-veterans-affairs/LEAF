@@ -35,6 +35,11 @@
     background-color: #c9ddff;
     width: 100%;
     text-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 }
 
 .formPreview:hover {
