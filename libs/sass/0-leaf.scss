@@ -16,7 +16,7 @@ $theme-font-path: "fonts" !default;
 @import "./node_modules/@fortawesome/fontawesome-free/scss/solid";
 
 /* ################# FONT FAMILY DECLARATIONS ################# */
-@font-face {font-family: 'fa-solid'; src: url(fonts/fontawesome/fa-solid-900.woff2);}
+@font-face {font-family: 'fa-solid'; src: url(fonts/fontawesome/fa-solid-900.woff);}
 .fas {font-family: 'fa-solid';}
 
 /* ############### GLOBAL OVERRIDES ################# */
