@@ -1366,7 +1366,7 @@ function setEmailReminderHTML(workflowID, stepID, actionType){
 
         eventDataHTML += '<div class="eventDataInput">';
         eventDataHTML += '<label for="frequency">Frequency of Reminders (in Business Days)</label>';
-        eventDataHTML += '<input type="number" id="frequency" name="frequency">';
+        eventDataHTML += '<input type="number" id="frequency" name="frequency" min="0">';
         eventDataHTML += '</div>';
 
         eventDataHTML += '<div class="eventDataInput">';
@@ -1419,6 +1419,13 @@ function setEmailReminderHTML(workflowID, stepID, actionType){
         });
         dialog.setValidatorError('frequency', function() {
             alert('Frequency is required.');
+        });
+
+        dialog.setValidator('frequency_pos', function() {
+            return $('#emailReminder #frequency').val() >= 0;
+        });
+        dialog.setValidatorError('frequency_pos', function() {
+            alert('Frequency cannot be negative.');
         });
 
         dialog.setValidator('startDateIndicatorID', function() {
