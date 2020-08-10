@@ -141,7 +141,7 @@ function addEventDialog(workflowID, stepID, actionType) {
                     $.each($('#eventData :input').serializeArray(), function() {
                         formObj[this.name] = this.value;
                     });
-                    Object.assign(ajaxData, formObj);
+                    $.extend(ajaxData, formObj);
                 }
 
             	$.ajax({
