@@ -58,9 +58,16 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 // HQ logo
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
-function customTemplate($tpl)
+function customTemplate($tpl, $config)
 {
-    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+
+    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
+    if (file_exists($customTemplatePath)) {
+        return "custom_override/". $cleanPortalPath . "{$tpl}";
+    } else {
+        return $tpl;
+    }
 }
 
 $t_login->assign('name', $login->getName());
@@ -105,44 +112,55 @@ switch ($action) {
 
         break;
     default:
-        if ($action != ''
-            && file_exists(__DIR__."/templates/reports/{$action}.tpl"))
+        if ($action != '')
         {
-            $main->assign('useUI', true);
-            $main->assign('javascripts', array(
-                'js/form.js',
-                'js/workflow.js',
-                'js/formGrid.js',
-                'js/formQuery.js',
-                'js/formSearch.js',
-                '../libs/jsapi/nexus/LEAFNexusAPI.js',
-                '../libs/jsapi/portal/LEAFPortalAPI.js',
-                '../libs/jsapi/portal/model/FormQuery.js',
-            ));
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            if (file_exists(__DIR__."/templates/reports/{$action}.tpl") || file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")) {
 
-            $form = new Form($db, $login);
-            $o_login = $t_login->fetch('login.tpl');
+                $main->assign('useUI', true);
+                $main->assign('javascripts', array(
+                    'js/form.js',
+                    'js/workflow.js',
+                    'js/formGrid.js',
+                    'js/formQuery.js',
+                    'js/formSearch.js',
+                    '../libs/jsapi/nexus/LEAFNexusAPI.js',
+                    '../libs/jsapi/portal/LEAFPortalAPI.js',
+                    '../libs/jsapi/portal/model/FormQuery.js',
+                ));
 
-            $t_form = new Smarty;
-            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
-            $t_form->left_delimiter = '<!--{';
-            $t_form->right_delimiter = '}-->';
-            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('userID', $login->getUserID());
-            $t_form->assign('empUID', $login->getEmpUID());
-            $t_form->assign('empMembership', $login->getMembership());
-            $t_form->assign('currUserActualName', XSSHelpers::xscrub($login->getName()));
-            $t_form->assign('orgchartPath', $config->orgchartPath);
-            $t_form->assign('systemSettings', $settings);
-            $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
+                $form = new Form($db, $login);
+                $o_login = $t_login->fetch('login.tpl');
 
-            //url
-            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-            $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
-            $main->assign('qrcodeURL', urlencode($qrcodeURL));
+                $t_form = new Smarty;
+                $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
+                $t_form->left_delimiter = '<!--{';
+                $t_form->right_delimiter = '}-->';
+                $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+                $t_form->assign('userID', $login->getUserID());
+                $t_form->assign('empUID', $login->getEmpUID());
+                $t_form->assign('empMembership', $login->getMembership());
+                $t_form->assign('currUserActualName', XSSHelpers::xscrub($login->getName()));
+                $t_form->assign('orgchartPath', $config->orgchartPath);
+                $t_form->assign('systemSettings', $settings);
+                $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
 
-            $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
-            $tabText = '';
+                //url
+                $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+                $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
+                $main->assign('qrcodeURL', urlencode($qrcodeURL));
+
+                if (file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")) {
+                    $main->assign('body', $t_form->fetch("reports/custom_override/" . $cleanPortalPath . "{$action}.tpl"));
+                    $tabText = '';
+                }
+                else
+                {
+                    $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
+                    $tabText = '';
+                } 
+                
+            }
         }
         else
         {
@@ -157,7 +175,7 @@ $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', $config->orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
-$o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
+$o_menu = $t_menu->fetch(customTemplate('menu.tpl', $config));
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
@@ -168,9 +186,9 @@ $main->assign('revision', $settings['version']);
 
 if (!isset($_GET['iframe']))
 {
-    $main->display(customTemplate('main.tpl'));
+    $main->display(customTemplate('main.tpl', $config));
 }
 else
 {
-    $main->display(customTemplate('main_iframe.tpl'));
+    $main->display(customTemplate('main_iframe.tpl', $config));
 }

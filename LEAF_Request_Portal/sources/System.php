@@ -821,16 +821,13 @@ class System
             return 'Admin access required';
         }
         $list = $this->getReportTemplateList();
-        var_dump($portalTplPath);
-            die;
+
         if (array_search($template, $list) !== false)
         {
             global $config;
 
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
             $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "{$template}";
-            var_dump($portalTplPath);
-            die;
 
             if (file_exists($portalTplPath))
             {

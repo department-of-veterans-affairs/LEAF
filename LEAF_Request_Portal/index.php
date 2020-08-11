@@ -57,7 +57,7 @@ $tabText = '';
 $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 /**
- First checks for custom template on filesystem (cache), if does not exist then check S3 and download
+ Checks for custom template on filesystem
  @return default template if does cannot find override
 */
 function customTemplate($tpl, $config)

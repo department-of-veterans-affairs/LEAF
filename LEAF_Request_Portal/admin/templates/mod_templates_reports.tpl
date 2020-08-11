@@ -110,8 +110,7 @@ function deleteReport() {
             type: 'DELETE',
             url: '../api/system/reportTemplates/_' + currentFile + '?CSRFToken=<!--{$CSRFToken}-->',
             success: function() {
-
-                //location.reload();
+                location.reload();
             }
         });
         dialog_confirm.hide();
