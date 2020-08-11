@@ -94,7 +94,7 @@ class Email
         $smarty->left_delimiter = '{{';
         $smarty->right_delimiter = '}}';
         $smarty->assign('emailBody', $i);
-        $htmlOutput = $smarty->fetch('LEAF_main_email_template.tpl');
+        $htmlOutput = $smarty->fetch($this->getFilepath('LEAF_main_email_template.tpl'));
         $this->emailBody = $htmlOutput;
     }
 
