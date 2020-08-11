@@ -108,9 +108,10 @@ function deleteReport() {
 	dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/system/reportTemplates/_' + currentFile + '&CSRFToken=<!--{$CSRFToken}-->',
+            url: '../api/system/reportTemplates/_' + currentFile + '?CSRFToken=<!--{$CSRFToken}-->',
             success: function() {
-                location.reload();
+
+                //location.reload();
             }
         });
         dialog_confirm.hide();

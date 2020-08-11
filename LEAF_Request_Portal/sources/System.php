@@ -664,11 +664,28 @@ class System
         }
         $list = scandir(__DIR__.'/../templates/reports/');
         $out = array();
+
+        // adds defaults;
         foreach ($list as $item)
         {
             if (preg_match('/.tpl$/', $item))
             {
                 $out[] = $item;
+            }
+        };
+
+        // adds custom reports
+        global $config;
+
+        $list = scandir(__DIR__ . "/../templates/reports/custom_override");
+        $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+
+        foreach ($list as $item)
+        {
+            if (preg_match('/^' . $cleanPortalPath . '{1}/', $item))
+            {
+                $fileName = str_replace($cleanPortalPath, "", $item);
+                $out[] = $fileName;
             }
         }
 
@@ -694,7 +711,19 @@ class System
 
         if (array_search($template, $list) === false)
         {
-            file_put_contents(__DIR__ ."/../templates/reports/{$template}", '');
+            global $config;
+
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "{$template}";
+
+            if (!file_exists($portalPath)) 
+            {
+                file_put_contents($portalTplPath, '');
+            } 
+            else
+            {
+                return 'File already exists';
+            }
         }
         else
         {
@@ -719,12 +748,26 @@ class System
         $list = $this->getReportTemplateList();
 
         $data = array();
+
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__."/../templates/reports/{$template}"))
+            global $config;
+
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "{$template}";
+            $defaultTplPath = __DIR__ . "/../templates/reports/{$template}";
+
+            if (file_exists($portalTplPath))
             {
-                $data['file'] = file_get_contents(__DIR__."/../templates/reports/{$template}");
+                $data['file'] = file_get_contents($portalTplPath);
             }
+            else
+            {
+                if (file_exists($defaultTplPath))
+                {
+                    $data['file'] = file_get_contents($defaultTplPath);
+                }
+            }   
         }
 
         return $data;
@@ -757,15 +800,18 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            file_put_contents(__DIR__ ."/../templates/reports/{$template}", $_POST['file']);
+            global $config;
+
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "{$template}";
+            file_put_contents($portalTplPath, $_POST['file']);
         }
     }
 
     public function removeReportTemplate($in)
     {
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
-        if ($template != $in
-            || $this->isReservedFilename($template))
+        if ($template != $in)
         {
             return 0;
         }
@@ -775,12 +821,20 @@ class System
             return 'Admin access required';
         }
         $list = $this->getReportTemplateList();
-
+        var_dump($portalTplPath);
+            die;
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__."/../templates/reports/{$template}"))
+            global $config;
+
+            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "{$template}";
+            var_dump($portalTplPath);
+            die;
+
+            if (file_exists($portalTplPath))
             {
-                return unlink(__DIR__."/../templates/reports/{$template}");
+                return unlink($portalTplPath);
             }
         }
     }
