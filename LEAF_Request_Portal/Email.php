@@ -57,7 +57,16 @@ class Email
      */
     function getFilepath($tpl)
     {
-        return file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}") ? "custom_override/{$tpl}" : "{$tpl}";
+        global $config;
+
+        $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+        $customTemplatePath = __DIR__ . "/templates/email/custom_override/". $cleanPortalPath . "{$tpl}";
+        
+        if (file_exists($customTemplatePath)) {
+            return "custom_override/". $cleanPortalPath . "{$tpl}";
+        } else {
+            return $tpl;
+        }
     }
 
     public function clearRecipients()
