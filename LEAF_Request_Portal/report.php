@@ -112,55 +112,52 @@ switch ($action) {
 
         break;
     default:
-        if ($action != '')
+        $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+
+        if ($action != '' && (file_exists(__DIR__."/templates/reports/{$action}.tpl") || file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")))
         {
-            $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-            if (file_exists(__DIR__."/templates/reports/{$action}.tpl") || file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")) {
+            $main->assign('useUI', true);
+            $main->assign('javascripts', array(
+                'js/form.js',
+                'js/workflow.js',
+                'js/formGrid.js',
+                'js/formQuery.js',
+                'js/formSearch.js',
+                '../libs/jsapi/nexus/LEAFNexusAPI.js',
+                '../libs/jsapi/portal/LEAFPortalAPI.js',
+                '../libs/jsapi/portal/model/FormQuery.js',
+            ));
 
-                $main->assign('useUI', true);
-                $main->assign('javascripts', array(
-                    'js/form.js',
-                    'js/workflow.js',
-                    'js/formGrid.js',
-                    'js/formQuery.js',
-                    'js/formSearch.js',
-                    '../libs/jsapi/nexus/LEAFNexusAPI.js',
-                    '../libs/jsapi/portal/LEAFPortalAPI.js',
-                    '../libs/jsapi/portal/model/FormQuery.js',
-                ));
+            $form = new Form($db, $login);
+            $o_login = $t_login->fetch('login.tpl');
 
-                $form = new Form($db, $login);
-                $o_login = $t_login->fetch('login.tpl');
+            $t_form = new Smarty;
+            $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
+            $t_form->left_delimiter = '<!--{';
+            $t_form->right_delimiter = '}-->';
+            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+            $t_form->assign('userID', $login->getUserID());
+            $t_form->assign('empUID', $login->getEmpUID());
+            $t_form->assign('empMembership', $login->getMembership());
+            $t_form->assign('currUserActualName', XSSHelpers::xscrub($login->getName()));
+            $t_form->assign('orgchartPath', $config->orgchartPath);
+            $t_form->assign('systemSettings', $settings);
+            $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
 
-                $t_form = new Smarty;
-                $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
-                $t_form->left_delimiter = '<!--{';
-                $t_form->right_delimiter = '}-->';
-                $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-                $t_form->assign('userID', $login->getUserID());
-                $t_form->assign('empUID', $login->getEmpUID());
-                $t_form->assign('empMembership', $login->getMembership());
-                $t_form->assign('currUserActualName', XSSHelpers::xscrub($login->getName()));
-                $t_form->assign('orgchartPath', $config->orgchartPath);
-                $t_form->assign('systemSettings', $settings);
-                $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
+            //url
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+            $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
+            $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
-                //url
-                $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-                $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
-                $main->assign('qrcodeURL', urlencode($qrcodeURL));
-
-                if (file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")) {
-                    $main->assign('body', $t_form->fetch("reports/custom_override/" . $cleanPortalPath . "{$action}.tpl"));
-                    $tabText = '';
-                }
-                else
-                {
-                    $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
-                    $tabText = '';
-                } 
-                
+            if (file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")) {
+                $main->assign('body', $t_form->fetch("reports/custom_override/" . $cleanPortalPath . "{$action}.tpl"));
+                $tabText = '';
             }
+            else
+            {
+                $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
+                $tabText = '';
+            } 
         }
         else
         {
