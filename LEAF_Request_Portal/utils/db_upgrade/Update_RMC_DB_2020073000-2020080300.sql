@@ -1,7 +1,5 @@
 START TRANSACTION;
 
-INSERT INTO `events` (`eventID`, `eventDescription`, `eventData`) VALUES ('automated_email_reminder', 'Set Automated email reminders', '');
-
 CREATE TABLE `email_reminders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `workflowID` smallint(6) NOT NULL,
