@@ -3,7 +3,7 @@
     <aside class="sidenav-right"></aside>
 
     <aside id="sideBar" class="sidenav">
-        <button id="btn_uploadFile" class="usa-button" onclick="uploadFile();">
+        <button id="btn_uploadFile" class="usa-button leaf-side-btn" onclick="uploadFile();">
             Upload File
         </button>
     </aside>

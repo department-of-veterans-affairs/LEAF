@@ -2,23 +2,18 @@
 /* Grid of 6 */
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}
 </style>
-
 <div class="leaf-center-content">
-
     <div class="section group">
-
         <aside class="sidenav" id="fileBrowser">
-            <button class="usa-button leaf-btn-med" onclick="newReport();">New File</button>
+            <button class="usa-button leaf-btn-med leaf-side-btn" onclick="newReport();">New File</button>
             <p class="leaf-bold leaf-marginTop-1rem">Files</p>
             <div id="fileList"></div>
         </aside>
-
         <aside class="sidenav-right" id="controls">
-            <button id="saveButton" class="usa-button leaf-btn-med leaf-display-block leaf-width-10rem" onclick="save();">Save Changes<span id="saveStatus" class="leaf-display-block leaf-font0-5rem"></span></button>
-            <button class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-10rem"" onclick="runReport();">Open Report</button>
-            <button id="deleteButton" class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-10rem"" onclick="deleteReport();">Delete Report</button>
+            <button id="saveButton" class="usa-button leaf-btn-med leaf-display-block leaf-side-btn leaf-btn-green" onclick="save();">Save Changes<span id="saveStatus" class="leaf-display-block leaf-font0-5rem"></span></button>
+            <button class="usa-button usa-button--outline leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-side-btn" onclick="runReport();">Open Report</button>
+            <button id="deleteButton" class="usa-button usa-button--outline leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-side-btn" onclick="deleteReport();">Delete Report</button>
         </aside>
-
         <main id="codeArea" class="main-content">
             <h2>LEAF Programmer</h2>
             
@@ -45,16 +40,11 @@
                 </div>
             </div>
         </main>
-
     </div>
-
 </div>
-
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-
 <script>
-
 function save() { 
 	$('#saveIndicator').attr('src', '../images/indicator.gif');
 	$.ajax({
@@ -73,7 +63,6 @@ function save() {
 		}
 	});
 }
-
 function newReport() {
     dialog.setTitle('New File');
     dialog.setContent('Filename: <input type="text" id="newFilename"></input>');
@@ -97,14 +86,11 @@ function newReport() {
         });
         dialog.hide();
     });
-
     $('#newFilename').on('keyup change', function(e) {
         $('#newFilename').val($('#newFilename').val().replace(/[^a-z0-9\.\/]/gi, '_'));
     });
-
     dialog.show();
 }
-
 function deleteReport() {
 	dialog_confirm.setTitle('Are you sure?');
 	dialog_confirm.setContent('This will irreversibly delete this report.');
@@ -122,11 +108,9 @@ function deleteReport() {
     
 	dialog_confirm.show();
 }
-
 function runReport() {
 	window.open('../report.php?a='+ currentFile);
 }
-
 function isExcludedFile(file) {
     if(file == 'example'
         || file.substr(0, 5) == 'LEAF_'
@@ -135,7 +119,6 @@ function isExcludedFile(file) {
     }
     return false;
 }
-
 var currentFile = '';
 function loadContent(file) {
 	currentFile = file;
@@ -149,7 +132,6 @@ function loadContent(file) {
     if(isExcludedFile(file)) {
     	$('#controls').css('visibility', 'hidden');
     }
-
 	$('#filename').html(file.replace('.tpl', ''));
 	$.ajax({
 		type: 'GET',
@@ -162,13 +144,11 @@ function loadContent(file) {
 	});
 	$('#saveStatus').html('');
 }
-
 function updateEditorSize() {
     codeWidth = $('#codeArea').width() - 30;
     $('#codeContainer').css('width', codeWidth + 'px');
     $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
 }
-
 function updateFileList() {
 	$.ajax({
 		type: 'GET',
@@ -192,7 +172,6 @@ function updateFileList() {
 		cache: false
 	});
 }
-
 var codeEditor = null;
 var dialog, dialog_confirm;
 $(function() {
@@ -200,7 +179,6 @@ $(function() {
 	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 	codeWidth = $(document).width() - 420;
 	$('#codeContainer').css('width', codeWidth + 'px');
-
 	codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
 		mode: "htmlmixed",
 	    lineNumbers: true,
@@ -221,7 +199,6 @@ $(function() {
     $(window).on('resize', function() {
         updateEditorSize();
     });
-
     updateFileList();
 	loadContent('example');
 });

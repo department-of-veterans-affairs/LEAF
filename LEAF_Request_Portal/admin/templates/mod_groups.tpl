@@ -1,25 +1,24 @@
 <div class="leaf-center-content">
 
-    
-
     <!--{assign var=right_nav_content value="
-        <button class='usa-button leaf-btn-med leaf-side-btn' onclick='createGroup();'>
-            + Create Group
+        <h3 class='navhead'>Access groups</h3>
+        <button class='usa-button leaf-btn-green leaf-btn-med leaf-side-btn' onclick='createGroup();'>
+            + Create group
         </button>
         <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='importGroup();'>
-            Import Group
+            Import group
         </button>
         <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='showAllGroupHistory();'>
-            Show Group History
+            Show group history
         </button>
     "}-->
     <!--{include file="partial_layouts/right_side_nav.tpl" contentRight="$right_nav_content"}-->
 
     <!--{assign var=left_nav_content value="
-        <h3>Access Categories</h3>
+        <h3 class='navhead'>Access categories</h3>
         <ul class='usa-sidenav'>
-            <li class='usa-sidenav__item'><a href='javascript:void(0)'>Site Administrators</a></li>
-            <li class='usa-sidenav__item'><a href='javascript:void(0)'>User Groups</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)'>System administrators (2)</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)'>User groups (1)</a></li>
         </ul>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
@@ -27,24 +26,25 @@
 
     <main class="main-content">
 
-        <h2>User Access Groups</h2>
+        <h2><a href="/LEAF_Request_Portal/admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2>
         
         <div>
-            <h3 role="heading" tabindex="-1">Site Administrators</h3>
+            <h3 role="heading" tabindex="-1">System administrators</h3>
         </div>
         <div>
-            <div id="adminList"></div>
-            <div id="primaryAdmin"></div>
+            <div id="adminList" class="leaf-sysadmin-cards"></div>
+            <div id="primaryAdmin" class="leaf-sysadmin-cards"></div>
         </div>
 
         <div class="leaf-row-space"></div>
         
         <div class="leaf-clear-both">
-            <h3 role="heading" tabindex="-1">User Groups</h3>
-            <div id="groupList"></div>
+            <h3 role="heading" tabindex="-1">User groups</h3>
+            <div id="groupList" class="leaf-displayFlexRow"></div>
         </div>
 
         <div class="leaf-row-space"></div>
+
     </main>
 
 </div>
@@ -53,9 +53,7 @@
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script type="text/javascript">
-var tz = '<!--{$timeZone}-->';
 /* <![CDATA[ */
-
 function getMembers(groupID) {
     $.ajax({
         url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=" + groupID,
@@ -67,27 +65,6 @@ function getMembers(groupID) {
         }
     });
 }
-
-function updateAndGetMembers(groupID) {
-    $.ajax({
-        type: 'GET',
-        url: '../api/?a=system/updateGroup/' + groupID,
-        success: function() {
-            $.ajax({
-                url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=" + groupID,
-                dataType: "json",
-                success: function(response) {
-                    $('#members' + groupID).fadeOut();
-                    populateMembers(groupID, response);
-                    $('#members' + groupID).fadeIn();
-                },
-                cache: false
-            });
-        },
-        cache: false
-    });
-}
-
 function getPrimaryAdmin() {
     $.ajax({
         url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
@@ -111,39 +88,12 @@ function getPrimaryAdmin() {
         }
     });
 }
-
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
     for(var i in members) {
-        if(members[i].active == 1
-            || groupID == 1) {
-            $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
-        }
+        $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
     }
 }
-
-function removeMember(groupID, userID) {
-    $.ajax({
-        type: 'DELETE',
-        url: "../api/group/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
-        success: function(response) {
-            updateAndGetMembers(groupID);
-        }
-    });
-}
-
-function addMember(groupID, userID) {
-    $.ajax({
-        type: 'POST',
-        url: "../api/group/" + groupID + "/members",
-        data: {'userID': userID,
-               'CSRFToken': '<!--{$CSRFToken}-->'},
-        success: function(response) {
-            updateAndGetMembers(groupID);
-        }
-    });
-}
-
 function addAdmin(userID) {
     $.ajax({
         type: 'POST',
@@ -156,7 +106,6 @@ function addAdmin(userID) {
         }
     });
 }
-
 function removeAdmin(userID) {
     $.ajax({
     	type: 'POST',
@@ -170,7 +119,6 @@ function removeAdmin(userID) {
         }
     });
 }
-
 function unsetPrimaryAdmin() {
     $.ajax({
     	type: 'POST',
@@ -181,7 +129,6 @@ function unsetPrimaryAdmin() {
         }
     });
 }
-
 function setPrimaryAdmin(userID) {
         $.ajax({
     	type: 'POST',
@@ -192,18 +139,16 @@ function setPrimaryAdmin(userID) {
         }
     });
 }
-
 function focusGroupsAndMembers(groupID) {
     $('#' + groupID).on('focusin', function() {
-        $('#' + groupID).css('background-color', '#fffdc2');
+        $('#' + groupID).css('background-color', 'none');
     });
     $('#' + groupID).on('focusout', function() {
-        $('#' + groupID).css('background-color', 'white');
+        $('#' + groupID).css('background-color', 'none');
     });
 }
 function getGroupList() {
     $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
-
     $.ajax({
         type: 'GET',
         url: "../api/group/members",
@@ -211,7 +156,6 @@ function getGroupList() {
         success: function(res) {
             $('#groupList').html('');
             for(var i in res) {
-
             	// only show explicit groups, not ELTs
             	if(res[i].parentGroupID == null
             		&& res[i].groupID != 1) {
@@ -226,76 +170,27 @@ function getGroupList() {
                             <div id="members'+ res[i].groupID +'"></div>\
                             </div>');
             	}
-
                 focusGroupsAndMembers(res[i].groupID);
                 if(res[i].groupID != 1) { // if not admin
                     function openGroup(groupID, parentGroupID) {
-                        $.ajax({
-                            type: 'GET',
-                            url: '../api/group/' + groupID + '/members',
-                            success: function(res) {
-                                dialog.clear();
-                                dialog.setContent(
-                                    '<button style="float:right" class="buttonNorm" onclick="viewHistory('+groupID+')"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="vertical-align: middle"> View History</button>'+
-                                    '<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />');
-                                $('#employees').html('<table id="employee_table" class="table"></table>');
-                                var counter = 0;
-                                for(var i in res) {
-                                    var removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove</span>';
-                                    var managedBy = '';
-                                    if(res[i].locallyManaged != 1) {
-                                        managedBy += '<br /> * Managed in Org. Chart';
-                                    }
-                                    if(res[i].active != 1) {
-                                        managedBy += '<br /> * Managed in Org. Chart';
-                                        managedBy += '<br /> * Override set, and they do not have access';
-                                        removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove Override</span>';
-                                    }
-                                    $('#employee_table').append('<tr><td>'+ res[i].Lname + ', ' + res[i].Fname + managedBy +'</td><td>'+ removeButton +'</td></tr>');
-                                    $('#removeMember_' + counter).on('click', function(userID) {
-                                        return function() {
-                                            removeMember(groupID, userID);
-                                            dialog.hide();
-                                        };
-                                    }(res[i].userName));
-                                    counter++;
-                                }
-                                empSel = new nationalEmployeeSelector('employeeSelector');
-                                empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                                empSel.rootPath = '<!--{$orgchartPath}-->/';
-                                empSel.outputStyle = 'micro';
-                                empSel.initialize();
-
-                                dialog.setSaveHandler(function() {
-                                    if(empSel.selection != '') {
-                                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
-                                        $.ajax({
-                                            type: 'POST',
-                                            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-                                            data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                                            success: function(res) {
-                                                if(!isNaN(res)) {
-                                                    addMember(groupID, selectedUserName);
-                                                }
-                                                else {
-                                                    alert(res);
-                                                }
-                                            }
-                                        });
-                                    }
-                                    dialog.hide();
-                                });
-                                //508 fix
-                                setTimeout(function () {
-                                    $("#simplebutton_cancelchange").remove();
-                                    $("#simplebutton_save").remove();
-                                    dialog.show();
-                                }, 0);
-                            },
-                            cache: false
+                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" tabindex="0" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
+                        dialog_simple.setCancelHandler(function() {
+                            $.ajax({
+                                type: 'GET',
+                                url: '../api/?a=system/updateGroup/' + groupID,
+                                success: function() {
+                                    getMembers(groupID);
+                                },
+                                cache: false
+                            });
                         });
+                        //508 fix
+                        setTimeout(function () {
+                            $("#simplebutton_cancelchange").remove();
+                            $("#simplebutton_save").remove();
+                            dialog_simple.show();
+                        }, 0);
                     }
-
                     //508 fix
                     $('#' + res[i].groupID).on('click', function(groupID, parentGroupID) {
                         return function() {
@@ -315,13 +210,11 @@ function getGroupList() {
                         dialog.setContent(
                             '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
                             '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><label class="usa-label" role="heading" tabindex="-1" >Add Administrator</label></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
-
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
-
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
                                 var selectedUserName = empSel.selectionData[empSel.selection].userName;
@@ -366,7 +259,6 @@ function getGroupList() {
                 	$('#' + res[i].groupID).on('click', function() {
                 		openAdminGroup();
                 	});
-
                     //508 fix
                     $('#' + res[i].groupID).on('keydown', function(event) {
                         if(event.keyCode === 13 || event.keyCode === 32) {
@@ -375,7 +267,6 @@ function getGroupList() {
                     });
                 }
                 populateMembers(res[i].groupID, res[i].members);
-
                 //Primary Admin Section
                 if(res[i].groupID == 1) {
                     $('#primaryAdmin').append('<div tabindex="0" class="groupBlock">\
@@ -383,16 +274,13 @@ function getGroupList() {
                         <div id="membersPrimaryAdmin"></div>\
                         </div>');
                     focusGroupsAndMembers('primaryAdmin');
-
                     function openPrimaryAdminGroup(){
                         dialog.setContent('<h3 role="heading" tabindex="-1">Primary Administrator</h3><div id="primaryAdminSummary"></div><div class="leaf-marginTop-2rem"><label class="usa-label" role="heading" tabindex="-1">Set Primary Administrator</label></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
-
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
-
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
                                 var selectedUserName = empSel.selectionData[empSel.selection].userName;
@@ -451,7 +339,6 @@ function getGroupList() {
                     $('#primaryAdmin').on('click', function() {
                 		openPrimaryAdminGroup();
                 	});
-
                     //508 fix
                     $('#primaryAdmin').on('keydown', function(event) {
                         if(event.keyCode === 13 || event.keyCode === 32) {
@@ -473,34 +360,13 @@ function getGroupList() {
         cache: false
     });
 }
-
 function viewHistory(groupID){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Group History');
 	dialog_simple.indicateBusy();
-
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID+'&tz='+tz,
-        dataType: 'text',
-        success: function(res) {
-            dialog_simple.setContent(res);
-            dialog_simple.indicateIdle();
-            dialog_simple.show();
-        },
-        cache: false
-    });
-
-}
-
-function viewPrimaryAdminHistory(){
-    dialog_simple.setContent('');
-    dialog_simple.setTitle('Primary Admin History');
-	dialog_simple.indicateBusy();
-
-    $.ajax({
-        type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=primaryAdmin&tz='+tz,
+        url: 'ajaxIndex.php?a=gethistory&type=group&id='+groupID,
         dataType: 'text',
         success: function(res) {
             dialog_simple.setContent(res);
@@ -510,7 +376,6 @@ function viewPrimaryAdminHistory(){
         cache: false
     });
 }
-
 // used to import and add groups
 function tagAndUpdate(groupID, callback) {
     $.when(
@@ -538,11 +403,9 @@ function tagAndUpdate(groupID, callback) {
             window.location.reload();
     });
 }
-
 function importGroup() {
     dialog.setTitle('Import Group');
     dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
-
     var groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     groupSel.basePath = '../';
@@ -553,7 +416,6 @@ function importGroup() {
         else {
             groupSel.showResults();
         }
-
         // prevent services from showing up as search results
         for(var i in groupSel.jsonResponse) {
             $('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).attr('tabindex', '0');
@@ -563,7 +425,6 @@ function importGroup() {
         }
     });
     groupSel.initialize();
-
     dialog.setSaveHandler(function() {
         if(groupSel.selection != '') {
         	tagAndUpdate(groupSel.selection);
@@ -571,11 +432,9 @@ function importGroup() {
     });
     dialog.show();
 }
-
 function createGroup() {
     dialog.setTitle('Create a new group');
     dialog.setContent('<div><label role="heading">Group Title</label><div class="leaf-marginTop-halfRem"><input aria-label="Enter group name" id="groupName" class="usa-input" size="36"></input></div></div>');
-
     dialog.setSaveHandler(function() {
     	dialog.indicateBusy();
         //list of possible errors returned by the api call
@@ -605,12 +464,11 @@ function createGroup() {
     dialog.show();
     $('input:visible:first, select:visible:first').focus();
 }
-
 function showAllGroupHistory() {
     dialog.setTitle('All Group History');
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistoryall&type=group&tz='+tz,
+        url: 'ajaxIndex.php?a=gethistoryall&type=group',
         dataType: 'text',
         success: function(res) {
             dialog.setContent(res);
@@ -621,17 +479,13 @@ function showAllGroupHistory() {
     });
     
 }
-
 var dialog;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
-
 	$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
 	$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
-
     getGroupList();
 });
-
 /* ]]> */
 </script>

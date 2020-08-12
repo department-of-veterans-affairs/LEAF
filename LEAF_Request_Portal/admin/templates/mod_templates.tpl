@@ -2,7 +2,6 @@
 <script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
 <script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
 <style>
-
 /* Glyph to improve usability of code compare */
 .CodeMirror-merge-copybuttons-left > .CodeMirror-merge-copy {
     visibility: hidden;
@@ -29,23 +28,23 @@
 
             <div id="controls">
                 
-                <button class="usa-button leaf-display-block leaf-btn-med leaf-width-11rem" onclick="save();">
+                <button class="usa-button leaf-btn-green leaf-side-btn leaf-btn-med" onclick="save();">
                     Save Changes<span id="saveStatus" class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                 </button>
                 
-                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" onclick="restore();">
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-side-btn leaf-btn-med" onclick="restore();">
                     Restore Original
                 </button>
                 
-                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-side-btn leaf-btn-med" id="btn_compareStop" style="display: none" onclick="loadContent();">
                     Stop Comparing
                 </button>
                 
-                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" id="btn_compare" onclick="compare();">
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-side-btn leaf-btn-med" id="btn_compare" onclick="compare();">
                     Compare to Original
                 </button>
                 
-                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" target="_blank">
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-side-btn leaf-btn-med" target="_blank">
                     <a href="../../libs/dynicons/gallery.php">Icon Library</a>
                 </button>
             </div>
@@ -92,7 +91,6 @@
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 
 <script>
-
 function save() { 
 	$('#saveIndicator').attr('src', '../images/indicator.gif');
 	var data = '';
@@ -113,7 +111,6 @@ function save() {
 			if($('#btn_compareStop').css('display') != 'none') {
 			    $('#btn_compare').css('display', 'none');
 			}
-
             var time = new Date().toLocaleTimeString();
             $('#saveStatus').html('<br /> Last saved: ' + time);
             currentFileContent = data;
@@ -123,7 +120,6 @@ function save() {
 		}
 	});
 }
-
 function restore() {
 	dialog.setTitle('Are you sure?');
 	dialog.setContent('This will restore the template to the original version.');
@@ -141,14 +137,12 @@ function restore() {
 	
 	dialog.show();
 }
-
 var dv;
 function compare() {
     $('.CodeMirror').remove();
     $('#codeCompare').empty();
     $('#btn_compare').css('display', 'none');
     $('#btn_compareStop').css('display', 'block');
-
     $.ajax({
         type: 'GET',
         url: '../api/system/templates/_' + currentFile + '/standard',
@@ -172,7 +166,6 @@ function compare() {
         cache: false
     });
 }
-
 var currentFile = '';
 var currentFileContent = '';
 function loadContent(file) {
@@ -206,13 +199,11 @@ function loadContent(file) {
 	});
 	$('#saveStatus').html('');
 }
-
 function updateEditorSize() {
     codeWidth = $('#codeArea').width() - 66;
     $('#codeContainer').css('width', codeWidth + 'px');
     $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
 }
-
 function initEditor () {
     codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: "htmlmixed",
@@ -232,17 +223,13 @@ function initEditor () {
       });
     updateEditorSize();
 }
-
 var codeEditor = null;
 $(function() {
 	dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
-
     initEditor();
-
     $(window).on('resize', function() {
         updateEditorSize();
     });
-
 	$.ajax({
 		type: 'GET',
 		url: '../api/system/templates',
