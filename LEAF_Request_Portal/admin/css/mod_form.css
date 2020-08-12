@@ -14,14 +14,20 @@
     font-weight: bold;
     padding-bottom: 1em;
     padding: 8px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .formPreviewDescription {
     padding-bottom: 1em;
     padding: 8px;
-    text-overflow: ellipsis;
     overflow: hidden;
-    white-space: nowrap;
+    white-space: normal;
+    text-overflow: ellipsis;
+    height: 5.3rem;
+    font-size: 0.9rem;
+    line-height: 1.2rem;
 }
 
 .formPreviewStatus {
@@ -34,10 +40,10 @@
     bottom: 0;
     background-color: #c9ddff;
     width: 100%;
-    text-align: center;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    padding: 0.3rem;
 }
 
 }
