@@ -12,27 +12,30 @@
 
 .formPreviewTitle {
     font-weight: bold;
-    padding-bottom: 1em;
-    padding: 8px;
+    padding: 0.4rem;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
 }
 
 .formPreviewDescription {
-    padding-bottom: 1em;
-    padding: 8px;
+    padding: 0.2rem 0.4rem 0.2rem 0.4em;
     overflow: hidden;
     white-space: normal;
     text-overflow: ellipsis;
-    height: 5.3rem;
+    height: 4.7rem;
     font-size: 0.9rem;
     line-height: 1.2rem;
 }
 
 .formPreviewStatus {
-    padding: 8px;
+    padding: 0.2rem 0.4rem 0.2rem 0.4rem;
+    font-size: 0.6rem;
     color: red;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-top: 0.3rem;
 }
 
 .formPreviewWorkflow {
