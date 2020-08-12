@@ -648,6 +648,9 @@ span.browsetypes {
     padding: 4px;
     border: 1px solid black;
     cursor: pointer;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .buttonNorm:hover, .buttonNormSelected, .buttonNorm:hover>span, .buttonNorm:focus {
