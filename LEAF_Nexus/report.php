@@ -82,8 +82,9 @@ switch ($action) {
 
         break;
     default:
+        $cleanOCPath = str_replace("/", "_", $config->ocPath);
         if ($action != ''
-            && file_exists(__DIR__."/templates/reports/{$action}.tpl"))
+            && (file_exists(__DIR__."/templates/reports/{$action}.tpl") || file_exists(__DIR__."/templates/reports/custom_override/" . $cleanOCPath . "{$action}.tpl")))
         {
             $main->assign('useUI', true);
 //    			$main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
@@ -104,8 +105,16 @@ switch ($action) {
                 $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
                 $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
-                $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
-                $tabText = '';
+
+                if (file_exists(__DIR__."/templates/reports/custom_override/" . $cleanOCPath . "{$action}.tpl")) {
+                    $main->assign('body', $t_form->fetch("reports/custom_override/" . $cleanOCPath . "{$action}.tpl"));
+                    $tabText = '';
+                }
+                else
+                {
+                    $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
+                    $tabText = '';
+                }
             }
         }
         else

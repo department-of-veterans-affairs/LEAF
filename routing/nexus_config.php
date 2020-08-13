@@ -7,6 +7,7 @@ namespace Orgchart{
         public $adminLogonName;    // Administrator's logon name
         public $adPath; // Active directory paths
         public $uploadDir;
+        public $ocPath;
         public $dbHost;
         public $dbName;
         public $dbUser;
@@ -29,6 +30,7 @@ namespace Orgchart{
             $this->adminLogonName = $res[0]['adminLogonName'];
             $this->adPath = json_decode($res[0]['active_directory_path']);
             $this->uploadDir = $res[0]['upload_directory'];
+            $this->ocPath = ltrim($res[0]['path'], '/');
 
             $this->dbHost = \Routing_Config::$dbHost;
             $this->dbName = $res[0]['database_name'];
