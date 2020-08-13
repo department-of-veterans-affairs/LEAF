@@ -7,11 +7,11 @@
     <main class="main-content">
 
         <h2>Site Settings</h2>
-        
+
         <h2 id="progress" style="color: red;"></h2>
 
         <form class="usa-form">
-        
+
             <label for="heading" class="usa-label">Title of LEAF site</label>
             <input id="heading" class="usa-input" type="text" title="" />
 
@@ -39,7 +39,7 @@
                     <!--{foreach from=$importTags item=importTag}-->
                         <!--{$importTag}--><br />
                     <!--{/foreach}-->
-                </span>
+                </div>
             </div>
 
             <h3 class="leaf-marginTop-1rem">Advanced Settings</h3>
