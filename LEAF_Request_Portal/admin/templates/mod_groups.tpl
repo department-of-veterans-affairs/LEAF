@@ -385,7 +385,8 @@ function getGroupList() {
                     focusGroupsAndMembers('primaryAdmin');
 
                     function openPrimaryAdminGroup(){
-                        dialog.setContent('<h3 role="heading" tabindex="-1">Primary Administrator</h3><div id="primaryAdminSummary"></div><div class="leaf-marginTop-2rem"><label class="usa-label" role="heading" tabindex="-1">Set Primary Administrator</label></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
+                      dialog.setContent('<button style="float:right" class="buttonNorm" onclick="viewHistory()"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>'+
+                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><br /><h3 role="heading" tabindex="-1" >Set Primary Administrator:</h3><div id="employeeSelector"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
