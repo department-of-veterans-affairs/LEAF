@@ -1,14 +1,14 @@
 <ul>
 
     <!-- Menu tooggle on smaller screens  -->
-    <li id="toggleMenu" role="button" aria-haspopup="true">	
+    <li id="toggleMenu" role="button" aria-haspopup="true">
         <a href="javascript:void(0);"><span aria-hidden="true" class="leaf-menu"><button>MENU</button></span><i aria-hidden="true" class="fas fa-times"></i><span id="toggleMenu-text">Toggle Navigation</span></a>
     </li>
-    
+
     <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>
 
     <li class="leaf-width-8rem leaf-mob-menu"><a href="../?a=reports">Report Builder</a></li>
-    
+
     <li class="leaf-width-8rem leaf-mob-menu lev2">
         <a href="javascript:void(0);">Site Links</a>
         <ul>
@@ -21,7 +21,7 @@
         <ul>
 
             <li><a href="./">Admin Home<i class="leaf-nav-icon-space"></i></a></li>
-            
+
             <li class="lev3">
                 <a href="javascript:void(0);">User Access</a>
                 <ul>
@@ -33,11 +33,11 @@
             <!--{if $siteType != 'national_subordinate'}-->
                 <li><a href="?a=workflow">Workflow Editor<i class="leaf-nav-icon-space"></i></a></li>
             <!--{/if}-->
-            
+
             <!--{if $siteType != 'national_subordinate'}-->
                 <li><a href="?a=form">Form Editor<i class="leaf-nav-icon-space"></i></a></li>
             <!--{/if}-->
-            
+
             <!--{if $siteType != 'national_subordinate'}-->
                 <li><a href="?a=formLibrary">LEAF Library<i class="leaf-nav-icon-space"></i></a></li>
             <!--{/if}-->
@@ -48,7 +48,7 @@
 
             <!--{if $siteType == 'national_primary'}-->
                 <li><a href="javascript:void(0)">Site Distribution<i class="leaf-nav-icon-space"></i></a></li>
-            <!--{/if}--> 
+            <!--{/if}-->
 
             <li class="lev3">
                 <a href="javascript:void(0);">Toolbox</a>
@@ -80,7 +80,7 @@
         <ul class="leaf-usernavmenu">
             <li><a href="../?a=logout">User: <!--{$name}--></a></li>
             <li><a href="../?a=logout">Sign Out</a></li>
-            <li><a href="javascript:void(0);">Primary Admin:</a></li> 
+            <li><a href="javascript:void(0);">Primary Admin:</a></li>
         </ul>
     </li>
 
@@ -106,7 +106,7 @@ $('#toggleMenu').on('click', function() {
         $(this).attr('aria-expanded', true);
     }
 
-    return false; 
+    return false;
 })
 
 // Add plus mark to li that have a sub menu
@@ -188,7 +188,7 @@ $('li > ul > li:last-child > a').on('keydown', function(e) {
 
 
         // If tabbing out of a third level sub menu and there are no other links in the parent (level 2) sub menu
-        if ( $(this).parent('li').parent('ul').parent('li').parent('ul').parent('li').children('ul').length > 0 
+        if ( $(this).parent('li').parent('ul').parent('li').parent('ul').parent('li').children('ul').length > 0
              && $(this).parent('li').parent('ul').parent('li').is(':last-child') ) {
 
                 // Close the parent sub menu (level 2) as well
