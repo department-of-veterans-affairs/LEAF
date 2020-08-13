@@ -1,3 +1,10 @@
+<style>
+    .usa-input{
+        height: 1rem;
+        width:100%;
+    }
+</style>
+
 <div class="leaf-center-content">
 
     <aside class="sidenav-right"></aside>
@@ -7,11 +14,11 @@
     <main class="main-content">
 
         <h2>Site Settings</h2>
-
+        
         <h2 id="progress" style="color: red;"></h2>
 
         <form class="usa-form">
-
+        
             <label for="heading" class="usa-label">Title of LEAF site</label>
             <input id="heading" class="usa-input" type="text" title="" />
 
@@ -26,7 +33,7 @@
             </select>
 
             <label for="requestLabel" class="usa-label">Label for Request</label>
-            <input id="requestLabel" class="usa-input" type="text" title="" />
+            <input id="requestLabel" class="usa-input-temp" type="text" title="" />
 
             <div class="leaf-row-space"></div>
 
@@ -39,7 +46,7 @@
                     <!--{foreach from=$importTags item=importTag}-->
                         <!--{$importTag}--><br />
                     <!--{/foreach}-->
-                </div>
+                </span>
             </div>
 
             <h3 class="leaf-marginTop-1rem">Advanced Settings</h3>
