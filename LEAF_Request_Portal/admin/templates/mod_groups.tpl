@@ -1,6 +1,6 @@
 <div class="leaf-center-content">
 
-    
+
 
     <!--{assign var=right_nav_content value="
         <button class='usa-button leaf-btn-med leaf-side-btn' onclick='createGroup();'>
@@ -28,7 +28,7 @@
     <main class="main-content">
 
         <h2>User Access Groups</h2>
-        
+
         <div>
             <h3 role="heading" tabindex="-1">Site Administrators</h3>
         </div>
@@ -38,7 +38,7 @@
         </div>
 
         <div class="leaf-row-space"></div>
-        
+
         <div class="leaf-clear-both">
             <h3 role="heading" tabindex="-1">User Groups</h3>
             <div id="groupList"></div>
@@ -402,16 +402,16 @@ function getGroupList() {
                                     data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                     success: function(res) {
                                         var selectedUserIsAdmin = false;
-                                        for(var i in res) 
+                                        for(var i in res)
                                         {
                                             selectedUserIsAdmin = res[i].userName == selectedUserName;
                                             if(selectedUserIsAdmin){break;}
                                         }
-                                        if(selectedUserIsAdmin) 
+                                        if(selectedUserIsAdmin)
                                         {
                                             setPrimaryAdmin(selectedUserName);
                                         }
-                                        else 
+                                        else
                                         {
                                             alert('Primary Admin must be a member of the Sysadmin group');
                                         }
@@ -441,7 +441,7 @@ function getGroupList() {
                                 {
                                    $('#primaryAdminSummary').append("Primary Admin has not been set.");
                                 }
-                                
+
                             }
                         });
                         setTimeout(function () {
@@ -475,9 +475,11 @@ function getGroupList() {
 }
 
 function viewHistory(groupID){
-    dialog_simple.setContent('');
-    dialog_simple.setTitle('Group History');
+  dialog_simple.setContent('');
+  dialog_simple.setTitle('Group History');
 	dialog_simple.indicateBusy();
+
+  var type = (groupID)? "group": "primaryAdmin";
 
     $.ajax({
         type: 'GET',
@@ -580,8 +582,8 @@ function createGroup() {
     	dialog.indicateBusy();
         //list of possible errors returned by the api call
         possibleErrors = [
-            "Group title must not be blank", 
-            "Group title already exists", 
+            "Group title must not be blank",
+            "Group title already exists",
             "invalid parent group"
         ];
         $.ajax({
@@ -619,7 +621,7 @@ function showAllGroupHistory() {
         },
         cache: false
     });
-    
+
 }
 
 var dialog;
