@@ -75,7 +75,7 @@
         </a>
 
         <a href="?a=mod_templates_email" role="button" class="leaf-admin-button bg-green-cool-10 lf-trans-green">
-            <i class="leaf-admin-btnicon fas fa-mail-bulk text-green-cool-50 leaf-icn-narrow2" alt="Template Editor" title="Template Editor"></i>
+            <i class="leaf-admin-btnicon fas fa-mail-bulk text-green-cool-50 leaf-icn-narrow2" alt="Email Template Editor" title="Email Template Editor"></i>
             <span class="leaf-admin-btntitle">Email Template Editor</span>
             <span class="leaf-admin-btndesc">Add and Edit Email Templates</span>
         </a>
