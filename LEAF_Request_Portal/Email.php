@@ -57,7 +57,16 @@ class Email
      */
     function getFilepath($tpl)
     {
-        return file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}") ? "custom_override/{$tpl}" : "{$tpl}";
+        global $config;
+
+        $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+        $customTemplatePath = __DIR__ . "/templates/email/custom_override/". $cleanPortalPath . "{$tpl}";
+        
+        if (file_exists($customTemplatePath)) {
+            return "custom_override/". $cleanPortalPath . "{$tpl}";
+        } else {
+            return $tpl;
+        }
     }
 
     public function clearRecipients()
@@ -85,7 +94,7 @@ class Email
         $smarty->left_delimiter = '{{';
         $smarty->right_delimiter = '}}';
         $smarty->assign('emailBody', $i);
-        $htmlOutput = $smarty->fetch('LEAF_main_email_template.tpl');
+        $htmlOutput = $smarty->fetch($this->getFilepath('LEAF_main_email_template.tpl'));
         $this->emailBody = $htmlOutput;
     }
 
