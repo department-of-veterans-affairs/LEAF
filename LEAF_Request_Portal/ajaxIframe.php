@@ -56,9 +56,9 @@ $tabText = '';
 
 $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
-function customTemplate($tpl, $config)
+function customTemplate($tpl, $portalPath)
 {
-    $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+    $cleanPortalPath = str_replace("/", "_", $portalPath);
 
     $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
     if (file_exists($customTemplatePath)) {
@@ -175,7 +175,7 @@ switch ($action) {
                     }
                 }
 
-                $main->assign('body', $t_form->fetch(customTemplate('print_form_iframe.tpl', $config)));
+                $main->assign('body', $t_form->fetch(customTemplate('print_form_iframe.tpl', $config->portalPath)));
                 $t_menu->assign('hide_main_control', true);
 
                 break;

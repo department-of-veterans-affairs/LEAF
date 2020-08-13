@@ -61,9 +61,9 @@ $tabText = '';
 
 $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
-function customTemplate($tpl, $config)
+function customTemplate($tpl, $portalPath)
 {
-    $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+    $cleanPortalPath = str_replace("/", "_", $portalPath);
 
     $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
     if (file_exists($customTemplatePath)) {
@@ -142,7 +142,7 @@ switch ($action) {
                                            '../' . $config->orgchartPath . '/css/employeeSelector.css',
                                            '../' . $config->orgchartPath . '/css/groupSelector.css',
         ));
-        $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl', $config)));
+        $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl', $config->portalPath)));
 
         $tabText = 'User Access Groups';
 
@@ -164,7 +164,7 @@ switch ($action) {
         $main->assign('stylesheets', array('css/mod_groups.css',
                 '../' . $config->orgchartPath . '/css/employeeSelector.css',
         ));
-        $main->assign('body', $t_form->fetch(customTemplate('mod_svcChief.tpl', $config)));
+        $main->assign('body', $t_form->fetch(customTemplate('mod_svcChief.tpl', $config->portalPath)));
 
         $tabText = 'Service Chiefs';
 
@@ -412,7 +412,7 @@ switch ($action) {
 
         $t_form->assign('importTags', $config->orgchartImportTags);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));
-        $main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl', $config)));
+        $main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl', $config->portalPath)));
 
         $tabText = 'Site Settings';
 
@@ -428,7 +428,7 @@ switch ($action) {
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('importTags', $config->orgchartImportTags);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
-            $main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl', $config)));
+            $main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl', $config->portalPath)));
 
             $tabText = 'File Manager';
 
@@ -442,7 +442,7 @@ switch ($action) {
         $main->assign('useUI', true);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-        $main->assign('body', $t_form->fetch(customTemplate('view_disabled_fields.tpl', $config)));
+        $main->assign('body', $t_form->fetch(customTemplate('view_disabled_fields.tpl', $config->portalPath)));
 
         $tabText = 'Recover disabled fields';
 
@@ -465,7 +465,7 @@ switch ($action) {
 
         if ($login->checkGroup(1))
         {
-            $main->assign('body', $t_form->fetch(customTemplate('import_data.tpl', $config)));
+            $main->assign('body', $t_form->fetch(customTemplate('import_data.tpl', $config->portalPath)));
         }
         else
         {
@@ -491,7 +491,7 @@ switch ($action) {
                                            '../../libs/js/jquery/jquery-ui.custom.min.js',
                                            '../../libs/js/jsPlumb/dom.jsPlumb-min.js', ));
 
-            $main->assign('body', $t_form->fetch(customTemplate('view_admin_menu.tpl', $config)));
+            $main->assign('body', $t_form->fetch(customTemplate('view_admin_menu.tpl', $config->portalPath)));
 
             if ($action != 'menu' && $action != '')
             {
@@ -523,9 +523,9 @@ $main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {
-    $main->display(customTemplate('main.tpl', $config));
+    $main->display(customTemplate('main.tpl', $config->portalPath));
 }
 else
 {
-    $main->display(customTemplate('main_iframe.tpl', $config));
+    $main->display(customTemplate('main_iframe.tpl', $config->portalPath));
 }

@@ -58,9 +58,9 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 // HQ logo
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
-function customTemplate($tpl, $config)
+function customTemplate($tpl, $portalPath)
 {
-    $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+    $cleanPortalPath = str_replace("/", "_", $portalPath);
 
     $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
     if (file_exists($customTemplatePath)) {
@@ -172,7 +172,7 @@ $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', $config->orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
-$o_menu = $t_menu->fetch(customTemplate('menu.tpl', $config));
+$o_menu = $t_menu->fetch(customTemplate('menu.tpl', $config->portalPath));
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
@@ -183,9 +183,9 @@ $main->assign('revision', $settings['version']);
 
 if (!isset($_GET['iframe']))
 {
-    $main->display(customTemplate('main.tpl', $config));
+    $main->display(customTemplate('main.tpl', $config->portalPath));
 }
 else
 {
-    $main->display(customTemplate('main_iframe.tpl', $config));
+    $main->display(customTemplate('main_iframe.tpl', $config->portalPath));
 }
