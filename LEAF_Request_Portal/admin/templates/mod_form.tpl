@@ -1055,8 +1055,6 @@ function getForm(indicatorID, series) {
     	    	break;
     	}
     });
-
-
     $('#description').keypress(function(event) {
         if(event.keyCode === 13) {
             event.preventDefault();
@@ -2086,8 +2084,6 @@ function importForm() {
 function formLibrary() {
     window.location.href = './?a=formLibrary';
 }
-
-
 
 var dialog, dialog_confirm, dialog_simple;
 var portalAPI;
