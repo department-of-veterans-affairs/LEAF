@@ -263,7 +263,8 @@ class Login
         if (!isset($this->cache['checkGroup']))
         {
             $var = array(':userID' => $this->userID);
-            $result = $this->userDB->prepared_query('SELECT * FROM users WHERE userID=:userID', $var);
+            $result = $this->userDB->prepared_query('SELECT * FROM users WHERE userID=:userID
+                                                        AND active=1', $var);
 
             foreach ($result as $group)
             {

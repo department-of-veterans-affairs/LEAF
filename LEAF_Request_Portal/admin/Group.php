@@ -127,7 +127,8 @@ class Group
                           ':groupID' => $groupID, );
             $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
 
-            if ($res[0]['locallyManaged'] == 1)
+            if ($res[0]['locallyManaged'] == 1
+                || $groupID == 1)
             {
                 $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
             }
