@@ -1133,6 +1133,7 @@ function getForm(indicatorID, series) {
             $('#button_advanced').css('display', 'none');
             // triggers overflow of content
             $('#xhr').css('overflow-y', 'scroll');
+            $('#advanced').css('height', 'auto');
     	    $('#advanced').css('visibility', 'visible');
         }
         else {
