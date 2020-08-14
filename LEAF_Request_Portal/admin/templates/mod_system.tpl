@@ -46,7 +46,7 @@
                     <!--{foreach from=$importTags item=importTag}-->
                         <!--{$importTag}--><br />
                     <!--{/foreach}-->
-                </span>
+                </div>
             </div>
 
             <h3 class="leaf-marginTop-1rem">Advanced Settings</h3>
