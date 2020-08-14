@@ -1,10 +1,3 @@
-<style>
-    .usa-input{
-        height: 1rem;
-        width:100%;
-    }
-</style>
-
 <div class="leaf-center-content">
 
     <aside class="sidenav-right"></aside>
