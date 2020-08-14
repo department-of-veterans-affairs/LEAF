@@ -1055,6 +1055,8 @@ function getForm(indicatorID, series) {
     	    	break;
     	}
     });
+
+
     $('#description').keypress(function(event) {
         if(event.keyCode === 13) {
             event.preventDefault();
@@ -1127,9 +1129,12 @@ function getForm(indicatorID, series) {
             'height': '100px'
         });
     });
+
     $('#button_advanced').on('click', function() {
         if(<!--{$hasDevConsoleAccess}--> == 1) {
             $('#button_advanced').css('display', 'none');
+            // triggers overflow of content
+            $('#xhr').css('overflow-y', 'scroll');
     	    $('#advanced').css('visibility', 'visible');
         }
         else {
@@ -1139,6 +1144,9 @@ function getForm(indicatorID, series) {
     	    $('#advanced').css('visibility', 'visible');
         }
     });
+
+    // resets overflow on new dialog open
+    $('#xhr').css('overflow-y', 'unset');
 
     function saveCodeHTML() {
         $.ajax({
@@ -2078,6 +2086,8 @@ function importForm() {
 function formLibrary() {
     window.location.href = './?a=formLibrary';
 }
+
+
 
 var dialog, dialog_confirm, dialog_simple;
 var portalAPI;
