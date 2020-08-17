@@ -1,4 +1,4 @@
-<div id="sideBar" style="float: left; width: 180px">
+<div id="sideBar" style="float: left; width: 180px; margin-top: 16px;">
     <div id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size: 120%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
     Workflows: <br />
     <div id="workflowList"></div>
@@ -9,7 +9,7 @@
     <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size: 100%; display: none" role="button" tabindex="0">Edit Actions</div><br />
     <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size: 100%; display: none;" role="button" tabindex="0"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>
 </div>
-<div id="workflow" style="margin-left: 184px; background-color: #444444"></div>
+<div id="workflow" style="margin-left: 184px; background-color: #444444; margin-top: 16px;"></div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
