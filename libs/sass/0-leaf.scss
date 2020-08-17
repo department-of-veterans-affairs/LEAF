@@ -254,7 +254,7 @@ ul.leaf-progress-bar {
         min-height: 27rem;
         overflow: visible;
     }
-        .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative;}
+        .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative; overflow-x: auto; overflow-y: auto;}
 
     /* ############### UI DIALOG OVERRIDES ################# */
     .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
