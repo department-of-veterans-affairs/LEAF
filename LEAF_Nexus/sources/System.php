@@ -106,11 +106,28 @@ class System
         }
         $list = scandir(__DIR__.'/../templates/reports/');
         $out = array();
+
+        // defaults
         foreach ($list as $item)
         {
             if (preg_match('/.tpl$/', $item))
             {
                 $out[] = $item;
+            }
+        }
+
+        // adds custom reports
+        global $config;
+
+        $list = scandir(__DIR__ . "/../templates/reports/custom_override");
+        $cleanOCPath = str_replace("/", "_", $config->ocPath);
+
+        foreach ($list as $item)
+        {
+            if (preg_match('/^' . $cleanOCPath . '{1}/', $item))
+            {
+                $fileName = str_replace($cleanOCPath, "", $item);
+                $out[] = $fileName;
             }
         }
 
@@ -136,7 +153,18 @@ class System
 
         if (array_search($template, $list) === false)
         {
-            copy('../templates/reports/example.tpl', "../templates/reports/{$template}");
+            global $config;
+
+            $cleanOCPath = str_replace("/", "_", $config->ocPath);
+            $ocTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanOCPath . "{$template}";
+            if (!file_exists($ocTplPath)) 
+            {
+                copy(__DIR__ . '/../templates/reports/example.tpl', $ocTplPath);
+            }
+            else 
+            {
+                return 'File already exists';
+            }
         }
         else
         {
@@ -164,9 +192,19 @@ class System
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__."/../templates/reports/{$template}"))
+            global $config;
+
+            $cleanOCPath = str_replace("/", "_", $config->ocPath);
+            $ocTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanOCPath . "{$template}";
+            $defaultTplPath = __DIR__ . "/../templates/reports/{$template}";
+
+            if (file_exists($ocTplPath))
             {
-                $data['file'] = file_get_contents(__DIR__."/../templates/reports/{$template}");
+                $data['file'] = file_get_contents($ocTplPath);
+            } 
+            else if (file_exists($defaultTplPath)) 
+            {
+                $data['file'] = file_get_contents($defaultTplPath);
             }
         }
 
@@ -191,7 +229,12 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            file_put_contents("../templates/reports/{$template}", $_POST['file']);
+            global $config;
+
+            $cleanOCPath = str_replace("/", "_", $config->ocPath);
+            $ocTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanOCPath . "{$template}";
+
+            file_put_contents($ocTplPath, $_POST['file']);
         }
     }
 
@@ -213,9 +256,14 @@ class System
 
         if (array_search($template, $list) !== false)
         {
-            if (file_exists(__DIR__."/../templates/reports/{$template}"))
+            global $config;
+
+            $cleanOCPath = str_replace("/", "_", $config->ocPath);
+            $ocTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanOCPath . "{$template}";
+
+            if (file_exists($ocTplPath))
             {
-                return unlink(__DIR__."/../templates/reports/{$template}");
+                return unlink($ocTplPath);
             }
         }
     }
