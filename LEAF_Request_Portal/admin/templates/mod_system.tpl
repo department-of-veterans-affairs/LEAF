@@ -26,7 +26,7 @@
             </select>
 
             <label for="requestLabel" class="usa-label">Label for Request</label>
-            <input id="requestLabel" class="usa-input" type="text" title="" />
+            <input id="requestLabel" class="usa-input-temp" type="text" title="" />
 
             <div class="leaf-row-space"></div>
 
@@ -39,7 +39,7 @@
                     <!--{foreach from=$importTags item=importTag}-->
                         <!--{$importTag}--><br />
                     <!--{/foreach}-->
-                </span>
+                </div>
             </div>
 
             <h3 class="leaf-marginTop-1rem">Advanced Settings</h3>

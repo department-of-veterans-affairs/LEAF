@@ -1,5 +1,7 @@
 <div class="leaf-center-content">
 
+
+
     <!--{assign var=right_nav_content value="
         <h3 class='navhead'>Access groups</h3>
         <button class='usa-button leaf-btn-green leaf-btn-med leaf-side-btn' onclick='createGroup();'>
@@ -37,7 +39,7 @@
         </div>
 
         <div class="leaf-row-space"></div>
-        
+
         <div class="leaf-clear-both">
             <h3 role="heading" tabindex="-1">User groups</h3>
             <div id="groupList" class="leaf-displayFlexRow"></div>
@@ -275,7 +277,9 @@ function getGroupList() {
                         </div>');
                     focusGroupsAndMembers('primaryAdmin');
                     function openPrimaryAdminGroup(){
-                        dialog.setContent('<h3 role="heading" tabindex="-1">Primary Administrator</h3><div id="primaryAdminSummary"></div><div class="leaf-marginTop-2rem"><label class="usa-label" role="heading" tabindex="-1">Set Primary Administrator</label></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
+                      dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory()"> View History</button>'+
+                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><br /><h3 role="heading" tabindex="-1" >Set Primary Administrator:</h3><div id="employeeSelector"></div>');
+
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
@@ -290,16 +294,16 @@ function getGroupList() {
                                     data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                     success: function(res) {
                                         var selectedUserIsAdmin = false;
-                                        for(var i in res) 
+                                        for(var i in res)
                                         {
                                             selectedUserIsAdmin = res[i].userName == selectedUserName;
                                             if(selectedUserIsAdmin){break;}
                                         }
-                                        if(selectedUserIsAdmin) 
+                                        if(selectedUserIsAdmin)
                                         {
                                             setPrimaryAdmin(selectedUserName);
                                         }
-                                        else 
+                                        else
                                         {
                                             alert('Primary Admin must be a member of the Sysadmin group');
                                         }
@@ -329,7 +333,7 @@ function getGroupList() {
                                 {
                                    $('#primaryAdminSummary').append("Primary Admin has not been set.");
                                 }
-                                
+
                             }
                         });
                         setTimeout(function () {
@@ -361,9 +365,31 @@ function getGroupList() {
     });
 }
 function viewHistory(groupID){
-    dialog_simple.setContent('');
-    dialog_simple.setTitle('Group History');
+  dialog_simple.setContent('');
+  dialog_simple.setTitle('Group History');
 	dialog_simple.indicateBusy();
+
+  var type = (groupID)? "group": "primaryAdmin";
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID+'&tz='+tz,
+        dataType: 'text',
+        success: function(res) {
+            dialog_simple.setContent(res);
+            dialog_simple.indicateIdle();
+            dialog_simple.show();
+        },
+        cache: false
+    });
+
+}
+
+function viewPrimaryAdminHistory(){
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('Primary Admin History');
+	dialog_simple.indicateBusy();
+
     $.ajax({
         type: 'GET',
         url: 'ajaxIndex.php?a=gethistory&type=group&id='+groupID,
@@ -439,8 +465,8 @@ function createGroup() {
     	dialog.indicateBusy();
         //list of possible errors returned by the api call
         possibleErrors = [
-            "Group title must not be blank", 
-            "Group title already exists", 
+            "Group title must not be blank",
+            "Group title already exists",
             "invalid parent group"
         ];
         $.ajax({
@@ -477,7 +503,7 @@ function showAllGroupHistory() {
         },
         cache: false
     });
-    
+
 }
 var dialog;
 $(function() {

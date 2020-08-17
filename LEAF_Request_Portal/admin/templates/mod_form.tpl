@@ -1127,9 +1127,13 @@ function getForm(indicatorID, series) {
             'height': '100px'
         });
     });
+
     $('#button_advanced').on('click', function() {
         if(<!--{$hasDevConsoleAccess}--> == 1) {
             $('#button_advanced').css('display', 'none');
+            // triggers overflow of content
+            $('#xhr').css('overflow-y', 'scroll');
+            $('#advanced').css('height', 'auto');
     	    $('#advanced').css('visibility', 'visible');
         }
         else {
@@ -1139,6 +1143,9 @@ function getForm(indicatorID, series) {
     	    $('#advanced').css('visibility', 'visible');
         }
     });
+
+    // resets overflow on new dialog open
+    $('#xhr').css('overflow-y', 'unset');
 
     function saveCodeHTML() {
         $.ajax({
