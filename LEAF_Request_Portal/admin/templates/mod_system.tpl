@@ -181,7 +181,7 @@ function renderSettings(res) {
                             mostRecentID = i;
                         }
                     }
-                    $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: green; color: white; font-weight: bold">Certified</span> <button class="usa-button usa-button--accent-cool leaf-btn-med" href="../index.php?a=printview&recordID='+ mostRecentID +'">View Details</button>');
+                    $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: green; color: white; font-weight: bold">Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID='+ mostRecentID +'">View details</a>');
                 });
                 query.execute();
             }
