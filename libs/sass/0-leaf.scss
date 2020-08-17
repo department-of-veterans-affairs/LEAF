@@ -20,7 +20,7 @@ $theme-font-path: "fonts" !default;
 .fas {font-family: 'fa-solid';}
 
 /* ############### GLOBAL OVERRIDES ################# */
-body {background-color: #dcdee0;}
+body {background-color: #dcdee0; overflow-x: auto; overflow-y: auto;}
 h1, h2, h3, h4, h5, h6 { font-family: 'PublicSans-Bold'; color: #3d4551;}
 h1 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 h2 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
@@ -253,7 +253,7 @@ ul.leaf-progress-bar {
         min-height: 27rem;
         overflow: visible;
     }
-        .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative;}
+        .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative; overflow-x: auto; overflow-y: auto;}
 
     /* ############### UI DIALOG OVERRIDES ################# */
     .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
