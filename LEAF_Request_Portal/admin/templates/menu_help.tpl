@@ -1,5 +1,9 @@
-For Help contact your primary admin:
-<div id="help-primary-admin" style="font-weight:bold;"></div>
+<ul>
+    <li>For Help contact your primary admin:
+        <div id="help-primary-admin"></div>
+    </li>
+</ul>
+
 <script type="text/javascript">
     $.ajax({
         url: "../api/system/primaryadmin",

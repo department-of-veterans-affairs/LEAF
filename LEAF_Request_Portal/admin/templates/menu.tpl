@@ -1,50 +1,204 @@
-<a href="../" class="buttonNorm"><img src="../../libs/dynicons/?img=go-home.svg&amp;w=16" alt="Main Page" title="Main Page" />Main Page</a>
-<div id="headerMenu_container" style="display: inline-block">
-    <a id="button_showLinks" tabindex="0" class="buttonNorm" alt="Links Dropdown" title="Links">Links</a>
-    <div id="headerMenu_links">
-    {include file="menu_links.tpl"}
-    </div>
-</div>
-<div id="headerMenuHelp_container" style="display: inline-block">
-    <a id="button_showHelp" tabindex="0" class="buttonNorm" alt="Help Popup" title="Help"><img style="vertical-align: sub;" src="../../libs/dynicons/?img=help-browser.svg&amp;w=16">&nbsp;Help</a>
-    <div id="headerMenu_help" tabindex="0">
-    {include file="menu_help.tpl"}
-    </div>
-</div>
-<a href="./" class="buttonNorm"><img src="../../libs/dynicons/?img=applications-system.svg&amp;w=16" alt="Admin Panel" title="Admin Panel" />Admin Panel</a>
+<ul>
 
-<br />
-<noscript><div class="alert"><span>Javascript must be enabled for this version of software to work!</span></div></noscript>
+    <!-- Menu tooggle on smaller screens  -->
+    <li id="toggleMenu" role="button" aria-haspopup="true">
+        <a href="javascript:void(0);"><span aria-hidden="true" class="leaf-menu"><button>MENU</button></span><i aria-hidden="true" class="fas fa-times"></i><span id="toggleMenu-text">Toggle Navigation</span></a>
+    </li>
 
-<div id="links" style="position: absolute; padding: 24px; z-index: 1000; display: none; background-color: white; border: 1px solid black; width: 310px; box-shadow: 0 2px 6px #8e8e8e;">
-<a href="../{$orgchartPath}">
-    <span class="menuButtonSmall" style="background-color: #ffecb7">
-        <img class="menuIconSmall" src="../../libs/dynicons/?img=system-users.svg&amp;w=76" style="position: relative" alt="Org Chart" title="Org Chart" />
-        <span class="menuTextSmall">Organizational Chart</span><br />
-        <span class="menuDescSmall">Update/Review Org. Charts and Employee Information</span>
-    </span>
-</a>
+    <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>
+
+    <li class="leaf-width-8rem leaf-mob-menu"><a href="../?a=reports">Report Builder</a></li>
+
+    <li class="leaf-width-8rem leaf-mob-menu lev2">
+        <a href="javascript:void(0);">Site Links</a>
+        <ul>
+            <li><a href="../{$orgchartPath}" target="_blank">Nexus: Org Charts</a></li>
+        </ul>
+    </li>
+
+    <li class="leaf-width-8rem leaf-mob-menu lev2">
+        <a href="javascript:void(0);">Admin</a>
+        <ul>
+
+            <li><a href="./">Admin Home<i class="leaf-nav-icon-space"></i></a></li>
+
+            <li class="lev3">
+                <a href="javascript:void(0);">User Access</a>
+                <ul>
+                    <li><a href="?a=mod_groups">User Access Groups</a></li>
+                    <li><a href="?a=mod_svcChief">Service Chiefs</a></li>
+                </ul>
+            </li>
+
+            <!--{if $siteType != 'national_subordinate'}-->
+                <li><a href="?a=workflow">Workflow Editor<i class="leaf-nav-icon-space"></i></a></li>
+            <!--{/if}-->
+
+            <!--{if $siteType != 'national_subordinate'}-->
+                <li><a href="?a=form">Form Editor<i class="leaf-nav-icon-space"></i></a></li>
+            <!--{/if}-->
+
+            <!--{if $siteType != 'national_subordinate'}-->
+                <li><a href="?a=formLibrary">LEAF Library<i class="leaf-nav-icon-space"></i></a></li>
+            <!--{/if}-->
+
+            <li><a href="?a=mod_system">Site Settings<i class="leaf-nav-icon-space"></i></a></li>
+
+            <li><a href="../report.php?a=LEAF_Timeline_Explorer">Timeline Explorer<i class="leaf-nav-icon-space"></i></a></li>
+
+            <!--{if $siteType == 'national_primary'}-->
+                <li><a href="javascript:void(0)">Site Distribution<i class="leaf-nav-icon-space"></i></a></li>
+            <!--{/if}-->
+
+            <li class="lev3">
+                <a href="javascript:void(0);">Toolbox</a>
+                <ul>
+                <li><a href="../report.php?a=LEAF_import_data">Import Spreadsheet</a></li>
+                <li><a href="../report.php?a=LEAF_mass_action">Mass Action</a></li>
+                <li><a href="../report.php?a=LEAF_request_initiator_new_account">Initiator New Account</a></li>
+                </ul>
+            </li>
+
+            <li class="lev3">
+                <a href="javascript:void(0);">LEAF Developer Console</a>
+                <ul>
+                    <li><a href="?a=mod_templates">Template Editor</a></li>
+                    <li><a href="?a=mod_templates_reports">LEAF Programmer</a></li>
+                    <li><a href="?a=mod_file_manager">File Manager</a></li>
+                    <li><a href="../?a=search">Search Database</a></li>
+                    <li><a href="?a=admin_sync_services">Sync Services</a></li>
+                    <li><a href="?a=admin_update_database">Update Database</a></li>
+                </ul>
+            </li>
+
+        </ul>
+
+    </li>
+
+    <li class="leaf-width-4rem leaf-mob-menu lev2">
+        <a href="javascript:void(0);"><i class='fas fa-user-circle leaf-usericon' alt='User Account Menu'></i></a>
+        <ul class="leaf-usernavmenu">
+            <li><a href="../?a=logout">User: <!--{$name}--></a></li>
+            <li><a href="../?a=logout">Sign Out</a></li>
+            <li><a href="javascript:void(0);">Primary Admin:</a></li>
+        </ul>
+    </li>
+
+</ul>
 
 <script>
-    menu508($('#button_showLinks'), $('#headerMenu_links'), $('#headerMenu_links').find('a'));
-    menu508($('#button_showHelp'), $('#headerMenu_help'), $('#headerMenu_help'));
+$(document).ready(function() {
 
-    function menu508(menuButton, subMenu, subMenuButton)
-    {
-        $(menuButton).keypress(function(e) {
-            if (e.keyCode === 13) {
-                $(subMenu).css("display", "block");
-                $(menuButton).attr('aria-expanded', 'true');
-                subMenuButton.focus();
-            }
-        });
 
-        $(subMenuButton).focusout(function() {
-                $(subMenu).css("display", "none");
-                $(menuButton).attr('aria-expanded', 'false');
-                $(menuButton).focus();
-        });
+// Remove no-js class
+$('html').removeClass('no-js');
+
+$('#toggleMenu').on('click', function() {
+
+    if ( $(this).hasClass('js-open') ) {
+        $('#nav > ul > li:not(#toggleMenu)').removeClass('js-showElement');
+        $(this).removeClass('js-open');
+        $(this).attr('aria-expanded', false);
+
+    } else {
+        $('#nav > ul > li:not(#toggleMenu)').addClass('js-showElement');
+        $(this).addClass('js-open');
+        $(this).attr('aria-expanded', true);
     }
-</script>
 
-</div>
+    return false;
+})
+
+// Add plus mark to li that have a sub menu
+$('li.lev2:has("ul") > a').append('<i class="fas fa-angle-down leaf-nav-icon"></i>');
+$('li.lev3:has("ul") > a').append('<i class="fas fa-angle-left leaf-nav-icon"></i>');
+
+
+// sub menu
+// ------------------------
+
+// When interacting with a li that has a sub menu
+$('li:has("ul")').on('mouseover keyup click mouseleave', function(e) {
+
+    //console.log("test")
+
+    // If either -
+        // tabbing into the li that has a sub menu
+        // hovering over the li that has a sub menu
+    if ( e.keyCode === 9 | e.type === 'mouseover' ) {
+
+        // Show sub menu
+        $(this).children('ul').removeClass('js-hideElement');
+        $(this).children('ul').addClass('js-showElement');
+    }
+
+    // If mouse leaves li that has sub menu
+    if ( e.type === 'mouseleave' ) {
+
+        // hide sub menu
+        $(this).children('ul').removeClass('js-showElement');
+        $(this).children('ul').addClass('js-hideElement');
+    }
+
+
+    // If clicking on li that has a sub menu
+    if ( e.type === 'click' ) {
+
+        // If sub menu is already open
+        if ( $(this).children('a').hasClass('js-openSubMenu') ) {
+
+            // remove Open class
+            $(this).children('a').removeClass('js-openSubMenu');
+
+            // Hide sub menu
+            $(this).children('ul').removeClass('js-showElement');
+            $(this).children('ul').addClass('js-hideElement');
+
+
+        // If sub menu is closed
+        } else {
+
+            // add Open class
+            $(this).children('a').addClass('js-openSubMenu');
+
+            // Show sub menu
+            $(this).children('ul').removeClass('js-hideElement');
+            $(this).children('ul').addClass('js-showElement');
+
+        }
+
+    } // end click event
+
+});
+
+
+// Tabbing through Levels of sub menu
+// ------------------------
+
+// If key is pressed while on the last link in a sub menu
+$('li > ul > li:last-child > a').on('keydown', function(e) {
+
+
+    // If tabbing out of the last link in a sub menu AND not tabbing into another sub menu
+    if ( (e.keyCode == 9) && $(this).parent('li').children('ul').length == 0 ) {
+
+            // Close this sub menu
+            $(this).parent('li').parent('ul').removeClass('js-showElement');
+            $(this).parent('li').parent('ul').addClass('js-hideElement');
+
+
+        // If tabbing out of a third level sub menu and there are no other links in the parent (level 2) sub menu
+        if ( $(this).parent('li').parent('ul').parent('li').parent('ul').parent('li').children('ul').length > 0
+             && $(this).parent('li').parent('ul').parent('li').is(':last-child') ) {
+
+                // Close the parent sub menu (level 2) as well
+                $(this).parent('li').parent('ul').parent('li').parent('ul').removeClass('js-showElement');
+                $(this).parent('li').parent('ul').parent('li').parent('ul').addClass('js-hideElement');
+        }
+
+    }
+
+})
+
+})
+</script>

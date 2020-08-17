@@ -105,7 +105,7 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
-$main->assign('logo', '<img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
+$main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo" />');
 
 $t_login->assign('name', $login->getName());
 

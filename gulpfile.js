@@ -21,7 +21,9 @@ const replace = require("gulp-replace");
 const sass = require("gulp-sass");
 const sourcemaps = require("gulp-sourcemaps");
 const uswds = require("./node_modules/uswds-gulp/config/uswds");
+const concat = require('gulp-concat');
 sass.compiler = require("sass");
+
 
 /*
 ----------------------------------------
@@ -37,35 +39,17 @@ PATHS
 // Project Sass source directory
 const PROJECT_SASS_SRC = "./libs/sass";
 
-// Javascript destination
-const JS_DEST = "./libs/js/uswds";
-
 // Compiled CSS destination
 const CSS_DEST = "./libs/css";
 
 // font destination
 const FONT_DEST = "./libs/css/fonts";
 
-// Site CSS destination
-// Like the _site/assets/css directory in Jekyll, if necessary.
-// If using, uncomment line 106
-const SITE_CSS_DEST = "./path/to/site/css/destination";
-
 /*
 ----------------------------------------
 TASKS
 ----------------------------------------
 */
-
-gulp.task("copy-uswds-setup", () => {
-  return gulp
-    .src(`${uswds}/scss/theme/**/**`)
-    .pipe(gulp.dest(`${PROJECT_SASS_SRC}`));
-});
-
-gulp.task("copy-uswds-js", () => {
-  return gulp.src(`${uswds}/js/**/**`).pipe(gulp.dest(`${JS_DEST}`));
-});
 
 gulp.task("icons", () => {
   return gulp.src('node_modules/@fortawesome/fontawesome-free/webfonts/*')
@@ -88,15 +72,12 @@ gulp.task("build-sass", function(done) {
           includePaths: [
             `${PROJECT_SASS_SRC}`,
             `${uswds}/scss`,
-            `${uswds}/scss/packages`
           ]
         })
       )
-      .pipe(replace(/\buswds @version\b/g, "based on uswds v" + pkg.version))
       .pipe(postcss(plugins))
       .pipe(sourcemaps.write("."))
-      // uncomment the next line if necessary for Jekyll to build properly
-      //.pipe(gulp.dest(`${SITE_CSS_DEST}`))
+      .pipe(concat('leaf.css')) // added to make all files roll into one big CSS
       .pipe(gulp.dest(`${CSS_DEST}`))
   );
 });
@@ -104,14 +85,10 @@ gulp.task("build-sass", function(done) {
 gulp.task(
   "init",
   gulp.series(
-    "copy-uswds-setup",
-    "copy-uswds-js",
     "icons",
-    "build-sass"
+    "build-sass",
   )
 );
-
-
 
 gulp.task("watch-sass", function() {
   gulp.watch(`${PROJECT_SASS_SRC}/**/*.scss`, gulp.series("build-sass"));
