@@ -3,8 +3,8 @@
     <form id="confirm_record" enctype="multipart/form-data" action="javascript:void(0);">
         
         <div role="document">
-
-            <div id="confirm_loadIndicator" class="leaf-dialog-loader">
+            
+             <div id="confirm_loadIndicator" class="leaf-dialog-loader">
                 Loading...<img src="../images/largespinner.gif" alt="loading..." />
             </div>
 
