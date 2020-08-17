@@ -189,11 +189,11 @@ function renderSettings(res) {
                 query.addTerm('stepID', '!=', 'resolved');
                 query.onSuccess(function(data) {
                     if(data.length == 0) {
-                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <button class="usa-button usa-button--accent-cool leaf-btn-med" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</button>');
+                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</a>');
                     }
                     else {
                         var recordID = data[Object.keys(data)[0]].recordID;
-                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <button class="usa-button usa-button--accent-cool leaf-btn-med" href="../index.php?a=printview&recordID='+ recordID +'">Check Certification Progress</button>');
+                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID='+ recordID +'">Check Certification Progress</a>');
                     }
                 });
                 query.execute();
