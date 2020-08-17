@@ -257,8 +257,8 @@ ul.leaf-progress-bar {
 
     /* ############### UI DIALOG OVERRIDES ################# */
     .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
-    .ui-dialog {border-radius: 6px; padding-bottom: 0.8rem; min-height: 17rem; overflow: hidden;}
-    .ui-dialog-content {overflow-x: auto!important; overflow-y: auto!important;}
+    .ui-dialog {border-radius: 6px; padding-bottom: 0.8rem; min-height: 240px; min-width: 500px; overflow: hidden;}
+    .ui-dialog-content {overflow-x: visible!important; overflow-y: visible!important; min-height: 230px; min-width: 480px; }
     .ui-widget-header {border: 0; background-color: none; background: none;}
     .leaf-dialog-container {width: 540px; height: 420px; padding: 8px; overflow: visible; font-size: 12px; visibility: hidden; display: none;}
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
