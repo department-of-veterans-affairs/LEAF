@@ -80,7 +80,7 @@ hr {border: 1px solid #dfe1e2;}
 /* ############### SPECIAL CLASSES ################# */
 .leaf-row-space {height: 1rem; margin: 0.2rem 0; clear: both;}
 .leaf-text-smaller {font-size: 0.9rem;}
-.leaf-buttonBar {text-align: center; margin: 1.0rem 0;}
+.leaf-buttonBar {text-align: center; margin: 0.4rem 0 0.4rem 0;}
 .leaf-content-show {display: block;}
 .leaf-content-hide {display: none;}
 .leaf-grey-box {padding: 1rem; background-color: #e6e6e6;}
@@ -262,7 +262,7 @@ ul.leaf-progress-bar {
     .ui-widget-header {border: 0; background-color: none; background: none;}
     .leaf-dialog-container {width: 540px; height: 420px; padding: 8px; overflow: visible; font-size: 12px; visibility: hidden; display: none;}
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
-    .leaf-dialog-content {min-height: 6rem; padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
+    .leaf-dialog-content {min-height: 6rem; padding: 0.5rem; max-width: 54rem; min-width: 27rem; clear: both; margin-top: 1rem;}
     
     /* ############### LEAF HEADER ################# */
     .site-header {background-color: #252f3e; height: 4.6rem; box-shadow: 0px 4px 6px #a9aeb1;}
