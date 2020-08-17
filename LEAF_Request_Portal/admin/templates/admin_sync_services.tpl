@@ -1,10 +1,24 @@
-<div id="toolbar" class="toolbar_right toolbar noprint" style="position: absolute; right: 2px"></div>
+<div class="leaf-center-content">
 
-<div style="width: 85%">
-    <span style="font-size: 18px; font-weight: bold">Syncing services from Org Chart...</span>
-    <br /><br />
+    <aside id="sideBar" class="sidenav-right"></aside>
 
-    <div id="groupList"></div>
+    <aside class="sidenav"></aside>
+    
+     <main class="main-content">
+     
+        <h2>Sync Services</h2>
+        
+        <div id="toolbar" class="toolbar_right toolbar noprint" style="position: absolute; right: 2px"></div>
+
+        <div>
+            <span style="font-size: 18px; font-weight: bold">Syncing services from Org Chart...</span>
+            <br /><br />
+
+            <div id="groupList"></div>
+        </div>
+
+    </main>
+
 </div>
 
 
