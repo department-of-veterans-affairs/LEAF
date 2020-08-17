@@ -234,7 +234,7 @@ ul.leaf-progress-bar {
         .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .usa-banner {font-family: 'PublicSans-Regular';}
     .usa-banner {font-family: 'PublicSans-Regular';}
-    .usa-input {width: auto;}
+    .usa-input {height:4px; width: auto;}
     .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.1rem;}
     .ui-widget-header {border: 0; background-color: none;}
     .usa-banner__header {padding-bottom: .3rem; padding-top: .3rem; min-height: 0;}
@@ -261,7 +261,7 @@ ul.leaf-progress-bar {
     .ui-dialog {border-radius: 6px; padding-bottom: 0.8rem; min-height: 17rem;}
     .ui-dialog .ui-dialog-content {overflow: visible;}
     .ui-widget-header {border: 0; background-color: none; background: none;}
-    .leaf-dialog-container {visibility: hidden; display: none; overflow: visible;}
+    .leaf-dialog-container {width: 540px; height: 420px; padding: 8px; overflow: auto; font-size: 12px}
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
     .leaf-dialog-content {min-height: 6rem; padding: 0.5rem; max-width: 54rem; min-width: 27rem; overflow: visible;}
     
