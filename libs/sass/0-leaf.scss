@@ -17,8 +17,8 @@ $theme-font-path: "fonts" !default;
 .fas {font-family: 'fa-solid';}
 
 /* ############### GLOBAL OVERRIDES ################# */
-body {background-color: #dcdee0;}
-h1, h2, h3, h4, h5, h6 { font-family: 'PublicSans-Bold'; color: #3d4551; font-weight: normal;}
+body {background-color: #dcdee0; overflow-x: auto; overflow-y: auto;}
+h1, h2, h3, h4, h5, h6 { font-family: 'PublicSans-Bold'; color: #3d4551;}
 h1 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 h2 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 h3 {margin: 0.0rem 0.0rem 0.4rem 0.0rem;}
@@ -273,7 +273,6 @@ ul.leaf-progress-bar {
     .usa-banner {font-family: 'PublicSans-Regular';}
     .usa-banner {font-family: 'PublicSans-Regular';}
     .usa-input {height:4px; width: auto;}
-    .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.1rem;}
     .ui-widget-header {border: 0; background-color: none;}
     .usa-banner__header {padding-bottom: .3rem; padding-top: .3rem; min-height: 0;}
     .usa-banner__header-close-text, .usa-banner__header-text {font-size: .7rem; letter-spacing: 0.01rem;}
@@ -307,12 +306,12 @@ ul.leaf-progress-bar {
 
     /* ############### UI DIALOG OVERRIDES ################# */
     .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
-    .ui-dialog {border-radius: 6px; padding-bottom: 0.8rem; min-height: 17rem;}
-    .ui-dialog .ui-dialog-content {overflow: visible;}
+    .ui-dialog {border-radius: 6px; padding-bottom: 0.8rem; min-height: 240px; min-width: 500px; overflow: hidden;}
+    .ui-dialog-content {overflow-x: visible!important; overflow-y: visible!important; min-height: 230px; min-width: 480px; }
     .ui-widget-header {border: 0; background-color: none; background: none;}
-    .leaf-dialog-container {width: 540px; height: 420px; padding: 8px; overflow: auto; font-size: 12px; visibility: hidden; display: none;}
+    .leaf-dialog-container {width: 540px; height: 420px; padding: 8px; overflow: visible; font-size: 12px; visibility: hidden; display: none;}
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
-    .leaf-dialog-content {min-height: 6rem; padding: 0.5rem; max-width: 54rem; min-width: 27rem; overflow: visible;}
+    .leaf-dialog-content {min-height: 6rem; padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
     
     /* ############### LEAF HEADER ################# */
     .site-header {background-color: #252f3e; height: 4.6rem; box-shadow: 0px 4px 6px #a9aeb1;}
