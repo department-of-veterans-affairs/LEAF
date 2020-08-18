@@ -18,6 +18,11 @@ $theme-font-path: "fonts" !default;
 /* ################# FONT FAMILY DECLARATIONS ################# */
 @font-face {font-family: 'fa-solid'; src: url(fonts/fontawesome/fa-solid-900.woff);}
 .fas {font-family: 'fa-solid';}
+@font-face {font-family: 'PublicSans-Thin'; src: url(fonts/public-sans/PublicSans-Thin.woff);}
+@font-face {font-family: 'PublicSans-Light'; src: url(fonts/public-sans/PublicSans-Light.woff);}
+@font-face {font-family: 'PublicSans-Regular'; src: url(fonts/public-sans/PublicSans-Regular.woff);}
+@font-face {font-family: 'PublicSans-Medium'; src: url(fonts/public-sans/PublicSans-Medium.woff);}
+@font-face {font-family: 'PublicSans-Bold'; src: url(fonts/public-sans/PublicSans-Bold.woff);}
 
 /* ############### GLOBAL OVERRIDES ################# */
 body {background-color: #dcdee0; overflow-x: auto; overflow-y: auto;}
