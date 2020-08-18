@@ -234,14 +234,13 @@ ul.leaf-progress-bar {
         .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .usa-banner {font-family: 'PublicSans-Regular';}
     .usa-banner {font-family: 'PublicSans-Regular';}
-    .usa-input {height:4px; width: auto;}
+    .usa-input {width: auto; padding: 1.0rem;}
     .ui-widget-header {border: 0; background-color: none;}
     .usa-banner__header {padding-bottom: .3rem; padding-top: .3rem; min-height: 0;}
     .usa-banner__header-close-text, .usa-banner__header-text {font-size: .7rem; letter-spacing: 0.01rem;}
     .usa-form {max-width: 24rem;}
     .usa-table {font-size: 0.9rem;}
     .usa-label {line-height: 1.2rem;}
-    .usa-input {padding: 1.0rem;}
     .usa-select {font-size: 0.9rem; padding: 0.0rem 0.4rem;}
     .usa-ro-text {margin: 0.5rem 0; font-size: 0.9rem;}
     .main-content {
