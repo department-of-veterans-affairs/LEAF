@@ -1281,7 +1281,7 @@ class Form
         // trigger initial submit event
         include_once __DIR__ . '/FormWorkflow.php';
         $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID);
-        //$FormWorkflow->setEventFolder(__DIR__ . '/scripts/events/');
+
         foreach ($workflowIDs as $id)
         {
             // The initial step for Requestor is special step id -1
