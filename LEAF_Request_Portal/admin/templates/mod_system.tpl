@@ -13,10 +13,10 @@
         <form class="usa-form">
         
             <label for="heading" class="usa-label">Title of LEAF site</label>
-            <input id="heading" class="usa-input" type="text" title="" />
+            <input id="heading" class="usa-input" type="text" title="" size="48" />
 
             <label for="subHeading" class="usa-label">Facility Name</label>
-            <input id="subHeading" class="usa-input" type="text" title="" />
+            <input id="subHeading" class="usa-input" type="text" title="" size="48" />
 
             <label for="timeZone" class="usa-label">Time Zone</label>
             <select id="timeZone" class="usa-select">
@@ -26,7 +26,7 @@
             </select>
 
             <label for="requestLabel" class="usa-label">Label for Request</label>
-            <input id="requestLabel" class="usa-input-temp" type="text" title="" />
+            <input id="requestLabel" class="usa-input" type="text" title="" size="48" />
 
             <div class="leaf-row-space"></div>
 
@@ -61,7 +61,7 @@
 
             <div class="item siteType national_subordinate" style="display: none">
                 <label for="national_linkedPrimary" class="usa-label">Nationally Standardized Primary Site URLs must end with a trailing slash.</label>
-                <input id="national_linkedPrimary" type="text" class="usa-input" size="42" />
+                <input id="national_linkedPrimary" type="text" class="usa-input" size="48" />
             </div>
 
             <button class="usa-button" onclick="saveSettings();">Save</button>
