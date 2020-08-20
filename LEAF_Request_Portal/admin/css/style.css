@@ -218,12 +218,13 @@ table.leaf_grid {
     border: 1px solid black;
     border-collapse: collapse;
     margin: 2px;
+    width: 98%;
+    table-layout: fixed;
 }
-
-table.leaf_grid>tbody {
-    background-color: white;
+table.leaf_grid td {
+    vertical-align: top;
+    word-break: break-word;
 }
-
 
 .agenda td {
     padding: 8px 4px 8px 4px;
