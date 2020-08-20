@@ -89,7 +89,7 @@ $(function() {
                 if(blob[data.index].s1.id53 == "Yes") {
                     $('#' + grid.getPrefixID() + "tbody_tr" + data.recordID).css('background-color', '#ffff99');
                 }
-            	$('#'+data.cellContainerID).html('<span style="font-weight: bold; font-size: 120%">' + blob[data.index].title + '</span>');
+            	$('#'+data.cellContainerID).html('<span style="font-weight: bold; font-size: 100%">' + blob[data.index].title + '</span>');
             }},
             {name: 'Description', indicatorID: 5, sortable: false, editable: false},
             {name: 'Author(s)', indicatorID: 'authors', editable: false, sortable: false, callback: function(data, blob) {
