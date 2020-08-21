@@ -29,8 +29,6 @@ class Workflow
 
     private $workflowID;
 
-    private $eventFolder = './scripts/events/';
-
     public function __construct($db, $login, $workflowID = 0)
     {
         $this->db = $db;

@@ -24,7 +24,7 @@ class FormWorkflow
     private $recordID;
 
     // workflow actions are triggered from ./api/ except on submit
-    private $eventFolder = __DIR__.'/scripts/events/';
+    private $eventFolder = __DIR__ . '/scripts/events/';
 
     public function __construct($db, $login, $recordID)
     {
@@ -1027,7 +1027,15 @@ class FormWorkflow
 
                     break;
                 default:
-                    $eventFile = $this->eventFolder . 'CustomEvent_' . $event['eventID'] . '.php';
+                    if (strpos($event['eventID'], "LeafSecure") !== false) {
+                        $eventFile = $this->eventFolder . 'CustomEvent_' . $event['eventID'] . '.php';                        
+                    } else {
+                        global $config;
+                    
+                        $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+                        $eventFile = $this->eventFolder . 'CustomEvent_' . $cleanPortalPath . $event['eventID'] . '.php';
+                    }
+
                     if (is_file($eventFile))
                     {
                         require_once $eventFile;
