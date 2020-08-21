@@ -1,67 +1,52 @@
-<style>
-input {
-    min-width: 300px;
-}
-.item label {
-    font-size: 120%;
-    font-weight: bold;
-    width: 250px;
-}
+<div class="leaf-center-content">
 
-.item {
-    padding-bottom: 16px;
-}
-</style>
+    <aside class="sidenav-right"></aside>
 
-<h2 id="progress" style="color: red; text-align: center">
-</h2>
+    <aside class="sidenav"></aside>
 
-<div style="width: 70%; margin: auto">
-    <div style="border: 2px solid black; margin: 4px; background-color: white; padding: 16px">
-        <div class="item">
-        <label for="heading">Title of LEAF site:&nbsp;</label>
-        <input id="heading" type="text" title="" />
-        </div>
+    <main class="main-content">
 
-        <div class="item">
-        <label for="subHeading">Facility Name:&nbsp;</label>
-        <input id="subHeading" type="text" title="" />
-        </div>
+        <h2>Site Settings</h2>
+        
+        <h2 id="progress" style="color: red;"></h2>
 
-        <div class="item">
-        <label for="timeZone">Time Zone:&nbsp;</label>
-        <select id="timeZone">
-            <!--{foreach from=$timeZones item=tz}-->
-                <option value="<!--{$tz}-->"><!--{$tz}--></option>
-            <!--{/foreach}-->
-        </select>
-        </div>
+        <form class="usa-form">
+        
+            <label for="heading" class="usa-label">Title of LEAF site</label>
+            <input id="heading" class="usa-input" type="text" title="" size="48" />
 
-        <div class="item">
-        <label for="requestLabel">Label for "Request":&nbsp;</label>
-        <input id="requestLabel" type="text" title="" />
-        </div>
+            <label for="subHeading" class="usa-label">Facility Name</label>
+            <input id="subHeading" class="usa-input" type="text" title="" size="48" />
 
-        <div class="item">
-            <label for="leafSecureContent">LEAF Secure Status:&nbsp;</label>
-            <span id="leafSecureStatus">Loading...</span><br />
-        </div>
+            <label for="timeZone" class="usa-label">Time Zone</label>
+            <select id="timeZone" class="usa-select">
+                <!--{foreach from=$timeZones item=tz}-->
+                    <option value="<!--{$tz}-->"><!--{$tz}--></option>
+                <!--{/foreach}-->
+            </select>
 
-<br /><br />
-        <div class="item">
-        <label for="subHeading">Import Tags [<a href="#" title="Groups in the Org. Chart with any one of these tags will be imported for use">?</a>]:&nbsp;</label>
-            <span style="font-style: italic">
-            <!--{foreach from=$importTags item=importTag}-->
-                <!--{$importTag}--><br />
-            <!--{/foreach}-->
-            </span>
-        </div>
+            <label for="requestLabel" class="usa-label">Label for Request</label>
+            <input id="requestLabel" class="usa-input" type="text" title="" size="48" />
 
-        <fieldset>
-            <legend>Advanced Settings</legend>
+            <div class="leaf-row-space"></div>
+
+            <label for="leafSecureContent">LEAF Secure Status</label>
+            <div class="leaf-marginTop-halfRem"><span id="leafSecureStatus">Loading...</span></div>
+
+            <div>
+                <label for="subHeading" class="usa-label">Import Tags [<a href="#" title="Groups in the Org. Chart with any one of these tags will be imported for use">?</a>]:&nbsp;</label>
+                <div class="leaf-marginTop-1rem">
+                    <!--{foreach from=$importTags item=importTag}-->
+                        <!--{$importTag}--><br />
+                    <!--{/foreach}-->
+                </div>
+            </div>
+
+            <h3 class="leaf-marginTop-1rem">Advanced Settings</h3>
+
             <div class="item">
-                <label for="siteType">Type of Site:&nbsp;</label>
-                <select id="siteType">
+                <label for="siteType" class="usa-label">Type of Site</label>
+                <select id="siteType" class="usa-select">
                     <option value="standard">Standard</option>
                     <option value="national_primary">Nationally Standardized Primary</option>
                     <option value="national_subordinate">Nationally Standardized Subordinate</option>
@@ -69,19 +54,23 @@ input {
             </div>
 
             <div class="item siteType national_primary" style="display: none">
-                    <label for="national_linkedSubordinateList">Nationally Standardized Subordinate Sites:<br /><span style="font-size: 12px; font-weight: normal">The first site in the list should be a TEST site.<br />URLs must end with a trailing slash.</span></label>
-                    <textarea id="national_linkedSubordinateList" cols="50" rows="5"></textarea>
+                <label for="national_linkedSubordinateList" class="usa-label">Nationally Standardized Subordinate Sites</label>
+                <div>The first site in the list should be a TEST site.<br />URLs must end with a trailing slash.</div>
+                <textarea id="national_linkedSubordinateList" cols="50" rows="5" class="usa-textarea"></textarea>
             </div>
 
             <div class="item siteType national_subordinate" style="display: none">
-                    <label for="national_linkedPrimary">Nationally Standardized Primary Site<span style="font-size: 12px; font-weight: normal">URLs must end with a trailing slash.</span></label>
-                    <input id="national_linkedPrimary" type="text" />
+                <label for="national_linkedPrimary" class="usa-label">Nationally Standardized Primary Site URLs must end with a trailing slash.</label>
+                <input id="national_linkedPrimary" type="text" class="usa-input" size="48" />
             </div>
-        </fieldset>
 
-        <button class="buttonNorm" onclick="saveSettings();" style="float: right"><img src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="save icon" /> Save</button>
-        <br /><br />
-    </div>
+            <button class="usa-button" onclick="saveSettings();">Save</button>
+
+        </form>
+
+    </main>
+
+<!-- end main content -->
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->

@@ -1,11 +1,26 @@
-<div id="sideBar" style="float: right; width: 200px">
-    <div class="buttonNorm" onclick="syncServices();" style="font-size: 120%"><img src="../../libs/dynicons/?img=go-down.svg&w=32" alt="Import from Nexus" /> Import from Nexus</div><br />
-</div>
-<br style="clear: both" />
-<div>
-    <span style="font-size: 18px; font-weight: bold"></span>
+<div class="leaf-center-content">
 
-    <div id="groupList"></div>
+    <aside class="sidenav-right"></aside>
+    
+    <!--{assign var=left_nav_content value="
+        <div id='sideBar'>
+            <button id='btn_uploadFile' class='usa-button' onclick='syncServices();'>
+                Import from Nexus
+            </button>
+        </div>
+    "}-->
+    <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
+    
+    <main class="main-content">
+        <h2>Service Chiefs</h2>
+
+        <div>
+            <div id="groupList"></div>
+        </div>
+
+        <div class="leaf-row-space"></div>
+    </div>
+    
 </div>
 
 
