@@ -78,9 +78,9 @@
     <li class="leaf-width-4rem leaf-mob-menu lev2">
         <a href="javascript:void(0);"><i class='fas fa-user-circle leaf-usericon' alt='User Account Menu'></i></a>
         <ul class="leaf-usernavmenu">
-            <li><a href="../?a=logout">User: <!--{$name}--></a></li>
+            <li><a href="javascript:void(0);">User:<br/><span class="leaf-user-menu-name">{$name}</span></a></li>
+            <li><a href="javascript:void(0);">Primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name"></span></a></li>
             <li><a href="../?a=logout">Sign Out</a></li>
-            <li><a href="javascript:void(0);">Primary Admin:</a></li>
         </ul>
     </li>
 
@@ -201,4 +201,27 @@ $('li > ul > li:last-child > a').on('keydown', function(e) {
 })
 
 })
+</script>
+
+<script type="text/javascript">
+    $.ajax({
+        url: "../api/system/primaryadmin",
+        dataType: "json",
+        success: function(response) {
+            var emailString = response['Email'] != '' ? " - " + response['Email'] : '';
+            if(response["Fname"] !== undefined)
+            {
+                $('#primary-admin').html(response['Fname'] + " " + response['Lname'] + emailString);
+            }
+            else if(response["userName"] !== undefined)
+            {
+                $('#primary-admin').html(response['userName']);
+            }
+            else
+            {
+                $('#primary-admin').html('Not Set');
+            }
+                
+        }
+    });
 </script>

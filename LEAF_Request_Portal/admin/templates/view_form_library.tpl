@@ -25,7 +25,7 @@ function showPreview(recordID) {
     }
 
 	dialog_simple.setTitle('Preview');
-	dialog_simple.setContent('<button id="btn_download" class="buttonNorm" style="float: right"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" /> Get a copy!</button><div style="font-size: 170%; font-weight: bold">' + title + '</div><div>'+ authors +'</div><br /><br /><div id="preview"></div>');
+	dialog_simple.setContent('<button id="btn_download" class="buttonNorm" style="float: right"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" /> Get a copy!</button><div style="font-size: 120%; font-weight: bold">' + title + '</div><div>'+ authors +'</div><br /><br /><div id="preview"></div>');
 	dialog_simple.show();
 
     preview = new LeafPreview('preview');
@@ -89,7 +89,7 @@ $(function() {
                 if(blob[data.index].s1.id53 == "Yes") {
                     $('#' + grid.getPrefixID() + "tbody_tr" + data.recordID).css('background-color', '#ffff99');
                 }
-            	$('#'+data.cellContainerID).html('<span style="font-weight: bold; font-size: 120%">' + blob[data.index].title + '</span>');
+            	$('#'+data.cellContainerID).html('<span style="font-weight: bold; font-size: 100%">' + blob[data.index].title + '</span>');
             }},
             {name: 'Description', indicatorID: 5, sortable: false, editable: false},
             {name: 'Author(s)', indicatorID: 'authors', editable: false, sortable: false, callback: function(data, blob) {
@@ -118,7 +118,7 @@ $(function() {
                 }
             }},
             {name: 'Preview', indicatorID: 'preview', editable: false, sortable: false, callback: function(data, blob) {
-            	$('#'+data.cellContainerID).html('<button class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" style="white-space: nowrap"><img src="../../libs/dynicons/?img=edit-find.svg&w=32" /> Preview</button>');
+            	$('#'+data.cellContainerID).html('<button class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" ><img src="../../libs/dynicons/?img=edit-find.svg&w=32" /> Preview</button>');
             }}
         ]);
         
@@ -154,6 +154,7 @@ $(function() {
 </script>
 
 <div class="leaf-center-content">
+
     <h2>LEAF Library</h2>
     <div id="menu" style="float: left; width: 230px">
         <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="filterStatus" role="status"></span>
@@ -168,7 +169,7 @@ $(function() {
         <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Logistics')" style="width: 220px"><img aria-hidden="true" src="../../libs/dynicons/?img=package-x-generic.svg&amp;w=32" alt="Icon" title="Icon" /> Logistics</div>
         <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Fiscal')" style="width: 220px"><img aria-hidden="true" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="Icon" title="Icon" /> Fiscal</div>
     </div>
-    <div id="formEditor_content" style="margin-left: 184px; padding-left: 8px">
+    <div id="formEditor_content" style="margin-left: 238px; padding-left: 8px">
 
         <div class="leaf-marginBot-halfRem leaf-bold">Search Form Library:</div>
         <div id="searchContainer"></div>

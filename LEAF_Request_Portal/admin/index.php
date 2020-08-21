@@ -491,6 +491,7 @@ $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
+$t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
