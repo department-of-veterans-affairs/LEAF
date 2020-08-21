@@ -26,9 +26,16 @@ $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_con
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
-function customTemplate($tpl)
+function customTemplate($tpl, $portalPath)
 {
-    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    $cleanPortalPath = str_replace("/", "_", $portalPath);
+
+    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
+    if (file_exists($customTemplatePath)) {
+        return "custom_override/". $cleanPortalPath . "{$tpl}";
+    } else {
+        return $tpl;
+    }
 }
 
 $login = new Login($db_phonebook, $db);
@@ -87,8 +94,8 @@ switch ($action) {
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', $config->orgchartPath);
                 $t_form->assign('orgchartImportTag', $config->orgchartImportTags[0]);
-                $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
-                $t_form->display(customTemplate('ajaxForm.tpl'));
+                $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl', $config->portalPath));
+                $t_form->display(customTemplate('ajaxForm.tpl', $config->portalPath));
             }
             else
             {
@@ -203,11 +210,11 @@ switch ($action) {
 
         if ($parallelProcessing)
         {
-            $t_form->display(customTemplate('submitForm_parallel_processing.tpl'));
+            $t_form->display(customTemplate('submitForm_parallel_processing.tpl', $config->portalPath));
         }
         else
         {
-            $t_form->display(customTemplate('submitForm.tpl'));
+            $t_form->display(customTemplate('submitForm.tpl', $config->portalPath));
         }
 
         break;
@@ -444,7 +451,7 @@ switch ($action) {
                 }
 
                 $t_form->assign('subtype', isset($_GET['childCategoryID']) ? '(' . strip_tags($tChildForms[XSSHelpers::xssafe($_GET['childCategoryID'])]) . ')' : '');
-                $t_form->display(customTemplate('print_form_ajax.tpl'));
+                $t_form->display(customTemplate('print_form_ajax.tpl', $config->portalPath));
             }
             else
             {
@@ -458,7 +465,7 @@ switch ($action) {
                 {
                     $main->assign('emergency', '<span style="position: absolute; right: 0px; top: -28px; padding: 2px; border: 1px solid black; background-color: white; color: red; font-weight: bold; font-size: 20px">EMERGENCY</span> ');
                 }
-                $main->assign('body', $t_form->fetch(customTemplate('print_form_ajax.tpl')));
+                $main->assign('body', $t_form->fetch(customTemplate('print_form_ajax.tpl', $config->portalPath)));
                 $tabText = 'Request #' . (int)$_GET['recordID'];
                 $main->assign('tabText', $tabText);
 

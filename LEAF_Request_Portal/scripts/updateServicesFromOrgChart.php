@@ -45,7 +45,7 @@ $db->beginTransaction();
 
 echo 'Clearing out existing users/groups.<br />';
 
-$db->prepared_query('DELETE FROM users WHERE groupID > 1', array());
+$db->prepared_query('DELETE FROM users WHERE groupID > 1 AND locallyManaged != 1', array());
 $db->prepared_query('DELETE FROM `groups` WHERE groupID > 1', array());
 
 // import quadrads

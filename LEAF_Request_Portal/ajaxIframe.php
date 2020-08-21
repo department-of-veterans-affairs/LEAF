@@ -56,9 +56,16 @@ $tabText = '';
 
 $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
-function customTemplate($tpl)
+function customTemplate($tpl, $portalPath)
 {
-    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    $cleanPortalPath = str_replace("/", "_", $portalPath);
+
+    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
+    if (file_exists($customTemplatePath)) {
+        return "custom_override/". $cleanPortalPath . "{$tpl}";
+    } else {
+        return $tpl;
+    }
 }
 
 // HQ logo
@@ -168,7 +175,7 @@ switch ($action) {
                     }
                 }
 
-                $main->assign('body', $t_form->fetch(customTemplate('print_form_iframe.tpl')));
+                $main->assign('body', $t_form->fetch(customTemplate('print_form_iframe.tpl', $config->portalPath)));
                 $t_menu->assign('hide_main_control', true);
 
                 break;

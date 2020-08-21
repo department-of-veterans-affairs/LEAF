@@ -58,9 +58,16 @@ $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 // HQ logo
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
-function customTemplate($tpl)
+function customTemplate($tpl, $portalPath)
 {
-    return file_exists(__DIR__."/templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
+    $cleanPortalPath = str_replace("/", "_", $portalPath);
+
+    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
+    if (file_exists($customTemplatePath)) {
+        return "custom_override/". $cleanPortalPath . "{$tpl}";
+    } else {
+        return $tpl;
+    }
 }
 
 $t_login->assign('name', $login->getName());
@@ -105,8 +112,9 @@ switch ($action) {
 
         break;
     default:
-        if ($action != ''
-            && file_exists(__DIR__."/templates/reports/{$action}.tpl"))
+        $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+
+        if ($action != '' && (file_exists(__DIR__."/templates/reports/{$action}.tpl") || file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")))
         {
             $main->assign('useUI', true);
             $main->assign('javascripts', array(
@@ -141,8 +149,15 @@ switch ($action) {
             $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
             $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
-            $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
-            $tabText = '';
+            if (file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")) {
+                $main->assign('body', $t_form->fetch("reports/custom_override/" . $cleanPortalPath . "{$action}.tpl"));
+                $tabText = '';
+            }
+            else
+            {
+                $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
+                $tabText = '';
+            } 
         }
         else
         {
@@ -157,7 +172,7 @@ $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', $config->orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
-$o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
+$o_menu = $t_menu->fetch(customTemplate('menu.tpl', $config->portalPath));
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
@@ -168,9 +183,9 @@ $main->assign('revision', $settings['version']);
 
 if (!isset($_GET['iframe']))
 {
-    $main->display(customTemplate('main.tpl'));
+    $main->display(customTemplate('main.tpl', $config->portalPath));
 }
 else
 {
-    $main->display(customTemplate('main_iframe.tpl'));
+    $main->display(customTemplate('main_iframe.tpl', $config->portalPath));
 }

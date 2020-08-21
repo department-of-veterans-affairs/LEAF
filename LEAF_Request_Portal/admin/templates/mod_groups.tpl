@@ -1,19 +1,53 @@
-<div id="sideBar" style="float: right">
-    <button class="buttonNorm" onclick="importGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Import Group" /> Import Existing Group</button>
-    <button class="buttonNorm" onclick="createGroup();" style="font-size: 120%"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Create Group" /> Create New Group</button>
-    <button class="buttonNorm" onclick="showAllGroupHistory();" style="font-size: 120%"><img src="../../libs/dynicons/?img=appointment.svg&w=32" alt="All Group History" /> Show All Group History</button>
-</div>
-<br style="clear: both" />
-<div>
-    <h2 role="heading" tabindex="-1">Site Administrators</h2>
-    <div id="adminList"></div>
-    <div id="primaryAdmin"></div>
-    <br style="clear: both" />
-    <h2 role="heading" tabindex="-1">User Groups</h2>
-    <div id="groupList"></div>
-</div>
+<div class="leaf-center-content">
 
-<br style="clear: both" />
+
+
+    <!--{assign var=right_nav_content value="
+        <button class='usa-button leaf-btn-med leaf-side-btn' onclick='createGroup();'>
+            + Create Group
+        </button>
+        <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='importGroup();'>
+            Import Group
+        </button>
+        <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='showAllGroupHistory();'>
+            Show Group History
+        </button>
+    "}-->
+    <!--{include file="partial_layouts/right_side_nav.tpl" contentRight="$right_nav_content"}-->
+
+    <!--{assign var=left_nav_content value="
+        <h3>Access Categories</h3>
+        <ul class='usa-sidenav'>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)'>Site Administrators</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)'>User Groups</a></li>
+        </ul>
+    "}-->
+    <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
+
+
+    <main class="main-content">
+
+        <h2>User Access Groups</h2>
+
+        <div>
+            <h3 role="heading" tabindex="-1">Site Administrators</h3>
+        </div>
+        <div>
+            <div id="adminList"></div>
+            <div id="primaryAdmin"></div>
+        </div>
+
+        <div class="leaf-row-space"></div>
+
+        <div class="leaf-clear-both">
+            <h3 role="heading" tabindex="-1">User Groups</h3>
+            <div id="groupList"></div>
+        </div>
+
+        <div class="leaf-row-space"></div>
+    </main>
+
+</div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
@@ -71,7 +105,7 @@ function getPrimaryAdmin() {
             }
             if(!foundPrimary)
             {
-                $('#membersPrimaryAdmin').append("Primary Admin has not been set.");
+                $('#membersPrimaryAdmin').append("Primary Administrator has not been set");
             }
             $('#membersPrimaryAdmin').fadeIn();
         }
@@ -81,7 +115,8 @@ function getPrimaryAdmin() {
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
     for(var i in members) {
-        if(members[i].active == 1){
+        if(members[i].active == 1
+            || groupID == 1) {
             $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
         }
     }
@@ -167,7 +202,7 @@ function focusGroupsAndMembers(groupID) {
     });
 }
 function getGroupList() {
-    $('#groupList').html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
+    $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
 
     $.ajax({
         type: 'GET',
@@ -199,6 +234,7 @@ function getGroupList() {
                             type: 'GET',
                             url: '../api/group/' + groupID + '/members',
                             success: function(res) {
+                                dialog.clear();
                                 dialog.setContent(
                                     '<button style="float:right" class="buttonNorm" onclick="viewHistory('+groupID+')"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="vertical-align: middle"> View History</button>'+
                                     '<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />');
@@ -255,7 +291,8 @@ function getGroupList() {
                                     $("#simplebutton_save").remove();
                                     dialog.show();
                                 }, 0);
-                            }
+                            },
+                            cache: false
                         });
                     }
 
@@ -276,8 +313,8 @@ function getGroupList() {
                 else { // if is admin
                     function openAdminGroup(){
                         dialog.setContent(
-                            '<button style="float:right" class="buttonNorm" onclick="viewHistory(1)"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>'+
-                            '<h2 role="heading" tabindex="-1">System Administrators</h2><div id="adminSummary"></div><br /><h3 role="heading" tabindex="-1" >Add Administrator:</h3><div id="employeeSelector"></div>');
+                            '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
+                            '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><label class="usa-label" role="heading" tabindex="-1" >Add Administrator</label></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -342,14 +379,13 @@ function getGroupList() {
                 //Primary Admin Section
                 if(res[i].groupID == 1) {
                     $('#primaryAdmin').append('<div tabindex="0" class="groupBlock">\
-                        <h2 id="groupTitlePrimaryAdmin">Primary Admin</h2>\
+                        <h3 id="groupTitlePrimaryAdmin">Primary Admin</h3>\
                         <div id="membersPrimaryAdmin"></div>\
                         </div>');
                     focusGroupsAndMembers('primaryAdmin');
 
                     function openPrimaryAdminGroup(){
-                        
-                        dialog.setContent('<button style="float:right" class="buttonNorm" onclick="viewHistory()"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>'+
+                      dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory()"> View History</button>'+
                             '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><br /><h3 role="heading" tabindex="-1" >Set Primary Administrator:</h3><div id="employeeSelector"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
@@ -367,16 +403,16 @@ function getGroupList() {
                                     data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                     success: function(res) {
                                         var selectedUserIsAdmin = false;
-                                        for(var i in res) 
+                                        for(var i in res)
                                         {
                                             selectedUserIsAdmin = res[i].userName == selectedUserName;
                                             if(selectedUserIsAdmin){break;}
                                         }
-                                        if(selectedUserIsAdmin) 
+                                        if(selectedUserIsAdmin)
                                         {
                                             setPrimaryAdmin(selectedUserName);
                                         }
-                                        else 
+                                        else
                                         {
                                             alert('Primary Admin must be a member of the Sysadmin group');
                                         }
@@ -406,7 +442,7 @@ function getGroupList() {
                                 {
                                    $('#primaryAdminSummary').append("Primary Admin has not been set.");
                                 }
-                                
+
                             }
                         });
                         setTimeout(function () {
@@ -440,13 +476,11 @@ function getGroupList() {
 }
 
 function viewHistory(groupID){
-    $('#simplexhr').css({width: $(window).width() * .5, height: $(window).height() * .7});
-
-    dialog_simple.setContent('');
-    dialog_simple.setTitle('Group History');
+  dialog_simple.setContent('');
+  dialog_simple.setTitle('Group History');
 	dialog_simple.indicateBusy();
-    
-    var type = (groupID)? "group": "primaryAdmin";
+
+  var type = (groupID)? "group": "primaryAdmin";
 
     $.ajax({
         type: 'GET',
@@ -510,7 +544,7 @@ function tagAndUpdate(groupID, callback) {
 
 function importGroup() {
     dialog.setTitle('Import Group');
-    dialog.setContent('<h2 role="heading" tabindex="-1">Import a group from another LEAF site.</h2><br /><div role="heading" tabindex="-1">Group Title: </div><div id="groupSel_container"></div>');
+    dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
 
     var groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -543,7 +577,7 @@ function importGroup() {
 
 function createGroup() {
     dialog.setTitle('Create a new group');
-    dialog.setContent('<div><br /><div role="heading" style="display:inline">Group Title: </div><input aria-label="Enter group name" id="groupName"></input></div>');
+    dialog.setContent('<div><label role="heading">Group Title</label><div class="leaf-marginTop-halfRem"><input aria-label="Enter group name" id="groupName" class="usa-input" size="36"></input></div></div>');
 
     dialog.setSaveHandler(function() {
     	dialog.indicateBusy();
@@ -588,7 +622,7 @@ function showAllGroupHistory() {
         },
         cache: false
     });
-    
+
 }
 
 var dialog;
@@ -597,13 +631,7 @@ $(function() {
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
 
 	$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
-
-    dialog_simple.setCancelHandler(function(){
-        $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
-        dialog_simple.setTitle("");
-    });
 	$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
-    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     getGroupList();
 });

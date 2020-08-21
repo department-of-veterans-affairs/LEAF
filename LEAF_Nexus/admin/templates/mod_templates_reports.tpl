@@ -52,6 +52,7 @@ function newReport() {
             	filename: file},
             success: function(res) {
             	if(res == 'CreateOK') {
+            		updateFileList();
             		loadContent(file);
             	}
             	else {
@@ -72,8 +73,9 @@ function deleteReport() {
 	dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/system/reportTemplates/_' + currentFile + '&CSRFToken=<!--{$CSRFToken}-->',
+            url: '../api/system/reportTemplates/_' + currentFile + '?CSRFToken=<!--{$CSRFToken}-->',
             success: function() {
+            	updateFileList();
                 location.reload();
             }
         });
@@ -108,6 +110,25 @@ function loadContent(file) {
 	});
 }
 
+function updateFileList() {
+	$.ajax({
+		type: 'GET',
+		url: '../api/system/reportTemplates',
+		success: function(res) {
+			var buffer = '<ul>';
+			for(var i in res) {
+				file = res[i].replace('.tpl', '');
+				if(file != 'example') {
+					buffer += '<li onclick="loadContent(\''+ file +'\');"><a href="#">' + file + '</a></li>';
+				}
+			}
+			buffer += '</ul>';
+			$('#fileList').html(buffer);
+		},
+		cache: false
+	});
+}
+
 var codeEditor = null;
 var dialog, dialog_confirm;
 $(function() {
@@ -135,23 +156,7 @@ $(function() {
 	  });
 	codeEditor.setSize(codeWidth - 2 + 'px', $(document).height() - 80);
 
-	$.ajax({
-		type: 'GET',
-		url: '../api/system/reportTemplates',
-		success: function(res) {
-			var buffer = '<ul>';
-			for(var i in res) {
-				file = res[i].replace('.tpl', '');
-				if(file != 'example') {
-					buffer += '<li onclick="loadContent(\''+ file +'\');"><a href="#">' + file + '</a></li>';
-				}
-			}
-			buffer += '</ul>';
-			$('#fileList').html(buffer);
-		},
-		cache: false
-	});
-
+	updateFileList();
 	loadContent('example');
 });
 </script>

@@ -6,12 +6,9 @@ config.php
 libs/dynicons/cache/*.svg
 .buildpath
 libs/qrcode/cache/*.png
-LEAF_Nexus/globals.php
-LEAF_Request_Portal/globals.php
 LEAF_Nexus/UPLOADS
 LEAF_Request_Portal/UPLOADS
 .vscode
-routing/routing_config.php
 LEAF_Request_Portal/db_config-bk.php
 LEAF_Nexus/config-bk.php
 LEAF_Nexus/globals-bk.php
@@ -23,5 +20,8 @@ test_logins.txt
 */admin/templates_c/
 */auth_dev/*
 .vs
-vendor/*
-composer.lock
+
+-*.swp
+-vendor/*
+-composer.lock
+

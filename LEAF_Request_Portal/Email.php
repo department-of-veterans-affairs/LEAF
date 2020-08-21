@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+define('APP_EMAIL_FROM',     getenv('APP_EMAIL_FROM', true)   ?:   getenv('APP_EMAIL_FROM'));
+
 /*
     Emailer
     Date Created: September 19, 2008
@@ -21,7 +23,7 @@ class Email
 
     public $emailBody = '';
 
-    private $emailFrom = 'LEAF@localhost';
+    private $emailFrom = APP_EMAIL_FROM;
 
     private $emailRecipient = '';
 
@@ -57,7 +59,16 @@ class Email
      */
     function getFilepath($tpl)
     {
-        return file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}") ? "custom_override/{$tpl}" : "{$tpl}";
+        global $config;
+
+        $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+        $customTemplatePath = __DIR__ . "/templates/email/custom_override/". $cleanPortalPath . "{$tpl}";
+        
+        if (file_exists($customTemplatePath)) {
+            return "custom_override/". $cleanPortalPath . "{$tpl}";
+        } else {
+            return $tpl;
+        }
     }
 
     public function clearRecipients()
@@ -85,7 +96,7 @@ class Email
         $smarty->left_delimiter = '{{';
         $smarty->right_delimiter = '}}';
         $smarty->assign('emailBody', $i);
-        $htmlOutput = $smarty->fetch('LEAF_main_email_template.tpl');
+        $htmlOutput = $smarty->fetch($this->getFilepath('LEAF_main_email_template.tpl'));
         $this->emailBody = $htmlOutput;
     }
 
@@ -124,21 +135,17 @@ class Email
 
     public function addGroupRecipient($groupID)
     {
-        if ($this->orgchartInitialized == false)
-        {
-            $this->initOrgchart();
-        }
-        $positions = $this->group->listGroupPositions($groupID);
-        foreach ($positions as $pos)
-        {
-            $this->addPositionRecipient($pos['positionID']);
-        }
+        require_once 'VAMC_Directory.php';
+        $dir = new VAMC_Directory;
 
-        $employees = $this->group->listGroupEmployees($groupID);
-        foreach ($employees as $emp)
-        {
-            $res = $this->employee->getAllData($emp['empUID'], 6);
-            $this->addRecipient($res[6]['data']);
+        $res = $this->portal_db->prepared_query("SELECT `userID`
+                                                 FROM `users` 
+                                                 WHERE groupID=:groupID
+                                                    AND active=1", 
+                                                array(':groupID' => $groupID));
+        foreach($res as $user) {
+            $tmp = $dir->lookupLogin($user['userID']);
+            $this->addRecipient($tmp[0]['Email']);
         }
     }
 
