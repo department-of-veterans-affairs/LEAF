@@ -105,7 +105,7 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
-$main->assign('logo', '<img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
+$main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo" />');
 
 $t_login->assign('name', $login->getName());
 
@@ -491,6 +491,7 @@ $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
+$t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';

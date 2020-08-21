@@ -1,39 +1,23 @@
 div.groupBlock {
     float: left;
-    border: 1px solid black;
-    width: 220px;
-    min-height: 110px;
-    margin: 8px;
-    padding: 0px;
+    border-radius: 4px;
+    width: 15rem;
+    min-height: 5.2rem;
+    margin: 0.4rem 1.0rem 0.4rem 0.0rem;
+    padding: 0.6rem;
     cursor: pointer;
-    background-color: white;
+    border-radius: 4px;
+    box-shadow: 1px 1px 3px #acaeaf;
+    transition: background-color 0.3s ease;
+    transition: box-shadow 0.3s ease;
+    background-color: #fff;
 }
-
-div.groupBlock:hover {
-    background-color: #fffdc2;
-}
-
-div.groupBlock div {
-    padding: 4px;
-}
+div.groupBlock:hover{box-shadow: 2px 2px 4px #838687;}
+div.groupBlock div { padding-top: 0.2rem; font-size: 0.8rem; background-color: #fff; }
 
 div.groupBlock h2 {
-    font-size: 14px;
-    margin: 0px;
-    padding: 2px;
-    font-weight: normal;
-    background-color: black;
-    color: white;
     cursor: pointer;
-}
-
-div.groupBlock h2:first-letter {
-    font-size: 150%;
-    font-weight: bold;
-}
-
-div#groupList div div span:hover {
-    background-color: #87dfff;
-    font-weight: bold;
-    cursor: pointer;
+    font-size: 1.0rem;
+    margin: 0.1rem 0.0rem;
+    color: #565c65;
 }

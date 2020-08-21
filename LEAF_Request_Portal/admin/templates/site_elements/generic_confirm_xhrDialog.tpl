@@ -1,10 +1,27 @@
-<div id="confirm_xhrDialog" style="background-color: #feffd1; border: 1px solid black; visibility: hidden; display: none">
-<form id="confirm_record" enctype="multipart/form-data" action="javascript:void(0);">
-    <div>
-        <div id="confirm_loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 100px; width: 360px">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>
-        <div id="confirm_xhr" style="font-size: 130%; width: 400px; height: 120px; padding: 16px; overflow: auto"></div>
-        <div style="position: absolute; left: 10px; font-size: 140%"><button class="buttonNorm" id="confirm_button_cancelchange"><img src="../../libs/dynicons/?img=edit-undo.svg&amp;w=32" alt="cancel" /> No</button></div>
-        <div style="text-align: right; padding-right: 6px"><button class="buttonNorm" id="confirm_button_save"><img src="../../libs/dynicons/?img=dialog-apply.svg&amp;w=32" alt="save" /><span id="confirm_saveBtnText"> Yes</span></button></div><br />
-    </div>
-</form>
+<div id="confirm_xhrDialog" class="leaf-dialog-container" role="dialog">
+    
+    <form id="confirm_record" enctype="multipart/form-data" action="javascript:void(0);">
+        
+        <div role="document">
+            
+             <div id="confirm_loadIndicator" class="leaf-dialog-loader">
+                Loading...<img src="../images/largespinner.gif" alt="loading..." />
+            </div>
+
+            <main id="confirm_xhr" class="leaf-dialog-content" role="main"></main>
+
+            <aside class="leaf-buttonBar" role="complementary">
+                <div class="leaf-float-right">
+                    <button class="usa-button usa-button--outline" id="confirm_button_cancelchange">No</button>
+                </div>
+
+                <div class="leaf-float-left">
+                    <button class="usa-button" id="confirm_button_save"><span id="confirm_saveBtnText">Yes</span></button>
+                </div>
+            </aside>
+        
+        </div>
+
+    </form>
+
 </div>
