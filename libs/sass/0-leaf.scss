@@ -114,6 +114,16 @@ hr {border: 1px solid #dfe1e2;}
     float: left;
     background-color: #fff;
     }
+.leaf-sitemap-flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    }
+.leaf-sitemap-flex-container > div {
+    width: 30%;
+    box-sizing: border-box;
+    }
 
 /* ############### LEAF ADMIN BUTTONS ################# */
 .leaf-admin-button {
