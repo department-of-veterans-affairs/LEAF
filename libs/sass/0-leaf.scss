@@ -116,6 +116,27 @@ hr {border: 1px solid #dfe1e2;}
 .leaf-card-orange {background-color: #fef2e4;}
 .leaf-card-red {background-color: #f8e1de;}
 .leaf-card-gold {background-color: #f1e5cd;}
+.leaf-sitemap-addCard {
+    width: 19rem;
+    margin: 0.5rem;
+    padding: 0.4rem 1.0rem;
+    box-shadow: 2px 2px 2px #e6e6e6;
+    border: 1px solid #332d27;
+    border-style: dashed;
+    min-height: 6rem;
+    float: left;
+    background-color: #fff;
+    }
+.leaf-sitemap-flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    }
+.leaf-sitemap-flex-container > div {
+    width: 30%;
+    box-sizing: border-box;
+    }
 
 /* ############### LEAF ADMIN BUTTONS ################# */
 .leaf-admin-button {
