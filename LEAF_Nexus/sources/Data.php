@@ -379,7 +379,9 @@ abstract class Data
         // Check for file uploads
         if (is_array($_FILES))
         {
+            require_once __DIR__ . "/../../libs/php-commons/aws/AWSUtil.php";
             $commonConfig = new \CommonConfig();
+            $awsUtil = new \AWSUtil();
             $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)
@@ -400,13 +402,15 @@ abstract class Data
                     $fileExtension = strtolower($fileExtension);
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
+                        $uploadDir = isset($config->uploadDir) ? $config->uploadDir : '';
                         $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
-                        // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
-                        if (!is_dir($config->$uploadDir))
-                        {
-                            mkdir($config->$uploadDir, 755, true);
+
+                        if (!empty($uploadDir)) {
+                            $awsUtil->s3putObject($uploadDir . $sanitizedFileName, $_FILES[$indicator]['tmp_name']);
+                        } else {
+                            throw new Exception($this->dataTableDescription . ' upload destination cannot be found.');
                         }
-                        move_uploaded_file($_FILES[$indicator]['tmp_name'], $config->$uploadDir . $sanitizedFileName);
+                        
                     }
                     else
                     {

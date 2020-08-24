@@ -29,7 +29,7 @@ namespace Orgchart{
             $this->city = $res[0]['city'];
             $this->adminLogonName = $res[0]['adminLogonName'];
             $this->adPath = json_decode($res[0]['active_directory_path']);
-            $this->uploadDir = $res[0]['upload_directory'];
+            $this->uploadDir = ltrim($res[0]['path'], "/") . $res[0]['upload_directory'];
             $this->ocPath = ltrim($res[0]['path'], '/');
 
             $this->dbHost = \Routing_Config::$dbHost;
