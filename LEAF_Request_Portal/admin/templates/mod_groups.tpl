@@ -1,3 +1,4 @@
+
 <div class="leaf-center-content">
 
 
@@ -49,7 +50,7 @@
 
 </div>
 
-<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_xhrDialog.vue"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script type="text/javascript">
