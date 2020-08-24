@@ -15,8 +15,39 @@ else
 $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../db_mysql.php';
+if( empty($_SERVER['REMOTE_ADDR']) and !isset($_SERVER['HTTP_USER_AGENT']) and count($_SERVER['argv']) > 0) 
+{
+    if(count($argv) < 2)
+    {
+        echo "Nexus Path must be passed.";
+        die;
+    }
 
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+    $path = $argv[1];
+    include_once $currDir . '/../../routing/routing_config.php';
+    $routingDB = new DB(Routing_Config::$dbHost, Routing_Config::$dbUser, Routing_Config::$dbPass, Routing_Config::$dbName);
+    $res = $routingDB->prepared_query('SELECT database_name FROM orgchart_configs WHERE path="'.$path.'"', array());
+    
+    if(count($res) == 0)
+    {
+        echo "Nexus Path does not exist.";
+        die;
+    }
+    
+    $dbHost = Routing_Config::$dbHost;
+    $dbUser = Routing_Config::$dbUser;
+    $dbPass = Routing_Config::$dbPass;
+    $dbName = $res[0]['database_name'];
+}
+else
+{
+    $dbHost = $config->dbHost;
+    $dbUser = $config->dbUser;
+    $dbPass = $config->dbPass;
+    $dbName = $config->dbName;
+}
+
+$db = new DB($dbHost, $dbUser, $dbPass, $dbName);
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
 if (!isset($res[0]) || !is_numeric($res[0]['data']))
