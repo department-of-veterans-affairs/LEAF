@@ -94,8 +94,8 @@ hr {border: 1px solid #dfe1e2;}
 
 /* ############### LEAF SITEMAP STYLES ################# */
 .leaf-sitemap-card {
-    width: 19rem;
-    max-width: 19rem;
+    min-width: 16rem;
+    max-width: 21rem;
     margin: 0.5rem;
     padding: 0.6rem;
     box-shadow: 2px 2px 3px #adadad;
@@ -129,11 +129,11 @@ hr {border: 1px solid #dfe1e2;}
 .leaf-sitemap-flex-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: left;
+    justify-content: center;
     align-items: flex-start;
     }
 .leaf-sitemap-flex-container > div {
-    width: 30%;
+    width: 33%;
     box-sizing: border-box;
     }
 
