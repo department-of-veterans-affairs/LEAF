@@ -118,5 +118,13 @@ class AWSUtil
             return $e;
         } 
     }
+
+    function s3registerStreamWrapper() {
+        $this->s3Client->registerStreamWrapper();
+    }
+
+    function s3getBucketName() {
+        return $this->s3BucketName;
+    }
 }
 ?>
