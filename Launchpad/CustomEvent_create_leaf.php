@@ -182,10 +182,10 @@ class CustomEvent_create_leaf
 
         if(strtoupper(substr(php_uname('s'), 0, 3)) == 'WIN'){
             $shell = new COM('WScript.Shell');
-            $shell->Run("php " . __DIR__ . "/../updateDatabase.php", 0, false);
+            $shell->Run("php " . __DIR__ . "/../updateDatabase.php " . $path, 0, false);
         }
         else {
-            exec("php " . __DIR__ . "/../updateDatabase.php > /dev/null &");
+            exec("php " . __DIR__ . "/../updateDatabase.php " . $path . " > /dev/null &");
         }
     }
 }
