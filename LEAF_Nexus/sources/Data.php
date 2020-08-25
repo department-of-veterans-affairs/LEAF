@@ -666,9 +666,15 @@ abstract class Data
                 }
             }
             $this->modify($UID);
-            if (file_exists($uploadDir . $file))
+
+            $awsUtil = new \AWSUtil();
+            $awsUtil->s3registerStreamWrapper();
+
+            $s3objectKey = "s3://" . $awsUtil->s3getBucketName() . "/" . $filename;
+
+            if (file_exists($s3objectKey))
             {
-                unlink($uploadDir . $file);
+                unlink($s3objectKey);
             }
 
             return 1;
