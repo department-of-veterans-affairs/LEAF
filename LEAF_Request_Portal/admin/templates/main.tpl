@@ -48,7 +48,7 @@
     <section class="usa-banner bg-orange-topbanner" aria-label="Official government website">
         <header class="usa-banner__header">
             <div class="grid-col-fill tablet:grid-col-auto">
-                <p class="usa-banner__header-text text-white">
+                <p class="usa-banner__header-text text-white top-orange-bar-text">
                     {if $leafSecure == 0}
                         &nbsp;Do not enter PHI/PII
                     {/if}

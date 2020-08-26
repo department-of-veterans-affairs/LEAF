@@ -90,6 +90,11 @@
 <script>
 $(document).ready(function() {
 
+// check if top orange banner is empty or not
+var topOrange = $('.top-orange-bar-text').text();
+if (topOrange == '') {
+    $('.bg-orange-topbanner').hide();
+}
 
 // Remove no-js class
 $('html').removeClass('no-js');
