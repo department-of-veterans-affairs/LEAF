@@ -23,7 +23,7 @@ if( empty($_SERVER['REMOTE_ADDR']) and !isset($_SERVER['HTTP_USER_AGENT']) and c
         die;
     }
 
-    $path = $argv[1];
+    $path = '/' . rtrim(ltrim($argv[1], '/'), '/') . '/';//ensure leading and trailing slashes are in place 
     include_once $currDir . '/../../routing/routing_config.php';
     $routingDB = new DB(Routing_Config::$dbHost, Routing_Config::$dbUser, Routing_Config::$dbPass, Routing_Config::$dbName);
     $res = $routingDB->prepared_query('SELECT database_name FROM orgchart_configs WHERE path="'.$path.'"', array());
