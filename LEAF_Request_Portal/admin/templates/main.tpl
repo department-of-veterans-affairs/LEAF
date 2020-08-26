@@ -49,7 +49,7 @@
     <section class="usa-banner bg-orange-topbanner" aria-label="Official government website">
         <header class="usa-banner__header">
             <div class="grid-col-fill tablet:grid-col-auto">
-                <p class="usa-banner__header-text text-white top-orange-bar-text">
+                <p class="usa-banner__header-text text-white">
                     &nbsp;Do not enter PHI/PII
                 </p>
             </div>
