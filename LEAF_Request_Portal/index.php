@@ -452,6 +452,18 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         break;
+
+    case 'sitemap':
+        $form = new Form($db, $login);
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $t_form->assign('sitemap', json_decode($settings['sitemap_json']));
+        $main->assign('body', $t_form->fetch('sitemap.tpl'));
+
+        break;
+
     case 'reports':
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $powerQueryURL = "{$protocol}://" . AUTH_URL . "/report_auth.php?r=";

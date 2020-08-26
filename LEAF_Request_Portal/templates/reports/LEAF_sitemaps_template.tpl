@@ -62,7 +62,7 @@
 	// insert button into sortable list and sidenav
     function addButtonToUI(button){
         $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_'+button.id+'"><a onClick="editButtonDialog(\''+button.id+'\');" title="Edit Card">'+button.title+'</a></li>');
-        $('div#sortable').append('<div class="leaf-sitemap-button '+button.color+'" draggable="true" id="div_buttonID_'+button.id+'"><i class="fas fa-trash-alt leaf-delete-button" title="Delete Card" onClick="deleteButtonFromUI(\'' + button.id + '\')"></i><h3>'+button.title+'</h3><p>'+button.description+'</p></div>');
+        $('div#sortable').append('<div class="leaf-sitemap-card '+button.color+'" draggable="true" id="div_buttonID_'+button.id+'"><i class="fas fa-trash-alt leaf-delete-card" title="Delete Card" onClick="deleteButtonFromUI(\'' + button.id + '\')"></i><h3>'+button.title+'</h3><p>'+button.description+'</p></div>');
     }
 
     //remove button from sortable list and sidenav
@@ -104,18 +104,18 @@
         var dialog = createNewButtonDialog();
         dialog.setTitle('Add New Card');
         dialog.setContent('<div>' +
-            '<div class="leaf-marginAll1rem"><div role="heading">Card Title</div><input id="button-title" size="48"></input></div>' +
-            '<div class="leaf-marginAll1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" size="48"></input></div>' +
-            '<div class="leaf-marginAll1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input id="button-target" size="48"></input></div>' +
-            '<div class="leaf-marginAll1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" size="48" maxlength="36"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="60"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input id="button-target" size="48" maxlength="40"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
                 '<div class="leaf-float-left" style="margin-right: 3rem;">' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-button-blue" checked><label for="blue">Blue</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-green"></span><input type="radio" id="green" name="btnColor" value="leaf-button-green"><label for="green">Green</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-yellow"></span><input type="radio" id="yellow" name="btnColor" value="leaf-button-yellow"><label for="yellow">Yellow</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-white"></span><input type="radio" id="white" name="btnColor" value="leaf-card-white" checked><label for="white">White</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-card-blue" checked><label for="blue">Blue</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-green"></span><input type="radio" id="green" name="btnColor" value="leaf-card-green"><label for="green">Green</label></div>' +
                 '</div><div class="leaf-float-left">' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-orange"></span><input type="radio" id="orange" name="btnColor" value="leaf-button-orange"><label for="orange">Orange</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-red"></span><input type="radio" id="red" name="btnColor" value="leaf-button-red"><label for="red">Red</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-gold"></span><input type="radio" id="gold" name="btnColor" value="leaf-button-gold"><label for="gold">Gold</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-orange"></span><input type="radio" id="orange" name="btnColor" value="leaf-card-orange"><label for="orange">Orange</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-yellow"></span><input type="radio" id="yellow" name="btnColor" value="leaf-card-yellow"><label for="yellow">Yellow</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-grey"></span><input type="radio" id="grey" name="btnColor" value="leaf-card-grey"><label for="grey">Grey</label></div>' +
                 '</div>' +
         '</div></div>');
 
@@ -162,18 +162,18 @@
     
         dialog.setTitle('Edit Card');
         dialog.setContent('<div>' +
-        '<div class="leaf-marginAll1rem"><div role="heading">Card Title</div><input id="button-title" value="'+title+'"size="48"></input></div>' +
-        '<div class="leaf-marginAll1rem"><div role="heading">Card Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48"></input></div>' +
-        '<div class="leaf-marginAll1rem"><div role="heading">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48" ></input></div>' +
-        '<div class="leaf-marginAll1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
+        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" value="'+title+'"size="48" maxlength="36"></input></div>' +
+        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48" maxlength="60"></input></div>' +
+        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48" maxlength="40"></input></div>' +
+        '<div class="leaf-marginAll-1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
                 '<div class="leaf-float-left" style="margin-right: 3rem;">' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-button-blue" ' + (color == 'leaf-button-blue' ? 'checked' : '') + '><label for="blue">Blue</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-green"></span><input type="radio" id="green" name="btnColor" value="leaf-button-green" ' + (color == 'leaf-button-green' ? 'checked' : '') + '><label for="green">Green</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-yellow"></span><input type="radio" id="yellow" name="btnColor" value="leaf-button-yellow" ' + (color == 'leaf-button-yellow' ? 'checked' : '') + '><label for="yellow">Yellow</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-white"></span><input type="radio" id="white" name="btnColor" value="leaf-card-white" checked><label for="white">White</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-card-blue" checked><label for="blue">Blue</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-green"></span><input type="radio" id="green" name="btnColor" value="leaf-card-green"><label for="green">Green</label></div>' +
                 '</div><div class="leaf-float-left">' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-orange"></span><input type="radio" id="orange" name="btnColor" value="leaf-button-orange" ' + (color == 'leaf-button-orange' ? 'checked' : '') + '><label for="orange">Orange</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-red"></span><input type="radio" id="red" name="btnColor" value="leaf-button-red" ' + (color == 'leaf-button-red' ? 'checked' : '') + '><label for="red">Red</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-button-gold"></span><input type="radio" id="gold" name="btnColor" value="leaf-button-gold" ' + (color == 'leaf-button-gold' ? 'checked' : '') + '><label for="gold">Gold</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-orange"></span><input type="radio" id="orange" name="btnColor" value="leaf-card-orange"><label for="orange">Orange</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-yellow"></span><input type="radio" id="yellow" name="btnColor" value="leaf-card-yellow"><label for="yellow">Yellow</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-grey"></span><input type="radio" id="grey" name="btnColor" value="leaf-card-grey"><label for="grey">Grey</label></div>' +
                 '</div>' +
         '</div></div>');
 
@@ -235,21 +235,21 @@
                     <ul class="usa-sidenav">
                     </ul>
                     <!--<div class="leaf-sidenav-bottomBtns">
-                        <button class="usa-button usa-button--outline leaf-btn-small">Move Up</button>
-                        <button class="usa-button usa-button--outline leaf-btn-small leaf-float-right">Move Down</button>
+                        <button class="usa-button usa-button--outline">Move Up</button>
+                        <button class="usa-button usa-button--outline leaf-float-right">Move Down</button>
                     </div>-->
                 </nav>
             </div>
 
             <div class="grid-col-9">
 
-                <h1>Phoenix VA Sitemap&nbsp; <button class="usa-button leaf-btn-small" onclick="createGroup();"><i class="fas fa-plus" title="Delete Card"></i> Add Card</button></h1>
+                <h1>Phoenix VA Sitemap&nbsp; <button class="usa-button leaf-btn-med" onclick="createGroup();"><i class="fas fa-plus" title="Delete Card"></i> Add Card</button></h1>
                 <div id="sortable">
                 </div>
-                <div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%" id="spinner">
+                <div style="border: 2px solid black; text-align: center; font-size: 16px; font-weight: bold; background: white; padding: 16px; width: 95%" id="spinner">
                     Loading... <img src="./images/largespinner.gif" alt="loading..." />
                 </div>
-                <div class="leaf-marginAll1rem leaf-clearBoth">
+                <div class="leaf-marginAll-1rem leaf-clearBoth">
                     <button class="usa-button leaf-float-left" id="saveButton" onclick="save()">Save Sitemap</button>
                     <button class="usa-button usa-button--outline leaf-float-right" onclick="clearButtons()">Delete Sitemap</button>
                 </div>
