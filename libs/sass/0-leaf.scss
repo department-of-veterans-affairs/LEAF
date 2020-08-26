@@ -90,37 +90,49 @@ hr {border: 1px solid #dfe1e2;}
 .leaf-grey-box {padding: 1rem; background-color: #e6e6e6;}
 .leaf-sidenav-bottomBtns {margin: 0.5rem;}
 .leaf-title-inst {font-family: 'PublicSans-Regular'; font-size: 0.8rem; margin-left: 0.7rem; display: inline-block;}
+
+/* ############### LEAF SITEMAP STYLES ################# */
 .leaf-sitemap-card {
-    width: 19rem;
+    min-width: 16rem;
+    max-width: 21rem;
     margin: 0.5rem;
-    padding: 0.4rem 1.0rem;
-    box-shadow: 2px 2px 2px #e6e6e6;
-    border: 1px solid #332d27;
-    min-height: 9rem;
+    padding: 0.6rem;
+    box-shadow: 2px 2px 3px #adadad;
+    border: 1px solid #ccc;
+    height: 6.2rem;
     float: left;
     background-color: #fff;
     cursor: move;
+    border-radius: 5px;
+    transition: box-shadow 0.4s ease;
     }
+    .leaf-sitemap-card:hover, .leaf-sitemap-card:focus {box-shadow: 4px 4px 6px #949191;}
     .active {background-color: #faf3d1;}
-.leaf-sitemap-addCard {
-    width: 19rem;
-    margin: 0.5rem;
-    padding: 0.4rem 1.0rem;
-    box-shadow: 2px 2px 2px #e6e6e6;
-    border: 1px solid #332d27;
-    border-style: dashed;
-    min-height: 6rem;
-    float: left;
-    background-color: #fff;
-    }
+    .leaf-sitemap-card h3 {margin: 0.0rem 0 0.5rem 0; font-size: 1.0rem; word-break: break-all;}
+    .leaf-sitemap-card h3 a:hover {text-decoration: none; color: #004b76;}
+    .leaf-sitemap-card p {margin: 0.2rem 0; font-size: 0.8rem; line-height: 1.0rem; font-family: 'PublicSans-Regular';}
+.leaf-delete-card {color: #71767a; font-size: 1.0rem; vertical-align: middle; float: right; margin: 0.0rem; cursor: pointer;}
+
+.leaf-color-choice {margin: 0.4rem 0;}
+    .leaf-color-demo {display: inline-block; width: 24px; height: 24px; border: 1px solid #aaa; margin: 0.0rem 0.6rem 0.3rem 0; vertical-align: bottom;}
+    .leaf-color-choice input {display: inline-block; vertical-align: top; margin: 0.5rem 0.4rem 0.3rem 0;}
+    .leaf-color-choice label {display: inline-block; vertical-align: top; margin: 0.5rem 0.4rem 0.3rem 0;}
+
+.leaf-card-white {background-color: #fff;}
+.leaf-card-blue {background-color: #e0f4fa;}
+.leaf-card-green {background-color: #eaf4dd;}
+.leaf-card-orange {background-color: #fef2e4;}
+.leaf-card-yellow {background-color: #faf3d1;}
+.leaf-card-grey {background-color: #dcdee0;}
+
 .leaf-sitemap-flex-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     }
 .leaf-sitemap-flex-container > div {
-    width: 30%;
+    width: 33%;
     box-sizing: border-box;
     }
 
