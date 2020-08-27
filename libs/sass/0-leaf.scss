@@ -34,7 +34,6 @@ p {margin: 0.7rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
 label {font-family: 'PublicSans-Bold'; font-size: 0.9rem;}
 hr {border: 1px solid #dfe1e2;}
 
-
 /* ############### GLOBAL CONTAINER STYLES ################# */
 .sidenav {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
 .sidenav-right {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
@@ -254,6 +253,7 @@ ul.leaf-progress-bar {
     .usa-logo {margin: 0; height: 4.6rem; float: left;}
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
+    .bg-orange-topbanner {background-color: #f56600;}
     .sidenav {display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
         .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
@@ -279,16 +279,15 @@ ul.leaf-progress-bar {
         min-height: 27rem;
         overflow: visible;
     }
-        .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative; overflow-x: auto; overflow-y: auto;}
+    .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative; overflow-x: auto; overflow-y: auto;}
 
     /* ############### UI DIALOG OVERRIDES ################# */
     .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
-    .ui-dialog {border-radius: 6px; padding-bottom: 0.8rem; min-height: 350px; min-width: 500px; overflow: hidden;}
-    .ui-dialog-content {overflow-x: visible!important; overflow-y: visible!important; min-height: 350px; min-width: 480px; }
+    .ui-dialog {border-radius: 6px; padding-bottom: 1.0rem; min-height: 320px; min-width: 540px; overflow-y: auto; overflow-x: hidden;}
+    .ui-dialog-content {overflow-x: visible!important; overflow-y: visible!important; min-height: 280px; min-width: 510px; }
     .ui-widget-header {border: 0; background-color: none; background: none;}
-    .leaf-dialog-container {width: 540px; height: 420px; padding: 8px; overflow: visible; font-size: 12px; visibility: hidden; display: none; }
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
-    .leaf-dialog-content { min-height: 300px;padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
+    .leaf-dialog-content { min-height: 300px; padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
     
     /* ############### LEAF HEADER ################# */
     .site-header {background-color: #252f3e; height: 4.6rem; box-shadow: 0px 4px 6px #a9aeb1;}
