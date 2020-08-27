@@ -1,8 +1,6 @@
 div.groupBlock {
     border-radius: 4px;
-    flex-shrink: 0;
-    flex-grow: 4;
-    flex-basis: 16rem;
+    flex: 0 1 30%;
     max-width: 18rem;
     min-width: 14rem;
     min-height: 5.2rem;

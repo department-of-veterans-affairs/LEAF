@@ -12,6 +12,7 @@
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
     
     <main class="main-content">
+
         <h2>Service Chiefs</h2>
 
         <div>
@@ -243,7 +244,7 @@ function getGroupList() {
 		var quadrads = res1[0];
 		var services = res2[0];
 	    for(var i in quadrads) {
-	    	$('#groupList').append('<h2>'+ quadrads[i].name +'</h2><hr /><div id="group_'+ quadrads[i].groupID +'"></div><br style="clear: both" />');
+	    	$('#groupList').append('<h2>'+ quadrads[i].name +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
 	    }
 	    for(var i in services) {
 	    	$('#group_' + services[i].groupID).append('<div id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlock">'
