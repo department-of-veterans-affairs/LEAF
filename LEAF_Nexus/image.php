@@ -6,6 +6,7 @@
 include __DIR__ . '/globals.php';
 include __DIR__ . '/db_mysql.php';
 include __DIR__ . '/./sources/Login.php';
+include __DIR__ . "/../libs/php-commons/aws/AWSUtil.php";
 
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
@@ -49,9 +50,14 @@ $fileExtension = strtolower($fileExtension);
 
 $imageExtensionWhitelist = array('png', 'jpg', 'jpeg', 'gif');
 
-if (in_array($fileExtension, $imageExtensionWhitelist) && file_exists($filename))
+$awsUtil = new \AWSUtil();
+$awsUtil->s3registerStreamWrapper();
+
+$s3objectKey = "s3://" . $awsUtil->s3getBucketName() . "/" . $filename;
+
+if (in_array($fileExtension, $imageExtensionWhitelist) && file_exists($s3objectKey))
 {
-    $time = filemtime($filename);
+    $time = filemtime($s3objectKey);
 
     if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] == date(DATE_RFC822, $time))
     {
@@ -64,7 +70,7 @@ if (in_array($fileExtension, $imageExtensionWhitelist) && file_exists($filename)
         header('Content-Type: image/' . $fileExtension);
 
         // shrink images if they're too big
-        if (filesize($filename) > 131072)
+        if (filesize($s3objectKey) > 131072)
         {
             if (file_exists($config->uploadDir . 'img_' . $origFile)
                 && filemtime($config->uploadDir . 'img_' . $origFile) > time() - 604800)
@@ -73,7 +79,7 @@ if (in_array($fileExtension, $imageExtensionWhitelist) && file_exists($filename)
             }
             else
             {
-                list($width, $height) = getimagesize($filename);
+                list($width, $height) = getimagesize($s3objectKey);
                 $newWidth = 0;
                 $newHeight = 0;
                 if ($width > 500)
@@ -85,15 +91,15 @@ if (in_array($fileExtension, $imageExtensionWhitelist) && file_exists($filename)
                     switch ($fileExtension) {
                         case 'jpg':
                         case 'jpeg':
-                            $src = imagecreatefromjpeg($filename);
+                            $src = imagecreatefromjpeg($s3objectKey);
 
                             break;
                         case 'png':
-                            $src = imagecreatefrompng($filename);
+                            $src = imagecreatefrompng($s3objectKey);
 
                             break;
                         case 'gif':
-                            $src = imagecreatefromgif($filename);
+                            $src = imagecreatefromgif($s3objectKey);
 
                             break;
                         default:
@@ -107,14 +113,14 @@ if (in_array($fileExtension, $imageExtensionWhitelist) && file_exists($filename)
                     }
                     else
                     {
-                        readfile($filename);
+                        readfile($s3objectKey);
                     }
                 }
             }
         }
         else
         {
-            readfile($filename);
+            readfile($s3objectKey);
         }
     }
 }

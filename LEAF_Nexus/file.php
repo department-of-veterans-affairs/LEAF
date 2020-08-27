@@ -6,6 +6,7 @@
 include __DIR__ . '/globals.php';
 include __DIR__ . '/db_mysql.php';
 include __DIR__ . '/./sources/Login.php';
+include __DIR__ . "/../libs/php-commons/aws/AWSUtil.php";
 
 if (!class_exists('XSSHelpers'))
 {
@@ -48,6 +49,11 @@ $inputFilename = html_entity_decode($type->sanitizeInput($_GET['file']));
 
 $filename = $config->uploadDir . $type->getFileHash($_GET['categoryID'], $_GET['UID'], $_GET['indicatorID'], $inputFilename);
 
+$awsUtil = new \AWSUtil();
+$awsUtil->s3registerStreamWrapper();
+
+$s3objectKey = "s3://" . $awsUtil->s3getBucketName() . "/" . $filename;
+
 if (is_array($value)
     && array_search($inputFilename, $value) === false)
 {
@@ -61,15 +67,15 @@ if (is_array($value)
      exit();
  }
 
-if (file_exists($filename))
+if (file_exists($s3objectKey))
 {
     $inputFilename = XSSHelpers::scrubNewLinesFromURL($inputFilename);
     header('Content-Disposition: attachment; filename="' . addslashes(html_entity_decode($inputFilename)) . '"');
-    header('Content-Length: ' . filesize($filename));
+    header('Content-Length: ' . filesize($s3objectKey));
     header('Cache-Control: maxage=1'); //In seconds
     header('Pragma: public');
 
-    readfile($filename);
+    readfile($s3objectKey);
     exit();
 }
 
