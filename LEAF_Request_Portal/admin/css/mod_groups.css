@@ -1,23 +1,40 @@
 div.groupBlock {
-    float: left;
     border-radius: 4px;
-    width: 15rem;
+    flex-shrink: 0;
+    flex-grow: 4;
+    flex-basis: 16rem;
+    max-width: 18rem;
+    min-width: 14rem;
     min-height: 5.2rem;
     margin: 0.4rem 1.0rem 0.4rem 0.0rem;
-    padding: 0.6rem;
+    padding: 1.0rem;
     cursor: pointer;
-    border-radius: 4px;
-    box-shadow: 1px 1px 3px #acaeaf;
+    border-radius: 5px;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
     transition: background-color 0.3s ease;
     transition: box-shadow 0.3s ease;
-    background-color: #fff;
+    background-color: #0c60a0;
 }
-div.groupBlock:hover{box-shadow: 2px 2px 4px #838687;}
-div.groupBlock div { padding-top: 0.2rem; font-size: 0.8rem; background-color: #fff; }
+
+div.groupBlock:hover{box-shadow: 2px 2px 4px #838687; background-color: none;}
+div.groupBlock:focus, div.groupBlock:active {outline: none; border: 0;}
+div.groupBlock div { padding-top: 0.4rem; font-size: 0.8rem; color: #fff; }
 
 div.groupBlock h2 {
     cursor: pointer;
-    font-size: 1.0rem;
+    font-size: 1.1rem;
     margin: 0.1rem 0.0rem;
-    color: #565c65;
+    color: #fff;
+    font-family: 'PublicSans-Medium';
 }
+
+div.groupBlock h3 {
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin: 0.1rem 0.0rem;
+    color: #fff;
+    font-weight: normal;
+    font-family: 'PublicSans-Medium';
+
+}
+.leaf-sysadmin-cards {display:inline-block; width: 19rem;}
