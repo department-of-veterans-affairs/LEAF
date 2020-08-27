@@ -33,6 +33,12 @@ h3 {margin: 0.0rem 0.0rem 0.4rem 0.0rem;}
 p {margin: 0.7rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
 label {font-family: 'PublicSans-Bold'; font-size: 0.9rem;}
 hr {border: 1px solid #dfe1e2;}
+a:focus, a:active {border: 0!important; outline: none!important;}
+button:focus, button:active {border: 0!important; outline: none!important;}
+
+/* ############### USWDS OVERRIDES ################# */
+.usa-sidenav {font-family: 'PublicSans-Regular'; font-size: 0.9rem;}
+.usa-current a {color: #005ea2!important;}
 
 /* ############### GLOBAL CONTAINER STYLES ################# */
 .sidenav {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
@@ -49,6 +55,7 @@ hr {border: 1px solid #dfe1e2;}
 .leaf-float-left {float: left;}
 .leaf-display-block {display: block;}
 .leaf-display-inlineblock {display: inline-block;}
+.leaf-displayFlexRow {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: left; align-items: stretch;}
 .leaf-text-left {text-align: left;}
 .leaf-textCentered {text-align: center;}
 .leaf-clearBoth {clear: both;}
@@ -77,12 +84,14 @@ hr {border: 1px solid #dfe1e2;}
 .leaf-btn-icon {margin-right: 0.5rem;}
 .leaf-btn-small {padding: 0.5rem; font-size: 0.4rem;}
 .leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
-.leaf-side-btn {width: 13.0rem; display: block; margin-bottom: 0.7rem;}
+.leaf-side-btn {width: 14.5rem; display: block; margin: 1.0rem 0.0rem;}
 .leaf-btn-green {background-color: #00a91c;}
 .leaf-btn-green:hover {background-color: #008817;}
 
 /* ############### SPECIAL CLASSES ################# */
 .leaf-row-space {height: 1rem; margin: 0.2rem 0; clear: both;}
+.leaf-crumb-link {font-weight: normal; color: #005EA2; font-family: 'PublicSans-Medium'!important;}
+.leaf-crumb-caret {font-size: 1.1rem; margin: 0 0.4rem 0 0.5rem; color: #0c60a0;}
 .leaf-text-smaller {font-size: 0.9rem;}
 .leaf-buttonBar {text-align: center; margin: 1.0rem 0;}
 .leaf-content-show {display: block;}
@@ -252,11 +261,13 @@ ul.leaf-progress-bar {
     .usa-logo {margin: 0; height: 4.6rem; float: left;}
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
+    .sidenav {display: block; float: left; margin: 1.5rem 1.0rem 0 0.2rem; padding: 0.5rem 1.0rem 0.2rem 1.0rem; width: 16.5rem;}
+        h3.navhead {font-family: 'PublicSans-Medium'; font-weight: normal; margin-bottom: 1.0rem; margin-top: 0.4rem;}
     .bg-orange-topbanner {background-color: #f56600;}
     .sidenav {display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
         .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
-    .sidenav-right {display: block; float: right; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
+    .sidenav-right {display: block; float: right; margin: 1.5rem 0.2rem 0 1.0rem; padding: 0.5rem 1.0rem 0.2rem 1.0rem; width: 16.5rem;}
         .sidenav-right:hidden {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .usa-banner {font-family: 'PublicSans-Regular';}
@@ -268,16 +279,27 @@ ul.leaf-progress-bar {
     .usa-table {font-size: 0.9rem;}
     .usa-label {line-height: 1.2rem;}
     .usa-select {font-size: 0.9rem; padding: 0.0rem 0.4rem;}
+    .usa-sidenav {margin-bottom: 0.6rem; border-bottom: 0;}
     .usa-ro-text {margin: 0.5rem 0; font-size: 0.9rem;}
     .main-content {
         display: inline-block;
         position: relative;
-        width: calc(100% - 32rem);
+        width: calc(100% - 38rem);
         white-space: normal;
-        margin: 0.6rem 0.9rem;
+        margin: 0.6rem 2.9rem;
         min-height: 27rem;
         overflow: visible;
     }
+    .main-content-noRight {
+        display: inline-block;
+        position: relative;
+        width: 70%;
+        white-space: normal;
+        margin: 0.6rem 2.9rem;
+        min-height: 27rem;
+        overflow: visible;
+    }
+    .main-content h2 {font-weight: normal; font-family: 'PublicSans-Bold'; margin-bottom: 1.5rem;}
     .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative; overflow-x: auto; overflow-y: auto;}
 
     /* ############### UI DIALOG OVERRIDES ################# */
@@ -291,12 +313,12 @@ ul.leaf-progress-bar {
     /* ############### LEAF HEADER ################# */
     .site-header {background-color: #252f3e; height: 4.6rem; box-shadow: 0px 4px 6px #a9aeb1;}
     .leaf-logo {float: left;}
-        .leaf-logo img {width: 56px; margin: 0.6rem 0.5rem 0 0.6rem;}
-    .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; font-family: 'PublicSans-Bold'; }
-    .leaf-header-description {font-family: 'PublicSans-Thin'; font-size: 1.1rem; display: block; font-family: 'PublicSans-Regular'; white-space: nowrap; max-width: 21rem; }
+        .leaf-logo img {width: 56px; margin: 0.6rem 1.0rem 0 0.6rem;}
+    .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; margin-bottom: 0.2rem;font-family: 'PublicSans-Bold'; font-size: 1.2rem; }
+    .leaf-header-description {font-family: 'PublicSans-Regular'; font-size: 1.0rem; display: block; white-space: nowrap; max-width: 21rem; font-weight: normal; }.leaf-header-right {float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
     .leaf-header-right {float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
     .lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'PublicSans-Medium';}
-    #nav {margin: 2.3rem 3.4rem 0 0;}
+    #nav {margin: 2.3rem 1.0rem 0 0;}
 
     /* ############### widths by rems ################# */
     .leaf-width-1rem {width: 1rem;}
