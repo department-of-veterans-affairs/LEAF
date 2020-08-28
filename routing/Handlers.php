@@ -166,4 +166,18 @@ namespace Handlers{
             require __DIR__ . '/../LEAF_Nexus/index.php';
         }
     }
+
+    class Test {
+        public $config;
+        public $db_config;
+        public function __construct($config, $db_config)
+        {
+            $this->config = $config;
+            $this->db_config = $db_config;
+        }
+        function default($otherFile){
+            global $config, $db_config;
+            require __DIR__ . '/../test/LEAF_test_endpoints/' . $otherFile;
+        }
+    }
 }

@@ -36,7 +36,7 @@ class LEAFClient
      *
      * @return LEAFClient   a HTTP Client configured for LEAF
      */
-    public static function createNexusClient($baseURI = 'http://localhost/LEAF_Nexus/api/', $authURL = '../auth_domain/') : self
+    public static function createNexusClient($baseURI = 'http://localhost/LEAF_Nexus/api/', $authURL = '../auth_domain/index.php') : self
     {
         $leafClient = new self(self::getBaseClient($baseURI, $authURL));
 
@@ -50,7 +50,7 @@ class LEAFClient
      * @param string    $baseURI    The base URI for the Request Portal API (default: "http://localhost/LEAF_Request_Portal/api/")
      * @return LEAFClient   a HTTP Client configured for LEAF
      */
-    public static function createRequestPortalClient($baseURI = 'http://localhost/LEAF_Request_Portal/api/', $authURL = '../auth_domain/') : self
+    public static function createRequestPortalClient($baseURI = 'http://localhost/LEAF_Request_Portal/api/', $authURL = '../auth_domain/index.php') : self
     {
         $headers['Referer'] = 'http://localhost/LEAF_Request_Portal/admin';
         $leafClient = new self(self::getBaseClient($baseURI, $authURL, $headers));

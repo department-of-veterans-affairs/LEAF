@@ -54,6 +54,11 @@ class LEAFRoutes {
         //default
         $this->addRoute(['GET','POST','DELETE'], '/{otherFile:.+}', 'Nexus/other');
     }
+
+    private function testRoutes(){
+        $this->addRoute(['GET','POST','DELETE'], '/LEAF_test_endpoints/{otherFile:.+}', 'Test/default');
+    }
+
     private function addRoute($httpMethod, $path, $callback){
         $route = new stdClass;
         $route->httpMethod = $httpMethod;

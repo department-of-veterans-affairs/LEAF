@@ -25,7 +25,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
     {
         $db_config = new DB_Config();
         self::$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-        self::$reqClient = LEAFClient::createRequestPortalClient('http://localhost/LEAF_Request_Portal/', 'auth_domain/');
+        self::$reqClient = LEAFClient::createRequestPortalClient('http://localhost/LEAF_Request_Portal/', 'auth_domain/index.php');
     }
 
     protected function setUp()
