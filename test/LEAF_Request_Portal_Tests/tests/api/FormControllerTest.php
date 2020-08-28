@@ -18,7 +18,7 @@ final class FormControllerTest extends DatabaseTest
     public static function setUpBeforeClass()
     {
         self::$reqClient = LEAFClient::createRequestPortalClient();
-        self::$testEndpointClient = LEAFClient::createRequestPortalClient('http://localhost/test/LEAF_test_endpoints/request_portal/', '../../../LEAF_Request_Portal/auth_domain/index.php');
+        self::$testEndpointClient = LEAFClient::createRequestPortalClient('http://localhost/test/LEAF_test_endpoints/request_portal/', '../../auth_domain/index.php');
     }
 
     protected function setUp()

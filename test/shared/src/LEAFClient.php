@@ -47,12 +47,12 @@ class LEAFClient
      * Get a HTTP Client configured for LEAF and authenticated to make
      * API calls against the Request Portal.
      *
-     * @param string    $baseURI    The base URI for the Request Portal API (default: "http://localhost/LEAF_Request_Portal/api/")
+     * @param string    $baseURI    The base URI for the Request Portal API (default: "http://localhost/test/api/")
      * @return LEAFClient   a HTTP Client configured for LEAF
      */
-    public static function createRequestPortalClient($baseURI = 'http://localhost/LEAF_Request_Portal/api/', $authURL = '../auth_domain/index.php') : self
+    public static function createRequestPortalClient($baseURI = 'http://localhost/test/api/', $authURL = '../auth_domain/index.php') : self
     {
-        $headers['Referer'] = 'http://localhost/LEAF_Request_Portal/admin';
+        $headers['Referer'] = 'http://localhost/test/admin';
         $leafClient = new self(self::getBaseClient($baseURI, $authURL, $headers));
 
         return $leafClient;
@@ -134,8 +134,6 @@ class LEAFClient
         // Due to how database access classes/configs are setup, these should be included/required
         // only within this function to prevent the same classes from being included more than once.
         // Requiring/including them within this function keeps their scope to just this function.
-        require_once '../../LEAF_Request_Portal/db_config.php';
-        require_once '../../LEAF_Request_Portal/db_mysql.php';
 
         $config = new \Config();
         $db_phonebook = new \DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
