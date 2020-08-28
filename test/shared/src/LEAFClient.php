@@ -134,9 +134,10 @@ class LEAFClient
         // Due to how database access classes/configs are setup, these should be included/required
         // only within this function to prevent the same classes from being included more than once.
         // Requiring/including them within this function keeps their scope to just this function.
-
-        $config = new \Config();
-        $db_phonebook = new \DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        require_once '../../routing/routing_config.php';
+        require_once '../../LEAF_Request_Portal/db_mysql.php';
+        
+        $db_phonebook = new \DB(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass, 'leaf_users');//TODO create tesing config
         $cookieJar = $this->client->getConfig('cookies');
         $cookie = $cookieJar->getCookieByName('PHPSESSID');
         if (is_null($cookie))
