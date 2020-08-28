@@ -41,8 +41,9 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 .usa-current a {color: #005ea2!important;}
 
 /* ############### GLOBAL CONTAINER STYLES ################# */
-.sidenav {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acadaf;}
-.sidenav-right {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acadaf;}
+.sidenav {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
+.sidenav-right {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
+.leaf-code-container {padding: 8px; display: none; resize: both; overflow: auto; box-shadow: 0 2px 6px #8e8e8e; background-color: white;}
 
 /* ############### GLOBAL ATTRIBUTE CLASSES ################# */
 .leaf-bold {font-family: 'PublicSans-Bold';}
@@ -263,6 +264,8 @@ ul.leaf-progress-bar {
     .usa-navbar {border-bottom: 0; width: 100%;}
     .sidenav {display: block; float: left; margin: 1.5rem 1.0rem 0 0.2rem; padding: 0.5rem 1.0rem 0.2rem 1.0rem; width: 16.5rem;}
         h3.navhead {font-family: 'PublicSans-Medium'; font-weight: normal; margin-bottom: 1.0rem; margin-top: 0.4rem;}
+    .bg-orange-topbanner {background-color: #f56600;}
+    .sidenav {display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
         .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .sidenav-right {display: block; float: right; margin: 1.5rem 0.2rem 0 1.0rem; padding: 0.5rem 1.0rem 0.2rem 1.0rem; width: 16.5rem;}
@@ -302,12 +305,11 @@ ul.leaf-progress-bar {
 
     /* ############### UI DIALOG OVERRIDES ################# */
     .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
-    .ui-dialog {border-radius: 6px; padding-bottom: 0.8rem; min-height: 350px; min-width: 500px; overflow: hidden;}
-    .ui-dialog-content {overflow-x: visible!important; overflow-y: visible!important; min-height: 350px; min-width: 480px; }
+    .ui-dialog {border-radius: 6px; padding-bottom: 1.0rem; min-height: 320px; min-width: 540px; overflow-y: auto; overflow-x: hidden;}
+    .ui-dialog-content {overflow-x: visible!important; overflow-y: visible!important; min-height: 280px; min-width: 510px; }
     .ui-widget-header {border: 0; background-color: none; background: none;}
-    .leaf-dialog-container {width: 540px; height: 420px; padding: 8px; overflow: visible; font-size: 12px; visibility: hidden; display: none; }
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
-    .leaf-dialog-content { min-height: 300px;padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
+    .leaf-dialog-content { min-height: 300px; padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
     
     /* ############### LEAF HEADER ################# */
     .site-header {background-color: #252f3e; height: 4.6rem; box-shadow: 0px 4px 6px #a9aeb1;}
@@ -315,6 +317,7 @@ ul.leaf-progress-bar {
         .leaf-logo img {width: 56px; margin: 0.6rem 1.0rem 0 0.6rem;}
     .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; margin-bottom: 0.2rem;font-family: 'PublicSans-Bold'; font-size: 1.2rem; }
     .leaf-header-description {font-family: 'PublicSans-Regular'; font-size: 1.0rem; display: block; white-space: nowrap; max-width: 21rem; font-weight: normal; }.leaf-header-right {float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
+    .leaf-header-right {float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
     .lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'PublicSans-Medium';}
     #nav {margin: 2.3rem 1.0rem 0 0;}
 

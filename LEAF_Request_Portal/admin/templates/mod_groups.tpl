@@ -29,7 +29,6 @@
     <main class="main-content">
 
         <h2><a href="/LEAF_Request_Portal/admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2>
-        
         <div id="sysAdmins">
             <h3 role="heading" tabindex="-1">System administrators</h3>
             <div class="leaf-displayFlexRow">
@@ -44,7 +43,6 @@
                 <div id="groupList" class="leaf-displayFlexRow"></div>
             </div>
         </div>
-
     </main>
 
 </div>
@@ -177,7 +175,7 @@ function getGroupList() {
             	// only show explicit groups, not ELTs
             	if(res[i].parentGroupID == null
             		&& res[i].groupID != 1) {
-                    $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
+                    $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlockWhite">\
                             <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].name +'</h2>\
                             <div id="members'+ res[i].groupID +'"></div>\
                             </div>');

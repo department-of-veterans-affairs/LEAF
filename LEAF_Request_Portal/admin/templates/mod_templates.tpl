@@ -55,7 +55,7 @@
         <main id="codeArea" class="main-content">
             <h2>Template Editor</h2>
 
-            <div id="codeContainer" class="card" style="padding: 8px; display: none">
+            <div id="codeContainer" class="leaf-code-container">
 
                 <div id="filename"></div>
 
