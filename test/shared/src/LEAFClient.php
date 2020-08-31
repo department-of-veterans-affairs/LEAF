@@ -32,11 +32,11 @@ class LEAFClient
      * Get a HTTP Client configured for LEAF and authenticated to make
      * API calls against the Nexus.
      *
-     * @param string    $baseURI    The base URI for the Nexus API (default: "http://localhost/LEAF_Nexus/api/")
+     * @param string    $baseURI    The base URI for the Nexus API (default: "http://localhost/test/orgchart/api/")
      *
      * @return LEAFClient   a HTTP Client configured for LEAF
      */
-    public static function createNexusClient($baseURI = 'http://localhost/LEAF_Nexus/api/', $authURL = '../auth_domain/index.php') : self
+    public static function createNexusClient($baseURI = 'http://localhost/test/orgchart/api/', $authURL = '../auth_domain/index.php') : self
     {
         $leafClient = new self(self::getBaseClient($baseURI, $authURL));
 
@@ -134,10 +134,10 @@ class LEAFClient
         // Due to how database access classes/configs are setup, these should be included/required
         // only within this function to prevent the same classes from being included more than once.
         // Requiring/including them within this function keeps their scope to just this function.
-        require_once '../../routing/routing_config.php';
-        require_once '../../LEAF_Request_Portal/db_mysql.php';
+        require_once __DIR__ . '/../../../routing/routing_config.php';
+        require_once __DIR__ . '/../../../LEAF_Request_Portal/db_mysql.php';
         
-        $db_phonebook = new \DB(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass, 'leaf_users');//TODO create tesing config
+        $db_phonebook = new \DB(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass, 'nexus_testing');//TODO create tesing config
         $cookieJar = $this->client->getConfig('cookies');
         $cookie = $cookieJar->getCookieByName('PHPSESSID');
         if (is_null($cookie))

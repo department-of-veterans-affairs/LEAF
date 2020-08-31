@@ -85,6 +85,25 @@ class Portal01 extends AbstractMigration
         '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5360-5366.sql',
         '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5366-5367.sql',
         '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5367-5372.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5372-5410.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5410-5412.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5412-5432.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_5432-2019080600.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_202062600-2020071700.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2019080600-2019081600.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2019081600-2019082300.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2019082300-2019120500.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2019120500-2019121300.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2019121300-2020010700.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2020010700-2020011000.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2020011000-2020012400.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2020012400-2020020700.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2020020700-2020021900.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2020021900-2020031600.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2020031600-2020041300.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2020041300-2020062600.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2020071700-2020073000.sql',
+        '../../LEAF_Request_Portal/utils/db_upgrade/Update_RMC_DB_2020073000-2020082400.sql'
       );
 
         foreach ($files as $file)

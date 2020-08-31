@@ -70,7 +70,7 @@ class Config
         $this->uploadDir = ltrim($res[0]['path'], "/") . $res[0]['upload_directory'];
         $this->portalPath = ltrim($res[0]['path'], '/');
         $this->orgchartPath = "../LEAF_Nexus"; // HTTP Path to orgchart with no trailing slash
-        $this->orgchartImportTags = json_decode($res[0]['orgchart_path']);
+        $this->orgchartImportTags = json_decode($res[0]['orgchart_tags']);
         $this->descriptionID = $res[0]['descriptionID'];
         $this->emailPrefix = $res[0]['emailPrefix'];
         $this->emailCC = json_decode($res[0]['emailCC']);    // CCed for every email

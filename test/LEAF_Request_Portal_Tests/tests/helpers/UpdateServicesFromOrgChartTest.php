@@ -23,8 +23,9 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
 
     public static function setUpBeforeClass()
     {
-        global $db_config;
-        self::$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+        require_once __DIR__ . '/../../../../routing/routing_config.php';
+        
+        self::$db = new \DB(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass, 'portal_testing');//TODO create tesing config
         self::$reqClient = LEAFClient::createRequestPortalClient('http://localhost/test/', 'auth_domain/index.php');
     }
 

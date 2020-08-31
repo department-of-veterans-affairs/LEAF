@@ -175,9 +175,13 @@ namespace Handlers{
             $this->config = $config;
             $this->db_config = $db_config;
         }
-        function default($otherFile){
+        function nexus(){
             global $config, $db_config;
-            require __DIR__ . '/../test/LEAF_test_endpoints/' . $otherFile;
+            require __DIR__ . '/../test/LEAF_test_endpoints/nexus/index.php';
+        }
+        function request_portal(){
+            global $config, $db_config;
+            require __DIR__ . '/../test/LEAF_test_endpoints/request_portal/index.php';
         }
     }
 }
