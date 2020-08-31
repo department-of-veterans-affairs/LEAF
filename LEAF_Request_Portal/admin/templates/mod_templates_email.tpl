@@ -2,9 +2,6 @@
 <script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
 <script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
 <style>
-/* Grid of 6 */
-.group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_6_of_6{width:100%}.span_5_of_6{width:83.06%}.span_4_of_6{width:66.13%}.span_3_of_6{width:49.2%}.span_2_of_6{width:32.26%}.span_1_of_6{width:15.33%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_6,.span_2_of_6,.span_3_of_6,.span_4_of_6,.span_5_of_6,.span_6_of_6{width:100%}}
-
 /* Glyph to improve usability of code compare */
 .CodeMirror-merge-copybuttons-left > .CodeMirror-merge-copy {
     visibility: hidden;
@@ -18,85 +15,110 @@
 }
 </style>
 
-<div class="section group">
-    <div class="col span_1_of_6">
-        <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">
-        Email Templates:
-            <div id="fileList"></div>
-        </div>
-    </div>
-    <div id="codeArea" class="col span_4_of_6">
-        <div id="codeContainer" class="card" style="float: left; padding: 8px; display: none">
-        	<div id="subject" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
-        	<div id="divSubject" style="border: 1px solid black">
-        		<textarea id="subjectCode"></textarea>
-        		<div id="subjectCompare"></div>
-        	</div>
-        	<br />
-            <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
-            <div id="divCode" style="border: 1px solid black">
-                <textarea id="code"></textarea>
-                <div id="codeCompare"></div>
+<div class="leaf-center-content">
+
+    <div class="section group">
+
+        <aside class="sidenav">
+            <div id="fileBrowser"">
+            Email Templates:
+                <div id="fileList"></div>
             </div>
-            <br />
-            <div>
-            	<fieldset><legend>Template Variables</legend><br />
-	            <table class="table">
-		            <tr>
-		                <td><b>{{$recordID}}</b></td>
-		                <td>The ID number of the request</td>
-		            </tr>
-		            <tr>
-		                <td><b>{{$fullTitle}}</b></td>
-		                <td>The full title of the request</td>
-		            </tr>
-		            <tr>
-		                <td><b>{{$truncatedTitle}}</b></td>
-		                <td>A truncated version of the request title</td>
-		            </tr>
-		            <tr>
-		            	<td><b>{{$lastStatus}}</b></td>
-		            	<td>The last action taken for the request</td>
-		            </tr>
-		            <tr>
-		            	<td><b>{{$comment}}</b></td>
-		            	<td>The last comment associated with the request</td>
-		            </tr>
-		            <tr>
-		            	<td><b>{{$service}}</b></td>
-		            	<td>The service associated with the request</td>
-		            </tr>
-		            <tr>
-		            	<td><b>{{$siteRoot}}</b></td>
-		            	<td>The root URL of the LEAF site</td>
-		            </tr>
-	            </table>
-	        </div>
-            <div>
-                <table class="table">
-                    <tr>
-                        <td colspan="2">Keyboard Shortcuts within coding area</td>
-                    </tr>
-                    <tr>
-                        <td>Save</td>
-                        <td>Ctrl + S</td>
-                    </tr>
-                    <tr>
-                        <td>Fullscreen</td>
-                        <td>F11</td>
-                    </tr>
-                </table>
+        </aside>
+
+        <aside class="sidenav-right">
+            <div id="controls" style="visibility: hidden">
+
+                <button class="usa-button leaf-display-block leaf-btn-med leaf-width-11rem" onclick="save();">
+                    Save Changes<span id="saveStatus" class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
+                </button>
+
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem modifiedTemplate" onclick="restore();">
+                    Restore Original
+                </button>
+
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
+                    Stop Comparing
+                </button>
+                
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem modifiedTemplate" id="btn_compare" onclick="compare();">
+                    Compare to Original
+                </button>
+
+            </div>
+        </aside>
+
+        <div id="codeArea" class="main-content">
+
+            <div id="codeContainer" class="leaf-code-container">
+
+                <div id="subject" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
+                <div id="divSubject" style="border: 1px solid black">
+                    <textarea id="subjectCode"></textarea>
+                    <div id="subjectCompare"></div>
+                </div>
+                <br />
+                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
+                <div id="divCode" style="border: 1px solid black">
+                    <textarea id="code"></textarea>
+                    <div id="codeCompare"></div>
+                </div>
+                <br />
+                <div>
+                    <fieldset><legend>Template Variables</legend><br />
+                    <table class="table">
+                        <tr>
+                            <td><b>{{$recordID}}</b></td>
+                            <td>The ID number of the request</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$fullTitle}}</b></td>
+                            <td>The full title of the request</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$truncatedTitle}}</b></td>
+                            <td>A truncated version of the request title</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$lastStatus}}</b></td>
+                            <td>The last action taken for the request</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$comment}}</b></td>
+                            <td>The last comment associated with the request</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$service}}</b></td>
+                            <td>The service associated with the request</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$siteRoot}}</b></td>
+                            <td>The root URL of the LEAF site</td>
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <table class="table">
+                        <tr>
+                            <td colspan="2">Keyboard Shortcuts within coding area</td>
+                        </tr>
+                        <tr>
+                            <td>Save</td>
+                            <td>Ctrl + S</td>
+                        </tr>
+                        <tr>
+                            <td>Fullscreen</td>
+                            <td>F11</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
+
+        
+        
     </div>
-    <div class="col span_1_of_6">
-        <div id="controls" style="float: right; width: 170px; visibility: hidden">
-            <div class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes<span id="saveStatus"></span></div><br /><br /><br />
-            <div class="buttonNorm modifiedTemplate" onclick="restore();"><img src="../../libs/dynicons/?img=x-office-document-template.svg&w=32" alt="Restore" /> Restore Original</div><br />
-            <div class="buttonNorm" id="btn_compareStop" style="display: none" onclick="loadContent();"><img src="../../libs/dynicons/?img=text-x-generic.svg&w=32" alt="Normal view" /> Stop Comparing</div>
-            <div class="buttonNorm modifiedTemplate" id="btn_compare" onclick="compare();"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Compare" /> Compare with Original</div><br /><br /><br />
-        </div>
-    </div>
+
 </div>
 
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
@@ -333,7 +355,7 @@ $(function() {
 		type: 'GET',
 		url: '../api/system/emailtemplates',
  		success: function(res) {
-			var buffer = '<ul>';
+			var buffer = '<ul class="leaf-ul">';
 			for(var i in res) {
 				file = res[i]['fileName'].replace('.tpl', '');
 				buffer += '<li onclick="loadContent(\''+ res[i]['fileName'] +'\', \'' + res[i]['subjectFileName'] + '\');"><a href="#">' + file + '</a></li>';

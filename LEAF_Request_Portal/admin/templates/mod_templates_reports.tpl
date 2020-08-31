@@ -22,7 +22,7 @@
         <main id="codeArea" class="main-content">
             <h2>LEAF Programmer</h2>
             
-            <div id="codeContainer" class="card">
+            <div id="codeContainer" class="leaf-code-container">
                 <div id="filename"></div>
                 <div id="reportURL"></div>
                 <div>

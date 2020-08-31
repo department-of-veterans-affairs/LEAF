@@ -3,23 +3,24 @@
 
 
     <!--{assign var=right_nav_content value="
-        <button class='usa-button leaf-btn-med leaf-side-btn' onclick='createGroup();'>
-            + Create Group
+        <h3 class='navhead'>Access groups</h3>
+        <button class='usa-button leaf-btn-green leaf-btn-med leaf-side-btn' onclick='createGroup();'>
+            + Create group
         </button>
         <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='importGroup();'>
-            Import Group
+            Import group
         </button>
         <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='showAllGroupHistory();'>
-            Show Group History
+            Show group history
         </button>
     "}-->
     <!--{include file="partial_layouts/right_side_nav.tpl" contentRight="$right_nav_content"}-->
 
     <!--{assign var=left_nav_content value="
-        <h3>Access Categories</h3>
+        <h3 class='navhead'>Access categories</h3>
         <ul class='usa-sidenav'>
-            <li class='usa-sidenav__item'><a href='javascript:void(0)'>Site Administrators</a></li>
-            <li class='usa-sidenav__item'><a href='javascript:void(0)'>User Groups</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)' class='usa-current' id='sysAdminsLink'>System administrators (2)</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)' id='userGroupsLink'>User groups (1)</a></li>
         </ul>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
@@ -27,30 +28,46 @@
 
     <main class="main-content">
 
-        <h2>User Access Groups</h2>
+        <h2><a href="/LEAF_Request_Portal/admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2>
 
-        <div>
-            <h3 role="heading" tabindex="-1">Site Administrators</h3>
-        </div>
-        <div>
-            <div id="adminList"></div>
-            <div id="primaryAdmin"></div>
-        </div>
-
-        <div class="leaf-row-space"></div>
-
-        <div class="leaf-clear-both">
-            <h3 role="heading" tabindex="-1">User Groups</h3>
-            <div id="groupList"></div>
+        <div id="sysAdmins">
+            <h3 role="heading" tabindex="-1">System administrators</h3>
+            <div class="leaf-displayFlexRow">
+                <span id="adminList" class="leaf-sysadmin-cards"></span>
+                <span id="primaryAdmin" class="leaf-sysadmin-cards"></span>
+            </div>
         </div>
 
-        <div class="leaf-row-space"></div>
+        <div id="userGroups">
+            <div class="leaf-clear-both">
+                <h3 role="heading" tabindex="-1">User groups</h3>
+                <div id="groupList" class="leaf-displayFlexRow"></div>
+            </div>
+        </div>
     </main>
 
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
+
+<script>
+$(document).ready(function() {
+    $('#userGroups').hide();
+    $('#userGroupsLink').click(function() {
+        $('#sysAdmins').hide();
+        $('#sysAdminsLink').removeClass('usa-current');
+        $('#userGroups').show();
+        $(this).addClass('usa-current');
+    });
+    $('#sysAdminsLink').click(function() {
+        $('#userGroups').hide();
+        $('#userGroupsLink').removeClass('usa-current');
+        $('#sysAdmins').show();
+        $(this).addClass('usa-current');
+    });
+});
+</script>
 
 <script type="text/javascript">
 var tz = '<!--{$timeZone}-->';
@@ -215,7 +232,7 @@ function getGroupList() {
             	// only show explicit groups, not ELTs
             	if(res[i].parentGroupID == null
             		&& res[i].groupID != 1) {
-                    $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
+                    $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlockWhite">\
                             <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].name +'</h2>\
                             <div id="members'+ res[i].groupID +'"></div>\
                             </div>');
