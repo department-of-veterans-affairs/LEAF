@@ -19,9 +19,7 @@ final class SystemControllerTest extends DatabaseTest
 
     public static function setUpBeforeClass()
     {
-        require_once __DIR__ . '/../../../../routing/routing_config.php';
-        
-        self::$db = new \DB(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass, 'portal_testing');//TODO create tesing config
+        self::$db = new \DB(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass, 'portal_testing');
         self::$reqClient = LEAFClient::createRequestPortalClient();
     }
 
