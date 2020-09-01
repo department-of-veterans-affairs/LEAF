@@ -23,7 +23,8 @@ class GroupControllerTest extends DatabaseTest
         $this->resetDatabase();
         require_once __DIR__ . '/../../../../../routing/routing_config.php';
         
-        self::$db = new \DB(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass, 'nexus_testing');//TODO create tesing configself::$client = LEAFClient::createNexusClient();
+        self::$db = new \DB(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass, 'nexus_testing');//TODO create tesing config
+        self::$client = LEAFClient::createNexusClient();
         self::$testEndpointClient = LEAFClient::createNexusClient('http://localhost/test/LEAF_test_endpoints/nexus/', '../../../LEAF_Nexus/auth_domain/index.php');
     }
 
