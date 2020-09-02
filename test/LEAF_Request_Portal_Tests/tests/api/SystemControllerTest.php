@@ -19,7 +19,7 @@ final class SystemControllerTest extends DatabaseTest
 
     public static function setUpBeforeClass()
     {
-        self::$db = new \DB(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass, 'portal_testing');
+        self::$db = new \DB(\Test_Config::$dbHost, \Test_Config::$dbUser, \Test_Config::$dbPass, \Test_Config::$dbNamePortal);
         self::$reqClient = LEAFClient::createRequestPortalClient();
     }
 

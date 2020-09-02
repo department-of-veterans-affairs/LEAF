@@ -26,6 +26,8 @@ services:
         - DATABASE_DB_NEXUS=leaf_users
         - DATABASE_DB_DIRECTORY=leaf_users
         - DATABASE_DB_CONFIG=leaf_config
+        - DATABASE_DB_TEST_PORTAL=portal_testing
+        - DATABASE_DB_TEST_NEXUS=nexus_testing
         - "APP_URL_NEXUS=http://localhost/" # needs trailing slash
         - APP_HTTP_HOST=localhost
         - APP_EMAIL_FROM=LEAF@localhost

@@ -17,7 +17,7 @@ final class FormEditorControllerTest extends DatabaseTest
 
     public static function setUpBeforeClass()
     {
-        self::$db = new \DB(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass, 'portal_testing');
+        self::$db = new \DB(\Test_Config::$dbHost, \Test_Config::$dbUser, \Test_Config::$dbPass, \Test_Config::$dbNamePortal);
         self::$client = LEAFClient::createRequestPortalClient();
         self::$testEndpointClient = LEAFClient::createRequestPortalClient('http://localhost/test/LEAF_test_endpoints/request_portal/', '../../auth_domain/index.php');
     }
