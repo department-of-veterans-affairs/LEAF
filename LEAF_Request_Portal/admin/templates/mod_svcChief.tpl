@@ -116,7 +116,7 @@ function populateMembers(groupID, members) {
     for(var i in members) {
     	if(members[i].active == 1) {
             if (i == 0) {
-                $('#members' + groupID).append('<span>' + toTitleCase(members[i].Lname) + ', ' + toTitleCase(members[i].Fname) + countTxt + '</span>');
+                $('#members' + groupID).append('<span>' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</span>');
             }
             
     	}
