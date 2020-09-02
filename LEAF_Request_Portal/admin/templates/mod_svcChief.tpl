@@ -115,7 +115,6 @@ function populateMembers(groupID, members) {
     var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     for(var i in members) {
     	if(members[i].active == 1) {
-            //$('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
             if (i == 0) {
                 $('#members' + groupID).append('<span>' + toTitleCase(members[i].Lname) + ', ' + toTitleCase(members[i].Fname) + countTxt + '</span>');
             }

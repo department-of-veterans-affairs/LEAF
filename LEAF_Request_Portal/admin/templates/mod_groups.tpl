@@ -106,10 +106,20 @@ function getPrimaryAdmin() {
 }
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
+    var memberCt = (members.length - 1);
+    var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     for(var i in members) {
-        $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
+        if (i == 0) {
+                $('#members' + groupID).append('<span>' + toTitleCase(members[i].Lname) + ', ' + toTitleCase(members[i].Fname) + countTxt + '</span>');
+            }
     }
 }
+
+// convert to title case
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
 function addAdmin(userID) {
     $.ajax({
         type: 'POST',
