@@ -69,6 +69,7 @@ $(document).ready(function() {
 </script>
 
 <script type="text/javascript">
+var tz = '<!--{$timeZone}-->';
 /* <![CDATA[ */
 function getMembers(groupID) {
     $.ajax({
