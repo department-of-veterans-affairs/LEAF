@@ -93,7 +93,7 @@ function getPrimaryAdmin() {
                 if(response[i].primary_admin == 1)
                 {
                     foundPrimary = true;
-                    $('#membersPrimaryAdmin').append(response[i].Lname + ', ' + response[i].Fname + '<br />');
+                    $('#membersPrimaryAdmin').append(toTitleCase(response[i].Fname) + ' ' + toTitleCase(response[i].Lname) + '<br />');
                 }
             }
             if(!foundPrimary)
@@ -376,7 +376,7 @@ function getGroupList() {
                     for(var j in res[i].members) {
                         if(res[i].members[j].primary_admin == 1)
                         {
-                            primaryAdminName = res[i].members[j].Lname + ', ' + res[i].members[j].Fname;
+                            primaryAdminName = toTitleCase(res[i].members[j].Fname) + ' ' + toTitleCase(res[i].members[j].Lname);
                         }
                     }
                     $('#membersPrimaryAdmin').append(primaryAdminName + '<br />');
