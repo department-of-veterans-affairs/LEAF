@@ -35,6 +35,7 @@ label {font-family: 'PublicSans-Bold'; font-size: 0.9rem;}
 hr {border: 1px solid #dfe1e2;}
 a:focus, a:active {border: 0!important; outline: none!important;}
 button:focus, button:active {border: 0!important; outline: none!important;}
+.ui-widget-content a {color: none!important;}
 
 /* ############### USWDS OVERRIDES ################# */
 .usa-sidenav {font-family: 'PublicSans-Regular'; font-size: 0.9rem;}
@@ -344,12 +345,15 @@ ul.leaf-progress-bar {
 .leaf-padAll1rem {padding: 1rem;}
 
 .leaf-marginAll-1rem {margin: 1rem;}
+.leaf-marginTop-qtrRem {margin-top: 0.25rem;}
 .leaf-marginTop-halfRem {margin-top: 0.5rem;}
+.leaf-marginTopBot-halfRem {margin-top: 0.5rem; margin-bottom: 0.5rem;}
 .leaf-marginTop-1rem {margin-top: 1rem;}
 .leaf-marginTop-2rem {margin-top: 2rem;}
 .leaf-marginBot-1rem {margin-bottom: 1rem;}
 .leaf-marginBot-halfRem {margin-bottom: 0.5rem;}
 .leaf-marginTopBot-1rem {margin-bottom: 1rem; margin-top: 1rem;}
+.leaf-marginLeft-qtrRem {margin-left: 0.25rem;}
 
 /* ############### widths by percent ################# */
 .leaf-width10pct { width: 10%; }
