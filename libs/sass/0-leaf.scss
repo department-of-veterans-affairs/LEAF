@@ -41,8 +41,8 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 .usa-current a {color: #005ea2!important;}
 
 /* ############### GLOBAL CONTAINER STYLES ################# */
-.sidenav {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
-.sidenav-right {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
+.sidenav {background-color: #fff; border-radius: 4px; box-shadow: 0px 1px 3px #acaeaf;}
+.sidenav-right {background-color: #fff; border-radius: 4px; box-shadow: 0px 1px 3px #acaeaf;}
 .leaf-code-container {padding: 8px; display: none; resize: both; overflow: auto; box-shadow: 0 2px 6px #8e8e8e; background-color: white;}
 
 /* ############### GLOBAL ATTRIBUTE CLASSES ################# */
@@ -268,7 +268,7 @@ ul.leaf-progress-bar {
     .sidenav {display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
         .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
-    .sidenav-right {display: block; float: right; margin: 1.5rem 0.2rem 0 1.0rem; padding: 0.5rem 1.0rem 0.2rem 1.0rem; width: 16.5rem;}
+    .sidenav-right {display: block; float: right; margin: 1.5rem 0.2rem 0 1.0rem; padding: 1.0rem; width: 16.5rem;}
         .sidenav-right:hidden {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .usa-banner {font-family: 'PublicSans-Regular';}
@@ -342,7 +342,6 @@ ul.leaf-progress-bar {
 
 /* ############### PADDINGS, MARGINS ################# */
 .leaf-padAll1rem {padding: 1rem;}
-
 .leaf-marginAll-1rem {margin: 1rem;}
 .leaf-marginTop-halfRem {margin-top: 0.5rem;}
 .leaf-marginTop-1rem {margin-top: 1rem;}
