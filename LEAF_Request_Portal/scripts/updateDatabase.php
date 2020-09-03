@@ -50,7 +50,6 @@ else
 }
 
 $db = new DB($dbHost, $dbUser, $dbPass, $dbName);
-//$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
 if (!isset($res[0]) || !is_numeric($res[0]['data']))
