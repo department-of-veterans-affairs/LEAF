@@ -2,9 +2,7 @@
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
 define('PREFIX', 'Update_RMC_DB_');
 if (php_sapi_name() == 'cli')
 {
