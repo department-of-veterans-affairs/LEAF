@@ -19,8 +19,8 @@
     <!--{assign var=left_nav_content value="
         <h3 class='navhead'>Access categories</h3>
         <ul class='usa-sidenav'>
-            <li class='usa-sidenav__item'><a href='javascript:void(0)' class='usa-current' id='sysAdminsLink'>System administrators (2)</a></li>
-            <li class='usa-sidenav__item'><a href='javascript:void(0)' id='userGroupsLink'>User groups (1)</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)' class='usa-current' id='sysAdminsLink'>System administrators</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)' id='userGroupsLink'>User groups</a></li>
         </ul>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
