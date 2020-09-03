@@ -123,11 +123,6 @@ function populateMembers(groupID, members) {
     }
 }
 
-// convert to title case
-function toTitleCase(str) {
-    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-}
-
 function addUser(groupID, userID) {
     $.ajax({
         type: 'POST',
@@ -158,27 +153,27 @@ function initiateWidget(serviceID) {
                 url: '../api/service/' + serviceID + '/members',
                 success: function(res) {
                     dialog.clear();
-                    var button_deleteGroup = '<br /><br /><div id="deleteGroup_'+serviceID+'" class="buttonNorm" style="background-color: red">Delete this group</div>';
+                    var button_deleteGroup = '<button id="deleteGroup_'+serviceID+'" class="usa-button usa-button--secondary leaf-btn-small">Delete this group</button>';
                     if(serviceID > 0) {
                         button_deleteGroup = '';
                     }
                     dialog.setContent(
-                        '<button style="float:right" class="buttonNorm" onclick="viewHistory('+serviceID+')"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="vertical-align: middle"> View History</button>'+
-                        '<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />' + button_deleteGroup);
-                    $('#employees').html('<table id="employee_table" class="table"></table>');
+                        '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(' + serviceID + ')">View History</button>'+
+                        '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>' + button_deleteGroup);
+                    $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                     var counter = 0;
                     for(var i in res) {
-                        var removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove</span>';
+                        var removeButton = '<a href="#" class="text-secondary-darker leaf-font0-8rem" id="removeMember_'+ counter +'">REMOVE</a>';
                         var managedBy = '';
                         if(res[i].locallyManaged != 1) {
-                            managedBy += '<br /> * Managed in Org. Chart';
+                            managedBy += '<div class="leaf-marginLeft-qtrRem">&bull; Managed in Org. Chart</div>';
                         }
                         if(res[i].active != 1) {
-                            managedBy += '<br /> * Managed in Org. Chart';
-                            managedBy += '<br /> * Override set, and they do not have access';
-                            removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove Override</span>';
+                            managedBy += '<div class="leaf-marginLeft-qtrRem">&bull; Managed in Org. Chart</div>';
+                            managedBy += '<div class="leaf-marginLeft-qtrRem">&bull; Override set, and they do not have access</div>';
+                            removeButton = '<a href="#" class="text-secondary-darker leaf-font0-8rem" id="removeMember_'+ counter +'">REMOVE OVERRIDE</a>';
                         }
-                        $('#employee_table').append('<tr><td>'+ res[i].Lname + ', ' + res[i].Fname + managedBy +'</td><td>'+ removeButton +'</td></tr>');
+                        $('#employee_table').append('<div class="leaf-font0-9rem leaf-marginTop-halfRem"><span class="leaf-bold">'+ toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span> - ' + removeButton + ' '+ managedBy +'</div>');
                         $('#removeMember_' + counter).on('click', function(userID) {
                             return function() {
                                 removeUser(serviceID, userID);
@@ -254,7 +249,7 @@ function getGroupList() {
 		var quadrads = res1[0];
 		var services = res2[0];
 	    for(var i in quadrads) {
-	    	$('#groupList').append('<h2>'+ quadrads[i].name +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
+	    	$('#groupList').append('<h2>'+ toTitleCase(quadrads[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
 	    }
 	    for(var i in services) {
 	    	$('#group_' + services[i].groupID).append('<div id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'
@@ -283,6 +278,11 @@ function viewHistory(groupID){
         },
         cache: false
     });
+}
+
+// convert to title case
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 $(function() {

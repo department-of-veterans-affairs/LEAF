@@ -52,6 +52,7 @@
 
 <script>
 $(document).ready(function() {
+    
     $('#userGroups').hide();
     $('#userGroupsLink').click(function() {
         $('#sysAdmins').hide();
@@ -65,6 +66,7 @@ $(document).ready(function() {
         $('#sysAdmins').show();
         $(this).addClass('usa-current');
     });
+
 });
 </script>
 
@@ -276,7 +278,7 @@ function getGroupList() {
                                 $('#adminSummary').html('');
                                 var counter = 0;
                                 for(var i in res) {
-                                    $('#adminSummary').append('<div class="leaf-marginTop-qtrRem">&bull; '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +' - <a tabindex="0" aria-label="REMOVE ' + toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-red-50" id="removeAdmin_'+ counter +'">REMOVE</a></div>');
+                                    $('#adminSummary').append('<div class="leaf-marginTop-qtrRem">&bull; '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +' - <a tabindex="0" aria-label="REMOVE ' + toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="removeAdmin_'+ counter +'">REMOVE</a></div>');
                                     $('#removeAdmin_' + counter).on('click', function(userID) {
                                         return function() {
                                             removeAdmin(userID);
@@ -356,7 +358,7 @@ function getGroupList() {
                                     if(res[i].primary_admin == 1)
                                     {
                                         foundPrimary = true;
-                                        $('#primaryAdminSummary').append('<div>&bull; '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +' [ <a tabindex="0" aria-label="Unset '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-red-50" id="unsetPrimaryAdmin">Unset</a> ]</div>');
+                                        $('#primaryAdminSummary').append('<div>&bull; '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +' - <a tabindex="0" aria-label="Unset '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="unsetPrimaryAdmin">UNSET</a></div>');
                                         $('#unsetPrimaryAdmin').on('click', function() {
                                                 unsetPrimaryAdmin();
                                                 dialog.hide();
@@ -543,8 +545,8 @@ $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
 
-	//$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
-	//$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
+	$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
+	$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
 
     getGroupList();
 });

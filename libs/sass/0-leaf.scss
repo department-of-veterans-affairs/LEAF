@@ -35,7 +35,6 @@ label {font-family: 'PublicSans-Bold'; font-size: 0.9rem;}
 hr {border: 1px solid #dfe1e2;}
 a:focus, a:active {border: 0!important; outline: none!important;}
 button:focus, button:active {border: 0!important; outline: none!important;}
-.ui-widget-content a {color: none!important;}
 
 /* ############### USWDS OVERRIDES ################# */
 .usa-sidenav {font-family: 'PublicSans-Regular'; font-size: 0.9rem;}
@@ -273,7 +272,7 @@ ul.leaf-progress-bar {
         .sidenav-right:hidden {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .usa-banner {font-family: 'PublicSans-Regular';}
-    .usa-input {width: auto; padding: 0.7rem;}
+    .usa-input {width: auto; padding: 0.7rem; height: auto;}
     .ui-widget-header {border: 0; background-color: none;}
     .usa-banner__header {padding-bottom: .3rem; padding-top: .3rem; min-height: 0;}
     .usa-banner__header-close-text, .usa-banner__header-text {font-size: .7rem; letter-spacing: 0.01rem;}
