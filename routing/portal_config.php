@@ -39,6 +39,7 @@ class Config
     public $adPath;
     public $portalPath;
     public $uploadDir;
+    public $fileManagerDir;
     public $orgchartPath;
     public $orgchartImportTags;
     public $leafSecure;
@@ -68,6 +69,7 @@ class Config
         $this->adminLogonName = $res[0]['adminLogonName'];    // Administrator's logon name
         $this->adPath = json_decode($res[0]['active_directory_path']); // Active directory path
         $this->uploadDir = ltrim($res[0]['path'], "/") . $res[0]['upload_directory'];
+        $this->fileManagerDir = ltrim($res[0]['path'], "/") . "files/"; // file manager directory
         $this->portalPath = ltrim($res[0]['path'], '/');
         $this->orgchartPath = "../LEAF_Nexus"; // HTTP Path to orgchart with no trailing slash
         $this->orgchartImportTags = json_decode($res[0]['orgchart_path']);

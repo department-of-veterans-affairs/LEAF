@@ -12,6 +12,7 @@
 $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../globals.php';
+include_once __DIR__ . "/../../libs/php-commons/aws/AWSUtil.php";
 
 if (!class_exists('XSSHelpers'))
 {
@@ -39,6 +40,8 @@ class System
 
     private $dataActionLogger;
 
+    private $awsUtil;
+
     public function __construct($db, $login)
     {
         $this->db = $db;
@@ -48,6 +51,8 @@ class System
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $commonConfig = new CommonConfig();
         $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
+        $this->awsUtil = new AWSUtil();
+        $this->awsUtil->s3registerStreamWrapper();
 
         $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
@@ -843,7 +848,10 @@ class System
             return 'Admin access required';
         }
 
-        $list = scandir(__DIR__.'/../files/');
+        global $config;
+
+        $s3directoryKey = "s3://" . $this->awsUtil->s3getBucketName() . "/" . $config->fileManagerDir;
+        $list = scandir($s3directoryKey);
         $out = array();
         foreach ($list as $item)
         {
@@ -856,6 +864,37 @@ class System
         }
 
         return $out;
+    }
+
+    public function getFile($in)
+    {
+        if ($in == 'index.html')
+        {
+            return 0;
+        }
+
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        global $config;
+        $s3objectKey = "s3://" . $this->awsUtil->s3getBucketName() . "/" . $config->fileManagerDir . $in;
+
+        if (file_exists($s3objectKey)) {
+            header('Content-Disposition: attachment; filename="' . addslashes(html_entity_decode($in)) . '"');
+            header('Content-Length: ' . filesize($s3objectKey));
+            header('Cache-Control: maxage=1'); //In seconds
+            header('Pragma: public');
+
+            readfile($s3objectKey);
+            exit();
+        }
+        else
+        {
+            return 'Error: File does not exist or access may be restricted.';
+        }
+        
     }
 
     public function newFile()
@@ -886,8 +925,10 @@ class System
         {
             return 'Admin access required';
         }
+        global $config;
 
-        move_uploaded_file($_FILES['file']['tmp_name'], __DIR__ . '/../files/' . $fileName);
+        $s3objectKey = "s3://" . $this->awsUtil->s3getBucketName() . "/" . $config->fileManagerDir . $fileName;
+        move_uploaded_file($_FILES['file']['tmp_name'], $s3objectKey);
 
         return true;
     }
@@ -905,13 +946,16 @@ class System
         }
 
         $list = $this->getFileList();
+        global $config;
+
+        $s3dirKey = "s3://" . $this->awsUtil->s3getBucketName() . "/" . $config->fileManagerDir;
 
         if (array_search($in, $list) !== false)
         {
-            if (file_exists(__DIR__ . '/../files/' . $in)
+            if (file_exists($s3dirKey . $in)
                 && $in != 'index.html')
             {
-                return unlink(__DIR__ . '/../files/' . $in);
+                return unlink($s3dirKey . $in);
             }
         }
     }
