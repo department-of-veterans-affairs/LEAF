@@ -16,8 +16,40 @@ $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../db_mysql.php';
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+if( empty($_SERVER['REMOTE_ADDR']) and !isset($_SERVER['HTTP_USER_AGENT']) and count($_SERVER['argv']) > 0) 
+{
+    if(count($argv) < 2)
+    {
+        echo "Portal Path must be passed.";
+        die;
+    }
+
+    $path = '/' . rtrim(ltrim($argv[1], '/'), '/') . '/';//ensure leading and trailing slashes are in place 
+    include_once $currDir . '/../../routing/routing_config.php';
+    
+    $routingDB = new DB(Routing_Config::$dbHost, Routing_Config::$dbUser, Routing_Config::$dbPass, Routing_Config::$dbName);
+    $res = $routingDB->prepared_query('SELECT database_name FROM portal_configs WHERE path="'.$path.'"', array());
+    
+    if(count($res) == 0)
+    {
+        echo "Portal Path does not exist.";
+        die;
+    }
+    
+    $dbHost = Routing_Config::$dbHost;
+    $dbUser = Routing_Config::$dbUser;
+    $dbPass = Routing_Config::$dbPass;
+    $dbName = $res[0]['database_name'];
+}
+else
+{
+    $dbHost = $db_config->dbHost;
+    $dbUser = $db_config->dbUser;
+    $dbPass = $db_config->dbPass;
+    $dbName = $db_config->dbName;
+}
+
+$db = new DB($dbHost, $dbUser, $dbPass, $dbName);
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
 if (!isset($res[0]) || !is_numeric($res[0]['data']))

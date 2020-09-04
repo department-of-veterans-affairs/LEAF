@@ -33,6 +33,9 @@ class LEAFRoutes {
         $this->addRoute('GET', '/admin/js/{jsFile:.+}', 'Portal/admin_js');
         $this->addRoute(['GET','POST','DELETE'], '/admin/{adminFile:.+}', 'Portal/admin_other');
 
+        //test routes
+        $this->addRoute(['GET','POST','DELETE'], '/LEAF_test_endpoints/nexus/', 'Test/nexus');
+        $this->addRoute(['GET','POST','DELETE'], '/LEAF_test_endpoints/request_portal/', 'Test/request_portal');
         //default
         $this->addRoute(['GET','POST','DELETE'], '/{otherFile:.+}', 'Portal/other');
         
@@ -54,6 +57,7 @@ class LEAFRoutes {
         //default
         $this->addRoute(['GET','POST','DELETE'], '/{otherFile:.+}', 'Nexus/other');
     }
+
     private function addRoute($httpMethod, $path, $callback){
         $route = new stdClass;
         $route->httpMethod = $httpMethod;

@@ -82,7 +82,7 @@ class EmployeeControllerTest extends DatabaseTest
 
         //checks if backup successful
         $backup = self::$client->get(array('a' => 'employee/2/backup'));
-        $this->assertEquals('', $backup[0]['empUID']);
+        $this->assertEquals('2', $backup[0]['empUID']);
         $this->assertEquals('2', $backup[0]['backupEmpUID']);
 
         //checks other get backup endpoint

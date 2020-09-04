@@ -22,6 +22,6 @@ test_logins.txt
 .vs
 
 -*.swp
--vendor/*
--composer.lock
+vendor/*
+composer.lock
 

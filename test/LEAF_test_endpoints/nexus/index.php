@@ -8,14 +8,11 @@ error_reporting(E_ALL & ~E_NOTICE);
 include_once __DIR__ . '/../../../LEAF_Nexus/globals.php';
 include_once __DIR__ . '/../../../LEAF_Nexus/sources/Login.php';
 include_once __DIR__ . '/../../../LEAF_Nexus/db_mysql.php';
-include_once __DIR__ . '/../../../LEAF_Nexus/config.php';
 require_once __DIR__ . '/../../../LEAF_Nexus/api/RESTfulResponse.php';
 require_once __DIR__ . '/../../../LEAF_Nexus/sources/Exception.php';
 require_once __DIR__ . '/../../../LEAF_Nexus/api/ControllerMap.php';
 
-$config = new Orgchart\Config();
-
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 
 $login = new Orgchart\Login($db, $db);
 $login->setBaseDir('../');
