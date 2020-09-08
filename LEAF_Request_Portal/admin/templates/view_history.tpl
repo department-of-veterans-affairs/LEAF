@@ -18,23 +18,22 @@
             No history to show!
         <!--{else}-->
 
-            <table class="agenda usa-table" id="maintable">
+            <table class="usa-table usa-table--borderless leaf-width100pct" id="maintable" style="width: 760px">
                 <thead>
                     <tr>
                         <th>Timestamp</th>
-                        <th>Action Taken</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
 
                 <!--{foreach from=$history item=log}--><!--{strip}-->
 
                 <tr>
-                    <td>
+                    <td class="leaf-textLeft leaf-width25pct">
                         <!--{$log.timestamp}-->
                     </td>
-                    <td>
-                        <span><b><!--{$log.action|sanitize}--></b> by <!--{$log.userName|sanitize}-->
-                        <br /><!--{$log.history|sanitize}--></span>
+                    <td class="leaf-width75pct">
+                        <span><b><!--{$log.action|sanitize}--></b> by <!--{$log.userName|sanitize}--> <!--{$log.history|sanitize}--></span>
                     </td>
                 </tr>
 

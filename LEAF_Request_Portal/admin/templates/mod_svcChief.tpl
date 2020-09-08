@@ -264,7 +264,7 @@ function getGroupList() {
 
 function viewHistory(groupID){
     dialog_simple.setContent('');
-    dialog_simple.setTitle('Service Chief History');
+    dialog_simple.setTitle('Service chief history');
 	dialog_simple.show();
 	dialog_simple.indicateBusy();
 
@@ -290,9 +290,9 @@ $(function() {
     dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
-    $('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
-    $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
-    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
+    //$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
+    //$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
+    //$('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     getGroupList();
 

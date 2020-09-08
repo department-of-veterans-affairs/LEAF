@@ -208,7 +208,7 @@ function getGroupList() {
                 focusGroupsAndMembers(res[i].groupID);
                 if(res[i].groupID != 1) { // if not admin
                     function openGroup(groupID, parentGroupID) {
-                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" tabindex="0" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
+                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" tabindex="0" style="width: 720px; height: 580px; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
                         dialog_simple.setCancelHandler(function() {
                             $.ajax({
                                 type: 'GET',
@@ -400,12 +400,12 @@ function getGroupList() {
     });
 }
 function viewHistory(groupID){
-  dialog_simple.setContent('');
-  dialog_simple.setTitle('Group History');
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('Group history');
     dialog_simple.indicateBusy();
     dialog.showButtons();
 
-  var type = (groupID)? "group": "primaryAdmin";
+    var type = (groupID)? "group": "primaryAdmin";
     $.ajax({
         type: 'GET',
         url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID+'&tz='+tz,
@@ -418,6 +418,8 @@ function viewHistory(groupID){
         cache: false
     });
 }
+
+
 function viewPrimaryAdminHistory(){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Primary Admin History');
@@ -526,7 +528,7 @@ function createGroup() {
     $('input:visible:first, select:visible:first').focus();
 }
 function showAllGroupHistory() {
-    dialog.setTitle('All Group History');
+    dialog.setTitle('All group history');
     $.ajax({
         type: 'GET',
         url: 'ajaxIndex.php?a=gethistoryall&type=group',
@@ -545,8 +547,8 @@ $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
 
-	$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
-	$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
+	//$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
+	//$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
 
     getGroupList();
 });
