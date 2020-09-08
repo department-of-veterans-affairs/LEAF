@@ -27,21 +27,21 @@
         </aside>
 
         <aside class="sidenav-right">
-            <div id="controls">
+            <div id="controls" style="visibility: hidden">
 
-                <button class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem" onclick="save();">
+                <button class="usa-button leaf-display-block leaf-btn-med leaf-width-11rem" onclick="save();">
                     Save Changes<span id="saveStatus" class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                 </button>
 
-                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate" onclick="restore();">
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem modifiedTemplate" onclick="restore();">
                     Restore Original
                 </button>
 
-                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
                     Stop Comparing
                 </button>
                 
-                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate" id="btn_compare" onclick="compare();">
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem modifiedTemplate" id="btn_compare" onclick="compare();">
                     Compare to Original
                 </button>
 
