@@ -243,6 +243,7 @@ function getGroupList() {
                 else { // if is admin
                     function openAdminGroup(){
                         dialog.showButtons();
+                        dialog.setTitle('Editor');
                         dialog.setContent(
                             '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
                             '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><h3 role="heading" tabindex="-1" >Add Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
