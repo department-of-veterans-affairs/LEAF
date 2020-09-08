@@ -4,7 +4,7 @@
     
     <!--{assign var=left_nav_content value="
         <div id='sideBar'>
-            <button id='btn_uploadFile' class='usa-button leaf-width-12rem' onclick='syncServices();'>
+            <button id='btn_uploadFile' class='usa-button' onclick='syncServices();'>
                 Import from Nexus
             </button>
         </div>
@@ -12,7 +12,6 @@
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
     
     <main class="main-content">
-
         <h2>Service Chiefs</h2>
 
         <div>
@@ -111,21 +110,11 @@ function getMembers(groupID) {
 
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
-    var memberCt = (members.length - 1);
-    var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     for(var i in members) {
     	if(members[i].active == 1) {
-            if (i == 0) {
-                $('#members' + groupID).append('<span>' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</span>');
-            }
-            
+            $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
     	}
     }
-}
-
-// convert to title case
-function toTitleCase(str) {
-    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 function addUser(groupID, userID) {
@@ -254,10 +243,10 @@ function getGroupList() {
 		var quadrads = res1[0];
 		var services = res2[0];
 	    for(var i in quadrads) {
-	    	$('#groupList').append('<h2>'+ quadrads[i].name +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
+	    	$('#groupList').append('<h2>'+ quadrads[i].name +'</h2><hr /><div id="group_'+ quadrads[i].groupID +'"></div><br style="clear: both" />');
 	    }
 	    for(var i in services) {
-	    	$('#group_' + services[i].groupID).append('<div id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'
+	    	$('#group_' + services[i].groupID).append('<div id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlock">'
                     + '<h2 id="groupTitle'+ services[i].serviceID +'">'+ services[i].service +'</h2>'
                     + '<div id="members'+ services[i].serviceID +'"></div>'
                     + '</div>');
