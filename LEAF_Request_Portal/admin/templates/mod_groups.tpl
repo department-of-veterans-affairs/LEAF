@@ -117,7 +117,7 @@ function getPrimaryAdmin() {
                 if(response[i].primary_admin == 1)
                 {
                     foundPrimary = true;
-                    $('#membersPrimaryAdmin').append(response[i].Lname + ', ' + response[i].Fname + '<br />');
+                    $('#membersPrimaryAdmin').append(toTitleCase(response[i].Fname) + ' ' + toTitleCase(response[i].Lname) + '<br />');
                 }
             }
             if(!foundPrimary)
@@ -131,11 +131,12 @@ function getPrimaryAdmin() {
 
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
+    var memberCt = (members.length - 1);
+    var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     for(var i in members) {
-        if(members[i].active == 1
-            || groupID == 1) {
-            $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
-        }
+        if (i == 0) {
+                $('#members' + groupID).append('<span>' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</span>');
+            }
     }
 }
 
@@ -212,10 +213,10 @@ function setPrimaryAdmin(userID) {
 
 function focusGroupsAndMembers(groupID) {
     $('#' + groupID).on('focusin', function() {
-        $('#' + groupID).css('background-color', '#fffdc2');
+        //$('#' + groupID).css('background-color', '#fffdc2');
     });
     $('#' + groupID).on('focusout', function() {
-        $('#' + groupID).css('background-color', 'white');
+        //$('#' + groupID).css('background-color', 'white');
     });
 }
 function getGroupList() {
@@ -481,7 +482,7 @@ function getGroupList() {
                     for(var j in res[i].members) {
                         if(res[i].members[j].primary_admin == 1)
                         {
-                            primaryAdminName = res[i].members[j].Lname + ', ' + res[i].members[j].Fname;
+                             primaryAdminName = toTitleCase(res[i].members[j].Fname) + ' ' + toTitleCase(res[i].members[j].Lname);
                         }
                     }
                     $('#membersPrimaryAdmin').append(primaryAdminName + '<br />');
@@ -624,6 +625,11 @@ function createGroup() {
     });
     dialog.show();
     $('input:visible:first, select:visible:first').focus();
+}
+
+// convert to title case
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 function showAllGroupHistory() {
