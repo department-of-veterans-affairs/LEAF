@@ -1,7 +1,5 @@
 <div class="leaf-center-content">
 
-
-
     <!--{assign var=right_nav_content value="
         <h3 class='navhead'>Access groups</h3>
         <button class='usa-button leaf-btn-green leaf-btn-med leaf-side-btn' onclick='createGroup();'>
@@ -24,7 +22,6 @@
         </ul>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
-
 
     <main class="main-content">
 
@@ -134,9 +131,12 @@ function populateMembers(groupID, members) {
     var memberCt = (members.length - 1);
     var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     for(var i in members) {
-        if (i == 0) {
-                $('#members' + groupID).append('<span>' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</span>');
-            }
+
+        if(members[i].active == 1 || groupID == 1) {
+            if (i == 0) {
+               $('#members' + groupID).append('<span>' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</span>'); 
+            } 
+        }
     }
 }
 
