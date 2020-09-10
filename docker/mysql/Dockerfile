@@ -1,5 +1,5 @@
 FROM mariadb
-MAINTAINER Nick Ciardiello <nick.ciardiello@ablevets.com>
+MAINTAINER Dastan Rahimi <dastan.rahimi@ablevets.com>
 
 ENV MYSQL_ROOT_PASSWORD tester
 

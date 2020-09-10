@@ -37,7 +37,6 @@ services:
         - "APP_URL_AUTH=example.com/auth"
         - "APP_CIPHER_KEY=example-key"
         - REMOTE_USER=${REMOTE_USER}
-        - APACHE_RUN_USER=build_user
 
   swagger-ui:
     image: swaggerapi/swagger-ui
