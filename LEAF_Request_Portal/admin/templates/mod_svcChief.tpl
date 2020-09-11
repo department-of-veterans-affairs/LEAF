@@ -129,7 +129,8 @@ function addUser(groupID, userID) {
                'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
             getMembers(groupID);
-        }
+        },
+        cache: false
     });
 }
 
@@ -139,7 +140,8 @@ function removeUser(groupID, userID) {
         url: "../api/service/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
         success: function(response) {
             getMembers(groupID);
-        }
+        },
+        cache: false
     });
 }
 
@@ -189,7 +191,8 @@ function initiateWidget(serviceID) {
                                 url: "../api/service/" + serviceID + '&CSRFToken=<!--{$CSRFToken}-->',
                                 success: function(response) {
                                     location.reload();
-                                }
+                                },
+                                cache: false
                             });
                         });
                         dialog_confirm.show();
@@ -215,7 +218,8 @@ function initiateWidget(serviceID) {
                                     else {
                                         alert(res);
                                     }
-                                }
+                                },
+                                cache: false
                             });
                         }
                         getMembers(serviceID);
