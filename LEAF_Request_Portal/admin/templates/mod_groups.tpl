@@ -219,14 +219,6 @@ function setPrimaryAdmin(userID) {
     });
 }
 
-function focusGroupsAndMembers(groupID) {
-    $('#' + groupID).on('focusin', function() {
-        
-    });
-    $('#' + groupID).on('focusout', function() {
-        
-    });
-}
 function getGroupList() {
     $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
 
@@ -253,7 +245,6 @@ function getGroupList() {
                             </div>');
             	}
 
-                focusGroupsAndMembers(res[i].groupID);
                 if(res[i].groupID != 1) { // if not admin
                     function openGroup(groupID, parentGroupID) {
                         $.ajax({
@@ -411,7 +402,6 @@ function getGroupList() {
                         <h3 id="groupTitlePrimaryAdmin">Primary Admin</h3>\
                         <div id="membersPrimaryAdmin"></div>\
                         </div>');
-                    focusGroupsAndMembers('primaryAdmin');
 
                     function openPrimaryAdminGroup(){
                       dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory()"> View History</button>'+
