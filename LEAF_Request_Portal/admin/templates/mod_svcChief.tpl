@@ -4,7 +4,7 @@
     
     <!--{assign var=left_nav_content value="
         <div id='sideBar'>
-            <button id='btn_uploadFile' class='usa-button' onclick='syncServices();'>
+            <button id='btn_uploadFile' class='usa-button leaf-width-12rem' onclick='syncServices();'>
                 Import from Nexus
             </button>
         </div>
@@ -110,9 +110,13 @@ function getMembers(groupID) {
 
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
+    var memberCt = (members.length - 1);
+    var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     for(var i in members) {
     	if(members[i].active == 1) {
-            $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
+            if (i == 0) {
+                $('#members' + groupID).append('<span>' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</span>');
+            }
     	}
     }
 }
@@ -125,7 +129,8 @@ function addUser(groupID, userID) {
                'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
             getMembers(groupID);
-        }
+        },
+        cache: false
     });
 }
 
@@ -135,7 +140,8 @@ function removeUser(groupID, userID) {
         url: "../api/service/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
         success: function(response) {
             getMembers(groupID);
-        }
+        },
+        cache: false
     });
 }
 
@@ -160,11 +166,11 @@ function initiateWidget(serviceID) {
                         var removeButton = '<a href="#" class="text-secondary-darker leaf-font0-8rem" id="removeMember_'+ counter +'">REMOVE</a>';
                         var managedBy = '';
                         if(res[i].locallyManaged != 1) {
-                            managedBy += '<div class="leaf-marginLeft-qtrRem">&bull; Managed in Org. Chart</div>';
+                            managedBy += '<div class="leaf-marginLeft-qtrRem leaf-font0-8rem">&bull; Managed in Org. Chart</div>';
                         }
                         if(res[i].active != 1) {
-                            managedBy += '<div class="leaf-marginLeft-qtrRem">&bull; Managed in Org. Chart</div>';
-                            managedBy += '<div class="leaf-marginLeft-qtrRem">&bull; Override set, and they do not have access</div>';
+                            managedBy += '<div class="leaf-marginLeft-qtrRem leaf-font0-8rem">&bull; Managed in Org. Chart</div>';
+                            managedBy += '<div class="leaf-marginLeft-qtrRem leaf-font0-8rem">&bull; Override set, and they do not have access</div>';
                             removeButton = '<a href="#" class="text-secondary-darker leaf-font0-8rem" id="removeMember_'+ counter +'">REMOVE OVERRIDE</a>';
                         }
                         $('#employee_table').append('<div class="leaf-font0-9rem leaf-marginTop-halfRem"><span class="leaf-bold">'+ toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span> - ' + removeButton + ' '+ managedBy +'</div>');
@@ -185,7 +191,8 @@ function initiateWidget(serviceID) {
                                 url: "../api/service/" + serviceID + '&CSRFToken=<!--{$CSRFToken}-->',
                                 success: function(response) {
                                     location.reload();
-                                }
+                                },
+                                cache: false
                             });
                         });
                         dialog_confirm.show();
@@ -211,7 +218,8 @@ function initiateWidget(serviceID) {
                                     else {
                                         alert(res);
                                     }
-                                }
+                                },
+                                cache: false
                             });
                         }
                         getMembers(serviceID);
@@ -246,7 +254,7 @@ function getGroupList() {
 	    	$('#groupList').append('<h2>'+ toTitleCase(quadrads[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
 	    }
 	    for(var i in services) {
-	    	$('#group_' + services[i].groupID).append('<div id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlock">'
+	    	$('#group_' + services[i].groupID).append('<div id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'
                     + '<h2 id="groupTitle'+ services[i].serviceID +'">'+ services[i].service +'</h2>'
                     + '<div id="members'+ services[i].serviceID +'"></div>'
                     + '</div>');

@@ -1,7 +1,5 @@
 <div class="leaf-center-content">
 
-
-
     <!--{assign var=right_nav_content value="
         <h3 class='navhead'>Access groups</h3>
         <button class='usa-button leaf-btn-green leaf-btn-med leaf-side-btn' onclick='createGroup();'>
@@ -24,7 +22,6 @@
         </ul>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
-
 
     <main class="main-content">
 
@@ -83,7 +80,8 @@ function getMembers(groupID) {
             $('#members' + groupID).fadeOut();
             populateMembers(groupID, response);
             $('#members' + groupID).fadeIn();
-        }
+        },
+        cache: false
     });
 }
 
@@ -119,7 +117,7 @@ function getPrimaryAdmin() {
                 if(response[i].primary_admin == 1)
                 {
                     foundPrimary = true;
-                    $('#membersPrimaryAdmin').append(response[i].Lname + ', ' + response[i].Fname + '<br />');
+                    $('#membersPrimaryAdmin').append(toTitleCase(response[i].Fname) + ' ' + toTitleCase(response[i].Lname) + '<br />');
                 }
             }
             if(!foundPrimary)
@@ -127,16 +125,21 @@ function getPrimaryAdmin() {
                 $('#membersPrimaryAdmin').append("Primary Administrator has not been set");
             }
             $('#membersPrimaryAdmin').fadeIn();
-        }
+        },
+        cache: false
     });
 }
 
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
+    var memberCt = (members.length - 1);
+    var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     for(var i in members) {
-        if(members[i].active == 1
-            || groupID == 1) {
-            $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
+
+        if(members[i].active == 1 || groupID == 1) {
+            if (i == 0) {
+               $('#members' + groupID).append('<span>' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</span>'); 
+            } 
         }
     }
 }
@@ -147,7 +150,8 @@ function removeMember(groupID, userID) {
         url: "../api/group/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
         success: function(response) {
             updateAndGetMembers(groupID);
-        }
+        },
+        cache: false
     });
 }
 
@@ -159,7 +163,8 @@ function addMember(groupID, userID) {
                'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
             updateAndGetMembers(groupID);
-        }
+        },
+        cache: false
     });
 }
 
@@ -177,7 +182,8 @@ function addAdmin(userID) {
                'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getMembers(1);
-        }
+        },
+        cache: false
     });
 }
 
@@ -191,7 +197,8 @@ function removeAdmin(userID) {
         success: function(response) {
         	getMembers(1);
             getPrimaryAdmin();
-        }
+        },
+        cache: false
     });
 }
 
@@ -202,7 +209,8 @@ function unsetPrimaryAdmin() {
         data: {'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getPrimaryAdmin();
-        }
+        },
+        cache: false
     });
 }
 
@@ -213,18 +221,11 @@ function setPrimaryAdmin(userID) {
         data: {'userID': userID, 'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getPrimaryAdmin();
-        }
+        },
+        cache: false
     });
 }
 
-function focusGroupsAndMembers(groupID) {
-    $('#' + groupID).on('focusin', function() {
-        //$('#' + groupID).css('background-color', '#fffdc2');
-    });
-    $('#' + groupID).on('focusout', function() {
-        //$('#' + groupID).css('background-color', 'white');
-    });
-}
 function getGroupList() {
     $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
     dialog.showButtons();
@@ -251,7 +252,6 @@ function getGroupList() {
                             </div>');
             	}
 
-                focusGroupsAndMembers(res[i].groupID);
                 if(res[i].groupID != 1) { // if not admin
                     function openGroup(groupID, parentGroupID) {
                         $.ajax({
@@ -260,22 +260,22 @@ function getGroupList() {
                             success: function(res) {
                                 dialog.clear();
                                 dialog.setContent(
-                                    '<button style="float:right" class="buttonNorm" onclick="viewHistory('+groupID+')"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="vertical-align: middle"> View History</button>'+
-                                    '<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />');
-                                $('#employees').html('<table id="employee_table" class="table"></table>');
+                                    '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right"  onclick="viewHistory('+groupID+')">View History</button>'+
+                                    '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>');
+                                $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                                 var counter = 0;
                                 for(var i in res) {
-                                    var removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove</span>';
+                                    var removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_'+ counter +'">REMOVE</a>';
                                     var managedBy = '';
                                     if(res[i].locallyManaged != 1) {
-                                        managedBy += '<br /> * Managed in Org. Chart';
+                                        managedBy += '<div class="leaf-font0-rem">&bull; Managed in Org. Chart</div>';
                                     }
                                     if(res[i].active != 1) {
-                                        managedBy += '<br /> * Managed in Org. Chart';
-                                        managedBy += '<br /> * Override set, and they do not have access';
-                                        removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove Override</span>';
+                                        managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Managed in Org. Chart</div>';
+                                        managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Override set, and they do not have access</div>';
+                                        removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_'+ counter +'">REMOVE OVERRIDE</a>';
                                     }
-                                    $('#employee_table').append('<tr><td>'+ res[i].Lname + ', ' + res[i].Fname + managedBy +'</td><td>'+ removeButton +'</td></tr>');
+                                    $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">'+ toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div><div class="leaf-font0-8rem leaf-marginLeft-qtrRem">'+ managedBy +'</div>');
                                     $('#removeMember_' + counter).on('click', function(userID) {
                                         return function() {
                                             removeMember(groupID, userID);
@@ -304,7 +304,8 @@ function getGroupList() {
                                                 else {
                                                     alert(res);
                                                 }
-                                            }
+                                            },
+                                            cache: false
                                         });
                                     }
                                     dialog.hide();
@@ -340,7 +341,7 @@ function getGroupList() {
                         dialog.setTitle('Editor');
                         dialog.setContent(
                             '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
-                            '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><label class="usa-label" role="heading" tabindex="-1" >Add Administrator</label></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
+                            '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><h3 class="usa-label leaf-marginTop-1rem" role="heading" tabindex="-1">Add Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -362,7 +363,8 @@ function getGroupList() {
                                         else {
                                             alert(res);
                                         }
-                                    }
+                                    },
+                                    cache: false
                                 });
                             }
                             dialog.hide();
@@ -374,7 +376,7 @@ function getGroupList() {
                                 $('#adminSummary').html('');
                                 var counter = 0;
                                 for(var i in res) {
-                                    $('#adminSummary').append('<div class="leaf-marginTop-qtrRem">&bull; '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +' - <a tabindex="0" aria-label="REMOVE ' + toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="removeAdmin_'+ counter +'">REMOVE</a></div>');
+                                    $('#adminSummary').append('<div class="leaf-marginTop-qtrRem leaf-marginLeft-qtrRem"><span class="leaf-bold leaf-font0-8rem">'+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'</span> - <a tabindex="0" aria-label="REMOVE ' + toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="removeAdmin_'+ counter +'">REMOVE</a></div>');
                                     $('#removeAdmin_' + counter).on('click', function(userID) {
                                         return function() {
                                             removeAdmin(userID);
@@ -383,7 +385,8 @@ function getGroupList() {
                                     }(res[i].userName));
                                     counter++;
                                 }
-                            }
+                            },
+                            cache: false
                         });
                         setTimeout(function () {
                             dialog.show();
@@ -408,11 +411,10 @@ function getGroupList() {
                         <h3 id="groupTitlePrimaryAdmin">Primary Admin</h3>\
                         <div id="membersPrimaryAdmin"></div>\
                         </div>');
-                    focusGroupsAndMembers('primaryAdmin');
 
                     function openPrimaryAdminGroup(){
-                      dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory()"> View History</button>'+
-                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><br /><h3 role="heading" tabindex="-1" >Set Primary Administrator:</h3><div id="employeeSelector"></div>');
+                      dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory()">View History</button>'+
+                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Set Primary Administrator</h3><div id="employeeSelector"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -442,7 +444,8 @@ function getGroupList() {
                                         {
                                             alert('Primary Admin must be a member of the Sysadmin group');
                                         }
-                                    }
+                                    },
+                                    cache: false
                                 });
                             }
                             dialog.hide();
@@ -457,7 +460,7 @@ function getGroupList() {
                                     if(res[i].primary_admin == 1)
                                     {
                                         foundPrimary = true;
-                                        $('#primaryAdminSummary').append('<div>&bull; '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +' - <a tabindex="0" aria-label="Unset '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="unsetPrimaryAdmin">UNSET</a></div>');
+                                        $('#primaryAdminSummary').append('<div><span class="leaf-bold leaf-font0-9rem">'+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'</span> - <a tabindex="0" aria-label="Unset '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="unsetPrimaryAdmin">UNSET</a></div>');
                                         $('#unsetPrimaryAdmin').on('click', function() {
                                                 unsetPrimaryAdmin();
                                                 dialog.hide();
@@ -469,7 +472,8 @@ function getGroupList() {
                                    $('#primaryAdminSummary').append("Primary Admin has not been set.");
                                 }
 
-                            }
+                            },
+                            cache: false
                         });
                         setTimeout(function () {
                             dialog.show();
@@ -490,7 +494,7 @@ function getGroupList() {
                     for(var j in res[i].members) {
                         if(res[i].members[j].primary_admin == 1)
                         {
-                            primaryAdminName = res[i].members[j].Lname + ', ' + res[i].members[j].Fname;
+                             primaryAdminName = toTitleCase(res[i].members[j].Fname) + ' ' + toTitleCase(res[i].members[j].Lname);
                         }
                     }
                     $('#membersPrimaryAdmin').append(primaryAdminName + '<br />');
@@ -551,7 +555,8 @@ function tagAndUpdate(groupID, callback) {
                     CSRFToken: '<!--{$CSRFToken}-->'
                 },
                 success: function() {
-                }
+                },
+                cache: false
             }),
             $.ajax({
                 type: 'GET',
@@ -628,11 +633,17 @@ function createGroup() {
                         dialog.indicateIdle();
                     });
                 }
-            }
+            },
+            cache: false
         });
     });
     dialog.show();
     $('input:visible:first, select:visible:first').focus();
+}
+
+// convert to title case
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 function showAllGroupHistory() {
