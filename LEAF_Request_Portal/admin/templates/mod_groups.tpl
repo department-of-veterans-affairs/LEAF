@@ -221,10 +221,10 @@ function setPrimaryAdmin(userID) {
 
 function focusGroupsAndMembers(groupID) {
     $('#' + groupID).on('focusin', function() {
-        //$('#' + groupID).css('background-color', '#fffdc2');
+        
     });
     $('#' + groupID).on('focusout', function() {
-        //$('#' + groupID).css('background-color', 'white');
+        
     });
 }
 function getGroupList() {
