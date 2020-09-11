@@ -78,7 +78,8 @@ function getMembers(groupID) {
             $('#members' + groupID).fadeOut();
             populateMembers(groupID, response);
             $('#members' + groupID).fadeIn();
-        }
+        },
+        cache: false
     });
 }
 
@@ -122,7 +123,8 @@ function getPrimaryAdmin() {
                 $('#membersPrimaryAdmin').append("Primary Administrator has not been set");
             }
             $('#membersPrimaryAdmin').fadeIn();
-        }
+        },
+        cache: false
     });
 }
 
@@ -146,7 +148,8 @@ function removeMember(groupID, userID) {
         url: "../api/group/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
         success: function(response) {
             updateAndGetMembers(groupID);
-        }
+        },
+        cache: false
     });
 }
 
@@ -158,7 +161,8 @@ function addMember(groupID, userID) {
                'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
             updateAndGetMembers(groupID);
-        }
+        },
+        cache: false
     });
 }
 
@@ -171,7 +175,8 @@ function addAdmin(userID) {
                'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getMembers(1);
-        }
+        },
+        cache: false
     });
 }
 
@@ -185,7 +190,8 @@ function removeAdmin(userID) {
         success: function(response) {
         	getMembers(1);
             getPrimaryAdmin();
-        }
+        },
+        cache: false
     });
 }
 
@@ -196,7 +202,8 @@ function unsetPrimaryAdmin() {
         data: {'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getPrimaryAdmin();
-        }
+        },
+        cache: false
     });
 }
 
@@ -207,7 +214,8 @@ function setPrimaryAdmin(userID) {
         data: {'userID': userID, 'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getPrimaryAdmin();
-        }
+        },
+        cache: false
     });
 }
 
@@ -298,7 +306,8 @@ function getGroupList() {
                                                 else {
                                                     alert(res);
                                                 }
-                                            }
+                                            },
+                                            cache: false
                                         });
                                     }
                                     dialog.hide();
@@ -354,7 +363,8 @@ function getGroupList() {
                                         else {
                                             alert(res);
                                         }
-                                    }
+                                    },
+                                    cache: false
                                 });
                             }
                             dialog.hide();
@@ -375,7 +385,8 @@ function getGroupList() {
                                     }(res[i].userName));
                                     counter++;
                                 }
-                            }
+                            },
+                            cache: false
                         });
                         setTimeout(function () {
                             dialog.show();
@@ -434,7 +445,8 @@ function getGroupList() {
                                         {
                                             alert('Primary Admin must be a member of the Sysadmin group');
                                         }
-                                    }
+                                    },
+                                    cache: false
                                 });
                             }
                             dialog.hide();
@@ -461,7 +473,8 @@ function getGroupList() {
                                    $('#primaryAdminSummary').append("Primary Admin has not been set.");
                                 }
 
-                            }
+                            },
+                            cache: false
                         });
                         setTimeout(function () {
                             dialog.show();
@@ -543,7 +556,8 @@ function tagAndUpdate(groupID, callback) {
                     CSRFToken: '<!--{$CSRFToken}-->'
                 },
                 success: function() {
-                }
+                },
+                cache: false
             }),
             $.ajax({
                 type: 'GET',
@@ -620,7 +634,8 @@ function createGroup() {
                         dialog.indicateIdle();
                     });
                 }
-            }
+            },
+            cache: false
         });
     });
     dialog.show();
