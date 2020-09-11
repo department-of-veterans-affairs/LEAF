@@ -1,7 +1,5 @@
 <div class="leaf-center-content">
 
-
-
     <!--{assign var=right_nav_content value="
         <h3 class='navhead'>Access groups</h3>
         <button class='usa-button leaf-btn-green leaf-btn-med leaf-side-btn' onclick='createGroup();'>
@@ -24,7 +22,6 @@
         </ul>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
-
 
     <main class="main-content">
 
@@ -81,7 +78,8 @@ function getMembers(groupID) {
             $('#members' + groupID).fadeOut();
             populateMembers(groupID, response);
             $('#members' + groupID).fadeIn();
-        }
+        },
+        cache: false
     });
 }
 
@@ -117,7 +115,7 @@ function getPrimaryAdmin() {
                 if(response[i].primary_admin == 1)
                 {
                     foundPrimary = true;
-                    $('#membersPrimaryAdmin').append(response[i].Lname + ', ' + response[i].Fname + '<br />');
+                    $('#membersPrimaryAdmin').append(toTitleCase(response[i].Fname) + ' ' + toTitleCase(response[i].Lname) + '<br />');
                 }
             }
             if(!foundPrimary)
@@ -125,16 +123,21 @@ function getPrimaryAdmin() {
                 $('#membersPrimaryAdmin').append("Primary Administrator has not been set");
             }
             $('#membersPrimaryAdmin').fadeIn();
-        }
+        },
+        cache: false
     });
 }
 
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
+    var memberCt = (members.length - 1);
+    var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     for(var i in members) {
-        if(members[i].active == 1
-            || groupID == 1) {
-            $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
+
+        if(members[i].active == 1 || groupID == 1) {
+            if (i == 0) {
+               $('#members' + groupID).append('<span>' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</span>'); 
+            } 
         }
     }
 }
@@ -145,7 +148,8 @@ function removeMember(groupID, userID) {
         url: "../api/group/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
         success: function(response) {
             updateAndGetMembers(groupID);
-        }
+        },
+        cache: false
     });
 }
 
@@ -157,7 +161,8 @@ function addMember(groupID, userID) {
                'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
             updateAndGetMembers(groupID);
-        }
+        },
+        cache: false
     });
 }
 
@@ -170,7 +175,8 @@ function addAdmin(userID) {
                'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getMembers(1);
-        }
+        },
+        cache: false
     });
 }
 
@@ -184,7 +190,8 @@ function removeAdmin(userID) {
         success: function(response) {
         	getMembers(1);
             getPrimaryAdmin();
-        }
+        },
+        cache: false
     });
 }
 
@@ -195,7 +202,8 @@ function unsetPrimaryAdmin() {
         data: {'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getPrimaryAdmin();
-        }
+        },
+        cache: false
     });
 }
 
@@ -206,18 +214,11 @@ function setPrimaryAdmin(userID) {
         data: {'userID': userID, 'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getPrimaryAdmin();
-        }
+        },
+        cache: false
     });
 }
 
-function focusGroupsAndMembers(groupID) {
-    $('#' + groupID).on('focusin', function() {
-        $('#' + groupID).css('background-color', '#fffdc2');
-    });
-    $('#' + groupID).on('focusout', function() {
-        $('#' + groupID).css('background-color', 'white');
-    });
-}
 function getGroupList() {
     $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
 
@@ -244,7 +245,6 @@ function getGroupList() {
                             </div>');
             	}
 
-                focusGroupsAndMembers(res[i].groupID);
                 if(res[i].groupID != 1) { // if not admin
                     function openGroup(groupID, parentGroupID) {
                         $.ajax({
@@ -297,7 +297,8 @@ function getGroupList() {
                                                 else {
                                                     alert(res);
                                                 }
-                                            }
+                                            },
+                                            cache: false
                                         });
                                     }
                                     dialog.hide();
@@ -353,7 +354,8 @@ function getGroupList() {
                                         else {
                                             alert(res);
                                         }
-                                    }
+                                    },
+                                    cache: false
                                 });
                             }
                             dialog.hide();
@@ -374,7 +376,8 @@ function getGroupList() {
                                     }(res[i].userName));
                                     counter++;
                                 }
-                            }
+                            },
+                            cache: false
                         });
                         setTimeout(function () {
                             dialog.show();
@@ -399,7 +402,6 @@ function getGroupList() {
                         <h3 id="groupTitlePrimaryAdmin">Primary Admin</h3>\
                         <div id="membersPrimaryAdmin"></div>\
                         </div>');
-                    focusGroupsAndMembers('primaryAdmin');
 
                     function openPrimaryAdminGroup(){
                       dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory()"> View History</button>'+
@@ -433,7 +435,8 @@ function getGroupList() {
                                         {
                                             alert('Primary Admin must be a member of the Sysadmin group');
                                         }
-                                    }
+                                    },
+                                    cache: false
                                 });
                             }
                             dialog.hide();
@@ -460,7 +463,8 @@ function getGroupList() {
                                    $('#primaryAdminSummary').append("Primary Admin has not been set.");
                                 }
 
-                            }
+                            },
+                            cache: false
                         });
                         setTimeout(function () {
                             dialog.show();
@@ -481,7 +485,7 @@ function getGroupList() {
                     for(var j in res[i].members) {
                         if(res[i].members[j].primary_admin == 1)
                         {
-                            primaryAdminName = res[i].members[j].Lname + ', ' + res[i].members[j].Fname;
+                             primaryAdminName = toTitleCase(res[i].members[j].Fname) + ' ' + toTitleCase(res[i].members[j].Lname);
                         }
                     }
                     $('#membersPrimaryAdmin').append(primaryAdminName + '<br />');
@@ -542,7 +546,8 @@ function tagAndUpdate(groupID, callback) {
                     CSRFToken: '<!--{$CSRFToken}-->'
                 },
                 success: function() {
-                }
+                },
+                cache: false
             }),
             $.ajax({
                 type: 'GET',
@@ -619,11 +624,17 @@ function createGroup() {
                         dialog.indicateIdle();
                     });
                 }
-            }
+            },
+            cache: false
         });
     });
     dialog.show();
     $('input:visible:first, select:visible:first').focus();
+}
+
+// convert to title case
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 function showAllGroupHistory() {
