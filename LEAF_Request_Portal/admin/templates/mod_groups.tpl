@@ -50,6 +50,7 @@
 
 <script>
 $(document).ready(function() {
+    
     $('#userGroups').hide();
     $('#userGroupsLink').click(function() {
         $('#sysAdmins').hide();
@@ -63,6 +64,7 @@ $(document).ready(function() {
         $('#sysAdmins').show();
         $(this).addClass('usa-current');
     });
+
 });
 </script>
 
@@ -166,6 +168,11 @@ function addMember(groupID, userID) {
     });
 }
 
+// convert to title case
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
 function addAdmin(userID) {
     $.ajax({
         type: 'POST',
@@ -221,7 +228,7 @@ function setPrimaryAdmin(userID) {
 
 function getGroupList() {
     $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
-
+    dialog.showButtons();
     $.ajax({
         type: 'GET',
         url: "../api/group/members",
@@ -253,22 +260,22 @@ function getGroupList() {
                             success: function(res) {
                                 dialog.clear();
                                 dialog.setContent(
-                                    '<button style="float:right" class="buttonNorm" onclick="viewHistory('+groupID+')"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="vertical-align: middle"> View History</button>'+
-                                    '<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />');
-                                $('#employees').html('<table id="employee_table" class="table"></table>');
+                                    '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right"  onclick="viewHistory('+groupID+')">View History</button>'+
+                                    '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>');
+                                $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                                 var counter = 0;
                                 for(var i in res) {
-                                    var removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove</span>';
+                                    var removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_'+ counter +'">REMOVE</a>';
                                     var managedBy = '';
                                     if(res[i].locallyManaged != 1) {
-                                        managedBy += '<br /> * Managed in Org. Chart';
+                                        managedBy += '<div class="leaf-font0-rem">&bull; Managed in Org. Chart</div>';
                                     }
                                     if(res[i].active != 1) {
-                                        managedBy += '<br /> * Managed in Org. Chart';
-                                        managedBy += '<br /> * Override set, and they do not have access';
-                                        removeButton = '<span class="buttonNorm" id="removeMember_'+ counter +'">Remove Override</span>';
+                                        managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Managed in Org. Chart</div>';
+                                        managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Override set, and they do not have access</div>';
+                                        removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_'+ counter +'">REMOVE OVERRIDE</a>';
                                     }
-                                    $('#employee_table').append('<tr><td>'+ res[i].Lname + ', ' + res[i].Fname + managedBy +'</td><td>'+ removeButton +'</td></tr>');
+                                    $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">'+ toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div><div class="leaf-font0-8rem leaf-marginLeft-qtrRem">'+ managedBy +'</div>');
                                     $('#removeMember_' + counter).on('click', function(userID) {
                                         return function() {
                                             removeMember(groupID, userID);
@@ -330,9 +337,11 @@ function getGroupList() {
                 }
                 else { // if is admin
                     function openAdminGroup(){
+                        dialog.showButtons();
+                        dialog.setTitle('Editor');
                         dialog.setContent(
                             '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
-                            '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><label class="usa-label" role="heading" tabindex="-1" >Add Administrator</label></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
+                            '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><h3 class="usa-label leaf-marginTop-1rem" role="heading" tabindex="-1">Add Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -367,7 +376,7 @@ function getGroupList() {
                                 $('#adminSummary').html('');
                                 var counter = 0;
                                 for(var i in res) {
-                                    $('#adminSummary').append('<div>&bull; '+ res[i].Lname  + ', ' + res[i].Fname +' [ <a tabindex="0" aria-label="Remove '+ res[i].Lname  + ', ' + res[i].Fname +'" href="#" id="removeAdmin_'+ counter +'">Remove</a> ]</div>');
+                                    $('#adminSummary').append('<div class="leaf-marginTop-qtrRem leaf-marginLeft-qtrRem"><span class="leaf-bold leaf-font0-8rem">'+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'</span> - <a tabindex="0" aria-label="REMOVE ' + toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="removeAdmin_'+ counter +'">REMOVE</a></div>');
                                     $('#removeAdmin_' + counter).on('click', function(userID) {
                                         return function() {
                                             removeAdmin(userID);
@@ -404,15 +413,15 @@ function getGroupList() {
                         </div>');
 
                     function openPrimaryAdminGroup(){
-                      dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory()"> View History</button>'+
-                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><br /><h3 role="heading" tabindex="-1" >Set Primary Administrator:</h3><div id="employeeSelector"></div>');
+                      dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory()">View History</button>'+
+                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Set Primary Administrator</h3><div id="employeeSelector"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
-
+                        dialog.showButtons();
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
                                 var selectedUserName = empSel.selectionData[empSel.selection].userName;
@@ -451,7 +460,7 @@ function getGroupList() {
                                     if(res[i].primary_admin == 1)
                                     {
                                         foundPrimary = true;
-                                        $('#primaryAdminSummary').append('<div>&bull; '+ res[i].Lname  + ', ' + res[i].Fname +' [ <a tabindex="0" aria-label="Unset '+ res[i].Lname  + ', ' + res[i].Fname +'" href="#" id="unsetPrimaryAdmin">Unset</a> ]</div>');
+                                        $('#primaryAdminSummary').append('<div><span class="leaf-bold leaf-font0-9rem">'+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'</span> - <a tabindex="0" aria-label="Unset '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="unsetPrimaryAdmin">UNSET</a></div>');
                                         $('#unsetPrimaryAdmin').on('click', function() {
                                                 unsetPrimaryAdmin();
                                                 dialog.hide();
@@ -497,12 +506,12 @@ function getGroupList() {
 }
 
 function viewHistory(groupID){
-  dialog_simple.setContent('');
-  dialog_simple.setTitle('Group History');
-	dialog_simple.indicateBusy();
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('Group history');
+    dialog_simple.indicateBusy();
+    dialog.showButtons();
 
-  var type = (groupID)? "group": "primaryAdmin";
-
+    var type = (groupID)? "group": "primaryAdmin";
     $.ajax({
         type: 'GET',
         url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID+'&tz='+tz,
@@ -521,7 +530,7 @@ function viewPrimaryAdminHistory(){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Primary Admin History');
 	dialog_simple.indicateBusy();
-
+    dialog.showButtons();
     $.ajax({
         type: 'GET',
         url: 'ajaxIndex.php?a=gethistory&type=primaryAdmin&tz='+tz,
@@ -567,7 +576,7 @@ function tagAndUpdate(groupID, callback) {
 function importGroup() {
     dialog.setTitle('Import Group');
     dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
-
+    dialog.showButtons();
     var groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     groupSel.basePath = '../';
@@ -600,7 +609,7 @@ function importGroup() {
 function createGroup() {
     dialog.setTitle('Create a new group');
     dialog.setContent('<div><label role="heading">Group Title</label><div class="leaf-marginTop-halfRem"><input aria-label="Enter group name" id="groupName" class="usa-input" size="36"></input></div></div>');
-
+    dialog.showButtons();
     dialog.setSaveHandler(function() {
     	dialog.indicateBusy();
         //list of possible errors returned by the api call
@@ -638,7 +647,7 @@ function toTitleCase(str) {
 }
 
 function showAllGroupHistory() {
-    dialog.setTitle('All Group History');
+    dialog.setTitle('All group history');
     $.ajax({
         type: 'GET',
         url: 'ajaxIndex.php?a=gethistoryall&type=group&tz='+tz,
@@ -647,6 +656,7 @@ function showAllGroupHistory() {
             dialog.setContent(res);
             dialog.indicateIdle();
             dialog.show();
+            dialog.hideButtons();
         },
         cache: false
     });
@@ -657,10 +667,6 @@ var dialog;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
-
-	$('#simpleloadIndicator').css({width: $(window).width() * .78, height: $(window).height() * .78});
-	$('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
-
     getGroupList();
 });
 

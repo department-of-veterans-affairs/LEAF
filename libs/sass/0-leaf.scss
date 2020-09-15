@@ -272,7 +272,7 @@ ul.leaf-progress-bar {
         .sidenav-right:hidden {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .usa-banner {font-family: 'PublicSans-Regular';}
-    .usa-input {width: auto; padding: 0.7rem;}
+    .usa-input {width: auto; padding: 0.7rem; height: auto;}
     .ui-widget-header {border: 0; background-color: none;}
     .usa-banner__header {padding-bottom: .3rem; padding-top: .3rem; min-height: 0;}
     .usa-banner__header-close-text, .usa-banner__header-text {font-size: .7rem; letter-spacing: 0.01rem;}
@@ -306,7 +306,7 @@ ul.leaf-progress-bar {
     /* ############### UI DIALOG OVERRIDES ################# */
     .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
     .ui-dialog {border-radius: 6px; padding-bottom: 1.0rem; min-height: 320px; min-width: 540px; overflow-y: auto; overflow-x: hidden;}
-    .ui-dialog-content {overflow-x: visible!important; overflow-y: visible!important; min-height: 280px; min-width: 510px; }
+    .ui-dialog-content {min-height: 280px; min-width: 510px; }
     .ui-widget-header {border: 0; background-color: none; background: none;}
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
     .leaf-dialog-content { min-height: 300px; padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
@@ -344,21 +344,26 @@ ul.leaf-progress-bar {
 .leaf-padAll1rem {padding: 1rem;}
 
 .leaf-marginAll-1rem {margin: 1rem;}
+.leaf-marginTop-qtrRem {margin-top: 0.25rem;}
 .leaf-marginTop-halfRem {margin-top: 0.5rem;}
+.leaf-marginTopBot-halfRem {margin-top: 0.5rem; margin-bottom: 0.5rem;}
 .leaf-marginTop-1rem {margin-top: 1rem;}
 .leaf-marginTop-2rem {margin-top: 2rem;}
 .leaf-marginBot-1rem {margin-bottom: 1rem;}
 .leaf-marginBot-halfRem {margin-bottom: 0.5rem;}
 .leaf-marginTopBot-1rem {margin-bottom: 1rem; margin-top: 1rem;}
+.leaf-marginLeft-qtrRem {margin-left: 0.25rem;}
 
 /* ############### widths by percent ################# */
 .leaf-width10pct { width: 10%; }
 .leaf-width20pct { width: 20%; }
+.leaf-width25pct { width: 25%; }
 .leaf-width30pct { width: 30%; }
 .leaf-width40pct { width: 40%; }
 .leaf-width50pct { width: 50%; }
 .leaf-width60pct { width: 60%; }
 .leaf-width70pct { width: 70%; }
+.leaf-width75pct { width: 75%; }
 .leaf-width80pct { width: 80%; }
 .leaf-width90pct { width: 90%; }
 .leaf-width100pct { width: 100%; }

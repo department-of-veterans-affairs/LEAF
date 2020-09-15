@@ -82,6 +82,16 @@ dialogController.prototype.indicateIdle = function() {
     $('#' + this.btnSaveID).css('visibility', 'visible');
 };
 
+dialogController.prototype.hideButtons = function() {
+    $('#' + this.btnCancelID).css('visibility', 'hidden');
+    $('#' + this.btnSaveID).css('visibility', 'hidden');
+};
+
+dialogController.prototype.showButtons = function() {
+    $('#' + this.btnCancelID).css('visibility', 'visible');
+    $('#' + this.btnSaveID).css('visibility', 'visible');
+};
+
 dialogController.prototype.enableLiveValidation = function() {
 	var t = this;
 	$('input[type="text"]').on('keyup', function() {

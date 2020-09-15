@@ -1,34 +1,17 @@
-<div id="history-slice">
+<div id="history-slice"></div>
+
+<div class="leaf-buttonBar">
+    <button id="prev" class="usa-button usa-button--base leaf-btn-med leaf-float-left">Previous page</button>
+    <button id="next" class="usa-button usa-button leaf-btn-med leaf-float-right">Next page</button>
 </div>
-<div>
-<a id="prev" class="buttonNorm" style="float: left;cursor:pointer;"><- Prev</a>
-
-<a id="next" class="buttonNorm" style="float:right;cursor:pointer;">Next -></a>
-</div>
-
-
 
 <script type="text/javascript">
-var page = 1;
-var itemId = '<!--{$itemId}-->';
-
-$.ajax({
-    type: 'GET',
-    url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&page=1&id='+itemId,
-    dataType: 'text',
-    success: function(res) {
-        $('#history-slice').html(res);
-        adjustPageButtons(page);
-    },
-    cache: false
-});
-
-$('#prev').on('click', function() {
-    page = page - 1;
+    var page = 1;
+    var itemId = '<!--{$itemId}-->';
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&page=' + page +'&id='+itemId,
+        url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&page=1&id='+itemId,
         dataType: 'text',
         success: function(res) {
             $('#history-slice').html(res);
@@ -36,40 +19,49 @@ $('#prev').on('click', function() {
         },
         cache: false
     });
-});
 
-$('#next').on('click', function() {
-    page = page + 1;
-    $.ajax({
-        type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&id='+itemId+'&page=' + page,
-        dataType: 'text',
-        success: function(res) {
-            $('#history-slice').html(res);
-            adjustPageButtons(page);
-        },
-        cache: false
+    $('#prev').on('click', function() {
+        page = page - 1;
+
+        $.ajax({
+            type: 'GET',
+            url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&page=' + page +'&id='+itemId,
+            dataType: 'text',
+            success: function(res) {
+                $('#history-slice').html(res);
+                adjustPageButtons(page);
+            },
+            cache: false
+        });
     });
-});
 
-function adjustPageButtons(page)
-{
-    if(<!--{$totalPages}--> < 2 || page == <!--{$totalPages}-->)
-    {
-        $('a#next').hide();
+    $('#next').on('click', function() {
+        page = page + 1;
+        $.ajax({
+            type: 'GET',
+            url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&id='+itemId+'&page=' + page,
+            dataType: 'text',
+            success: function(res) {
+                $('#history-slice').html(res);
+                adjustPageButtons(page);
+            },
+            cache: false
+        });
+    });
+
+function adjustPageButtons(page) {
+    if(<!--{$totalPages}--> < 2 || page == <!--{$totalPages}-->) {
+        $('#next').hide();
     }
-    else
-    {
-        $('a#next').show();
+    else {
+        $('#next').show();
     }
 
-    if(page == 1)
-    {
-        $('a#prev').hide();
+    if(page == 1) {
+        $('#prev').hide();
     }
-    else
-    {
-        $('a#prev').show();
+    else{
+        $('#prev').show();
     }
 }
 </script>
