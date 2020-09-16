@@ -4,31 +4,45 @@ if(!isset($argv[1])){
     exit();
 }
 $portalPath = $argv[1];
-$portalPath = ltrim(rtrim($portalPath,"/"), "/");
-
+$portalPath = "/" . ltrim(rtrim($portalPath,"/"), "/") . "/";
 
 if(!isset($argv[2]) && (strcasecmp($argv[2], 'stateless') || strcasecmp($argv[2], 'nonstateless'))){
     echo "Second parameter must be either 'stateless' or 'nonstateless'";
     exit();
 }
+
 if(strcasecmp($argv[2], 'stateless')){
+    include_once '/var/www/html/routing/routing_config.php';
+    $routingDB = new mysqli(Routing_Config::$dbHost, Routing_Config::$dbUser, Routing_Config::$dbPass, Routing_Config::$dbName);
+    $res = $routingDB->query('SELECT database_name FROM portal_configs WHERE path="'.$path.'";');
+    if($res->num_rows)
+    {
+        echo "Portal Path does not exist.";
+        die;
+    }
+    $res->data_seek(0);
+    $row = $res->fetch_row();
+
+    $mysqli = new mysqli(Routing_Config::$dbHost, Routing_Config::$dbUser, Routing_Config::$dbPass);
+    $portalToExport = $row[0];
+    $routingDB->close();
 
 }elseif(strcasecmp($argv[2], 'nonstateless')){
     if(!is_dir("/var/www/html/" . $portalPath)){
         echo "Portal path does not exist.";
         exit();
     }
-    
-    include_once "/var/www/html/" . $portalPath . '/db_config.php';
+    include_once "/var/www/html" . $portalPath . 'db_config.php';
+    $db_config = new DB_Config();
+
+    $mysqli = new mysqli($db_config->dbHost,$db_config->dbUser,$db_config->dbPass);
+    $portalToExport = $db_config->dbName;
 }
 
 
 
 
-$db_config = new DB_Config();
 
-$mysqli = new mysqli($db_config->dbHost,$db_config->dbUser,$db_config->dbPass);
-$portalToExport = $db_config->dbName;
 $tempDBName = "data_transfer_temp_" . $portalToExport;
 
 // Check connection
