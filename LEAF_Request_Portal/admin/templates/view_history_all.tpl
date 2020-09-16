@@ -6,7 +6,6 @@
 </div>
 
 <script type="text/javascript">
-    //debugger;
     var page = 1;
 
     $.ajax({

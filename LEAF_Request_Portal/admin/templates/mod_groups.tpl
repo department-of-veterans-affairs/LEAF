@@ -17,7 +17,7 @@
     <!--{assign var=left_nav_content value="
         <h3 class='navhead'>Access categories</h3>
         <ul class='usa-sidenav'>
-            <li class='usa-sidenav__item'><a href='javascript:void(0)' class='usa-current' id='sysAdminsLink'>System administrators</a></li>
+            <li class='usa-sidenav__item'><a href='javascript:void(0)' id='sysAdminsLink'>System administrators</a></li>
             <li class='usa-sidenav__item'><a href='javascript:void(0)' id='userGroupsLink'>User groups</a></li>
         </ul>
     "}-->
@@ -35,7 +35,7 @@
             </div>
         </div>
 
-        <div id="userGroups">
+        <div id="userGroups" class="leaf-marginTop-1rem">
             <div class="leaf-clear-both">
                 <h3 role="heading" tabindex="-1">User groups</h3>
                 <div id="groupList" class="leaf-displayFlexRow"></div>
@@ -51,7 +51,6 @@
 <script>
 $(document).ready(function() {
     
-    $('#userGroups').hide();
     $('#userGroupsLink').click(function() {
         $('#sysAdmins').hide();
         $('#sysAdminsLink').removeClass('usa-current');
@@ -630,7 +629,7 @@ function createGroup() {
                 }
                 else {
                     tagAndUpdate(res, function() {
-                        dialog.indicateIdle();
+                    dialog.indicateIdle();
                     });
                 }
             },
