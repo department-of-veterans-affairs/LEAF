@@ -24,6 +24,9 @@ if(strcasecmp($argv[2], 'stateless') === 0){
     $row = $res->fetch_row();
 
     $mysqli = new mysqli(Routing_Config::$dbHost, Routing_Config::$dbUser, Routing_Config::$dbPass);
+    $dbHost = Routing_Config::$dbHost;
+    $dbUser = Routing_Config::$dbUser;
+    $dbPass = Routing_Config::$dbPass;
     $portalToExport = $row[0];
     $routingDB->close();
 
@@ -36,6 +39,9 @@ if(strcasecmp($argv[2], 'stateless') === 0){
     $db_config = new DB_Config();
 
     $mysqli = new mysqli($db_config->dbHost,$db_config->dbUser,$db_config->dbPass);
+    $dbHost = $db_config->dbHost;
+    $dbUser = $db_config->dbUser;
+    $dbPass = $db_config->dbPass;
     $portalToExport = $db_config->dbName;
 }
 
@@ -166,7 +172,7 @@ $filenameFullPath = $directory . $filename;
 
 shell_exec("mkdir -p " . $directory);
 shell_exec("rm " . $filenameFullPath);
-shell_exec("mysqldump --compact --skip-quote-names --skip-opt -h mysql -u tester -ptester data_transfer_temp_leaf_portal > /var/www/html/sqlserver_dumps/data_transfer_temp_leaf_portal.sql");
+shell_exec("mysqldump --compact --skip-quote-names --skip-opt -h $dbHost -u $dbUser -p$dbPass $tempDBName > $filenameFullPath");
 shell_exec("sed -i 's/`//g' " . $filenameFullPath);
 shell_exec("sed -i  s/\"\\\\\\'\"/\"''\"/g " . $filenameFullPath);//replace \' with ''
 shell_exec("sed -i 's/DEFAULT current_timestamp()//g' " . $filenameFullPath);
