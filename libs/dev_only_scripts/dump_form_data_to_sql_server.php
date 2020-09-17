@@ -172,7 +172,7 @@ $filenameFullPath = $directory . $filename;
 
 shell_exec("mkdir -p " . $directory);
 shell_exec("rm -f " . $filenameFullPath);
-shell_exec("mysqldump --compact --skip-quote-names --skip-opt -h $dbHost -u $dbUser -p$dbPass $tempDBName > $filenameFullPath");
+shell_exec("mysqldump --compact --skip-quote-names --skip-opt --add-drop-table -h $dbHost -u $dbUser -p$dbPass $tempDBName > $filenameFullPath");
 shell_exec("sed -i 's/`//g' " . $filenameFullPath);
 shell_exec("sed -i  s/\"\\\\\\'\"/\"''\"/g " . $filenameFullPath);//replace \' with ''
 shell_exec("sed -i 's/DEFAULT current_timestamp()//g' " . $filenameFullPath);
