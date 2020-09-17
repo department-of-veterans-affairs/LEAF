@@ -49,10 +49,7 @@ namespace Handlers{
 
             if (file_exists($s3objectKey)) {
                 header('Content-Type: ' . mime_content_type($s3objectKey));
-                // header('Content-Disposition: attachment; filename="' . addslashes(html_entity_decode($in)) . '"');
-                // header('Content-Length: ' . filesize($s3objectKey));
-                // header('Cache-Control: maxage=1'); //In seconds
-                // header('Pragma: public');
+                header('Content-Length: ' . filesize($s3objectKey));
 
                 readfile($s3objectKey);
             }
