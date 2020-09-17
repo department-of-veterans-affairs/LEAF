@@ -1,23 +1,23 @@
-<?
+<?php
 if(!isset($argv[1])){
-    echo "First parameter must be portal path (e.g., /leaf/portal/path/).";
+    echo "First parameter must be portal path (e.g., /leaf/portal/path/).\n";
     exit();
 }
 $portalPath = $argv[1];
 $portalPath = "/" . ltrim(rtrim($portalPath,"/"), "/") . "/";
 
-if(!isset($argv[2]) && (strcasecmp($argv[2], 'stateless') || strcasecmp($argv[2], 'nonstateless'))){
-    echo "Second parameter must be either 'stateless' or 'nonstateless'";
+if(!isset($argv[2]) || (strcasecmp($argv[2], 'stateless') !== 0 && strcasecmp($argv[2], 'nonstateless') !== 0)){
+    echo "Second parameter must be either 'stateless' or 'nonstateless'.\n";
     exit();
 }
 
-if(strcasecmp($argv[2], 'stateless')){
+if(strcasecmp($argv[2], 'stateless') === 0){
     include_once '/var/www/html/routing/routing_config.php';
     $routingDB = new mysqli(Routing_Config::$dbHost, Routing_Config::$dbUser, Routing_Config::$dbPass, Routing_Config::$dbName);
     $res = $routingDB->query('SELECT database_name FROM portal_configs WHERE path="'.$path.'";');
     if($res->num_rows)
     {
-        echo "Portal Path does not exist.";
+        echo "Portal Path does not exist.\n";
         die;
     }
     $res->data_seek(0);
@@ -27,9 +27,9 @@ if(strcasecmp($argv[2], 'stateless')){
     $portalToExport = $row[0];
     $routingDB->close();
 
-}elseif(strcasecmp($argv[2], 'nonstateless')){
+}elseif(strcasecmp($argv[2], 'nonstateless') === 0){
     if(!is_dir("/var/www/html/" . $portalPath)){
-        echo "Portal path does not exist.";
+        echo "Portal path does not exist.\n";
         exit();
     }
     include_once "/var/www/html" . $portalPath . 'db_config.php';
@@ -47,22 +47,22 @@ $tempDBName = "data_transfer_temp_" . $portalToExport;
 
 // Check connection
 if ($mysqli -> connect_errno) {
-    echo "Failed to connect to MySQL: " . $mysqli -> connect_error;
+    echo "Failed to connect to MySQL: " . $mysqli -> connect_error . "\n";
     exit();
 }
 
 if (!$mysqli->query("DROP DATABASE IF EXISTS " . $tempDBName . ";")) {
-    echo("Error description 1: " . $mysqli -> error);
+    echo("Error description 1: " . $mysqli -> error) . "\n";
     exit();
 }
 
 if (!$mysqli->query("CREATE DATABASE " . $tempDBName . ";")) {
-    echo("Error description 2: " . $mysqli -> error);
+    echo("Error description 2: " . $mysqli -> error) . "\n";
     exit();
 }
 
 if (!$mysqli->select_db($tempDBName)) {
-    echo("Error description 3: " . $mysqli -> error);
+    echo("Error description 3: " . $mysqli -> error) . "\n";
     exit();
 }
 
@@ -95,7 +95,7 @@ if (!$mysqli->query("CREATE TABLE form_data
                         LEFT JOIN $portalToExport.data on records.recordID = data.recordID
                         LEFT JOIN $portalToExport.category_count on records.recordID = category_count.recordID
                         LEFT JOIN $portalToExport.categories on category_count.categoryID = categories.categoryID;")) {
-    echo("Error description 4: " . $mysqli -> error);
+    echo("Error description 4: " . $mysqli -> error) . "\n";
     exit();
 }
 
@@ -133,7 +133,7 @@ if (!$mysqli->query("CREATE TABLE indicators
                         disabled,
                         is_sensitive 
                         FROM $portalToExport.indicators;")) {
-    echo("Error description 5: " . $mysqli -> error);
+    echo("Error description 5: " . $mysqli -> error) . "\n";
     exit();
 }
 
@@ -157,7 +157,7 @@ if (!$mysqli->query("CREATE TABLE action_history
                         workflow_steps.stepTitle
                         FROM $portalToExport.action_history
                         LEFT JOIN $portalToExport.workflow_steps on workflow_steps.stepID = action_history.stepID;")) {
-    echo("Error description 6: " . $mysqli -> error);
+    echo("Error description 6: " . $mysqli -> error) . "\n";
     exit();
 }
 $filename = $tempDBName . ".sql";
@@ -172,4 +172,9 @@ shell_exec("sed -i  s/\"\\\\\\'\"/\"''\"/g " . $filenameFullPath);//replace \' w
 shell_exec("sed -i 's/DEFAULT current_timestamp()//g' " . $filenameFullPath);
 shell_exec("sed -i 's/int(10)/int/g' " . $filenameFullPath);
 
-echo $filename . " created."; 
+if (!$mysqli->query("DROP DATABASE IF EXISTS " . $tempDBName . ";")) {
+    echo("Error description 1: " . $mysqli -> error) . "\n";
+    exit();
+}
+
+echo $filename . " created.\n"; 
