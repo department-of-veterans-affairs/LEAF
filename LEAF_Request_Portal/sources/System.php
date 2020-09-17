@@ -866,37 +866,6 @@ class System
         return $out;
     }
 
-    public function getFile($in)
-    {
-        if ($in == 'index.html')
-        {
-            return 0;
-        }
-
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-
-        global $config;
-        $s3objectKey = "s3://" . $this->awsUtil->s3getBucketName() . "/" . $config->fileManagerDir . $in;
-
-        if (file_exists($s3objectKey)) {
-            header('Content-Disposition: attachment; filename="' . addslashes(html_entity_decode($in)) . '"');
-            header('Content-Length: ' . filesize($s3objectKey));
-            header('Cache-Control: maxage=1'); //In seconds
-            header('Pragma: public');
-
-            readfile($s3objectKey);
-            exit();
-        }
-        else
-        {
-            return 'Error: File does not exist or access may be restricted.';
-        }
-        
-    }
-
     public function newFile()
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])

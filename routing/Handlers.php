@@ -38,6 +38,30 @@ namespace Handlers{
             readfile(__DIR__ . '/../LEAF_Request_Portal/images/' . $image);
         }
 
+        function file($fileName){
+            global $config;
+            require __DIR__ . '/../libs/php-commons/aws/AWSUtil.php';
+            
+            $awsUtil = new \AWSUtil();
+            $awsUtil->s3registerStreamWrapper();
+
+            $s3objectKey = "s3://" . $awsUtil->s3getBucketName() . "/" . $config->fileManagerDir . $fileName;
+
+            if (file_exists($s3objectKey)) {
+                header('Content-Type: ' . mime_content_type($s3objectKey));
+                // header('Content-Disposition: attachment; filename="' . addslashes(html_entity_decode($in)) . '"');
+                // header('Content-Length: ' . filesize($s3objectKey));
+                // header('Cache-Control: maxage=1'); //In seconds
+                // header('Pragma: public');
+
+                readfile($s3objectKey);
+            }
+            else
+            {
+                return 'Error: File does not exist or access may be restricted.';
+            }
+        }
+
         function api(){
             global $config, $db_config;
             require __DIR__ . '/../LEAF_Request_Portal/api/index.php';

@@ -16,6 +16,7 @@ class LEAFRoutes {
         $this->addRoute('GET', '/js/{jsFile:.+}', 'Portal/js');
         $this->addRoute('GET', '/css/{cssFile:.+}', 'Portal/css');
         $this->addRoute('GET', '/images/{imageFile:.+}', 'Portal/image');
+        $this->addRoute('GET', '/files/{fileName:.+}', 'Portal/file');
         $this->addRoute('GET', '/login/', 'Portal/login');
 
         $this->addRoute(['GET','POST','DELETE'], '/api/', 'Portal/api');
