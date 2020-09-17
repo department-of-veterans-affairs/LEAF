@@ -62,10 +62,10 @@ class Email
         global $config;
 
         $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-        $customTemplatePath = __DIR__ . "/templates/email/custom_override/". $cleanPortalPath . "{$tpl}";
+        $customTemplatePath = __DIR__ . "/templates/email/custom_override/". $cleanPortalPath . "_{$tpl}";
         
         if (file_exists($customTemplatePath)) {
-            return "custom_override/". $cleanPortalPath . "{$tpl}";
+            return "custom_override/". $cleanPortalPath . "_{$tpl}";
         } else {
             return $tpl;
         }
