@@ -14,8 +14,8 @@ if(!isset($argv[2]) || (strcasecmp($argv[2], 'stateless') !== 0 && strcasecmp($a
 if(strcasecmp($argv[2], 'stateless') === 0){
     include_once '/var/www/html/routing/routing_config.php';
     $routingDB = new mysqli(Routing_Config::$dbHost, Routing_Config::$dbUser, Routing_Config::$dbPass, Routing_Config::$dbName);
-    $res = $routingDB->query('SELECT database_name FROM portal_configs WHERE path="'.$path.'";');
-    if($res->num_rows)
+    $res = $routingDB->query('SELECT database_name FROM portal_configs WHERE path="'.$portalPath.'";');
+    if($res->num_rows == 0)
     {
         echo "Portal Path does not exist.\n";
         die;
