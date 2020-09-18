@@ -220,7 +220,7 @@
             success: function(res) {
                 // show/hide alert
                 $("#sitemap-alert").fadeIn();
-                $("#sitemap-alert").delay(3000).fadeOut();
+                $("#sitemap-alert").delay(1800).fadeOut();
             },
             cache: false
         });
