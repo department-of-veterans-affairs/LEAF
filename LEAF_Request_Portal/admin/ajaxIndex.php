@@ -174,7 +174,7 @@ switch ($action) {
         }
 
         //pagination
-        $pageLength = 10;
+        $pageLength = 6;
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -275,7 +275,7 @@ switch ($action) {
             }
         }
         //pagination
-        $pageLength = 10;
+        $pageLength = 6;
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
