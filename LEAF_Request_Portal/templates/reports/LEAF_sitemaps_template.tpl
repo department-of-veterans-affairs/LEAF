@@ -109,7 +109,7 @@
             '<div class="leaf-marginAll-1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
                 '<div class="leaf-float-left" style="margin-right: 3rem;">' +
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-white"></span><input type="radio" id="white" name="btnColor" value="leaf-card-white" checked><label for="white">White</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-card-blue" checked><label for="blue">Blue</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-card-blue"><label for="blue">Blue</label></div>' +
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-green"></span><input type="radio" id="green" name="btnColor" value="leaf-card-green"><label for="green">Green</label></div>' +
                 '</div><div class="leaf-float-left">' +
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-orange"></span><input type="radio" id="orange" name="btnColor" value="leaf-card-orange"><label for="orange">Orange</label></div>' +
@@ -159,7 +159,13 @@
                 color = value.color;
             }
         });
-    
+        var chkVarWhite, chkVarBlue, chkVarGreen, chkVarOrange, chkVarYellow, chkVarGrey = '';
+        if (color == 'leaf-card-white') {chkVarWhite = 'checked'}
+        if (color == 'leaf-card-blue') {chkVarBlue = 'checked'}
+        if (color == 'leaf-card-green') {chkVarGreen = 'checked'}
+        if (color == 'leaf-card-orange') {chkVarOrange = 'checked'}
+        if (color == 'leaf-card-yellow') {chkVarYellow = 'checked'}
+        if (color == 'leaf-card-grey') {chkVarGrey = 'checked'}
         dialog.setTitle('Edit Card');
         dialog.setContent('<div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" value="'+title+'"size="48" maxlength="36"></input></div>' +
@@ -167,13 +173,13 @@
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48" maxlength="40"></input></div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
                 '<div class="leaf-float-left" style="margin-right: 3rem;">' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-white"></span><input type="radio" id="white" name="btnColor" value="leaf-card-white" checked><label for="white">White</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-card-blue" checked><label for="blue">Blue</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-green"></span><input type="radio" id="green" name="btnColor" value="leaf-card-green"><label for="green">Green</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-white"></span><input type="radio" id="white" name="btnColor" value="leaf-card-white"' + chkVarWhite + '><label for="white">White</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-card-blue"' + chkVarBlue + '><label for="blue">Blue</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-green"></span><input type="radio" id="green" name="btnColor" value="leaf-card-green"' + chkVarGreen +'><label for="green">Green</label></div>' +
                 '</div><div class="leaf-float-left">' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-orange"></span><input type="radio" id="orange" name="btnColor" value="leaf-card-orange"><label for="orange">Orange</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-yellow"></span><input type="radio" id="yellow" name="btnColor" value="leaf-card-yellow"><label for="yellow">Yellow</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-grey"></span><input type="radio" id="grey" name="btnColor" value="leaf-card-grey"><label for="grey">Grey</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-orange"></span><input type="radio" id="orange" name="btnColor" value="leaf-card-orange"' + chkVarOrange + '><label for="orange">Orange</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-yellow"></span><input type="radio" id="yellow" name="btnColor" value="leaf-card-yellow"' + chkVarYellow + '><label for="yellow">Yellow</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-grey"></span><input type="radio" id="grey" name="btnColor" value="leaf-card-grey"' + chkVarGrey + '><label for="grey">Grey</label></div>' +
                 '</div>' +
         '</div></div>');
 
@@ -212,7 +218,6 @@
             data: {CSRFToken: '<!--{$CSRFToken}-->',
                     sitemap_json: newJson},
             success: function(res) {
-                console.log(res);
                 // show/hide alert
                 $("#sitemap-alert").fadeIn();
                 $("#sitemap-alert").delay(3000).fadeOut();
