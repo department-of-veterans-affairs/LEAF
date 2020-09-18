@@ -17,7 +17,8 @@
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
     .default-container {width: 100%;}
-    .sidenav { display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; }
+    .usa-sidenav {white-space: normal!important;}
+    .sidenav { display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; white-space: normal; width: 15rem;}
         .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .sidenav-right { display: block; float: right; margin: 0.6rem 1rem; padding: 1.0rem;}
@@ -34,6 +35,15 @@
         position: relative;
         width: calc(100% - 15rem);
         white-space: normal;
+    }
+    .main-content-noRight {
+        display: inline-block;
+        position: relative;
+        width: 70%;
+        white-space: normal;
+        margin: 0.6rem 2.9rem;
+        min-height: 27rem;
+        overflow: visible;
     }
 
     /* ############### LEAF HEADER ################# */
@@ -65,6 +75,7 @@
     .leaf-width-10rem {width: 10rem;}
     .leaf-width-11rem {width: 11rem;}
     .leaf-width-12rem {width: 12rem;}
+    .leaf-width-13rem {width: 13rem;}
     .leaf-width-14rem {width: 14rem;}
     .leaf-width-24rem {width: 24rem;}
 

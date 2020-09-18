@@ -38,6 +38,8 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 
 /* ############### USWDS OVERRIDES ################# */
 .usa-sidenav {font-family: 'PublicSans-Regular'; font-size: 0.9rem;}
+.usa-sidenav__item {white-space: normal;}
+    .usa-sidenav a {white-space: normal;}
 .usa-current a {color: #005ea2!important;}
 
 /* ############### GLOBAL CONTAINER STYLES ################# */
@@ -64,6 +66,7 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 .leaf-valign-top {vertical-align: top;}
 .leaf-ul {list-style-type: none; margin: 0.5rem 0; padding-inline-start: 5px;}
     .leaf-ul li {margin: 0; font-size: 0.7rem; line-height: 1.2rem;}
+.leaf-border-bottom {border-bottom: 1px solid #dfe1e2!important;}
 
 /* ############### USWDS BUTTON OVERRIDES ################# */
 .site-button-outline-secondary {
@@ -82,6 +85,8 @@ button:focus, button:active {border: 0!important; outline: none!important;}
         text-decoration: none!important;
     }
 .usa-button {font-family: 'PublicSans-Bold'; white-space: nowrap; padding: 0.8rem 0.6rem; min-width: 6rem;}
+    .usa-button a {text-decoration: none;}
+    .usa-button a:hover {color: #005EA2;}
 .leaf-btn-icon {margin-right: 0.5rem;}
 .leaf-btn-small {padding: 0.5rem; font-size: 0.4rem;}
 .leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
@@ -103,31 +108,41 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 
 /* ############### LEAF SITEMAP STYLES ################# */
 .leaf-sitemap-card {
-    min-width: 16rem;
+    flex: 0 1 30%;
+    min-width: 18rem;
     max-width: 21rem;
     margin: 0.5rem;
     padding: 0.6rem;
     box-shadow: 2px 2px 3px #adadad;
     border: 1px solid #ccc;
     height: 6.2rem;
-    float: left;
     background-color: #fff;
     cursor: move;
     border-radius: 5px;
     transition: box-shadow 0.4s ease;
+    white-space: wrap;
     }
     .leaf-sitemap-card:hover, .leaf-sitemap-card:focus {box-shadow: 4px 4px 6px #949191;}
     .active {background-color: #faf3d1;}
-    .leaf-sitemap-card h3 {margin: 0.0rem 0 0.5rem 0; font-size: 1.0rem; word-break: break-all;}
+    .leaf-sitemap-card h3 {margin: 0.0rem 0 0.5rem 0; font-size: 1.0rem; word-break: break-word;}
     .leaf-sitemap-card h3 a:hover {text-decoration: none; color: #004b76;}
-    .leaf-sitemap-card p {margin: 0.2rem 0; font-size: 0.8rem; line-height: 1.0rem; font-family: 'PublicSans-Regular';}
-.leaf-delete-card {color: #71767a; font-size: 1.0rem; vertical-align: middle; float: right; margin: 0.0rem; cursor: pointer;}
-
+    .leaf-sitemap-card p {margin: 0.2rem 0; font-size: 0.8rem; line-height: 1.0rem; font-family: 'PublicSans-Regular'; word-break: break-word; white-space: normal;}
+.leaf-delete-card {color: #2672de; font-size: 1.0rem; vertical-align: middle; float: right; margin: 0.0rem; cursor: pointer; white-space: normal;}
+.leaf-sitemap-alert {
+    padding: 0.4rem; 
+    border-radius: 4px; 
+    box-shadow: 1px 1px 5px #aaa; 
+    font-size: 0.8rem; 
+    font-family: 'PublicSans-Regular'; 
+    background-color: #aeedb4;
+    color: #137d1d;
+    border: 1px solid #41aa4b;
+    margin: 0 0 0 1.3rem;
+}
 .leaf-color-choice {margin: 0.4rem 0;}
     .leaf-color-demo {display: inline-block; width: 24px; height: 24px; border: 1px solid #aaa; margin: 0.0rem 0.6rem 0.3rem 0; vertical-align: bottom;}
     .leaf-color-choice input {display: inline-block; vertical-align: top; margin: 0.5rem 0.4rem 0.3rem 0;}
     .leaf-color-choice label {display: inline-block; vertical-align: top; margin: 0.5rem 0.4rem 0.3rem 0;}
-
 .leaf-card-white {background-color: #fff;}
 .leaf-card-blue {background-color: #e0f4fa;}
 .leaf-card-green {background-color: #eaf4dd;}
@@ -334,6 +349,7 @@ ul.leaf-progress-bar {
     .leaf-width-10rem {width: 10rem;}
     .leaf-width-11rem {width: 11rem;}
     .leaf-width-12rem {width: 12rem;}
+    .leaf-width-13rem {width: 13rem;}
     .leaf-width-14rem {width: 14rem;}
     .leaf-width-24rem {width: 24rem;}
 
@@ -353,6 +369,8 @@ ul.leaf-progress-bar {
 .leaf-marginBot-halfRem {margin-bottom: 0.5rem;}
 .leaf-marginTopBot-1rem {margin-bottom: 1rem; margin-top: 1rem;}
 .leaf-marginLeft-qtrRem {margin-left: 0.25rem;}
+.leaf-marginLeft-halfRem {margin-left: 0.5rem;}
+.leaf-marginLeft-1rem {margin-left: 1.0rem;}
 
 /* ############### widths by percent ################# */
 .leaf-width10pct { width: 10%; }
