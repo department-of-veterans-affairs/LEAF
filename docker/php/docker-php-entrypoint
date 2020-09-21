@@ -20,9 +20,4 @@ cd /var/www/html/test/prepend && composer install
 printf '\n\nRunning composer install...'
 cd /var/www/html && composer install
 
-
-if [ "${1#-}" != "$1" ]; then
-	set -- apache2-foreground "$@"
-fi
-
 exec "$@"

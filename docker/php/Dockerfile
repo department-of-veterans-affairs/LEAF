@@ -1,32 +1,23 @@
-FROM php:7.3.5-apache
+FROM ubuntu:18.04
 MAINTAINER Dastan Rahimi <dastan.rahimi@ablevets.com>
 
-RUN apt-get update && apt-get install -y wget
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update -q && apt-get install software-properties-common -y && \
+	add-apt-repository ppa:ondrej/php && apt-get update && \
+	apt-get install -y python python-pip \
+	git composer nginx php7.3-fpm php7.3-intl php7.3-common php7.3-mbstring \
+	php7.3-zip php7.3-cli php7.3-gd php7.3-zip php7.3-simplexml php7.3-xml \
+	php7.3-pdo php7.3-curl php7.3-imagick pkg-config \
+	php7.3-mysql gcc make autoconf libc-dev pkg-config php7.3-dev
+
+RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git subversion zlib1g-dev libzip-dev net-tools iputils-ping zip mysql-client vim wget nginx ssmtp
 
 COPY /docker/php/trust_ca_certs.sh /tmp/
 RUN bash -xc "bash /tmp/trust_ca_certs.sh"
 
-
-RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev libzip-dev git zip unzip
-RUN docker-php-ext-install zip
-
-RUN apt-get update && apt-get install -y libpng-dev libjpeg62-turbo-dev zlib1g-dev git zip unzip iputils-ping netcat vim
-
-RUN docker-php-ext-install mysqli pdo pdo_mysql
-RUN docker-php-ext-configure gd  --with-jpeg-dir=/usr/include/
-RUN docker-php-ext-install gd
-RUN a2enmod rewrite
-RUN a2enmod ssl
-RUN a2enmod env
-RUN a2enmod proxy
-RUN a2enmod proxy_http
-RUN a2enmod proxy_connect
-
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/certs/leaf.key -out /etc/ssl/certs/leaf.pem -subj "/C=US/ST=VA/L=Chantilly/O=LEAF/OU=LEAF/CN=%"
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
-
-RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN composer global require phpunit/phpunit ^7.4
 RUN composer global require robmorgan/phinx ^0.9.2
@@ -36,22 +27,21 @@ ENV PATH /root/.composer/vendor/bin:$PATH
 EXPOSE 80
 EXPOSE 443
 
-# Mail()
-RUN apt-get install -y ssmtp && \
-  apt-get clean && \
-  echo "FromLineOverride=YES" >> /etc/ssmtp/ssmtp.conf && \
-  echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail.ini
-
 # xdebug
-RUN pecl config-set php_ini "$PHP_INI_DIR/php.ini" && yes | pecl install xdebug
-COPY /docker/php/etc/xdebug.ini "$PHP_INI_DIR/conf.d/xdebug.ini"
+RUN pecl config-set php_ini "/etc/php/7.3/fpm/php.ini" && yes | pecl install xdebug
+COPY /docker/php/etc/xdebug.ini "/etc/php/7.3/fpm/conf.d/xdebug.ini"
 
+RUN sed -i.bak "s/;clear_env = no/clear_env = no/g" /etc/php/7.3/fpm/pool.d/www.conf
 
+RUN echo "upload_max_filesize = 100M" | tee -a /etc/php/7.3/fpm/php.ini
+RUN echo "expose_php = Off" | tee -a /etc/php/7.3/fpm/php.ini
+RUN echo "memory_limit = 2048M" | tee -a /etc/php/7.3/fpm/php.ini
+RUN echo "max_input_time = 600" | tee -a /etc/php/7.3/fpm/php.ini
+RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' | tee -a /etc/php/7.3/fpm/php.ini
+RUN echo "error_log = /var/www/php-logs/error_log" | tee -a /etc/php/7.3/fpm/php.ini
+
+COPY /docker/nginx/nginx.conf /etc/nginx/sites-available/default
 COPY /docker/php/ssmtp/ssmtp.conf /etc/ssmtp/
-COPY /docker/php/swagger-proxy.conf /etc/apache2/conf-enabled/
-COPY /docker/php/000-default.conf /etc/apache2/sites-enabled/
-COPY /docker/php/default-ssl.conf /etc/apache2/sites-enabled/
-COPY /docker/php/apache2.conf /etc/apache2/
 COPY /docker/php/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
 
 ARG BUILD_UID=1000
@@ -61,3 +51,9 @@ RUN chmod +x /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
 RUN chmod -R g+rwX /var/www
+
+WORKDIR /var/www/html/
+
+CMD /etc/init.d/php7.3-fpm start && nginx -g 'daemon off;'
+
+
