@@ -35,7 +35,7 @@ function showFiles() {
         success: function(res) {
         	var output = '<table class="table">';
             for(var i in res) {
-            	output += '<tr><td><a href="../api/?a=system/files/_'+ res[i] +'">../files/'+ res[i] +'</a></td><td><a href="#" onclick="deleteFile(\''+ res[i] +'\')">Delete</a></td></tr>';
+            	output += '<tr><td><a href="../files/'+ res[i] +'">../files/'+ res[i] +'</a></td><td><a href="#" onclick="deleteFile(\''+ res[i] +'\')">Delete</a></td></tr>';
             }
             output += '</table>';
             $('#fileList').html(output);

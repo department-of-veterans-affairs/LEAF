@@ -35,7 +35,7 @@ if (false !== $pos = strpos($uri, '/api/')) {
 
 //Get sitepath
 $uri = rawurldecode($uri);
-$pattern = '(\/api\/|\/libs\/|\/js\/|\/css\/|\/images\/|\/admin\/|\/scripts\/|\/[^\/]*\.php|\/[^\/]*\.ico|\/auth_domain\/|\/auth_cookie\/|\/auth_token\/|\/login\/|\/utils\/|\/LEAF_test_endpoints\/)';
+$pattern = '(\/api\/|\/libs\/|\/js\/|\/css\/|\/images\/|\/files\/|\/admin\/|\/scripts\/|\/[^\/]*\.php|\/[^\/]*\.ico|\/auth_domain\/|\/auth_cookie\/|\/auth_token\/|\/login\/|\/utils\/|\/LEAF_test_endpoints\/)';
 preg_match ($pattern , $uri, $matches, PREG_OFFSET_CAPTURE);
 if(count($matches)){
     $sitePath = substr($uri, 0, $matches[0][1]+1);
