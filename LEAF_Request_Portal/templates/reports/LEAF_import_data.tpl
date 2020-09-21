@@ -706,11 +706,9 @@
                                 if(addAnother){
                                     doublet.push(selectRowToAnswer(i+1));
                                 }
-                                console.log("Before: "+ totalImported);
                                 
-                                console.log(totalImported);
+                                
                                 Promise.all(doublet).then(function(){
-                                    console.log("over here");
                                     totalImported = addAnother ? totalImported + 2 : totalImported + 1;
                                 });
                             }
@@ -885,7 +883,7 @@
             totalRecords = sheet_data.cells.length -1;
             
             dialog.dialog( "open" );
-            debugger;
+            
             for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
                 
                 var doublet = [];
@@ -897,7 +895,7 @@
                     doublet.push(selectRowToAnswer(i+1));
                 }
                  Promise.all(doublet).then(function(){
-                     console.log("here");
+                     
                      totalImported = addAnother ? totalImported + 2 : totalImported + 1;
                  });
             }
