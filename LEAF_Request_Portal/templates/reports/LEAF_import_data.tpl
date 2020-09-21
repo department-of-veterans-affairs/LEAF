@@ -99,10 +99,10 @@
 </div>
 <div id="request_status" style="padding: 20px;"></div>
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-<div id="dialog" style="z-index: 100; width: auto; min-height: 102.8px; max-height: none; height: auto;" class="ui-dialog-content ui-widget-content">
-    <div class="progress-label">Current Progress: </div>
-    <div id="progressbar" role="progressbar" aria-valuemin="0" class="ui-progressbar ui-corner-all ui-widget ui-widget-content" aria-valuemax="100" aria-valuenow="0"><div class="ui-progressbar-value ui-corner-left ui-widget-header ui-progressbar-complete ui-corner-right" style="width: 100%;"></div></div>
-</div>
+            <div id="dialog" title="Import Status" style="z-index:100;">
+                <div class="progress-label">Starting import...</div>
+                <div id="progressbar"></div>
+            </div>
 <div id="modal-background"></div>
 <script>
     var CSRFToken = '<!--{$CSRFToken}-->';
