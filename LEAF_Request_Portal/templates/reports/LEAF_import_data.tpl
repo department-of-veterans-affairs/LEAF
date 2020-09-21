@@ -450,8 +450,7 @@
             dialog
                 .dialog( "close" );
             progressbar.progressbar( "value", false );
-            progressLabel
-                .text( "Starting import..." );
+            progressLabel.text( "Starting import..." );
         }
 
         function progress() {
