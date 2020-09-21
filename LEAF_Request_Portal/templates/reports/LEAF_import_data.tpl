@@ -32,6 +32,7 @@
 <script type="text/javascript" src="js/lz-string/lz-string.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="../../../libs/js/promise-pollyfill/polyfill.min.js"></script>
 
 <div id="status" style="background-color: black; color: white; font-weight: bold; font-size: 140%"></div>
 <div id="uploadBox">
