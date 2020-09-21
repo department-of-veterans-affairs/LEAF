@@ -1,6 +1,12 @@
 FROM php:7.3.5-apache
 MAINTAINER Dastan Rahimi <dastan.rahimi@ablevets.com>
 
+RUN apt-get update && apt-get install -y wget
+
+COPY /docker/php/trust_ca_certs.sh /tmp/
+RUN bash -xc "bash /tmp/trust_ca_certs.sh"
+
+
 RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev libzip-dev git zip unzip
 RUN docker-php-ext-install zip
 

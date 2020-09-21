@@ -86,6 +86,8 @@ class Group
                     {
                       $dirRes[0]['primary_admin'] = $member['primary_admin'];  
                     }
+                    $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
+                    $dirRes[0]['active'] = $member['active'];
                     
                     $members[] = $dirRes[0];
                 }
@@ -104,9 +106,10 @@ class Group
             if (is_numeric($group))
             {
                 $vars = array(':userID' => $member,
-                              ':groupID' => (int)$group, );
-                $res = $this->db->prepared_query('INSERT INTO users (userID, groupID)
-                                                    VALUES (:userID, :groupID)', $vars);
+                              ':groupID' => (int)$group, 
+                              ':locallyManaged' => 1);
+                $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, locallyManaged)
+                                                    VALUES (:userID, :groupID, :locallyManaged)', $vars);
                 
                 $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
                     new \LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
@@ -122,7 +125,18 @@ class Group
         {
             $vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
-            $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+            $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+
+            if ($res[0]['locallyManaged'] == 1
+                || $groupID == 1)
+            {
+                $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+            }
+            else
+            {
+                $res = $this->db->prepared_query('UPDATE users SET active=0, locallyManaged=1
+                                                    WHERE userID=:userID AND groupID=:groupID', $vars);
+            }
 
             $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
                 new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),

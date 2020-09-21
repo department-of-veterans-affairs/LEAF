@@ -476,6 +476,7 @@ var LeafFormGrid = function(containerID, options) {
             $('#' + prefixID + 'tbody').append('<tr><td colspan="'+ colspan +'" style="text-align: center">No Results</td></tr>');
         }
         var counter = 0;
+        var validateHtml = document.createElement('div');
         for(var i = startIdx; i < currentData.length; i++) {
             if(counter >= limit) {
                 currentRenderIndex = i;
@@ -509,6 +510,8 @@ var LeafFormGrid = function(containerID, options) {
                             currentData[i].s1 = {};
                         }
                         data.data = currentData[i].s1['id'+headers[j].indicatorID] != undefined ? currentData[i].s1['id'+headers[j].indicatorID] : '';
+                        validateHtml.innerHTML = data.data;
+                        data.data = validateHtml.innerHTML;
                         if(currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint'] != undefined) {
                             var htmlPrint = '<textarea id="data_'+currentData[i].recordID+'_'+headers[j].indicatorID+'_1" style="display: none">'+ data.data +'</textarea>';
                             htmlPrint += currentData[i].s1['id'+headers[j].indicatorID+'_htmlPrint']

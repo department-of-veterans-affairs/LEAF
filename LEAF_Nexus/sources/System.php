@@ -77,6 +77,26 @@ class System
         return 1;
     }
 
+    public function setTimeZone()
+    {
+        $memberships = $this->login->getMembership();
+        if (!isset($memberships['groupID'][1]))
+        {
+            return 'Admin access required';
+        }
+
+        if (array_search($_POST['timeZone'], DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US')) === false)
+        {
+            return 'Invalid timezone';
+        }
+
+        $vars = array(':input' => $_POST['timeZone']);
+
+        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="timeZone"', $vars);
+
+        return 1;
+    }
+
     public function getReportTemplateList()
     {
         $memberships = $this->login->getMembership();

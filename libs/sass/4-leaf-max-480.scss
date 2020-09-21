@@ -1,0 +1,36 @@
+/* ############# STYLES TO MAX WIDTH OF 30 REM (480px) ################# */
+
+@media (max-width: 30rem) {
+
+    /* ############### CONTENT CONTAINERS ################# */
+    .leaf-admin-content {width: calc(100% - 2rem); margin: 0.4rem 0.6rem;}
+
+    /* ############### USWDS OVERRIDES ################# */
+    .sidenav { display: block; margin: 1rem; padding: 1rem; float: none; width: calc(100% - 2rem); }
+        .sidenav:hidden {display: block; float: left; background: none; background-color: none; box-shadow: none;}
+        .sidenav:empty {display: block; float: left; background: none; background-color: none; box-shadow: none; min-height: 1px;}
+    .sidenav-right { display: block; margin: 1rem; padding: 1rem; float: none; width: calc(100% - 2rem); }
+        .sidenav-right:hidden {display: block; float: right; background:none; background-color: none; box-shadow: none;}
+        .sidenav-right:empty {display: block; float: right; background:none; background-color: none; box-shadow: none; min-height: 1px;}
+    .main-content {display: block; clear: both; width: 100%; margin: 1rem; padding: 1rem;}
+    .usa-button {width: 100%;}
+
+    /* ############### LEAF HEADER ################# */
+    .usa-header, .site-header {height: 3.6rem; width: 100%; box-shadow: 0px 2px 4px #a9aeb1;}
+        .leaf-logo img {width: 48px; margin: 0.4rem 0.3rem 0 0.2rem;}
+        .usa-logo {
+            font-size: 1.3rem;
+            line-height: 1.1rem;
+            margin: 1.3rem 0 0 0.2rem;
+        }
+    .leaf-header-right {float: right; margin: 0 0.5rem 0 0; position: relative; width: 2.6rem; height: 2.6rem;}
+        ul.leaf-user-menu {
+            display: none;
+        }
+    #nav {margin: 0.8rem 0.7rem 0 0;}
+
+    /* ############### LEAF ADMIN BUTTONS ################# */
+    .leaf-admin-button {width: 99%;}
+    
+
+}

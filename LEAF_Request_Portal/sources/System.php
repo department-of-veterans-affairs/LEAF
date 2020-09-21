@@ -151,7 +151,7 @@ class System
 
         // clear out old data first
         $vars = array(':groupID' => $groupID);
-        $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
+        $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND locallyManaged != 1', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
@@ -311,6 +311,86 @@ class System
         return $out;
     }
 
+    public function getEmailSubjectData($template, $getStandard = false)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $data['subjectFileName'] = '';
+        $data['subjectFile'] = '';
+
+        if (preg_match('/_body.tpl$/', $template))
+        {
+            $subject = str_replace("_body.tpl", "_subject.tpl", $template, $count);
+            if ($count == 1)
+            {
+                $data['subjectFileName'] = $subject;
+
+                if (file_exists("../templates/email/custom_override/{$subject}") && !$getStandard)
+                    $data['subjectFile'] = file_get_contents("../templates/email/custom_override/{$subject}");          
+                else if (file_exists("../templates/email/{$subject}"))
+                    $data['subjectFile'] = file_get_contents("../templates/email/{$subject}");
+                else
+                    $data['subjectFile'] = '';
+            }
+        }
+
+        return $data;
+    }
+
+    public function getEmailAndSubjectTemplateList()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $list = scandir('../templates/email');
+        $out = array();
+        foreach ($list as $item)
+        {
+            if (preg_match('/.tpl$/', $item))
+            {
+                $temp =  array();
+                preg_match('/subject/', $item, $temp);
+                if (count($temp) == 0) 
+                {                    
+                    $data['fileName'] = $item;
+                    $res = $this->getEmailSubjectData($item);
+                    $data['subjectFileName'] = $res['subjectFileName'];
+                    $out[] = $data;
+                }
+            }
+        }
+
+        return $out;
+    }
+
+    public function getEmailTemplateList()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $list = scandir('../templates/email');
+        $out = array();
+        foreach ($list as $item)
+        {
+            if (preg_match('/.tpl$/', $item))
+            {
+                $temp =  array();
+                preg_match('/subject/', $item, $temp);
+                if (count($temp) == 0) 
+                {                    
+                    $out[] = $item;
+                }
+            }
+        }
+
+        return $out;
+    }
+
     public function getTemplate($template, $getStandard = false)
     {
         if (!$this->login->checkGroup(1))
@@ -338,6 +418,35 @@ class System
         return $data;
     }
 
+    public function getEmailTemplate($template, $getStandard = false)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $list = $this->getEmailTemplateList();
+        $data = array();
+        if (array_search($template, $list) !== false)
+        {
+            if (file_exists("../templates/email/custom_override/{$template}")
+                  && !$getStandard)
+            {
+                $data['modified'] = 1;
+                $data['file'] = file_get_contents("../templates/email/custom_override/{$template}");
+            }
+            else
+            {
+                $data['modified'] = 0;
+                $data['file'] = file_get_contents("../templates/email/{$template}");
+            }
+
+            $res = $this->getEmailSubjectData($template, $getStandard);
+            $data['subjectFile'] = $res['subjectFile'];
+        }
+
+        return $data;
+    }
+
     public function setTemplate($template)
     {
         if (!$this->login->checkGroup(1))
@@ -349,6 +458,22 @@ class System
         if (array_search($template, $list) !== false)
         {
             file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
+        }
+    }
+
+    public function setEmailTemplate($template)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $list = $this->getEmailTemplateList();
+        if (array_search($template, $list) !== false)
+        {
+            file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
+        
+            if ($_POST['subjectFileName'] != '')
+                file_put_contents("../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
         }
     }
 
@@ -365,6 +490,29 @@ class System
             if (file_exists("../templates/custom_override/{$template}"))
             {
                 return unlink("../templates/custom_override/{$template}");
+            }
+        }
+    }
+
+    public function removeCustomEmailTemplate($template)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $list = $this->getEmailTemplateList();
+
+        if (array_search($template, $list) !== false)
+        {
+            if (file_exists("../templates/email/custom_override/{$template}"))
+            {
+                unlink("../templates/email/custom_override/{$template}");
+            }
+
+            $subjectFileName = $_REQUEST['subjectFileName'];
+            if ($subjectFileName != '' && file_exists("../templates/email/custom_override/{$subjectFileName}"))
+            {
+                unlink("../templates/email/custom_override/{$subjectFileName}");
             }
         }
     }
@@ -723,7 +871,6 @@ class System
     public function setPrimaryAdmin()
     {
         $vars = array(':userID' => XSSHelpers::xscrub($_POST['userID']));
-        $resultArray = array('success' => false, 'response' => $res);
         //check if user is system admin
         $res = $this->db->prepared_query('SELECT *
                                             FROM `users`

@@ -20,6 +20,23 @@
         </select>
         </div>
 
+        <div class="item">
+        <label for="timeZone">Time Zone:&nbsp;</label>
+        <select id="timeZone">
+            <!--{foreach from=$timeZones item=tz}-->
+                <option 
+                    value="<!--{$tz}-->" 
+                
+                    <!--{if $tz eq $timeZone}-->
+                        selected
+                    <!--{/if}-->
+                    >
+                    <!--{$tz}-->
+                </option>
+            <!--{/foreach}-->
+        </select>
+        </div>
+
         <button class="buttonNorm" onclick="saveSettings();">Save</button>
     </div>
 </div>
@@ -46,6 +63,14 @@ function saveSettings()
                 url: '../api/?a=system/settings/subHeading',
                 data: {subHeading: $('#subHeading').val(),
                     CSRFToken: CSRFToken},
+                success: function(res) {
+                }
+            }),
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=system/settings/timeZone',
+                data: {timeZone: $('#timeZone').val(),
+                    CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                 }
             }),

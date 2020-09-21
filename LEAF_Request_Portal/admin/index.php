@@ -105,7 +105,7 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
-$main->assign('logo', '<img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
+$main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo" />');
 
 $t_login->assign('name', $login->getName());
 
@@ -122,8 +122,12 @@ switch ($action) {
                                            '../' . Config::$orgchartPath . '/js/groupSelector.js',
         ));
 
+        $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+        $tz = isset($settings['timeZone']) ? $settings['timeZone'] : null;
+
         $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('timeZone', $tz);
         $t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
 
         $main->assign('useUI', true);
@@ -228,6 +232,7 @@ switch ($action) {
         break;
     case 'mod_templates':
     case 'mod_templates_reports':
+    case 'mod_templates_email':
             if(!hasDevConsoleAccess($login, $db_phonebook)) {
                header('Location: ../report.php?a=LEAF_start_leaf_dev_console_request');
             }
@@ -268,6 +273,11 @@ switch ($action) {
                 case 'mod_templates_reports':
                     $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
                     $tabText = 'Editor';
+
+                    break;
+                case 'mod_templates_email':
+                    $main->assign('body', $t_form->fetch('mod_templates_email.tpl'));
+                    $tabText = 'Email Template Editor';
 
                     break;
                 default:
@@ -481,6 +491,8 @@ $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
+$t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
+$t_menu->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
