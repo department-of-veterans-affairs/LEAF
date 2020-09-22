@@ -62,9 +62,9 @@ function customTemplate($tpl, $portalPath)
 {
     $cleanPortalPath = str_replace("/", "_", $portalPath);
 
-    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
+    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "_{$tpl}";
     if (file_exists($customTemplatePath)) {
-        return "custom_override/". $cleanPortalPath . "{$tpl}";
+        return "custom_override/". $cleanPortalPath . "_{$tpl}";
     } else {
         return $tpl;
     }
@@ -114,7 +114,7 @@ switch ($action) {
     default:
         $cleanPortalPath = str_replace("/", "_", $config->portalPath);
 
-        if ($action != '' && (file_exists(__DIR__."/templates/reports/{$action}.tpl") || file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")))
+        if ($action != '' && (file_exists(__DIR__."/templates/reports/{$action}.tpl") || file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "_{$action}.tpl")))
         {
             $main->assign('useUI', true);
             $main->assign('javascripts', array(
@@ -149,8 +149,8 @@ switch ($action) {
             $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
             $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
-            if (file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")) {
-                $main->assign('body', $t_form->fetch("reports/custom_override/" . $cleanPortalPath . "{$action}.tpl"));
+            if (file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "_{$action}.tpl")) {
+                $main->assign('body', $t_form->fetch("reports/custom_override/" . $cleanPortalPath . "_{$action}.tpl"));
                 $tabText = '';
             }
             else

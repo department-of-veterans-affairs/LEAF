@@ -335,7 +335,7 @@ class System
             {
                 $data['subjectFileName'] = $subject;
                 $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-                $portalTplPath = __DIR__ ."/../templates/email/custom_override/" . $cleanPortalPath . "{$subject}";
+                $portalTplPath = __DIR__ ."/../templates/email/custom_override/" . $cleanPortalPath . "_{$subject}";
                 $defaultTplPath = __DIR__ ."/../templates/email/{$subject}";
 
                 if (file_exists($portalTplPath) && !$getStandard) 
@@ -415,11 +415,11 @@ class System
         {
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
 
-            if (file_exists(__DIR__."/../templates/custom_override/" . $cleanPortalPath . "{$template}")
+            if (file_exists(__DIR__."/../templates/custom_override/" . $cleanPortalPath . "_{$template}")
                 && !$getStandard)
             {
                 $data['modified'] = 1;
-                $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/" . $cleanPortalPath . "{$template}");
+                $data['file'] = file_get_contents(__DIR__."/../templates/custom_override/" . $cleanPortalPath . "_{$template}");
             }
             else
             {
@@ -444,7 +444,7 @@ class System
         if (array_search($template, $list) !== false)
         {
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-            $portalTplPath = __DIR__ ."/../templates/email/custom_override/" . $cleanPortalPath . "{$template}";
+            $portalTplPath = __DIR__ ."/../templates/email/custom_override/" . $cleanPortalPath . "_{$template}";
             $defaultTplPath = __DIR__ ."/../templates/email/{$template}";
 
             if (file_exists($portalTplPath) && !$getStandard)
@@ -477,7 +477,7 @@ class System
         if (array_search($template, $list) !== false)
         {
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-            file_put_contents(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}", $_POST['file']);
+            file_put_contents(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "_{$template}", $_POST['file']);
         }
     }
 
@@ -495,10 +495,10 @@ class System
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
             $portalTplPath = __DIR__ ."/../templates/email/custom_override/" . $cleanPortalPath;
 
-            file_put_contents($portalTplPath . "{$template}", $_POST['file']);
+            file_put_contents($portalTplPath . "_{$template}", $_POST['file']);
         
             if ($_POST['subjectFileName'] != '')
-                file_put_contents($portalTplPath . $_POST['subjectFileName'], $_POST['subjectFile']);
+                file_put_contents($portalTplPath . '_' . $_POST['subjectFileName'], $_POST['subjectFile']);
         }
     }
 
@@ -514,9 +514,9 @@ class System
         if (array_search($template, $list) !== false)
         {
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-            if (file_exists(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}"))
+            if (file_exists(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "_{$template}"))
             {
-                return unlink(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "{$template}");
+                return unlink(__DIR__ . "/../templates/custom_override/" . $cleanPortalPath . "_{$template}");
             }
         }
     }
@@ -536,15 +536,15 @@ class System
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
             $portalTplPath = __DIR__ . "/../templates/email/custom_override/" . $cleanPortalPath;
 
-            if (file_exists($portalTplPath . "{$template}"))
+            if (file_exists($portalTplPath . "_{$template}"))
             {
-                unlink($portalTplPath . "{$template}"); 
+                unlink($portalTplPath . "_{$template}"); 
             }
 
             $subjectFileName = $_REQUEST['subjectFileName'];
-            if ($subjectFileName != '' && file_exists($portalTplPath . "{$subjectFileName}"))
+            if ($subjectFileName != '' && file_exists($portalTplPath . "_{$subjectFileName}"))
             {
-                unlink($portalTplPath . "{$subjectFileName}");
+                unlink($portalTplPath . "_{$subjectFileName}");
             }
         }
     }
@@ -689,7 +689,7 @@ class System
         {
             if (preg_match('/^' . $cleanPortalPath . '{1}/', $item))
             {
-                $fileName = str_replace($cleanPortalPath, "", $item);
+                $fileName = str_replace($cleanPortalPath . '_', "", $item);
                 $out[] = $fileName;
             }
         }
@@ -719,7 +719,7 @@ class System
             global $config;
 
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "{$template}";
+            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "_{$template}";
 
             if (!file_exists($portalPath)) 
             {
@@ -759,7 +759,7 @@ class System
             global $config;
 
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "{$template}";
+            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "_{$template}";
             $defaultTplPath = __DIR__ . "/../templates/reports/{$template}";
 
             if (file_exists($portalTplPath))
@@ -808,7 +808,7 @@ class System
             global $config;
 
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "{$template}";
+            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "_{$template}";
             file_put_contents($portalTplPath, $_POST['file']);
         }
     }
@@ -832,7 +832,7 @@ class System
             global $config;
 
             $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "{$template}";
+            $portalTplPath = __DIR__ . "/../templates/reports/custom_override/" . $cleanPortalPath . "_{$template}";
 
             if (file_exists($portalTplPath))
             {

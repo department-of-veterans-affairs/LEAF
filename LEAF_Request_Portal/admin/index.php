@@ -65,9 +65,9 @@ function customTemplate($tpl, $portalPath)
 {
     $cleanPortalPath = str_replace("/", "_", $portalPath);
 
-    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
+    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "_{$tpl}";
     if (file_exists($customTemplatePath)) {
-        return "custom_override/". $cleanPortalPath . "{$tpl}";
+        return "custom_override/". $cleanPortalPath . "_{$tpl}";
     } else {
         return $tpl;
     }
