@@ -1,16 +1,14 @@
 <link rel="stylesheet" href="../libs/css/leaf.css">
 
 <!--{include file="../site_elements/generic_xhrDialog.tpl"}-->
-<style>
-.usa-sidenav__item{
-    cursor: pointer;
-}
-</style>
+
 <script>
 	var sitemapOBJ;
     $(function() {
 		//load existing sitemap on page load
-        parseSitemapJSON();            
+        parseSitemapJSON(); 
+        // hide alert
+        $("#sitemap-alert").hide();           
         $("#sortable").sortable({
             revert: true,
             stop: function(){
@@ -61,7 +59,7 @@
                     
 	// insert button into sortable list and sidenav
     function addButtonToUI(button){
-        $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_'+button.id+'"><a onClick="editButtonDialog(\''+button.id+'\');" title="Edit Card">'+button.title+'</a></li>');
+        $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_'+button.id+'"><a href="#" onClick="editButtonDialog(\''+button.id+'\');" title="Edit Card"><i class="fas fa-edit leaf-float-right text-blue-warm-50v" alt="Edit Sitemap Card"></i>'+button.title+'</a></li>');
         $('div#sortable').append('<div class="leaf-sitemap-card '+button.color+'" draggable="true" id="div_buttonID_'+button.id+'"><i class="fas fa-trash-alt leaf-delete-card" title="Delete Card" onClick="deleteButtonFromUI(\'' + button.id + '\')"></i><h3>'+button.title+'</h3><p>'+button.description+'</p></div>');
     }
 
@@ -74,6 +72,7 @@
             }
         });
         refreshButtons();
+        save();
     }
     
 	// generate unique id for sitemap button
@@ -110,7 +109,7 @@
             '<div class="leaf-marginAll-1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
                 '<div class="leaf-float-left" style="margin-right: 3rem;">' +
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-white"></span><input type="radio" id="white" name="btnColor" value="leaf-card-white" checked><label for="white">White</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-card-blue" checked><label for="blue">Blue</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-card-blue"><label for="blue">Blue</label></div>' +
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-green"></span><input type="radio" id="green" name="btnColor" value="leaf-card-green"><label for="green">Green</label></div>' +
                 '</div><div class="leaf-float-left">' +
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-orange"></span><input type="radio" id="orange" name="btnColor" value="leaf-card-orange"><label for="orange">Orange</label></div>' +
@@ -138,6 +137,7 @@
             sitemapOBJ.buttons.push(newButton);
             addButtonToUI(newButton);
             dialog.hide();
+            save();
         });
 	    $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
         return dialog;
@@ -159,7 +159,13 @@
                 color = value.color;
             }
         });
-    
+        var chkVarWhite, chkVarBlue, chkVarGreen, chkVarOrange, chkVarYellow, chkVarGrey = '';
+        if (color == 'leaf-card-white') {chkVarWhite = 'checked'}
+        if (color == 'leaf-card-blue') {chkVarBlue = 'checked'}
+        if (color == 'leaf-card-green') {chkVarGreen = 'checked'}
+        if (color == 'leaf-card-orange') {chkVarOrange = 'checked'}
+        if (color == 'leaf-card-yellow') {chkVarYellow = 'checked'}
+        if (color == 'leaf-card-grey') {chkVarGrey = 'checked'}
         dialog.setTitle('Edit Card');
         dialog.setContent('<div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" value="'+title+'"size="48" maxlength="36"></input></div>' +
@@ -167,13 +173,13 @@
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48" maxlength="40"></input></div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
                 '<div class="leaf-float-left" style="margin-right: 3rem;">' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-white"></span><input type="radio" id="white" name="btnColor" value="leaf-card-white" checked><label for="white">White</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-card-blue" checked><label for="blue">Blue</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-green"></span><input type="radio" id="green" name="btnColor" value="leaf-card-green"><label for="green">Green</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-white"></span><input type="radio" id="white" name="btnColor" value="leaf-card-white"' + chkVarWhite + '><label for="white">White</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-blue"></span><input type="radio" id="blue" name="btnColor" value="leaf-card-blue"' + chkVarBlue + '><label for="blue">Blue</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-green"></span><input type="radio" id="green" name="btnColor" value="leaf-card-green"' + chkVarGreen +'><label for="green">Green</label></div>' +
                 '</div><div class="leaf-float-left">' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-orange"></span><input type="radio" id="orange" name="btnColor" value="leaf-card-orange"><label for="orange">Orange</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-yellow"></span><input type="radio" id="yellow" name="btnColor" value="leaf-card-yellow"><label for="yellow">Yellow</label></div>' +
-                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-grey"></span><input type="radio" id="grey" name="btnColor" value="leaf-card-grey"><label for="grey">Grey</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-orange"></span><input type="radio" id="orange" name="btnColor" value="leaf-card-orange"' + chkVarOrange + '><label for="orange">Orange</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-yellow"></span><input type="radio" id="yellow" name="btnColor" value="leaf-card-yellow"' + chkVarYellow + '><label for="yellow">Yellow</label></div>' +
+                '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-grey"></span><input type="radio" id="grey" name="btnColor" value="leaf-card-grey"' + chkVarGrey + '><label for="grey">Grey</label></div>' +
                 '</div>' +
         '</div></div>');
 
@@ -196,6 +202,7 @@
             });
             refreshButtons();
             dialog.hide();
+            save();
         });
         $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
         dialog.show();
@@ -211,52 +218,47 @@
             data: {CSRFToken: '<!--{$CSRFToken}-->',
                     sitemap_json: newJson},
             success: function(res) {
-                console.log(res);
+                // show/hide alert
+                $("#sitemap-alert").fadeIn();
+                $("#sitemap-alert").delay(1800).fadeOut();
             },
             cache: false
         });
     }
 
-    // saves sitemap json into the custom report
-    function clearButtons() { 
-        sitemapOBJ.buttons = [];
-        refreshButtons();
-    }
 </script>
 
-<main id="main-content">
-
-    <div class="grid-container">
-
-        <div class="grid-row grid-gap">
+<div class="leaf-center-content">
             
-            <div class="grid-col-3">
-                <nav aria-label="Secondary navigation">
-                    <ul class="usa-sidenav">
-                    </ul>
-                    <!--<div class="leaf-sidenav-bottomBtns">
-                        <button class="usa-button usa-button--outline">Move Up</button>
-                        <button class="usa-button usa-button--outline leaf-float-right">Move Down</button>
-                    </div>-->
-                </nav>
-            </div>
+    <aside class="sidenav">
+        <h3>Sitemap cards</h3>
+        <ul class="usa-sidenav leaf-border-bottom">
+        </ul>
+        <div>
+            <button class="usa-button leaf-width-13rem leaf-marginTopBot-halfRem" onclick="createGroup();"><i class="fas fa-plus" title="Delete Card"></i> Add Card</button>
+        </div>
+        <div>
+            <button class="usa-button usa-button--outline leaf-width-13rem leaf-marginTopBot-halfRem"><a href="./?a=sitemap" target="_blank">View Sitemap</a></button>
+        </div>
+        
+        <!--<div class="leaf-sidenav-bottomBtns">
+            <button class="usa-button usa-button--outline">Move Up</button>
+            <button class="usa-button usa-button--outline leaf-float-right">Move Down</button>
+        </div>-->
+    </aside>
 
-            <div class="grid-col-9">
+    <div class="main-content-noRight">
 
-                <h1>Phoenix VA Sitemap&nbsp; <button class="usa-button leaf-btn-med" onclick="createGroup();"><i class="fas fa-plus" title="Delete Card"></i> Add Card</button></h1>
-                <div id="sortable">
-                </div>
-                <div style="border: 2px solid black; text-align: center; font-size: 16px; font-weight: bold; background: white; padding: 16px; width: 95%" id="spinner">
-                    Loading... <img src="./images/largespinner.gif" alt="loading..." />
-                </div>
-                <div class="leaf-marginAll-1rem leaf-clearBoth">
-                    <button class="usa-button leaf-float-left" id="saveButton" onclick="save()">Save Sitemap</button>
-                    <button class="usa-button usa-button--outline leaf-float-right" onclick="clearButtons()">Delete Sitemap</button>
-                </div>
-
-            </div>
-            
+        <h1>
+            <a href="/LEAF_Request_Portal/admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i><!--{$city}--> Sitemap
+            <span id="sitemap-alert" class="leaf-sitemap-alert"><i class="fas fa-check"></i> Sitemap updated</span>
+        </h1>
+        <div id="sortable" class="leaf-displayFlexRow">
+        </div>
+        <div style="border: 2px solid black; text-align: center; font-size: 16px; font-weight: bold; background: white; padding: 16px; width: 95%" id="spinner">
+            Loading... <img src="./images/largespinner.gif" alt="loading..." />
         </div>
 
     </div>
-</main>
+
+</div>

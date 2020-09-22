@@ -134,6 +134,7 @@ switch ($action) {
             $t_form->assign('orgchartPath', Config::$orgchartPath);
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
+            $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 
             //url
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
