@@ -1,0 +1,5 @@
+{
+    "require": {
+        "enqueue/dbal": "^0.10.3"
+    }
+}
