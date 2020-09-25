@@ -169,12 +169,7 @@ function addMember(groupID, userID) {
 
 // convert to title case
 function toTitleCase(str) {
-    if (str == "" || str == null) {
-        return "";
-    }
-    else {
-        return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-    }
+    return (str == "" || str == null) ? "" : str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 function addAdmin(userID) {
