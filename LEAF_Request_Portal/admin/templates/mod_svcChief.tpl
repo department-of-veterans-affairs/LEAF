@@ -284,7 +284,12 @@ function viewHistory(groupID){
 
 // convert to title case
 function toTitleCase(str) {
-    (str == "" || str == null) ? return "" : return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    if (str == "" || str == null) {
+        return "";
+    }
+    else {
+        return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    }
 }
 
 $(function() {
