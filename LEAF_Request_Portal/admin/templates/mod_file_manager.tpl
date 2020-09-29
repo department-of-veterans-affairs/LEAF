@@ -14,6 +14,8 @@
 
         <p>Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.</p>
         
+        <h3 id="totalSize"></h3>
+
         <div id="fileList" style="background-color: white; margin-left: 160px"></div>
 
         <div class="leaf-row-space"></div>
@@ -39,6 +41,15 @@ function showFiles() {
             }
             output += '</table>';
             $('#fileList').html(output);
+        },
+        cache: false
+    });
+
+    $.ajax({
+        type: 'GET',
+        url: '../api/?a=telemetry/storage',
+        success: function(res) {
+            $('#totalSize').html("Total storage size: " + res);
         },
         cache: false
     });
