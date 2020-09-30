@@ -560,6 +560,7 @@
                                 var row = sheet_data.cells[titleIndex];
                                 var requestData = new Object();
                                 function answerQuestions() {
+                                    return new Promise(function(resolve, reject){
                                     if (completed >= indicatorArray.length) {
                                         requestData['title'] = titleInputNew.val() + '_' + titleIndex;
                                         makeRequests(newCategoryID, requestData).then(function(){
@@ -682,6 +683,8 @@
                                                 break;
                                         }
                                     }
+                                    });
+
                                 }
 
                                 answerQuestions().then(function(){resolve();});
@@ -743,7 +746,7 @@
                         requestData['title'] = titleInputExisting.val() + '_' + titleIndex;
                         makeRequests(categorySelect.val(), requestData).then(function(){
                             
-                            resolve()
+                            resolve();
                         });
                     } else {
                         var indicatorColumn = $('#' + indicatorArray[completed].indicatorID + '_sheet_column').val();
