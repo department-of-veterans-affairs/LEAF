@@ -191,12 +191,13 @@ class Login
 
     public function loginUser()
     {
-        $authType = '/auth_domain/?r=';
-        $nonBrowserAuth = '/login/?r=';
+        global $config;
+        $authType = 'auth_domain/?r=';
+        $nonBrowserAuth = 'login/?r=';
 
         if(defined('AUTH_TYPE') && AUTH_TYPE == 'cookie') {
-            $authType = '/auth_cookie/?r=';
-            $nonBrowserAuth = '/auth_cookie/?r=';
+            $authType = 'auth_cookie/?r=';
+            $nonBrowserAuth = 'auth_cookie/?r=';
         }
         //$_SESSION['userID'] = 'tester';//TODO MAKE STATELESS LOGIN WORK CORRECTLY
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
@@ -216,11 +217,11 @@ class Login
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
                 {
-                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $authType . base64_encode($_SERVER['REQUEST_URI']));
+                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . '/' . $this->parseURL($config->portalPath) . $authType . base64_encode($_SERVER['REQUEST_URI']));
                     exit();
                 }
 
-                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
+                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . '/' . $this->parseURL($config->portalPath) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
                 exit();
             }
 
