@@ -30,8 +30,8 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@1eb1ec/dist/xlsx.full.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@64798fd/shim.js"></script>
 <script type="text/javascript" src="js/lz-string/lz-string.min.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="./../../libs/js/jquery/css/ui-lightness/jquery-ui.custom.min.css">
+<script src="../../../libs/js/jquery/jquery-ui.custom.min.js"></script>
 <script src="../../../libs/js/promise-pollyfill/polyfill.min.js"></script>
 
 <div id="status" style="background-color: black; color: white; font-weight: bold; font-size: 140%"></div>
@@ -457,6 +457,7 @@
             
             var val = progressbar.progressbar( "value" ) || 0;
             
+             
             progressbar.progressbar( "value", Math.floor( totalImported/totalRecords *100) );
         
             if ( val <= 99 ) {
@@ -707,8 +708,9 @@
                                 }
                                 
                                 
-                                Promise.all(doublet).then(function(){
-                                    totalImported = addAnother ? totalImported + 2 : totalImported + 1;
+                                Promise.all(doublet).then(function(results){
+                                    
+                                    totalImported += results.length;
                                 });
                             }
                         }
@@ -893,9 +895,8 @@
                 if(addAnother){
                     doublet.push(selectRowToAnswer(i+1));
                 }
-                 Promise.all(doublet).then(function(){
-                     
-                     totalImported = addAnother ? totalImported + 2 : totalImported + 1;
+                 Promise.all(doublet).then(function(results){                
+                     totalImported += results.length;
                  });
             }
             $('#status').html('Data has been imported');
