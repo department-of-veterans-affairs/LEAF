@@ -30,7 +30,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@1eb1ec/dist/xlsx.full.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@64798fd/shim.js"></script>
 <script type="text/javascript" src="js/lz-string/lz-string.min.js"></script>
-<link rel="stylesheet" href="./../../libs/js/jquery/css/ui-lightness/jquery-ui.custom.min.css">
+
 <script src="../../../libs/js/jquery/jquery-ui.custom.min.js"></script>
 <script src="../../../libs/js/promise-pollyfill/polyfill.min.js"></script>
 
