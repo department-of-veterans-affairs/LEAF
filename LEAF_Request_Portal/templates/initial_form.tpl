@@ -127,7 +127,7 @@ $(function() {
         </div>
 
         <div class="item" style="text-align: right; padding: 4px">
-            <button class="buttonNorm" type="submit"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Next" /> Click here to Proceed</button>
+            <button class="buttonNorm" type="submit"><img src="/libs/dynicons/?img=go-next.svg&amp;w=32" alt="Next" /> Click here to Proceed</button>
         </div>
     </div>
     </div>

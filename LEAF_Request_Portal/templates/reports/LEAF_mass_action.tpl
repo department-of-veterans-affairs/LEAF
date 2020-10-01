@@ -54,7 +54,7 @@ $(document).ready(function(){
     });
 
     $("button.takeAction").click(function() {
-        dialog_confirm.setContent('<img src="../../../libs/dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to perform this action?');
+        dialog_confirm.setContent('<img src="/libs/dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to perform this action?');
 
         dialog_confirm.setSaveHandler(function() {
             executeMassAction();

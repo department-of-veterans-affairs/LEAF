@@ -1,6 +1,6 @@
-<link rel=stylesheet href="../../libs/js/codemirror/addon/merge/merge.css">
-<script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
-<script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
+<link rel=stylesheet href="/libs/js/codemirror/addon/merge/merge.css">
+<script src="/libs/js/diff-match-patch/diff-match-patch.js"></script>
+<script src="/libs/js/codemirror/addon/merge/merge.js"></script>
 <style>
 /* Grid of 6 */
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_6_of_6{width:100%}.span_5_of_6{width:83.06%}.span_4_of_6{width:66.13%}.span_3_of_6{width:49.2%}.span_2_of_6{width:32.26%}.span_1_of_6{width:15.33%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_6,.span_2_of_6,.span_3_of_6,.span_4_of_6,.span_5_of_6,.span_6_of_6{width:100%}}
@@ -91,10 +91,10 @@
     </div>
     <div class="col span_1_of_6">
         <div id="controls" style="float: right; width: 170px; visibility: hidden">
-            <div class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes<span id="saveStatus"></span></div><br /><br /><br />
-            <div class="buttonNorm modifiedTemplate" onclick="restore();"><img src="../../libs/dynicons/?img=x-office-document-template.svg&w=32" alt="Restore" /> Restore Original</div><br />
-            <div class="buttonNorm" id="btn_compareStop" style="display: none" onclick="loadContent();"><img src="../../libs/dynicons/?img=text-x-generic.svg&w=32" alt="Normal view" /> Stop Comparing</div>
-            <div class="buttonNorm modifiedTemplate" id="btn_compare" onclick="compare();"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" alt="Compare" /> Compare with Original</div><br /><br /><br />
+            <div class="buttonNorm" onclick="save();"><img id="saveIndicator" src="/libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes<span id="saveStatus"></span></div><br /><br /><br />
+            <div class="buttonNorm modifiedTemplate" onclick="restore();"><img src="/libs/dynicons/?img=x-office-document-template.svg&w=32" alt="Restore" /> Restore Original</div><br />
+            <div class="buttonNorm" id="btn_compareStop" style="display: none" onclick="loadContent();"><img src="/libs/dynicons/?img=text-x-generic.svg&w=32" alt="Normal view" /> Stop Comparing</div>
+            <div class="buttonNorm modifiedTemplate" id="btn_compare" onclick="compare();"><img src="/libs/dynicons/?img=edit-copy.svg&w=32" alt="Compare" /> Compare with Original</div><br /><br /><br />
         </div>
     </div>
 </div>
@@ -129,7 +129,7 @@ function save() {
 			   subjectFileName: currentSubjectFile},
 		url: '../api/system/emailtemplates/_' + currentFile,
 		success: function(res) {
-			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
+			$('#saveIndicator').attr('src', '/libs/dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
 			if($('#btn_compareStop').css('display') != 'none') {
 			    $('#btn_compare').css('display', 'none');

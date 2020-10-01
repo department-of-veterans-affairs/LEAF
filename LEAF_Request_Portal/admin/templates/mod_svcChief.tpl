@@ -152,7 +152,7 @@ function initiateWidget(serviceID) {
                         button_deleteGroup = '';
                     }
                     dialog.setContent(
-                        '<button style="float:right" class="buttonNorm" onclick="viewHistory('+serviceID+')"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="vertical-align: middle"> View History</button>'+
+                        '<button style="float:right" class="buttonNorm" onclick="viewHistory('+serviceID+')"><img src="/libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="vertical-align: middle"> View History</button>'+
                         '<div id="employees"></div><br /><h3>Add Employee:</h3><div id="employeeSelector"></div><br /><br />' + button_deleteGroup);
                     $('#employees').html('<table id="employee_table" class="table"></table>');
                     var counter = 0;

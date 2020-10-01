@@ -8,8 +8,8 @@
     {/if}
     <style type="text/css" media="screen">
         {if $useDojo == true && $useDojoUI == true}
-        @import "../../libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";
-        @import "../../libs/js/jquery/chosen/chosen.min.css";
+        @import "/libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";
+        @import "/libs/js/jquery/chosen/chosen.min.css";
         {/if}
         @import "../css/style.css";
 {section name=i loop=$stylesheets}
@@ -23,8 +23,8 @@
 {/section}
     </style>
     {if $useDojo == true}
-    <script type="text/javascript" src="../../libs/js/jquery/jquery.min.js"></script>
-    {if $useDojoUI == true}<script type="text/javascript" src="../../libs/js/jquery/jquery-ui.custom.min.js"></script>{/if}
+    <script type="text/javascript" src="/libs/js/jquery/jquery.min.js"></script>
+    {if $useDojoUI == true}<script type="text/javascript" src="/libs/js/jquery/jquery-ui.custom.min.js"></script>{/if}
     {/if}
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="../{$javascripts[i]}"></script>
@@ -34,7 +34,7 @@
 <body>
 <div id="header">
     {if $qrcodeURL != ''}
-    <div style="float: left"><img class="print nodisplay" style="width: 72px" src="../../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
+    <div style="float: left"><img class="print nodisplay" style="width: 72px" src="/libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
     {/if}
     <div style="cursor: pointer" onclick="window.location='./'">
       <span style="position: absolute">{$logo}</span>

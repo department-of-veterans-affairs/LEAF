@@ -27,12 +27,12 @@
             <!--{/if}-->
             <div style="float: left">
             <!--{if $date < $indicator.timestamp && $date > 0}-->
-                <img src="../libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|escape}-->); $('#histdialog1').dialog('open')" />&nbsp;
+                <img src="/libs/dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|escape}-->); $('#histdialog1').dialog('open')" />&nbsp;
             <!--{/if}-->
             <!--{if $indicator.isWritable == 0}-->
-                <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=16" alt="Read-only" title="Read-only" />&nbsp;
+                <img src="/libs/dynicons/?img=emblem-readonly.svg&amp;w=16" alt="Read-only" title="Read-only" />&nbsp;
             <!--{else}-->
-                <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" alt="Edit this field" title="Edit this field" style="cursor: pointer" />&nbsp;
+                <img src="/libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" alt="Edit this field" title="Edit this field" style="cursor: pointer" />&nbsp;
             <!--{/if}-->
             </div>
             <!--{if $indicator.isWritable == 0}-->
