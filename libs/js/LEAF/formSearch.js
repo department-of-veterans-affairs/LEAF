@@ -23,13 +23,13 @@ var LeafFormSearch = function(containerID) {
 
 	function renderUI() {
 		$('#' + containerID).html('<div>\
-			    <img id="'+prefixID+'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="'+ rootURL +'../libs/dynicons/?img=search.svg&w=16">\
+			    <img id="'+prefixID+'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="/libs/dynicons/?img=search.svg&w=16">\
 			    <img id="'+prefixID+'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="'+ rootURL +'images/indicator.gif">\
 			    <input style="border: 1px solid black; padding: 4px" type="text" id="'+prefixID+'searchtxt" name="searchtxt" size="50" title="Enter your search text" value="" />\
 			    <button class="buttonNorm" id="'+prefixID+'advancedSearchButton">Advanced Options</button>\
 			    <fieldset id="'+prefixID+'advancedOptions" style="position: relative; display: none; margin: 0px; border: 1px solid black; background-color: white">\
 		        <legend>Advanced Search Options</legend>\
-		        <img id="'+prefixID+'advancedOptionsClose" src="'+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16" tabindex="0" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer" alt="Close advanced search"/>\
+		        <img id="'+prefixID+'advancedOptionsClose" src="/libs/dynicons/?img=process-stop.svg&w=16" tabindex="0" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer" alt="Close advanced search"/>\
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="'+prefixID+'searchTerms"></table>\
 		        <button class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</button>\
@@ -740,7 +740,7 @@ var LeafFormSearch = function(containerID) {
 	 */
 	function newSearchWidget() {
 		var widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'">\
-						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" /></button></td>\
+						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="/libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" /></button></td>\
 						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen" aria-label="condition">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
