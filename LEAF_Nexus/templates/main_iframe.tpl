@@ -8,8 +8,8 @@
     {/if}
     <style type="text/css" media="screen">
         {if $useDojo == true && $useDojoUI == true}
-        @import "../libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";
-        @import "../libs/js/jquery/chosen/chosen.min.css";
+        @import "/libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";
+        @import "/libs/js/jquery/chosen/chosen.min.css";
         {/if}
         @import "css/style.css";
 {section name=i loop=$stylesheets}
