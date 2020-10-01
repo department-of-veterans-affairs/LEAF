@@ -1,6 +1,6 @@
 <link rel=stylesheet href="../../libs/js/codemirror/addon/merge/merge.css">
-<script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
-<script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
+<script src="/libs/js/diff-match-patch/diff-match-patch.js"></script>
+<script src="/libs/js/codemirror/addon/merge/merge.js"></script>
 <style>
 
 /* Glyph to improve usability of code compare */

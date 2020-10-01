@@ -20,18 +20,18 @@
     <style type="text/css" media="print">
         @import "css/printer.css";
     </style>
-    <script type="text/javascript" src="../../libs/js/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/libs/js/jquery/jquery.min.js"></script>
     {if $useUI == true}
-    <script type="text/javascript" src="../../libs/js/jquery/jquery-ui.custom.min.js"></script>
+    <script type="text/javascript" src="/libs/js/jquery/jquery-ui.custom.min.js"></script>
     <script type="text/javascript" src="../js/dialogController.js"></script>
-    <script type="text/javascript" src="../../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
-    <script type="text/javascript" src="../../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
-    <script type="text/javascript" src="../../libs/js/jquery/icheck/icheck.js"></script>
+    <script type="text/javascript" src="/libs/js/jquery/chosen/chosen.jquery.min.js"></script>
+    <script type="text/javascript" src="/libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
+    <script type="text/javascript" src="/libs/js/jquery/icheck/icheck.js"></script>
     {else if $useLiteUI == true}
     <script type="text/javascript" src="../js/dialogController.js"></script>
-    <script type="text/javascript" src="../../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
-    <script type="text/javascript" src="../../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
-    <script type="text/javascript" src="../../libs/js/jquery/icheck/icheck.js"></script>
+    <script type="text/javascript" src="/libs/js/jquery/chosen/chosen.jquery.min.js"></script>
+    <script type="text/javascript" src="/libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
+    <script type="text/javascript" src="/libs/js/jquery/icheck/icheck.js"></script>
     {/if}
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="{$javascripts[i]}"></script>
