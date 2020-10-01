@@ -1,5 +1,5 @@
-<script src="../libs/js/LEAF/formQuery.js"></script>
-<script src="../libs/js/LEAF/formGrid.js"></script>
+<script src="/libs/js/LEAF/formQuery.js"></script>
+<script src="/libs/js/LEAF/formGrid.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/2.3.0/bignumber.min.js"></script>
 

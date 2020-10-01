@@ -27,8 +27,8 @@ position.prototype.initialize = function (parentContainerID) {
 				<div id="'+ prefixedPID + '_title' +'" class="positionSmall_title"></div>\
 				<div id="'+ prefixedPID + '_container' +'" class="positionSmall_data">\
 					<div id="'+ prefixedPID + '_content"></div>\
-					<div id="'+ prefixedPID + '_controls" style="visibility: hidden; display: none"><div class="button" onclick="window.location=\'?a=view_position&amp;positionID='+this.positionID+'\';"><img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Edit" title="Edit" /> View Details</div> \
-					<div class="button" onclick="addSubordinate('+this.positionID+')"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" alt="Add Icon" title="Add Icon" /> Add Subordinate</div></div>\
+					<div id="'+ prefixedPID + '_controls" style="visibility: hidden; display: none"><div class="button" onclick="window.location=\'?a=view_position&amp;positionID='+this.positionID+'\';"><img src="/libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Edit" title="Edit" /> View Details</div> \
+					<div class="button" onclick="addSubordinate('+this.positionID+')"><img src="/libs/dynicons/?img=list-add.svg&amp;w=32" alt="Add Icon" title="Add Icon" /> Add Subordinate</div></div>\
 				</div>\
 			  </div>';
 	$('#' + parentContainerID).append(buffer);

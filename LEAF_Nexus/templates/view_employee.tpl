@@ -1,20 +1,20 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
     <!--{if $is_admin == true}-->
-        <div onclick="refreshEmp('<!--{$summary.employee.userName}-->', '<!--{$empUID}-->');"><img src="../libs/dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="Refresh Employee" title="Refresh Employee" /> Refresh Employee</div>
+        <div onclick="refreshEmp('<!--{$summary.employee.userName}-->', '<!--{$empUID}-->');"><img src="/libs/dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="Refresh Employee" title="Refresh Employee" /> Refresh Employee</div>
         <br />
       <!--{/if}-->
-        <div onclick="assignBackup();"><img src="../libs/dynicons/?img=gnome-system-users.svg&amp;w=32" style="vertical-align: middle" alt="Set Backup" title="Set Backup" /> Assign Backup</div>
+        <div onclick="assignBackup();"><img src="/libs/dynicons/?img=gnome-system-users.svg&amp;w=32" style="vertical-align: middle" alt="Set Backup" title="Set Backup" /> Assign Backup</div>
         <br />
 <!--{if $summary.employee.deleted == 0}-->
-        <div onclick="disableAccount();"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="Disable Account" title="Disable Account" /> Disable Account</div>
+        <div onclick="disableAccount();"><img src="/libs/dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="Disable Account" title="Disable Account" /> Disable Account</div>
 <!--{else}-->
-        <div onclick="enableAccount();"><img src="../libs/dynicons/?img=edit-redo.svg&amp;w=32" style="vertical-align: middle" alt="Enable Account" title="Enable Account" /> Enable Account</div>
+        <div onclick="enableAccount();"><img src="/libs/dynicons/?img=edit-redo.svg&amp;w=32" style="vertical-align: middle" alt="Enable Account" title="Enable Account" /> Enable Account</div>
 <!--{/if}-->
-<!--         <div onclick="alert('Not implemented yet');"><img src="../libs/dynicons/?img=emblem-train.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee" title="Add Employee" /> Request Travel/Training</div>
-        <div onclick="alert('Not implemented yet');"><img src="../libs/dynicons/?img=car.svg&amp;w=32" style="vertical-align: middle" alt="Change Service" title="Change Service" /> Request Govt. Vehicle</div>
-        <div onclick="alert('Not implemented yet');"><img src="../libs/dynicons/?img=emblem-parking.svg&amp;w=32" style="vertical-align: middle" alt="Change Service" title="Change Service" /> Request Parking Decal</div>
-        <div onclick="alert('Not implemented yet');"><img src="../libs/dynicons/?img=award-ribbon.svg&amp;w=32" style="vertical-align: middle" alt="Change Service" title="Change Service" /> Recommend for Award</div>
+<!--         <div onclick="alert('Not implemented yet');"><img src="/libs/dynicons/?img=emblem-train.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee" title="Add Employee" /> Request Travel/Training</div>
+        <div onclick="alert('Not implemented yet');"><img src="/libs/dynicons/?img=car.svg&amp;w=32" style="vertical-align: middle" alt="Change Service" title="Change Service" /> Request Govt. Vehicle</div>
+        <div onclick="alert('Not implemented yet');"><img src="/libs/dynicons/?img=emblem-parking.svg&amp;w=32" style="vertical-align: middle" alt="Change Service" title="Change Service" /> Request Parking Decal</div>
+        <div onclick="alert('Not implemented yet');"><img src="/libs/dynicons/?img=award-ribbon.svg&amp;w=32" style="vertical-align: middle" alt="Change Service" title="Change Service" /> Recommend for Award</div>
  -->
     </div>
 </div>
@@ -143,7 +143,7 @@ function getBackupForInfo() {
 }
 
 function removeBackup(backupEmpUID) {
-    confirm_dialog.setContent('<img src="../libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to remove this backup?</span>');
+    confirm_dialog.setContent('<img src="/libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to remove this backup?</span>');
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
@@ -203,7 +203,7 @@ function assignBackup() {
 }
 
 function disableAccount(backupEmpUID) {
-    confirm_dialog.setContent('<img src="../libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to disable this account?</span>');
+    confirm_dialog.setContent('<img src="/libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to disable this account?</span>');
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
@@ -223,7 +223,7 @@ function disableAccount(backupEmpUID) {
 }
 
 function enableAccount(backupEmpUID) {
-    confirm_dialog.setContent('<img src="../libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to enable this account?</span>');
+    confirm_dialog.setContent('<img src="/libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to enable this account?</span>');
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
         $.ajax({

@@ -23,9 +23,9 @@
 {/section}
     </style>
     {if $useDojo == true}
-    <script type="text/javascript" src="../libs/js/jquery/jquery.min.js"></script>
-        {if $useDojoUI == true}<script type="text/javascript" src="../libs/js/jquery/jquery-ui.custom.min.js"></script>
-        <script type="text/javascript" src="../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
+    <script type="text/javascript" src="/libs/js/jquery/jquery.min.js"></script>
+        {if $useDojoUI == true}<script type="text/javascript" src="/libs/js/jquery/jquery-ui.custom.min.js"></script>
+        <script type="text/javascript" src="/libs/js/jquery/chosen/chosen.jquery.min.js"></script>
         {/if}
     {/if}
 {section name=i loop=$javascripts}
@@ -36,7 +36,7 @@
 <body>
 <div id="header">
     {if $qrcodeURL != ''}
-    <div style="float: left"><img class="print nodisplay" style="width: 72px" src="../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
+    <div style="float: left"><img class="print nodisplay" style="width: 72px" src="/libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
     {/if}
     <div style="cursor: pointer" onclick="window.location='./'">
       <span style="position: absolute">{$logo}</span>
