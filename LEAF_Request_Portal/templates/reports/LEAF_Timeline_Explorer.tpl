@@ -1,9 +1,9 @@
 <link rel="stylesheet" type="text/css" href="../libs/js/jquery/layout-grid/css/layout-grid.min.css" />
-<script src="../libs/js/jquery/layout-grid/js/layout-grid.min.js"></script>
+<script src="/libs/js/jquery/layout-grid/js/layout-grid.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.0.9/dc.css" />
-<script src="../libs/js/moment/moment.min.js"></script>
-<script src="../libs/js/moment/moment-timezone-with-data.min.js"></script>
+<script src="/libs/js/moment/moment.min.js"></script>
+<script src="/libs/js/moment/moment-timezone-with-data.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.4.6/crossfilter.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.0.9/dc.min.js"></script>

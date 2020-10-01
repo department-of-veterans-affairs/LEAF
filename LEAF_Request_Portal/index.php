@@ -7,7 +7,7 @@ error_reporting(E_ALL & ~E_NOTICE);
 
 if (false)
 {
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
+    echo '<img src="/libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
     exit();
 }
 
@@ -363,7 +363,7 @@ switch ($action) {
     case 'cancelled_request':
         $main->assign('useUI', false);
         $body = '<div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px">';
-        $body .= '<img src="../libs/dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
+        $body .= '<img src="/libs/dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
         $main->assign('body', $body);
 
         break;

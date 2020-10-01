@@ -83,14 +83,14 @@ div.specialties {
     <input id="searchRosterInput" type="text" placeholder="Search by Name, Process, or Location" />
     <img id="searchRosterBtn" 
         class="searchIcon" 
-        src="../libs/dynicons/?img=search.svg&w=25" 
+        src="/libs/dynicons/?img=search.svg&w=25" 
         alt="search icon" />
 </div>
 
 <div id="coaches"></div>
 
-<script src="../libs/jsapi/portal/model/FormQuery.js" type="text/javascript"></script>
-<script src="../libs/jsapi/portal/LEAFPortalAPI.js" type="text/javascript"></script>
+<script src="/libs/jsapi/portal/model/FormQuery.js" type="text/javascript"></script>
+<script src="/libs/jsapi/portal/LEAFPortalAPI.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 /**
