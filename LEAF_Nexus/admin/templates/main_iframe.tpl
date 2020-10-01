@@ -23,8 +23,8 @@
 {/section}
     </style>
     {if $useDojo == true}
-    <script type="text/javascript" src="../../libs/js/jquery/jquery.min.js"></script>
-    {if $useDojoUI == true}<script type="text/javascript" src="../../libs/js/jquery/jquery-ui.custom.min.js"></script>{/if}
+    <script type="text/javascript" src="/libs/js/jquery/jquery.min.js"></script>
+    {if $useDojoUI == true}<script type="text/javascript" src="/libs/js/jquery/jquery-ui.custom.min.js"></script>{/if}
     {/if}
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="../{$javascripts[i]}"></script>

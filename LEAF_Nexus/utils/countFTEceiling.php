@@ -13,9 +13,9 @@
         @import "../css/printer.css";
         @import "../css/editor_printer.css";
     </style>
-        <script type="text/javascript" src="../../libs/js/jquery/jquery.min.js"></script>
-        <script type="text/javascript" src="../../libs/js/jquery/jquery-ui.custom.min.js"></script>
-        <script type="text/javascript" src="../../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
+        <script type="text/javascript" src="/libs/js/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="/libs/js/jquery/jquery-ui.custom.min.js"></script>
+        <script type="text/javascript" src="/libs/js/jquery/chosen/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="../js/positionSelector.js"></script>
     <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
 </head>
