@@ -1,5 +1,5 @@
 <html>
-<body style="font-family: verdana; font-size: 12px">
+<body style="font-family: verdana; font-size: 12px;">
 <br />
 <br />
 {{$emailBody}}
