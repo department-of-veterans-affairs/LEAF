@@ -52,6 +52,8 @@
 <div id="import_data_new_form" style="display: none;">
     <h4>Create a Form</h4>
     <button id="import_btn_new" type="button">Import</button>
+    <input id="preserve_new" type="checkbox" name="preserve_new"/>
+    <label for="preserve_new">Preserve Row Order?</label>
     <br/><br/>
     <label for="formTitleInput"><b>Title of Form</b></label>
     <input type="text" id="formTitleInput" />
@@ -74,6 +76,8 @@
     <select id="category_select"></select>
 
     <button id="import_btn_existing" type="button">Import</button>
+    <input id="preserve_existing" type="checkbox" name="preserve_existing"/>
+    <label for="preserve_existing">Preserve Row Order?</label>
 
     <br/><br/>
 
@@ -132,6 +136,7 @@
     var requestStatus = $('#request_status');
     var sheetUpload = $('#sheet_upload');
     var nameOfSheet = '';
+    var placeInOrder;
 
     var totalRecords;
 
@@ -451,9 +456,11 @@
                 .dialog( "close" );
             progressbar.progressbar( "value", false );
             progressLabel.text( "Starting import..." );
+            progressbar.progressbar( "value", 0);
         }
 
         function progress() {
+            debugger;
             
             var val = progressbar.progressbar( "value" ) || 0;
             
@@ -491,6 +498,7 @@
             var formData = {"name": formName, "description": formDescription.val()};
             var indicators = [];
             var newCategoryID = '';
+            totalImported = 0;
             requestStatus.html('Making custom form...');
 
             /* creates custom form */
@@ -698,24 +706,43 @@
                             
                             
                             dialog.dialog( "open" );
+
+                            var preserveOrder = $("#preserve_new").prop("checked");
                             
-                            for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
-                                
-                                var doublet = [];
-                                doublet.push(selectRowToAnswer(i));
-                                
-                                var addAnother = i+1 <= sheet_data.cells.length - 1;
-                                
-                                if(addAnother){
-                                    doublet.push(selectRowToAnswer(i+1));
+                            if(preserveOrder){
+
+                                placeInOrder = 1;
+
+                                selectRowToAnswer(placeInOrder).then(iterate);
+
+                                function iterate(){
+                                    placeInOrder++;
+                                    totalImported++;
+                                    if(placeInOrder <= sheet_data.cells.length -1){
+                                        selectRowToAnswer(placeInOrder).then(iterate);
+                                    }
                                 }
-                                
-                                
-                                Promise.all(doublet).then(function(results){
-                                    
-                                    totalImported += results.length;
-                                });
+
                             }
+                            else{
+                                for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
+                                    
+                                    var doublet = [];
+                                    doublet.push(selectRowToAnswer(i));
+                                    
+                                    var addAnother = i+1 <= sheet_data.cells.length - 1;
+                                    
+                                    if(addAnother){
+                                        doublet.push(selectRowToAnswer(i+1));
+                                    }
+                                    
+                                    Promise.all(doublet).then(function(results){
+                                        
+                                        totalImported += results.length;
+                                    });
+                                }
+                            }
+
                         }
                     }
                     makeIndicator();
@@ -728,6 +755,7 @@
         }
 
         function importExisting() {
+            totalImported = 0;
             $('#status').html('Processing...'); /* UI hint */
 
             requestStatus.html('Parsing sheet data...');
@@ -888,19 +916,40 @@
             
             dialog.dialog( "open" );
             
-            for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
-                
-                var doublet = [];
-                doublet.push(selectRowToAnswer(i));
-                
-                var addAnother = i+1 <= sheet_data.cells.length - 1;
-                
-                if(addAnother){
-                    doublet.push(selectRowToAnswer(i+1));
+            var preserveOrder = $("#preserve_existing").prop("checked");
+
+            if(preserveOrder){
+
+                placeInOrder = 1;
+
+                selectRowToAnswer(placeInOrder).then(iterate);
+
+                function iterate(){
+                    placeInOrder++;
+                    totalImported++;
+                    if(placeInOrder <= sheet_data.cells.length -1){
+                        selectRowToAnswer(placeInOrder).then(iterate);
+                    }
                 }
-                 Promise.all(doublet).then(function(results){                
-                     totalImported += results.length;
-                 });
+
+            }
+            else{
+                for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
+                    
+                    var doublet = [];
+                    doublet.push(selectRowToAnswer(i));
+                    
+                    var addAnother = i+1 <= sheet_data.cells.length - 1;
+                    
+                    if(addAnother){
+                        doublet.push(selectRowToAnswer(i+1));
+                    }
+                    
+                    Promise.all(doublet).then(function(results){
+                        
+                        totalImported += results.length;
+                    });
+                }
             }
             $('#status').html('Data has been imported');
         }
