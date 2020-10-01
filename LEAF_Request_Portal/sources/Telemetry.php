@@ -11,6 +11,7 @@
 $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../globals.php';
+include $currDir . "/../../libs/php-commons/aws/AWSUtil.php";
 
 class Telemetry
 {
@@ -128,6 +129,16 @@ class Telemetry
 
         return $output;
     }
+
+    public function getStorage()
+    {
+        global $config;
+        $awsUtil = new AWSUtil();
+        $result = $awsUtil->s3GetStorageSize($config->fileManagerDir);
+
+        return $result;
+    }
+
 
     /*
     SELECT count(*), categoryName, date FROM records
