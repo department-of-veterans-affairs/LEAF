@@ -151,7 +151,7 @@ function cancelRequest() {
 function manualSaveChange()
 {
     $("#save_indicator").html('<img src="images/indicator.gif" alt="Saving..." /> Saving...');
-    setTimeout("$('#save_indicator').html('<img src=\"../libs/dynicons/?img=media-floppy.svg&amp;w=22\" alt=\"save\" style=\"vertical-align: middle\"/> Save Change')", 1000);
+    setTimeout("$('#save_indicator').html('<img src=\"/libs/dynicons/?img=media-floppy.svg&amp;w=22\" alt=\"save\" style=\"vertical-align: middle\"/> Save Change')", 1000);
     form.setPostModifyCallback(function() {
         getForm(formStructure[currFormPosition].indicatorID, formStructure[currFormPosition].series);
     });
