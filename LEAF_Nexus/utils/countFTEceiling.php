@@ -3,8 +3,8 @@
 <head>
         <title>Organizational Chart Utility - Count FTE Ceiling</title>
         <style type="text/css" media="screen">
-                @import "../../libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";
-        @import "../../libs/js/jquery/chosen/chosen.min.css";
+                @import "/libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";
+        @import "/libs/js/jquery/chosen/chosen.min.css";
                 @import "../css/style.css";
         @import "../css/editor.css";
         @import "../css/positionSelector.css";
