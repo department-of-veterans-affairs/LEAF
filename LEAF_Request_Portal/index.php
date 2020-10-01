@@ -133,7 +133,7 @@ switch ($action) {
     case 'view':
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/view.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '/libs/js/LEAF/XSSHelpers.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
         $form = new Form($db, $login);
@@ -193,12 +193,12 @@ switch ($action) {
             'js/formQuery.js',
             'js/formPrint.js',
             'js/jsdiff.js',
-            '../libs/js/LEAF/XSSHelpers.js',
-            '../libs/jsapi/portal/LEAFPortalAPI.js',
-            '../libs/js/es6-promise/es6-promise.min.js',
-            '../libs/js/es6-promise/es6-promise.auto.min.js',
-            '../libs/js/jspdf/jspdf.min.js',
-            '../libs/js/jspdf/jspdf.plugin.autotable.min.js',
+            '/libs/js/LEAF/XSSHelpers.js',
+            '/libs/jsapi/portal/LEAFPortalAPI.js',
+            '/libs/js/es6-promise/es6-promise.min.js',
+            '/libs/js/es6-promise/es6-promise.auto.min.js',
+            '/libs/js/jspdf/jspdf.min.js',
+            '/libs/js/jspdf/jspdf.plugin.autotable.min.js',
             'js/titleValidator.js'
         ));
 
@@ -486,7 +486,7 @@ switch ($action) {
                'js/gridInput.js',
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
-               '../libs/js/LEAF/XSSHelpers.js',
+               '/libs/js/LEAF/XSSHelpers.js',
            ));
            $main->assign('useUI', true);
 

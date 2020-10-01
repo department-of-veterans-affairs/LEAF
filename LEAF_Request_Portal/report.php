@@ -123,9 +123,9 @@ switch ($action) {
                 'js/formGrid.js',
                 'js/formQuery.js',
                 'js/formSearch.js',
-                '../libs/jsapi/nexus/LEAFNexusAPI.js',
-                '../libs/jsapi/portal/LEAFPortalAPI.js',
-                '../libs/jsapi/portal/model/FormQuery.js',
+                '/libs/jsapi/nexus/LEAFNexusAPI.js',
+                '/libs/jsapi/portal/LEAFPortalAPI.js',
+                '/libs/jsapi/portal/model/FormQuery.js',
             ));
 
             $form = new Form($db, $login);

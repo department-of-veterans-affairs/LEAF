@@ -82,7 +82,7 @@ switch ($action) {
 
         $main->assign('useDojoUI', false);
 
-        $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
+        $main->assign('javascripts', array('/libs/js/jsPlumb/dom.jsPlumb-min.js',
                                            'js/ui/position.js', ));
         require __DIR__ . '/sources/Position.php';
         $position = new Orgchart\Position($db, $login);
@@ -111,7 +111,7 @@ switch ($action) {
 
         $main->assign('useDojoUI', true);
 
-        $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
+        $main->assign('javascripts', array('/libs/js/jsPlumb/dom.jsPlumb-min.js',
                                            'js/dialogController.js',
                                            'js/ui/position.js',
                                            'js/positionSelector.js', ));
