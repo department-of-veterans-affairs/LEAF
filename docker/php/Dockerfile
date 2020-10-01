@@ -2,13 +2,6 @@ FROM ubuntu:18.04
 MAINTAINER Dastan Rahimi <dastan.rahimi@ablevets.com>
 
 ENV DEBIAN_FRONTEND noninteractive
-
-RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git subversion zlib1g-dev libzip-dev net-tools iputils-ping zip mysql-client vim wget nginx ssmtp
-
-COPY /docker/php/trust_ca_certs.sh /tmp/
-# certs need to be installed before running add-apt-repository ppa:ondrej/php when executing on pipeline
-RUN bash -xc "bash /tmp/trust_ca_certs.sh" 
-
 RUN apt-get update -q && apt-get install software-properties-common -y && \
 	add-apt-repository ppa:ondrej/php && apt-get update && \
 	apt-get install -y python python-pip \
@@ -17,6 +10,10 @@ RUN apt-get update -q && apt-get install software-properties-common -y && \
 	php7.3-pdo php7.3-curl php7.3-imagick pkg-config \
 	php7.3-mysql gcc make autoconf libc-dev pkg-config php7.3-dev
 
+RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git subversion zlib1g-dev libzip-dev net-tools iputils-ping zip mysql-client vim wget nginx ssmtp
+
+COPY /docker/php/trust_ca_certs.sh /tmp/
+RUN bash -xc "bash /tmp/trust_ca_certs.sh"
 
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/certs/leaf.key -out /etc/ssl/certs/leaf.pem -subj "/C=US/ST=VA/L=Chantilly/O=LEAF/OU=LEAF/CN=%"
 RUN curl -sS https://getcomposer.org/installer | php
