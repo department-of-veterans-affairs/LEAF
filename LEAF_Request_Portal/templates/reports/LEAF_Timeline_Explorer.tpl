@@ -1,4 +1,4 @@
-<link rel="stylesheet" type="text/css" href="../libs/js/jquery/layout-grid/css/layout-grid.min.css" />
+<link rel="stylesheet" type="text/css" href="/libs/js/jquery/layout-grid/css/layout-grid.min.css" />
 <script src="/libs/js/jquery/layout-grid/js/layout-grid.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.0.9/dc.css" />

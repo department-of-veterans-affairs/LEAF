@@ -15,7 +15,7 @@ var sites = [
         name: 'Demo 2 Site',
         backgroundColor: '#04B404',
         fontColor: 'white',
-        icon: '../libs/dynicons/?img=package-x-generic.svg&w=76'
+        icon: '/libs/dynicons/?img=package-x-generic.svg&w=76'
     },
 ];
     

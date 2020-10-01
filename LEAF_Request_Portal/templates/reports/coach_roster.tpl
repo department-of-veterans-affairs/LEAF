@@ -165,7 +165,7 @@ CoachQuery.prototype.parseResults = function (results) {
                     + "&series=" + result.series 
                     + "&form=" + result.recordID
                     + "&file=0"
-                : "../libs/dynicons/?img=system-users.svg&w=150";
+                : "/libs/dynicons/?img=system-users.svg&w=150";
 
             coaches.push({
                 "id": result.recordID,
