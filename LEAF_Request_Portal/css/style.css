@@ -1189,7 +1189,7 @@ div.sensitiveIndicator > .printResponse {
 }
 
 .sensitiveIndicatorMaskToggle > input[type=checkbox] + label {
-    background-image: url("../../libs/dynicons/?img=eye_invisible.svg&w=16");
+    background-image: url("/libs/dynicons/?img=eye_invisible.svg&w=16");
     height: 16px;
     width: 16px;
     display: inline-block;
@@ -1198,7 +1198,7 @@ div.sensitiveIndicator > .printResponse {
 }
 
 .sensitiveIndicatorMaskToggle > input[type=checkbox]:checked + label {
-    background-image: url("../../libs/dynicons/?img=eye_visible.svg&w=16");
+    background-image: url("/libs/dynicons/?img=eye_visible.svg&w=16");
 }
 
 .tools>div:focus {

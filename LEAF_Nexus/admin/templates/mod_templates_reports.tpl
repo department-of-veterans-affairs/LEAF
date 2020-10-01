@@ -1,5 +1,5 @@
 <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">
-    <button class="buttonNorm" onclick="newReport();" style="float: left; width: 200px; margin: 4px;"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="New File" /> New File</button><br />
+    <button class="buttonNorm" onclick="newReport();" style="float: left; width: 200px; margin: 4px;"><img src="/libs/dynicons/?img=document-new.svg&w=32" alt="New File" /> New File</button><br />
     <b>Files:</b>
     <div id="fileList"></div>
 </div>
@@ -10,10 +10,10 @@
     </div>
 </div>
 <div id="controls" style="float: right; width: 170px; visibility: hidden">
-    <div id="saveButton" class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes</div><br /><br /><br />
-    <div class="buttonNorm" onclick="runReport();"><img id="saveIndicator" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Open Report" /> Open Report</div>
+    <div id="saveButton" class="buttonNorm" onclick="save();"><img id="saveIndicator" src="/libs/dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes</div><br /><br /><br />
+    <div class="buttonNorm" onclick="runReport();"><img id="saveIndicator" src="/libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Open Report" /> Open Report</div>
     <br /><br /><br /><br /><br /><br />
-    <div id="deleteButton" class="buttonNorm" onclick="deleteReport();"><img src="../../libs/dynicons/?img=process-stop.svg&w=32" alt="Delete Report" /> Delete Report</div>
+    <div id="deleteButton" class="buttonNorm" onclick="deleteReport();"><img src="/libs/dynicons/?img=process-stop.svg&w=32" alt="Delete Report" /> Delete Report</div>
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -29,7 +29,7 @@ function save() {
 			   file: codeEditor.getValue()},
 		url: '../api/system/reportTemplates/_' + currentFile,
 		success: function(res) {
-			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
+			$('#saveIndicator').attr('src', '/libs/dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
 			if(res != null) {
 				alert(res);

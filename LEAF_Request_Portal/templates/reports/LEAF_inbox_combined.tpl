@@ -1,4 +1,4 @@
-<script src="../libs/js/sha1.js"></script>
+<script src="/libs/js/sha1.js"></script>
 <script>
 var CSRFToken = '<!--{$CSRFToken}-->';
     
@@ -15,7 +15,7 @@ var sites = [
         name: 'Demo 2 Site',
         backgroundColor: '#04B404',
         fontColor: 'white',
-        icon: '../libs/dynicons/?img=package-x-generic.svg&w=76'
+        icon: '/libs/dynicons/?img=package-x-generic.svg&w=76'
     },
 ];
     
@@ -36,7 +36,7 @@ function getIcon(icon, name) {
             icon = '<img src="'+ icon +'" alt="icon for '+ name +'" style="vertical-align: middle" />';
         }
         else {
-            icon = '<img src="../libs/dynicons/?img='+ icon +'&w=76" alt="icon for '+ name +'" style="vertical-align: middle" />';
+            icon = '<img src="/libs/dynicons/?img='+ icon +'&w=76" alt="icon for '+ name +'" style="vertical-align: middle" />';
         }
     }
     return icon;

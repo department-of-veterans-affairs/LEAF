@@ -6,7 +6,7 @@
 
   <title>LEAF Header Design Template</title>
 
-  <link rel="stylesheet" href="../../libs/css/leaf.css">
+  <link rel="stylesheet" href="/libs/css/leaf.css">
 
 </head>
 

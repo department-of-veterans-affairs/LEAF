@@ -1,6 +1,6 @@
-<link rel=stylesheet href="../../libs/js/codemirror/addon/merge/merge.css">
-<script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
-<script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
+<link rel=stylesheet href="/libs/js/codemirror/addon/merge/merge.css">
+<script src="/libs/js/diff-match-patch/diff-match-patch.js"></script>
+<script src="/libs/js/codemirror/addon/merge/merge.js"></script>
 <style>
 
 /* Glyph to improve usability of code compare */
@@ -46,7 +46,7 @@
                 </button>
                 
                 <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" target="_blank">
-                    <a href="../../libs/dynicons/gallery.php">Icon Library</a>
+                    <a href="/libs/dynicons/gallery.php">Icon Library</a>
                 </button>
             </div>
 
@@ -108,7 +108,7 @@ function save() {
 			   file: data},
 		url: '../api/system/templates/_' + currentFile,
 		success: function(res) {
-			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
+			$('#saveIndicator').attr('src', '/libs/dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
 			if($('#btn_compareStop').css('display') != 'none') {
 			    $('#btn_compare').css('display', 'none');

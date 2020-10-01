@@ -693,7 +693,7 @@ var LeafFormGrid = function(containerID, options) {
     function enableToolbar() {
         containerID = prefixID + 'gridToolbar';
         $('#' + containerID).css('display', 'block');
-        $('#' + containerID).html('<button type="button" id="'+ prefixID +'getExcel" class="buttonNorm"><img src="../libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Icon of Spreadsheet" /> Export</button>');
+        $('#' + containerID).html('<button type="button" id="'+ prefixID +'getExcel" class="buttonNorm"><img src="/libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Icon of Spreadsheet" /> Export</button>');
 
         $('#' + prefixID + 'getExcel').on('click', function() {
             if(currentRenderIndex != currentData.length) {

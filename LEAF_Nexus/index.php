@@ -13,7 +13,7 @@ error_reporting(E_ALL & ~E_NOTICE);
 
 if (false)
 {
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
+    echo '<img src="/libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
     exit();
 }
 
@@ -82,7 +82,7 @@ switch ($action) {
 
         $main->assign('useDojoUI', false);
 
-        $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
+        $main->assign('javascripts', array('/libs/js/jsPlumb/dom.jsPlumb-min.js',
                                            'js/ui/position.js', ));
         require __DIR__ . '/sources/Position.php';
         $position = new Orgchart\Position($db, $login);
@@ -111,7 +111,7 @@ switch ($action) {
 
         $main->assign('useDojoUI', true);
 
-        $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
+        $main->assign('javascripts', array('/libs/js/jsPlumb/dom.jsPlumb-min.js',
                                            'js/dialogController.js',
                                            'js/ui/position.js',
                                            'js/positionSelector.js', ));

@@ -65,7 +65,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                     for(var i in response.errors) {
                         errors += response.errors[i] + '<br />';
                     }
-                    $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="'+ rootURL +'../libs/dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" /> '+ errors +'<br /><span style="font-size: 14px; font-weight: normal">After resolving the errors, <button id="workflowbtn_tryagain" class="buttonNorm">click here to try again</button>.</span></div>');
+                    $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="/libs/dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" /> '+ errors +'<br /><span style="font-size: 14px; font-weight: normal">After resolving the errors, <button id="workflowbtn_tryagain" class="buttonNorm">click here to try again</button>.</span></div>');
                     $("#workflowbtn_tryagain").on('click', function() {
                         getWorkflow(currRecordID);
                     });
@@ -114,7 +114,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         for(var i in step.dependencyActions) {
             var icon = '';
             if(step.dependencyActions[i].actionIcon != '') {
-                icon = '<img src="'+ rootURL +'../libs/dynicons/?img='+ step.dependencyActions[i].actionIcon +'&amp;w=22" alt="'+ step.dependencyActions[i].actionText +'" style="vertical-align: middle" />';
+                icon = '<img src="/libs/dynicons/?img='+ step.dependencyActions[i].actionIcon +'&amp;w=22" alt="'+ step.dependencyActions[i].actionText +'" style="vertical-align: middle" />';
             }
 
             $('#form_dep_container'+ step.dependencyID).append('<div id="button_container'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType +'" style="float: '+ step.dependencyActions[i].actionAlignment +'">\
@@ -328,7 +328,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                         var month = sigTime.getMonth() + 1;
                         var date = sigTime.getDate();
                         var year = sigTime.getFullYear();
-                        $('#workflowSignatureContainer').append('<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">'+ lastActionSummary.signatures[i].stepTitle +' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="'+ rootURL +'../libs/dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature (beta) logo" />'
+                        $('#workflowSignatureContainer').append('<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">'+ lastActionSummary.signatures[i].stepTitle +' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="/libs/dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature (beta) logo" />'
                                 + lastActionSummary.signatures[i].name + ' '
                                 + month + '/' + date + '/' + year
                                 +'</span><br /><span aria-hidden="true" style="font-size: 75%">x'+ lastActionSummary.signatures[i].signature.substr(0, 32) +'</span></div>');

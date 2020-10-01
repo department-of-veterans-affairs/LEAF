@@ -18,7 +18,7 @@ var printer = function() {
         var homeURL = encodeURIComponent($('a[href="./"]')[0].href);
         homeQR.setAttribute('class', 'print nodisplay');
         homeQR.setAttribute('style', "width: 72px");
-        homeQR.setAttribute('src', '../libs/qrcode/?encode=' + homeURL);
+        homeQR.setAttribute('src', '/libs/qrcode/?encode=' + homeURL);
 
         function getBase64Image(img) {
             // Create an empty canvas element
