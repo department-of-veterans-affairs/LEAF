@@ -10,7 +10,7 @@ RUN apt-get update -q && apt-get install software-properties-common -y && \
 	php7.3-pdo php7.3-curl php7.3-imagick pkg-config \
 	php7.3-mysql gcc make autoconf libc-dev pkg-config php7.3-dev
 
-RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git subversion zlib1g-dev libzip-dev net-tools iputils-ping zip mysql-client vim wget nginx ssmtp
+RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git subversion zlib1g-dev libzip-dev net-tools iputils-ping zip mysql-client vim wget nginx ssmtp netcat
 
 COPY /docker/php/trust_ca_certs.sh /tmp/
 RUN bash -xc "bash /tmp/trust_ca_certs.sh"
