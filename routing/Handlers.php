@@ -38,6 +38,27 @@ namespace Handlers{
             readfile(__DIR__ . '/../LEAF_Request_Portal/images/' . $image);
         }
 
+        function file($fileName){
+            global $config;
+            require __DIR__ . '/../libs/php-commons/aws/AWSUtil.php';
+            
+            $awsUtil = new \AWSUtil();
+            $awsUtil->s3registerStreamWrapper();
+
+            $s3objectKey = "s3://" . $awsUtil->s3getBucketName() . "/" . $config->fileManagerDir . $fileName;
+
+            if (file_exists($s3objectKey)) {
+                header('Content-Type: ' . mime_content_type($s3objectKey));
+                header('Content-Length: ' . filesize($s3objectKey));
+
+                readfile($s3objectKey);
+            }
+            else
+            {
+                return 'Error: File does not exist or access may be restricted.';
+            }
+        }
+
         function api(){
             global $config, $db_config;
             require __DIR__ . '/../LEAF_Request_Portal/api/index.php';
@@ -164,6 +185,24 @@ namespace Handlers{
         function default(){
             global $config;
             require __DIR__ . '/../LEAF_Nexus/index.php';
+        }
+    }
+
+    class Test {
+        public $config;
+        public $db_config;
+        public function __construct($config, $db_config)
+        {
+            $this->config = $config;
+            $this->db_config = $db_config;
+        }
+        function nexus(){
+            global $config, $db_config;
+            require __DIR__ . '/../test/LEAF_test_endpoints/nexus/index.php';
+        }
+        function request_portal(){
+            global $config, $db_config;
+            require __DIR__ . '/../test/LEAF_test_endpoints/request_portal/index.php';
         }
     }
 }

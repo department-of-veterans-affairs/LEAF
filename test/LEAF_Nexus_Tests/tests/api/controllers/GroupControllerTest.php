@@ -21,10 +21,10 @@ class GroupControllerTest extends DatabaseTest
     protected function setUp()
     {
         $this->resetDatabase();
-        $db_config = new Config();
-        self::$db = new DB($db_config->phonedbHost, $db_config->phonedbUser, $db_config->phonedbPass, $db_config->phonedbName);
+        
+        self::$db = new \DB(\Test_Config::$dbHost, \Test_Config::$dbUser, \Test_Config::$dbPass, \Test_Config::$dbNameNexus);
         self::$client = LEAFClient::createNexusClient();
-        self::$testEndpointClient = LEAFClient::createNexusClient('http://localhost/test/LEAF_test_endpoints/nexus/', '../../../LEAF_Nexus/auth_domain/');
+        self::$testEndpointClient = LEAFClient::createNexusClient('http://localhost/test/LEAF_test_endpoints/nexus/', '../../../LEAF_Nexus/auth_domain/index.php');
     }
 
     /**

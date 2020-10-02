@@ -24,7 +24,7 @@
 }
 
 .workflowEndpoint {
-    background-image: url("../../../libs/dynicons/?img=network-wired.svg&w=48");
+    background-image: url("/libs/dynicons/?img=network-wired.svg&w=48");
     cursor: pointer;
 }
 

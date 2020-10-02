@@ -7,7 +7,7 @@ error_reporting(E_ALL & ~E_NOTICE);
 
 if (false)
 {
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
+    echo '<img src="/libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
     exit();
 }
 
@@ -64,9 +64,9 @@ function customTemplate($tpl, $portalPath)
 {
     $cleanPortalPath = str_replace("/", "_", $portalPath);
 
-    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
+    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "_{$tpl}";
     if (file_exists($customTemplatePath)) {
-        return "custom_override/". $cleanPortalPath . "{$tpl}";
+        return "custom_override/". $cleanPortalPath . "_{$tpl}";
     } else {
         return $tpl;
     }
@@ -133,7 +133,7 @@ switch ($action) {
     case 'view':
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/view.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '/libs/js/LEAF/XSSHelpers.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
         $form = new Form($db, $login);
@@ -193,12 +193,12 @@ switch ($action) {
             'js/formQuery.js',
             'js/formPrint.js',
             'js/jsdiff.js',
-            '../libs/js/LEAF/XSSHelpers.js',
-            '../libs/jsapi/portal/LEAFPortalAPI.js',
-            '../libs/js/es6-promise/es6-promise.min.js',
-            '../libs/js/es6-promise/es6-promise.auto.min.js',
-            '../libs/js/jspdf/jspdf.min.js',
-            '../libs/js/jspdf/jspdf.plugin.autotable.min.js',
+            '/libs/js/LEAF/XSSHelpers.js',
+            '/libs/jsapi/portal/LEAFPortalAPI.js',
+            '/libs/js/es6-promise/es6-promise.min.js',
+            '/libs/js/es6-promise/es6-promise.auto.min.js',
+            '/libs/js/jspdf/jspdf.min.js',
+            '/libs/js/jspdf/jspdf.plugin.autotable.min.js',
             'js/titleValidator.js'
         ));
 
@@ -363,7 +363,7 @@ switch ($action) {
     case 'cancelled_request':
         $main->assign('useUI', false);
         $body = '<div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px">';
-        $body .= '<img src="../libs/dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
+        $body .= '<img src="/libs/dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
         $main->assign('body', $body);
 
         break;
@@ -474,6 +474,19 @@ switch ($action) {
         $o_login = $t_login->fetch('login.tpl');
 
         break;
+
+    case 'sitemap':
+        $form = new Form($db, $login);
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $t_form->assign('sitemap', json_decode($settings['sitemap_json']));
+        $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+        $main->assign('body', $t_form->fetch('sitemap.tpl'));
+
+        break;
+
     case 'reports':
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $powerQueryURL = "{$protocol}://" . AUTH_URL . "/report_auth.php?r=";
@@ -486,7 +499,7 @@ switch ($action) {
                'js/gridInput.js',
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
-               '../libs/js/LEAF/XSSHelpers.js',
+               '/libs/js/LEAF/XSSHelpers.js',
            ));
            $main->assign('useUI', true);
 

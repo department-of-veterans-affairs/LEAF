@@ -12,7 +12,6 @@
     .bg-orange-20 {background-color: #f3bf90;}
     .bg-orange-40 {background-color: #e66f0e;}
     .bg-orange-50 {background-color: #a86437;}
-    .bg-orange-topbanner {background-color: #d26a15;}
 /* gold */
     .bg-gold-5v {background-color: #fef0c8;}
     .bg-gold-10 {background-color: #f1e5cd;}
@@ -72,7 +71,9 @@
 
 /* red */
     .text-red-10 {color: #f8e1de;}
-    .text-red-50 {color: #d83933;}
+    .text-red-50 {color: #d83933!important;}
+    .text-secondary-darker {color: #8b0a03!important;}
+
 /* orange */
     .text-orange-10 {color: #f2e4d4;}
     .text-orange-10v {color: #fce2c5;}

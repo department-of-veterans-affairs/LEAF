@@ -118,5 +118,38 @@ class AWSUtil
             return $e;
         } 
     }
+
+    function s3registerStreamWrapper() {
+        $this->s3Client->registerStreamWrapper();
+    }
+
+    function s3getBucketName() {
+        return $this->s3BucketName;
+    }
+
+    function s3GetStorageSize($folder) {
+        $bytes = 0;
+        $objects = $this->s3Client->getIterator('ListObjects', array(
+            "Bucket" => $this->s3BucketName,
+            "Prefix" => $folder
+        ));
+
+        foreach ($objects as $object) {
+            $bytes = $bytes+$object['Size'];
+        }
+
+        if ($bytes >= 1073741824) {
+            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+        } elseif ($bytes >= 1048576) {
+            $bytes = number_format($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            $bytes = number_format($bytes / 1024, 2) . ' KB';
+        } elseif ($bytes > 1) {
+            $bytes = '< 1 KB';
+        } else {
+            $bytes = '0 KB';
+        }
+        return $bytes;
+    }
 }
 ?>

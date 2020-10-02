@@ -13,7 +13,7 @@ error_reporting(E_ALL & ~E_NOTICE);
 
 if (false)
 {
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
+    echo '<img src="/libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
     exit();
 }
 
@@ -62,9 +62,9 @@ function customTemplate($tpl, $portalPath)
 {
     $cleanPortalPath = str_replace("/", "_", $portalPath);
 
-    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
+    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "_{$tpl}";
     if (file_exists($customTemplatePath)) {
-        return "custom_override/". $cleanPortalPath . "{$tpl}";
+        return "custom_override/". $cleanPortalPath . "_{$tpl}";
     } else {
         return $tpl;
     }
@@ -114,7 +114,7 @@ switch ($action) {
     default:
         $cleanPortalPath = str_replace("/", "_", $config->portalPath);
 
-        if ($action != '' && (file_exists(__DIR__."/templates/reports/{$action}.tpl") || file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")))
+        if ($action != '' && (file_exists(__DIR__."/templates/reports/{$action}.tpl") || file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "_{$action}.tpl")))
         {
             $main->assign('useUI', true);
             $main->assign('javascripts', array(
@@ -123,9 +123,9 @@ switch ($action) {
                 'js/formGrid.js',
                 'js/formQuery.js',
                 'js/formSearch.js',
-                '../libs/jsapi/nexus/LEAFNexusAPI.js',
-                '../libs/jsapi/portal/LEAFPortalAPI.js',
-                '../libs/jsapi/portal/model/FormQuery.js',
+                '/libs/jsapi/nexus/LEAFNexusAPI.js',
+                '/libs/jsapi/portal/LEAFPortalAPI.js',
+                '/libs/jsapi/portal/model/FormQuery.js',
             ));
 
             $form = new Form($db, $login);
@@ -143,14 +143,15 @@ switch ($action) {
             $t_form->assign('orgchartPath', $config->orgchartPath);
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
+            $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 
             //url
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
             $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
             $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
-            if (file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "{$action}.tpl")) {
-                $main->assign('body', $t_form->fetch("reports/custom_override/" . $cleanPortalPath . "{$action}.tpl"));
+            if (file_exists(__DIR__."/templates/reports/custom_override/" . $cleanPortalPath . "_{$action}.tpl")) {
+                $main->assign('body', $t_form->fetch("reports/custom_override/" . $cleanPortalPath . "_{$action}.tpl"));
                 $tabText = '';
             }
             else

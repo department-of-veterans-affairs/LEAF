@@ -8,34 +8,34 @@
         <title>{$title} | {$city}</title>
     {/if}
     <style type="text/css" media="screen">
-        @import "../../libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";
+        @import "/libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";
         {section name=i loop=$stylesheets}
             @import "{$stylesheets[i]}";
         {/section}
-        @import "../../libs/js/jquery/chosen/chosen.min.css";
-        @import "../../libs/js/jquery/trumbowyg/ui/trumbowyg.min.css";
-        @import "../../libs/js/jquery/icheck/skins/square/blue.css";
+        @import "/libs/js/jquery/chosen/chosen.min.css";
+        @import "/libs/js/jquery/trumbowyg/ui/trumbowyg.min.css";
+        @import "/libs/js/jquery/icheck/skins/square/blue.css";
         @import "css/style.css";
-        @import "../../libs/css/leaf.css";
+        @import "/libs/css/leaf.css";
     </style>
     <style type="text/css" media="print">
         @import "css/printer.css";
     </style>
-    <script type="text/javascript" src="../../libs/js/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/libs/js/jquery/jquery.min.js"></script>
     {if $useUI == true}
-        <script type="text/javascript" src="../../libs/js/jquery/jquery-ui.custom.min.js"></script>
+        <script type="text/javascript" src="/libs/js/jquery/jquery-ui.custom.min.js"></script>
         <script type="text/javascript" src="../js/dialogController.js"></script>
-        <script type="text/javascript" src="../../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
-        <script type="text/javascript" src="../../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
-        <script type="text/javascript" src="../../libs/js/jquery/icheck/icheck.js"></script>
+        <script type="text/javascript" src="/libs/js/jquery/chosen/chosen.jquery.min.js"></script>
+        <script type="text/javascript" src="/libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
+        <script type="text/javascript" src="/libs/js/jquery/icheck/icheck.js"></script>
     {else if $useLiteUI == true}
         <script type="text/javascript" src="../js/dialogController.js"></script>
-        <script type="text/javascript" src="../../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
-        <script type="text/javascript" src="../../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
-        <script type="text/javascript" src="../../libs/js/jquery/icheck/icheck.js"></script>
+        <script type="text/javascript" src="/libs/js/jquery/chosen/chosen.jquery.min.js"></script>
+        <script type="text/javascript" src="/libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
+        <script type="text/javascript" src="/libs/js/jquery/icheck/icheck.js"></script>
     {/if}
     {if $leafSecure >= 1}
-        <script type="text/javascript" src="../../libs/js/LEAF/sessionTimeout.js"></script>
+        <script type="text/javascript" src="/libs/js/LEAF/sessionTimeout.js"></script>
     {/if}
     {section name=i loop=$javascripts}
         <script type="text/javascript" src="{$javascripts[i]}"></script>
@@ -45,17 +45,17 @@
 
 <body>
 
+    {if $leafSecure == 0}
     <section class="usa-banner bg-orange-topbanner" aria-label="Official government website">
         <header class="usa-banner__header">
             <div class="grid-col-fill tablet:grid-col-auto">
                 <p class="usa-banner__header-text text-white">
-                    {if $leafSecure == 0}
-                        &nbsp;Do not enter PHI/PII
-                    {/if}
+                    &nbsp;Do not enter PHI/PII
                 </p>
             </div>
         </header>
     </section>
+    {/if}
 
     <header id="header" class="usa-header site-header">
         <div class="usa-navbar site-header-navbar">
@@ -68,7 +68,7 @@
                     </a>
                 </em>
                 {if $qrcodeURL != ''}
-                    <div><img class="print nodisplay" style="width: 72px" src="../../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
+                    <div><img class="print nodisplay" style="width: 72px" src="/libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
                 {/if}
             </div>
             <div class="leaf-header-right">

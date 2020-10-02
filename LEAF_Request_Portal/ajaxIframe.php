@@ -13,7 +13,7 @@ error_reporting(E_ALL & ~E_NOTICE);
 
 if (false)
 {
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
+    echo '<img src="/libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
     exit();
 }
 
@@ -60,9 +60,9 @@ function customTemplate($tpl, $portalPath)
 {
     $cleanPortalPath = str_replace("/", "_", $portalPath);
 
-    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "{$tpl}";
+    $customTemplatePath = __DIR__ . "/templates/custom_override/". $cleanPortalPath . "_{$tpl}";
     if (file_exists($customTemplatePath)) {
-        return "custom_override/". $cleanPortalPath . "{$tpl}";
+        return "custom_override/". $cleanPortalPath . "_{$tpl}";
     } else {
         return $tpl;
     }

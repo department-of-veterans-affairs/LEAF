@@ -64,6 +64,7 @@
                 <ul>
                     <li><a href="?a=mod_templates">Template Editor</a></li>
                     <li><a href="?a=mod_templates_reports">LEAF Programmer</a></li>
+                    <li><a href="?a=mod_templates_email">Email Template Editor</a></li>
                     <li><a href="?a=mod_file_manager">File Manager</a></li>
                     <li><a href="../?a=search">Search Database</a></li>
                     <li><a href="?a=admin_sync_services">Sync Services</a></li>
@@ -88,7 +89,6 @@
 
 <script>
 $(document).ready(function() {
-
 
 // Remove no-js class
 $('html').removeClass('no-js');

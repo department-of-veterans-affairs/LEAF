@@ -3,7 +3,7 @@
     <h2>List of disabled fields available for recovery</h2>
     <div>Disabled fields and associated data may be permanently deleted after 30 days</div>
 
-    <table class="table">
+    <table class="usa-table">
         <thead>
             <tr>
                 <th>indicatorID</th>

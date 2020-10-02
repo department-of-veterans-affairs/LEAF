@@ -13,13 +13,9 @@ error_reporting(E_ALL & ~E_NOTICE);
 include_once __DIR__ . '/../../../LEAF_Request_Portal/globals.php';
 include_once __DIR__ . '/../../../LEAF_Request_Portal/Login.php';
 include_once __DIR__ . '/../../../LEAF_Request_Portal/db_mysql.php';
-include_once __DIR__ . '/../../../LEAF_Request_Portal/db_config.php';
 require_once __DIR__ . '/../../../LEAF_Request_Portal/api/RESTfulResponse.php';
 require_once __DIR__ . '/../../../LEAF_Request_Portal/sources/Exception.php';
 require_once __DIR__ . '/../../../LEAF_Request_Portal/api/ControllerMap.php';
-
-$db_config = new DB_Config();
-$config = new Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
