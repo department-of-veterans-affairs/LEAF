@@ -1,18 +1,22 @@
-<h2>List of disabled fields available for recovery</h2>
-<div>Disabled fields and associated data may be permanently deleted after 30 days</div>
+<div class="leaf-center-content">
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>indicatorID</th>
-            <th>Form</th>
-            <th>Field Name</th>
-            <th>Input Format</th>
-            <th>Restore</th>
-        </tr>
-    </thead>
-    <tbody id="fields"></tbody>
-</table>
+    <h2>List of disabled fields available for recovery</h2>
+    <div>Disabled fields and associated data may be permanently deleted after 30 days</div>
+
+    <table class="usa-table leaf-whitespace-normal">
+        <thead>
+            <tr>
+                <th>indicatorID</th>
+                <th>Form</th>
+                <th>Field Name</th>
+                <th>Input Format</th>
+                <th>Restore</th>
+            </tr>
+        </thead>
+        <tbody id="fields"></tbody>
+    </table>
+
+</div>
 
 <script>
 function restoreField(indicatorID) {
@@ -40,11 +44,11 @@ $(function() {
             var buffer = '';
             for(var i in res) {
                 buffer += '<tr id="field_'+ res[i].indicatorID +'">';
-                buffer += '<th>'+ res[i].indicatorID +'</th>';
-                buffer += '<th>'+ res[i].categoryName +'</th>';
-                buffer += '<th>'+ res[i].name +'</th>';
-                buffer += '<th>'+ res[i].format +'</th>';
-                buffer += '<th><button class="buttonNorm" onclick="restoreField('+res[i].indicatorID+');">Restore this field</button></th>';
+                buffer += '<td>'+ res[i].indicatorID +'</td>';
+                buffer += '<td>'+ res[i].categoryName +'</td>';
+                buffer += '<td>'+ res[i].name +'</td>';
+                buffer += '<td>'+ res[i].format +'</td>';
+                buffer += '<td><button class="buttonNorm" onclick="restoreField('+res[i].indicatorID+');">Restore this field</button></td>';
                 buffer += '</tr>';
             }
             $('#fields').html(buffer);

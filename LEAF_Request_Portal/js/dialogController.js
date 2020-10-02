@@ -28,6 +28,7 @@ function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCan
 										modal: true,
 										height: 'auto',
 										width: 'auto',
+										resizable: false,
 										minWidth: minWidth});
 	this.clearDialog();
     var t = this;
@@ -73,11 +74,23 @@ dialogController.prototype.setContent = function(content) {
 };
 
 dialogController.prototype.indicateBusy = function() {
-	$('#' + this.indicatorID).css('visibility', 'visible');
+    $('#' + this.indicatorID).css('visibility', 'visible');
+    $('#' + this.btnSaveID).css('visibility', 'hidden');
 };
 
 dialogController.prototype.indicateIdle = function() {
-	$('#' + this.indicatorID).css('visibility', 'hidden');
+    $('#' + this.indicatorID).css('visibility', 'hidden');
+    $('#' + this.btnSaveID).css('visibility', 'visible');
+};
+
+dialogController.prototype.hideButtons = function() {
+    $('#' + this.btnCancelID).css('visibility', 'hidden');
+    $('#' + this.btnSaveID).css('visibility', 'hidden');
+};
+
+dialogController.prototype.showButtons = function() {
+    $('#' + this.btnCancelID).css('visibility', 'visible');
+    $('#' + this.btnSaveID).css('visibility', 'visible');
 };
 
 dialogController.prototype.enableLiveValidation = function() {

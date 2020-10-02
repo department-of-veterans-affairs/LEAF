@@ -124,21 +124,17 @@ class Email
 
     public function addGroupRecipient($groupID)
     {
-        if ($this->orgchartInitialized == false)
-        {
-            $this->initOrgchart();
-        }
-        $positions = $this->group->listGroupPositions($groupID);
-        foreach ($positions as $pos)
-        {
-            $this->addPositionRecipient($pos['positionID']);
-        }
+        require_once 'VAMC_Directory.php';
+        $dir = new VAMC_Directory;
 
-        $employees = $this->group->listGroupEmployees($groupID);
-        foreach ($employees as $emp)
-        {
-            $res = $this->employee->getAllData($emp['empUID'], 6);
-            $this->addRecipient($res[6]['data']);
+        $res = $this->portal_db->prepared_query("SELECT `userID`
+                                                 FROM `users` 
+                                                 WHERE groupID=:groupID
+                                                    AND active=1", 
+                                                array(':groupID' => $groupID));
+        foreach($res as $user) {
+            $tmp = $dir->lookupLogin($user['userID']);
+            $this->addRecipient($tmp[0]['Email']);
         }
     }
 

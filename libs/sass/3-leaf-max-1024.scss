@@ -1,0 +1,91 @@
+/* ############# STYLES TO MAX WIDTH OF 64 REM (1024px) ################# */
+
+@media (max-width: 64rem) {
+
+    /* ############### CONTENT CONTAINERS ################# */
+    .leaf-admin-content {margin: 1.0rem;}
+    .leaf-show-opts {font-size: 0.9rem; margin-top: 1.2rem; cursor: pointer; }
+    .leaf-center-content {
+        width: calc(100% - 2rem); 
+        margin: 0.6rem auto 0.6rem auto; 
+        font-family: 'PublicSans-Regular';
+        white-space: nowrap;
+    }
+
+    /* ############### USWDS OVERRIDES ################# */
+    .usa-logo {margin: 0; height: 4.6rem; float: left;}
+    .usa-logo a {color: #fff; text-decoration: none;}
+    .usa-navbar {border-bottom: 0; width: 100%;}
+    .default-container {width: 100%;}
+    .usa-sidenav {white-space: normal!important;}
+    .sidenav { display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; white-space: normal; width: 15rem;}
+        .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
+        .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
+    .sidenav-right { display: block; float: right; margin: 0.6rem 1rem; padding: 1.0rem;}
+        .sidenav-right:hidden {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none;}
+        .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
+    .usa-banner__header {padding-bottom: .2rem; padding-top: .2rem; min-height: 0;}
+    .usa-banner__header-close-text, .usa-banner__header-text {font-size: .6rem; letter-spacing: 0.01rem;}
+    h1, h2, h3, h4, h5, h6 {margin: 0; color: #3d4551;}
+        h3 {margin: 0.8rem 0;}
+    .main-content {
+        right: 0;
+        bottom: 0;
+        display: inline-block;
+        position: relative;
+        width: calc(100% - 15rem);
+        white-space: normal;
+    }
+    .main-content-noRight {
+        display: inline-block;
+        position: relative;
+        width: 70%;
+        white-space: normal;
+        margin: 0.6rem 2.9rem;
+        min-height: 27rem;
+        overflow: visible;
+    }
+
+    /* ############### LEAF HEADER ################# */
+    .site-header {background-color: #252f3e; height: 3.8rem;}
+    .leaf-site-title {color: #fff; display: inline-block; font-size: 1.0rem; margin-top: 0.9rem; font-family: 'PublicSans-Bold'; }
+    .leaf-header-description {font-family: 'PublicSans-Thin'; font-size: 0.9rem; display: block; font-family: 'PublicSans-Regular';}
+    .leaf-logo {float: left;}
+        .leaf-logo img {width: 52px; margin: 0.2rem 0.5rem 0 0.2rem;}
+    .leaf-header-right {margin-top: 0.5rem; float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
+    .lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'PublicSans-Medium';}
+    .usa-logo {
+        font-size: 1.2rem;
+        line-height: 1.1rem;
+        margin: 1.6rem 0 0 0.2rem;
+        white-space: nowrap;
+    }
+    #nav {margin: 1.4rem 2.4rem 0 0; font-size: 0.7rem;}
+
+    /* ############### widths by rems ################# */
+    .leaf-width-1rem {width: 1rem;}
+    .leaf-width-2rem {width: 2rem;}
+    .leaf-width-3rem {width: 3rem;}
+    .leaf-width-4rem {width: 4rem;}
+    .leaf-width-5rem {width: 5rem;}
+    .leaf-width-6rem {width: 6rem;}
+    .leaf-width-7rem {width: 7rem;}
+    .leaf-width-8rem {width: 8rem;}
+    .leaf-width-9rem {width: 9rem;}
+    .leaf-width-10rem {width: 10rem;}
+    .leaf-width-11rem {width: 11rem;}
+    .leaf-width-12rem {width: 12rem;}
+    .leaf-width-13rem {width: 13rem;}
+    .leaf-width-14rem {width: 14rem;}
+    .leaf-width-24rem {width: 24rem;}
+
+    /* ############### GLOBAL NAV ################# */
+    #nav {
+        margin: 1.1rem 2.5rem 0 0;
+        min-height: 32px;
+        white-space: nowrap;
+    }
+
+    
+
+}

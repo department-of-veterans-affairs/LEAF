@@ -660,7 +660,7 @@ class Workflow
     										WHERE dependencyID=:dependencyID
     											AND groupID=:groupID', $vars);
         
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::DEPENDENCY_Privs, [
+        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::DEPENDENCY_PRIVS, [
             new LogItem("dependency_privs", "groupID",  $groupID),
             new LogItem("dependency_privs", "dependencyID",  $dependencyID)
         ]); 

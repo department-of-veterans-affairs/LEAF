@@ -1,0 +1,397 @@
+/*
+----------------------------------------
+Font path
+----------------------------------------
+Relative font file path
+----------------------------------------
+*/
+
+$theme-font-path: "fonts" !default;
+
+/*
+
+/*! uswds pulled from node modules */
+@import "./node_modules/uswds/src/stylesheets/uswds.scss";
+@import "./node_modules/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "./node_modules/@fortawesome/fontawesome-free/scss/solid";
+
+/* ################# FONT FAMILY DECLARATIONS ################# */
+@font-face {font-family: 'fa-solid'; src: url(fonts/fontawesome/fa-solid-900.woff);}
+.fas {font-family: 'fa-solid';}
+@font-face {font-family: 'PublicSans-Thin'; src: url(fonts/public-sans/PublicSans-Thin.woff);}
+@font-face {font-family: 'PublicSans-Light'; src: url(fonts/public-sans/PublicSans-Light.woff);}
+@font-face {font-family: 'PublicSans-Regular'; src: url(fonts/public-sans/PublicSans-Regular.woff);}
+@font-face {font-family: 'PublicSans-Medium'; src: url(fonts/public-sans/PublicSans-Medium.woff);}
+@font-face {font-family: 'PublicSans-Bold'; src: url(fonts/public-sans/PublicSans-Bold.woff);}
+
+/* ############### GLOBAL OVERRIDES ################# */
+body {background-color: #dcdee0; overflow-x: auto; overflow-y: auto;}
+h1, h2, h3, h4, h5, h6 { font-family: 'PublicSans-Bold'; color: #3d4551;}
+h1 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
+h2 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
+h3 {margin: 0.0rem 0.0rem 0.4rem 0.0rem;}
+p {margin: 0.7rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
+label {font-family: 'PublicSans-Bold'; font-size: 0.9rem;}
+hr {border: 1px solid #dfe1e2;}
+a:focus, a:active {border: 0!important; outline: none!important;}
+button:focus, button:active {border: 0!important; outline: none!important;}
+
+/* ############### USWDS OVERRIDES ################# */
+.usa-sidenav {font-family: 'PublicSans-Regular'; font-size: 0.9rem;}
+.usa-sidenav__item {white-space: normal;}
+    .usa-sidenav a {white-space: normal;}
+.usa-current a {color: #005ea2!important;}
+
+/* ############### GLOBAL CONTAINER STYLES ################# */
+.sidenav {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
+.sidenav-right {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
+.leaf-code-container {padding: 8px; display: none; resize: both; overflow: auto; box-shadow: 0 2px 6px #8e8e8e; background-color: white;}
+
+/* ############### GLOBAL ATTRIBUTE CLASSES ################# */
+.leaf-bold {font-family: 'PublicSans-Bold';}
+.leaf-font-normal {font-family: 'PublicSans-Regular';}
+.leaf-textCentered {text-align: center;}
+.leaf-textLeft {text-align: left;}
+.leaf-cursor-pointer {cursor: pointer;}
+.leaf-clear-both {clear: both;}
+.leaf-float-right {float: right;}
+.leaf-float-left {float: left;}
+.leaf-display-block {display: block;}
+.leaf-display-inlineblock {display: inline-block;}
+.leaf-displayFlexRow {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: left; align-items: stretch;}
+.leaf-text-left {text-align: left;}
+.leaf-textCentered {text-align: center;}
+.leaf-clearBoth {clear: both;}
+.leaf-position-relative {position: relative;}
+.leaf-valign-top {vertical-align: top;}
+.leaf-ul {list-style-type: none; margin: 0.5rem 0; padding-inline-start: 5px;}
+    .leaf-ul li {margin: 0; font-size: 0.7rem; line-height: 1.2rem;}
+.leaf-border-bottom {border-bottom: 1px solid #dfe1e2!important;}
+.leaf-whitespace-normal {white-space: normal!important;}
+
+/* ############### USWDS BUTTON OVERRIDES ################# */
+.site-button-outline-secondary {
+    -webkit-box-shadow: inset 0 0 0 2px rgba(255,255,255,.7);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.7);
+    background-color: transparent;
+    color: rgba(255,255,255,.7);
+    padding: 0.7rem 1.0rem;
+    font-size: 0.9rem;
+    font-family: 'PublicSans-Medium'
+    }
+    .site-button-outline-secondary:hover {
+        background-color: transparent; 
+        color: rgba(255,255,255,1); 
+        box-shadow: inset 0 0 0 2px rgba(255,255,255,1);
+        text-decoration: none!important;
+    }
+.usa-button {font-family: 'PublicSans-Bold'; white-space: nowrap; padding: 0.8rem 0.6rem; min-width: 6rem;}
+    .usa-button a {text-decoration: none;}
+    .usa-button a:hover {color: #005EA2;}
+.leaf-btn-icon {margin-right: 0.5rem;}
+.leaf-btn-small {padding: 0.5rem; font-size: 0.4rem;}
+.leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
+.leaf-side-btn {width: 14.5rem; display: block; margin: 1.0rem 0.0rem;}
+.leaf-btn-green {background-color: #00a91c;}
+.leaf-btn-green:hover {background-color: #008817;}
+
+/* ############### SPECIAL CLASSES ################# */
+.leaf-row-space {height: 1rem; margin: 0.2rem 0; clear: both;}
+.leaf-crumb-link {font-weight: normal; color: #005EA2; font-family: 'PublicSans-Medium'!important;}
+.leaf-crumb-caret {font-size: 1.1rem; margin: 0 0.4rem 0 0.5rem; color: #0c60a0;}
+.leaf-text-smaller {font-size: 0.9rem;}
+.leaf-buttonBar {text-align: center; margin: 3.0rem 0 0 0;}
+.leaf-content-show {display: block;}
+.leaf-content-hide {display: none;}
+.leaf-grey-box {padding: 1rem; background-color: #e6e6e6;}
+.leaf-sidenav-bottomBtns {margin: 0.5rem;}
+.leaf-title-inst {font-family: 'PublicSans-Regular'; font-size: 0.8rem; margin-left: 0.7rem; display: inline-block;}
+
+/* ############### LEAF SITEMAP STYLES ################# */
+.leaf-sitemap-card {
+    flex: 0 1 30%;
+    min-width: 18rem;
+    max-width: 21rem;
+    margin: 0.5rem;
+    padding: 0.6rem;
+    box-shadow: 2px 2px 3px #adadad;
+    border: 1px solid #ccc;
+    height: 6.2rem;
+    background-color: #fff;
+    cursor: move;
+    border-radius: 5px;
+    transition: box-shadow 0.4s ease;
+    white-space: wrap;
+    }
+    .leaf-sitemap-card:hover, .leaf-sitemap-card:focus {box-shadow: 4px 4px 6px #949191;}
+    .active {background-color: #faf3d1;}
+    .leaf-sitemap-card h3 {margin: 0.0rem 0 0.5rem 0; font-size: 1.0rem; word-break: break-word;}
+    .leaf-sitemap-card h3 a:hover {text-decoration: none; color: #004b76;}
+    .leaf-sitemap-card p {margin: 0.2rem 0; font-size: 0.8rem; line-height: 1.0rem; font-family: 'PublicSans-Regular'; word-break: break-word; white-space: normal;}
+.leaf-delete-card {color: #2672de; font-size: 1.0rem; vertical-align: middle; float: right; margin: 0.0rem; cursor: pointer; white-space: normal;}
+.leaf-sitemap-alert {
+    padding: 0.4rem; 
+    border-radius: 4px; 
+    box-shadow: 1px 1px 5px #aaa; 
+    font-size: 0.8rem; 
+    font-family: 'PublicSans-Regular'; 
+    background-color: #aeedb4;
+    color: #137d1d;
+    border: 1px solid #41aa4b;
+    margin: 0 0 0 1.3rem;
+}
+.leaf-color-choice {margin: 0.4rem 0;}
+    .leaf-color-demo {display: inline-block; width: 24px; height: 24px; border: 1px solid #aaa; margin: 0.0rem 0.6rem 0.3rem 0; vertical-align: bottom;}
+    .leaf-color-choice input {display: inline-block; vertical-align: top; margin: 0.5rem 0.4rem 0.3rem 0;}
+    .leaf-color-choice label {display: inline-block; vertical-align: top; margin: 0.5rem 0.4rem 0.3rem 0;}
+.leaf-card-white {background-color: #fff;}
+.leaf-card-blue {background-color: #e0f4fa;}
+.leaf-card-green {background-color: #eaf4dd;}
+.leaf-card-orange {background-color: #fef2e4;}
+.leaf-card-yellow {background-color: #faf3d1;}
+.leaf-card-grey {background-color: #dcdee0;}
+
+.leaf-sitemap-flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    }
+.leaf-sitemap-flex-container > div {
+    width: 33%;
+    box-sizing: border-box;
+    }
+
+/* ############### LEAF ADMIN BUTTONS ################# */
+.leaf-admin-button {
+    color: #3d4551;
+    display: inline-block;
+    width: 19.4rem;
+    height: 3.4rem;
+    cursor: pointer;
+    margin: 0.6rem 0.6rem;
+    box-shadow: 2px 2px 3px #adadad;
+    transition: box-shadow 0.4s ease;
+    border-radius: 4px;
+    padding: 0.5rem 0.5rem 0.4rem 0.1rem;
+    text-decoration: none;
+    transition: background-color 0.4s ease;
+    }
+    .leaf-admin-button:hover, .leaf-admin-button:focus {box-shadow: 1px 2px 4px #949191;}
+    .leaf-admin-btnicon {font-size: 1.7rem; float: left; margin: 0.3rem 0.4rem; text-align: center;}
+        .leaf-icn-narrow2 {padding-left: 0.2rem;}
+        .leaf-icn-narrow4 {padding-left: 0.4rem;}
+    .leaf-admin-btntitle {font-size: 1.0rem; line-height: 1.4rem; font-family: 'PublicSans-Bold'; display: block; margin-left: 2.9rem; }
+    .leaf-admin-btndesc {font-size: 0.8rem; display: block; margin-left: 2.9rem;}
+        .lf-trans-blue:hover {background-color: #cfe8ff;}
+        .lf-trans-green:hover {background-color: #b7f5bd;}
+        .lf-trans-orange:hover {background-color: #f1d5b4;}
+        .lf-trans-yellow:hover {background-color: #f2e5a4;}
+
+/* ################## LEAF FOOTER ################# */
+.leaf-footer {
+    font-size: 0.7rem; 
+    font-family: 'PublicSans-Thin'; 
+    padding: 0.0rem 0.6rem; 
+    border-top: 1px solid #a9aeb1;
+    width: calc(100% - 5rem);
+    margin: 1.0rem auto 0 auto;
+    text-align: right;
+    clear: both;
+    }
+    .leaf-footer a {text-decoration: none; color: #565c65; }
+    .leaf-footer a:hover {text-decoration: underline;}
+
+/* ################## STEPPED PROGRESS BAR ################# */
+ul.leaf-progress-bar {
+    list-style-type: none;
+    margin: 0;
+    padding-inline-start: 0;
+    }
+    ul.leaf-progress-bar li {
+        float: left;
+        width: 10rem;
+        height: 3rem;
+        margin-right: 1.6rem;
+        position: relative;
+        }
+        ul.leaf-progress-bar li span.right {width: 0; height: 0; position: absolute; display: block; top: 0; right: -1.5rem;}
+        ul.leaf-progress-bar li span.left {width: 0; height: 0; position: absolute; display: block; top: 0; left: 0.0rem;}
+        ul.leaf-progress-bar li h6 {font-size: 0.9rem; margin: 1.0rem 0.0rem 0.0rem 2.0rem; }
+        /* ########## current, active ############ */
+        ul.leaf-progress-bar li.current { background-color: #d9e8f6; }
+        ul.leaf-progress-bar li.current span.right {
+            border-top: 1.5rem solid transparent;
+            border-left: 1.5rem solid #d9e8f6;
+            border-bottom: 1.5rem solid transparent;
+            }
+        ul.leaf-progress-bar li.current span.left {
+            border-top: 1.5rem solid transparent;
+            border-left: 1.5rem solid #fff;
+            border-bottom: 1.5rem solid transparent;
+            }
+        /* ########## next ############ */
+        ul.leaf-progress-bar li.next { background-color: #dfe1e2; }
+        ul.leaf-progress-bar li.next span.right {
+            border-top: 1.5rem solid transparent;
+            border-left: 1.5rem solid #dfe1e2;
+            border-bottom: 1.5rem solid transparent;
+            }
+        ul.leaf-progress-bar li.next span.left {
+            border-top: 1.5rem solid transparent;
+            border-left: 1.5rem solid #fff;
+            border-bottom: 1.5rem solid transparent;
+            }
+        /* ########## next ############ */
+        ul.leaf-progress-bar li.complete { background-color: #b8d293; }
+        ul.leaf-progress-bar li.complete span.right {
+            border-top: 1.5rem solid transparent;
+            border-left: 1.5rem solid #b8d293;
+            border-bottom: 1.5rem solid transparent;
+            }
+        ul.leaf-progress-bar li.complete span.left {
+            border-top: 1.5rem solid transparent;
+            border-left: 1.5rem solid #fff;
+            border-bottom: 1.5rem solid transparent;
+            }
+
+
+
+
+/* ###################################################################### */
+/* ################# LARGE SCREEN STYLES > 1024 PIXELS  ################# */
+/* ###################################################################### */
+
+@media (min-width: 64.1rem) {
+
+    /* ############### CONTENT CONTAINERS ################# */
+    .leaf-admin-content {max-width: 68rem; margin: 1.0rem auto 1.0rem auto;}
+    .leaf-show-opts {font-size: 0.9rem; margin-top: 1.2rem; cursor: pointer; }
+    .leaf-center-content {
+        width: calc(100% - 2rem); 
+        margin: 0.6rem auto 0.6rem auto; 
+        font-family: 'PublicSans-Regular';
+        white-space: nowrap;
+    }
+
+    /* ############### USWDS OVERRIDES ################# */
+    .usa-logo {margin: 0; height: 4.6rem; float: left;}
+    .usa-logo a {color: #fff; text-decoration: none;}
+    .usa-navbar {border-bottom: 0; width: 100%;}
+    .sidenav {display: block; float: left; margin: 1.5rem 1.0rem 0 0.2rem; padding: 0.5rem 1.0rem 0.2rem 1.0rem; width: 16.5rem;}
+        h3.navhead {font-family: 'PublicSans-Medium'; font-weight: normal; margin-bottom: 1.0rem; margin-top: 0.4rem;}
+    .bg-orange-topbanner {background-color: #f56600;}
+    .sidenav {display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
+        .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
+        .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
+    .sidenav-right {display: block; float: right; margin: 1.5rem 0.2rem 0 1.0rem; padding: 0.5rem 1.0rem 0.2rem 1.0rem; width: 16.5rem;}
+        .sidenav-right:hidden {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none;}
+        .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
+    .usa-banner {font-family: 'PublicSans-Regular';}
+    .usa-input {width: auto; padding: 0.7rem; height: auto;}
+    .ui-widget-header {border: 0; background-color: none;}
+    .usa-banner__header {padding-bottom: .3rem; padding-top: .3rem; min-height: 0;}
+    .usa-banner__header-close-text, .usa-banner__header-text {font-size: .7rem; letter-spacing: 0.01rem;}
+    .usa-form {max-width: 24rem;}
+    .usa-table {font-size: 0.9rem;}
+    .usa-label {line-height: 1.2rem;}
+    .usa-select {font-size: 0.9rem; padding: 0.0rem 0.4rem;}
+    .usa-sidenav {margin-bottom: 0.6rem; border-bottom: 0;}
+    .usa-ro-text {margin: 0.5rem 0; font-size: 0.9rem;}
+    .main-content {
+        display: inline-block;
+        position: relative;
+        width: calc(100% - 38rem);
+        white-space: normal;
+        margin: 0.6rem 2.9rem;
+        min-height: 27rem;
+        overflow: visible;
+    }
+    .main-content-noRight {
+        display: inline-block;
+        position: relative;
+        width: 70%;
+        white-space: normal;
+        margin: 0.6rem 2.9rem;
+        min-height: 27rem;
+        overflow: visible;
+    }
+    .main-content h2 {font-weight: normal; font-family: 'PublicSans-Bold'; margin-bottom: 1.5rem;}
+    .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative; overflow-x: auto; overflow-y: auto;}
+
+    /* ############### UI DIALOG OVERRIDES ################# */
+    .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
+    .ui-dialog {border-radius: 6px; padding-bottom: 1.0rem; min-height: 320px; min-width: 540px; overflow-y: auto; overflow-x: hidden;}
+    .ui-dialog-content {min-height: 280px; min-width: 510px; }
+    .ui-widget-header {border: 0; background-color: none; background: none;}
+    .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
+    .leaf-dialog-content { min-height: 180px!important; padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
+    
+    /* ############### LEAF HEADER ################# */
+    .site-header {background-color: #252f3e; height: 4.6rem; box-shadow: 0px 4px 6px #a9aeb1;}
+    .leaf-logo {float: left;}
+        .leaf-logo img {width: 56px; margin: 0.6rem 1.0rem 0 0.6rem;}
+    .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; margin-bottom: 0.2rem;font-family: 'PublicSans-Bold'; font-size: 1.2rem; }
+    .leaf-header-description {font-family: 'PublicSans-Regular'; font-size: 1.0rem; display: block; white-space: nowrap; max-width: 21rem; font-weight: normal; }.leaf-header-right {float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
+    .leaf-header-right {float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
+    .lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'PublicSans-Medium';}
+    #nav {margin: 2.3rem 1.0rem 0 0;}
+
+    /* ############### widths by rems ################# */
+    .leaf-width-1rem {width: 1rem;}
+    .leaf-width-2rem {width: 2rem;}
+    .leaf-width-3rem {width: 3rem;}
+    .leaf-width-4rem {width: 4rem;}
+    .leaf-width-5rem {width: 5rem;}
+    .leaf-width-6rem {width: 6rem;}
+    .leaf-width-7rem {width: 7rem;}
+    .leaf-width-8rem {width: 8rem;}
+    .leaf-width-9rem {width: 9rem;}
+    .leaf-width-10rem {width: 10rem;}
+    .leaf-width-11rem {width: 11rem;}
+    .leaf-width-12rem {width: 12rem;}
+    .leaf-width-13rem {width: 13rem;}
+    .leaf-width-14rem {width: 14rem;}
+    .leaf-width-24rem {width: 24rem;}
+
+/* ########### END LARGE SCREEN STYLES DEF ############### */
+}
+
+/* ############### PADDINGS, MARGINS ################# */
+.leaf-padAll1rem {padding: 1rem;}
+
+.leaf-marginAll-1rem {margin: 1rem;}
+.leaf-marginTop-qtrRem {margin-top: 0.25rem;}
+.leaf-marginTop-halfRem {margin-top: 0.5rem;}
+.leaf-marginTopBot-halfRem {margin-top: 0.5rem; margin-bottom: 0.5rem;}
+.leaf-marginTop-1rem {margin-top: 1rem;}
+.leaf-marginTop-2rem {margin-top: 2rem;}
+.leaf-marginBot-1rem {margin-bottom: 1rem;}
+.leaf-marginBot-halfRem {margin-bottom: 0.5rem;}
+.leaf-marginTopBot-1rem {margin-bottom: 1rem; margin-top: 1rem;}
+.leaf-marginLeft-qtrRem {margin-left: 0.25rem;}
+.leaf-marginLeft-halfRem {margin-left: 0.5rem;}
+.leaf-marginLeft-1rem {margin-left: 1.0rem;}
+
+/* ############### widths by percent ################# */
+.leaf-width10pct { width: 10%; }
+.leaf-width20pct { width: 20%; }
+.leaf-width25pct { width: 25%; }
+.leaf-width30pct { width: 30%; }
+.leaf-width40pct { width: 40%; }
+.leaf-width50pct { width: 50%; }
+.leaf-width60pct { width: 60%; }
+.leaf-width70pct { width: 70%; }
+.leaf-width75pct { width: 75%; }
+.leaf-width80pct { width: 80%; }
+.leaf-width90pct { width: 90%; }
+.leaf-width100pct { width: 100%; }
+
+/* ############### FONT SIZES ################# */
+.leaf-font0-5rem { font-size: 0.5rem; }
+.leaf-font0-6rem { font-size: 0.6rem; }
+.leaf-font0-7rem { font-size: 0.7rem; }
+.leaf-font0-8rem { font-size: 0.8rem; }
+.leaf-font0-9rem { font-size: 0.9rem; }
+.leaf-font1rem { font-size: 1.0rem; }
+
