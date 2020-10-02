@@ -357,11 +357,30 @@
             <!--{/foreach}-->
                 </span>
                 <script>
+                <!--{if $indicator.required == 1}-->
+                formRequired["id<!--{$indicator.indicatorID}-->"] = {
+                    setRequired: function() {
+                        
+                        var checkboxes = $('#parentID_<!--{$indicator.parentID|strip_tags}-->_indicatorID_<!--{$indicator.indicatorID|strip_tags}--> .icheck-input');
+                        var selectionMade = false;
+                        for(var i=0; i <checkboxes.length; i++){
+                            if($(checkboxes[i]).prop('checked')){
+                                selectionMade = true;
+                            }
+                        }
+                        return !selectionMade;
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }
+                };
+                <!--{/if}-->
                 $(function() {
                 	$('.icheck<!--{$indicator.indicatorID|strip_tags}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
                 });
                 </script>
                 <!--{$indicator.html}-->
+                
         <!--{/if}-->
         <!--{if $indicator.format == 'fileupload' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <fieldset>

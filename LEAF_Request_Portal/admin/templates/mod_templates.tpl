@@ -27,13 +27,13 @@
 
         <aside class="sidenav-right">
 
-            <div id="controls">
+            <div id="controls" style="visibility: hidden">
                 
                 <button class="usa-button leaf-display-block leaf-btn-med leaf-width-11rem" onclick="save();">
                     Save Changes<span id="saveStatus" class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                 </button>
                 
-                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" onclick="restore();">
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem  modifiedTemplate" onclick="restore();">
                     Restore Original
                 </button>
                 
@@ -41,7 +41,7 @@
                     Stop Comparing
                 </button>
                 
-                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" id="btn_compare" onclick="compare();">
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem  modifiedTemplate" id="btn_compare" onclick="compare();">
                     Compare to Original
                 </button>
                 
@@ -55,7 +55,7 @@
         <main id="codeArea" class="main-content">
             <h2>Template Editor</h2>
 
-            <div id="codeContainer" class="card" style="padding: 8px; display: none">
+            <div id="codeContainer" class="leaf-code-container">
 
                 <div id="filename"></div>
 

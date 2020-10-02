@@ -45,17 +45,17 @@
 
 <body>
 
+    {if $leafSecure == 0}
     <section class="usa-banner bg-orange-topbanner" aria-label="Official government website">
         <header class="usa-banner__header">
             <div class="grid-col-fill tablet:grid-col-auto">
                 <p class="usa-banner__header-text text-white">
-                    {if $leafSecure == 0}
-                        &nbsp;Do not enter PHI/PII
-                    {/if}
+                    &nbsp;Do not enter PHI/PII
                 </p>
             </div>
         </header>
     </section>
+    {/if}
 
     <header id="header" class="usa-header site-header">
         <div class="usa-navbar site-header-navbar">

@@ -171,7 +171,7 @@ switch ($action) {
         }
 
         //pagination
-        $pageLength = 10;
+        $pageLength = 6;
 
         $t_form = new Smarty;
         $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
@@ -273,7 +273,7 @@ switch ($action) {
             }
         }
         //pagination
-        $pageLength = 10;
+        $pageLength = 6;
 
         $t_form = new Smarty;
         $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
