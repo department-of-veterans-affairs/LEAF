@@ -100,7 +100,7 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 .leaf-crumb-link {font-weight: normal; color: #005EA2; font-family: 'PublicSans-Medium'!important;}
 .leaf-crumb-caret {font-size: 1.1rem; margin: 0 0.4rem 0 0.5rem; color: #0c60a0;}
 .leaf-text-smaller {font-size: 0.9rem;}
-.leaf-buttonBar {text-align: center; margin: 1.0rem 0;}
+.leaf-buttonBar {text-align: center; margin: 3.0rem 0 0 0;}
 .leaf-content-show {display: block;}
 .leaf-content-hide {display: none;}
 .leaf-grey-box {padding: 1rem; background-color: #e6e6e6;}
@@ -325,7 +325,7 @@ ul.leaf-progress-bar {
     .ui-dialog-content {min-height: 280px; min-width: 510px; }
     .ui-widget-header {border: 0; background-color: none; background: none;}
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
-    .leaf-dialog-content { min-height: 300px; padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
+    .leaf-dialog-content { min-height: 180px!important; padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
     
     /* ############### LEAF HEADER ################# */
     .site-header {background-color: #252f3e; height: 4.6rem; box-shadow: 0px 4px 6px #a9aeb1;}
