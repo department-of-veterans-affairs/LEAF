@@ -1,17 +1,4 @@
 <script src="../../../libs/js/promise-pollyfill/polyfill.min.js"></script>
-<style>
-    div#emailReminder label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 2px;
-    }
-    div#emailReminder input,  div#emailReminder .chosen-container {
-        margin-bottom: 15px;
-    }
-    div#emailReminder .groupSelectorInput {
-        margin-bottom: 0px;
-    }
-</style>
 <div id="sideBar" style="float: left; width: 180px">
     <div id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size: 120%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
     Workflows: <br />
