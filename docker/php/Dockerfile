@@ -43,6 +43,13 @@ RUN echo "error_log = /var/www/php-logs/error_log" | tee -a /etc/php/7.3/fpm/php
 COPY /docker/nginx/nginx.conf /etc/nginx/sites-available/default
 COPY /docker/php/ssmtp/ssmtp.conf /etc/ssmtp/
 COPY /docker/php/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
+COPY /LEAF_Nexus/ /var/www/html/LEAF_Nexus/
+COPY /LEAF_Request_Portal/ /var/www/html/LEAF_Request_Portal/
+COPY /libs/ /var/www/html/libs/
+COPY /index.html /var/www/html/index.html
+Copy /routing/ /var/www/html/routing
+Copy /composer.json /var/www/html/composer.json
+Copy /index.php /var/www/html/index.php
 
 ARG BUILD_UID=1000
 RUN useradd -u $BUILD_UID -g www-data build_user
