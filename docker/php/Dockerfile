@@ -55,5 +55,6 @@ RUN chmod -R g+rwX /var/www
 WORKDIR /var/www/html/
 
 CMD /etc/init.d/php7.3-fpm start && nginx -g 'daemon off;'
+ENTRYPOINT ["/usr/local/bin/docker-php-entrypoint"]
 
 
