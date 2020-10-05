@@ -58,12 +58,32 @@
         });
         save();
     }
-                    
+         
 	// insert button into sortable list and sidenav
     function addButtonToUI(button){
         $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Card">' + button.title + '</a></li>');
-        $('div#sortable').append('<div class="leaf-sitemap-card ' + button.color + '" draggable="true" id="div_buttonID_'+button.id+'");"><h3><a href="javascript:void(0);" onClick="editButtonDialog(\'' + button.id + '\')" title="Click to edit">' + button.title + '</a></h3><p>' + button.description + '</p></div>');
+        $('div#sortable').append('<div class="edit-card leaf-sitemap-card ' + button.color + '" draggable="true" id="div_buttonID_' + button.id + '");" title="Click to edit"><h3 class="edit-card" id="div_headingID_' + button.id + '">' + button.title + '</h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description + '</p></div>');
     }
+
+   var drag = false;
+
+    document.addEventListener('mousedown', () => drag = false);
+    document.addEventListener('mousemove', () => drag = true);
+    document.addEventListener('mouseup', (event) => {
+        if (drag) {
+            return;
+        }
+        else {
+           var eventTarget = event.target.id;
+           var eventClass = event.target.className.split(' ')[0];
+           var editTarget = eventTarget.slice(-5);
+           (eventClass == 'edit-card') && (editButtonDialog(editTarget)); 
+        }
+    });
+
+
+
+
 
     //remove button from sortable list and sidenav
     function deleteButtonFromUI(buttonID){
