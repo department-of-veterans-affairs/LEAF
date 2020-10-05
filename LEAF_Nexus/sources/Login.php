@@ -217,11 +217,11 @@ class Login
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
                     || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
                 {
-                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . '/' . $this->parseURL($config->portalPath) . $authType . base64_encode($_SERVER['REQUEST_URI']));
+                    header('Location: ' . $protocol . HTTP_HOST . '/' . $this->parseURL($config->portalPath) . $authType . base64_encode($_SERVER['REQUEST_URI']));
                     exit();
                 }
 
-                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . '/' . $this->parseURL($config->portalPath) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
+                header('Location: ' . $protocol . HTTP_HOST . '/' . $this->parseURL($config->portalPath) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
                 exit();
             }
 
