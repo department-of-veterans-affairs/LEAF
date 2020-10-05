@@ -55,6 +55,7 @@
         $.each(buttons, function(index, value){
             addButtonToUI(value);
         });
+        save();
     }
                     
 	// insert button into sortable list and sidenav
@@ -238,7 +239,7 @@
             <button class="usa-button leaf-width-13rem leaf-marginTopBot-halfRem" onclick="createGroup();"><i class="fas fa-plus" title="Delete Card"></i> Add Card</button>
         </div>
         <div>
-            <button class="usa-button usa-button--outline leaf-width-13rem leaf-marginTopBot-halfRem"><a href="./?a=sitemap" target="_blank">View Sitemap</a></button>
+            <a href="./?a=sitemap" target="_blank" class="usa-button usa-button--outline leaf-width-13rem leaf-marginTopBot-halfRem">View Sitemap</a>
         </div>
         
         <!--<div class="leaf-sidenav-bottomBtns">

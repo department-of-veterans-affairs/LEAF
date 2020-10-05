@@ -28,6 +28,7 @@ function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCan
 										modal: true,
 										height: 'auto',
 										width: 'auto',
+										resizable: false,
 										minWidth: minWidth});
 	this.clearDialog();
     var t = this;
