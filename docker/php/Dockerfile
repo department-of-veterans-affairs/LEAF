@@ -57,6 +57,7 @@ RUN useradd -u $BUILD_UID -g www-data build_user
 RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
 RUN chmod -R g+rwX /var/www
+RUN chmod +x /usr/local/bin/docker-php-entrypoint
 
 WORKDIR /var/www/html/
 
