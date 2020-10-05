@@ -59,6 +59,8 @@ RUN chown -R www-data:www-data /var/www
 RUN chmod -R g+rwX /var/www
 RUN chmod +x /usr/local/bin/docker-php-entrypoint
 
+RUN cd /var/www/html && composer install
+
 WORKDIR /var/www/html/
 
 CMD /etc/init.d/php7.3-fpm start && nginx -g 'daemon off;'
