@@ -256,8 +256,6 @@ ul.leaf-progress-bar {
             }
 
 
-
-
 /* ###################################################################### */
 /* ################# LARGE SCREEN STYLES > 1024 PIXELS  ################# */
 /* ###################################################################### */
@@ -268,10 +266,9 @@ ul.leaf-progress-bar {
     .leaf-admin-content {max-width: 68rem; margin: 1.0rem auto 1.0rem auto;}
     .leaf-show-opts {font-size: 0.9rem; margin-top: 1.2rem; cursor: pointer; }
     .leaf-center-content {
-        width: calc(100% - 2rem); 
+        width: calc(100% - 1rem); 
         margin: 0.6rem auto 0.6rem auto; 
         font-family: 'PublicSans-Regular';
-        white-space: nowrap;
     }
 
     /* ############### USWDS OVERRIDES ################# */
@@ -301,9 +298,9 @@ ul.leaf-progress-bar {
     .main-content {
         display: inline-block;
         position: relative;
-        width: calc(100% - 38rem);
+        width: calc(100% - 42rem);
         white-space: normal;
-        margin: 0.6rem 2.9rem;
+        margin: 0.6rem 2.0rem;
         min-height: 27rem;
         overflow: visible;
     }
