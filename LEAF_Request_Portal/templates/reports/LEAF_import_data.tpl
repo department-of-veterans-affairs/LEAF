@@ -389,7 +389,6 @@
                     resolve();
                 },
                 function (error) {
-                    console.log(error);
                     failedRequests.push(requestData);
                     resolve();
                 }
@@ -460,8 +459,7 @@
         }
 
         function progress() {
-            debugger;
-            
+                        
             var val = progressbar.progressbar( "value" ) || 0;
             
              
@@ -486,7 +484,6 @@
                 }
             },
             function (err) {
-                console.log(err);
             }
         );
 
@@ -513,10 +510,8 @@
                             workflowID,
                             function (msg) {
                                 requestStatus.html('Workflow assigned...');
-                                /* console.log(msg); */
                             },
                             function (err) {
-                                console.log(err);
                             }
                         );
                     }
@@ -549,7 +544,6 @@
                                     makeIndicator();
                                 },
                                 function (err) {
-                                    console.log("Could not create indicator at row " + formCreationIndex + ": " + err);
                                     alert("Error creating form.  See log for details.");
                                 }
                             );
@@ -596,7 +590,6 @@
                                                                     answerQuestions().then(function(){resolve();});
                                                                 },
                                                                 'onFail': function (err) {
-                                                                    console.log(err);
                                                                     requestData['failed'] = currentCol + titleIndex + ": Error retrieving employee on sheet row " + titleIndex + " for indicator " + formCreationIndex;
                                                                     completed++;
                                                                     answerQuestions().then(function(){resolve();});
@@ -615,7 +608,6 @@
                                                     },
                                                     'onFail': function (err) {
                                                         requestData['failed'] = currentCol + titleIndex + ": Error retrieving email for employee on sheet row " + titleIndex + " indicator " + formCreationIndex;
-                                                        console.log(err);
                                                         completed++;
                                                         answerQuestions().then(function(){resolve();});
                                                     },
@@ -639,7 +631,6 @@
                                                     },
                                                     'onFail': function (err) {
                                                         requestData['failed'] = currentCol + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + formCreationIndex;
-                                                        console.log(err);
                                                         completed++;
                                                         answerQuestions().then(function(){resolve();});
                                                     },
@@ -663,7 +654,6 @@
                                                     },
                                                     'onFail': function (err) {
                                                         requestData['failed'] = currentCol + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + formCreationIndex;
-                                                        console.log(err);
                                                         completed++;
                                                         answerQuestions().then(function(){resolve();});
                                                     },
@@ -748,7 +738,6 @@
                     makeIndicator();
                 },
                 function (err) {
-                    console.log("Could not create custom form: " + err);
                 }
             );
 
@@ -806,7 +795,6 @@
                                                         answerQuestions().then(function(){resolve();})
                                                     },
                                                     'onFail': function (err) {
-                                                        console.log(err);
                                                         requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving employee on sheet row " + titleIndex + " for indicator " + index;
                                                         completed++;
                                                         answerQuestions().then(function(){resolve();})
@@ -825,7 +813,6 @@
                                         },
                                         'onFail': function (err) {
                                             requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving email for employee on sheet row " + titleIndex + " indicator " + index;
-                                            console.log(err);
                                             completed++;
                                             answerQuestions().then(function(){resolve();})
                                         },
@@ -849,7 +836,6 @@
                                         },
                                         'onFail': function (err) {
                                             requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + index;
-                                            console.log(err);
                                             completed++;
                                             answerQuestions().then(function(){resolve();})
                                         },
@@ -873,7 +859,6 @@
                                         },
                                         'onFail': function (err) {
                                             requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + index;
-                                            console.log(err);
                                             completed++;
                                             answerQuestions().then(function(){resolve();})
                                         },
@@ -974,7 +959,6 @@
 
             },
             function (error) {
-                console.log(error);
             }
         );
 
@@ -1027,7 +1011,6 @@
 
             portalAPI.Forms.getIndicatorsForForm(categorySelect.val(),
                 function (results) {
-                    console.log(results);
                     currentIndicators = results;
                     indicatorArray = new Array();
 
@@ -1037,7 +1020,6 @@
                     }
                 },
                 function (error) {
-                    console.log(error);
                 }
             );
         });
@@ -1058,7 +1040,6 @@
                     var returnedJSON = XLSX.read(data, {type: 'array'});
                 }
                 catch (err) {
-                    console.log(err);
                     toggler.attr('style', 'display: none;');
                     existingForm.css('display', 'none');
                     newForm.css('display', 'none');
@@ -1092,8 +1073,7 @@
                     }
                     for (var j = 0; j < columnNames.length; j++) {
                         if (i === 0){
-                            if (typeof (rawSheet[columnNames[j] + (i + 1).toString()]) === "undefined") {
-                                console.log('Header at column ' + columnNames[j] + ' is ' + rawSheet[columnNames[j] + (i + 1).toString()]);
+                            if (typeof (rawSheet[columnNames[j] + (i + 1).toString()]) === "undefined") {                                
                             } else {
                                 headers[columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
                             }
