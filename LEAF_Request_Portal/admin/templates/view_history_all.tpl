@@ -1,4 +1,8 @@
-<div id="history-slice"></div>
+<div id="history-slice">
+    <p>
+        Fetching records...
+    </p>
+</div>
 
 <div class="leaf-buttonBar">
     <button id="prev" class="usa-button usa-button--base leaf-btn-med leaf-float-left">Previous page</button>
@@ -6,6 +10,7 @@
 </div>
 
 <script type="text/javascript">
+$(".leaf-buttonBar").hide();
     var page = 1;
 
     $.ajax({
@@ -13,8 +18,10 @@
         url: 'ajaxIndex.php?a=gethistoryall&tz='+tz+'&type=<!--{$dataType}-->&gethistoryslice=1&page=1-->',
         dataType: 'text',
         success: function(res) {
+            
             $('#history-slice').html(res);
             adjustPageButtons(page);
+            $(".leaf-buttonBar").show();
         },
         cache: false
     });
@@ -49,12 +56,7 @@
     });
 
     function adjustPageButtons(page) {
-        if(<!--{$totalPages}--> < 2 || page == <!--{$totalPages}-->) {
-            $('#next').hide();
-        }
-        else {
-            $('#next').show();
-        }
+
         if(page == 1) {
             $('#prev').hide();
         }

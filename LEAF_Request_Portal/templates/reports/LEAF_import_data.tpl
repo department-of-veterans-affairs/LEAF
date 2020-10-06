@@ -52,6 +52,8 @@
 <div id="import_data_new_form" style="display: none;">
     <h4>Create a Form</h4>
     <button id="import_btn_new" type="button">Import</button>
+    <input id="preserve_new" type="checkbox" name="preserve_new"/>
+    <label for="preserve_new">Preserve Row Order?</label>
     <br/><br/>
     <label for="formTitleInput"><b>Title of Form</b></label>
     <input type="text" id="formTitleInput" />
@@ -74,6 +76,8 @@
     <select id="category_select"></select>
 
     <button id="import_btn_existing" type="button">Import</button>
+    <input id="preserve_existing" type="checkbox" name="preserve_existing"/>
+    <label for="preserve_existing">Preserve Row Order?</label>
 
     <br/><br/>
 
@@ -132,6 +136,7 @@
     var requestStatus = $('#request_status');
     var sheetUpload = $('#sheet_upload');
     var nameOfSheet = '';
+    var placeInOrder;
 
     var totalRecords;
 
@@ -384,7 +389,6 @@
                     resolve();
                 },
                 function (error) {
-                    console.log(error);
                     failedRequests.push(requestData);
                     resolve();
                 }
@@ -451,10 +455,11 @@
                 .dialog( "close" );
             progressbar.progressbar( "value", false );
             progressLabel.text( "Starting import..." );
+            progressbar.progressbar( "value", 0);
         }
 
         function progress() {
-            
+                        
             var val = progressbar.progressbar( "value" ) || 0;
             
              
@@ -479,7 +484,6 @@
                 }
             },
             function (err) {
-                console.log(err);
             }
         );
 
@@ -491,6 +495,7 @@
             var formData = {"name": formName, "description": formDescription.val()};
             var indicators = [];
             var newCategoryID = '';
+            totalImported = 0;
             requestStatus.html('Making custom form...');
 
             /* creates custom form */
@@ -505,10 +510,8 @@
                             workflowID,
                             function (msg) {
                                 requestStatus.html('Workflow assigned...');
-                                /* console.log(msg); */
                             },
                             function (err) {
-                                console.log(err);
                             }
                         );
                     }
@@ -541,7 +544,6 @@
                                     makeIndicator();
                                 },
                                 function (err) {
-                                    console.log("Could not create indicator at row " + formCreationIndex + ": " + err);
                                     alert("Error creating form.  See log for details.");
                                 }
                             );
@@ -588,7 +590,6 @@
                                                                     answerQuestions().then(function(){resolve();});
                                                                 },
                                                                 'onFail': function (err) {
-                                                                    console.log(err);
                                                                     requestData['failed'] = currentCol + titleIndex + ": Error retrieving employee on sheet row " + titleIndex + " for indicator " + formCreationIndex;
                                                                     completed++;
                                                                     answerQuestions().then(function(){resolve();});
@@ -607,7 +608,6 @@
                                                     },
                                                     'onFail': function (err) {
                                                         requestData['failed'] = currentCol + titleIndex + ": Error retrieving email for employee on sheet row " + titleIndex + " indicator " + formCreationIndex;
-                                                        console.log(err);
                                                         completed++;
                                                         answerQuestions().then(function(){resolve();});
                                                     },
@@ -631,7 +631,6 @@
                                                     },
                                                     'onFail': function (err) {
                                                         requestData['failed'] = currentCol + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + formCreationIndex;
-                                                        console.log(err);
                                                         completed++;
                                                         answerQuestions().then(function(){resolve();});
                                                     },
@@ -655,7 +654,6 @@
                                                     },
                                                     'onFail': function (err) {
                                                         requestData['failed'] = currentCol + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + formCreationIndex;
-                                                        console.log(err);
                                                         completed++;
                                                         answerQuestions().then(function(){resolve();});
                                                     },
@@ -698,36 +696,55 @@
                             
                             
                             dialog.dialog( "open" );
+
+                            var preserveOrder = $("#preserve_new").prop("checked");
                             
-                            for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
-                                
-                                var doublet = [];
-                                doublet.push(selectRowToAnswer(i));
-                                
-                                var addAnother = i+1 <= sheet_data.cells.length - 1;
-                                
-                                if(addAnother){
-                                    doublet.push(selectRowToAnswer(i+1));
+                            if(preserveOrder){
+
+                                placeInOrder = 1;
+
+                                selectRowToAnswer(placeInOrder).then(iterate);
+
+                                function iterate(){
+                                    placeInOrder++;
+                                    totalImported++;
+                                    if(placeInOrder <= sheet_data.cells.length -1){
+                                        selectRowToAnswer(placeInOrder).then(iterate);
+                                    }
                                 }
-                                
-                                
-                                Promise.all(doublet).then(function(results){
-                                    
-                                    totalImported += results.length;
-                                });
+
                             }
+                            else{
+                                for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
+                                    
+                                    var doublet = [];
+                                    doublet.push(selectRowToAnswer(i));
+                                    
+                                    var addAnother = i+1 <= sheet_data.cells.length - 1;
+                                    
+                                    if(addAnother){
+                                        doublet.push(selectRowToAnswer(i+1));
+                                    }
+                                    
+                                    Promise.all(doublet).then(function(results){
+                                        
+                                        totalImported += results.length;
+                                    });
+                                }
+                            }
+
                         }
                     }
                     makeIndicator();
                 },
                 function (err) {
-                    console.log("Could not create custom form: " + err);
                 }
             );
 
         }
 
         function importExisting() {
+            totalImported = 0;
             $('#status').html('Processing...'); /* UI hint */
 
             requestStatus.html('Parsing sheet data...');
@@ -778,7 +795,6 @@
                                                         answerQuestions().then(function(){resolve();})
                                                     },
                                                     'onFail': function (err) {
-                                                        console.log(err);
                                                         requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving employee on sheet row " + titleIndex + " for indicator " + index;
                                                         completed++;
                                                         answerQuestions().then(function(){resolve();})
@@ -797,7 +813,6 @@
                                         },
                                         'onFail': function (err) {
                                             requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving email for employee on sheet row " + titleIndex + " indicator " + index;
-                                            console.log(err);
                                             completed++;
                                             answerQuestions().then(function(){resolve();})
                                         },
@@ -821,7 +836,6 @@
                                         },
                                         'onFail': function (err) {
                                             requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + index;
-                                            console.log(err);
                                             completed++;
                                             answerQuestions().then(function(){resolve();})
                                         },
@@ -845,7 +859,6 @@
                                         },
                                         'onFail': function (err) {
                                             requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + index;
-                                            console.log(err);
                                             completed++;
                                             answerQuestions().then(function(){resolve();})
                                         },
@@ -888,19 +901,40 @@
             
             dialog.dialog( "open" );
             
-            for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
-                
-                var doublet = [];
-                doublet.push(selectRowToAnswer(i));
-                
-                var addAnother = i+1 <= sheet_data.cells.length - 1;
-                
-                if(addAnother){
-                    doublet.push(selectRowToAnswer(i+1));
+            var preserveOrder = $("#preserve_existing").prop("checked");
+
+            if(preserveOrder){
+
+                placeInOrder = 1;
+
+                selectRowToAnswer(placeInOrder).then(iterate);
+
+                function iterate(){
+                    placeInOrder++;
+                    totalImported++;
+                    if(placeInOrder <= sheet_data.cells.length -1){
+                        selectRowToAnswer(placeInOrder).then(iterate);
+                    }
                 }
-                 Promise.all(doublet).then(function(results){                
-                     totalImported += results.length;
-                 });
+
+            }
+            else{
+                for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
+                    
+                    var doublet = [];
+                    doublet.push(selectRowToAnswer(i));
+                    
+                    var addAnother = i+1 <= sheet_data.cells.length - 1;
+                    
+                    if(addAnother){
+                        doublet.push(selectRowToAnswer(i+1));
+                    }
+                    
+                    Promise.all(doublet).then(function(results){
+                        
+                        totalImported += results.length;
+                    });
+                }
             }
             $('#status').html('Data has been imported');
         }
@@ -925,7 +959,6 @@
 
             },
             function (error) {
-                console.log(error);
             }
         );
 
@@ -978,7 +1011,6 @@
 
             portalAPI.Forms.getIndicatorsForForm(categorySelect.val(),
                 function (results) {
-                    console.log(results);
                     currentIndicators = results;
                     indicatorArray = new Array();
 
@@ -988,7 +1020,6 @@
                     }
                 },
                 function (error) {
-                    console.log(error);
                 }
             );
         });
@@ -1009,7 +1040,6 @@
                     var returnedJSON = XLSX.read(data, {type: 'array'});
                 }
                 catch (err) {
-                    console.log(err);
                     toggler.attr('style', 'display: none;');
                     existingForm.css('display', 'none');
                     newForm.css('display', 'none');
@@ -1043,8 +1073,7 @@
                     }
                     for (var j = 0; j < columnNames.length; j++) {
                         if (i === 0){
-                            if (typeof (rawSheet[columnNames[j] + (i + 1).toString()]) === "undefined") {
-                                console.log('Header at column ' + columnNames[j] + ' is ' + rawSheet[columnNames[j] + (i + 1).toString()]);
+                            if (typeof (rawSheet[columnNames[j] + (i + 1).toString()]) === "undefined") {                                
                             } else {
                                 headers[columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
                             }

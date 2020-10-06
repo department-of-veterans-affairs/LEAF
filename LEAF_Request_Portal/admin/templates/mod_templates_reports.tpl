@@ -8,17 +8,17 @@
     <div class="section group">
 
         <aside class="sidenav" id="fileBrowser">
-            <button class="usa-button leaf-btn-med" onclick="newReport();">New File</button>
+            <button class="usa-button leaf-btn-med leaf-width-13rem" onclick="newReport();">New File</button>
             <p class="leaf-bold leaf-marginTop-1rem">Files</p>
             <div id="fileList"></div>
         </aside>
 
         <aside class="sidenav-right" id="controls">
-            <button id="saveButton" class="usa-button leaf-btn-med leaf-display-block leaf-width-10rem" onclick="save();">Save Changes<span id="saveStatus" class="leaf-display-block leaf-font0-5rem"></span></button>
-            <button class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-10rem"" onclick="runReport();">Open Report</button>
-            <button id="deleteButton" class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-10rem"" onclick="deleteReport();">Delete Report</button>
+            <button id="saveButton" class="usa-button leaf-btn-med leaf-display-block leaf-width-14rem" onclick="save();">Save Changes<span id="saveStatus" class="leaf-display-block leaf-font0-5rem"></span></button>
+            <button class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="runReport();">Open Report</button>
+            <button id="deleteButton" class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="deleteReport();">Delete Report</button>
         </aside>
-
+        
         <main id="codeArea" class="main-content">
             <h2>LEAF Programmer</h2>
             
@@ -45,6 +45,10 @@
                 </div>
             </div>
         </main>
+        
+        
+
+        
 
     </div>
 
