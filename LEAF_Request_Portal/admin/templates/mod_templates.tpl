@@ -24,34 +24,6 @@
             </div>
         </aside>
 
-
-        <aside class="sidenav-right">
-
-            <div id="controls" style="visibility: hidden">
-                
-                <button class="usa-button leaf-display-block leaf-btn-med leaf-width-11rem" onclick="save();">
-                    Save Changes<span id="saveStatus" class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
-                </button>
-                
-                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem  modifiedTemplate" onclick="restore();">
-                    Restore Original
-                </button>
-                
-                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
-                    Stop Comparing
-                </button>
-                
-                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem  modifiedTemplate" id="btn_compare" onclick="compare();">
-                    Compare to Original
-                </button>
-                
-                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" target="_blank">
-                    <a href="../../libs/dynicons/gallery.php">Icon Library</a>
-                </button>
-            </div>
-
-        </aside>
-
         <main id="codeArea" class="main-content">
             <h2>Template Editor</h2>
 
@@ -81,7 +53,37 @@
                 </div>
             </div>
 
-        </div>
+        </main>
+
+
+        <aside class="sidenav-right">
+
+            <div id="controls" style="visibility: hidden">
+                
+                <button class="usa-button leaf-display-block leaf-btn-med leaf-width-11rem" onclick="save();">
+                    Save Changes<span id="saveStatus" class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
+                </button>
+                
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem  modifiedTemplate" onclick="restore();">
+                    Restore Original
+                </button>
+                
+                <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
+                    Stop Comparing
+                </button>
+                
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem  modifiedTemplate" id="btn_compare" onclick="compare();">
+                    Compare to Original
+                </button>
+                
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-11rem" target="_blank">
+                    <a href="../../libs/dynicons/gallery.php">Icon Library</a>
+                </button>
+            </div>
+
+        </aside>
+
+        
 
     </div>
 
