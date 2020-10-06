@@ -65,7 +65,8 @@
         $('div#sortable').append('<div class="edit-card leaf-sitemap-card ' + button.color + '" draggable="true" id="div_buttonID_' + button.id + '");" title="Click to edit"><h3 class="edit-card" id="div_headingID_' + button.id + '">' + button.title + '</h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description + '</p></div>');
     }
 
-   var drag = false;
+    // edit cards on click, move them on drag
+    var drag = false;
 
     document.addEventListener('mousedown', () => drag = false);
     document.addEventListener('mousemove', () => drag = true);
@@ -80,10 +81,6 @@
            (eventClass == 'edit-card') && (editButtonDialog(editTarget)); 
         }
     });
-
-
-
-
 
     //remove button from sortable list and sidenav
     function deleteButtonFromUI(buttonID){
@@ -147,7 +144,6 @@
 
 	// instantiates new button dialog
     function createNewButtonDialog() {
-        //var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
         dialog.setSaveHandler(function() {
             dialog.indicateBusy();
             var id = generateNewButtonID();
@@ -168,7 +164,6 @@
     
 	// instantiates and pops up edit button dialog
     function editButtonDialog(buttonID) {
-        var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
         var title = '';
         var description = '';
         var target = '';
