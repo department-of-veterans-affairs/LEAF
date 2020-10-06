@@ -460,6 +460,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('sitemap', json_decode($settings['sitemap_json']));
+        $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
         $main->assign('body', $t_form->fetch('sitemap.tpl'));
 
         break;

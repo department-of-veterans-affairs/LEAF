@@ -20,6 +20,7 @@ RUN a2enmod env
 RUN a2enmod proxy
 RUN a2enmod proxy_http
 RUN a2enmod proxy_connect
+RUN apt-get install -y mysql-client
 
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/certs/leaf.key -out /etc/ssl/certs/leaf.pem -subj "/C=US/ST=VA/L=Chantilly/O=LEAF/OU=LEAF/CN=%"
 RUN curl -sS https://getcomposer.org/installer | php

@@ -113,21 +113,27 @@
     <h3 role="heading" aria-level="1" tabindex="0" class="leaf-clear-both">Toolbox</h3>
 
         <a href="../report.php?a=LEAF_import_data" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
-            <i class="leaf-admin-btnicon fas fa-file-import text-orange-50" alt="Modify users and groups" title="Modify users and groups"></i>
+            <i class="leaf-admin-btnicon fas fa-file-import text-orange-50" alt="Import Spreadsheet" title="Import Spreadsheet"></i>
             <span class="leaf-admin-btntitle">Import Spreadsheet</span>
             <span class="leaf-admin-btndesc">Rows to requests, columns as fields</span>
         </a>
 
         <a href="../report.php?a=LEAF_mass_action" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
-            <i class="leaf-admin-btnicon fas fa-list text-orange-50" alt="Modify users and groups" title="Modify users and groups"></i>
+            <i class="leaf-admin-btnicon fas fa-list text-orange-50" alt="Mass Actions" title="Mass Actions"></i>
             <span class="leaf-admin-btntitle">Mass Actions</span>
             <span class="leaf-admin-btndesc">Apply bulk actions to requests</span>
         </a>
 
         <a href="../report.php?a=LEAF_request_initiator_new_account" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
-            <i class="leaf-admin-btnicon fas fa-play text-orange-50 leaf-icn-narrow2" alt="Modify users and groups" title="Modify users and groups"></i>
+            <i class="leaf-admin-btnicon fas fa-play text-orange-50 leaf-icn-narrow2" alt="Initiator New Account" title="Initiator New Account"></i>
             <span class="leaf-admin-btntitle">Initiator New Account</span>
             <span class="leaf-admin-btndesc">Replace account with request initiator</span>
+        </a>
+
+        <a href="../report.php?a=LEAF_sitemaps_template" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
+            <i class="leaf-admin-btnicon fas fa-map-signs text-orange-50 leaf-icn-narrow2" alt="Sitemap Editor" title="Sitemap Editor"></i>
+            <span class="leaf-admin-btntitle">Sitemap Editor</span>
+            <span class="leaf-admin-btndesc">Edit portal Sitemap links</span>
         </a>
 
 </div>

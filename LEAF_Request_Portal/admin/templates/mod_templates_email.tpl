@@ -57,13 +57,11 @@
                     <textarea id="subjectCode"></textarea>
                     <div id="subjectCompare"></div>
                 </div>
-                <br />
                 <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
                 <div id="divCode" style="border: 1px solid black">
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
                 </div>
-                <br />
                 <div>
                     <fieldset><legend>Template Variables</legend><br />
                     <table class="table">
@@ -293,12 +291,17 @@ function loadContent(file, subjectFile) {
 		cache: false
 	});
 	$('#saveStatus').html('');
+
 }
 
 function updateEditorSize() {
     codeWidth = $('#codeArea').width() - 30;
     $('#codeContainer').css('width', codeWidth + 'px');
     $('#divSubject .CodeMirror').css('height', '50px');
+    // Refresh CodeMirror
+    $('.CodeMirror').each(function(i, el){
+        el.CodeMirror.refresh();
+    });
 }
 
 function initEditor () {
@@ -367,5 +370,11 @@ $(function() {
 	});
 	
 	loadContent('LEAF_main_email_template.tpl', undefined);
+    
+    // Refresh CodeMirror
+    $('.CodeMirror').each(function(i, el) {
+        el.CodeMirror.refresh();
+    });
+    
 });
 </script>
