@@ -18,7 +18,7 @@
             <button class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="runReport();">Open Report</button>
             <button id="deleteButton" class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="deleteReport();">Delete Report</button>
         </aside>
-
+        
         <main id="codeArea" class="main-content">
             <h2>LEAF Programmer</h2>
             
@@ -45,6 +45,10 @@
                 </div>
             </div>
         </main>
+        
+        
+
+        
 
     </div>
 
