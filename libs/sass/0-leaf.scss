@@ -27,7 +27,7 @@ $theme-font-path: "fonts" !default;
 /* ############### GLOBAL OVERRIDES ################# */
 body {background-color: #dcdee0; overflow-x: auto; overflow-y: auto;}
 h1, h2, h3, h4, h5, h6 { font-family: 'PublicSans-Bold'; color: #3d4551;}
-h1 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
+h1 {margin: 0.0rem 0.2rem 0.9rem 0.0rem;}
 h2 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
 h3 {margin: 0.0rem 0.0rem 0.4rem 0.0rem;}
 p {margin: 0.7rem 0.2rem 0.7rem 0.0rem; margin-block-start: 0;}
@@ -41,6 +41,14 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 .usa-sidenav__item {white-space: normal;}
     .usa-sidenav a {white-space: normal;}
 .usa-current a {color: #005ea2!important;}
+
+/* ############### JQUERY UI OVERRIDES ################# */
+.ui-sortable-placeholder {
+    border: 2px dashed #a9aeb1!important; 
+    visibility: visible!important; 
+    background-color: #dcdee0!important; 
+    box-shadow: 0px 0px 0px #a7a9aa!important;
+}
 
 /* ############### GLOBAL CONTAINER STYLES ################# */
 .sidenav {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
@@ -110,24 +118,25 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 /* ############### LEAF SITEMAP STYLES ################# */
 .leaf-sitemap-card {
     flex: 0 1 30%;
-    min-width: 18rem;
-    max-width: 21rem;
-    margin: 0.5rem;
-    padding: 0.6rem;
-    box-shadow: 2px 2px 3px #adadad;
+    min-width: 20rem;
+    max-width: 23rem;
+    margin: 0.5rem 1.0rem 0.5rem 0;
+    padding: 1.3rem;
+    box-shadow: 0px 2px 3px #a7a9aa;
     border: 1px solid #ccc;
-    height: 6.2rem;
+    height: 5.8rem;
     background-color: #fff;
     cursor: move;
     border-radius: 5px;
     transition: box-shadow 0.4s ease;
     white-space: wrap;
     }
-    .leaf-sitemap-card:hover, .leaf-sitemap-card:focus {box-shadow: 4px 4px 6px #949191;}
+    .leaf-sitemap-card:hover, .leaf-sitemap-card:focus {box-shadow: 0px 12px 9px #949191;}
     .active {background-color: #faf3d1;}
-    .leaf-sitemap-card h3 {margin: 0.0rem 0 0.5rem 0; font-size: 1.0rem; word-break: break-word;}
-    .leaf-sitemap-card h3 a:hover {text-decoration: none; color: #004b76;}
-    .leaf-sitemap-card p {margin: 0.2rem 0; font-size: 0.8rem; line-height: 1.0rem; font-family: 'PublicSans-Regular'; word-break: break-word; white-space: normal;}
+    .leaf-sitemap-card h3 {margin: 0.0rem 0 0.5rem 0; font-size: 1.2rem;}
+    .leaf-sitemap-card h3 a {text-decoration: none; color: #252f3e; font-family: 'PublicSans-Medium'; }
+    .leaf-sitemap-card h3 a:hover {text-decoration: underline; color: #004b76;}
+    .leaf-sitemap-card p {margin: 0.2rem 0; font-size: 0.84rem; line-height: 1.0rem; font-family: 'PublicSans-Light'; word-break: break-word; white-space: normal;}
 .leaf-delete-card {color: #2672de; font-size: 1.0rem; vertical-align: middle; float: right; margin: 0.0rem; cursor: pointer; white-space: normal;}
 .leaf-sitemap-alert {
     padding: 0.4rem; 
@@ -275,10 +284,9 @@ ul.leaf-progress-bar {
     .usa-logo {margin: 0; height: 4.6rem; float: left;}
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
-    .sidenav {display: block; float: left; margin: 1.5rem 1.0rem 0 0; padding: 0.5rem 1.0rem 0.2rem 1.0rem; width: 16.5rem;}
-        h3.navhead {font-family: 'PublicSans-Medium'; font-weight: normal; margin-bottom: 1.0rem; margin-top: 0.4rem;}
+        h3.navhead {font-family: 'PublicSans-Medium'; font-weight: normal; margin-bottom: 1.0rem; margin-top: 0.4rem; font-size: 1.2rem;}
     .bg-orange-topbanner {background-color: #f56600;}
-    .sidenav {display: block; float: left; margin: 0.6rem 1rem; padding: 1.0rem; max-width: 15rem;}
+    .sidenav {display: block; float: left; margin: 0.6rem 1rem 0.6rem 0.0rem; padding: 1.0rem; max-width: 16.5rem;}
         .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
         .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
     .sidenav-right {display: block; float: right; margin: 0.6rem 1.0rem 0 1.0rem; padding: 0.5rem 1.0rem 0.8rem 1.0rem; width: 16.2rem;}
@@ -309,7 +317,7 @@ ul.leaf-progress-bar {
         position: relative;
         width: 70%;
         white-space: normal;
-        margin: 0.6rem 2.9rem;
+        margin: 0.6rem 1.0rem 0.6rem 3.2rem;
         min-height: 27rem;
         overflow: visible;
     }

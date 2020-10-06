@@ -4,6 +4,7 @@
 
 <script>
 	var sitemapOBJ;
+    var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     $(function() {
 		//load existing sitemap on page load
         parseSitemapJSON(); 
@@ -57,12 +58,29 @@
         });
         save();
     }
-                    
+         
 	// insert button into sortable list and sidenav
     function addButtonToUI(button){
-        $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_'+button.id+'"><a href="#" onClick="editButtonDialog(\''+button.id+'\');" title="Edit Card"><i class="fas fa-edit leaf-float-right text-blue-warm-50v" alt="Edit Sitemap Card"></i>'+button.title+'</a></li>');
-        $('div#sortable').append('<div class="leaf-sitemap-card '+button.color+'" draggable="true" id="div_buttonID_'+button.id+'"><i class="fas fa-trash-alt leaf-delete-card" title="Delete Card" onClick="deleteButtonFromUI(\'' + button.id + '\')"></i><h3>'+button.title+'</h3><p>'+button.description+'</p></div>');
+        $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Card">' + button.title + '</a></li>');
+        $('div#sortable').append('<div class="edit-card leaf-sitemap-card ' + button.color + '" draggable="true" id="div_buttonID_' + button.id + '");" title="Click to edit"><h3 class="edit-card" id="div_headingID_' + button.id + '">' + button.title + '</h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description + '</p></div>');
     }
+
+    // edit cards on click, move them on drag
+    var drag = false;
+
+    document.addEventListener('mousedown', () => drag = false);
+    document.addEventListener('mousemove', () => drag = true);
+    document.addEventListener('mouseup', (event) => {
+        if (drag) {
+            return;
+        }
+        else {
+           var eventTarget = event.target.id;
+           var eventClass = event.target.className.split(' ')[0];
+           var editTarget = eventTarget.slice(-5);
+           (eventClass == 'edit-card') && (editButtonDialog(editTarget)); 
+        }
+    });
 
     //remove button from sortable list and sidenav
     function deleteButtonFromUI(buttonID){
@@ -72,6 +90,7 @@
                 return false;
             }
         });
+        dialog.hide();
         refreshButtons();
         save();
     }
@@ -104,8 +123,8 @@
         var dialog = createNewButtonDialog();
         dialog.setTitle('Add New Card');
         dialog.setContent('<div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" size="48" maxlength="36"></input></div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="60"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" size="48" maxlength="27"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="48"></input></div>' +
             '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input id="button-target" size="48" maxlength="40"></input></div>' +
             '<div class="leaf-marginAll-1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
                 '<div class="leaf-float-left" style="margin-right: 3rem;">' +
@@ -125,7 +144,6 @@
 
 	// instantiates new button dialog
     function createNewButtonDialog() {
-        var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
         dialog.setSaveHandler(function() {
             dialog.indicateBusy();
             var id = generateNewButtonID();
@@ -146,7 +164,6 @@
     
 	// instantiates and pops up edit button dialog
     function editButtonDialog(buttonID) {
-        var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
         var title = '';
         var description = '';
         var target = '';
@@ -169,8 +186,8 @@
         if (color == 'leaf-card-grey') {chkVarGrey = 'checked'}
         dialog.setTitle('Edit Card');
         dialog.setContent('<div>' +
-        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" value="'+title+'"size="48" maxlength="36"></input></div>' +
-        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48" maxlength="60"></input></div>' +
+        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" value="'+title+'"size="48" maxlength="27"></input></div>' +
+        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48" maxlength="48"></input></div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48" maxlength="40"></input></div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
                 '<div class="leaf-float-left" style="margin-right: 3rem;">' +
@@ -182,6 +199,9 @@
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-yellow"></span><input type="radio" id="yellow" name="btnColor" value="leaf-card-yellow"' + chkVarYellow + '><label for="yellow">Yellow</label></div>' +
                 '<div class="leaf-color-choice"><span class="leaf-color-demo leaf-card-grey"></span><input type="radio" id="grey" name="btnColor" value="leaf-card-grey"' + chkVarGrey + '><label for="grey">Grey</label></div>' +
                 '</div>' +
+        '<div class="leaf-buttonBar leaf-clearBoth leaf-float-right">' +
+        '<button class="usa-button usa-button--secondary" onClick="deleteButtonFromUI(\'' + buttonID + '\');" id="delete-button">Delete card</button>' +
+        '</div>' +
         '</div></div>');
 
         // save handler
@@ -232,14 +252,14 @@
 <div class="leaf-center-content">
             
     <aside class="sidenav">
-        <h3>Sitemap cards</h3>
+        <h3 class="navhead"><!--{$city}-->  sitemap</h3>
         <ul class="usa-sidenav leaf-border-bottom">
         </ul>
         <div>
-            <button class="usa-button leaf-width-13rem leaf-marginTopBot-halfRem" onclick="createGroup();"><i class="fas fa-plus" title="Delete Card"></i> Add Card</button>
+            <button class="usa-button leaf-btn-green leaf-marginTopBot-halfRem leaf-width100pct" onclick="createGroup();"><i class="fas fa-plus leaf-font0-7rem" title="Delete Card"></i> Add card</button>
         </div>
         <div>
-            <a href="./?a=sitemap" target="_blank" class="usa-button usa-button--outline leaf-width-13rem leaf-marginTopBot-halfRem">View Sitemap</a>
+            <a href="./?a=sitemap" target="_blank" class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View sitemap</a>
         </div>
         
         <!--<div class="leaf-sidenav-bottomBtns">
@@ -251,7 +271,7 @@
     <div class="main-content-noRight">
 
         <h1>
-            <a href="/LEAF_Request_Portal/admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i><!--{$city}--> Sitemap
+            <a href="/LEAF_Request_Portal/admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i> Sitemap Editor
             <span id="sitemap-alert" class="leaf-sitemap-alert"><i class="fas fa-check"></i> Sitemap updated</span>
         </h1>
         <div id="sortable" class="leaf-displayFlexRow">
