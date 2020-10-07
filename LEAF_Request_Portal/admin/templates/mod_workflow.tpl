@@ -1409,10 +1409,10 @@ function setEmailReminderHTML(workflowID, stepID, actionType){
         });
 
         dialog.setValidator('frequency_pos', function() {
-            return $('#emailReminder #frequency').val() >= 0;
+            return $('#emailReminder #frequency').val() > 0;
         });
         dialog.setValidatorError('frequency_pos', function() {
-            alert('Frequency cannot be negative.');
+            alert('Frequency must be greater than zero.');
         });
 
         dialog.setValidator('startDateIndicatorID', function() {
