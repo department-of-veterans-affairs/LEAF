@@ -326,11 +326,11 @@ ul.leaf-progress-bar {
 
     /* ############### UI DIALOG OVERRIDES ################# */
     .ui-dialog-title {font-family: 'PublicSans-Bold'; font-size: 1.5rem; padding-top: 0.3rem;}
-    .ui-dialog {border-radius: 6px; padding-bottom: 1.0rem; min-height: 320px; min-width: 540px; overflow-y: auto; overflow-x: hidden;}
+    .ui-dialog {border-radius: 6px; padding-bottom: 1.0rem; min-height: 360px; min-width: 540px; overflow-y: auto; overflow-x: hidden;}
     .ui-dialog-content {min-height: 280px; min-width: 510px; }
     .ui-widget-header {border: 0; background-color: none; background: none;}
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
-    .leaf-dialog-content { min-height: 180px!important; padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
+    .leaf-dialog-content {min-height: 300px; padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
     
     /* ############### LEAF HEADER ################# */
     .site-header {background-color: #252f3e; height: 4.6rem; box-shadow: 0px 4px 6px #a9aeb1;}
