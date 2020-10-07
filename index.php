@@ -35,7 +35,26 @@ if (false !== $pos = strpos($uri, '/api/')) {
 
 //Get sitepath
 $uri = rawurldecode($uri);
-$pattern = '(\/api\/|\/libs\/|\/js\/|\/css\/|\/images\/|\/files\/|\/admin\/|\/scripts\/|\/[^\/]*\.php|\/[^\/]*\.ico|\/auth_domain\/|\/auth_cookie\/|\/auth_token\/|\/login\/|\/utils\/|\/LEAF_test_endpoints\/)';
+//array of url segments that denote the end of the leaf sitepath
+$pathDelimiterArray = [
+    '/api/',
+    '/libs/',
+    '/js/',
+    '/css/',
+    '/images/',
+    '/files/',
+    '/admin/',
+    '/scripts/',
+    '/auth_domain/',
+    '/auth_cookie/',
+    '/auth_token/',
+    '/login/',
+    '/utils/',
+    '/LEAF_test_endpoints/',
+    '/[^/]*.php',
+    '/[^/]*.ico'
+];
+$pattern = '(' . addslashes(implode("|",$pathDelimiterArray)) . ')';
 preg_match ($pattern , $uri, $matches, PREG_OFFSET_CAPTURE);
 if(count($matches)){
     $sitePath = substr($uri, 0, $matches[0][1]+1);
