@@ -62,25 +62,33 @@
 	// insert button into sortable list and sidenav
     function addButtonToUI(button){
         $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Card">' + button.title + '</a></li>');
-        $('div#sortable').append('<div class="edit-card leaf-sitemap-card ' + button.color + '" draggable="true" id="div_buttonID_' + button.id + '");" title="Click to edit"><h3 class="edit-card" id="div_headingID_' + button.id + '">' + button.title + '</h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description + '</p></div>');
+        $('div#sortable').append('<div class="edit-card leaf-sitemap-card ' + button.color + '" draggable="true" id="div_buttonID_' + button.id + '");" title="Drag to move, click to edit."><h3 class="edit-card" id="div_headingID_' + button.id + '"><a href="javascript:void(0);" onClick="editButtonDialog(\'' + button.id + '\');" title="Click title to edit.">' + button.title + '</a></h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description + '</p></div>');
     }
 
-    // edit cards on click, move them on drag
-    var drag = false;
-
-    document.addEventListener('mousedown', () => drag = false);
-    document.addEventListener('mousemove', () => drag = true);
-    document.addEventListener('mouseup', (event) => {
-        if (drag) {
-            return;
+    // get difference between click and drag for editing cards
+    
+    var body = document.getElementById("body");
+    body.addEventListener("mousedown", function() {
+        window.addEventListener("mousemove", drag);
+        window.addEventListener("mouseup", lift);
+        var didDrag = false;
+        function drag() {
+            didDrag = true;
         }
-        else {
-           var eventTarget = event.target.id;
-           var eventClass = event.target.className.split(' ')[0];
-           var editTarget = eventTarget.slice(-5);
-           (eventClass == 'edit-card') && (editButtonDialog(editTarget)); 
+        function lift() {
+            if (!didDrag) {
+                var eventTarget = event.target.id;
+                var eventClass = event.target.className.split(' ')[0];
+                var editTarget = eventTarget.slice(-5);
+                (eventClass == 'edit-card') && (editButtonDialog(editTarget));
+            }
+            else {
+                window.removeEventListener("mousemove", drag);
+                window.removeEventListener("mouseup", this);
+            }
         }
     });
+
 
     //remove button from sortable list and sidenav
     function deleteButtonFromUI(buttonID){
