@@ -114,8 +114,6 @@ class SystemController extends RESTfulResponse
         $login = $this->login;
         $system = $this->system;
 
-        $this->verifyAdminReferrer();
-
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('system', function ($args) {
         });
@@ -189,8 +187,6 @@ class SystemController extends RESTfulResponse
         $db = $this->db;
         $login = $this->login;
         $system = $this->system;
-
-        $this->verifyAdminReferrer();
 
         $this->index['DELETE'] = new ControllerMap();
         $this->index['DELETE']->register('system', function ($args) {

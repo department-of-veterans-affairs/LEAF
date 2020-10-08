@@ -112,8 +112,6 @@ class WorkflowController extends RESTfulResponse
     {
         $workflow = $this->workflow;
 
-        $this->verifyAdminReferrer();
-
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('workflow', function ($args) {
         });
@@ -211,8 +209,6 @@ class WorkflowController extends RESTfulResponse
     public function delete($act)
     {
         $workflow = $this->workflow;
-
-        $this->verifyAdminReferrer();
 
         $this->index['DELETE'] = new ControllerMap();
         $this->index['DELETE']->register('workflow', function ($args) {

@@ -332,35 +332,6 @@ abstract class RESTfulResponse
     }
 
     /**
-     * Aborts script if the referrer directory doesn't match the admin directory
-     */
-    public function verifyAdminReferrer()
-    {
-        if (!isset($_SERVER['HTTP_REFERER']))
-        {
-            echo 'Error: Invalid request. Missing Referer.';
-            exit();
-        }
-
-        $tIdx = strpos($_SERVER['HTTP_REFERER'], '://');
-        $referer = substr($_SERVER['HTTP_REFERER'], $tIdx);
-
-        $url = '://' . HTTP_HOST;
-
-        $script = $_SERVER['SCRIPT_NAME'];
-        $apiOffset = strpos($script, '/api/');
-        $script = substr($script, 0, $apiOffset + 1);
-
-        $checkMe = strtolower($url . $script . 'admin');
-
-        if (strncmp(strtolower($referer), $checkMe, strlen($checkMe)) !== 0)
-        {
-            echo 'Error: Invalid request. Mismatched Referer';
-            exit();
-        }
-    }
-
-    /**
      * Helper function to build an XML file
      */
     private function buildXML($out, $xml)
