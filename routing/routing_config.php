@@ -13,5 +13,24 @@ if (!defined('DATABASE_DB_CONFIG')) define('DATABASE_DB_CONFIG',    getenv('DATA
         public static $dbName = DATABASE_DB_CONFIG;
         public static $dbUser = DATABASE_USERNAME;
         public static $dbPass = DATABASE_PASSWORD;
+        //array of url segments that denote the end of the leaf sitepath    
+        public static $pathDelimiterArray = [
+            '/api/',
+            '/libs/',
+            '/js/',
+            '/css/',
+            '/images/',
+            '/files/',
+            '/admin/',
+            '/scripts/',
+            '/auth_domain/',
+            '/auth_cookie/',
+            '/auth_token/',
+            '/login/',
+            '/utils/',
+            '/LEAF_test_endpoints/',
+            '/[^/]*.php',
+            '/[^/]*.ico'
+        ];
     }
 
