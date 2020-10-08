@@ -1063,7 +1063,9 @@ class System
      */
     private function getFormIndicatorHtmlCustomizations()
     {
-        $result = array('three', 'four');
+        $result = $this->db->prepared_query('SELECT indicatorID, name
+                                            FROM `indicators`
+                                            WHERE `html` IS NOT NULL', array());
 
         return $result;
     }
@@ -1075,7 +1077,9 @@ class System
      */
     private function getFormIndicatorHtmlPrintCustomizations()
     {
-        $result = array('five', 'six');
+        $result = $this->db->prepared_query('SELECT indicatorID, name
+                                            FROM `indicators`
+                                            WHERE `htmlPrint` IS NOT NULL', array());
 
         return $result;
     }
