@@ -15,6 +15,13 @@ RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git subversion zl
 COPY /docker/php/trust_ca_certs.sh /tmp/
 RUN bash -xc "bash /tmp/trust_ca_certs.sh"
 
+RUN apt-get install -y locales && locale-gen en_US.UTF-8
+RUN bash -xc 'echo LANG="en_US.UTF-8" > /etc/default/locale' 
+ENV LANGUAGE "en_US.UTF-8"
+ENV LANG "en_US.UTF-8"
+ENV LC_ALL "en_US.UTF-8"
+RUN bash -xc 'locale -a' # testing
+
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/certs/leaf.key -out /etc/ssl/certs/leaf.pem -subj "/C=US/ST=VA/L=Chantilly/O=LEAF/OU=LEAF/CN=%"
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
