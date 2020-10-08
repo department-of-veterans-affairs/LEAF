@@ -1016,4 +1016,79 @@ class System
     {
         return $this->dataActionLogger->getHistory($filterById, null, \LoggableTypes::PRIMARY_ADMIN);
     }
+
+    /**
+     * Returns every customization in the following categories:
+     * 1.) template editor
+     * 2.) indictor html field (form editor)
+     * 3.) indicator html print field (form editor)
+     * 4.) email editor
+     *
+     * @return array array with site customizations broken up into four sub arrays: 
+     * 'templateEditor', 'formIndicatorHtml', 'formIndicatorHtmlPrint', 'emailEditor'
+     */
+    public function getCustomizations()
+    {
+        $templateEditor = array();
+        $formIndicatorHtml = array();
+        $formIndicatorHtmlPrint = array();
+        $emailEditor = array();
+
+        $result = [
+            'templateEditor' => $this->getTemplateEditorCustomizations(),
+            'formIndicatorHtml' => $this->getFormIndicatorHtmlCustomizations(),
+            'formIndicatorHtmlPrint' => $this->getFormIndicatorHtmlPrintCustomizations(),
+            'emailEditor' => $this->getEmailEditorCustomizations(),
+        ];
+
+        return $result;
+    }
+
+    /**
+     * Returns array of template editor customization descriptions.
+     *
+     * @return array array of template editor customization descriptions
+     */
+    private function getTemplateEditorCustomizations()
+    {
+        $result = array('one', 'two');
+
+        return $result;
+    }
+
+    /**
+     * Return array of indicator html field customization descriptions.
+     *
+     * @return array array of indicator html field customization descriptions
+     */
+    private function getFormIndicatorHtmlCustomizations()
+    {
+        $result = array('three', 'four');
+
+        return $result;
+    }
+
+    /**
+     * Return array of indicator html print field customization descriptions.
+     *
+     * @return array array of indicator html print field customization descriptions
+     */
+    private function getFormIndicatorHtmlPrintCustomizations()
+    {
+        $result = array('five', 'six');
+
+        return $result;
+    }
+
+    /**
+     * Return array of email editor customization descriptions.
+     *
+     * @return array array of email editor customization descriptions
+     */
+    private function getEmailEditorCustomizations()
+    {
+        $result = array('seven', 'eight');
+
+        return $result;
+    }
 }
