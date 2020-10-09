@@ -104,8 +104,9 @@ class SystemController extends RESTfulResponse
         $this->index['GET']->register('system/primaryadmin', function ($args) use ($system) {
             return $system->getPrimaryAdmin();
         });
-
+        
         $this->index['GET']->register('system/customizations', function ($args) use ($system) {
+            $this->verifyAdminReferrer();
             return $system->getCustomizations();
         });
 
