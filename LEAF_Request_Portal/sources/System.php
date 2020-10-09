@@ -1049,9 +1049,25 @@ class System
      *
      * @return array array of template editor customization descriptions
      */
-    private function getTemplateEditorCustomizations()
+    private function getTemplateEditorCustomizations($subfolder = null)
     {
-        $result = array('one', 'two');
+        global $config;
+        $result = array();
+
+        if(isset($subfolder))
+        {
+            //make sure there's a trailing slash and no leading slash
+            $subfolder = ltrim(rtrim($subfolder,"/"), "/") . "/";
+        }
+        $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+        $customTemplatePath = __DIR__ . "/../templates/" . $subfolder . "custom_override/";
+        $globPattern = $customTemplatePath . $cleanPortalPath . "_*.tpl";
+
+        foreach(glob($globPattern) as $file) {
+            //return only the filename, sans file extension
+            $filename = str_replace($customTemplatePath . $cleanPortalPath . "_","",$file);
+            $result[] = str_replace(".tpl","",$filename);
+        }
 
         return $result;
     }
@@ -1091,8 +1107,6 @@ class System
      */
     private function getEmailEditorCustomizations()
     {
-        $result = array('seven', 'eight');
-
-        return $result;
+        return $this->getTemplateEditorCustomizations("email");
     }
 }
