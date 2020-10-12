@@ -347,7 +347,7 @@ abstract class RESTfulResponse
 
         $url = '://' . HTTP_HOST;
 
-        $script = $_SERVER['SCRIPT_NAME'];
+        $script = $_SERVER['REQUEST_URI'];
         $apiOffset = strpos($script, '/api/');
         $script = substr($script, 0, $apiOffset + 1);
 
