@@ -557,8 +557,6 @@ function newQuestion(parentIndicatorID) {
                 $('#container_indicatorGrid').css('display', 'block');
                 $('#container_indicatorMultiAnswer').css('display', 'none');
                 $('#container_indicatorSingleAnswer').css('display', 'none');
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', '70%');
-                $(gridBodyElement).closest('div[role="dialog"]').css('left', '15%');
                 $('#xhr').css('width', '100%');
                 makeGrid(0);
                 break;
@@ -1022,8 +1020,6 @@ function getForm(indicatorID, series) {
     $('#indicatorType').on('change', function() {
         switch($('#indicatorType').val()) {
             case 'grid':
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', '70%');
-                $(gridBodyElement).closest('div[role="dialog"]').css('left', '15%');
                 $('#xhr').css('width', '100%');
                 $('#container_indicatorGrid').css('display', 'block');
                 $('#container_indicatorMultiAnswer').css('display', 'none');
@@ -1279,8 +1275,6 @@ function getForm(indicatorID, series) {
                 if(formatIdx != -1 && format.substr(0, formatIdx) != '') {
                     switch(format.substr(0, formatIdx)) {
                         case 'grid':
-                            $(gridBodyElement).closest('div[role="dialog"]').css('width', '70%');
-                            $(gridBodyElement).closest('div[role="dialog"]').css('left', '15%');
                             $('#xhr').css('width', '100%');
                             $('#indicatorType').val(format.substr(0, formatIdx));
                             $('#container_indicatorGrid').css('display', 'block');
