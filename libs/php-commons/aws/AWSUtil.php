@@ -1,6 +1,7 @@
-<?php 
+<?php
 
-require_once __DIR__ . '/../../aws/aws-autoloader.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
+//require_once __DIR__ . '/../../aws/aws-autoloader.php';
 require_once __DIR__ . '/../XSSHelpers.php';
 require_once __DIR__ . '/../CommonConfig.php';
 

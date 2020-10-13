@@ -198,24 +198,17 @@ class Email
         $email['headers'] = html_entity_decode($this->getHeaders(), ENT_QUOTES);
 
         $emailCache = serialize($email);
-        $emailQueueName = sha1($emailCache . random_int(0, 99999999));
         if (strlen(trim($emailCache)) == 0)
         {
             trigger_error('Mail error: ' . $this->emailSubject);
 
             return false;
         }
-        file_put_contents($currDir . '/templates_c/mailer/' . $emailQueueName, $emailCache);
 
-        if (strtoupper(substr(php_uname('s'), 0, 3)) == 'WIN')
-        {
-            $shell = new COM('WScript.Shell');
-            $shell->Run("php {$currDir}/mailer/mailer.php {$emailQueueName}", 0, false);
-        }
-        else
-        {
-            exec("php {$currDir}/mailer/mailer.php {$emailQueueName} > /dev/null &");
-        }
+        require_once dirname(__FILE__) . '/enqueue/EmailProducer.php';
+
+        $emailProducer = new EmailProducer();
+        $emailProducer->sendToQueue($emailCache);
     }
 
     private function initOrgchart()

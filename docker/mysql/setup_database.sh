@@ -6,6 +6,7 @@ printf '\n\nRunning sql scripts...'
 mysql -uroot -p$MYSQL_ROOT_PASSWORD <<CREATE_DATABASE
 CREATE DATABASE leaf_users;
 CREATE DATABASE leaf_portal;
+CREATE DATABASE leaf_queue;
 CREATE DATABASE nexus_testing;
 CREATE DATABASE portal_testing;
 CREATE DATABASE leaf_config;
