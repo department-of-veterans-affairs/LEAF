@@ -171,6 +171,11 @@ function setPrimaryAdmin(userID) {
 }
 
 function getGroupList() {
+
+    // reset dialog for regular content
+    $(".ui-dialog>div").css('width', '510');
+    $(".leaf-dialog-content").css('width', '300');
+
     $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
     dialog.showButtons();
     $.ajax({
@@ -198,7 +203,7 @@ function getGroupList() {
 
                 if(res[i].groupID != 1) { // if not admin
                     function openGroup(groupID, parentGroupID) {
-                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" tabindex="0" style="width: 99%; height: 99%; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
+                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" tabindex="0" style="width: 840px; height: 560px; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
                         dialog_simple.setCancelHandler(function() {
                             $.ajax({
                                 type: 'GET',
@@ -209,6 +214,9 @@ function getGroupList() {
                                 cache: false
                             });
                         });
+                        // resize dialog for special iframe content
+                        $(".ui-dialog>div").css('width', '850');
+                        $(".leaf-dialog-content").css('width', '850');
                         //508 fix
                         setTimeout(function () {
                             $("#simplebutton_cancelchange").remove();
@@ -233,6 +241,9 @@ function getGroupList() {
                 }
                 else { // if is admin
                     function openAdminGroup(){
+                         // reset dialog for regular content
+                        $(".ui-dialog>div").css('width', 'auto');
+                        $(".leaf-dialog-content").css('width', 'auto');
                         dialog.showButtons();
                         dialog.setTitle('Editor');
                         dialog.setContent(
@@ -318,6 +329,9 @@ function getGroupList() {
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
                         dialog.showButtons();
+                         // reset dialog for regular content
+                        $(".ui-dialog>div").css('width', 'auto');
+                        $(".leaf-dialog-content").css('width', 'auto');
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
                                 var selectedUserName = empSel.selectionData[empSel.selection].userName;
@@ -402,6 +416,9 @@ function getGroupList() {
 }
 
 function viewHistory(groupID){
+     // reset dialog for regular content
+    $(".ui-dialog>div").css('width', 'auto');
+    $(".leaf-dialog-content").css('width', 'auto');
     dialog_simple.setContent('');
     dialog_simple.setTitle('Group history');
     dialog_simple.indicateBusy();
@@ -423,6 +440,9 @@ function viewHistory(groupID){
 }
 
 function viewPrimaryAdminHistory(){
+     // reset dialog for regular content
+    $(".ui-dialog>div").css('width', 'auto');
+    $(".leaf-dialog-content").css('width', 'auto');
     dialog_simple.setContent('');
     dialog_simple.setTitle('Primary Admin History');
 	dialog_simple.indicateBusy();
@@ -470,6 +490,9 @@ function tagAndUpdate(groupID, callback) {
 }
 
 function importGroup() {
+    // reset dialog for regular content
+    $(".ui-dialog>div").css('width', 'auto');
+    $(".leaf-dialog-content").css('width', 'auto');
     dialog.setTitle('Import Group');
     dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
     dialog.showButtons();
@@ -543,6 +566,9 @@ function toTitleCase(str) {
 }
 
 function showAllGroupHistory() {
+     // reset dialog for regular content
+    $(".ui-dialog>div").css('width', 'auto');
+    $(".leaf-dialog-content").css('width', 'auto');
     dialog.setTitle('All group history');
     $.ajax({
         type: 'GET',
