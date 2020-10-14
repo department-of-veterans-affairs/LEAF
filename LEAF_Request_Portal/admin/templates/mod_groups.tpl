@@ -84,26 +84,6 @@ function getMembers(groupID) {
     });
 }
 
-function updateAndGetMembers(groupID) {
-    $.ajax({
-        type: 'GET',
-        url: '../api/?a=system/updateGroup/' + groupID,
-        success: function() {
-            $.ajax({
-                url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=" + groupID,
-                dataType: "json",
-                success: function(response) {
-                    $('#members' + groupID).fadeOut();
-                    populateMembers(groupID, response);
-                    $('#members' + groupID).fadeIn();
-                },
-                cache: false
-            });
-        },
-        cache: false
-    });
-}
-
 function getPrimaryAdmin() {
     $.ajax({
         url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=1",
@@ -134,44 +114,9 @@ function populateMembers(groupID, members) {
     var memberCt = (members.length - 1);
     var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     for(var i in members) {
-
-        if(members[i].active == 1 || groupID == 1) {
-            if (i == 0) {
-               $('#members' + groupID).append('<span>' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</span>'); 
-            } 
-        }
+        $('#members' + groupID).append(members[i].Lname + ', ' + members[i].Fname + '<br />');
     }
 }
-
-function removeMember(groupID, userID) {
-    $.ajax({
-        type: 'DELETE',
-        url: "../api/group/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
-        success: function(response) {
-            updateAndGetMembers(groupID);
-        },
-        cache: false
-    });
-}
-
-function addMember(groupID, userID) {
-    $.ajax({
-        type: 'POST',
-        url: "../api/group/" + groupID + "/members",
-        data: {'userID': userID,
-               'CSRFToken': '<!--{$CSRFToken}-->'},
-        success: function(response) {
-            updateAndGetMembers(groupID);
-        },
-        cache: false
-    });
-}
-
-// convert to title case
-function toTitleCase(str) {
-    return (str == "" || str == null) ? "" : str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-}
-
 function addAdmin(userID) {
     $.ajax({
         type: 'POST',
@@ -226,6 +171,11 @@ function setPrimaryAdmin(userID) {
 }
 
 function getGroupList() {
+
+    // reset dialog for regular content
+    $(".ui-dialog>div").css('width', '510');
+    $(".leaf-dialog-content").css('width', '300');
+
     $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
     dialog.showButtons();
     $.ajax({
@@ -253,71 +203,26 @@ function getGroupList() {
 
                 if(res[i].groupID != 1) { // if not admin
                     function openGroup(groupID, parentGroupID) {
-                        $.ajax({
-                            type: 'GET',
-                            url: '../api/group/' + groupID + '/members',
-                            success: function(res) {
-                                dialog.clear();
-                                dialog.setContent(
-                                    '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right"  onclick="viewHistory('+groupID+')">View History</button>'+
-                                    '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>');
-                                $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
-                                var counter = 0;
-                                for(var i in res) {
-                                    var removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_'+ counter +'">REMOVE</a>';
-                                    var managedBy = '';
-                                    if(res[i].locallyManaged != 1) {
-                                        managedBy += '<div class="leaf-font0-rem">&bull; Managed in Org. Chart</div>';
-                                    }
-                                    if(res[i].active != 1) {
-                                        managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Managed in Org. Chart</div>';
-                                        managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Override set, and they do not have access</div>';
-                                        removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_'+ counter +'">REMOVE OVERRIDE</a>';
-                                    }
-                                    $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">'+ toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div><div class="leaf-font0-8rem leaf-marginLeft-qtrRem">'+ managedBy +'</div>');
-                                    $('#removeMember_' + counter).on('click', function(userID) {
-                                        return function() {
-                                            removeMember(groupID, userID);
-                                            dialog.hide();
-                                        };
-                                    }(res[i].userName));
-                                    counter++;
-                                }
-                                empSel = new nationalEmployeeSelector('employeeSelector');
-                                empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                                empSel.rootPath = '<!--{$orgchartPath}-->/';
-                                empSel.outputStyle = 'micro';
-                                empSel.initialize();
-
-                                dialog.setSaveHandler(function() {
-                                    if(empSel.selection != '') {
-                                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
-                                        $.ajax({
-                                            type: 'POST',
-                                            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-                                            data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                                            success: function(res) {
-                                                if(!isNaN(res)) {
-                                                    addMember(groupID, selectedUserName);
-                                                }
-                                                else {
-                                                    alert(res);
-                                                }
-                                            },
-                                            cache: false
-                                        });
-                                    }
-                                    dialog.hide();
-                                });
-                                //508 fix
-                                setTimeout(function () {
-                                    $("#simplebutton_cancelchange").remove();
-                                    $("#simplebutton_save").remove();
-                                    dialog.show();
-                                }, 0);
-                            },
-                            cache: false
+                        dialog_simple.setContent('<iframe src="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '&iframe=1" tabindex="0" style="width: 840px; height: 560px; border: 0px; background:url(../images/largespinner.gif) center top no-repeat;"></iframe>');
+                        dialog_simple.setCancelHandler(function() {
+                            $.ajax({
+                                type: 'GET',
+                                url: '../api/?a=system/updateGroup/' + groupID,
+                                success: function() {
+                                    getMembers(groupID);
+                                },
+                                cache: false
+                            });
                         });
+                        // resize dialog for special iframe content
+                        $(".ui-dialog>div").css('width', '850');
+                        $(".leaf-dialog-content").css('width', '850');
+                        //508 fix
+                        setTimeout(function () {
+                            $("#simplebutton_cancelchange").remove();
+                            $("#simplebutton_save").remove();
+                            dialog_simple.show();
+                        }, 0);
                     }
 
                     //508 fix
@@ -336,6 +241,9 @@ function getGroupList() {
                 }
                 else { // if is admin
                     function openAdminGroup(){
+                         // reset dialog for regular content
+                        $(".ui-dialog>div").css('width', 'auto');
+                        $(".leaf-dialog-content").css('width', 'auto');
                         dialog.showButtons();
                         dialog.setTitle('Editor');
                         dialog.setContent(
@@ -421,6 +329,9 @@ function getGroupList() {
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
                         dialog.showButtons();
+                         // reset dialog for regular content
+                        $(".ui-dialog>div").css('width', 'auto');
+                        $(".leaf-dialog-content").css('width', 'auto');
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
                                 var selectedUserName = empSel.selectionData[empSel.selection].userName;
@@ -505,6 +416,9 @@ function getGroupList() {
 }
 
 function viewHistory(groupID){
+     // reset dialog for regular content
+    $(".ui-dialog>div").css('width', 'auto');
+    $(".leaf-dialog-content").css('width', 'auto');
     dialog_simple.setContent('');
     dialog_simple.setTitle('Group history');
     dialog_simple.indicateBusy();
@@ -526,6 +440,9 @@ function viewHistory(groupID){
 }
 
 function viewPrimaryAdminHistory(){
+     // reset dialog for regular content
+    $(".ui-dialog>div").css('width', 'auto');
+    $(".leaf-dialog-content").css('width', 'auto');
     dialog_simple.setContent('');
     dialog_simple.setTitle('Primary Admin History');
 	dialog_simple.indicateBusy();
@@ -573,6 +490,9 @@ function tagAndUpdate(groupID, callback) {
 }
 
 function importGroup() {
+    // reset dialog for regular content
+    $(".ui-dialog>div").css('width', 'auto');
+    $(".leaf-dialog-content").css('width', 'auto');
     dialog.setTitle('Import Group');
     dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
     dialog.showButtons();
@@ -646,6 +566,9 @@ function toTitleCase(str) {
 }
 
 function showAllGroupHistory() {
+     // reset dialog for regular content
+    $(".ui-dialog>div").css('width', 'auto');
+    $(".leaf-dialog-content").css('width', 'auto');
     dialog.setTitle('All group history');
     $.ajax({
         type: 'GET',
