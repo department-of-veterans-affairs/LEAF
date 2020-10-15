@@ -174,7 +174,7 @@ switch ($action) {
         }
 
         //pagination
-        $pageLength = 10;
+        $pageLength = 6;
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -202,41 +202,27 @@ switch ($action) {
                 break;
         }
 
-        $totalHistory = array();
-        if(isset($orgchartGroup))
-        {
-            //special case for getting group history, since the only group tracked in portal is sysadmin
-            $resHistory = $type->getHistory(1);
-            $resHistory = $resHistory ?? array();
-
-            for($i = 0; $i<count($resHistory); $i++){
-                $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
-                $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');;
-            }
-
-            $totalHistory = array_merge($totalHistory, $resHistory);
-            $type = $orgchartGroup;
-        }
-        $itemIDArray = $type->getAllHistoryIDs();
-
-        foreach($itemIDArray as $itemID)
-        {
-            $resHistory = $type->getHistory($itemID);
-            $resHistory = $resHistory ?? array();
-
-            for($i = 0; $i<count($resHistory); $i++){
-                $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
-                $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');;
-            }
-            $totalHistory = array_merge($totalHistory, $resHistory);
-        }
-        
         /*
             First time around, gethistoryslice = false, so this loads view_history_all which calls 
             this method again which loads view_history & displays it appropriately in the paginator
         */
         if($gethistoryslice)
         {
+
+            $totalHistory = array();
+            if(isset($orgchartGroup))
+            {
+                //special case for getting group history, since the only group tracked in portal is sysadmin
+                $adminHistory = $type->getHistory(1);
+                $adminHistory = $adminHistory ?? array();
+                
+                $allGroupHistory = $type->getHistory(null);
+                $allGroupHistory = $allGroupHistory ?? array();
+    
+                $totalHistory = array_merge($allGroupHistory, $adminHistory);
+                $type = $orgchartGroup;
+            }
+
             usort($totalHistory, function($a, $b) {
                 return $b['timestamp'] <=> $a['timestamp'];
             });
@@ -250,8 +236,6 @@ switch ($action) {
         }
         else
         {
-            $totalPages = ceil(count($totalHistory)/$pageLength);
-            $t_form->assign('totalPages', $totalPages);
             $t_form->assign('dataType', $typeName);
             $t_form->display('view_history_all.tpl');
         }
@@ -275,7 +259,7 @@ switch ($action) {
             }
         }
         //pagination
-        $pageLength = 10;
+        $pageLength = 6;
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
