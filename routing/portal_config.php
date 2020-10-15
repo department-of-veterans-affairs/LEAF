@@ -41,6 +41,7 @@ class Config
     public $uploadDir;
     public $fileManagerDir;
     public $orgchartPath;
+    public $orgchartPathExt;
     public $orgchartImportTags;
     public $leafSecure;
     public $onPrem;
@@ -60,7 +61,7 @@ class Config
             Routing_Config::$dbPass,
             array()
         );
-        $sql = "SELECT a.*, b.database_name as phonedbName FROM portal_configs as a JOIN orgchart_configs as b ON a.orgchart_id = b.id WHERE a.path = '$sitePath';";
+        $sql = "SELECT a.*, b.database_name as phonedbName, b.path as orgchart_path_ext FROM portal_configs as a JOIN orgchart_configs as b ON a.orgchart_id = b.id WHERE a.path = '$sitePath';";
         $query = $db->prepare($sql);
         $query->execute(array());
         $res = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -72,6 +73,7 @@ class Config
         $this->fileManagerDir = ltrim($res[0]['path'], "/") . "files/"; // file manager directory
         $this->portalPath = ltrim($res[0]['path'], '/');
         $this->orgchartPath = "../LEAF_Nexus"; // HTTP Path to orgchart with no trailing slash
+        $this->$orgchartPathExt = $res[0]['orgchart_path_ext']; // HTTP Path to orgchart with no trailing slash
         $this->orgchartImportTags = json_decode($res[0]['orgchart_tags']);
         $this->descriptionID = $res[0]['descriptionID'];
         $this->emailPrefix = $res[0]['emailPrefix'];
