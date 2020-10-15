@@ -126,7 +126,7 @@ switch ($action) {
         $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-        $t_form->assign('orgchartPath', $config->orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPathExt);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', (int)$_GET['recordID']);
         $t_form->assign('name', XSSHelpers::sanitizeHMTL($recordInfo['name']));
