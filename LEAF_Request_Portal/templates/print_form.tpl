@@ -641,8 +641,8 @@ function admin_changeInitiator() {
     var empSel;
     function init_empSel() {
         empSel = new employeeSelector('empSel_changeInitiator');
-        empSel.apiPath = '<!--{$orgchartPath}-->/api/';
-        empSel.rootPath = '<!--{$orgchartPath}-->/';
+        empSel.apiPath = '<!--{$orgchartPath}-->api/';
+        empSel.rootPath = '<!--{$orgchartPath}-->';
 
         empSel.setSelectHandler(function() {
         	if(empSel.selectionData[empSel.selection] != undefined) {
@@ -659,10 +659,10 @@ function admin_changeInitiator() {
     }
 
     if(typeof employeeSelector == 'undefined') {
-        $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />');
+        $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->css/employeeSelector.css" />');
         $.ajax({
             type: 'GET',
-            url: "<!--{$orgchartPath}-->/js/employeeSelector.js",
+            url: "<!--{$orgchartPath}-->js/employeeSelector.js",
             dataType: 'script',
             success: function() {
                 init_empSel();

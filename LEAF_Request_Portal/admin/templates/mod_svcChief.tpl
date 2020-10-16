@@ -199,8 +199,8 @@ function initiateWidget(serviceID) {
                     });
                     
                     empSel = new nationalEmployeeSelector('employeeSelector');
-                    empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                    empSel.rootPath = '<!--{$orgchartPath}-->/';
+                    empSel.apiPath = '<!--{$orgchartPath}-->api/?a=';
+                    empSel.rootPath = '<!--{$orgchartPath}-->';
                     empSel.outputStyle = 'micro';
                     empSel.initialize();
 
@@ -209,7 +209,7 @@ function initiateWidget(serviceID) {
                             var selectedUserName = empSel.selectionData[empSel.selection].userName;
                             $.ajax({
                                 type: 'POST',
-                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                url: '<!--{$orgchartPath}-->api/employee/import/_' + selectedUserName,
                                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                 success: function(res) {
                                     if(!isNaN(res)) {
