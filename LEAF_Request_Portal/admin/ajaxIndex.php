@@ -195,7 +195,7 @@ switch ($action) {
                 $dataName = "All Groups";
                 $type = new \Group($db, $login);
 
-                include __DIR__ . '/../' . $config->orgchartPathExt . '/sources/Group.php';
+                include __DIR__ . '/../' . $config->orgchartPath . '/sources/Group.php';
                 $orgchartGroup = new OrgChart\Group($db_phonebook, $login);
                 break;
         }
