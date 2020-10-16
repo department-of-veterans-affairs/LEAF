@@ -71,27 +71,33 @@
                         var valid = true;
                         var numColumns;
 
-                        $(gridElement).find('tr').each(function(){
-                            
-                            numColumns = $(this).find('td').length;
+                        var numRows = $(gridElement).find('tr').length;
 
-                            $(this).find('td').each(function(j){
+                        if(numRows > 0){
+                            $(gridElement).find('tr').each(function(){
                                 
-                                if(j < numColumns - 2 ){ //skipping last two columns: sort & remove row
+                                numColumns = $(this).find('td').length;
 
-                                    var input = $(this).find('input').first();
+                                $(this).find('td').each(function(j){
+                                    
+                                    if(j < numColumns - 2 ){ //skipping last two columns: sort & remove row
 
-                                    if(input){
-                                        var inputValue = $(input).val(); 
-                                        if(inputValue == null || inputValue.trim() == ''){
-                                            valid = false;
-                                        }
-                                    }   
-                                }
+                                        var input = $(this).find('input').first();
 
+                                        if(input){
+                                            var inputValue = $(input).val(); 
+                                            if(inputValue == null || inputValue.trim() == ''){
+                                                valid = false;
+                                            }
+                                        }   
+                                    }
+
+                                });
                             });
-                        });
-
+                        }
+                        else {
+                            valid = false;
+                        }
                         return !valid;
                     },
                     setRequiredError: function() {
