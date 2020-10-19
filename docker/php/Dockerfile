@@ -37,6 +37,7 @@ EXPOSE 443
 # xdebug
 RUN pecl config-set php_ini "/etc/php/7.3/fpm/php.ini" && yes | pecl install xdebug
 COPY /docker/php/etc/xdebug.ini "/etc/php/7.3/fpm/conf.d/xdebug.ini"
+COPY /docker/php/etc/www.conf /etc/php/7.3/fpm/pool.d/www.conf
 
 RUN echo "upload_max_filesize = 100M" | tee -a /etc/php/7.3/fpm/php.ini
 RUN echo "expose_php = Off" | tee -a /etc/php/7.3/fpm/php.ini
