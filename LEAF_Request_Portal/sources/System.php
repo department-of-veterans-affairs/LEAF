@@ -157,7 +157,7 @@ class System
 
         // clear out old data first
         $vars = array(':groupID' => $groupID);
-        $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND locallyManaged != 1', $vars);
+        $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
         include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Group.php';
