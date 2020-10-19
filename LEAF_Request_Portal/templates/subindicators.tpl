@@ -552,15 +552,15 @@
             $(function() {
                 var grpSel;
                 if(typeof groupSelector == 'undefined') {
-                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->css/groupSelector.css" />');
+                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/groupSelector.css" />');
                     $.ajax({
                         type: 'GET',
-                        url: "<!--{$orgchartPath}-->js/groupSelector.js",
+                        url: "<!--{$orgchartPath}-->/js/groupSelector.js",
                         dataType: 'script',
                         success: function() {
                         	grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                        	grpSel.apiPath = '<!--{$orgchartPath}-->api/';
-                        	grpSel.rootPath = '<!--{$orgchartPath}-->';
+                        	grpSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                        	grpSel.rootPath = '<!--{$orgchartPath}-->/';
                         	grpSel.searchTag('<!--{$orgchartImportTag}-->');
 
                         	grpSel.setSelectHandler(function() {
@@ -578,8 +578,8 @@
                 }
                 else {
                 	grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                	grpSel.apiPath = '<!--{$orgchartPath}-->api/';
-                	grpSel.rootPath = '<!--{$orgchartPath}-->';
+                	grpSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                	grpSel.rootPath = '<!--{$orgchartPath}-->/';
 
                 	grpSel.setSelectHandler(function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
@@ -604,7 +604,7 @@
             $(function() {
                 $.ajax({
                     type: 'GET',
-                    url: "<!--{$orgchartPath}-->api/?a=position/<!--{$indicator.value|strip_tags}-->",
+                    url: "<!--{$orgchartPath}-->/api/?a=position/<!--{$indicator.value|strip_tags}-->",
                     dataType: 'json',
                     success: function(data) {
                         $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').html('<b>' + data.title + '</b>'
@@ -614,7 +614,7 @@
                             for(i in data[3].data) {
                                 var pdLink = document.createElement('a');
                                 pdLink.innerHTML = data[3].data[i];
-                                pdLink.setAttribute('href', '<!--{$orgchartPath}-->file.php?categoryID=2&UID=<!--{$indicator.value|strip_tags}-->&indicatorID=3&file=' + encodeURIComponent(data[3].data[i]));
+                                pdLink.setAttribute('href', '<!--{$orgchartPath}-->/file.php?categoryID=2&UID=<!--{$indicator.value|strip_tags}-->&indicatorID=3&file=' + encodeURIComponent(data[3].data[i]));
                                 pdLink.setAttribute('class', 'printResponse');
                                 pdLink.setAttribute('target', '_blank');
 
@@ -628,7 +628,7 @@
 
                         var ocLink = document.createElement('div');
                         ocLink.innerHTML = '<img src="/libs/dynicons/?img=preferences-system-windows.svg&w=32" alt="View Position Details" /> View Details in Org. Chart';
-                        ocLink.setAttribute('onclick', "window.open('<!--{$orgchartPath}-->?a=view_position&positionID=<!--{$indicator.value|strip_tags}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');");
+                        ocLink.setAttribute('onclick', "window.open('<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.value|strip_tags}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');");
                         ocLink.setAttribute('class', 'buttonNorm');
                         ocLink.setAttribute('style', 'margin-top: 8px');
                         $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').append(ocLink);
@@ -648,14 +648,14 @@
             $(function() {
             	var posSel;
                 if(typeof positionSelector == 'undefined') {
-                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->css/positionSelector.css" />');
+                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/positionSelector.css" />');
                     $.ajax({
                         type: 'GET',
-                        url: "<!--{$orgchartPath}-->js/positionSelector.js",
+                        url: "<!--{$orgchartPath}-->/js/positionSelector.js",
                         dataType: 'script',
                         success: function() {
                             posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                            posSel.apiPath = '<!--{$orgchartPath}-->api/';
+                            posSel.apiPath = '<!--{$orgchartPath}-->/api/';
                             posSel.enableEmployeeSearch();
 
                             posSel.setSelectHandler(function() {
@@ -674,7 +674,7 @@
                 }
                 else {
                     posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                    posSel.apiPath = '<!--{$orgchartPath}-->api/';
+                    posSel.apiPath = '<!--{$orgchartPath}-->/api/';
                     posSel.enableEmployeeSearch();
 
                     posSel.setSelectHandler(function() {
@@ -729,7 +729,7 @@
 
                             $.ajax({
                                 type: 'POST',
-                                url: '<!--{$orgchartPath}-->api/employee/import/_' + selectedUserName,
+                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
                                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                 success: function(res) {
                                     $('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
@@ -742,8 +742,8 @@
 
                 function empSearchSuccess() {
                     var empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                    empSel.apiPath = '<!--{$orgchartPath}-->api/';
-                    empSel.rootPath = '<!--{$orgchartPath}-->';
+                    empSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                    empSel.rootPath = '<!--{$orgchartPath}-->/';
 
                     empSel.setSelectHandler(function() {
                         importFromNational(empSel);
@@ -755,7 +755,7 @@
                     <!--{if $indicator.value != ''}-->
                     $.ajax({
                         type: 'GET',
-                        url: '<!--{$orgchartPath}-->api/employee/<!--{$indicator.value|strip_tags|escape|trim}-->'
+                        url: '<!--{$orgchartPath}-->/api/employee/<!--{$indicator.value|strip_tags|escape|trim}-->'
                     })
                     .then(function(res) {
                         if(res.employee != undefined && res.employee.userName != '') {
@@ -775,10 +775,10 @@
                 }
                 
                 if(typeof nationalEmployeeSelector == 'undefined') {
-                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->css/employeeSelector.css" />');
+                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />');
                     $.ajax({
                         type: 'GET',
-                        url: "<!--{$orgchartPath}-->js/nationalEmployeeSelector.js",
+                        url: "<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js",
                         dataType: 'script',
                         success: function() {
                             empSearchSuccess();

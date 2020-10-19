@@ -284,8 +284,8 @@ function getGroupList() {
                                     counter++;
                                 }
                                 empSel = new nationalEmployeeSelector('employeeSelector');
-                                empSel.apiPath = '<!--{$orgchartPath}-->api/?a=';
-                                empSel.rootPath = '<!--{$orgchartPath}-->';
+                                empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+                                empSel.rootPath = '<!--{$orgchartPath}-->/';
                                 empSel.outputStyle = 'micro';
                                 empSel.initialize();
 
@@ -294,7 +294,7 @@ function getGroupList() {
                                         var selectedUserName = empSel.selectionData[empSel.selection].userName;
                                         $.ajax({
                                             type: 'POST',
-                                            url: '<!--{$orgchartPath}-->api/employee/import/_' + selectedUserName,
+                                            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
                                             data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                             success: function(res) {
                                                 if(!isNaN(res)) {
@@ -343,8 +343,8 @@ function getGroupList() {
                             '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><h3 class="usa-label leaf-marginTop-1rem" role="heading" tabindex="-1">Add Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
-                        empSel.apiPath = '<!--{$orgchartPath}-->api/?a=';
-                        empSel.rootPath = '<!--{$orgchartPath}-->';
+                        empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+                        empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
 
@@ -353,7 +353,7 @@ function getGroupList() {
                                 var selectedUserName = empSel.selectionData[empSel.selection].userName;
                                 $.ajax({
                                     type: 'POST',
-                                    url: '<!--{$orgchartPath}-->api/employee/import/_' + selectedUserName,
+                                    url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
                                     data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                     success: function(res) {
                                         if(!isNaN(res)) {
@@ -416,8 +416,8 @@ function getGroupList() {
                             '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Set Primary Administrator</h3><div id="employeeSelector"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
-                        empSel.apiPath = '<!--{$orgchartPath}-->api/?a=';
-                        empSel.rootPath = '<!--{$orgchartPath}-->';
+                        empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+                        empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
                         dialog.showButtons();
@@ -548,7 +548,7 @@ function tagAndUpdate(groupID, callback) {
     $.when(
             $.ajax({
                 type: 'POST',
-                url: '<!--{$orgchartPath}-->api/?a=group/'+ groupID + '/tag',
+                url: '<!--{$orgchartPath}-->/api/?a=group/'+ groupID + '/tag',
                 data: {
                     tag: '<!--{$orgchartImportTag}-->',
                     CSRFToken: '<!--{$CSRFToken}-->'
@@ -577,7 +577,7 @@ function importGroup() {
     dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
     dialog.showButtons();
     var groupSel = new groupSelector('groupSel_container');
-    groupSel.apiPath = '<!--{$orgchartPath}-->api/?a=';
+    groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     groupSel.basePath = '../';
     groupSel.setResultHandler(function() {
         if(groupSel.numResults == 0) {
@@ -619,7 +619,7 @@ function createGroup() {
         ];
         $.ajax({
             type: 'POST',
-            url: '<!--{$orgchartPath}-->api/?a=group',
+            url: '<!--{$orgchartPath}-->/api/?a=group',
             data: {title: $('#groupName').val(),
                    CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {

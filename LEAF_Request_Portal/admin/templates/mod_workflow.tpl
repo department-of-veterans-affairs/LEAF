@@ -285,8 +285,8 @@ function dependencyGrantAccess(dependencyID, stepID) {
     });
 
     var groupSel = new groupSelector('groupSearch');
-    groupSel.basePath = '<!--{$orgchartPath}-->';
-    groupSel.apiPath = '<!--{$orgchartPath}-->api/?a=';
+    groupSel.basePath = '<!--{$orgchartPath}-->/';
+    groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     groupSel.tag = '<!--{$orgchartImportTags[0]}-->';
     groupSel.initialize();
 
@@ -1387,8 +1387,8 @@ function setEmailReminderHTML(workflowID, stepID, actionType){
         $('#startDateIndicatorID').chosen({disable_search_threshold: 5});
 
         var grpSel = new groupSelector('emailGroupSelector');
-        grpSel.basePath = '<!--{$orgchartPath}-->';
-        grpSel.apiPath = '<!--{$orgchartPath}-->api/?a=';
+        grpSel.basePath = '<!--{$orgchartPath}-->/';
+        grpSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
         grpSel.tag = '<!--{$orgchartImportTags[0]}-->';
         grpSel.setSelectHandler(function() {
             $('#recipientGroupID').val(grpSel.selection);

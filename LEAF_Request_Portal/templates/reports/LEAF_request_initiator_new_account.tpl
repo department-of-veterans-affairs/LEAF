@@ -1,8 +1,8 @@
 <h2>This utility will replace the account associated to a request initiator. (e.g.: after an employee has been assigned a new account by OIT).</h2>
 <br /><br />
 
-<script src="<!--{$orgchartPath}-->js/nationalEmployeeSelector.js"></script>
-<link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->css/employeeSelector.css" />
+<script src="<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js"></script>
+<link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />
 <script>
 
 var CSRFToken = '<!--{$CSRFToken}-->';
@@ -64,8 +64,8 @@ function findAssociatedRequests(oldAccount, newAccount) {
 $(function() {
 
     var empSel = new nationalEmployeeSelector('employeeSelector');
-    empSel.apiPath = '<!--{$orgchartPath}-->api/?a=';
-    empSel.rootPath = '<!--{$orgchartPath}-->';
+    empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+    empSel.rootPath = '<!--{$orgchartPath}-->/';
     empSel.outputStyle = 'micro';
     empSel.setResultHandler(function() {
         if(this.numResults > 0) {
@@ -77,8 +77,8 @@ $(function() {
     empSel.initialize();
 
     var empSelNew = new nationalEmployeeSelector('newEmployeeSelector');
-    empSelNew.apiPath = '<!--{$orgchartPath}-->api/?a=';
-    empSelNew.rootPath = '<!--{$orgchartPath}-->';
+    empSelNew.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+    empSelNew.rootPath = '<!--{$orgchartPath}-->/';
     empSelNew.outputStyle = 'micro';
     empSelNew.setResultHandler(function() {
         if(this.numResults > 0) {

@@ -125,8 +125,8 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array($config->orgchartPathExt . 'js/nationalEmployeeSelector.js',
-                                           $config->orgchartPathExt . 'js/groupSelector.js',
+        $main->assign('javascripts', array($config->orgchartPathExt . '/js/nationalEmployeeSelector.js',
+                                           $config->orgchartPathExt . '/js/groupSelector.js',
         ));
 
         $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
@@ -139,8 +139,8 @@ switch ($action) {
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
-                                           $config->orgchartPathExt . 'css/employeeSelector.css',
-                                           $config->orgchartPathExt . 'css/groupSelector.css',
+                                           $config->orgchartPathExt . '/css/employeeSelector.css',
+                                           $config->orgchartPathExt . '/css/groupSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl', $config->portalPath)));
 
@@ -155,14 +155,14 @@ switch ($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array($config->orgchartPathExt . 'js/nationalEmployeeSelector.js',
+        $main->assign('javascripts', array($config->orgchartPathExt . '/js/nationalEmployeeSelector.js',
         ));
 
         $t_form->assign('orgchartPath', $config->orgchartPathExt);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('stylesheets', array('css/mod_groups.css',
-                $config->orgchartPathExt . 'css/employeeSelector.css',
+                $config->orgchartPathExt . '/css/employeeSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_svcChief.tpl', $config->portalPath)));
 
@@ -178,12 +178,12 @@ switch ($action) {
         $main->assign('useUI', true);
 
         $main->assign('javascripts', array('/libs/js/jsPlumb/dom.jsPlumb-min.js',
-                                           $config->orgchartPathExt . 'js/groupSelector.js',
+                                           $config->orgchartPathExt . '/js/groupSelector.js',
                                            '/libs/jsapi/portal/LEAFPortalAPI.js',
                                            '/libs/js/LEAF/XSSHelpers.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
-                                           $config->orgchartPathExt . 'css/groupSelector.css',
+                                           $config->orgchartPathExt . '/css/groupSelector.css',
         ));
         $t_form->assign('orgchartPath', $config->orgchartPathExt);
         $t_form->assign('orgchartImportTags', $config->orgchartImportTags);
