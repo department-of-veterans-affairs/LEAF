@@ -92,7 +92,7 @@ switch ($action) {
                 $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
-                $t_form->assign('orgchartPath', $config->orgchartPath);
+                $t_form->assign('orgchartPath', $config->orgchartPathExt);
                 $t_form->assign('orgchartImportTag', $config->orgchartImportTags[0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl', $config->portalPath));
                 $t_form->display(customTemplate('ajaxForm.tpl', $config->portalPath));
@@ -125,7 +125,7 @@ switch ($action) {
                 $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
-                $t_form->assign('orgchartPath', $config->orgchartPath);
+                $t_form->assign('orgchartPath', $config->orgchartPathExt);
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }
@@ -205,7 +205,7 @@ switch ($action) {
         $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
         $t_form->assign('requestLabel', $requestLabel);
-        $t_form->assign('orgchartPath', $config->orgchartPath);
+        $t_form->assign('orgchartPath', $config->orgchartPathExt);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         if ($parallelProcessing)
@@ -424,7 +424,7 @@ switch ($action) {
             $t_form->assign('date', $recordInfo['submitted']);
             $t_form->assign('categoryText', XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
-            $t_form->assign('orgchartPath', $config->orgchartPath);
+            $t_form->assign('orgchartPath', $config->orgchartPathExt);
             $t_form->assign('is_admin', $login->checkGroup(1));
 
             switch ($action) {

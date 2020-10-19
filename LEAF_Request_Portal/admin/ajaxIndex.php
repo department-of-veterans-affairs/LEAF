@@ -105,7 +105,7 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', (int)$_GET['recordID']);
-            $t_form->assign('orgchartPath', $config->orgchartPath);
+            $t_form->assign('orgchartPath', $config->orgchartPathExt);
 
             $t_form->assign('form', $form->getFormByCategory($_GET['categoryID']));
             $t_form->display('print_form_ajax.tpl');

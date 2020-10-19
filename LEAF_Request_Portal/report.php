@@ -140,7 +140,7 @@ switch ($action) {
             $t_form->assign('empUID', $login->getEmpUID());
             $t_form->assign('empMembership', $login->getMembership());
             $t_form->assign('currUserActualName', XSSHelpers::xscrub($login->getName()));
-            $t_form->assign('orgchartPath', $config->orgchartPath);
+            $t_form->assign('orgchartPath', $config->orgchartPathExt);
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
             $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
@@ -171,7 +171,7 @@ switch ($action) {
 $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
-$t_menu->assign('orgchartPath', $config->orgchartPath);
+$t_menu->assign('orgchartPath', $config->orgchartPathExt);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl', $config->portalPath));
 $main->assign('menu', $o_menu);
