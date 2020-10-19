@@ -38,8 +38,6 @@ EXPOSE 443
 RUN pecl config-set php_ini "/etc/php/7.3/fpm/php.ini" && yes | pecl install xdebug
 COPY /docker/php/etc/xdebug.ini "/etc/php/7.3/fpm/conf.d/xdebug.ini"
 
-RUN sed -i.bak "s/;clear_env = no/clear_env = no/g" /etc/php/7.3/fpm/pool.d/www.conf
-
 RUN echo "upload_max_filesize = 100M" | tee -a /etc/php/7.3/fpm/php.ini
 RUN echo "expose_php = Off" | tee -a /etc/php/7.3/fpm/php.ini
 RUN echo "memory_limit = 2048M" | tee -a /etc/php/7.3/fpm/php.ini
@@ -47,7 +45,8 @@ RUN echo "max_input_time = 600" | tee -a /etc/php/7.3/fpm/php.ini
 RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' | tee -a /etc/php/7.3/fpm/php.ini
 RUN echo "error_log = /var/www/php-logs/error_log" | tee -a /etc/php/7.3/fpm/php.ini
 
-COPY /docker/nginx/nginx.conf /etc/nginx/sites-available/default
+COPY /docker/nginx/default.conf /etc/nginx/sites-available/default
+COPY /docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY /docker/php/ssmtp/ssmtp.conf /etc/ssmtp/
 COPY /docker/php/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
 COPY /LEAF_Nexus/ /var/www/html/LEAF_Nexus/
@@ -57,6 +56,8 @@ COPY /index.html /var/www/html/index.html
 Copy /routing/ /var/www/html/routing
 Copy /composer.json /var/www/html/composer.json
 Copy /index.php /var/www/html/index.php
+COPY /docker/php/etc/php-fpm-healthcheck.sh /usr/local/bin/php-fpm-healthcheck
+
 
 ARG BUILD_UID=1000
 RUN useradd -u $BUILD_UID -g www-data build_user
