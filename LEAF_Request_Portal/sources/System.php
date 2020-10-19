@@ -157,7 +157,7 @@ class System
 
         // clear out old data first
         $vars = array(':groupID' => $groupID);
-        $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND locallyManaged != 1', $vars);
+        $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
         include_once __DIR__ . '/../' . $config->orgchartPath . '/sources/Group.php';
@@ -1015,5 +1015,98 @@ class System
     public function getHistory($filterById)
     {
         return $this->dataActionLogger->getHistory($filterById, null, \LoggableTypes::PRIMARY_ADMIN);
+    }
+
+    /**
+     * Returns every customization in the following categories:
+     * 1.) template editor
+     * 2.) indictor html field (form editor)
+     * 3.) indicator html print field (form editor)
+     * 4.) email editor
+     *
+     * @return array array with site customizations broken up into four sub arrays: 
+     * 'templateEditor', 'formIndicatorHtml', 'formIndicatorHtmlPrint', 'emailEditor'
+     */
+    public function getCustomizations()
+    {
+        $templateEditor = array();
+        $formIndicatorHtml = array();
+        $formIndicatorHtmlPrint = array();
+        $emailEditor = array();
+
+        $result = [
+            'templateEditor' => $this->getTemplateEditorCustomizations(),
+            'formIndicatorHtml' => $this->getFormIndicatorHtmlCustomizations(),
+            'formIndicatorHtmlPrint' => $this->getFormIndicatorHtmlPrintCustomizations(),
+            'emailEditor' => $this->getEmailEditorCustomizations(),
+        ];
+
+        return $result;
+    }
+
+    /**
+     * Returns array of template editor customization descriptions.
+     *
+     * @return array array of template editor customization descriptions
+     */
+    private function getTemplateEditorCustomizations($subfolder = null)
+    {
+        global $config;
+        $result = array();
+
+        if(isset($subfolder))
+        {
+            //make sure there's a trailing slash and no leading slash
+            $subfolder = ltrim(rtrim($subfolder,"/"), "/") . "/";
+        }
+        $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+        $customTemplatePath = __DIR__ . "/../templates/" . $subfolder . "custom_override/";
+        $globPattern = $customTemplatePath . $cleanPortalPath . "_*.tpl";
+
+        foreach(glob($globPattern) as $file) {
+            //return only the filename, sans file extension
+            $filename = str_replace($customTemplatePath . $cleanPortalPath . "_","",$file);
+            $result[] = str_replace(".tpl","",$filename);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Return array of indicator html field customization descriptions.
+     *
+     * @return array array of indicator html field customization descriptions
+     */
+    private function getFormIndicatorHtmlCustomizations()
+    {
+        $result = $this->db->prepared_query('SELECT indicatorID, name
+                                            FROM `indicators`
+                                            WHERE `html` IS NOT NULL', array());
+
+        return $result;
+    }
+
+    /**
+     * Return array of indicator html print field customization descriptions.
+     *
+     * @return array array of indicator html print field customization descriptions
+     */
+    private function getFormIndicatorHtmlPrintCustomizations()
+    {
+        $result = $this->db->prepared_query('SELECT indicatorID, name
+                                            FROM `indicators`
+                                            WHERE `htmlPrint` IS NOT NULL', array());
+
+        return $result;
+    }
+
+    /**
+     * Return array of email editor customization descriptions.
+     *
+     * @return array array of email editor customization descriptions
+     */
+    private function getEmailEditorCustomizations()
+    {
+        return $this->getTemplateEditorCustomizations("email");
     }
 }
