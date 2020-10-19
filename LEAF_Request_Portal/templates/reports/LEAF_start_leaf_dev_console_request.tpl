@@ -46,7 +46,7 @@ $(function() {
 });
 </script>
 <style>
-    @import "<!--{$orgchartPath}-->css/employeeSelector.css";
+    @import "<!--{$orgchartPath}-->/css/employeeSelector.css";
 	p {
         font-size: 1.2em;
     }

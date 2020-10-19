@@ -73,7 +73,7 @@ class Config
         $this->fileManagerDir = ltrim($res[0]['path'], "/") . "files/"; // file manager directory
         $this->portalPath = ltrim($res[0]['path'], '/');
         $this->orgchartPath = "../LEAF_Nexus"; // Internal orgchart path
-        $this->orgchartPathExt = $res[0]['orgchart_path_ext']; // HTTP Path to orgchart
+        $this->orgchartPathExt = rtrim($res[0]['orgchart_path_ext'], '/'); // HTTP Path to orgchart
         $this->orgchartImportTags = json_decode($res[0]['orgchart_tags']);
         $this->descriptionID = $res[0]['descriptionID'];
         $this->emailPrefix = $res[0]['emailPrefix'];
