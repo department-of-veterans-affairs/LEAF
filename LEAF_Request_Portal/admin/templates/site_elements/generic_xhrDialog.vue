@@ -1,5 +1,5 @@
-<modal id="xhrDialog" name="xhrDialog" role="dialog">
-
+<modal id="xhrDialog" name="xhrDialog" role="dialog" :resizable="true" :height="this.height" :minWidth="this.minWidth" :adaptive="true" scrollable="true">
+    
     <form id="record" enctype="multipart/form-data" action="javascript:void(0);">
 
         <div role="document">
@@ -10,8 +10,9 @@
             
             <div class="vue-dialog-content-title" id="vue-title">
                 {{ this.title }}
+                <span style="padding: 10px; float: right;"><button @click="this.hide">X</button></span>
             </div>
-
+ 
             <main id="xhr"role="main" class="leaf-dialog-content" role="main" v-html="this.content"></main>
 
             <aside class="leaf-buttonBar" role="complementary">
