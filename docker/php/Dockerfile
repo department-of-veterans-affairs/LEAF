@@ -51,9 +51,10 @@ COPY /LEAF_Nexus/ /var/www/html/LEAF_Nexus/
 COPY /LEAF_Request_Portal/ /var/www/html/LEAF_Request_Portal/
 COPY /libs/ /var/www/html/libs/
 COPY /index.html /var/www/html/index.html
-Copy /routing/ /var/www/html/routing
-Copy /composer.json /var/www/html/composer.json
-Copy /index.php /var/www/html/index.php
+COPY /routing/ /var/www/html/routing
+COPY /composer.json /var/www/html/composer.json
+COPY /index.php /var/www/html/index.php
+COPY /health.php /var/www/html/health.php
 COPY /docker/php/etc/php-fpm-healthcheck.sh /usr/local/bin/php-fpm-healthcheck
 
 
