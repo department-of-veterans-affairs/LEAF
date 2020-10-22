@@ -8,7 +8,7 @@ RUN apt-get update -q && apt-get install software-properties-common -y && \
 	git composer nginx php7.3-fpm php7.3-intl php7.3-common php7.3-mbstring \
 	php7.3-zip php7.3-cli php7.3-gd php7.3-zip php7.3-simplexml php7.3-xml \
 	php7.3-pdo php7.3-curl php7.3-imagick pkg-config \
-	php7.3-mysql gcc make autoconf libc-dev pkg-config php7.3-dev
+	php7.3-mysql gcc make autoconf libc-dev pkg-config php7.3-dev libfcgi0ldbl 
 
 RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git subversion zlib1g-dev libzip-dev net-tools iputils-ping zip mysql-client vim wget nginx ssmtp netcat
 
@@ -59,8 +59,9 @@ COPY /index.html /var/www/html/index.html
 COPY /routing/ /var/www/html/routing
 COPY /composer.json /var/www/html/composer.json
 COPY /index.php /var/www/html/index.php
-COPY /health.php /var/www/html/health.php
+COPY /healthcheck/ /var/www/html/healthcheck
 COPY /docker/php/etc/php-fpm-healthcheck.sh /usr/local/bin/php-fpm-healthcheck
+COPY /docker/php/etc/pod-healthcheck.sh /usr/local/bin/pod-healthcheck
 
 ARG BUILD_UID=1000
 RUN useradd -u $BUILD_UID -g www-data build_user
