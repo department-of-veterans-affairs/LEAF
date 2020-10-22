@@ -47,7 +47,7 @@
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.vue"}-->
-<!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_simple_xhrDialog.vue"}-->
 
 <script>
 $(document).ready(function() {
@@ -255,7 +255,6 @@ function getGroupList() {
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
-                        empSel.initialize();
 
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
@@ -298,6 +297,7 @@ function getGroupList() {
                         });
                         setTimeout(function () {
                             dialog.show();
+                            setTimeout(function () {empSel.initialize(); }, 0);
                         }, 0);
                     }
                 	$('#' + res[i].groupID).on('click', function() {
@@ -321,6 +321,7 @@ function getGroupList() {
                         </div>');
 
                     function openPrimaryAdminGroup(){
+                      dialog.setTitle('Editor');
                       dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory()">View History</button>'+
                             '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Set Primary Administrator</h3><div id="employeeSelector"></div>');
 
@@ -328,7 +329,6 @@ function getGroupList() {
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
-                        empSel.initialize();
                         dialog.showButtons();
                          // reset dialog for regular content
                         $(".ui-dialog>div").css('width', 'auto');
@@ -388,6 +388,7 @@ function getGroupList() {
                         });
                         setTimeout(function () {
                             dialog.show();
+                            setTimeout(function() { empSel.initialize(); }, 0);
                         }, 0);
                     }
                     $('#primaryAdmin').on('click', function() {
@@ -431,9 +432,9 @@ function viewHistory(groupID){
         url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID+'&tz='+tz,
         dataType: 'text',
         success: function(res) {
-            dialog_simple.setContent(res);
             dialog_simple.indicateIdle();
-            dialog_simple.show();
+            setTimeout(function() { dialog_simple.show(); }, 0);
+            setTimeout(function() { dialog_simple.setContent(res); }, 5);
         },
         cache: false
     });
@@ -516,7 +517,6 @@ function importGroup() {
             }
         }
     });
-    groupSel.initialize();
 
     dialog.setSaveHandler(function() {
         if(groupSel.selection != '') {
@@ -524,6 +524,9 @@ function importGroup() {
         }
     });
     dialog.show();
+    setTimeout(function (){
+        groupSel.initialize();
+    }, 0);
 }
 
 function createGroup() {
@@ -579,7 +582,9 @@ function showAllGroupHistory() {
             dialog.setContent(res);
             dialog.indicateIdle();
             dialog.show();
-            dialog.hideButtons();
+            setTimeout(function() {
+                dialog.hideButtons();
+            }, 0);
         },
         cache: false
     });

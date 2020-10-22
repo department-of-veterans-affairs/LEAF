@@ -24,9 +24,9 @@
 </div>
 
 
-<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_xhrDialog.vue"}-->
+<!--{include file="site_elements/generic_simple_xhrDialog.vue"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.vue"}-->
 
 <script type="text/javascript">
 /* <![CDATA[ */
@@ -202,7 +202,6 @@ function initiateWidget(serviceID) {
                     empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                     empSel.rootPath = '<!--{$orgchartPath}-->/';
                     empSel.outputStyle = 'micro';
-                    empSel.initialize();
 
                     dialog.setSaveHandler(function() {
                         if(empSel.selection != '') {
@@ -227,6 +226,7 @@ function initiateWidget(serviceID) {
                     });
 
                     dialog.show();
+                    setTimeout(function () { empSel.initialize(); }, 0);
                 },
                 cache: false
             });

@@ -34,7 +34,7 @@
         <script type="text/javascript" src="../../libs/js/jquery/icheck/icheck.js"></script>
         <script type="text/javascript" src="../../libs/js/vuejs/vue.min.js"></script>
     {else if $useLiteUI == true}
-        <script type="text/javascript" src="../js/dialogController.js"></script>
+        <script type="text/javascript" src="../js/dialogController-VUE.js"></script>
         <script type="text/javascript" src="../../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
         <script type="text/javascript" src="../../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
         <script type="text/javascript" src="../../libs/js/jquery/icheck/icheck.js"></script>
@@ -94,7 +94,6 @@
     </div>
 
     <script type="text/javascript" src="../../libs/js/vue-js-modal/index.js"></script>
-    <script type="text/javascript" src="../../libs/js/vue-js-modal/modal-config.js"></script>
 
     <footer class="usa-footer leaf-footer noprint" id="footer" {if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
         <a id="versionID" href="../?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>

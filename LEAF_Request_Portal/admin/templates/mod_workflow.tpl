@@ -12,9 +12,9 @@
 </div>
 <div id="workflow" style="margin-left: 184px; background-color: #444444; margin-top: 16px; overflow-x: auto; overflow-y: auto; width: 72%;"></div>
 
-<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_xhrDialog.vue"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.vue"}-->
+<!--{include file="site_elements/generic_simple_xhrDialog.vue"}-->
 
 <script type="text/javascript">
 var CSRFToken = '<!--{$CSRFToken}-->';

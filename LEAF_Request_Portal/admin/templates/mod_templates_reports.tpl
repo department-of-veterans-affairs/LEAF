@@ -54,8 +54,8 @@
 
 </div>
 
-<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_xhrDialog.vue"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.vue"}-->
 
 <script>
 

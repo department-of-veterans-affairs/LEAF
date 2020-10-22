@@ -22,8 +22,7 @@
 
 </div>
 
-<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.vue"}-->
 
 <script type="text/javascript">
 var CSRFToken = '<!--{$CSRFToken}-->';
@@ -65,9 +64,8 @@ function deleteFile(file) {
 }
 
 
-var dialog, dialog_confirm;
+var dialog_confirm;
 $(function() {
-    dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
     showFiles();

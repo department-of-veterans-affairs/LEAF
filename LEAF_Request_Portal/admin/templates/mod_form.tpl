@@ -4,9 +4,9 @@
     <div id="formEditor_content" style="margin-left: 184px; padding-left: 8px"></div>
 </div>
 
-<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_xhrDialog.vue"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.vue"}-->
+<!--{include file="site_elements/generic_simple_xhrDialog.vue"}-->
 <script>
 
 var indicatorEditing;
