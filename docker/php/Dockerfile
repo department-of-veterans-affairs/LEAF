@@ -50,6 +50,16 @@ COPY /docker/nginx/default.conf /etc/nginx/sites-available/default
 COPY /docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY /docker/php/ssmtp/ssmtp.conf /etc/ssmtp/
 COPY /docker/php/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
+
+
+COPY /LEAF_Nexus/ /var/www/html/LEAF_Nexus/
+COPY /LEAF_Request_Portal/ /var/www/html/LEAF_Request_Portal/
+COPY /libs/ /var/www/html/libs/
+COPY /index.html /var/www/html/index.html
+COPY /routing/ /var/www/html/routing
+COPY /composer.json /var/www/html/composer.json
+COPY /index.php /var/www/html/index.php
+COPY /health.php /var/www/html/health.php
 COPY /docker/php/etc/php-fpm-healthcheck.sh /usr/local/bin/php-fpm-healthcheck
 
 ARG BUILD_UID=1000
