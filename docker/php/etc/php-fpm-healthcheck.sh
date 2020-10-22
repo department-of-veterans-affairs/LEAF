@@ -115,8 +115,8 @@ fi;
 eval set -- "$GETOPT"
 
 # FastCGI variables
-FCGI_CONNECT_DEFAULT="localhost:80"
-FCGI_STATUS_PATH_DEFAULT="/nginx_status"
+FCGI_CONNECT_DEFAULT="/var/run/php/php7.3-fpm.sock"
+FCGI_STATUS_PATH_DEFAULT="/status"
 
 export REQUEST_METHOD="GET"
 export SCRIPT_NAME="${FCGI_STATUS_PATH:-$FCGI_STATUS_PATH_DEFAULT}"
