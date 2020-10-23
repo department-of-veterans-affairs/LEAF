@@ -12,7 +12,7 @@
     <li class="leaf-width-8rem leaf-mob-menu lev2">
         <a href="javascript:void(0);">Site Links</a>
         <ul>
-            <li><a href="../{$orgchartPath}" target="_blank">Nexus: Org Charts</a></li>
+            <li><a href="{$orgchartPath}/" target="_blank">Nexus: Org Charts</a></li>
         </ul>
     </li>
 

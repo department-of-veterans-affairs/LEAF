@@ -1033,7 +1033,7 @@ class FormWorkflow
                         global $config;
                     
                         $cleanPortalPath = str_replace("/", "_", $config->portalPath);
-                        $eventFile = $this->eventFolder . 'CustomEvent_' . $cleanPortalPath . $event['eventID'] . '.php';
+                        $eventFile = $this->eventFolder . 'CustomEvent_' . $cleanPortalPath . '_' . $event['eventID'] . '.php';
                     }
 
                     if (is_file($eventFile))
