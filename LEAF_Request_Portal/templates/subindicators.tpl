@@ -68,13 +68,52 @@
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired:  function() {
                         var gridElement = '#grid_' + <!--{$indicator.indicatorID}--> + '_' + <!--{$indicator.series}--> + '_input > tbody';
-                        for(var i = 0; i < $(gridElement).find('tr').length; i++){
-                            for(var j = 0; j < $(gridElement + ' > tr:eq(0)').find('td').length; j++){
-                                if($(gridElement + ' > tr:eq(' + i + ') > td:eq(' + j + ')').find('textarea').length > 0 && $(gridElement + ' > tr:eq(' + i + ') > td:eq(' + j + ') > textarea').val().trim() === ''){
-                                    return true
-                                }
-                            }
+                        var valid = true;
+                        var numColumns;
+
+                        var numRows = $(gridElement).find('tr').length;
+
+                        if(numRows > 0){
+                            $(gridElement).find('tr').each(function(){
+                                
+                                numColumns = $(this).find('td').length;
+
+                                $(this).find('td').each(function(j){
+                                    
+                                    if(j < numColumns - 2 ){ //skipping last two columns: sort & remove row
+
+                                        var possibleInputs = [];
+
+                                        possibleInputs.push($(this).find('input').first());
+
+                                        possibleInputs.push($(this).find('textarea').first());
+
+                                        possibleInputs.push($(this).find('select').first());
+
+                                        var input;
+                                        
+                                        for(var k= 0; k < possibleInputs.length; k++){
+                                            if($(possibleInputs[k]).length > 0){
+                                                input = $(possibleInputs[k]);
+                                                break;
+                                            }
+                                        }
+
+                                        if(input){
+                                            var inputValue = $(input).val(); 
+                                            if(inputValue == null || inputValue.trim() == ''){
+                                                valid = false;
+                                            }
+                                        }   
+                                    }
+
+                                });
+                            });
                         }
+                        else {
+                            valid = false;
+                        }
+                        return !valid;
                     },
                     setRequiredError: function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
