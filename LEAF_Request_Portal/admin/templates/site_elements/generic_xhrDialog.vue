@@ -1,4 +1,4 @@
-<modal id="xhrDialog" name="xhrDialog" role="dialog" :resizable="true" :height="this.height" :minWidth="this.minWidth" :adaptive="true" scrollable="true">
+<modal id="xhrDialog" name="xhrDialog" role="dialog" :height="this.height" :minWidth="this.minWidth" :adaptive="true" :scrollable="true">
     
     <form id="record" enctype="multipart/form-data" action="javascript:void(0);">
 

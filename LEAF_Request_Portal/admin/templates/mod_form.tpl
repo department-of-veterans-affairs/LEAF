@@ -551,101 +551,14 @@ function newQuestion(parentIndicatorID) {
                             </tr>\
                         </table>\
                 </fieldset>');
-    $('#indicatorType').on('change', function() {
-        switch($('#indicatorType').val()) {
-            case 'grid':
-                $('#container_indicatorGrid').css('display', 'block');
-                $('#container_indicatorMultiAnswer').css('display', 'none');
-                $('#container_indicatorSingleAnswer').css('display', 'none');
-                $('#xhr').css('width', '100%');
-                makeGrid(0);
-                break;
-            case 'radio':
-            case 'checkboxes':
-            case 'dropdown':
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                $('#container_indicatorSingleAnswer').css('display', 'none');
-                break;
-            case 'checkbox':
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-                $('#container_indicatorMultiAnswer').css('display', 'none');
-            	$('#container_indicatorSingleAnswer').css('display', 'block');
-            	break;
-            default:
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-                $('#container_indicatorMultiAnswer').css('display', 'none');
-                $('#container_indicatorSingleAnswer').css('display', 'none');
-                break;
-        }
-    });
-    $('#advNameEditor').on('click', function() {
-        $('#advNameEditor').css('display', 'none');
-        $('#name').trumbowyg({
-            resetCss: true,
-            btns: ['formatting', 'bold', 'italic', 'underline', '|',
-                'unorderedList', 'orderedList', '|',
-                'link', '|',
-                'foreColor', '|',
-                'justifyLeft', 'justifyCenter', 'justifyRight']
-        });
-
-        $('.trumbowyg-box').css({
-            'min-height': '130px'
-        });
-        $('.trumbowyg-editor, .trumbowyg-texteditor').css({
-            'min-height': '100px',
-            'height': '100px'
-        });
-    });
-    $('#description').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#required').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#disabled').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#required').keypress(function(e){
-        if((e.keyCode ? e.keyCode : e.which) === 13){
-            $(this).trigger('click');
-        }
-    });
-    $('#disabled').keypress(function(e){
-        if((e.keyCode ? e.keyCode : e.which) === 13){
-            $(this).trigger('click');
-        }
-    });
-    $('#required').on('click', function() {
-    	if($('#indicatorType').val() == '') {
-    		$('#required').prop('checked', false);
-    		alert('You can\'t mark a field as required if the Input Format is "None".');
-    	}
-    });
-    $('#sensitive').on('click', function() {
-        if($('#indicatorType').val() == '') {
-            $('#sensitive').prop('checked', false);
-            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
-        }
-    });
-
-		//ie11 fix
-		setTimeout(function () {
-			dialog.show();
-		}, 0);
+        
+    //ie11 fix
+    setTimeout(function () {
+        dialog.show();
+        setTimeout(function() {
+            addScriptsToNewQuestionFields();
+        }, 0);
+    }, 0);
 
     dialog.setSaveHandler(function() {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
@@ -755,6 +668,100 @@ function updateNames(){
     });
 }
 
+function addScriptsToNewQuestionFields() {
+    $('#advNameEditor').on('click', function() {
+        $('#advNameEditor').css('display', 'none');
+        $('#name').trumbowyg({
+            resetCss: true,
+            btns: ['formatting', 'bold', 'italic', 'underline', '|',
+                'unorderedList', 'orderedList', '|',
+                'link', '|',
+                'foreColor', '|',
+                'justifyLeft', 'justifyCenter', 'justifyRight']
+        });
+
+        $('.trumbowyg-box').css({
+            'min-height': '130px'
+        });
+        $('.trumbowyg-editor, .trumbowyg-texteditor').css({
+            'min-height': '100px',
+            'height': '100px'
+        });
+    });
+    $('#description').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#required').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#disabled').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#required').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
+    });
+    $('#disabled').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
+    });
+    $('#required').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#required').prop('checked', false);
+            alert('You can\'t mark a field as required if the Input Format is "None".');
+        }
+    });
+    $('#sensitive').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#sensitive').prop('checked', false);
+            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
+        }
+    });    
+
+
+    $('#indicatorType').on('change', function() {
+    switch($('#indicatorType').val()) {
+        case 'grid':
+            $('#container_indicatorGrid').css('display', 'block');
+            $('#container_indicatorMultiAnswer').css('display', 'none');
+            $('#container_indicatorSingleAnswer').css('display', 'none');
+            $('#xhr').css('width', '100%');
+            makeGrid(0);
+            break;
+        case 'radio':
+        case 'checkboxes':
+        case 'dropdown':
+            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+            $('#xhr').css('width', 'auto');
+            $('#container_indicatorGrid').css('display', 'none');
+            $('#container_indicatorMultiAnswer').css('display', 'block');
+            $('#container_indicatorSingleAnswer').css('display', 'none');
+            break;
+        case 'checkbox':
+            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+            $('#xhr').css('width', 'auto');
+            $('#container_indicatorGrid').css('display', 'none');
+            $('#container_indicatorMultiAnswer').css('display', 'none');
+            $('#container_indicatorSingleAnswer').css('display', 'block');
+            break;
+        default:
+            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+            $('#xhr').css('width', 'auto');
+            $('#container_indicatorGrid').css('display', 'none');
+            $('#container_indicatorMultiAnswer').css('display', 'none');
+            $('#container_indicatorSingleAnswer').css('display', 'none');
+            break;
+        }
+    });
+}
 
 function makeGrid(columns) {
     $(gridBodyElement).html('');
@@ -1017,133 +1024,8 @@ function getForm(indicatorID, series) {
             html (for pages where the user can edit data): <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button><textarea id="html"></textarea><br />\
             htmlPrint (for pages where the user can only read data): <button id="btn_codeSave_htmlPrint" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button><textarea id="htmlPrint"></textarea><br />\
         </div></div>');
-    $('#indicatorType').on('change', function() {
-        switch($('#indicatorType').val()) {
-            case 'grid':
-                $('#xhr').css('width', '100%');
-                $('#container_indicatorGrid').css('display', 'block');
-                $('#container_indicatorMultiAnswer').css('display', 'none');
-                $('#container_indicatorSingleAnswer').css('display', 'none');
-                makeGrid(0);
-                break;
-    	    case 'radio':
-    	    case 'checkboxes':
-    	    case 'dropdown':
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-    	    	$('#container_indicatorMultiAnswer').css('display', 'block');
-    	    	$('#container_indicatorSingleAnswer').css('display', 'none');
-    		    break;
-    	    case 'checkbox':
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-    	    	$('#container_indicatorMultiAnswer').css('display', 'none');
-    	    	$('#container_indicatorSingleAnswer').css('display', 'block');
-    	    	break;
-    	    default:
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-                $('#container_indicatorMultiAnswer').css('display', 'none');
-    	        $('#container_indicatorSingleAnswer').css('display', 'none');
-    	    	break;
-    	}
-    });
-    $('#description').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#required').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#disabled').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#disabled').on("change", function(event) {
-        if($(this).is(':checked'))
-        {
-            $('#disabled-warning').css('visibility','visible');
-        }
-        else
-        {
-            $('#disabled-warning').css('visibility','hidden');
-        }
-    });
-    $('#required').keypress(function(e){
-        if((e.keyCode ? e.keyCode : e.which) === 13){
-            $(this).trigger('click');
-        }
-    });
-    $('#disabled').keypress(function(e){
-        if((e.keyCode ? e.keyCode : e.which) === 13){
-            $(this).trigger('click');
-        }
-    });
-    $('#required').on('click', function() {
-        if($('#indicatorType').val() == '') {
-            $('#required').prop('checked', false);
-            alert('You can\'t mark a field as required if the Input Format is "None".');
-        }
-    });
-    $('#sensitive').on('click', function() {
-        if($('#indicatorType').val() == '') {
-            $('#sensitive').prop('checked', false);
-            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
-        }
-    });
-    $('#rawNameEditor').on('click', function() {
-        $('#advNameEditor').css('display', 'inline');
-        $('#rawNameEditor').css('display', 'none');
-    	$('#name').trumbowyg('destroy');
-    });
-    $('#advNameEditor').on('click', function() {
-    	$('#advNameEditor').css('display', 'none');
-    	$('#rawNameEditor').css('display', 'inline');
-        $('#name').trumbowyg({
-            resetCss: true,
-            btns: ['formatting', 'bold', 'italic', 'underline', '|',
-            	'unorderedList', 'orderedList', '|',
-            	'link', '|',
-            	'foreColor', '|',
-            	'justifyLeft', 'justifyCenter', 'justifyRight']
-        });
 
-        $('.trumbowyg-box').css({
-            'min-height': '130px'
-        });
-        $('.trumbowyg-editor, .trumbowyg-texteditor').css({
-            'min-height': '100px',
-            'height': '100px'
-        });
-    });
-
-    $('#button_advanced').on('click', function() {
-        if(<!--{$hasDevConsoleAccess}--> == 1) {
-            $('#button_advanced').css('display', 'none');
-            // triggers overflow of content
-            $('#xhr').css('overflow-y', 'scroll');
-            $('#advanced').css('height', 'auto');
-    	    $('#advanced').css('visibility', 'visible');
-        }
-        else {
-            //alert('Please go to Admin Panel -> LEAF Programmer to gain access to this area.');
-            alert('Notice: Please go to Admin Panel -> LEAF Programmer to ensure continued access to this area.');
-            $('#button_advanced').css('display', 'none');
-    	    $('#advanced').css('visibility', 'visible');
-        }
-    });
-
-    // resets overflow on new dialog open
-    $('#xhr').css('overflow-y', 'unset');
-
-    function saveCodeHTML() {
+   function saveCodeHTML() {
         $.ajax({
             type: 'POST',
             url: '../api/?a=formEditor/' + indicatorID + '/html',
@@ -1172,141 +1054,13 @@ function getForm(indicatorID, series) {
             }
         });
     }
-    $('#btn_codeSave_html').on('click', function() {
-    	saveCodeHTML();
-    });
-    $('#btn_codeSave_htmlPrint').on('click', function() {
-        saveCodeHTMLPrint();
-    });
-    var codeEditorHtml = CodeMirror.fromTextArea(document.getElementById("html"), {
-        mode: "htmlmixed",
-        lineNumbers: true,
-        extraKeys: {
-            "F11": function(cm) {
-              cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-            },
-            "Esc": function(cm) {
-              if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-            },
-            "Ctrl-S": function(cm) {
-                saveCodeHTML();
-            }
-          }
-    });
-    var codeEditorHtmlPrint = CodeMirror.fromTextArea(document.getElementById("htmlPrint"), {
-        mode: "htmlmixed",
-        lineNumbers: true,
-        extraKeys: {
-            "F11": function(cm) {
-              cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-            },
-            "Esc": function(cm) {
-              if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-            },
-            "Ctrl-S": function(cm) {
-                saveCodeHTMLPrint();
-            }
-          }
-    });
-    $('.CodeMirror').css('border', '1px solid black');
-
-    dialog.show();
+    setTimeout(function () {
+        dialog.show();
+        setTimeout(function () {
+            addScriptsToEditQuestionFields(indicatorID);
+        }, 0);
+    }, 0);
     dialog.indicateBusy();
-
-    $.when(
-    	    // populate indicator list for parentIDs
-    	    $.ajax({
-    	        type: 'GET',
-    	        url: '../api/form/_' + currCategoryID + '/flat',
-    	        success: function(res) {
-    	            var buffer = '<select id="parentID" style="width: 300px">';
-    	            buffer += '<option value="">None</option>';
-    	            for(var i in res) {
-    	                if(indicatorID != i) {
-    	                    buffer += '<option value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
-    	                }
-    	            }
-    	            buffer += '</select>';
-    	            $('#container_parentID').html(buffer);
-    	        },
-    	        cache: false
-    	    })
-    ).done(function() {
-        $.ajax({
-            type: 'GET',
-            url: '../api/formEditor/indicator/' + indicatorID,
-            success: function(res) {
-                indicatorEditing = res[indicatorID];
-                var format = res[indicatorID].format;
-                if(res[indicatorID].options != undefined
-                    && res[indicatorID].options.length > 0
-                        && format != 'grid') {
-                    for(var i in res[indicatorID].options) {
-                        format += "\n" + res[indicatorID].options[i];
-                    }
-                }
-                if(format === 'grid'){
-                    gridJSON = JSON.parse(res[indicatorID].options[0]);
-                    columns = gridJSON.length;
-                }
-
-                $('#name').html(res[indicatorID].name);
-                // auto select advanced editor if it was previously used
-                if(XSSHelpers.containsTags(res[indicatorID].name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
-                    $('#advNameEditor').click();
-                }
-                $('#format').val(format);
-                $('#indicatorType').val(format);
-                $('#description').val(res[indicatorID].description);
-                $('#default').val(res[indicatorID].default);
-                if(res[indicatorID].required == 1) {
-                    $('#required').prop('checked', true);
-                }
-                if(res[indicatorID].is_sensitive == 1) {
-                    $('#sensitive').prop('checked', true);
-                }
-                $('#parentID').val(res[indicatorID].parentID);
-                $('#sort').val(res[indicatorID].sort);
-                codeEditorHtml.setValue((res[indicatorID].html == null ? '' : res[indicatorID].html));
-                codeEditorHtmlPrint.setValue((res[indicatorID].htmlPrint == null ? '' : res[indicatorID].htmlPrint));
-
-                // render input format UI
-                var formatIdx = format === 'grid' ? 4 : format.indexOf('\n');
-                if(formatIdx != -1 && format.substr(0, formatIdx) != '') {
-                    switch(format.substr(0, formatIdx)) {
-                        case 'grid':
-                            $('#xhr').css('width', '100%');
-                            $('#indicatorType').val(format.substr(0, formatIdx));
-                            $('#container_indicatorGrid').css('display', 'block');
-                            $('#container_indicatorMultiAnswer').css('display', 'none');
-                            $('#container_indicatorSingleAnswer').css('display', 'none');
-                            makeGrid(columns);
-                            break;
-                        case 'checkbox':
-                            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                            $('#xhr').css('width', 'auto');
-                            $('#indicatorType').val(format.substr(0, formatIdx));
-                            $('#indicatorSingleAnswer').val(format.substr(formatIdx + 1));
-                            $('#container_indicatorSingleAnswer').css('display', 'block');
-                            break;
-                        case 'radio':
-                        case 'checkboxes':
-                        case 'dropdown':
-                        default:
-                            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                            $('#xhr').css('width', 'auto');
-                            $('#indicatorType').val(format.substr(0, formatIdx));
-                            $('#indicatorMultiAnswer').val(format.substr(formatIdx + 1));
-                            $('#container_indicatorMultiAnswer').css('display', 'block');
-                            break;
-                    }
-                }
-                dialog.indicateIdle();
-                $('#xhr').scrollTop(0);
-            },
-            cache: false
-        });
-    });
 
     dialog.setSaveHandler(function() {
     	var isRequired = $('#required').is(':checked') ? 1 : 0;
@@ -1560,6 +1314,269 @@ function getForm(indicatorID, series) {
    	     });
     });
 }
+
+function addScriptsToEditQuestionFields (indicatorID) {
+    $('#indicatorType').on('change', function() {
+        switch($('#indicatorType').val()) {
+            case 'grid':
+                $('#xhr').css('width', '100%');
+                $('#container_indicatorGrid').css('display', 'block');
+                $('#container_indicatorMultiAnswer').css('display', 'none');
+                $('#container_indicatorSingleAnswer').css('display', 'none');
+                makeGrid(0);
+                break;
+            case 'radio':
+            case 'checkboxes':
+            case 'dropdown':
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
+                $('#container_indicatorMultiAnswer').css('display', 'block');
+                $('#container_indicatorSingleAnswer').css('display', 'none');
+                break;
+            case 'checkbox':
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
+                $('#container_indicatorMultiAnswer').css('display', 'none');
+                $('#container_indicatorSingleAnswer').css('display', 'block');
+                break;
+            default:
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
+                $('#container_indicatorMultiAnswer').css('display', 'none');
+                $('#container_indicatorSingleAnswer').css('display', 'none');
+                break;
+        }
+    });
+    $('#description').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#required').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#disabled').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#disabled').on("change", function(event) {
+        if($(this).is(':checked'))
+        {
+            $('#disabled-warning').css('visibility','visible');
+        }
+        else
+        {
+            $('#disabled-warning').css('visibility','hidden');
+        }
+    });
+    $('#required').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
+    });
+    $('#disabled').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
+    });
+    $('#required').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#required').prop('checked', false);
+            alert('You can\'t mark a field as required if the Input Format is "None".');
+        }
+    });
+    $('#sensitive').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#sensitive').prop('checked', false);
+            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
+        }
+    });
+    $('#rawNameEditor').on('click', function() {
+        $('#advNameEditor').css('display', 'inline');
+        $('#rawNameEditor').css('display', 'none');
+        $('#name').trumbowyg('destroy');
+    });
+    $('#advNameEditor').on('click', function() {
+        $('#advNameEditor').css('display', 'none');
+        $('#rawNameEditor').css('display', 'inline');
+        $('#name').trumbowyg({
+            resetCss: true,
+            btns: ['formatting', 'bold', 'italic', 'underline', '|',
+                'unorderedList', 'orderedList', '|',
+                'link', '|',
+                'foreColor', '|',
+                'justifyLeft', 'justifyCenter', 'justifyRight']
+        });
+
+        $('.trumbowyg-box').css({
+            'min-height': '130px'
+        });
+        $('.trumbowyg-editor, .trumbowyg-texteditor').css({
+            'min-height': '100px',
+            'height': '100px'
+        });
+    });
+
+    $('#button_advanced').on('click', function() {
+        if(<!--{$hasDevConsoleAccess}--> == 1) {
+            $('#button_advanced').css('display', 'none');
+            // triggers overflow of content
+            $('#xhr').css('overflow-y', 'scroll');
+            $('#advanced').css('height', 'auto');
+            $('#advanced').css('visibility', 'visible');
+        }
+        else {
+            //alert('Please go to Admin Panel -> LEAF Programmer to gain access to this area.');
+            alert('Notice: Please go to Admin Panel -> LEAF Programmer to ensure continued access to this area.');
+            $('#button_advanced').css('display', 'none');
+            $('#advanced').css('visibility', 'visible');
+        }
+    });
+
+    // resets overflow on new dialog open
+    $('#xhr').css('overflow-y', 'unset');
+
+    $('#btn_codeSave_html').on('click', function() {
+        saveCodeHTML();
+    });
+    $('#btn_codeSave_htmlPrint').on('click', function() {
+        saveCodeHTMLPrint();
+    });
+    var codeEditorHtml = CodeMirror.fromTextArea(document.getElementById("html"), {
+        mode: "htmlmixed",
+        lineNumbers: true,
+        extraKeys: {
+            "F11": function(cm) {
+              cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+            },
+            "Esc": function(cm) {
+              if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+            },
+            "Ctrl-S": function(cm) {
+                saveCodeHTML();
+            }
+          }
+    });
+    var codeEditorHtmlPrint = CodeMirror.fromTextArea(document.getElementById("htmlPrint"), {
+        mode: "htmlmixed",
+        lineNumbers: true,
+        extraKeys: {
+            "F11": function(cm) {
+              cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+            },
+            "Esc": function(cm) {
+              if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+            },
+            "Ctrl-S": function(cm) {
+                saveCodeHTMLPrint();
+            }
+          }
+    });
+    $('.CodeMirror').css('border', '1px solid black');
+
+    $.when(
+            // populate indicator list for parentIDs
+            $.ajax({
+                type: 'GET',
+                url: '../api/form/_' + currCategoryID + '/flat',
+                success: function(res) {
+                    var buffer = '<select id="parentID" style="width: 300px">';
+                    buffer += '<option value="">None</option>';
+                    for(var i in res) {
+                        if(indicatorID != i) {
+                            buffer += '<option value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
+                        }
+                    }
+                    buffer += '</select>';
+                    $('#container_parentID').html(buffer);
+                },
+                cache: false
+            })
+    ).done(function() {
+        $.ajax({
+            type: 'GET',
+            url: '../api/formEditor/indicator/' + indicatorID,
+            success: function(res) {
+                indicatorEditing = res[indicatorID];
+                var format = res[indicatorID].format;
+                if(res[indicatorID].options != undefined
+                    && res[indicatorID].options.length > 0
+                        && format != 'grid') {
+                    for(var i in res[indicatorID].options) {
+                        format += "\n" + res[indicatorID].options[i];
+                    }
+                }
+                if(format === 'grid'){
+                    gridJSON = JSON.parse(res[indicatorID].options[0]);
+                    columns = gridJSON.length;
+                }
+
+                $('#name').html(res[indicatorID].name);
+                // auto select advanced editor if it was previously used
+                if(XSSHelpers.containsTags(res[indicatorID].name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
+                    $('#advNameEditor').click();
+                }
+                $('#format').val(format);
+                $('#indicatorType').val(format);
+                $('#description').val(res[indicatorID].description);
+                $('#default').val(res[indicatorID].default);
+                if(res[indicatorID].required == 1) {
+                    $('#required').prop('checked', true);
+                }
+                if(res[indicatorID].is_sensitive == 1) {
+                    $('#sensitive').prop('checked', true);
+                }
+                $('#parentID').val(res[indicatorID].parentID);
+                $('#sort').val(res[indicatorID].sort);
+                codeEditorHtml.setValue((res[indicatorID].html == null ? '' : res[indicatorID].html));
+                codeEditorHtmlPrint.setValue((res[indicatorID].htmlPrint == null ? '' : res[indicatorID].htmlPrint));
+
+                // render input format UI
+                var formatIdx = format === 'grid' ? 4 : format.indexOf('\n');
+                if(formatIdx != -1 && format.substr(0, formatIdx) != '') {
+                    switch(format.substr(0, formatIdx)) {
+                        case 'grid':
+                            $('#xhr').css('width', '100%');
+                            $('#indicatorType').val(format.substr(0, formatIdx));
+                            $('#container_indicatorGrid').css('display', 'block');
+                            $('#container_indicatorMultiAnswer').css('display', 'none');
+                            $('#container_indicatorSingleAnswer').css('display', 'none');
+                            makeGrid(columns);
+                            break;
+                        case 'checkbox':
+                            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                            $('#xhr').css('width', 'auto');
+                            $('#indicatorType').val(format.substr(0, formatIdx));
+                            $('#indicatorSingleAnswer').val(format.substr(formatIdx + 1));
+                            $('#container_indicatorSingleAnswer').css('display', 'block');
+                            break;
+                        case 'radio':
+                        case 'checkboxes':
+                        case 'dropdown':
+                        default:
+                            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                            $('#xhr').css('width', 'auto');
+                            $('#indicatorType').val(format.substr(0, formatIdx));
+                            $('#indicatorMultiAnswer').val(format.substr(formatIdx + 1));
+                            $('#container_indicatorMultiAnswer').css('display', 'block');
+                            break;
+                    }
+                }
+                dialog.indicateIdle();
+                $('#xhr').scrollTop(0);
+            },
+            cache: false
+        });
+    });
+
+ }
+
 
 //this is a modified version formatIndicatorMultiAnswer() in order to returns array
 function gridDropdown(dropDownOptions){

@@ -1,4 +1,4 @@
-<modal id="simplexhrDialog" name="simplexhrDialog" role="dialog" :resizable="true" :height="this.height" :minWidth="this.minWidth" :adaptive="true" :scrollable="true">
+<modal id="simplexhrDialog" name="simplexhrDialog" role="dialog" :height="this.height" :minWidth="this.minWidth" :adaptive="true" :scrollable="true">
     
     <div role="document">
         

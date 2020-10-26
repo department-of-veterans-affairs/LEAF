@@ -426,37 +426,32 @@ function viewHistory(groupID){
     dialog_simple.indicateBusy();
     dialog.showButtons();
 
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistoryText',
+        dataType: 'text',
+        success: function(res) {
+            dialog_simple.setContent(res);
+            dialog_simple.indicateIdle();
+            dialog_simple.show();
+
+            setTimeout(function () {
+                getHistoryScript(groupID)
+            }, 0);
+        },
+        cache: false
+    });
+}
+
+function getHistoryScript(groupID){
     var type = (groupID)? "group": "primaryAdmin";
     $.ajax({
         type: 'GET',
         url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID+'&tz='+tz,
         dataType: 'text',
         success: function(res) {
-            dialog_simple.indicateIdle();
-            setTimeout(function() { dialog_simple.show(); }, 0);
-            setTimeout(function() { dialog_simple.setContent(res); }, 5);
-        },
-        cache: false
-    });
-
-}
-
-function viewPrimaryAdminHistory(){
-     // reset dialog for regular content
-    $(".ui-dialog>div").css('width', 'auto');
-    $(".leaf-dialog-content").css('width', 'auto');
-    dialog_simple.setContent('');
-    dialog_simple.setTitle('Primary Admin History');
-	dialog_simple.indicateBusy();
-    dialog.showButtons();
-    $.ajax({
-        type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=primaryAdmin&tz='+tz,
-        dataType: 'text',
-        success: function(res) {
-            dialog_simple.setContent(res);
-            dialog_simple.indicateIdle();
-            dialog_simple.show();
+           dialog_simple.appendScript('history-slice', res);
+           dialog_simple.hideButtons();
         },
         cache: false
     });
@@ -570,25 +565,39 @@ function toTitleCase(str) {
 }
 
 function showAllGroupHistory() {
+
      // reset dialog for regular content
     $(".ui-dialog>div").css('width', 'auto');
     $(".leaf-dialog-content").css('width', 'auto');
     dialog.setTitle('All group history');
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistoryall&type=group&tz='+tz,
+        url: 'ajaxIndex.php?a=gethistoryallText',
         dataType: 'text',
         success: function(res) {
             dialog.setContent(res);
             dialog.indicateIdle();
             dialog.show();
-            setTimeout(function() {
-                dialog.hideButtons();
+
+            setTimeout(function () {
+                getAllGroupHistoryScript();
             }, 0);
         },
         cache: false
     });
+}
 
+function getAllGroupHistoryScript() {
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistoryall&type=group&tz='+tz,
+        dataType: 'text',
+        success: function(res) {
+            dialog.appendScript('history-slice', res);
+            dialog.hideButtons();
+        },
+        cache: false
+    });
 }
 
 var dialog;

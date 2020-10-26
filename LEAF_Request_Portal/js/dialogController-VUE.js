@@ -235,3 +235,11 @@ dialogController.prototype.setRequiredError = function(id, func) {
 dialogController.prototype.setRequiredOk = function(id, func) {
     this.requirementOks[id] = func;
 };
+
+dialogController.prototype.appendScript = function (id, script) {
+    var parentNode = document.getElementById(id);
+
+    var newNode = document.createElement('script');
+    newNode.text = script;
+    parentNode.appendChild(newNode);
+}

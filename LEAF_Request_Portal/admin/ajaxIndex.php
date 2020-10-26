@@ -156,6 +156,14 @@ switch ($action) {
            }
 
            break;
+
+    case 'gethistoryallText':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+        $t_form->display('view_history_all_html.tpl');
+        break;
+
     case 'gethistoryall':
         $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
@@ -241,6 +249,14 @@ switch ($action) {
         }
 
         break;
+
+    case 'gethistoryText':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+        $t_form->display('view_history_paginated_html.tpl');
+        break;
+        
     case 'gethistory':
         $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
         $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
