@@ -12,8 +12,9 @@ require_once __DIR__ . '/LEAF_Request_Portal/globals.php';
 $httpMethod = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
 // Strip query string (?foo=bar) and decode URI
-if (false !== $pos = strpos($uri, '?')) {
-    $uri = substr($uri, 0, $pos);
+$queryPos = strpos($uri, '?');
+if ($queryPos !== false) {
+    $uri = substr($uri, 0, $queryPos);
 }
 
 //301 to add trailing slash
@@ -28,9 +29,10 @@ if (substr($uri, -1) !== '/' && strpos(end($segments), ".") === false) {
 }
 
 //rewrite for api
-if (false !== $pos = strpos($uri, '/api/')) {
-    $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : substr($uri, $pos+5);
-    $uri = substr($uri, 0, $pos+5);
+$apiPos = strpos($uri, '/api/');
+if ($apiPos !== false) {
+    $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : substr($uri, $apiPos+5);
+    $uri = substr($uri, 0, $apiPos+5);
 }
 
 //Get sitepath
@@ -46,24 +48,42 @@ if(count($matches)){
     $uri = '/';
 }
 
-$siteFound = false;
-if(doesSiteExist('portal', $sitePath))//query for portal
+//skip config lookup if looking for static files
+$cssPos = strpos($uri, '/css/');
+$jsPos = strpos($uri, '/js/');
+if ($cssPos !== false || $jsPos !== false) {
+    $orgchartPos = strpos($uri, '/orgchart/');
+    if($orgchartPos !== false)
+    {
+        $leafRoutes = new LEAFRoutes('orgchart');
+    }
+    else
+    {
+        $leafRoutes = new LEAFRoutes('portal');
+    }
+}
+else
 {
-    $db_config = new DB_Config($sitePath);
-    $config = new Config($sitePath);
-    $leafRoutes = new LEAFRoutes('portal');
-    $siteFound = true;
-}elseif(doesSiteExist('nexus', $sitePath))//query for nexus
-{
-    $config = new Orgchart\Config($sitePath);
-    $leafRoutes = new LEAFRoutes('nexus');
-    $siteFound = true;
+    $siteFound = false;
+    if(doesSiteExist('portal', $sitePath))//query for portal
+    {
+        $db_config = new DB_Config($sitePath);
+        $config = new Config($sitePath);
+        $leafRoutes = new LEAFRoutes('portal');
+        $siteFound = true;
+    }elseif(doesSiteExist('nexus', $sitePath))//query for nexus
+    {
+        $config = new Orgchart\Config($sitePath);
+        $leafRoutes = new LEAFRoutes('nexus');
+        $siteFound = true;
+    }
+
+    if(!$siteFound){
+        header("HTTP/1.0 404 Not Found");
+            exit;
+    }
 }
 
-if(!$siteFound){
-    header("HTTP/1.0 404 Not Found");
-        exit;
-}
 $routeCollectorFunction = function (FastRoute\RouteCollector $r) use ($leafRoutes) {
     foreach($leafRoutes->routes as $leafRoute){
         $r->addRoute($leafRoute->httpMethod, $leafRoute->path, $leafRoute->callback);
