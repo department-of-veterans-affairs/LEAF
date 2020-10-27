@@ -79,6 +79,11 @@ namespace Handlers{
             require __DIR__ . '/../LEAF_Request_Portal/auth_domain/index.php';
         }
 
+        function auth_domain_coach_key(){
+            global $config, $db_config;
+            require __DIR__ . '/../LEAF_Request_Portal/auth_domain/LEAF_Coach_Key.php';
+        }
+
         function auth_domain_api(){
             global $config, $db_config;
             require __DIR__ . '/../LEAF_Request_Portal/auth_domain/api/index.php';

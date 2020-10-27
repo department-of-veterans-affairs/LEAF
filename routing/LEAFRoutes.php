@@ -22,6 +22,7 @@ class LEAFRoutes {
         $this->addRoute(['GET','POST','DELETE'], '/api/', 'Portal/api');
         $this->addRoute('GET', '/api/dynicons/', 'Portal/dynicons');
         $this->addRoute('GET', '/auth_domain/', 'Portal/auth_domain');
+        $this->addRoute('GET', '/auth_domain/LEAF_Coach_Key.php', 'Portal/auth_domain_coach_key');
         $this->addRoute('GET', '/auth_domain/api/', 'Portal/auth_domain_api');
         $this->addRoute('GET', '/auth_cookie/', 'Portal/auth_cookie');
         $this->addRoute('GET', '/auth_token/', 'Portal/auth_token');
