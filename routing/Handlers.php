@@ -43,15 +43,15 @@ namespace Handlers{
             require __DIR__ . '/../libs/php-commons/aws/AWSUtil.php';
             
             $awsUtil = new \AWSUtil();
-            $awsUtil->s3registerStreamWrapper();
 
-            $s3objectKey = "s3://" . $awsUtil->s3getBucketName() . "/" . $config->fileManagerDir . $fileName;
+            $s3objectKey = $config->fileManagerDir . $fileName;
+            $result = $awsUtil->s3getObject($s3objectKey);
 
-            if (file_exists($s3objectKey)) {
-                header('Content-Type: ' . mime_content_type($s3objectKey));
-                header('Content-Length: ' . filesize($s3objectKey));
+            if ($result != 'NoSuchKey') {
+                header('Content-Type: ' . $result['ContentType']);
+                header('Content-Length: ' . $result['ContentLength']);
 
-                readfile($s3objectKey);
+                echo $result['Body'] . "\n";
             }
             else
             {
