@@ -22,7 +22,6 @@ ENV LANG "en_US.UTF-8"
 ENV LC_ALL "en_US.UTF-8"
 RUN bash -xc 'locale -a' # testing
 
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/certs/leaf.key -out /etc/ssl/certs/leaf.pem -subj "/C=US/ST=VA/L=Chantilly/O=LEAF/OU=LEAF/CN=%"
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
 
@@ -39,6 +38,7 @@ RUN echo "memory_limit = 2048M" | tee -a /etc/php/7.3/fpm/php.ini
 RUN echo "max_input_time = 600" | tee -a /etc/php/7.3/fpm/php.ini
 RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' | tee -a /etc/php/7.3/fpm/php.ini
 RUN echo "error_log = /var/www/php-logs/error_log" | tee -a /etc/php/7.3/fpm/php.ini
+RUN mkdir /var/www/php-logs
 
 COPY /docker/nginx/default.conf /etc/nginx/sites-available/default
 COPY /docker/nginx/nginx.conf /etc/nginx/nginx.conf
