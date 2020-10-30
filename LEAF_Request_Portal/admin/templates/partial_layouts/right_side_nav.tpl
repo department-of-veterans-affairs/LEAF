@@ -1,3 +1,3 @@
-<aside class="sidenav-right">
+<div class="leaf-right-nav">
     <!--{$contentRight}-->
-</aside>
+</div>
