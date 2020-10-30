@@ -52,8 +52,10 @@ if(count($matches)){
 $cssPos = strpos($uri, '/css/');
 $jsPos = strpos($uri, '/js/');
 if ($cssPos !== false || $jsPos !== false) {
-    $orgchartPos = strpos($uri, '/orgchart/');
-    if($orgchartPos !== false)
+    $orgchartPos = strpos($sitePath, '/orgchart/');
+    $nationalPhonePos = strpos($sitePath, '/orgchart_phone/');
+    
+    if($orgchartPos !== false || $nationalPhonePos !== false)
     {
         $leafRoutes = new LEAFRoutes('orgchart');
     }
