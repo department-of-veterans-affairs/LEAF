@@ -272,11 +272,27 @@ function viewHistory(groupID){
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=service&id='+groupID,
+        url: 'ajaxIndex.php?a=gethistoryText',
         dataType: 'text',
         success: function(res) {
             dialog_simple.setContent(res);
             dialog_simple.indicateIdle();
+
+            setTimeout(function () {
+                getHistoryScript(groupID)
+            }, 0);
+        },
+        cache: false
+    });
+}
+
+function getHistoryScript(groupID){
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type=service&id='+groupID,
+        dataType: 'text',
+        success: function(res) {
+           dialog_simple.appendScript('history-slice', res);
         },
         cache: false
     });

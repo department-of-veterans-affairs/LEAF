@@ -1976,15 +1976,32 @@ function viewHistory(categoryId){
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=form&id='+categoryId,
+        url: 'ajaxIndex.php?a=gethistoryText',
         dataType: 'text',
         success: function(res) {
             dialog_simple.setContent(res);
             dialog_simple.indicateIdle();
+
+            setTimeout(function () {
+                getHistoryScript(categoryId);
+            }, 0);
         },
         cache: false
     });
 }
+
+function getHistoryScript(categoryId) {
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type=form&id='+categoryId,
+        dataType: 'text',
+        success: function(res) {
+            dialog_simple.appendScript('history-slice', res);
+        },
+        cache: false
+    });
+}
+
 
 function fetchLEAFSRequests(searchResolved) {
     var deferred = $.Deferred();

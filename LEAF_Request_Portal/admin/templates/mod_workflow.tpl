@@ -1317,12 +1317,28 @@ function viewHistory(){
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=workflow&id='+currentWorkflow,
+        url: 'ajaxIndex.php?a=gethistoryText',
         dataType: 'text',
         success: function(res) {
             dialog_simple.setContent(res);
             dialog_simple.indicateIdle();
             dialog_simple.show();
+
+            setTimeout(function () {
+                getHistoryScript()
+            }, 0);
+        },
+        cache: false
+    });
+}
+
+function getHistoryScript(){
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type=workflow&id='+currentWorkflow,
+        dataType: 'text',
+        success: function(res) {
+           dialog_simple.appendScript('history-slice', res);
         },
         cache: false
     });
