@@ -51,7 +51,8 @@ if(count($matches)){
 //skip config lookup if looking for static files
 $cssPos = strpos($uri, '/css/');
 $jsPos = strpos($uri, '/js/');
-if ($cssPos !== false || $jsPos !== false) {
+$imagesPos = strpos($uri, '/images/');
+if ($cssPos !== false || $jsPos !== false || $imagesPos !== false) {
     $orgchartPos = strpos($sitePath, '/orgchart/');
     $nationalPhonePos = strpos($sitePath, '/orgchart_phone/');
     
