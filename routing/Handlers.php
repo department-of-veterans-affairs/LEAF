@@ -50,6 +50,7 @@ namespace Handlers{
             if ($result != 'NoSuchKey') {
                 header('Content-Type: ' . $result['ContentType']);
                 header('Content-Length: ' . $result['ContentLength']);
+                header('Cache-Control: private, max-age=600');
 
                 echo $result['Body'] . "\n";
             }
