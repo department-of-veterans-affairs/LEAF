@@ -15,8 +15,8 @@ div.groupBlock {
 
 div.groupBlock:hover {box-shadow: 2px 2px 4px #838687; background-color: none;}
 div.groupBlock:focus, div.groupBlock:active {outline: none; border: 0;}
-div.groupBlock div {padding-top: 0.1rem; font-size: 0.8rem; color: #fff; }
-div.groupBlock .leaf-search-hilite {background:#fee685; color: #000; padding: 0 0.1rem;}
+div.groupBlock div {margin-top: 0.1rem; font-size: 0.8rem; color: #fff; }
+div.groupBlock .leaf-search-hilite {background:#fee685; color: #000; padding: 0.1rem 0.1rem 0rem 0.2rem;}
 
 div.groupBlock h2 {
     cursor: pointer;
@@ -65,8 +65,8 @@ div.groupBlockWhite {
 
 div.groupBlockWhite:hover {box-shadow: 2px 2px 4px #838687; background-color: none;}
 div.groupBlockWhite:focus, div.groupBlockWhite:active {outline: none; border: 0;}
-div.groupBlockWhite div {padding-top: 0.1rem; font-size: 0.8rem; color: #000; }
-div.groupBlockWhite .leaf-search-hilite {background:#fee685; padding: 0 0.1rem;}
+div.groupBlockWhite div {margin-top: 0.1rem; font-size: 0.8rem; color: #000; }
+div.groupBlockWhite .leaf-search-hilite {background:#fee685; padding: 0.1rem 0.1rem 0rem 0.2rem;}
 
 div.groupBlockWhite h2 {
     cursor: pointer;
