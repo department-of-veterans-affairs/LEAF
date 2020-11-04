@@ -61,7 +61,7 @@ echo "Current Database Version: $currentVersion" . BR . BR;
 
 clearstatcache();
 
-$folder = $currDir . '/../utils/db_upgrade/';
+$folder = $currDir . '/../db_upgrade/';
 
 $updates = scandir($folder);
 
