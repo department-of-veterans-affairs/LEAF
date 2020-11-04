@@ -10,17 +10,18 @@ $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_con
 
 $res = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
-$protocol = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
-$siteRootURL = $protocol . HTTP_HOST;
-$relativePath = trim(str_replace($siteRootURL, '', $res['national_linkedPrimary']));
-$tempFolder = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'files/temp/';
+$relativePath = parse_url($res['national_linkedPrimary'], PHP_URL_PATH);
+$cleanPrimaryPath = ltrim($relativePath, '/');
+$cleanPrimaryPrefix = str_replace("/", "_", $cleanPrimaryPath) . '_'; // portal_path__
+
+$tempFolder = __DIR__ . '/temp/';
 
 if($res['siteType'] != 'national_subordinate') {
     echo "ERROR: This is not a national subordinate site.";
     exit();
 }
 
-if(!file_exists($tempFolder . 'actions.sql')) {
+if(!file_exists($tempFolder . $cleanPrimaryPrefix . 'actions.sql')) {
     echo "ERROR: Primary site files missing.";
     exit();
 }
@@ -50,7 +51,7 @@ $db->query("delete FROM `records_dependencies` WHERE dependencyID=0;"); // delet
 $db->query("TRUNCATE TABLE `step_modules`;");
 
 
-function importTable($db, $tempFolder, $table) {
+function importTable($db, $tempFolder, $cleanPrimaryPrefix, $table) {
     switch($table) {
         case 'actions':
         case 'categories':
@@ -77,7 +78,7 @@ function importTable($db, $tempFolder, $table) {
 
     $fieldSQL = '`'. implode("`, `", $fields) . '`';
 
-    $file = file_get_contents($tempFolder . $table . '.sql');
+    $file = file_get_contents($tempFolder . $cleanPrimaryPrefix . $table . '.sql');
     $data = unserialize($file);
     foreach($data as $row) {
         $vars = [];
@@ -89,17 +90,17 @@ function importTable($db, $tempFolder, $table) {
     }
 }
 
-importTable($db, $tempFolder, 'actions');
-importTable($db, $tempFolder, 'categories');
-importTable($db, $tempFolder, 'category_staples');
-importTable($db, $tempFolder, 'dependencies');
-importTable($db, $tempFolder, 'indicators');
-importTable($db, $tempFolder, 'route_events');
-importTable($db, $tempFolder, 'workflows');
-importTable($db, $tempFolder, 'workflow_steps');
-importTable($db, $tempFolder, 'step_dependencies');
-importTable($db, $tempFolder, 'workflow_routes');
-importTable($db, $tempFolder, 'step_modules');
+importTable($db, $tempFolder, $cleanPrimaryPrefix, 'actions');
+importTable($db, $tempFolder, $cleanPrimaryPrefix, 'categories');
+importTable($db, $tempFolder, $cleanPrimaryPrefix, 'category_staples');
+importTable($db, $tempFolder, $cleanPrimaryPrefix, 'dependencies');
+importTable($db, $tempFolder, $cleanPrimaryPrefix, 'indicators');
+importTable($db, $tempFolder, $cleanPrimaryPrefix, 'route_events');
+importTable($db, $tempFolder, $cleanPrimaryPrefix, 'workflows');
+importTable($db, $tempFolder, $cleanPrimaryPrefix, 'workflow_steps');
+importTable($db, $tempFolder, $cleanPrimaryPrefix, 'step_dependencies');
+importTable($db, $tempFolder, $cleanPrimaryPrefix, 'workflow_routes');
+importTable($db, $tempFolder, $cleanPrimaryPrefix, 'step_modules');
 
 $db->query("ALTER TABLE `records_dependencies` ADD CONSTRAINT `fk_records_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
 $db->query("ALTER TABLE `dependency_privs` ADD CONSTRAINT `fk_privs_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");

@@ -478,6 +478,7 @@ switch ($action) {
     case 'sitemap':
         $form = new Form($db, $login);
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 

@@ -1,7 +1,7 @@
 <?php
 ini_set('display_errors', 0); // Set to 1 to display errors
 
-$tempFolder = str_replace('\\', '/', dirname(__FILE__)) . '/../files/temp/';
+$tempFolder = __DIR__ . '/temp/'; // utils/temp/
 
 define("LF", "\n");
 include __DIR__ . '/../db_mysql.php';
@@ -42,7 +42,10 @@ function exportTable($db, $tempFolder, $table) {
     }
 
     $res = $db->query("SELECT * FROM {$table}");
-    file_put_contents("{$tempFolder}{$table}.sql", serialize($res));
+
+    $cleanPortalPath = str_replace("/", "_", $config->portalPath);
+
+    file_put_contents("{$tempFolder}/${cleanPortalPath}_{$table}.sql", serialize($res));
 }
 
 exportTable($db, $tempFolder, 'actions');
@@ -56,3 +59,5 @@ exportTable($db, $tempFolder, 'workflow_steps');
 exportTable($db, $tempFolder, 'step_dependencies');
 exportTable($db, $tempFolder, 'workflow_routes');
 exportTable($db, $tempFolder, 'step_modules');
+
+echo "Package Built <br />\n";
