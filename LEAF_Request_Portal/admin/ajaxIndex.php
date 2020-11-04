@@ -159,6 +159,7 @@ switch ($action) {
 
     case 'gethistoryallText':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->display('view_history_all_html.tpl');
@@ -252,6 +253,7 @@ switch ($action) {
 
     case 'gethistoryText':
         $t_form = new Smarty;
+        $t_form->setTemplateDir(__DIR__."/templates/")->setCompileDir(__DIR__."/templates_c/");
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->display('view_history_paginated_html.tpl');
