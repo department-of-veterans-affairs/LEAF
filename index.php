@@ -49,15 +49,13 @@ if(count($matches)){
 }
 
 //skip config lookup if looking for static files
-$cssPos = strpos($uri, '/css/');
-$jsPos = strpos($uri, '/js/');
-$imagesPos = strpos($uri, '/images/');
-if ($cssPos !== false || $jsPos !== false || $imagesPos !== false) {
-    $orgchartPos = strpos($sitePath, '/orgchart/');
-    $nationalPhonePos = strpos($sitePath, '/orgchart_phone/');
-    $localOrgchartPos = strpos($sitePath, '/LEAF_Nexus/');
+$pattern = '(' . addslashes(implode("|",Routing_Config::$configBypassArray)) . ')';
+preg_match ($pattern , $uri, $matches, PREG_OFFSET_CAPTURE);
+if (count($matches)) {
+    $pattern = '(' . addslashes(implode("|",Routing_Config::$orgchartArray)) . ')';
+    preg_match ($pattern , $sitePath, $matches, PREG_OFFSET_CAPTURE);
     
-    if($orgchartPos !== false || $nationalPhonePos !== false || $localOrgchartPos !== false)
+    if(count($matches))
     {
         $leafRoutes = new LEAFRoutes('orgchart');
     }

@@ -32,5 +32,19 @@ if (!defined('DATABASE_DB_CONFIG')) define('DATABASE_DB_CONFIG',    getenv('DATA
             '/[^/]*.php',
             '/[^/]*.ico'
         ];
+
+        //array of url segments that denote that the config db call can be bypassed  
+        public static $configBypassArray = [
+            '/js/',
+            '/css/',
+            '/images/'
+        ];
+
+        //array of url segments that denote that the call is to an orgchart   
+        public static $orgchartArray = [
+            '/orgchart/',
+            '/orgchart_phone/',
+            '/LEAF_Nexus/'
+        ];
     }
 
