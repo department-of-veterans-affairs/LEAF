@@ -55,8 +55,9 @@ $imagesPos = strpos($uri, '/images/');
 if ($cssPos !== false || $jsPos !== false || $imagesPos !== false) {
     $orgchartPos = strpos($sitePath, '/orgchart/');
     $nationalPhonePos = strpos($sitePath, '/orgchart_phone/');
+    $localOrgchartPos = strpos($sitePath, '/LEAF_Nexus/');
     
-    if($orgchartPos !== false || $nationalPhonePos !== false)
+    if($orgchartPos !== false || $nationalPhonePos !== false || $localOrgchartPos !== false)
     {
         $leafRoutes = new LEAFRoutes('orgchart');
     }
