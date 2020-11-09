@@ -5,7 +5,7 @@ function importWebHR() {
 	$('#progress').css('visibility', 'visible');
 
     $.ajax({
-        url: "utils/importWebHR.php",
+        url: "utils/LEAF_importWebHR.php",
         type: "POST",
         data: {webHR: $('#webHR').val()},
         success: function(response) {
