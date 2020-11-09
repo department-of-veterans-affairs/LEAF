@@ -40,27 +40,12 @@ COPY /docker/php/etc/xdebug.ini "/etc/php/7.3/fpm/conf.d/xdebug.ini"
 COPY /docker/php/etc/www.conf /etc/php/7.3/fpm/pool.d/www.conf
 COPY /docker/php/etc/fpm/php.ini /etc/php/7.3/fpm/php.ini
 
-RUN echo "upload_max_filesize = 100M" | tee -a /etc/php/7.3/fpm/php.ini
-RUN echo "expose_php = Off" | tee -a /etc/php/7.3/fpm/php.ini
-RUN echo "memory_limit = 2048M" | tee -a /etc/php/7.3/fpm/php.ini
-RUN echo "max_input_time = 600" | tee -a /etc/php/7.3/fpm/php.ini
-RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' | tee -a /etc/php/7.3/fpm/php.ini
-RUN echo "error_log = /var/www/php-logs/error_log" | tee -a /etc/php/7.3/fpm/php.ini
-
 COPY /docker/nginx/default.conf /etc/nginx/sites-available/default
 COPY /docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY /docker/php/ssmtp/ssmtp.conf /etc/ssmtp/
 COPY /docker/php/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
 
 
-COPY /LEAF_Nexus/ /var/www/html/LEAF_Nexus/
-COPY /LEAF_Request_Portal/ /var/www/html/LEAF_Request_Portal/
-COPY /libs/ /var/www/html/libs/
-COPY /index.html /var/www/html/index.html
-COPY /routing/ /var/www/html/routing
-COPY /composer.json /var/www/html/composer.json
-COPY /index.php /var/www/html/index.php
-COPY /healthcheck/ /var/www/html/healthcheck
 COPY /docker/php/etc/php-fpm-healthcheck.sh /usr/local/bin/php-fpm-healthcheck
 COPY /docker/php/etc/pod-healthcheck.sh /usr/local/bin/pod-healthcheck
 
