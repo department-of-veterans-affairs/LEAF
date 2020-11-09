@@ -226,7 +226,7 @@ function getIndicator(indicatorID, series) {
 function updateProgress() {
     $.ajax({
         type: 'GET',
-        url: "./api/form/<!--{$recordID|strip_tags}-->/progress",
+        url: "./api/form/<!--{$recordID|strip_tags}-->/progress/",
         dataType: 'json',
         success: function(response) {
             if(response < 100) {
