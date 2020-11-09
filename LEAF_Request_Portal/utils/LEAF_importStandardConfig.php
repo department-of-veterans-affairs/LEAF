@@ -1,7 +1,6 @@
 <?php
 ini_set('display_errors', 0); // Set to 1 to display errors
 
-include __DIR__ . '/../globals.php';
 include __DIR__ . '/../db_mysql.php';
 
 $debug = false;

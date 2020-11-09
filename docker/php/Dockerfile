@@ -31,14 +31,7 @@ EXPOSE 80
 EXPOSE 443
 
 COPY /docker/php/etc/www.conf /etc/php/7.3/fpm/pool.d/www.conf
-
-RUN echo "upload_max_filesize = 100M" | tee -a /etc/php/7.3/fpm/php.ini
-RUN echo "expose_php = Off" | tee -a /etc/php/7.3/fpm/php.ini
-RUN echo "memory_limit = 2048M" | tee -a /etc/php/7.3/fpm/php.ini
-RUN echo "max_input_time = 600" | tee -a /etc/php/7.3/fpm/php.ini
-RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' | tee -a /etc/php/7.3/fpm/php.ini
-RUN echo "error_log = /var/www/php-logs/error_log" | tee -a /etc/php/7.3/fpm/php.ini
-RUN mkdir /var/www/php-logs
+COPY /docker/php/etc/fpm/php.ini /etc/php/7.3/fpm/php.ini
 
 COPY /docker/nginx/default.conf /etc/nginx/sites-available/default
 COPY /docker/nginx/nginx.conf /etc/nginx/nginx.conf
@@ -55,6 +48,9 @@ COPY /healthcheck/ /var/www/html/healthcheck
 COPY /docker/php/etc/php-fpm-healthcheck.sh /usr/local/bin/php-fpm-healthcheck
 COPY /docker/php/etc/pod-healthcheck.sh /usr/local/bin/pod-healthcheck
 
+
+COPY /docker/php/etc/php-fpm-healthcheck.sh /usr/local/bin/php-fpm-healthcheck
+COPY /docker/php/etc/pod-healthcheck.sh /usr/local/bin/pod-healthcheck
 
 ARG BUILD_UID=1000
 RUN useradd -u $BUILD_UID -g www-data build_user
