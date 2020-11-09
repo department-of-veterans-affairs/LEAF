@@ -18,7 +18,7 @@ namespace Orgchart{
             $this->city = $configData[0]['city'];
             $this->adminLogonName = $configData[0]['adminLogonName'];
             $this->adPath = json_decode($configData[0]['active_directory_path']);
-            $this->uploadDir = ltrim($configData[0]['path'], "/") . $configData[0]['upload_directory'];
+            $this->uploadDir = ltrim($configData[0]['upload_directory'], "/");
             $this->ocPath = ltrim($configData[0]['path'], '/');
 
             $this->dbHost = \Routing_Config::$dbHost;

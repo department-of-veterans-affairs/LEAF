@@ -48,7 +48,7 @@ class Config
         $this->city = $configData[0]['city'];
         $this->adminLogonName = $configData[0]['adminLogonName'];    // Administrator's logon name
         $this->adPath = json_decode($configData[0]['active_directory_path']); // Active directory path
-        $this->uploadDir = ltrim($configData[0]['path'], "/") . $configData[0]['upload_directory'];
+        $this->uploadDir = ltrim($configData[0]['upload_directory'], "/");
         $this->fileManagerDir = ltrim($configData[0]['path'], "/") . "files/"; // file manager directory
         $this->portalPath = ltrim($configData[0]['path'], '/');
         $this->orgchartPath = "../LEAF_Nexus"; // Internal orgchart path
