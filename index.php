@@ -48,14 +48,16 @@ if(count($matches)){
     $uri = '/';
 }
 
+//set $isOrgchart
+$pattern = '(' . addslashes(implode("|",Routing_Config::$orgchartArray)) . ')';
+preg_match ($pattern , $sitePath, $matches, PREG_OFFSET_CAPTURE);
+$isOrgchart = count($matches) > 0;
+
 //skip config lookup if looking for static files
 $pattern = '(' . addslashes(implode("|",Routing_Config::$configBypassArray)) . ')';
 preg_match ($pattern , $uri, $matches, PREG_OFFSET_CAPTURE);
-if (count($matches)) {
-    $pattern = '(' . addslashes(implode("|",Routing_Config::$orgchartArray)) . ')';
-    preg_match ($pattern , $sitePath, $matches, PREG_OFFSET_CAPTURE);
-    
-    if(count($matches))
+if (count($matches)) {    
+    if($isOrgchart)
     {
         $leafRoutes = new LEAFRoutes('orgchart');
     }
@@ -66,18 +68,38 @@ if (count($matches)) {
 }
 else
 {
+    $db = new PDO(
+        "mysql:host=".Routing_Config::$dbHost.";dbname=".Routing_Config::$dbName.";charset=UTF8",
+        Routing_Config::$dbUser,
+        Routing_Config::$dbPass,
+        array()
+    );
     $siteFound = false;
-    if(doesSiteExist('portal', $sitePath))//query for portal
+    if(!$isOrgchart)//query for portal
     {
-        $db_config = new DB_Config($sitePath);
-        $config = new Config($sitePath);
-        $leafRoutes = new LEAFRoutes('portal');
-        $siteFound = true;
-    }elseif(doesSiteExist('nexus', $sitePath))//query for nexus
+        $sql = "SELECT a.*, b.database_name as phonedbName, b.path as orgchart_path_ext FROM portal_configs as a JOIN orgchart_configs as b ON a.orgchart_id = b.id WHERE a.path = '$sitePath';";
+        $query = $db->prepare($sql);
+        $query->execute(array());
+        $res = $query->fetchAll(PDO::FETCH_ASSOC);
+        if(count($res) > 0)
+        {
+            $db_config = new DB_Config($res);
+            $config = new Config($res);
+            $leafRoutes = new LEAFRoutes('portal');
+            $siteFound = true;
+        }
+    }else//query for nexus
     {
-        $config = new Orgchart\Config($sitePath);
-        $leafRoutes = new LEAFRoutes('nexus');
-        $siteFound = true;
+        $sql = "SELECT * FROM orgchart_configs WHERE path = '$sitePath';";
+        $query = $db->prepare($sql);
+        $query->execute(array());
+        $res = $query->fetchAll(\PDO::FETCH_ASSOC);
+        if(count($res) > 0)
+        {
+            $config = new Orgchart\Config($res);
+            $leafRoutes = new LEAFRoutes('nexus');
+            $siteFound = true;
+        }
     }
 
     if(!$siteFound){
@@ -119,23 +141,4 @@ switch ($routeInfo[0]) {
         header("HTTP/1.0 404 Not Found");
         exit;
         break;
-}
-function doesSiteExist($typeToCheck, $sitePath){
-    if($typeToCheck == 'portal'){
-        $table = 'portal_configs';
-    } elseif($typeToCheck == 'nexus' || $typeToCheck == 'orgchart') {
-        $table = 'orgchart_configs';
-    }
-
-    $db = new PDO(
-        "mysql:host=".Routing_Config::$dbHost.";dbname=".Routing_Config::$dbName.";charset=UTF8",
-        Routing_Config::$dbUser,
-        Routing_Config::$dbPass,
-        array()
-    );
-    $sql = "SELECT * FROM $table WHERE path = '$sitePath';";
-    $query = $db->prepare($sql);
-    $query->execute(array());
-    $res = $query->fetchAll(PDO::FETCH_ASSOC);
-    return count($res) > 0;
 }
