@@ -138,7 +138,7 @@ function handleRoute($routeInfo)
         case FastRoute\Dispatcher::NOT_FOUND:
         default:
             header("HTTP/1.0 404 Not Found");
-            include 'error_404.php';
+            include __DIR__ . '/error_404.php';
             exit;
             break;
     }
