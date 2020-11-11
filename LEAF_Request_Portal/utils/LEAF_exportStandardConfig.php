@@ -5,7 +5,7 @@ define("LF", "\n");
 include __DIR__ . '/../db_mysql.php';
 
 $debug = false;
-$tempFolder = __DIR__ . '/custom_override/'; // utils/temp
+$tempFolder = __DIR__ . '/custom_override/'; // utils/custom_override
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 
