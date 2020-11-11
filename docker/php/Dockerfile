@@ -39,6 +39,7 @@ RUN pecl config-set php_ini "/etc/php/7.3/fpm/php.ini" && yes | pecl install xde
 COPY /docker/php/etc/xdebug.ini "/etc/php/7.3/fpm/conf.d/xdebug.ini"
 COPY /docker/php/etc/www.conf /etc/php/7.3/fpm/pool.d/www.conf
 COPY /docker/php/etc/fpm/php.ini /etc/php/7.3/fpm/php.ini
+COPY /docker/php/etc/cli/php.ini /etc/php/7.3/cli/php.ini
 
 COPY /docker/nginx/default.conf /etc/nginx/sites-available/default
 COPY /docker/nginx/nginx.conf /etc/nginx/nginx.conf
@@ -52,6 +53,7 @@ COPY /docker/php/etc/pod-healthcheck.sh /usr/local/bin/pod-healthcheck
 ARG BUILD_UID=1000
 RUN useradd -u $BUILD_UID -g www-data build_user
 
+RUN bash -xc 'mkdir /var/www/php-logs && chown 33:33 /var/www/php-logs'
 RUN chmod +x /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
