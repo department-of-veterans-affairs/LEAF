@@ -42,6 +42,7 @@ if (strlen($file) == 40)
         if (mail($email['recipient'], $email['subject'], $email['body'], $email['headers']))
         {
             unlink($folder . $file);
+            trigger_error('Mail sent: ' . $email['subject']);
         }
         else
         {
