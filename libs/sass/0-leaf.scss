@@ -26,6 +26,7 @@ $theme-font-path: "fonts" !default;
 
 /* ############### GLOBAL OVERRIDES ################# */
 body {background-color: #dcdee0; overflow-x: auto; overflow-y: auto;}
+.bg-white {background-color: white;}
 h1, h2, h3, h4, h5, h6 { font-family: 'PublicSans-Bold'; color: #3d4551;}
 h1 {margin: 0.0rem 0.2rem 0.9rem 0.0rem;}
 h2 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
@@ -114,6 +115,21 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 .leaf-grey-box {padding: 1rem; background-color: #e6e6e6;}
 .leaf-sidenav-bottomBtns {margin: 0.5rem;}
 .leaf-title-inst {font-family: 'PublicSans-Regular'; font-size: 0.8rem; margin-left: 0.7rem; display: inline-block;}
+
+/* ############### ERROR PAGE, SINGLE CENTERED CONTENT ################# */
+.leaf-error-page {width: 80%; margin: 3rem auto; text-align: center;} 
+    .leaf-error-page div {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        height: 100%;
+        justify-content: center;
+        }   
+        .leaf-error-page div img:nth-child(1) {margin: 0 2.4rem 0 0; height:100%; width:auto;}
+        .leaf-error-page div img:nth-child(2){margin: 0 0 0 2.4rem; height:100%; width:auto;}
+    .leaf-error-page h1 {color: #00A91C; font-size: 4.0rem;}
+    .leaf-error-page h4 {color: #000; font-size: 1.8rem;}
+    .leaf-error-page p {color: #000; font-size: 1.24rem;}
 
 /* ############### LEAF SITEMAP STYLES ################# */
 .leaf-sitemap-card {
