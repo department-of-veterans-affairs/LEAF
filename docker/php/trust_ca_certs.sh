@@ -18,4 +18,3 @@ chmod -R 644 VA
 # Updates system certificates (Debian)
 dpkg-reconfigure -p critical ca-certificates
 update-ca-certificates
-

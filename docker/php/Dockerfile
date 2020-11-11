@@ -22,21 +22,14 @@ ENV LANG "en_US.UTF-8"
 ENV LC_ALL "en_US.UTF-8"
 RUN bash -xc 'locale -a' # testing
 
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/certs/leaf.key -out /etc/ssl/certs/leaf.pem -subj "/C=US/ST=VA/L=Chantilly/O=LEAF/OU=LEAF/CN=%"
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
-
-RUN composer global require phpunit/phpunit ^7.4
-RUN composer global require robmorgan/phinx ^0.9.2
 
 ENV PATH /root/.composer/vendor/bin:$PATH
 
 EXPOSE 80
 EXPOSE 443
 
-# xdebug
-RUN pecl config-set php_ini "/etc/php/7.3/fpm/php.ini" && yes | pecl install xdebug
-COPY /docker/php/etc/xdebug.ini "/etc/php/7.3/fpm/conf.d/xdebug.ini"
 COPY /docker/php/etc/www.conf /etc/php/7.3/fpm/pool.d/www.conf
 COPY /docker/php/etc/fpm/php.ini /etc/php/7.3/fpm/php.ini
 COPY /docker/php/etc/cli/php.ini /etc/php/7.3/cli/php.ini
@@ -45,6 +38,16 @@ COPY /docker/nginx/default.conf /etc/nginx/sites-available/default
 COPY /docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY /docker/php/ssmtp/ssmtp.conf /etc/ssmtp/
 COPY /docker/php/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
+COPY /LEAF_Nexus/ /var/www/html/LEAF_Nexus/
+COPY /LEAF_Request_Portal/ /var/www/html/LEAF_Request_Portal/
+COPY /libs/ /var/www/html/libs/
+COPY /index.html /var/www/html/index.html
+COPY /routing/ /var/www/html/routing
+COPY /composer.json /var/www/html/composer.json
+COPY /index.php /var/www/html/index.php
+COPY /healthcheck/ /var/www/html/healthcheck
+COPY /docker/php/etc/php-fpm-healthcheck.sh /usr/local/bin/php-fpm-healthcheck
+COPY /docker/php/etc/pod-healthcheck.sh /usr/local/bin/pod-healthcheck
 
 
 COPY /docker/php/etc/php-fpm-healthcheck.sh /usr/local/bin/php-fpm-healthcheck
@@ -58,10 +61,11 @@ RUN chmod +x /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
 RUN chmod -R g+rwX /var/www
+RUN chmod +x /usr/local/bin/docker-php-entrypoint
+
+RUN cd /var/www/html && composer install
 
 WORKDIR /var/www/html/
 
 CMD /etc/init.d/php7.3-fpm start && nginx -g 'daemon off;'
 ENTRYPOINT ["/usr/local/bin/docker-php-entrypoint"]
-
-
