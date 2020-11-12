@@ -103,8 +103,7 @@ else
     }
 
     if(!$siteFound){
-        header("HTTP/1.0 404 Not Found");
-            exit;
+        handleRoute([FastRoute\Dispatcher::NOT_FOUND]);
     }
 }
 
@@ -117,28 +116,30 @@ $routeCollectorFunction = function (FastRoute\RouteCollector $r) use ($leafRoute
 $dispatcher = FastRoute\simpleDispatcher($routeCollectorFunction);
 
 $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
+handleRoute($routeInfo);
 
-switch ($routeInfo[0]) {
-    case FastRoute\Dispatcher::NOT_FOUND:
-        header("HTTP/1.0 404 Not Found");
-        exit;
-        break;
-    case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-        $allowedMethods = $routeInfo[1];
-        header($_SERVER["SERVER_PROTOCOL"]." 405 Method Not Allowed", true, 405);
+function handleRoute($routeInfo)
+{
+    switch ($routeInfo[0]) {
+        case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+            $allowedMethods = $routeInfo[1];
+            header($_SERVER["SERVER_PROTOCOL"]." 405 Method Not Allowed", true, 405);
 
-        exit;
-        break;
-    case FastRoute\Dispatcher::FOUND:
-        $handler = $routeInfo[1];
-        $vars = $routeInfo[2];
-        
-        list($class, $method) = explode("/", $handler, 2);
-        $class = "Handlers\\" . $class;
-        call_user_func_array(array(new $class($config, $db_config), $method), $vars);
-        break;
-    default:
-        header("HTTP/1.0 404 Not Found");
-        exit;
-        break;
+            exit;
+            break;
+        case FastRoute\Dispatcher::FOUND:
+            $handler = $routeInfo[1];
+            $vars = $routeInfo[2];
+            
+            list($class, $method) = explode("/", $handler, 2);
+            $class = "Handlers\\" . $class;
+            call_user_func_array(array(new $class($config, $db_config), $method), $vars);
+            break;
+        case FastRoute\Dispatcher::NOT_FOUND:
+        default:
+            header("HTTP/1.0 404 Not Found");
+            include __DIR__ . '/error_404.php';
+            exit;
+            break;
+    }
 }
