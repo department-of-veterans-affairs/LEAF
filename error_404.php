@@ -37,7 +37,7 @@
                 </div>
                 <h1>404: Page Not Found.</h1>
                 <h4>The page you're looking for might've been<br/>blown by the wind.</h4>
-                <p>Double-check your link and try again,<br/>or return to the VISN13 <a href="./">home page</a>.</p>
+                <p>Double-check your link and try again,<br/>or return to the <a href="./">LEAF Launchpad</a>.</p>
             </div>
         </div>
     </div>
