@@ -18,10 +18,10 @@ $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phon
 
 $login = new Login($db_phonebook, $db);
 
-if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
+if ($_SERVER['HTTP_SSL_CLIENT_VERIFY'] == 'SUCCESS')
 {
     $protocol = 'http://';
-    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
     {
         $protocol = 'https://';
     }
@@ -35,7 +35,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
         $redirect = $protocol . substr(HTTP_HOST, 0, -4) . dirname($_SERVER['PHP_SELF']) . '/../';
     }
 
-    $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);
+    $vars = array(':email' => $_SERVER['HTTP_SSL_CLIENT_S_DN_UID']);
     $res = $db_phonebook->prepared_query('SELECT * FROM employee_data
 											LEFT JOIN employee USING (empUID)
 											WHERE indicatorID = 6
@@ -53,7 +53,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
     {
         // try searching through national database
         $globalDB = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
-        $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);
+        $vars = array(':email' => $_SERVER['HTTP_SSL_CLIENT_S_DN_UID']);
         $res = $globalDB->prepared_query('SELECT * FROM employee_data
 											LEFT JOIN employee USING (empUID)
 											WHERE indicatorID = 6
@@ -103,7 +103,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
         {
             header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
 
-            echo 'Unable to log in: SSL_CLIENT_S_DN_UID not found in database.  Redirecting back to PIV login screen.';
+            echo 'Unable to log in: HTTP_SSL_CLIENT_S_DN_UID not found in database.  Redirecting back to PIV login screen.';
         }
     }
 }

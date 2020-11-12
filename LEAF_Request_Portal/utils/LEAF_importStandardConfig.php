@@ -13,7 +13,7 @@ $relativePath = parse_url($res['national_linkedPrimary'], PHP_URL_PATH);
 $cleanPrimaryPath = ltrim($relativePath, '/');
 $cleanPrimaryPrefix = str_replace("/", "_", $cleanPrimaryPath) . '_'; // portal_path__
 
-$tempFolder = __DIR__ . '/temp/';
+$tempFolder = __DIR__ . '/custom_override/';
 
 if($res['siteType'] != 'national_subordinate') {
     echo "ERROR: This is not a national subordinate site.";

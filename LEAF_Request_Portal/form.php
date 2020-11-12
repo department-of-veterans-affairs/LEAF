@@ -2734,6 +2734,11 @@ class Form
                     $tResTypeHint = array();
                     if ($q['indicatorID'] > 0)
                     {
+                        // check protected field mask, ignore query if masked
+                        if($this->isMasked($q['indicatorID'])) {
+                            continue 2;
+                        }
+
                         // need data type hint and default data
                         $tVarTypeHint = array(':indicatorID' => $q['indicatorID']);
                         $tResTypeHint = $this->db->prepared_query('SELECT format, `default` FROM indicators
