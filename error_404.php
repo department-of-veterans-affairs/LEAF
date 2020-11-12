@@ -36,8 +36,8 @@
         <div id="bodyarea" class="default-container">
             <div class="leaf-error-page">
                 <div>
-                    <img src="../images/Error-404-page-leaf-left.png" />
-                    <img src="../images/Error-404-page-leaf-right.png" />
+                    <img src="/libs/img/Error-404-page-leaf-left.png" />
+                    <img src="/libs/img/Error-404-page-leaf-right.png" />
                 </div>
                 <h1>404: Page Not Found.</h1>
                 <h4>The page you're looking for might've been<br/>blown by the wind.</h4>
