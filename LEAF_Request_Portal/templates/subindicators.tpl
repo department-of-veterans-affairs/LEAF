@@ -82,7 +82,22 @@
                                     
                                     if(j < numColumns - 2 ){ //skipping last two columns: sort & remove row
 
-                                        var input = $(this).find('input').first();
+                                        var possibleInputs = [];
+
+                                        possibleInputs.push($(this).find('input').first());
+
+                                        possibleInputs.push($(this).find('textarea').first());
+
+                                        possibleInputs.push($(this).find('select').first());
+
+                                        var input;
+                                        
+                                        for(var k= 0; k < possibleInputs.length; k++){
+                                            if($(possibleInputs[k]).length > 0){
+                                                input = $(possibleInputs[k]);
+                                                break;
+                                            }
+                                        }
 
                                         if(input){
                                             var inputValue = $(input).val(); 
