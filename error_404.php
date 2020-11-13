@@ -6,6 +6,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <title>LEAF - Page Not Found</title>
     <link rel="stylesheet" href="/libs/css/leaf.css" />
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
