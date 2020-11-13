@@ -3403,12 +3403,6 @@ class Form
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
                 $child[$idx]['sort'] = $field['sort'];
 
-                if ($child[$idx]['isMasked'])
-                {
-                    $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '')
-                                                ? '[protected data]' : '';
-                }
-
                 $inputType = explode("\n", $field['format']);
                 $numOptions = count($inputType) > 1 ? count($inputType) : 0;
                 for ($i = 1; $i < $numOptions; $i++)
@@ -3460,6 +3454,15 @@ class Form
                     $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
                                                       [$idx, $recordID, $child[$idx]['value']],
                                                       $field['htmlPrint']);
+                }
+
+                if ($child[$idx]['isMasked'])
+                {
+                    $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '')
+                                                ? '[protected data]' : '';
+                    if(isset($child[$idx]['displayedValue']) && $child[$idx]['displayedValue'] != '') {
+                        $child[$idx]['displayedValue'] = '[protected data]';
+                    }
                 }
 
                 $child[$idx]['format'] = trim($inputType[0]);
