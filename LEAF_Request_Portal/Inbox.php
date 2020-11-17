@@ -382,7 +382,7 @@ class Inbox
                             $this->cache[$res[$i]['stepBgColor']] = $out[$res[$i]['dependencyID']]['dependencyBgColor'];
                         }
                     }
-                    if(substr($res[$i]['dependencyID'], 0, 3) == "-1_" && count($out[$res[$i]['dependencyID']]['records']) > 1000)
+                    if(substr($res[$i]['dependencyID'], 0, 3) == "-1_" && isset($out[$res[$i]['dependencyID']]['records']) && count($out[$res[$i]['dependencyID']]['records']) > 1000)
                     {
                         $out['errors'][] = ['code' => '1', 'message' => 'dependencyID: -1 has over 1000 results'];
                         break;

@@ -442,6 +442,7 @@ var currentIndicator = {};
 function editIndicatorPrivileges(indicatorID) {
     dialog_simple.setContent('<h2>Special access restrictions for this field</h2>'
                             + '<p>These restrictions will limit view access to the request initiator and members of any groups you specify.</p>'
+                            + '<p>Additionally, these restrictions will only allow the groups specified below to apply search filters for this field.</p>'
                             + 'All others will see "[protected data]".<br /><div id="indicatorPrivs"></div>');
 
     dialog_simple.indicateBusy();
