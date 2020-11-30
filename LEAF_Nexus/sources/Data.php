@@ -670,7 +670,7 @@ abstract class Data
             $awsUtil = new \AWSUtil();
             $awsUtil->s3registerStreamWrapper();
 
-            $s3objectKey = "s3://" . $awsUtil->s3getBucketName() . "/" . $filename;
+            $s3objectKey = "s3://" . $awsUtil->s3getBucketName() . "/" . $uploadDir . $file;
 
             if (file_exists($s3objectKey))
             {
