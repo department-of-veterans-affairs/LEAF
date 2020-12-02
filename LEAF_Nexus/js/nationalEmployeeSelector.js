@@ -211,7 +211,6 @@ nationalEmployeeSelector.prototype.runSearchQuery = function(query, domain) {
 
             if(response.length == 0) {
                 $('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span style="color: red">'+ txt +'</span>&quot;</td></tr>');
-                console.log(txt);
                 setTimeout(function(){ $('#' + t.prefixID + 'status').text('No results found for term ' + txt); }, 2500);
             }else {
                setTimeout(function(){ $('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below'); }, 2500);
@@ -366,10 +365,8 @@ nationalEmployeeSelector.prototype.search = function() {
                         if(response.length == 0) {
                             $('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
                             $('#' + t.prefixID + 'emp0_message').text(txt);
-                            setTimeout(function(){ $('#' + t.prefixID + 'status').text('No results found for term ' + txt); }, 2500);
-                            
+                            setTimeout(function(){ $('#' + t.prefixID + 'status').text('No results found for term ' + txt); }, 2500);   
                         }else {
-                    
                             setTimeout(function(){ $('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below'); }, 2500);
                         }
 
