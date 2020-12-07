@@ -70,7 +70,7 @@ $(function() {
             </tr>
             <!--{if count($services) != 0}-->
             <tr>
-                <td>Service</td>
+                <td><label for="service">Service</label></td>
                 <td>
                     <select id="service" name="service" style=" width: 150px;">
                     <option value=""></option>
@@ -84,7 +84,7 @@ $(function() {
             <input type="hidden" id="service" name="service" value="0" />
             <!--{/if}-->
             <tr>
-                <td>Priority</td>
+                <td><label for="priority">Priority</label></td>
                 <td>
                     <select id="priority" name="priority" aria-label="priority" style="width: 150px;">
                     <option value="-10">EMERGENCY</option>
@@ -93,7 +93,7 @@ $(function() {
                 </td>
             </tr>
             <tr>
-                <td>Title of Request</td>
+                <td><label for="title">Title of Request</label></td>
                 <td>
                 <span style="font-size: 80%">Please enter keywords to describe this request.</span><br />
                     <input class="input" id="title" type="text" name="title" maxlength="100" style="width: 80%"></input>
