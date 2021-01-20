@@ -25,7 +25,7 @@ $theme-font-path: "fonts" !default;
 @font-face {font-family: 'PublicSans-Bold'; src: url(fonts/public-sans/PublicSans-Bold.woff);}
 
 /* ############### GLOBAL OVERRIDES ################# */
-body {background-color: #dcdee0; overflow-x: auto; overflow-y: auto;}
+body {background-color: #dcdee0; overflow-x: auto; overflow-y: auto; overscroll-behavior-y: none;}
 h1, h2, h3, h4, h5, h6 { font-family: 'PublicSans-Bold'; color: #3d4551;}
 h1 {margin: 0.0rem 0.2rem 0.9rem 0.0rem;}
 h2 {margin: 0.9rem 0.2rem 0.9rem 0.0rem;}
@@ -38,9 +38,9 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 
 /* ############### USWDS OVERRIDES ################# */
 .usa-sidenav {font-family: 'PublicSans-Regular'; font-size: 0.9rem;}
-.usa-sidenav__item {white-space: normal;}
-    .usa-sidenav a {white-space: normal;}
+.usa-sidenav__item {width: 14.5rem;}
 .usa-current a {color: #005ea2!important;}
+.bg-orange-topbanner {background-color: #f56600;}
 
 /* ############### JQUERY UI OVERRIDES ################# */
 .ui-sortable-placeholder {
@@ -51,8 +51,7 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 }
 
 /* ############### GLOBAL CONTAINER STYLES ################# */
-.sidenav {background-color: #fff; border-radius: 4px; padding: 0.5rem; box-shadow: 0px 1px 3px #acaeaf;}
-.sidenav-right {background-color: #fff; border-radius: 4px; box-shadow: 0px 1px 3px #acaeaf;}
+.sidenav, .sidenav-right {background-color: #fff; border-radius: 4px; box-shadow: 0px 1px 3px #acaeaf; max-width: 16.5rem;}
 .leaf-code-container {padding: 8px; border-radius: 4px; display: none; resize: both; overflow: auto; box-shadow: 0 2px 6px #8e8e8e; background-color: white;}
 
 /* ############### GLOBAL ATTRIBUTE CLASSES ################# */
@@ -99,7 +98,7 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 .leaf-btn-icon {margin-right: 0.5rem;}
 .leaf-btn-small {padding: 0.5rem; font-size: 0.4rem;}
 .leaf-btn-med {padding: 0.7rem; font-size: 0.9rem;}
-.leaf-side-btn {width: 14.5rem; display: block; margin: 1.0rem 0.0rem;}
+.leaf-side-btn {width: 14.5rem; display: block; margin: 1.0rem 0 0.5rem 0;}
 .leaf-btn-green {background-color: #00a91c;}
 .leaf-btn-green:hover {background-color: #008817;}
 
@@ -114,6 +113,22 @@ button:focus, button:active {border: 0!important; outline: none!important;}
 .leaf-grey-box {padding: 1rem; background-color: #e6e6e6;}
 .leaf-sidenav-bottomBtns {margin: 0.5rem;}
 .leaf-title-inst {font-family: 'PublicSans-Regular'; font-size: 0.8rem; margin-left: 0.7rem; display: inline-block;}
+.leaf-user-search {display: flex; flex-direction: column;}
+    .groupUser {display: none;}
+    .leaf-no-results {display: none; height: 2.72rem;}
+    .leaf-no-results i {font-size: 1.72rem; margin: 0 0.6rem 0 -0.5rem; vertical-align: middle;}
+    .leaf-user-search p {margin: 0.3rem 0 0 0; font-size: 0.9rem}
+    .leaf-user-search input.leaf-user-search-input {
+        padding: 0.5rem; 
+        font-family: 'PublicSans-Regular'; 
+        margin: 0.2rem 0; 
+        flex: 1.0; 
+        min-width:0; 
+        border-radius: 0;
+        color: #1b1b1b; 
+        border: 1px solid #1b1b1b;
+        display: block;
+    }
 
 /* ############### LEAF SITEMAP STYLES ################# */
 .edit-card {
@@ -277,25 +292,42 @@ ul.leaf-progress-bar {
     .leaf-admin-content {max-width: 68rem; margin: 1.0rem auto 1.0rem auto;}
     .leaf-show-opts {font-size: 0.9rem; margin-top: 1.2rem; cursor: pointer; }
     .leaf-center-content {
-        width: calc(100% - 2rem); 
+        display: flex;
+        flex-direction: row;
+        align-content: space-around;
         margin: 0.6rem auto 0.6rem auto; 
         font-family: 'PublicSans-Regular';
     }
+        .leaf-left-nav {flex: 20%; margin: 0.6rem 1rem 0.6rem 1rem; }
+        .leaf-right-nav {flex: 20%; margin: 0.6rem 1rem 0.6rem 1rem;}
+        .main-content {
+            position: relative;
+            flex: 60%; 
+            margin: 0.6rem 1.5rem 1.0rem 2.5rem;
+            min-height: 27rem;
+        }
+        .main-content-noRight {
+            display: inline-block;
+            position: relative;
+            width: 70%;
+            margin: 0.6rem 1.0rem 0.6rem 3.2rem;
+            min-height: 27rem;
+        }
+        .main-content h2 {font-weight: normal; font-family: 'PublicSans-Bold'; margin-bottom: 1.5rem;}
 
     /* ############### USWDS OVERRIDES ################# */
     .usa-logo {margin: 0; height: 4.6rem; float: left;}
     .usa-logo a {color: #fff; text-decoration: none;}
     .usa-navbar {border-bottom: 0; width: 100%;}
-        h3.navhead {font-family: 'PublicSans-Medium'; font-weight: normal; margin-bottom: 1.0rem; margin-top: 0.4rem; font-size: 1.2rem;}
+        h3.navhead {font-family: 'PublicSans-Medium'; font-weight: normal; margin-bottom: 1.0rem; font-size: 1.2rem;}
     .bg-orange-topbanner {background-color: #f56600;}
-    .sidenav {display: block; float: left; margin: 0.6rem 1rem 0.6rem 0.0rem; padding: 1.0rem; max-width: 16.5rem;}
-        .sidenav:hidden {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none;}
-        .sidenav:empty {display: block; float: left; background: none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
-    .sidenav-right {display: block; float: right; margin: 0.6rem 1.0rem 0 1.0rem; padding: 0.5rem 1.0rem 0.8rem 1.0rem; width: 16.2rem;}
-        .sidenav-right:hidden {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none;}
-        .sidenav-right:empty {display: block; float: right; background:none; width: 15rem; background-color: none; box-shadow: none; min-height: 1px;}
+    .sidenav {padding: 1.0rem;}
+        .sidenav:hidden {background: none; background-color: none; box-shadow: none;}
+        .sidenav:empty {background: none; background-color: none; box-shadow: none; min-height: 1px;}
+    .sidenav-right {padding: 1.0rem; }
+        .sidenav-right:hidden {background:none; background-color: none; box-shadow: none;}
+        .sidenav-right:empty {background:none; background-color: none; box-shadow: none; min-height: 1px;}
     .usa-banner {font-family: 'PublicSans-Regular';}
-    .usa-input {width: auto; padding: 0.7rem; height: auto;}
     .ui-widget-header {border: 0; background-color: none;}
     .usa-banner__header {padding-bottom: .3rem; padding-top: .3rem; min-height: 0;}
     .usa-banner__header-close-text, .usa-banner__header-text {font-size: .7rem; letter-spacing: 0.01rem;}
@@ -305,25 +337,6 @@ ul.leaf-progress-bar {
     .usa-select {font-size: 0.9rem; padding: 0.0rem 0.4rem;}
     .usa-sidenav {margin-bottom: 0.6rem; border-bottom: 0;}
     .usa-ro-text {margin: 0.5rem 0; font-size: 0.9rem;}
-    .main-content {
-        display: inline-block;
-        position: relative;
-        width: calc(100% - 42rem);
-        white-space: normal;
-        margin: 0.6rem 2.0rem;
-        min-height: 27rem;
-        overflow: visible;
-    }
-    .main-content-noRight {
-        display: inline-block;
-        position: relative;
-        width: 70%;
-        white-space: normal;
-        margin: 0.6rem 1.0rem 0.6rem 3.2rem;
-        min-height: 27rem;
-        overflow: visible;
-    }
-    .main-content h2 {font-weight: normal; font-family: 'PublicSans-Bold'; margin-bottom: 1.5rem;}
     .leaf-workflow-box {background-color: #777; font-size: 0.7rem; width: 100%; border-radius: 4px; position: relative; overflow-x: auto; overflow-y: auto;}
 
     /* ############### UI DIALOG OVERRIDES ################# */

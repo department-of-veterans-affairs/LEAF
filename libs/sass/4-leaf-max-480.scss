@@ -2,20 +2,29 @@
 
 @media (max-width: 30rem) {
 
-    /* ############### CONTENT CONTAINERS ################# */
-    .leaf-admin-content {width: calc(100% - 2rem); margin: 0.4rem 0.6rem;}
-
-    /* ############### USWDS OVERRIDES ################# */
-    .sidenav { display: block; margin: 1rem; padding: 1rem; float: none; width: calc(100% - 2rem); }
-        .sidenav:hidden {display: block; float: left; background: none; background-color: none; box-shadow: none;}
-        .sidenav:empty {display: block; float: left; background: none; background-color: none; box-shadow: none; min-height: 1px;}
-    .sidenav-right { display: block; margin: 1rem; padding: 1rem; float: none; width: calc(100% - 2rem); }
-        .sidenav-right:hidden {display: block; float: right; background:none; background-color: none; box-shadow: none;}
-        .sidenav-right:empty {display: block; float: right; background:none; background-color: none; box-shadow: none; min-height: 1px;}
-    .main-content {display: block; clear: both; width: 100%; margin: 1rem; padding: 1rem;}
     .usa-button {width: 100%;}
+    .leaf-center-content {
+        display: flex;
+        flex-direction: column;
+        margin: 1rem; 
+        font-family: 'PublicSans-Regular';
+    }
+        .leaf-left-nav {margin: 1rem; }
+        .leaf-right-nav {margin: 1rem;}
+        .main-content {
+            margin: 1.0rem;
+        }
+        .main-content-noRight {
+            display: inline-block;
+            position: relative;
+            width: 70%;
+            margin: 0.6rem 1.0rem 0.6rem 3.2rem;
+            min-height: 27rem;
+        }
+        .main-content h2 {font-weight: normal; font-family: 'PublicSans-Bold'; margin-bottom: 1.5rem;}
 
     /* ############### LEAF HEADER ################# */
+    #header {height: 3.6rem;}
     .usa-header, .site-header {height: 3.6rem; width: 100%; box-shadow: 0px 2px 4px #a9aeb1;}
         .leaf-logo img {width: 48px; margin: 0.4rem 0.3rem 0 0.2rem;}
         .usa-logo {

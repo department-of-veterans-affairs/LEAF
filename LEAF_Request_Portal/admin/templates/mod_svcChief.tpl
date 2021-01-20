@@ -1,17 +1,20 @@
 <div class="leaf-center-content">
 
-    <aside class="sidenav-right"></aside>
     
+    <!-- LEFT SIDE NAV -->
     <!--{assign var=left_nav_content value="
-        <div id='sideBar'>
-            <button id='btn_uploadFile' class='usa-button leaf-width-12rem' onclick='syncServices();'>
-                Import from Nexus
-            </button>
-        </div>
+        <aside class='sidenav'>
+            <div id='sideBar'>
+                <button id='btn_uploadFile' class='usa-button leaf-width-12rem' onclick='syncServices();'>
+                    Import from Nexus
+                </button>
+            </div>
+        </aside>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
     
     <main class="main-content">
+        
         <h2>Service Chiefs</h2>
 
         <div>
@@ -19,7 +22,14 @@
         </div>
 
         <div class="leaf-row-space"></div>
-    </div>
+
+    </main>
+
+    <!-- RIGHT SIDE NAV -->
+    <!--{assign var=right_nav_content value="
+        <aside class='sidenav-right'></aside>
+    "}-->
+    <!--{include file="partial_layouts/right_side_nav.tpl" contentRight="$right_nav_content"}-->
     
 </div>
 
