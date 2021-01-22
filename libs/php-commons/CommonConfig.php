@@ -19,6 +19,7 @@ class CommonConfig
                                         'msg', 'ics',
                                         'mht', 'msg', 'xml',
                                         'zip', '7z',
+                                        '3mf', 'stl', 'gcode',
                                     );
     
     public $fileManagerWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
@@ -38,5 +39,6 @@ class CommonConfig
                                             'msg', 'ics',
                                             'mht', 'msg', 'xml',
                                             'zip', '7z',
+                                            '3mf', 'stl', 'gcode',
                                         );
 }
