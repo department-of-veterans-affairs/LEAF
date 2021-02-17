@@ -1,46 +1,55 @@
+<style>
+/* Grid of 6 */
+.group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}
+</style>
+
 <div class="leaf-center-content">
 
-    <div class="leaf-left-nav">
+    <div class="section group">
+
         <aside class="sidenav" id="fileBrowser">
             <button class="usa-button leaf-btn-med leaf-width-13rem" onclick="newReport();">New File</button>
             <p class="leaf-bold leaf-marginTop-1rem">Files</p>
             <div id="fileList"></div>
         </aside>
-    </div>
 
-    <main id="codeArea" class="main-content">
-        <h2>LEAF Programmer</h2>
-        
-        <div id="codeContainer" class="leaf-code-container">
-            <div id="filename"></div>
-            <div id="reportURL"></div>
-            <div>
-                <textarea id="code"></textarea>
-            </div>
-            <div>
-                <table class="usa-table">
-                    <tr>
-                        <td colspan="2">Keyboard Shortcuts within coding area</td>
-                    </tr>
-                    <tr>
-                        <td>Save</td>
-                        <td>Ctrl + S</td>
-                    </tr>
-                    <tr>
-                        <td>Fullscreen</td>
-                        <td>F11</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </main>
-    
-    <div class="leaf-right-nav"> 
         <aside class="sidenav-right" id="controls">
             <button id="saveButton" class="usa-button leaf-btn-med leaf-display-block leaf-width-14rem" onclick="save();">Save Changes<span id="saveStatus" class="leaf-display-block leaf-font0-5rem"></span></button>
             <button class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="runReport();">Open Report</button>
             <button id="deleteButton" class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="deleteReport();">Delete Report</button>
         </aside>
+        
+        <main id="codeArea" class="main-content">
+            <h2>LEAF Programmer</h2>
+            
+            <div id="codeContainer" class="leaf-code-container">
+                <div id="filename"></div>
+                <div id="reportURL"></div>
+                <div>
+                    <textarea id="code"></textarea>
+                </div>
+                <div>
+                    <table class="usa-table">
+                        <tr>
+                            <td colspan="2">Keyboard Shortcuts within coding area</td>
+                        </tr>
+                        <tr>
+                            <td>Save</td>
+                            <td>Ctrl + S</td>
+                        </tr>
+                        <tr>
+                            <td>Fullscreen</td>
+                            <td>F11</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </main>
+        
+        
+
+        
+
     </div>
 
 </div>

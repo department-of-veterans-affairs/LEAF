@@ -153,7 +153,7 @@ $(function() {
 
 </script>
 
-<div class="leaf-width-100pct">
+<div class="leaf-center-content">
 
     <h2>LEAF Library</h2>
     <div id="menu" style="float: left; width: 230px">

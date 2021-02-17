@@ -17,82 +17,15 @@
 
 <div class="leaf-center-content">
 
-    <div class="leaf-left-nav">
+    <div class="section group">
+
         <aside class="sidenav">
             <div id="fileBrowser"">
             Email Templates:
                 <div id="fileList"></div>
             </div>
         </aside>
-    </div>
 
-    <main id="codeArea" class="main-content">
-
-        <div id="codeContainer" class="leaf-code-container">
-
-            <div id="subject" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
-            <div id="divSubject" style="border: 1px solid black">
-                <textarea id="subjectCode"></textarea>
-                <div id="subjectCompare"></div>
-            </div>
-            <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
-            <div id="divCode" style="border: 1px solid black">
-                <textarea id="code"></textarea>
-                <div id="codeCompare"></div>
-            </div>
-            <div>
-                <fieldset><legend>Template Variables</legend><br />
-                <table class="table">
-                    <tr>
-                        <td><b>{{$recordID}}</b></td>
-                        <td>The ID number of the request</td>
-                    </tr>
-                    <tr>
-                        <td><b>{{$fullTitle}}</b></td>
-                        <td>The full title of the request</td>
-                    </tr>
-                    <tr>
-                        <td><b>{{$truncatedTitle}}</b></td>
-                        <td>A truncated version of the request title</td>
-                    </tr>
-                    <tr>
-                        <td><b>{{$lastStatus}}</b></td>
-                        <td>The last action taken for the request</td>
-                    </tr>
-                    <tr>
-                        <td><b>{{$comment}}</b></td>
-                        <td>The last comment associated with the request</td>
-                    </tr>
-                    <tr>
-                        <td><b>{{$service}}</b></td>
-                        <td>The service associated with the request</td>
-                    </tr>
-                    <tr>
-                        <td><b>{{$siteRoot}}</b></td>
-                        <td>The root URL of the LEAF site</td>
-                    </tr>
-                </table>
-            </div>
-            <div>
-                <table class="table">
-                    <tr>
-                        <td colspan="2">Keyboard Shortcuts within coding area</td>
-                    </tr>
-                    <tr>
-                        <td>Save</td>
-                        <td>Ctrl + S</td>
-                    </tr>
-                    <tr>
-                        <td>Fullscreen</td>
-                        <td>F11</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
-    </main>
-
-    <div class="leaf-right-nav">
         <aside class="sidenav-right">
             <div id="controls" style="padding-bottom: 4px">
 
@@ -114,6 +47,74 @@
 
             </div>
         </aside>
+
+        <div id="codeArea" class="main-content">
+
+            <div id="codeContainer" class="leaf-code-container">
+
+                <div id="subject" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
+                <div id="divSubject" style="border: 1px solid black">
+                    <textarea id="subjectCode"></textarea>
+                    <div id="subjectCompare"></div>
+                </div>
+                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
+                <div id="divCode" style="border: 1px solid black">
+                    <textarea id="code"></textarea>
+                    <div id="codeCompare"></div>
+                </div>
+                <div>
+                    <fieldset><legend>Template Variables</legend><br />
+                    <table class="table">
+                        <tr>
+                            <td><b>{{$recordID}}</b></td>
+                            <td>The ID number of the request</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$fullTitle}}</b></td>
+                            <td>The full title of the request</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$truncatedTitle}}</b></td>
+                            <td>A truncated version of the request title</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$lastStatus}}</b></td>
+                            <td>The last action taken for the request</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$comment}}</b></td>
+                            <td>The last comment associated with the request</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$service}}</b></td>
+                            <td>The service associated with the request</td>
+                        </tr>
+                        <tr>
+                            <td><b>{{$siteRoot}}</b></td>
+                            <td>The root URL of the LEAF site</td>
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <table class="table">
+                        <tr>
+                            <td colspan="2">Keyboard Shortcuts within coding area</td>
+                        </tr>
+                        <tr>
+                            <td>Save</td>
+                            <td>Ctrl + S</td>
+                        </tr>
+                        <tr>
+                            <td>Fullscreen</td>
+                            <td>F11</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        
+        
     </div>
 
 </div>

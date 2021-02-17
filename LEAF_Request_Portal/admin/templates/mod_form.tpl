@@ -1,4 +1,4 @@
-<div class="leaf-width-100pct">
+<div class="leaf-center-content">
     <h2>Form Editor</h2>
     <div id="menu" style="float: left; width: 180px"></div>
     <div id="formEditor_content" style="margin-left: 184px; padding-left: 8px"></div>

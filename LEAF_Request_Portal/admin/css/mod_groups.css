@@ -2,7 +2,7 @@ div.groupBlock {
     border-radius: 4px;
     flex: 0 1 30%;
     max-width: 18rem;
-    min-width: 15.5rem;
+    min-width: 14rem;
     min-height: 5.2rem;
     margin: 0.4rem 1.0rem 0.4rem 0.0rem;
     padding: 1.0rem;
@@ -15,8 +15,7 @@ div.groupBlock {
 
 div.groupBlock:hover {box-shadow: 2px 2px 4px #838687; background-color: none;}
 div.groupBlock:focus, div.groupBlock:active {outline: none; border: 0;}
-div.groupBlock div {margin-top: 0.1rem; font-size: 0.8rem; color: #fff; }
-div.groupBlock .leaf-search-hilite {background:#fee685; color: #000; padding: 0.1rem 0.1rem 0rem 0.2rem;}
+div.groupBlock div { padding-top: 0.4rem; font-size: 0.8rem; color: #fff; }
 
 div.groupBlock h2 {
     cursor: pointer;
@@ -63,10 +62,9 @@ div.groupBlockWhite {
     background-color: #fff;
 }
 
-div.groupBlockWhite:hover {box-shadow: 2px 2px 4px #838687; background-color: none;}
+div.groupBlockWhite:hover{box-shadow: 2px 2px 4px #838687; background-color: none;}
 div.groupBlockWhite:focus, div.groupBlockWhite:active {outline: none; border: 0;}
-div.groupBlockWhite div {margin-top: 0.1rem; font-size: 0.8rem; color: #000; }
-div.groupBlockWhite .leaf-search-hilite {background:#fee685; padding: 0.1rem 0.1rem 0rem 0.2rem;}
+div.groupBlockWhite div { padding-top: 0.4rem; font-size: 0.8rem; color: #000; }
 
 div.groupBlockWhite h2 {
     cursor: pointer;
