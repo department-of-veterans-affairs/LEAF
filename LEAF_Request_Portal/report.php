@@ -43,7 +43,10 @@ $login = new Login($db_phonebook, $db);
 $login->loginUser();
 if (!$login->isLogin() || !$login->isInDB())
 {
-    echo 'Your login is not recognized. Your server administrator may need to verify that your account is in the correct Active Directory group.<br />';
+    echo 'Session expired, please refresh the page.<br /><br />If this message persists, please contact your administrator.';
+    echo '<br />' . $login->getName();
+    echo '<br />' . $login->getUserID();
+    $login->logout(); // destroy current session tokens
     exit;
 }
 

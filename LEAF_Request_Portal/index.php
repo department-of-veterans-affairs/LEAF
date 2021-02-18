@@ -39,11 +39,9 @@ $login->loginUser();
 if (!$login->isLogin() || !$login->isInDB())
 {
     echo 'Session expired, please refresh the page.<br /><br />If this message persists, please contact your administrator.';
-    // echo 'Session expired, please refresh the page.<br /><br />If this message persists, please include the following information to your administrator:';
-    // echo '<pre>';
-    //print_r($_SESSION);
-    //echo '</pre>';
-    $login->logout();
+    echo '<br />' . $login->getName();
+    echo '<br />' . $login->getUserID();
+    $login->logout(); // destroy current session tokens
     exit;
 }
 
