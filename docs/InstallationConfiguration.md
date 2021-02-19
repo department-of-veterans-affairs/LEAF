@@ -6,6 +6,7 @@ Install Docker for Desktop
 
 # Installation
 
+`git config --global core.autocrlf false`  
 Clone this project into a directory on your computer (example: C:\Desktop\Projects).
 
 # Configuration
@@ -23,6 +24,12 @@ const DIRECTORY_HOST = 'mysql';
 const DIRECTORY_DB = 'leaf_users';
 const DIRECTORY_USER = 'tester';
 const DIRECTORY_PASS = 'tester';
+const LEAF_NEXUS_URL = 'https://localhost/LEAF_Nexus/';
+const HTTP_HOST = 'localhost';
+
+const AUTH_URL = 'localhost/LEAF_Nexus/auth_domain';
+
+//const AUTH_TYPE = 'cookie';
 ```
 	
 Copy `config-example.php` to `config.php` and change the following variables to reflect your setup:
@@ -40,17 +47,22 @@ Copy `globals.php.example` to `globals.php` and change the following variables t
 
 ```php
 const DIRECTORY_HOST = 'mysql';
-const DIRECTORY_DB = 'leaf_users';
-const DIRECTORY_USER = 'dbportaluser';
-const DIRECTORY_PASS = 'dbportalpass';
-const LEAF_NEXUS_URL = 'https://localhost/LEAF_Nexus/'
+const DIRECTORY_DB = 'leaf_portal';
+const DIRECTORY_USER = 'tester';
+const DIRECTORY_PASS = 'tester';
+const LEAF_NEXUS_URL = 'https://localhost/LEAF_Nexus/';
+const HTTP_HOST = 'localhost';
+
+const AUTH_URL = 'localhost/LEAF_Nexus/auth_domain';
+
+//const AUTH_TYPE = 'cookie';
 ```
 
 Copy `db_config-example.php` to `db_config.php` and change the following variables to reflect your setup:
 
 ```php
 $dbHost = 'mysql'
-$dbName = 'leaf_users'
+$dbName = 'leaf_portal'
 $dbUser = 'tester'
 $dbPass = 'tester'
 
@@ -62,6 +74,13 @@ $phonedbPass = 'tester'
 # this should point to the LEAF Nexus base path 
 $orgchartPath = '../LEAF_Nexus'
 ```
+
+## Docker Compose
+
+Open up a terminal and navigate to the LEAF/docker directory.  
+Run the command `docker-compose up -build -d`  
+Docker will build the local environment based on the docker-compose.yml file.  
+Check to see that docker is running your local environment.  
 
 ## Running
 
