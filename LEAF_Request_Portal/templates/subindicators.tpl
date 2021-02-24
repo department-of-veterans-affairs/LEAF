@@ -297,11 +297,17 @@
         <!--{if $indicator.format == 'date' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
                 <input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="background: url(../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="<!--{$indicator.value|sanitize}-->" />
+                <input class="ui-helper-hidden-accessible" id="focusfix" type="text" autofocus/>
             </span>
             <script>
             $(function() {
-            	$('#<!--{$indicator.indicatorID|strip_tags}-->').datepicker();
-                $('#<!--{$indicator.indicatorID|strip_tags}-->').datepicker('option', 'showAnim', 'slideDown');
+                $('#<!--{$indicator.indicatorID|strip_tags}-->').datepicker({
+                    autoHide: true,
+                    showAnim: "slideDown",
+                    onSelect: function() {
+                        $('#focusfix').focus();
+                    }
+                });
             });
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
