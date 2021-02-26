@@ -6,8 +6,10 @@ Install Docker for Desktop
 
 # Installation
 
-`git config --global core.autocrlf false`  
+Open Git Bash
+Run the command `git config --global core.autocrlf false`  
 Clone this project into a directory on your computer (example: C:\Desktop\Projects).
+`git clone <repo url>`
 
 # Configuration
 
