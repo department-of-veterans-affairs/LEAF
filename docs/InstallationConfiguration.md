@@ -78,7 +78,7 @@ $orgchartPath = '../LEAF_Nexus'
 ## Docker Compose
 
 Open up a terminal and navigate to the LEAF/docker directory.  
-Run the command `docker-compose up -build -d`  
+Run the command `docker-compose up --build -d`  
 Docker will build the local environment based on the docker-compose.yml file.  
 Check to see that docker is running your local environment.  
 
