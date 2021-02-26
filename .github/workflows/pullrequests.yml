@@ -29,6 +29,6 @@ jobs:
           # Message theme color
           theme_color: ''
           # JSON array for message sections
-          sections: '[{ "activityImage": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png", "activityTitle": "Pull Request",  "activitySubtitle": "Event triggered by ${{ github.event.pull_request.user.login }}", "activityText": "Commit message: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})" }]'
+          sections: '[{ "activityImage": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png", "activityTitle": "Pull Request",  "activitySubtitle": "Event triggered by ${{ github.event.pull_request.user.login }}", "activityText": "Pull Request: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})" }]'
           # JSON array for message actions
           actions: '[{ "@type": "OpenUri", "name": "View Pull Request", "targets": [{ "os": "default", "uri": "${{ github.event.pull_request.html_url }}" }] }]'
