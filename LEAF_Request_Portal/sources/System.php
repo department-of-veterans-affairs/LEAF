@@ -311,29 +311,34 @@ class System
         return $out;
     }
 
-    public function getEmailSubjectData($template, $getStandard = false)
+    public function getEmailData($template, $getStandard = false)
     {
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
         }
 
-        $data['subjectFileName'] = '';
-        $data['subjectFile'] = '';
+        $data = array();
 
+        // If we have a body file, we need to add subject, emailTo, and emailCC template files
         if (preg_match('/_body.tpl$/', $template))
         {
-            $subject = str_replace("_body.tpl", "_subject.tpl", $template, $count);
+            // We have a body template (non-default) so grab what kind
+            $emailKind = str_replace("_body.tpl", "", $template, $count);
             if ($count == 1)
             {
-                $data['subjectFileName'] = $subject;
+                $emailData = array('email_to', 'email_cc', 'subject');
 
-                if (file_exists("../templates/email/custom_override/{$subject}") && !$getStandard)
-                    $data['subjectFile'] = file_get_contents("../templates/email/custom_override/{$subject}");          
-                else if (file_exists("../templates/email/{$subject}"))
-                    $data['subjectFile'] = file_get_contents("../templates/email/{$subject}");
-                else
-                    $data['subjectFile'] = '';
+                foreach ($emailData as $dataType) {
+                    $data[$dataType.'FileName'] = $emailKind.'_'.$dataType.'.tpl';
+
+                    if (file_exists("../templates/email/custom_override/{$data[$dataType.'FileName']}") && !$getStandard)
+                        $data[$dataType.'File'] = file_get_contents("../templates/email/custom_override/{$data[$dataType.'FileName']}");
+                    else if (file_exists("../templates/email/{$data[$dataType.'FileName']}"))
+                        $data[$dataType.'File'] = file_get_contents("../templates/email/{$data[$dataType.'FileName']}");
+                    else
+                        $data[$dataType.'File'] = '';
+                }
             }
         }
 
@@ -353,12 +358,16 @@ class System
             if (preg_match('/.tpl$/', $item))
             {
                 $temp =  array();
-                preg_match('/subject/', $item, $temp);
+                $emailData = array('email_to', 'email_cc', 'subject');
+
+                preg_match('/subject|email_to|email_cc/', $item, $temp);
                 if (count($temp) == 0) 
                 {                    
                     $data['fileName'] = $item;
-                    $res = $this->getEmailSubjectData($item);
-                    $data['subjectFileName'] = $res['subjectFileName'];
+                    $res = $this->getEmailData($item);
+                    foreach ($emailData as $dataType) {
+                        $data[$dataType.'FileName'] = $res[$dataType.'FileName'];
+                    }
                     $out[] = $data;
                 }
             }
@@ -440,7 +449,7 @@ class System
                 $data['file'] = file_get_contents("../templates/email/{$template}");
             }
 
-            $res = $this->getEmailSubjectData($template, $getStandard);
+            $res = $this->getEmailData($template, $getStandard);
             $data['subjectFile'] = $res['subjectFile'];
         }
 
