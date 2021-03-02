@@ -1,6 +1,6 @@
-<link rel=stylesheet href="../../libs/js/codemirror/addon/merge/merge.css">
-<script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
-<script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
+<link rel=stylesheet href="/libs/js/codemirror/addon/merge/merge.css">
+<script src="/libs/js/diff-match-patch/diff-match-patch.js"></script>
+<script src="/libs/js/codemirror/addon/merge/merge.js"></script>
 <style>
 /* Glyph to improve usability of code compare */
 .CodeMirror-merge-copybuttons-left > .CodeMirror-merge-copy {
@@ -30,6 +30,16 @@
 
         <div id="codeContainer" class="leaf-code-container">
 
+            <div id="emailTo" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
+            <div id="divEmailTo" style="border: 1px solid black">
+                <textarea id="emailToCode" style="width: 95%;"></textarea>
+                <div id="emailToCompare"></div>
+            </div>
+            <div id="emailCc" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
+            <div id="divEmailCc" style="border: 1px solid black">
+                <textarea id="emailCcCode" style="width: 95%;"></textarea>
+                <div id="emailCcCompare"></div>
+            </div>
             <div id="subject" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
             <div id="divSubject" style="border: 1px solid black">
                 <textarea id="subjectCode"></textarea>
@@ -238,12 +248,19 @@ var currentFile = '';
 var currentSubjectFile = '';
 var currentFileContent = '';
 var currentSubjectContent = '';
+// Create psuedo object for storing files and content per piece needed (later change to DB held
+var dataObj = {};
+var dataTypes = ['emailTo', 'emailCc', 'template' , 'subject'];
+for (var i = 0; i < dataTypes.length; i++) {
+    dataObj[dataTypes[i]] = { 'name': dataTypes[i], 'file': '', 'filecontent': '' };
+}
+
 function loadContent(file, subjectFile) {
     if(file == undefined) {
-        file = currentFile;
+        file = dataObj.template['file'];
     }
     if(subjectFile == undefined) {
-    	subjectFile = currentSubjectFile;
+        subjectFile = dataObj.subject['file'];
     }
     $('.CodeMirror').remove();
     $('#codeCompare').empty();
@@ -251,24 +268,33 @@ function loadContent(file, subjectFile) {
     $('#btn_compareStop').css('display', 'none');
     
     initEditor();
-	currentFile = file;
-	currentSubjectFile = subjectFile;
-	$('#codeContainer').css('display', 'none');
-	$('#controls').css('visibility', 'visible');
-	$('#filename').html(file.replace('.tpl', ''));
+    $('#codeContainer').css('display', 'none');
+    $('#controls').css('visibility', 'visible');
 
-	if (subjectFile == '')
+    dataObj.template['file'] = file;
+	dataObj.subject['file'] = subjectFile;
+	dataObj.emailTo['file'] = dataObj.subject['file'].replace('subject', 'emailTo');
+    dataObj.emailCc['file'] = dataObj.subject['file'].replace('subject', 'emailCc');
+    $('#filename').html(dataObj.template['file'].replace('.tpl', '').replaceAll('_', ' '));
+
+	if (dataObj.subject["file"] === '')
 	{
-		$('#subject').hide();
-        $('#divSubject').hide();
+		$('#subject, #emailTo, #emailCc').hide();
+        $('#divSubject, #divEmailTo, #divEmailCc').hide().attr('disabled', 'disabled');
 		subjectEditor.setOption("readOnly", true);
 	}
 	else
 	{
-        $('#subject').show();
-        $('#divSubject').show();
-		$('#subject').html(subjectFile.replace('.tpl', ''));
+        $('#subject, #emailTo, #emailCc').show();
+        $('#divSubject, #divEmailTo, #divEmailCc').show().removeAttr('disabled');
+        for (i = 0; i < dataTypes.length; i++) {
+            showObj = dataObj[dataTypes[i]];
+            if (showObj['name'] != 'template') {
+                $('#'+showObj['name']).html(showObj['file'].replace('.tpl', '').replaceAll('_', ' '));
+            }
+        }
 	}
+
 
 	$.ajax({
 		type: 'GET',
