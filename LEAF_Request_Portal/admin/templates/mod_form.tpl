@@ -970,7 +970,7 @@ function getForm(indicatorID, series) {
                 <div id="container_indicatorGrid" style="display: none"><span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>\
                 </br><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>&nbsp;\
                 </br></br>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\
-                <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
+                <fieldset><legend>Default Answer</legend><textarea id="default" style="width: 50%;"></textarea></fieldset></fieldset>\
             <fieldset><legend>Attributes</legend>\
                 <table>\
                     <tr>\
@@ -1302,8 +1302,8 @@ function getForm(indicatorID, series) {
                             break;
                     }
                 }
-                dialog.indicateIdle();
                 $('#xhr').scrollTop(0);
+                dialog.indicateIdle();
             },
             cache: false
         });
