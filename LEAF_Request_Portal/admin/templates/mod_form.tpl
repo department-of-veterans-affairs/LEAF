@@ -535,7 +535,7 @@ function newQuestion(parentIndicatorID) {
                 <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
                 <div id="container_indicatorGrid" style="display: none"><span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>\
                 </br><button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" onclick="addCells()"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>\
-                <br/><br/>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\n                <div style="float: right">Default Answer<br /><textarea id="default"></textarea></div></fieldset>\
+                <br/><br/>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\n                <fieldset><legend>Default Answer</legend><textarea id="default" style="width: 50%;"></textarea></fieldset></fieldset>\
                     <fieldset><legend>Attributes</legend>\
                         <table>\
                             <tr>\
