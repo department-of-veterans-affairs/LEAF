@@ -741,11 +741,11 @@ class FormWorkflow
     /**
      * Checks if logged in user serves as a backup for given empUID
      * Also returns true when the logged in user has the same empUID
-     * @param string $empUID empUID to check 
+     * @param string $empUID empUID to check
      * @return boolean
      */
     public function checkIfBackup($empUID)
-    { 
+    {
 
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':empId' => $empUID);
@@ -1019,6 +1019,17 @@ class FormWorkflow
 
                     $author = $dir->lookupLogin($this->login->getUserID());
                     $email->setSender($author[0]['Email']);
+
+                    // Get backups to requester so they can be notified as well
+                    $nexusDB = $this->login->getNexusDB();
+                    $vars = array(':empUID' => $author[0]['empUID']);
+                    $backupIds = $nexusDB->prepared_query('SELECT backupEmpUID FROM relation_employee_backup WHERE empUID = :empUID', $vars);
+
+                    // Add backups to email recepients
+                    foreach($backupIds as $backup) {
+                      $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
+                      $email->addRecipient($theirBackup[0]['Email']);
+                    }
 
                     $tmp = $dir->lookupLogin($approvers[0]['userID']);
                     $email->addRecipient($tmp[0]['Email']);
