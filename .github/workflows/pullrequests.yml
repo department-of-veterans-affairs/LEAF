@@ -1,0 +1,34 @@
+name: PR
+
+on:
+  # Trigger the workflow on push or pull request for master, dev and preprod
+  push:
+    branches:
+      - master
+      - dev
+      - preprod
+  pull_request:
+    branches:
+      - dev
+      - preprod
+jobs:
+  send-team-notification:
+    name: PullRequestAction
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull Request
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: aliencube/microsoft-teams-actions@v0.8.0
+        with:
+          webhook_uri: ${{ secrets.WEBHOOK_URI }}
+          title: ''
+          # Message summary
+          summary: 'Pull Request'
+          # Message text
+          text: ''
+          # Message theme color
+          theme_color: ''
+          # JSON array for message sections
+          sections: '[{ "activityImage": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png", "activityTitle": "Pull Request",  "activitySubtitle": "Event triggered by ${{ github.event.pull_request.user.login }}", "activityText": "Pull Request: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})" }]'
+          # JSON array for message actions
+          actions: '[{ "@type": "OpenUri", "name": "View Pull Request", "targets": [{ "os": "default", "uri": "${{ github.event.pull_request.html_url }}" }] }]'

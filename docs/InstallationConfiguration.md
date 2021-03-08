@@ -6,8 +6,10 @@ Install Docker for Desktop
 
 # Installation
 
-`git config --global core.autocrlf false`  
+Open Git Bash
+Run the command `git config --global core.autocrlf false`  
 Clone this project into a directory on your computer (example: C:\Desktop\Projects).
+`git clone <repo url>`
 
 # Configuration
 
@@ -78,7 +80,7 @@ $orgchartPath = '../LEAF_Nexus'
 ## Docker Compose
 
 Open up a terminal and navigate to the LEAF/docker directory.  
-Run the command `docker-compose up -build -d`  
+Run the command `docker-compose up --build -d`  
 Docker will build the local environment based on the docker-compose.yml file.  
 Check to see that docker is running your local environment.  
 
