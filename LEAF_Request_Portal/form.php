@@ -832,6 +832,17 @@ class Form
             $categoryNames[$cat['categoryID']] = $cat['categoryName'];
         }
 
+        $vars = array(':parentID' => $resCategory[0]['categoryID']);
+
+        $resInternal = $this->db->prepared_query('SELECT * FROM categories
+                                            WHERE parentID=:parentID', $vars);
+
+        $count = count($resInternal);
+        $internalIDs = array();
+        for ($i = 0; $i < $count;$i++) {
+            $internalIDs[$i] = $resInternal[$i]['categoryID'];
+        }
+
         if (count($res) == 0)
         {
             return array('name' => 'None',
@@ -877,6 +888,7 @@ class Form
                       'stepID' => $res[0]['stepID'],
                       'deleted' => $res[0]['deleted'],
                       'bookmarked' => $res[0]['tag'],
+                      'internalForms' => $internalIDs,
                       'categories' => $categoryData,
                       'categoryNames' => $categoryNames, );
 
