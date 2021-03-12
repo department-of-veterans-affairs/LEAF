@@ -80,7 +80,7 @@ var printer = function() {
                 doc.line(10, height - 10, width - 10, height - 10);
                 doc.setFontSize(10);
                 doc.setFont("times");
-                if (requestInfo['workflows'].length > 1) {
+                if (requestInfo['workflows'].length > 0) {
                     doc.text("Multiple forms", 10, height - 7);
                 } else {
                     doc.text(requestInfo['workflows'][0][0]['categoryName'], 10, height - 7);
@@ -105,6 +105,7 @@ var printer = function() {
             }
 
             function makeEntry(indicator, parentIndex, depth, numAtLevel, index) {
+                console.log(indicator);
                 var required = Number(indicator.required) === 1 ? ' *' : '';
                 var number = depth === 0 ? index : parentIndex + '.' + subCount;
                 var title = typeof (indicator.description) !== "undefined"
@@ -770,7 +771,22 @@ var printer = function() {
                 }
             }
 
-            $.each(data, function (i) {
+            function makeInternal(data2) {
+                if (requestInfo['internalForms'].length > 0) {
+                    //console.log(data2);
+                    $.each(data2, function (i) {
+                        makeEntry(this, null, 0, 0, i + 1);
+                        verticalShift += -4;
+                        subShift = true;
+                        if (this.child !== undefined && this.child !== null) {
+                            makeCount = 0;
+                            subNewRow();
+                        }
+                    });
+                }
+            }
+
+            /*$.each(data, function (i) {
                 makeEntry(this, null, 0, 0, i + 1);
                 verticalShift += -4;
                 subShift = true;
@@ -778,7 +794,30 @@ var printer = function() {
                     makeCount = 0;
                     subNewRow();
                 }
-            });
+            });*/
+
+            if (requestInfo['internalForms'].length > 0) {
+                $.each(requestInfo['internalForms'], function (i) {
+                    if (i !== requestInfo['internalForms'].length) {
+                        pageFooter(false);
+                    }
+                    doc.addPage();
+                    $.ajax({
+                        method: 'GET',
+                        url: './api/form/' + recordID + '/_' + requestInfo['internalForms'][i] + '/data/tree',
+                        dataType: 'json',
+                        cache: false,
+                    }).done(function (res) {
+                        var internalFormData = res;
+                        checkBlank(internalFormData);
+                        blank = blankIndicators === indicatorCount;
+                        makeInternal(internalFormData);
+                    }).fail(function (err) {
+                        console.log(err);
+                        alert("Could not retrieve indicator data");
+                    });
+                });
+            }
 
             verticalShift += 16;
             doc.text('* = required field', 200, verticalShift, null, null, 'right');
@@ -851,8 +890,8 @@ var printer = function() {
             }
         }
 
-        function checkBlank() {
-            $.each(indicators, function () {
+        function checkBlank(ind) {
+            $.each(ind, function () {
                 indicatorCount++;
                 switch (this.format) {
                     case 'grid':
@@ -875,13 +914,14 @@ var printer = function() {
         function getIndicatorData() {
             $.ajax({
                 method: 'GET',
-                url: './api/?a=form/' + recordID + '/data/tree',
+                url: './api/form/' + recordID + '/data/tree',
                 dataType: 'json',
                 cache: false
             }).done(function (res) {
                 indicators = res;
-                checkBlank();
+                checkBlank(indicators);
                 blank = blankIndicators === indicatorCount;
+                console.log(indicatorCount);
                 var submitted = Number(requestInfo['submitted']) > 0;
                 var actionCompleted = typeof (requestInfo['lastAction']) !== "undefined";
                 if (!blank || submitted) {
@@ -1125,6 +1165,7 @@ var printer = function() {
                         requestInfo['submitted'] = res['submitted'];
                         requestInfo['categories'] = Object.keys(res['categories']);
                         requestInfo['workflows'] = [];
+                        requestInfo['internalForms'] = res['internalForms'];
                         getWorkflowID(requestInfo['categories'], 0);
                     }
                 )
