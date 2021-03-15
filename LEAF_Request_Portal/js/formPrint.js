@@ -14,6 +14,7 @@ var printer = function() {
         var verticalShift = 17;
 
         var requestInfo = new Object();
+        var internalInfo = new Array();
         var homeQR = document.createElement('img');
         var homeURL = encodeURIComponent($('a[href="./"]')[0].href);
         homeQR.setAttribute('class', 'print nodisplay');
@@ -105,7 +106,6 @@ var printer = function() {
             }
 
             function makeEntry(indicator, parentIndex, depth, numAtLevel, index) {
-                console.log(indicator);
                 var required = Number(indicator.required) === 1 ? ' *' : '';
                 var number = depth === 0 ? index : parentIndex + '.' + subCount;
                 var title = typeof (indicator.description) !== "undefined"
@@ -771,22 +771,40 @@ var printer = function() {
                 }
             }
 
-            function makeInternal(data2) {
-                if (requestInfo['internalForms'].length > 0) {
-                    //console.log(data2);
-                    $.each(data2, function (i) {
-                        makeEntry(this, null, 0, 0, i + 1);
-                        verticalShift += -4;
-                        subShift = true;
-                        if (this.child !== undefined && this.child !== null) {
-                            makeCount = 0;
-                            subNewRow();
-                        }
+            function getInternalData() {
+                $.each(requestInfo['internalForms'], function (i) {
+                    $.ajax({
+                        method: 'GET',
+                        url: './api/form/' + recordID + '/_' + requestInfo['internalForms'][i] + '/data/tree',
+                        dataType: 'json',
+                        cache: false,
+                        async: false
+                    }).done(function (res) {
+                        pageFooter(false);
+                        doc.addPage();
+                        verticalShift = 17;
+                        createHeader(res, true, i);
+                        makeInternal(res);
+                    }).fail(function (err) {
+                        console.log(err);
+                        alert("Could not retrieve indicator data");
                     });
-                }
+                });
             }
 
-            /*$.each(data, function (i) {
+            function makeInternal(data2) {
+                $.each(data2, function (i) {
+                    makeEntry(this, null, 0, 0, i + 1);
+                    verticalShift += -4;
+                    subShift = true;
+                    if (this.child !== undefined && this.child !== null) {
+                        makeCount = 0;
+                        subNewRow();
+                    }
+                });
+            }
+
+            $.each(data, function (i) {
                 makeEntry(this, null, 0, 0, i + 1);
                 verticalShift += -4;
                 subShift = true;
@@ -794,29 +812,10 @@ var printer = function() {
                     makeCount = 0;
                     subNewRow();
                 }
-            });*/
+            });
 
             if (requestInfo['internalForms'].length > 0) {
-                $.each(requestInfo['internalForms'], function (i) {
-                    if (i !== requestInfo['internalForms'].length) {
-                        pageFooter(false);
-                    }
-                    doc.addPage();
-                    $.ajax({
-                        method: 'GET',
-                        url: './api/form/' + recordID + '/_' + requestInfo['internalForms'][i] + '/data/tree',
-                        dataType: 'json',
-                        cache: false,
-                    }).done(function (res) {
-                        var internalFormData = res;
-                        checkBlank(internalFormData);
-                        blank = blankIndicators === indicatorCount;
-                        makeInternal(internalFormData);
-                    }).fail(function (err) {
-                        console.log(err);
-                        alert("Could not retrieve indicator data");
-                    });
-                });
+                getInternalData();
             }
 
             verticalShift += 16;
@@ -911,6 +910,74 @@ var printer = function() {
             });
         }
 
+        function createHeader(headerData, internal, i) {
+            checkBlank(headerData);
+            blank = blankIndicators === indicatorCount;
+            var submitted = Number(requestInfo['submitted']) > 0;
+            var actionCompleted = typeof (requestInfo['lastAction']) !== "undefined";
+            if (!blank || submitted) {
+                var splitRequestTitle = doc.splitTextToSize(requestInfo['title'], 150);
+                if (splitRequestTitle[0].length > 40) {
+                    $.each(splitRequestTitle, function () {
+                        doc.text(this.toString(), 35, verticalShift);
+                        verticalShift += 7
+                    });
+                } else {
+                    doc.text(splitRequestTitle[0].toString(), 35, verticalShift);
+                }
+                doc.text($('span#headerTab').text(), 200, verticalShift, null, null, 'right');
+                verticalShift += 7;
+                doc.text('Initiated by ' + requestInfo['name'], 200, verticalShift, null, null, 'right');
+                doc.setTextColor(80, 80, 80);
+                doc.setFontStyle("italic");
+                $.each(requestInfo['workflows'], function () {
+                    if (internal == true) {
+                        doc.text(internalInfo[i], 35, verticalShift);
+                    } else {
+                        doc.text(this[0]['categoryName'], 35, verticalShift);
+                    }
+                    verticalShift += 7
+                });
+                doc.text($('#headerLabel').text(), 35, verticalShift);
+                doc.setTextColor(0, 0, 0);
+                doc.setFontType('normal');
+                if (!submitted) {
+                    doc.text("Not submitted", 200, verticalShift, null, null, 'right');
+                } else {
+                    var submitTime = new Date(Number(requestInfo['submitted']) * 1000);
+                    doc.text("Submitted " + getDate(submitTime), 200, verticalShift, null, null, 'right');
+                    if (actionCompleted && requestInfo['lastAction']['action'] !== 'Submitted') {
+                        var actionTime = new Date(Number(requestInfo['lastAction']['time']) * 1000);
+                        verticalShift += 14;
+                        doc.rect(10, verticalShift, 190, 8);
+                        doc.text(requestInfo['lastAction']['description']
+                            + ' ' + requestInfo['lastAction']['action']
+                            + ' by ' + requestInfo['lastAction']['userID']
+                            + ' ' + getDate(actionTime), 11, verticalShift + 6);
+                        verticalShift += 8;
+                    }
+                }
+                doc.addImage(getBase64Image($('img[alt="QR code"]')[0]), 'PNG', 8.5, 8, 25, 25);
+            } else {
+                doc.setFontSize(8);
+                doc.text("Name:", 150, verticalShift);
+                doc.line(160, verticalShift, 200, verticalShift);
+                doc.text("Date:", 152, verticalShift + 7);
+                doc.line(160, verticalShift + 7, 200, verticalShift + 7);
+                doc.setFontSize(12);
+                $.each(requestInfo['workflows'], function () {
+                    doc.text(this[0]['categoryName'], 35, verticalShift);
+                    verticalShift += 7
+                });
+                doc.setTextColor(80, 80, 80);
+                doc.setFontStyle("italic");
+                doc.text($('#headerLabel').text(), 35, verticalShift);
+                doc.setTextColor(0, 0, 0);
+                doc.setFontType('normal');
+                doc.addImage(getBase64Image(homeQR), 'PNG', 8.5, 8, 25, 25);
+            }
+        }
+
         function getIndicatorData() {
             $.ajax({
                 method: 'GET',
@@ -919,68 +986,7 @@ var printer = function() {
                 cache: false
             }).done(function (res) {
                 indicators = res;
-                checkBlank(indicators);
-                blank = blankIndicators === indicatorCount;
-                console.log(indicatorCount);
-                var submitted = Number(requestInfo['submitted']) > 0;
-                var actionCompleted = typeof (requestInfo['lastAction']) !== "undefined";
-                if (!blank || submitted) {
-                    var splitRequestTitle = doc.splitTextToSize(requestInfo['title'], 150);
-                    if (splitRequestTitle[0].length > 40) {
-                        $.each(splitRequestTitle, function () {
-                            doc.text(this.toString(), 35, verticalShift);
-                            verticalShift += 7
-                        });
-                    } else {
-                        doc.text(splitRequestTitle[0].toString(), 35, verticalShift);
-                    }
-                    doc.text($('span#headerTab').text(), 200, verticalShift, null, null, 'right');
-                    verticalShift += 7;
-                    doc.text('Initiated by ' + requestInfo['name'], 200, verticalShift, null, null, 'right');
-                    doc.setTextColor(80, 80, 80);
-                    doc.setFontStyle("italic");
-                    $.each(requestInfo['workflows'], function () {
-                        doc.text(this[0]['categoryName'], 35, verticalShift);
-                        verticalShift += 7
-                    });
-                    doc.text($('#headerLabel').text(), 35, verticalShift);
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFontType('normal');
-                    if (!submitted) {
-                        doc.text("Not submitted", 200, verticalShift, null, null, 'right');
-                    } else {
-                        var submitTime = new Date(Number(requestInfo['submitted']) * 1000);
-                        doc.text("Submitted " + getDate(submitTime), 200, verticalShift, null, null, 'right');
-                        if (actionCompleted && requestInfo['lastAction']['action'] !== 'Submitted') {
-                            var actionTime = new Date(Number(requestInfo['lastAction']['time']) * 1000);
-                            verticalShift += 14;
-                            doc.rect(10, verticalShift, 190, 8);
-                            doc.text(requestInfo['lastAction']['description']
-                                + ' ' + requestInfo['lastAction']['action']
-                                + ' by ' + requestInfo['lastAction']['userID']
-                                + ' ' + getDate(actionTime), 11, verticalShift + 6);
-                            verticalShift += 8;
-                        }
-                    }
-                    doc.addImage(getBase64Image($('img[alt="QR code"]')[0]), 'PNG', 8.5, 8, 25, 25);
-                } else {
-                    doc.setFontSize(8);
-                    doc.text("Name:", 150, verticalShift);
-                    doc.line(160, verticalShift, 200, verticalShift);
-                    doc.text("Date:", 152, verticalShift + 7);
-                    doc.line(160, verticalShift + 7, 200, verticalShift + 7);
-                    doc.setFontSize(12);
-                    $.each(requestInfo['workflows'], function () {
-                        doc.text(this[0]['categoryName'], 35, verticalShift);
-                        verticalShift += 7
-                    });
-                    doc.setTextColor(80, 80, 80);
-                    doc.setFontStyle("italic");
-                    doc.text($('#headerLabel').text(), 35, verticalShift);
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFontType('normal');
-                    doc.addImage(getBase64Image(homeQR), 'PNG', 8.5, 8, 25, 25);
-                }
+                createHeader(indicators, false);
                 makePdf(indicators);
             }).fail(function (err) {
                 console.log(err);
@@ -1148,6 +1154,28 @@ var printer = function() {
             }
         }
 
+        function getInternalFormInfo(internalForms) {
+            for (var i = 0; i < internalForms.length; i++) {
+                $.ajax({
+                    method: 'GET',
+                    url: './api/form/' + recordID + '/_' + internalForms[i],
+                    dataType: "json",
+                    cache: false
+                })
+                    .done(
+                        function (res) {
+                            internalInfo.push(res['items'][0]['name']);
+                        }
+                    )
+                    .fail(
+                        function (err) {
+                            alert('Unable to get form details.');
+                            console.log(err);
+                        }
+                    );
+            }
+        }
+
         function getFormInfo() {
             var fetchURL = './api/?a=form/' + recordID + '/recordinfo';
 
@@ -1166,6 +1194,9 @@ var printer = function() {
                         requestInfo['categories'] = Object.keys(res['categories']);
                         requestInfo['workflows'] = [];
                         requestInfo['internalForms'] = res['internalForms'];
+                        if (requestInfo['internalForms'].length > 0) {
+                            getInternalFormInfo(requestInfo['internalForms']);
+                        }
                         getWorkflowID(requestInfo['categories'], 0);
                     }
                 )
