@@ -81,7 +81,7 @@ var printer = function() {
                 doc.line(10, height - 10, width - 10, height - 10);
                 doc.setFontSize(10);
                 doc.setFont("times");
-                if (requestInfo['workflows'].length > 0) {
+                if (requestInfo['workflows'].length > 1) {
                     doc.text("Multiple forms", 10, height - 7);
                 } else {
                     doc.text(requestInfo['workflows'][0][0]['categoryName'], 10, height - 7);
