@@ -17,10 +17,12 @@ var printer = function() {
         var internalInfo = new Array();
         var homeQR = document.createElement('img');
         var homeURL = encodeURIComponent($('a[href="./"]')[0].href);
+        //get QR code of record
         homeQR.setAttribute('class', 'print nodisplay');
         homeQR.setAttribute('style', "width: 72px");
         homeQR.setAttribute('src', '../libs/qrcode/?encode=' + homeURL);
 
+        //Image entries
         function getBase64Image(img) {
             // Create an empty canvas element
             var canvas = document.createElement("canvas");
@@ -36,6 +38,7 @@ var printer = function() {
             return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
         }
 
+        //cleanup on tags and whitespace
         function cleanTagsAndWhitespace(input) {
             if (typeof (input) !== "undefined" && input !== null) {
                 input = input.replace(/(<li>)/ig, "- ");
@@ -46,14 +49,17 @@ var printer = function() {
             }
         }
 
+        //insert html tags
         function decodeHTMLEntities(str) {
             return $("<div/>").html(str).text();
         }
 
+        //get current date
         function getDate(date) {
             return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
         }
 
+        //Start PDF pass-through of indicators
         function makePdf(data) {
             $('#btn_printForm').html(buttonHtml);
 
@@ -73,6 +79,7 @@ var printer = function() {
             doc.setFont("Helvetica");
             doc.setFontSize(12);
 
+            //Create a page footer for current page
             function pageFooter(isLast) {
                 var originalColor = doc.getTextColor();
                 doc.setFillColor(0);
@@ -98,6 +105,7 @@ var printer = function() {
                 doc.setTextColor(originalColor);
             }
 
+            //Create new row under main entry
             function subNewRow() {
                 numInRow = 0;
                 verticalShift += 12;
@@ -105,6 +113,7 @@ var printer = function() {
                 maxWidth = 190;
             }
 
+            //Create an indicator entry based on information passed through for PDF
             function makeEntry(indicator, parentIndex, depth, numAtLevel, index) {
                 var required = Number(indicator.required) === 1 ? ' *' : '';
                 var number = depth === 0 ? index : parentIndex + '.' + subCount;
@@ -771,6 +780,7 @@ var printer = function() {
                 }
             }
 
+            //Get the internal form indicators
             function getInternalData() {
                 $.each(requestInfo['internalForms'], function (i) {
                     $.ajax({
@@ -792,6 +802,7 @@ var printer = function() {
                 });
             }
 
+            //Create indicator entries for PDF
             function makeInternal(data2) {
                 $.each(data2, function (i) {
                     makeEntry(this, null, 0, 0, i + 1);
@@ -804,6 +815,7 @@ var printer = function() {
                 });
             }
 
+            //Pass through main request indicators
             $.each(data, function (i) {
                 makeEntry(this, null, 0, 0, i + 1);
                 verticalShift += -4;
@@ -814,13 +826,16 @@ var printer = function() {
                 }
             });
 
+            //Pass through internal form indicators
             if (requestInfo['internalForms'].length > 0) {
                 getInternalData();
             }
 
+            //Give space for help text
             verticalShift += 16;
             doc.text('* = required field', 200, verticalShift, null, null, 'right');
 
+            //Check for signatures to add PDF page
             if (typeof (requestInfo['signatures']) !== "undefined" && requestInfo['signatures'].length > 0) {
                 doc.text("Signatures:", 10, verticalShift);
                 verticalShift += 14;
@@ -846,8 +861,10 @@ var printer = function() {
                 });
             }
 
+            //Last page footer
             pageFooter(true);
 
+            //Save PDF name
             if (blank) {
                 if (requestInfo['workflows'].length > 1) {
                     doc.save('MultipleForms.pdf');
@@ -863,6 +880,7 @@ var printer = function() {
         var indicators = new Object();
         var blankIndicators = 0;
 
+        //Check for blanks in child indicators
         function checkBlankChild(indicator) {
             var children = Object.keys(indicator);
 
@@ -889,6 +907,7 @@ var printer = function() {
             }
         }
 
+        //Check for blanks in indicators
         function checkBlank(ind) {
             $.each(ind, function () {
                 indicatorCount++;
@@ -910,6 +929,7 @@ var printer = function() {
             });
         }
 
+        //Create the header for PDF
         function createHeader(headerData, internal, i) {
             checkBlank(headerData);
             blank = blankIndicators === indicatorCount;
@@ -978,6 +998,7 @@ var printer = function() {
             }
         }
 
+        //Get indicator data from API
         function getIndicatorData() {
             $.ajax({
                 method: 'GET',
@@ -994,6 +1015,7 @@ var printer = function() {
             });
         }
 
+        //Get last action of record
         function getLastAction() {
             var fetchURL = './api/?a=formWorkflow/' + recordID + '/lastAction';
 
@@ -1025,6 +1047,7 @@ var printer = function() {
                 );
         }
 
+        //Get workflow current step or state
         function getWorkflowState() {
             if (requestInfo['submitted'] > 0) {
                 var fetchURL = './api/?a=formWorkflow/' + recordID + '/currentStep';
@@ -1055,6 +1078,7 @@ var printer = function() {
             }
         }
 
+        //Get processed signatures if they were signed
         function getSigned() {
             var fetchURL = './api/?a=signature/' + recordID;
 
@@ -1087,6 +1111,7 @@ var printer = function() {
                 );
         }
 
+        //Get signatures if they exist
         function getSignatures(index) {
             var processed = index;
             if (processed === requestInfo['workflows'].length) {
@@ -1124,6 +1149,7 @@ var printer = function() {
             }
         }
 
+        //Get workflow ID for checking signatures
         function getWorkflowID(categoryIDs, index) {
             var processed = index;
             if (processed === categoryIDs.length) {
@@ -1154,6 +1180,7 @@ var printer = function() {
             }
         }
 
+        //Get the internal forms attached infomration
         function getInternalFormInfo(internalForms) {
             for (var i = 0; i < internalForms.length; i++) {
                 $.ajax({
@@ -1176,6 +1203,7 @@ var printer = function() {
             }
         }
 
+        //Get main request form information
         function getFormInfo() {
             var fetchURL = './api/?a=form/' + recordID + '/recordinfo';
 
@@ -1208,6 +1236,7 @@ var printer = function() {
                 );
         }
 
+        //Start process
         getFormInfo();
     }
     return {

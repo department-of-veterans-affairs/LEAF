@@ -832,6 +832,7 @@ class Form
             $categoryNames[$cat['categoryID']] = $cat['categoryName'];
         }
 
+        //Check for Internal Forms of Main categoryID
         $vars = array(':parentID' => $resCategory[0]['categoryID']);
 
         $resInternal = $this->db->prepared_query('SELECT * FROM categories
