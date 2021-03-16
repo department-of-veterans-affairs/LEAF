@@ -775,7 +775,7 @@ var printer = function() {
                 $.each(requestInfo['internalForms'], function (i) {
                     $.ajax({
                         method: 'GET',
-                        url: './api/form/' + recordID + '/_' + requestInfo['internalForms'][i] + '/data/tree',
+                        url: './api/?a=form/' + recordID + '/_' + requestInfo['internalForms'][i] + '/data/tree',
                         dataType: 'json',
                         cache: false,
                         async: false
@@ -981,7 +981,7 @@ var printer = function() {
         function getIndicatorData() {
             $.ajax({
                 method: 'GET',
-                url: './api/form/' + recordID + '/data/tree',
+                url: './api/?a=form/' + recordID + '/data/tree',
                 dataType: 'json',
                 cache: false
             }).done(function (res) {
@@ -1158,7 +1158,7 @@ var printer = function() {
             for (var i = 0; i < internalForms.length; i++) {
                 $.ajax({
                     method: 'GET',
-                    url: './api/form/' + recordID + '/_' + internalForms[i],
+                    url: './api/?a=form/' + recordID + '/_' + internalForms[i],
                     dataType: "json",
                     cache: false
                 })
