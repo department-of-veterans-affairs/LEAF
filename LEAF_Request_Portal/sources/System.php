@@ -327,7 +327,7 @@ class System
             $emailKind = str_replace("_body.tpl", "", $template, $count);
             if ($count == 1)
             {
-                $emailData = array('email_to', 'email_cc', 'subject');
+                $emailData = array('emailTo', 'emailCc', 'subject');
 
                 foreach ($emailData as $dataType) {
                     $data[$dataType.'FileName'] = $emailKind.'_'.$dataType.'.tpl';
@@ -358,9 +358,9 @@ class System
             if (preg_match('/.tpl$/', $item))
             {
                 $temp =  array();
-                $emailData = array('email_to', 'email_cc', 'subject');
+                $emailData = array('emailTo', 'emailCc', 'subject');
 
-                preg_match('/subject|email_to|email_cc/', $item, $temp);
+                preg_match('/subject|emailTo|emailCc/', $item, $temp);
                 if (count($temp) == 0) 
                 {                    
                     $data['fileName'] = $item;
@@ -450,7 +450,11 @@ class System
             }
 
             $res = $this->getEmailData($template, $getStandard);
-            $data['subjectFile'] = $res['subjectFile'];
+
+            $emailInfo = array('emailTo', 'emailCc', 'subject');
+            foreach($emailInfo as $infoType) {
+                $data[$infoType.'File'] = $res[$infoType.'File'];
+            }
         }
 
         return $data;
@@ -483,6 +487,10 @@ class System
         
             if ($_POST['subjectFileName'] != '')
                 file_put_contents("../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
+            if ($_POST['emailToFileName'] != '')
+                file_put_contents("../templates/email/custom_override/" . $_POST['emailToFileName'], $_POST['emailToFile']);
+            if ($_POST['emailCcFileName'] != '')
+                file_put_contents("../templates/email/custom_override/" . $_POST['emailCcFileName'], $_POST['emailCcFile']);
         }
     }
 
@@ -522,6 +530,16 @@ class System
             if ($subjectFileName != '' && file_exists("../templates/email/custom_override/{$subjectFileName}"))
             {
                 unlink("../templates/email/custom_override/{$subjectFileName}");
+            }
+            $emailToFileName = $_REQUEST['emailToFileName'];
+            if ($emailToFileName != '' && file_exists("../templates/email/custom_override/{$emailToFileName}"))
+            {
+                unlink("../templates/email/custom_override/{$emailToFileName}");
+            }
+            $emailCcFileName = $_REQUEST['emailCcFileName'];
+            if ($emailCcFileName != '' && file_exists("../templates/email/custom_override/{$emailCcFileName}"))
+            {
+                unlink("../templates/email/custom_override/{$emailCcFileName}");
             }
         }
     }
