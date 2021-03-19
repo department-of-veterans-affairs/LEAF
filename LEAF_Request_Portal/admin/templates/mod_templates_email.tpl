@@ -13,6 +13,14 @@
 #subjectCompare .CodeMirror-merge, .CodeMirror-merge .CodeMirror {
   height: 50px;
 }
+#emailLists fieldset legend {
+    font-size: 1.5em;
+}
+.emailToCc {
+    padding: 8px;
+    font-size: 140%;
+    font-weight: bold;
+}
 </style>
 
 <div class="leaf-center-content">
@@ -30,15 +38,21 @@
 
         <div id="codeContainer" class="leaf-code-container">
 
-            <div id="emailTo" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
-            <div id="divEmailTo" style="border: 1px solid black">
-                <textarea id="emailToCode" style="width: 95%;"></textarea>
-                <div id="emailToCompare"></div>
-            </div>
-            <div id="emailCc" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
-            <div id="divEmailCc" style="border: 1px solid black">
-                <textarea id="emailCcCode" style="width: 95%;"></textarea>
-                <div id="emailCcCompare"></div>
+            <div id="emailLists">
+                <fieldset><legend>Email To and CC</legend><br />
+                    <p>
+                        Enter email addresses, one per line.  Users will be
+                        emailed each time this template is used in any workflow.
+                    </p>
+                    <div id="emailTo" class="emailToCc"></div>
+                    <div id="divEmailTo">
+                        <textarea id="emailToCode" style="width: 95%;"></textarea>
+                    </div>
+                    <div id="emailCc" class="emailToCc"></div>
+                    <div id="divEmailCc">
+                        <textarea id="emailCcCode" style="width: 95%;"></textarea>
+                    </div>
+                </fieldset>
             </div>
             <div id="subject" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
             <div id="divSubject" style="border: 1px solid black">
@@ -132,10 +146,16 @@
 
 <script>
 
+/**
+ * Function: save
+ * Purpose: Save all fields to template files
+ */
 function save() {
 	$('#saveIndicator').attr('src', '../images/indicator.gif');
-	var data = '';
-	var subject = '';
+	let data = '';
+	let subject = '';
+	// If any changes made to emailTo, emailCc, body or subject
+    // then get edits, else get default values
 	if(codeEditor.getValue == undefined) {
 	    data = codeEditor.edit.getValue();
 	}
@@ -150,12 +170,22 @@ function save() {
 		subject = subjectEditor.getValue();
 	}
 
+	let emailToData = document.getElementById('emailToCode').value;
+	let emailCcData = document.getElementById('emailCcCode').value;
+
+	// Send the email template data to the API to process
 	$.ajax({
 		type: 'POST',
-		data: {CSRFToken: '<!--{$CSRFToken}-->',
-			   file: data,
-			   subjectFile: subject,
-			   subjectFileName: currentSubjectFile},
+		data: {
+            CSRFToken: '<!--{$CSRFToken}-->',
+			file: data,
+			subjectFile: subject,
+			subjectFileName: currentSubjectFile,
+            emailToFile: emailToData,
+            emailToFileName: currentEmailToFile,
+            emailCcFile: emailCcData,
+            emailCcFileName: currentEmailCcFile
+        },
 		url: '../api/system/emailtemplates/_' + currentFile,
 		success: function(res) {
 			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
@@ -164,10 +194,13 @@ function save() {
 			    $('#btn_compare').css('display', 'none');
 			}
 
+			// Show saved time in "Save Changes" button and set current content
             var time = new Date().toLocaleTimeString();
             $('#saveStatus').html('<br /> Last saved: ' + time);
             currentFileContent = data;
             currentSubjectContent = subject;
+            currentEmailToContent = emailToData;
+            currentEmailCcContent = emailCcData;
             if(res != null) {
                 alert(res);
             }
@@ -175,6 +208,10 @@ function save() {
 	});
 }
 
+/**
+ * Function: restore
+ * Purpose: Restore function that removes changes made to template files
+ */
 function restore() {
 	dialog.setTitle('Are you sure?');
 	dialog.setContent('This will restore the template to the original version.');
@@ -182,9 +219,9 @@ function restore() {
 	dialog.setSaveHandler(function() {
 		$.ajax({
 	        type: 'DELETE',
-	        url: '../api/system/emailtemplates/_' + currentFile + '&subjectFileName=' + currentSubjectFile + '&CSRFToken=<!--{$CSRFToken}-->',
+	        url: '../api/system/emailtemplates/_' + currentFile + '&subjectFileName=' + currentSubjectFile + '&emailToFileName='+currentEmailToFile+'&emailCcFileName='+currentEmailCcFile+'&CSRFToken=<!--{$CSRFToken}-->',
 	        success: function() {
-	            loadContent(currentFile, currentSubjectFile);
+	            loadContent(currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
 	        }
 	    });
 		dialog.hide();
@@ -193,6 +230,11 @@ function restore() {
 	dialog.show();
 }
 
+/**
+ * Function: compare
+ * Purpose: Compare for subject and body when changes made
+ *  Uses CodeMirror comparison JS code to show differences
+ */
 var dv;
 function compare() {
     $('.CodeMirror').remove();
@@ -201,10 +243,12 @@ function compare() {
     $('#btn_compare').css('display', 'none');
     $('#btn_compareStop').css('display', 'block');
 
+    // Get default email template fields
     $.ajax({
         type: 'GET',
         url: '../api/system/emailtemplates/_' + currentFile + '/standard',
         success: function(standard) {
+            // Set body changed and default content to show comparison
             codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
                 mode: "htmlmixed",
                 lineNumbers: true,
@@ -221,7 +265,7 @@ function compare() {
                   }
               });
 
-
+            // Set changed subject and default subject to user to show comparison
             subjectEditor = CodeMirror.MergeView(document.getElementById("subjectCompare"), {
                 mode: "htmlmixed",
                 lineNumbers: true,
@@ -248,19 +292,35 @@ var currentFile = '';
 var currentSubjectFile = '';
 var currentFileContent = '';
 var currentSubjectContent = '';
-// Create psuedo object for storing files and content per piece needed (later change to DB held
-var dataObj = {};
-var dataTypes = ['emailTo', 'emailCc', 'template' , 'subject'];
-for (var i = 0; i < dataTypes.length; i++) {
-    dataObj[dataTypes[i]] = { 'name': dataTypes[i], 'file': '', 'filecontent': '' };
-}
+var currentEmailToFile = '';
+var currentEmailToContent = '';
+var currentEmailCcFile = '';
+var currentEmailCcContent = '';
 
-function loadContent(file, subjectFile) {
+/**
+ * @todo - Convert to object for storing files & content not mulitple variables
+ *  so can handle expanded data fields easily
+ */
+
+/**
+ * loadContent Function
+ * Purpose: Takes body and subject files and loads them with content
+ *  either from default template or changed ones
+ * @param file
+ * @param subjectFile
+ */
+function loadContent(file, subjectFile, emailToFile, emailCcFile) {
     if(file == undefined) {
-        file = dataObj.template['file'];
+        file = currentFile;
     }
     if(subjectFile == undefined) {
-        subjectFile = dataObj.subject['file'];
+        subjectFile = currentSubjectFile;
+    }
+    if(emailToFile == undefined) {
+        emailToFile = currentSubjectFile.replace('subject', 'emailTo');
+    }
+    if(emailCcFile == undefined) {
+        emailCcFile = currentSubjectFile.replace('subject', 'emailCc');
     }
     $('.CodeMirror').remove();
     $('#codeCompare').empty();
@@ -271,28 +331,25 @@ function loadContent(file, subjectFile) {
     $('#codeContainer').css('display', 'none');
     $('#controls').css('visibility', 'visible');
 
-    dataObj.template['file'] = file;
-	dataObj.subject['file'] = subjectFile;
-	dataObj.emailTo['file'] = dataObj.subject['file'].replace('subject', 'emailTo');
-    dataObj.emailCc['file'] = dataObj.subject['file'].replace('subject', 'emailCc');
-    $('#filename').html(dataObj.template['file'].replace('.tpl', '').replaceAll('_', ' '));
+    currentFile = file;
+	currentSubjectFile = subjectFile;
+	currentEmailToFile = emailToFile;
+    currentEmailCcFile = emailCcFile;
+    $('#filename').html(file.replace('.tpl', '').replaceAll('_', ' '));
 
-	if (dataObj.subject["file"] === '')
+	if (subjectFile === '')
 	{
-		$('#subject, #emailTo, #emailCc').hide();
+		$('#subject, #emailLists, #emailTo, #emailCc').hide();
         $('#divSubject, #divEmailTo, #divEmailCc').hide().attr('disabled', 'disabled');
 		subjectEditor.setOption("readOnly", true);
 	}
 	else
 	{
-        $('#subject, #emailTo, #emailCc').show();
+        $('#subject, #emailLists, #emailTo, #emailCc').show();
         $('#divSubject, #divEmailTo, #divEmailCc').show().removeAttr('disabled');
-        for (i = 0; i < dataTypes.length; i++) {
-            showObj = dataObj[dataTypes[i]];
-            if (showObj['name'] != 'template') {
-                $('#'+showObj['name']).html(showObj['file'].replace('.tpl', '').replaceAll('_', ' '));
-            }
-        }
+        $('#subject').html(subjectFile.replace('.tpl', ''));
+        $('#emailTo').html(emailToFile.replace('.tpl', ''));
+        $('#emailCc').html(emailCcFile.replace('.tpl', ''));
 	}
 
 
@@ -302,6 +359,8 @@ function loadContent(file, subjectFile) {
 		success: function(res) {
 		    currentFileContent = res.file;
 		    currentSubjectContent = res.subjectFile;
+		    currentEmailToContent = res.emailToFile;
+		    currentEmailCcContent = res.emailCcFile;
 			$('#codeContainer').fadeIn();
 			codeEditor.setValue(res.file);
 			subjectEditor.setValue(res.subjectFile);
@@ -319,6 +378,12 @@ function loadContent(file, subjectFile) {
 
 }
 
+/**
+ * updateEditorSize Function
+ * Purpose: Upon any refresh or change in template fields, the editor's
+ *  container will resize according to layout of page and fire refresh of all
+ *  CodeMirror JS code within the template field
+ */
 function updateEditorSize() {
     codeWidth = $('#codeArea').width() - 30;
     $('#codeContainer').css('width', codeWidth + 'px');
@@ -329,6 +394,10 @@ function updateEditorSize() {
     });
 }
 
+/**
+ * initEditor Function
+ * Purpose: Initiate the CodeMirror editor functions for the body and subject fields
+ */
 function initEditor () {
     codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: "htmlmixed",
@@ -368,6 +437,9 @@ function initEditor () {
     updateEditorSize();
 }
 
+/**
+ * Actual start of page execution
+ */
 var codeEditor = null;
 var subjectEditor = null;
 $(function() {
@@ -379,6 +451,7 @@ $(function() {
         updateEditorSize();
     });
 
+    // Get initial email tempates for page from database
 	$.ajax({
 		type: 'GET',
 		url: '../api/system/emailtemplates',
@@ -386,20 +459,26 @@ $(function() {
 			var buffer = '<ul class="leaf-ul">';
 			for(var i in res) {
 				file = res[i]['fileName'].replace('.tpl', '');
-				buffer += '<li onclick="loadContent(\''+ res[i]['fileName'] +'\', \'' + res[i]['subjectFileName'] + '\');"><a href="#">' + file + '</a></li>';
+				buffer += '<li onclick="loadContent(' +
+                    '\'' + res[i]['fileName'] +'\', ' +
+                    '\'' + res[i]['subjectFileName'] + '\', ' +
+                    '\'' + res[i]['emailToFileName'] + '\', ' +
+                    '\'' + res[i]['emailCcFileName'] + '\');">' +
+                    '<a href="#">' + file + '</a></li>';
 			}
 			buffer += '</ul>';
 			$('#fileList').html(buffer);
 		},
 		cache: false
 	});
-	
-	loadContent('LEAF_main_email_template.tpl', undefined);
-    
+
+	// Load content from those templates to the current main template
+	loadContent('LEAF_main_email_template.tpl', undefined, undefined, undefined);
+
     // Refresh CodeMirror
     $('.CodeMirror').each(function(i, el) {
         el.CodeMirror.refresh();
     });
-    
+
 });
 </script>
