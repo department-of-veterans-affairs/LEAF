@@ -14,12 +14,15 @@ var printer = function() {
         var verticalShift = 17;
 
         var requestInfo = new Object();
+        var internalInfo = new Array();
         var homeQR = document.createElement('img');
         var homeURL = encodeURIComponent($('a[href="./"]')[0].href);
+        //get QR code of record
         homeQR.setAttribute('class', 'print nodisplay');
         homeQR.setAttribute('style', "width: 72px");
         homeQR.setAttribute('src', '../libs/qrcode/?encode=' + homeURL);
 
+        //Image entries
         function getBase64Image(img) {
             // Create an empty canvas element
             var canvas = document.createElement("canvas");
@@ -35,6 +38,7 @@ var printer = function() {
             return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
         }
 
+        //cleanup on tags and whitespace
         function cleanTagsAndWhitespace(input) {
             if (typeof (input) !== "undefined" && input !== null) {
                 input = input.replace(/(<li>)/ig, "- ");
@@ -45,14 +49,17 @@ var printer = function() {
             }
         }
 
+        //insert html tags
         function decodeHTMLEntities(str) {
             return $("<div/>").html(str).text();
         }
 
+        //get current date
         function getDate(date) {
             return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
         }
 
+        //Start PDF pass-through of indicators
         function makePdf(data) {
             $('#btn_printForm').html(buttonHtml);
 
@@ -72,6 +79,7 @@ var printer = function() {
             doc.setFont("Helvetica");
             doc.setFontSize(12);
 
+            //Create a page footer for current page
             function pageFooter(isLast) {
                 var originalColor = doc.getTextColor();
                 doc.setFillColor(0);
@@ -97,6 +105,7 @@ var printer = function() {
                 doc.setTextColor(originalColor);
             }
 
+            //Create new row under main entry
             function subNewRow() {
                 numInRow = 0;
                 verticalShift += 12;
@@ -104,6 +113,7 @@ var printer = function() {
                 maxWidth = 190;
             }
 
+            //Create an indicator entry based on information passed through for PDF
             function makeEntry(indicator, parentIndex, depth, numAtLevel, index) {
                 var required = Number(indicator.required) === 1 ? ' *' : '';
                 var number = depth === 0 ? index : parentIndex + '.' + subCount;
@@ -770,6 +780,42 @@ var printer = function() {
                 }
             }
 
+            //Get the internal form indicators
+            function getInternalData() {
+                $.each(requestInfo['internalForms'], function (i) {
+                    $.ajax({
+                        method: 'GET',
+                        url: './api/?a=form/' + recordID + '/_' + requestInfo['internalForms'][i] + '/data/tree',
+                        dataType: 'json',
+                        cache: false,
+                        async: false
+                    }).done(function (res) {
+                        pageFooter(false);
+                        doc.addPage();
+                        verticalShift = 17;
+                        createHeader(res, true, i);
+                        makeInternal(res);
+                    }).fail(function (err) {
+                        console.log(err);
+                        alert("Could not retrieve indicator data");
+                    });
+                });
+            }
+
+            //Create indicator entries for PDF
+            function makeInternal(data2) {
+                $.each(data2, function (i) {
+                    makeEntry(this, null, 0, 0, i + 1);
+                    verticalShift += -4;
+                    subShift = true;
+                    if (this.child !== undefined && this.child !== null) {
+                        makeCount = 0;
+                        subNewRow();
+                    }
+                });
+            }
+
+            //Pass through main request indicators
             $.each(data, function (i) {
                 makeEntry(this, null, 0, 0, i + 1);
                 verticalShift += -4;
@@ -780,9 +826,16 @@ var printer = function() {
                 }
             });
 
+            //Pass through internal form indicators
+            if (requestInfo['internalForms'].length > 0) {
+                getInternalData();
+            }
+
+            //Give space for help text
             verticalShift += 16;
             doc.text('* = required field', 200, verticalShift, null, null, 'right');
 
+            //Check for signatures to add PDF page
             if (typeof (requestInfo['signatures']) !== "undefined" && requestInfo['signatures'].length > 0) {
                 doc.text("Signatures:", 10, verticalShift);
                 verticalShift += 14;
@@ -808,8 +861,10 @@ var printer = function() {
                 });
             }
 
+            //Last page footer
             pageFooter(true);
 
+            //Save PDF name
             if (blank) {
                 if (requestInfo['workflows'].length > 1) {
                     doc.save('MultipleForms.pdf');
@@ -825,6 +880,7 @@ var printer = function() {
         var indicators = new Object();
         var blankIndicators = 0;
 
+        //Check for blanks in child indicators
         function checkBlankChild(indicator) {
             var children = Object.keys(indicator);
 
@@ -851,8 +907,9 @@ var printer = function() {
             }
         }
 
-        function checkBlank() {
-            $.each(indicators, function () {
+        //Check for blanks in indicators
+        function checkBlank(ind) {
+            $.each(ind, function () {
                 indicatorCount++;
                 switch (this.format) {
                     case 'grid':
@@ -872,6 +929,76 @@ var printer = function() {
             });
         }
 
+        //Create the header for PDF
+        function createHeader(headerData, internal, i) {
+            checkBlank(headerData);
+            blank = blankIndicators === indicatorCount;
+            var submitted = Number(requestInfo['submitted']) > 0;
+            var actionCompleted = typeof (requestInfo['lastAction']) !== "undefined";
+            if (!blank || submitted) {
+                var splitRequestTitle = doc.splitTextToSize(requestInfo['title'], 150);
+                if (splitRequestTitle[0].length > 40) {
+                    $.each(splitRequestTitle, function () {
+                        doc.text(this.toString(), 35, verticalShift);
+                        verticalShift += 7
+                    });
+                } else {
+                    doc.text(splitRequestTitle[0].toString(), 35, verticalShift);
+                }
+                doc.text($('span#headerTab').text(), 200, verticalShift, null, null, 'right');
+                verticalShift += 7;
+                doc.text('Initiated by ' + requestInfo['name'], 200, verticalShift, null, null, 'right');
+                doc.setTextColor(80, 80, 80);
+                doc.setFontStyle("italic");
+                $.each(requestInfo['workflows'], function () {
+                    if (internal == true) {
+                        doc.text(internalInfo[i], 35, verticalShift);
+                    } else {
+                        doc.text(this[0]['categoryName'], 35, verticalShift);
+                    }
+                    verticalShift += 7
+                });
+                doc.text($('#headerLabel').text(), 35, verticalShift);
+                doc.setTextColor(0, 0, 0);
+                doc.setFontType('normal');
+                if (!submitted) {
+                    doc.text("Not submitted", 200, verticalShift, null, null, 'right');
+                } else {
+                    var submitTime = new Date(Number(requestInfo['submitted']) * 1000);
+                    doc.text("Submitted " + getDate(submitTime), 200, verticalShift, null, null, 'right');
+                    if (actionCompleted && requestInfo['lastAction']['action'] !== 'Submitted') {
+                        var actionTime = new Date(Number(requestInfo['lastAction']['time']) * 1000);
+                        verticalShift += 14;
+                        doc.rect(10, verticalShift, 190, 8);
+                        doc.text(requestInfo['lastAction']['description']
+                            + ' ' + requestInfo['lastAction']['action']
+                            + ' by ' + requestInfo['lastAction']['userID']
+                            + ' ' + getDate(actionTime), 11, verticalShift + 6);
+                        verticalShift += 8;
+                    }
+                }
+                doc.addImage(getBase64Image($('img[alt="QR code"]')[0]), 'PNG', 8.5, 8, 25, 25);
+            } else {
+                doc.setFontSize(8);
+                doc.text("Name:", 150, verticalShift);
+                doc.line(160, verticalShift, 200, verticalShift);
+                doc.text("Date:", 152, verticalShift + 7);
+                doc.line(160, verticalShift + 7, 200, verticalShift + 7);
+                doc.setFontSize(12);
+                $.each(requestInfo['workflows'], function () {
+                    doc.text(this[0]['categoryName'], 35, verticalShift);
+                    verticalShift += 7
+                });
+                doc.setTextColor(80, 80, 80);
+                doc.setFontStyle("italic");
+                doc.text($('#headerLabel').text(), 35, verticalShift);
+                doc.setTextColor(0, 0, 0);
+                doc.setFontType('normal');
+                doc.addImage(getBase64Image(homeQR), 'PNG', 8.5, 8, 25, 25);
+            }
+        }
+
+        //Get indicator data from API
         function getIndicatorData() {
             $.ajax({
                 method: 'GET',
@@ -880,67 +1007,7 @@ var printer = function() {
                 cache: false
             }).done(function (res) {
                 indicators = res;
-                checkBlank();
-                blank = blankIndicators === indicatorCount;
-                var submitted = Number(requestInfo['submitted']) > 0;
-                var actionCompleted = typeof (requestInfo['lastAction']) !== "undefined";
-                if (!blank || submitted) {
-                    var splitRequestTitle = doc.splitTextToSize(requestInfo['title'], 150);
-                    if (splitRequestTitle[0].length > 40) {
-                        $.each(splitRequestTitle, function () {
-                            doc.text(this.toString(), 35, verticalShift);
-                            verticalShift += 7
-                        });
-                    } else {
-                        doc.text(splitRequestTitle[0].toString(), 35, verticalShift);
-                    }
-                    doc.text($('span#headerTab').text(), 200, verticalShift, null, null, 'right');
-                    verticalShift += 7;
-                    doc.text('Initiated by ' + requestInfo['name'], 200, verticalShift, null, null, 'right');
-                    doc.setTextColor(80, 80, 80);
-                    doc.setFontStyle("italic");
-                    $.each(requestInfo['workflows'], function () {
-                        doc.text(this[0]['categoryName'], 35, verticalShift);
-                        verticalShift += 7
-                    });
-                    doc.text($('#headerLabel').text(), 35, verticalShift);
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFontType('normal');
-                    if (!submitted) {
-                        doc.text("Not submitted", 200, verticalShift, null, null, 'right');
-                    } else {
-                        var submitTime = new Date(Number(requestInfo['submitted']) * 1000);
-                        doc.text("Submitted " + getDate(submitTime), 200, verticalShift, null, null, 'right');
-                        if (actionCompleted && requestInfo['lastAction']['action'] !== 'Submitted') {
-                            var actionTime = new Date(Number(requestInfo['lastAction']['time']) * 1000);
-                            verticalShift += 14;
-                            doc.rect(10, verticalShift, 190, 8);
-                            doc.text(requestInfo['lastAction']['description']
-                                + ' ' + requestInfo['lastAction']['action']
-                                + ' by ' + requestInfo['lastAction']['userID']
-                                + ' ' + getDate(actionTime), 11, verticalShift + 6);
-                            verticalShift += 8;
-                        }
-                    }
-                    doc.addImage(getBase64Image($('img[alt="QR code"]')[0]), 'PNG', 8.5, 8, 25, 25);
-                } else {
-                    doc.setFontSize(8);
-                    doc.text("Name:", 150, verticalShift);
-                    doc.line(160, verticalShift, 200, verticalShift);
-                    doc.text("Date:", 152, verticalShift + 7);
-                    doc.line(160, verticalShift + 7, 200, verticalShift + 7);
-                    doc.setFontSize(12);
-                    $.each(requestInfo['workflows'], function () {
-                        doc.text(this[0]['categoryName'], 35, verticalShift);
-                        verticalShift += 7
-                    });
-                    doc.setTextColor(80, 80, 80);
-                    doc.setFontStyle("italic");
-                    doc.text($('#headerLabel').text(), 35, verticalShift);
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFontType('normal');
-                    doc.addImage(getBase64Image(homeQR), 'PNG', 8.5, 8, 25, 25);
-                }
+                createHeader(indicators, false);
                 makePdf(indicators);
             }).fail(function (err) {
                 console.log(err);
@@ -948,6 +1015,7 @@ var printer = function() {
             });
         }
 
+        //Get last action of record
         function getLastAction() {
             var fetchURL = './api/?a=formWorkflow/' + recordID + '/lastAction';
 
@@ -979,6 +1047,7 @@ var printer = function() {
                 );
         }
 
+        //Get workflow current step or state
         function getWorkflowState() {
             if (requestInfo['submitted'] > 0) {
                 var fetchURL = './api/?a=formWorkflow/' + recordID + '/currentStep';
@@ -1009,6 +1078,7 @@ var printer = function() {
             }
         }
 
+        //Get processed signatures if they were signed
         function getSigned() {
             var fetchURL = './api/?a=signature/' + recordID;
 
@@ -1041,6 +1111,7 @@ var printer = function() {
                 );
         }
 
+        //Get signatures if they exist
         function getSignatures(index) {
             var processed = index;
             if (processed === requestInfo['workflows'].length) {
@@ -1078,6 +1149,7 @@ var printer = function() {
             }
         }
 
+        //Get workflow ID for checking signatures
         function getWorkflowID(categoryIDs, index) {
             var processed = index;
             if (processed === categoryIDs.length) {
@@ -1108,6 +1180,30 @@ var printer = function() {
             }
         }
 
+        //Get the internal forms attached infomration
+        function getInternalFormInfo(internalForms) {
+            for (var i = 0; i < internalForms.length; i++) {
+                $.ajax({
+                    method: 'GET',
+                    url: './api/?a=form/' + recordID + '/_' + internalForms[i],
+                    dataType: "json",
+                    cache: false
+                })
+                    .done(
+                        function (res) {
+                            internalInfo.push(res['items'][0]['name']);
+                        }
+                    )
+                    .fail(
+                        function (err) {
+                            alert('Unable to get form details.');
+                            console.log(err);
+                        }
+                    );
+            }
+        }
+
+        //Get main request form information
         function getFormInfo() {
             var fetchURL = './api/?a=form/' + recordID + '/recordinfo';
 
@@ -1125,6 +1221,10 @@ var printer = function() {
                         requestInfo['submitted'] = res['submitted'];
                         requestInfo['categories'] = Object.keys(res['categories']);
                         requestInfo['workflows'] = [];
+                        requestInfo['internalForms'] = res['internalForms'];
+                        if (requestInfo['internalForms'].length > 0) {
+                            getInternalFormInfo(requestInfo['internalForms']);
+                        }
                         getWorkflowID(requestInfo['categories'], 0);
                     }
                 )
@@ -1136,6 +1236,7 @@ var printer = function() {
                 );
         }
 
+        //Start process
         getFormInfo();
     }
     return {
