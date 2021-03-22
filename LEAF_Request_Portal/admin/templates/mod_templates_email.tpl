@@ -46,11 +46,11 @@
                     </p>
                     <div id="emailTo" class="emailToCc"></div>
                     <div id="divEmailTo">
-                        <textarea id="emailToCode" style="width: 95%;"></textarea>
+                        <textarea id="emailToCode" style="width: 95%;" rows="5"></textarea>
                     </div>
                     <div id="emailCc" class="emailToCc"></div>
                     <div id="divEmailCc">
-                        <textarea id="emailCcCode" style="width: 95%;"></textarea>
+                        <textarea id="emailCcCode" style="width: 95%;" rows="5"></textarea>
                     </div>
                 </fieldset>
             </div>
@@ -347,11 +347,10 @@ function loadContent(file, subjectFile, emailToFile, emailCcFile) {
 	{
         $('#subject, #emailLists, #emailTo, #emailCc').show();
         $('#divSubject, #divEmailTo, #divEmailCc').show().removeAttr('disabled');
-        $('#subject').html(subjectFile.replace('.tpl', ''));
-        $('#emailTo').html(emailToFile.replace('.tpl', ''));
-        $('#emailCc').html(emailCcFile.replace('.tpl', ''));
+        $('#subject').html(subjectFile.replace('.tpl', '').replaceAll('_', ' '));
+        $('#emailTo').html(emailToFile.replace('.tpl', '').replaceAll('_', ' '));
+        $('#emailCc').html(emailCcFile.replace('.tpl', '').replaceAll('_', ' '));
 	}
-
 
 	$.ajax({
 		type: 'GET',
