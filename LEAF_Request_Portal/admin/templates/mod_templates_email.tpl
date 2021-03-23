@@ -361,8 +361,10 @@ function loadContent(file, subjectFile, emailToFile, emailCcFile) {
 		    currentEmailToContent = res.emailToFile;
 		    currentEmailCcContent = res.emailCcFile;
 			$('#codeContainer').fadeIn();
-			codeEditor.setValue(res.file);
-			subjectEditor.setValue(res.subjectFile);
+			codeEditor.setValue(currentFileContent);
+			subjectEditor.setValue(currentSubjectContent);
+			$("#emailToCode").val(currentEmailToContent);
+			$("#emailCcCode").val(currentEmailCcContent);
 
 			if(res.modified == 1) {
 				$('.modifiedTemplate').css('display', 'block');
