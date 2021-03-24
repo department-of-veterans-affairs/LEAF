@@ -207,10 +207,11 @@ class System
                 foreach ($backups as $backup)
                 {
                     $vars = array(':userID' => $backup['userName'],
-                            ':groupID' => $groupID, );
+                            ':groupID' => $groupID,
+                            ':backupID' => $emp['userName'], );
 
-                    $this->db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+                    $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+										VALUES (:userID, :groupID, :backupID)', $vars);
                 }
             }
         }
