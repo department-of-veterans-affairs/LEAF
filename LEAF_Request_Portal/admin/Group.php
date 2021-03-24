@@ -86,6 +86,7 @@ class Group
                     {
                       $dirRes[0]['primary_admin'] = $member['primary_admin'];  
                     }
+                    $dirRes[0]['backupID'] = $member['backupID'];
                     $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
                     $dirRes[0]['active'] = $member['active'];
                     
