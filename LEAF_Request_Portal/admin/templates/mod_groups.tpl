@@ -276,9 +276,6 @@ function removeMember(groupID, userID) {
     $.ajax({
         type: 'DELETE',
         url: "../api/group/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
-        success: function(response) {
-            updateAndGetMembers(groupID);
-        },
         cache: false
     });
 }
@@ -289,9 +286,6 @@ function addMember(groupID, userID) {
         url: "../api/group/" + groupID + "/members",
         data: {'userID': userID,
         'CSRFToken': '<!--{$CSRFToken}-->'},
-        success: function(response) {
-            updateAndGetMembers(groupID);
-        },
         cache: false
     });
 }
@@ -400,12 +394,16 @@ function getGroupList() {
                                 $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                                 var counter = 0;
                                 for(var i in res) {
-                                    var removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_'+ counter +'">REMOVE</a>';
+                                    if(res[i].locallyManaged == 1 || res[i].backupID == null) {
+                                        var removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
+                                    } else if(res[i].backupID != null) {
+                                        var removeButton = '- <p class="text-secondary-darker leaf-font0-7rem" style="display: inline">BACKUP</p>';
+                                    }
                                     var managedBy = '';
-                                    if(res[i].locallyManaged != 1) {
+                                    if(res[i].locallyManaged != 1 && res[i].backupID == null) {
                                         managedBy += '<div class="leaf-font0-rem">&bull; Managed in Org. Chart</div>';
                                     }
-                                    if(res[i].active != 1) {
+                                    if(res[i].active != 1 && res[i].backupID == null) {
                                         managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Managed in Org. Chart</div>';
                                         managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Override set, and they do not have access</div>';
                                         removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_'+ counter +'">REMOVE OVERRIDE</a>';
@@ -437,6 +435,7 @@ function getGroupList() {
                                             success: function(res) {
                                                 if(!isNaN(res)) {
                                                     addMember(groupID, selectedUserName);
+                                                    console.log(empSel.selectionData);
                                                 }
                                                 else {
                                                     alert(res);
