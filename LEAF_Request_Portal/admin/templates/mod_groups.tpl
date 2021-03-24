@@ -424,6 +424,9 @@ function getGroupList() {
                                 empSel.rootPath = '<!--{$orgchartPath}-->/';
                                 empSel.outputStyle = 'micro';
                                 empSel.initialize();
+                                dialog.setCancelHandler(function() {
+                                    updateAndGetMembers(groupID);
+                                });
                                 dialog.setSaveHandler(function() {
                                     if(empSel.selection != '') {
                                         var selectedUserName = empSel.selectionData[empSel.selection].userName;
@@ -458,14 +461,12 @@ function getGroupList() {
                     //508 fix
                     $('#' + res[i].groupID).on('click', function(groupID, parentGroupID) {
                         return function() {
-                            updateAndGetMembers(groupID);
                             openGroup(groupID, parentGroupID);
                         };
                     }(res[i].groupID, res[i].parentGroupID));
                     $('#' + res[i].groupID).on('keydown', function(groupID, parentGroupID) {
                         return function(event) {
                             if(event.keyCode === 13 || event.keyCode === 32) {
-                                updateAndGetMembers(groupID);
                                 openGroup(groupID, parentGroupID);
                             }
                         };
