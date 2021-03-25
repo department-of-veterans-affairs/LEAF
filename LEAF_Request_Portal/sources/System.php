@@ -107,10 +107,11 @@ class System
                 foreach ($backups as $backup)
                 {
                     $vars = array(':userID' => $backup['userName'],
-                            ':serviceID' => $service['groupID'], );
+                            ':serviceID' => $service['groupID'],
+                            ':backupID' => $emp['userName'], );
 
-                    $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
-                                    VALUES (:serviceID, :userID)', $vars);
+                    $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID)
+                                    VALUES (:serviceID, :userID, :backupID)', $vars);
                 }
             }
         }

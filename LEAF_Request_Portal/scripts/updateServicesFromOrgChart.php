@@ -83,10 +83,11 @@ foreach ($resquadrad as $quadrad)
             foreach ($backups as $backup)
             {
                 $vars = array(':userID' => $backup['userName'],
-                              ':groupID' => $quadrad['groupID'], );
+                              ':groupID' => $quadrad['groupID'],
+                              ':backupID' => $emp['userName'], );
 
-                $db->prepared_query('INSERT INTO users (userID, groupID)
-                                   		 VALUES (:userID, :groupID)', $vars);
+                $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                   		 VALUES (:userID, :groupID, :backupID)', $vars);
             }
         }
     }
@@ -135,10 +136,11 @@ foreach ($res as $service)
             foreach ($backups as $backup)
             {
                 $vars = array(':userID' => $backup['userName'],
-                              ':serviceID' => $service['groupID'], );
+                              ':serviceID' => $service['groupID'],
+                              ':backupID' => $emp['userName'],  );
 
-                $db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
-                                    VALUES (:serviceID, :userID)', $vars);
+                $db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID)
+                                    VALUES (:serviceID, :userID, :backupID)', $vars);
             }
         }
     }
@@ -201,10 +203,11 @@ foreach (Config::$orgchartImportTags as $tag)
                 foreach ($backups as $backup)
                 {
                     $vars = array(':userID' => $backup['userName'],
-                                  ':groupID' => $tgroup['groupID'], );
+                                  ':groupID' => $tgroup['groupID'],
+                                  ':backupID' => $emp['userName'], );
 
-                    $db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+                    $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+										VALUES (:userID, :groupID, :backupID)', $vars);
                 }
             }
         }

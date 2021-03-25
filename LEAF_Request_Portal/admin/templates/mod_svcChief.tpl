@@ -137,9 +137,6 @@ function addUser(groupID, userID) {
         url: "../api/service/" + groupID + "/members",
         data: {'userID': userID,
                'CSRFToken': '<!--{$CSRFToken}-->'},
-        success: function(response) {
-            getMembers(groupID);
-        },
         cache: false
     });
 }
@@ -148,9 +145,6 @@ function removeUser(groupID, userID) {
     $.ajax({
         type: 'DELETE',
         url: "../api/service/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
-        success: function(response) {
-            getMembers(groupID);
-        },
         cache: false
     });
 }
@@ -172,18 +166,30 @@ function initiateWidget(serviceID) {
                         '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>' + button_deleteGroup);
                     $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                     var counter = 0;
-                    for(var i in res) {
-                        var removeButton = '<a href="#" class="text-secondary-darker leaf-font0-8rem" id="removeMember_'+ counter +'">REMOVE</a>';
-                        var managedBy = '';
-                        if(res[i].locallyManaged != 1) {
-                            managedBy += '<div class="leaf-marginLeft-qtrRem leaf-font0-8rem">&bull; Managed in Org. Chart</div>';
+                    for(let i in res) {
+                        if(res[i].locallyManaged == 1 || res[i].backupID == null) {
+                            var removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
+                        } else if(res[i].backupID != null) {
+                            for(let j in res) {
+                                if(res[i].backupID == res[j].userName) {
+                                    var removeButton = '- <p class="text-secondary-darker leaf-font0-7rem" style="display: inline">Backup for '+ toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) +'</p>';
+                                }
+                            }
                         }
-                        if(res[i].active != 1) {
-                            managedBy += '<div class="leaf-marginLeft-qtrRem leaf-font0-8rem">&bull; Managed in Org. Chart</div>';
-                            managedBy += '<div class="leaf-marginLeft-qtrRem leaf-font0-8rem">&bull; Override set, and they do not have access</div>';
-                            removeButton = '<a href="#" class="text-secondary-darker leaf-font0-8rem" id="removeMember_'+ counter +'">REMOVE OVERRIDE</a>';
+                        //var managedBy = '';
+                        /*if(res[i].locallyManaged != 1 && res[i].backupID == null) {
+                            managedBy += '<div class="leaf-font0-rem">&bull; Managed in Org. Chart</div>';
                         }
-                        $('#employee_table').append('<div class="leaf-font0-9rem leaf-marginTop-halfRem"><span class="leaf-bold">'+ toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span> - ' + removeButton + ' '+ managedBy +'</div>');
+                        if(res[i].active != 1 && res[i].backupID == null) {
+                            managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Managed in Org. Chart</div>';
+                            managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Override set, and they do not have access</div>';
+                            removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_'+ counter +'">REMOVE OVERRIDE</a>';
+                        }*/
+                        if(res[i].backupID != null) {
+                            $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
+                        } else {
+                            $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
+                        }
                         $('#removeMember_' + counter).on('click', function(userID) {
                             return function() {
                                 removeUser(serviceID, userID);
@@ -213,7 +219,9 @@ function initiateWidget(serviceID) {
                     empSel.rootPath = '<!--{$orgchartPath}-->/';
                     empSel.outputStyle = 'micro';
                     empSel.initialize();
-
+                    dialog.setCancelHandler(function() {
+                        getMembers(serviceID);
+                    });
                     dialog.setSaveHandler(function() {
                         if(empSel.selection != '') {
                             var selectedUserName = empSel.selectionData[empSel.selection].userName;
