@@ -278,6 +278,12 @@ function removeMember(groupID, userID) {
         url: "../api/group/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
         cache: false
     });
+    /*$.ajax({
+        type: 'DELETE',
+        url: '../../LEAF_Nexus/api/?a=group/<!--{$groupID}-->/employee/' + userID + '&'
+            + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+        cache: false
+    });*/
 }
 
 function addMember(groupID, userID) {
@@ -392,38 +398,25 @@ function getGroupList() {
                                 dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory('+groupID+')">View History</button>'+
                                     '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>');
                                 $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
-                                var counter = 0;
+                                let counter = 0;
                                 for(let i in res) {
-                                    if(res[i].locallyManaged == 1 || res[i].backupID == null) {
-                                        var removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
-                                    } else if(res[i].backupID != null) {
-                                        for(let j in res) {
-                                            if(res[i].backupID == res[j].userName) {
-                                                var removeButton = '- <p class="text-secondary-darker leaf-font0-7rem" style="display: inline">Backup for '+ toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) +'</p>';
+                                    if(res[i].backupID == null || res[i].locallyManaged == 1) {
+                                        let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
+                                        $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
+                                        // Check for Backups
+                                        for (let j in res) {
+                                            if (res[i].userName == res[j].backupID && res[j].locallyManaged != 1) {
+                                                $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
                                             }
                                         }
+                                        $('#removeMember_' + counter).on('click', function (userID) {
+                                            return function () {
+                                                removeMember(groupID, userID);
+                                                dialog.hide();
+                                            };
+                                        }(res[i].userName));
+                                        counter++;
                                     }
-                                    //var managedBy = '';
-                                    /*if(res[i].locallyManaged != 1 && res[i].backupID == null) {
-                                        managedBy += '<div class="leaf-font0-rem">&bull; Managed in Org. Chart</div>';
-                                    }
-                                    if(res[i].active != 1 && res[i].backupID == null) {
-                                        managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Managed in Org. Chart</div>';
-                                        managedBy += '<div class="leaf-font0-8rem leaf-marginTop-qtrRem">&bull; Override set, and they do not have access</div>';
-                                        removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_'+ counter +'">REMOVE OVERRIDE</a>';
-                                    }*/
-                                    if(res[i].backupID != null) {
-                                        $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
-                                    } else {
-                                        $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
-                                    }
-                                    $('#removeMember_' + counter).on('click', function(userID) {
-                                        return function() {
-                                            removeMember(groupID, userID);
-                                            dialog.hide();
-                                        };
-                                    }(res[i].userName));
-                                    counter++;
                                 }
                                 empSel = new nationalEmployeeSelector('employeeSelector');
                                 empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
