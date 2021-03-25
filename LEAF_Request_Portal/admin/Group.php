@@ -109,8 +109,15 @@ class Group
                 $vars = array(':userID' => $member,
                               ':groupID' => (int)$group, 
                               ':locallyManaged' => 1);
-                $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, locallyManaged)
+
+                $resCheck = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID AND userID=:userID', $vars);
+
+                if (isset($resCheck)) {
+                    $res = $this->db->prepared_query('UPDATE users SET locallyManaged=:locallyManaged WHERE userID=:userID AND groupID=:groupID', $vars);
+                } else {
+                    $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, locallyManaged)
                                                     VALUES (:userID, :groupID, :locallyManaged)', $vars);
+                }
                 
                 $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
                     new \LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
