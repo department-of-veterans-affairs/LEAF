@@ -102,7 +102,7 @@ $(document).ready(function() {
     });
 });
 
-var tz = '<!--{$timeZone}-->';
+let tz = '<!--{$timeZone}-->';
 /* <![CDATA[ */
 
 // handle any case for user group text search
@@ -114,7 +114,7 @@ jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
 
 function searchGroups() {
     
-    var srchInput = document.getElementById('userGroupSearch').value;
+    let srchInput = document.getElementById('userGroupSearch').value;
     $('.groupName, .groupUser').removeClass('leaf-search-hilite');
     $('.groupBlockWhite, .groupBlock, .groupName, .groupUserFirst, .groupHeaders').show();
     $('#noResultsMsg, .groupUser').hide();
@@ -122,7 +122,7 @@ function searchGroups() {
     if (srchInput.length >= 2) {
         $('.groupUserFirst').hide();
         $('.groupUser').show();
-        var isSysAdmin = $('.groupBlock:Contains(' + srchInput + ')').length > 0,
+        let isSysAdmin = $('.groupBlock:Contains(' + srchInput + ')').length > 0,
             isUserGroup = $('.groupBlockWhite:Contains(' + srchInput + ')').length > 0,
             findUser = $('.groupUser:Contains(' + srchInput + ')').length > 0,
             findGroup = $('.groupName:Contains(' + srchInput + ')').length > 0;
@@ -242,8 +242,8 @@ function getPrimaryAdmin() {
         success: function(response) {
             $('#membersPrimaryAdmin').fadeOut();
             $('#membersPrimaryAdmin').html('');
-            var foundPrimary = false;
-            for(var i in response) {
+            let foundPrimary = false;
+            for(let i in response) {
                 if(response[i].primary_admin == 1)
                 {
                     foundPrimary = true;
@@ -411,7 +411,7 @@ function getGroupList() {
                                     // Check for active members to list
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
-                                            var removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
+                                            let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
                                             $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
                                             // Check for Backups
                                             for (let j in res) {
@@ -456,7 +456,7 @@ function getGroupList() {
                                 });
                                 dialog.setSaveHandler(function() {
                                     if(empSel.selection != '') {
-                                        var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                                        let selectedUserName = empSel.selectionData[empSel.selection].userName;
                                         $.ajax({
                                             type: 'POST',
                                             url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
@@ -519,7 +519,7 @@ function getGroupList() {
 
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
-                                var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                                let selectedUserName = empSel.selectionData[empSel.selection].userName;
                                 $.ajax({
                                     type: 'POST',
                                     url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
@@ -542,8 +542,8 @@ function getGroupList() {
                             dataType: "json",
                             success: function(res) {
                                 $('#adminSummary').html('');
-                                var counter = 0;
-                                for(var i in res) {
+                                let counter = 0;
+                                for(let i in res) {
                                     $('#adminSummary').append('<div class="leaf-marginTop-qtrRem leaf-marginLeft-qtrRem"><span class="leaf-bold leaf-font0-8rem">'+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'</span> - <a tabindex="0" aria-label="REMOVE ' + toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="removeAdmin_'+ counter +'">REMOVE</a></div>');
                                     $('#removeAdmin_' + counter).on('click', function(userID) {
                                         return function() {
@@ -696,7 +696,7 @@ function viewHistory(groupID){
     dialog_simple.indicateBusy();
     dialog.showButtons();
 
-    var type = (groupID)? "group": "primaryAdmin";
+    let type = (groupID)? "group": "primaryAdmin";
     $.ajax({
         type: 'GET',
         url: 'ajaxIndex.php?a=gethistory&type='+type+'&id='+groupID+'&tz='+tz,
@@ -768,7 +768,7 @@ function importGroup() {
     dialog.setTitle('Import Group');
     dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
     dialog.showButtons();
-    var groupSel = new groupSelector('groupSel_container');
+    let groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     groupSel.basePath = '../';
     groupSel.setResultHandler(function() {
@@ -780,7 +780,7 @@ function importGroup() {
         }
 
         // prevent services from showing up as search results
-        for(var i in groupSel.jsonResponse) {
+        for(let i in groupSel.jsonResponse) {
             $('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).attr('tabindex', '0');
             if(groupSel.jsonResponse[i].tags.service != undefined) {
                 $('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).css('display', 'none');
