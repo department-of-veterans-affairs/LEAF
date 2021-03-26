@@ -67,7 +67,7 @@ function createGroup() {
     	type: 'GET',
     	url: '../api/service/quadrads',
     	success: function(res) {
-    		for(var i in res) {
+    		for(let i in res) {
                 $('#division').append('<option value="'+ res[i].groupID+'">'+ res[i].name +'</option>');
     		}
     	},
@@ -221,7 +221,7 @@ function initiateWidget(serviceID) {
                     });
                     dialog.setSaveHandler(function() {
                         if(empSel.selection != '') {
-                            var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                            let selectedUserName = empSel.selectionData[empSel.selection].userName;
                             $.ajax({
                                 type: 'POST',
                                 url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
@@ -263,12 +263,12 @@ function getGroupList() {
         })
      )
 	.done(function(res1, res2) {
-		var quadrads = res1[0];
-		var services = res2[0];
-	    for(var i in quadrads) {
+		let quadrads = res1[0];
+		let services = res2[0];
+	    for(let i in quadrads) {
 	    	$('#groupList').append('<h2>'+ toTitleCase(quadrads[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
 	    }
-	    for(var i in services) {
+	    for(let i in services) {
 	    	$('#group_' + services[i].groupID).append('<div id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'
                     + '<h2 id="groupTitle'+ services[i].serviceID +'">'+ services[i].service +'</h2>'
                     + '<div id="members'+ services[i].serviceID +'"></div>'
