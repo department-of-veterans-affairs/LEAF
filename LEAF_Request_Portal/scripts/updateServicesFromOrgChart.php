@@ -206,6 +206,7 @@ foreach (Config::$orgchartImportTags as $tag)
                                   ':groupID' => $tgroup['groupID'],
                                   ':backupID' => $emp['userName'], );
 
+
                     $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
 										VALUES (:userID, :groupID, :backupID)', $vars);
                 }
