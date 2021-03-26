@@ -214,6 +214,7 @@ function getMembers(groupID) {
     });
 }
 
+// All in one update for member groups (sync)
 function updateAndGetMembers(groupID) {
     $.ajax({
         type: 'GET',
@@ -365,7 +366,7 @@ function getGroupList() {
     $(".ui-dialog>div").css('width', '510');
     $(".leaf-dialog-content").css('width', 'auto');
     // vars for group counts
-    var allGroupsCount = 0, userGroupCount = 0, sysAdminCount = 0;
+    let allGroupsCount = 0, userGroupCount = 0, sysAdminCount = 0;
 
     $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
     dialog.showButtons();
@@ -375,7 +376,7 @@ function getGroupList() {
         dataType: "json",
         success: function(res) {
             $('#groupList').html('');
-            for(var i in res) {
+            for(let i in res) {
 
             	// only show explicit groups, not ELTs
             	if(res[i].parentGroupID == null
@@ -407,6 +408,7 @@ function getGroupList() {
                                 $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                                 let counter = 0;
                                 for(let i in res) {
+                                    // Check for active members to list
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
                                             var removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
@@ -448,6 +450,7 @@ function getGroupList() {
                                 empSel.rootPath = '<!--{$orgchartPath}-->/';
                                 empSel.outputStyle = 'micro';
                                 empSel.initialize();
+                                // Update on any action
                                 dialog.setCancelHandler(function() {
                                     updateAndGetMembers(groupID);
                                 });
@@ -792,7 +795,7 @@ function importGroup() {
             $.ajax({
                 type: 'POST',
                 url: "../api/group/",
-                data: {title: $(groupSel.selection).val(),
+                data: {title: groupSel.selection,
                 CSRFToken: '<!--{$CSRFToken}-->'},
                 cache: false
             });
@@ -868,6 +871,7 @@ function showAllGroupHistory() {
 
 }
 
+// Define dialog boxes
 let dialog;
 let dialog_simple;
 let dialog_confirm;

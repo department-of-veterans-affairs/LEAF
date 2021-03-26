@@ -86,6 +86,7 @@ foreach ($resquadrad as $quadrad)
                               ':groupID' => $quadrad['groupID'],
                               ':backupID' => $emp['userName'], );
 
+                // Add backupID for sync checks
                 $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
                                    		 VALUES (:userID, :groupID, :backupID)', $vars);
             }
@@ -139,6 +140,7 @@ foreach ($res as $service)
                               ':serviceID' => $service['groupID'],
                               ':backupID' => $emp['userName'],  );
 
+                // Add backupID for sync checks
                 $db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID)
                                     VALUES (:serviceID, :userID, :backupID)', $vars);
             }
@@ -206,7 +208,7 @@ foreach (Config::$orgchartImportTags as $tag)
                                   ':groupID' => $tgroup['groupID'],
                                   ':backupID' => $emp['userName'], );
 
-
+                    // Add backupID for sync checks
                     $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
 										VALUES (:userID, :groupID, :backupID)', $vars);
                 }

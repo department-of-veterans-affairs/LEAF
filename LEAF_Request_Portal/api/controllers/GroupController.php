@@ -57,7 +57,7 @@ class GroupController extends RESTfulResponse
         $this->index['POST'] = new ControllerMap();
 
         $this->index['POST']->register('group', function ($args) use ($group) {
-            return $group->addGroup($_POST['title']);
+            return $group->addGroup($_POST['title']); // POST for title of group
         });
 
         $this->index['POST']->register('group/[digit]/members', function ($args) use ($group) {
