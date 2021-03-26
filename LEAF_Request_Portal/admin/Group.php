@@ -32,13 +32,16 @@ class Group
 
     public function addGroup($groupName, $groupDesc = '', $parentGroupID = null)
     {
-        $vars = array(':groupName' => $groupName,
+        /*$vars = array(':groupName' => $groupName,
                       ':groupDesc' => $groupDesc,
                       ':parentGroupID' => $parentGroupID, );
         $res = $this->db->prepared_query('INSERT INTO groups (name, groupDescription, parentGroupID)
-                                            VALUES (:groupName, :groupDesc, :parentGroupID)', $vars);
+                                            VALUES (:groupName, :groupDesc, :parentGroupID)', $vars);*/
 
-        return $this->db->getLastInsertID();
+        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PORTAL_GROUP, [
+            new \LogItem("groups", "name", $groupName, $groupName)
+        ]);
+
     }
 
     public function removeGroup($groupID)
@@ -51,6 +54,10 @@ class Group
             if (isset($res[0])
                 && $res[0]['parentGroupID'] == null)
             {
+                $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PORTAL_GROUP, [
+                    new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+                ]);
+
                 $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
                 $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
@@ -110,9 +117,9 @@ class Group
                               ':groupID' => (int)$group, 
                               ':locallyManaged' => 1);
 
-                $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, locallyManaged)
-                                                    VALUES (:userID, :groupID, :locallyManaged)
-                                                    ON DUPLICATE KEY UPDATE userId=:userID, groupID=:groupID, locallyManaged=:locallyManaged', $vars);
+                $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID, locallyManaged, active)
+                                                    VALUES (:userID, :groupID, null, :locallyManaged, 1)
+                                                    ON DUPLICATE KEY UPDATE userId=:userID, groupID=:groupID, backupID=null, active=1', $vars);
                 
                 $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
                     new \LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
@@ -128,10 +135,10 @@ class Group
         {
             $vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
+
             $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
 
-            if ($res[0]['locallyManaged'] == 1
-                || $groupID == 1)
+            if ($groupID == 1)
             {
                 $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
             }
