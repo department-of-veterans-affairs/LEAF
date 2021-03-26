@@ -8,7 +8,7 @@ class LoggableTypes {
     const SERVICE_CHIEF = "service_chief";
     const FORM = "form";
     const INDICATOR = "indicator";
-    const PORTAL_GROUP = "portal_group";
+    const PORTAL_GROUP = "group";
     const WORKFLOW = "workflow";
     const WORKFLOW_STEP = "workflow_step";
     const WORKFLOW_ROUTE = "workflow_route";
