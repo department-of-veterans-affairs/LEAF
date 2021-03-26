@@ -89,22 +89,43 @@ class Email
         $this->emailBody = $htmlOutput;
     }
 
-    public function addRecipient($i)
+    /**
+     * Purpose: To check that email address is not already attached to this email send
+     * @param $address
+     * @return bool
+     */
+    public function emailNotAlreadyAdded($address) {
+        if ( (!strpos($this->emailRecipient, $address) )
+            && (!in_array($i, $this->emailCC) )
+            && (!in_array($i ,$this->emailBCC) ) ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Purpose: Add Receipient to email
+     * @param $address
+     * @return bool
+     */
+    public function addRecipient($address)
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $i) == 0)
+        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
         {
             return false;
         }
 
         if ($this->emailRecipient == '')
         {
-            $this->emailRecipient = $i;
+            $this->emailRecipient = $address;
         }
         else
         {
-            $this->emailRecipient .= ", $i";
+            if ( $this->emailNotAlreadyAdded($address) ) {
+                $this->emailRecipient .= ", " . $address;
+            }
         }
-
+        // Returning true because either added here or already added
         return true;
     }
 
@@ -138,27 +159,41 @@ class Email
         }
     }
 
-    public function addCC($i)
+    /**
+     * Purpose: Add email to Email CC
+     * @param $address
+     * @return bool
+     */
+    public function addCC($address)
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $i) == 0)
+        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
         {
             return false;
         }
 
-        $this->emailCC[] = $i;
-
+        if ( $this->emailNotAlreadyAdded($address) ) {
+            $this->emailCC[] = $address;
+        }
+        // Returning true because either added here or already added
         return true;
     }
 
-    public function addBCC($i)
+    /**
+     * Purpose: Add email to Email BCC
+     * @param $address
+     * @return bool
+     */
+    public function addBCC($address)
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $i) == 0)
+        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
         {
             return false;
         }
 
-        $this->emailBCC[] = $i;
-
+        if ( $this->emailNotAlreadyAdded($address) ) {
+            $this->emailBCC[] = $address;
+        }
+        // Returning true because either added here or already added
         return true;
     }
 
