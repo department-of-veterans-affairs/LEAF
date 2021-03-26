@@ -94,9 +94,12 @@ class Service
         if (is_numeric($groupID) && $member != '')
         {
             $vars = array(':userID' => $member,
-                    ':groupID' => $groupID, );
-            $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, locallyManaged)
-                                                   VALUES (:groupID, :userID, 1)', $vars);
+                    ':serviceID' => $groupID,
+                    ':locallyManaged' => 1);
+
+            $res = $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID, locallyManaged, active)
+                                                    VALUES (:serviceID, :userID, null, :locallyManaged, 1)
+                                                    ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID, backupID=null, locallyManaged=:locallyManaged, active=1', $vars);
 
             $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::SERVICE_CHIEF, [
                 new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
@@ -193,6 +196,7 @@ class Service
                 if (isset($dirRes[0]))
                 {
                     $temp = $dirRes[0];
+                    $temp['backupID'] = $member['backupID'];
                     $temp['locallyManaged'] = $member['locallyManaged'];
                     $temp['active'] = $member['active'];
                     $members[] = $temp;
