@@ -6,20 +6,24 @@ require_once 'dataActions.php';
 class PortalGroupFormatter{
     
     const TEMPLATES = [
+        DataActions::IMPORT.'-'.LoggableTypes::PORTAL_GROUP => [
+            "message"=>"<strong>%s</strong> group was imported",
+            "variables"=>"groupID"
+        ],
         DataActions::ADD.'-'.LoggableTypes::PORTAL_GROUP => [
-            "message"=>"Group <strong>%s</strong> created",
+            "message"=>"<strong>%s</strong> group was created",
             "variables"=>"name"
         ],
         DataActions::DELETE.'-'.LoggableTypes::PORTAL_GROUP => [
-            "message"=>"Group <strong>%s</strong> deleted",
+            "message"=>"<strong>%s</strong> group was deleted",
             "variables"=>"groupID"
         ],
         DataActions::ADD.'-'.LoggableTypes::EMPLOYEE => [
-            "message" => "User <strong>%s</strong> has been added to group <strong>%s</strong>",
+            "message" => "<strong>%s</strong> was added to the group <strong>%s</strong>",
             "variables" => "userID,groupID"
         ],
         DataActions::DELETE.'-'.LoggableTypes::EMPLOYEE => [
-            "message" => "User <strong>%s</strong> has been removed from group <strong>%s</strong>",
+            "message" => "<strong>%s</strong> was removed from the group <strong>%s</strong>",
             "variables" => "userID,groupID"
         ]
     ];

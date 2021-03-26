@@ -38,9 +38,16 @@ class Group
         $res = $this->db->prepared_query('INSERT INTO groups (name, groupDescription, parentGroupID)
                                             VALUES (:groupName, :groupDesc, :parentGroupID)', $vars);*/
 
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PORTAL_GROUP, [
-            new \LogItem("groups", "name", $groupName, $groupName)
-        ]);
+        // Log group creates
+        if (!is_numeric($groupName)) {
+            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PORTAL_GROUP, [
+                new \LogItem("groups", "name", $groupName, $groupName)
+            ]);
+        } else { // If imported
+            $this->dataActionLogger->logAction(\DataActions::IMPORT, \LoggableTypes::PORTAL_GROUP, [
+                new \LogItem("users", "groupID", $groupName, $this->getGroupName($groupName))
+            ]);
+        }
 
     }
 
@@ -54,6 +61,7 @@ class Group
             if (isset($res[0])
                 && $res[0]['parentGroupID'] == null)
             {
+                // Log group deletes
                 $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PORTAL_GROUP, [
                     new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
                 ]);
@@ -117,6 +125,7 @@ class Group
                               ':groupID' => (int)$group, 
                               ':locallyManaged' => 1);
 
+                // Update on duplicate keys
                 $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID, locallyManaged, active)
                                                     VALUES (:userID, :groupID, null, :locallyManaged, 1)
                                                     ON DUPLICATE KEY UPDATE userId=:userID, groupID=:groupID, backupID=null, active=1', $vars);
@@ -138,6 +147,7 @@ class Group
 
             $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
 
+            // Check if in admin group
             if ($groupID == 1)
             {
                 $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);

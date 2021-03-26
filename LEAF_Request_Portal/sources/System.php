@@ -61,7 +61,7 @@ class System
         // clear out old data first
         $vars = array(':serviceID' => $serviceID);
         $this->db->prepared_query('DELETE FROM services WHERE serviceID=:serviceID AND serviceID > 0', $vars);
-        $this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars);
+        $this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars); // Skip Local
 
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
@@ -110,6 +110,7 @@ class System
                             ':serviceID' => $service['groupID'],
                             ':backupID' => $emp['userName'], );
 
+                    // Add backupID check for updates
                     $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID)
                                     VALUES (:serviceID, :userID, :backupID)', $vars);
                 }
@@ -211,6 +212,7 @@ class System
                             ':groupID' => $groupID,
                             ':backupID' => $emp['userName'], );
 
+                    // Add backupID check for updates
                     $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
 										VALUES (:userID, :groupID, :backupID)', $vars);
                 }
