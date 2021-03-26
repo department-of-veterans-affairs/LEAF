@@ -173,6 +173,7 @@ function initiateWidget(serviceID) {
                     $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                     let counter = 0;
                     for(let i in res) {
+                        // Check for active members to list
                         if (res[i].active == 1) {
                             if (res[i].backupID == null || res[i].locallyManaged == 1) {
                                 let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
@@ -214,6 +215,7 @@ function initiateWidget(serviceID) {
                     empSel.rootPath = '<!--{$orgchartPath}-->/';
                     empSel.outputStyle = 'micro';
                     empSel.initialize();
+                    // Update on any action
                     dialog.setCancelHandler(function() {
                         getMembers(serviceID);
                     });
@@ -300,6 +302,7 @@ function toTitleCase(str) {
     return (str == "" || str == null) ? "" : str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
+// Define dialog boxes
 let dialog;
 let dialog_simple;
 let dialog_confirm;

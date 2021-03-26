@@ -97,6 +97,7 @@ class Service
                     ':serviceID' => $groupID,
                     ':locallyManaged' => 1);
 
+            // Update on duplicate keys
             $res = $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID, locallyManaged, active)
                                                     VALUES (:serviceID, :userID, null, :locallyManaged, 1)
                                                     ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID, backupID=null, locallyManaged=:locallyManaged, active=1', $vars);
