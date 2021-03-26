@@ -64,6 +64,7 @@
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 
 <script>
 
@@ -260,13 +261,25 @@ function getPrimaryAdmin() {
 
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
-    var memberCt = (members.length - 1);
-    var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
-    for(var i in members) {
-        if (members[i].active == 1 || groupID == 1) {
-            if (i == 0) {
+    let memberCt = -1;
+    let adminCt = (members.length - 1);
+    for(let i in members) {
+        if(members[i].active == 1 && members[i].backupID == null) {
+            memberCt++;
+        }
+    }
+    let countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
+    let countAdminTxt = (adminCt > 0) ? (' + ' + adminCt + ' others') : '';
+    for(let i in members) {
+        if (members[i].active == 1 && members[i].backupID == null && groupID != 1) {
+            if ($('#members' + groupID).html('')) {
                $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</div>'); 
             } 
+            $('#members' + groupID).append('<div class="groupUser">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + ' <div>');
+        } else if (groupID == 1) {
+            if (i == 0) {
+                $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countAdminTxt + '</div>');
+            }
             $('#members' + groupID).append('<div class="groupUser">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + ' <div>');
         }
     }
@@ -278,12 +291,6 @@ function removeMember(groupID, userID) {
         url: "../api/group/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
         cache: false
     });
-    /*$.ajax({
-        type: 'DELETE',
-        url: '../../LEAF_Nexus/api/?a=group/<!--{$groupID}-->/employee/' + userID + '&'
-            + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
-        cache: false
-    });*/
 }
 
 function addMember(groupID, userID) {
@@ -323,7 +330,6 @@ function removeAdmin(userID) {
         	   'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getMembers(1);
-            getPrimaryAdmin();
         },
         cache: false
     });
@@ -395,29 +401,48 @@ function getGroupList() {
                             url: '../api/group/' + groupID + '/members',
                             success: function(res) {
                                 dialog.clear();
-                                dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory('+groupID+')">View History</button>'+
-                                    '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>');
+                                let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
+                                dialog.setContent('<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+groupID+')">View History</button></div>' + button_deleteGroup + '</div>' +
+                                    '<div id="employees"></div><div id="removed"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>');
                                 $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                                 let counter = 0;
                                 for(let i in res) {
-                                    if(res[i].backupID == null || res[i].locallyManaged == 1) {
-                                        let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
-                                        $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
-                                        // Check for Backups
-                                        for (let j in res) {
-                                            if (res[i].userName == res[j].backupID && res[j].locallyManaged != 1) {
-                                                $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
+                                    if (res[i].active == 1) {
+                                        if (res[i].backupID == null) {
+                                            var removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
+                                            $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
+                                            // Check for Backups
+                                            for (let j in res) {
+                                                if (res[i].userName == res[j].backupID && res[j].locallyManaged != 1) {
+                                                    $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
+                                                }
                                             }
+                                            $('#removeMember_' + counter).on('click', function (userID) {
+                                                return function () {
+                                                    removeMember(groupID, userID);
+                                                    dialog.hide();
+                                                };
+                                            }(res[i].userName));
+                                            counter++;
                                         }
-                                        $('#removeMember_' + counter).on('click', function (userID) {
-                                            return function () {
-                                                removeMember(groupID, userID);
-                                                dialog.hide();
-                                            };
-                                        }(res[i].userName));
-                                        counter++;
                                     }
                                 }
+
+                                $('#deleteGroup_' + groupID).on('click', function() {
+                                    dialog_confirm.setContent('Are you sure you want to delete this group?');
+                                    dialog_confirm.setSaveHandler(function() {
+                                        $.ajax({
+                                            type: 'DELETE',
+                                            url: "../api/group/" + groupID + '&CSRFToken=<!--{$CSRFToken}-->',
+                                            success: function(response) {
+                                                location.reload();
+                                            },
+                                            cache: false
+                                        });
+                                    });
+                                    dialog_confirm.show();
+                                });
+
                                 empSel = new nationalEmployeeSelector('employeeSelector');
                                 empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                                 empSel.rootPath = '<!--{$orgchartPath}-->/';
@@ -568,14 +593,14 @@ function getGroupList() {
                         $(".leaf-dialog-content").css('width', 'auto');
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
-                                var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                                let selectedUserName = empSel.selectionData[empSel.selection].userName;
                                 $.ajax({
                                     url: 'ajaxJSON.php?a=mod_groups_getMembers&groupID=1',
                                     dataType: "json",
                                     data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                     success: function(res) {
-                                        var selectedUserIsAdmin = false;
-                                        for(var i in res)
+                                        let selectedUserIsAdmin = false;
+                                        for(let i in res)
                                         {
                                             selectedUserIsAdmin = res[i].userName == selectedUserName;
                                             if(selectedUserIsAdmin){break;}
@@ -599,8 +624,8 @@ function getGroupList() {
                             dataType: "json",
                             success: function(res) {
                                 $('#primaryAdminSummary').html('');
-                                var foundPrimary = false;
-                                for(var i in res) {
+                                let foundPrimary = false;
+                                for(let i in res) {
                                     if(res[i].primary_admin == 1)
                                     {
                                         foundPrimary = true;
@@ -634,8 +659,8 @@ function getGroupList() {
                         }
                     });
                     $('#membersPrimaryAdmin').html('');
-                    primaryAdminName = "Primary Admin has not been set.";
-                    for(var j in res[i].members) {
+                    let primaryAdminName = "Primary Admin has not been set.";
+                    for(let j in res[i].members) {
                         if(res[i].members[j].primary_admin == 1)
                         {
                              primaryAdminName = toTitleCase(res[i].members[j].Fname) + ' ' + toTitleCase(res[i].members[j].Lname);
@@ -764,6 +789,13 @@ function importGroup() {
     dialog.setSaveHandler(function() {
         if(groupSel.selection != '') {
         	tagAndUpdate(groupSel.selection);
+            $.ajax({
+                type: 'POST',
+                url: "../api/group/",
+                data: {title: $(groupSel.selection).val(),
+                CSRFToken: '<!--{$CSRFToken}-->'},
+                cache: false
+            });
         }
     });
     dialog.show();
@@ -781,6 +813,13 @@ function createGroup() {
             "Group title already exists",
             "invalid parent group"
         ];
+        $.ajax({
+            type: 'POST',
+            url: "../api/group/",
+            data: {title: $('#groupNameInput').val(),
+            CSRFToken: '<!--{$CSRFToken}-->'},
+            cache: false
+        });
         $.ajax({
             type: 'POST',
             url: '<!--{$orgchartPath}-->/api/?a=group',
@@ -829,10 +868,13 @@ function showAllGroupHistory() {
 
 }
 
-var dialog;
+let dialog;
+let dialog_simple;
+let dialog_confirm;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
+    dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
     getGroupList();
 });
 

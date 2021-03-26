@@ -120,14 +120,20 @@ function getMembers(groupID) {
 
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
-    var memberCt = (members.length - 1);
-    var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
-    for(var i in members) {
-    	if(members[i].active == 1) {
-            if (i == 0) {
-                $('#members' + groupID).append('<span>' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</span>');
+    let memberCt = -1;
+    for (let i in members) {
+        if (members[i].active == 1 && members[i].backupID == null) {
+            memberCt++;
+        }
+    }
+    let countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
+    for (let i in members) {
+        if (members[i].active == 1 && members[i].backupID == null) {
+            if ($('#members' + groupID).html('')) {
+                $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</div>');
             }
-    	}
+            $('#members' + groupID).append('<div class="groupUser">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + ' <div>');
+        }
     }
 }
 
@@ -157,33 +163,34 @@ function initiateWidget(serviceID) {
                 url: '../api/service/' + serviceID + '/members',
                 success: function(res) {
                     dialog.clear();
-                    var button_deleteGroup = '<button id="deleteGroup_'+serviceID+'" class="usa-button usa-button--secondary leaf-btn-small">Delete this group</button>';
+                    let button_deleteGroup = '<div><button id="deleteGroup_'+serviceID+'" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
                     if(serviceID > 0) {
                         button_deleteGroup = '';
                     }
                     dialog.setContent(
-                        '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(' + serviceID + ')">View History</button>'+
-                        '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>' + button_deleteGroup);
+                        '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory(' + serviceID + ')">View History</button></div>' + button_deleteGroup + '</div>' +
+                        '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>');
                     $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
-                    var counter = 0;
-                    console.log(res);
+                    let counter = 0;
                     for(let i in res) {
-                        if(res[i].backupID == null || res[i].locallyManaged == 1) {
-                            let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
-                            $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
-                            // Check for Backups
-                            for (let j in res) {
-                                if (res[i].userName == res[j].backupID && res[j].locallyManaged != 1) {
-                                    $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
+                        if (res[i].active == 1) {
+                            if (res[i].backupID == null || res[i].locallyManaged == 1) {
+                                let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
+                                $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
+                                // Check for Backups
+                                for (let j in res) {
+                                    if (res[i].userName == res[j].backupID && res[j].locallyManaged != 1) {
+                                        $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
+                                    }
                                 }
+                                $('#removeMember_' + counter).on('click', function (userID) {
+                                    return function () {
+                                        removeUser(serviceID, userID);
+                                        dialog.hide();
+                                    };
+                                }(res[i].userName));
+                                counter++;
                             }
-                            $('#removeMember_' + counter).on('click', function (userID) {
-                                return function () {
-                                    removeUser(serviceID, userID);
-                                    dialog.hide();
-                                };
-                            }(res[i].userName));
-                            counter++;
                         }
                     }
 
@@ -228,7 +235,7 @@ function initiateWidget(serviceID) {
                                 cache: false
                             });
                         }
-                        getMembers(serviceID);
+                        //getMembers(serviceID);
                         dialog.hide();
                     });
 
@@ -293,6 +300,9 @@ function toTitleCase(str) {
     return (str == "" || str == null) ? "" : str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
+let dialog;
+let dialog_simple;
+let dialog_confirm;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
