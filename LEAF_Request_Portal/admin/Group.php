@@ -30,6 +30,14 @@ class Group
         $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
 
+    public function importGroup($groupName, $groupDesc = '', $parentGroupID = null)
+    {
+        // Log group imports
+        $this->dataActionLogger->logAction(\DataActions::IMPORT, \LoggableTypes::PORTAL_GROUP, [
+            new \LogItem("users", "groupID", $groupName, $groupName)
+        ]);
+    }
+
     public function addGroup($groupName, $groupDesc = '', $parentGroupID = null)
     {
         /*$vars = array(':groupName' => $groupName,
@@ -39,15 +47,10 @@ class Group
                                             VALUES (:groupName, :groupDesc, :parentGroupID)', $vars);*/
 
         // Log group creates
-        if (!is_numeric($groupName)) {
-            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PORTAL_GROUP, [
-                new \LogItem("groups", "name", $groupName, $groupName)
-            ]);
-        } else { // If imported
-            $this->dataActionLogger->logAction(\DataActions::IMPORT, \LoggableTypes::PORTAL_GROUP, [
-                new \LogItem("users", "groupID", $groupName, $this->getGroupName($groupName))
-            ]);
-        }
+        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PORTAL_GROUP, [
+            new \LogItem("groups", "name", $groupName, $groupName)
+        ]);
+
 
     }
 
@@ -122,13 +125,12 @@ class Group
             if (is_numeric($group))
             {
                 $vars = array(':userID' => $member,
-                              ':groupID' => (int)$group, 
-                              ':locallyManaged' => 1);
+                              ':groupID' => (int)$group,);
 
                 // Update on duplicate keys
                 $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID, locallyManaged, active)
-                                                    VALUES (:userID, :groupID, null, :locallyManaged, 1)
-                                                    ON DUPLICATE KEY UPDATE userId=:userID, groupID=:groupID, backupID=null, active=1', $vars);
+                                                    VALUES (:userID, :groupID, null, 1, 1)
+                                                    ON DUPLICATE KEY UPDATE userId=:userID, groupID=:groupID, backupID=null, locallyManaged=1, active=1', $vars);
                 
                 $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
                     new \LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
@@ -147,23 +149,26 @@ class Group
 
             $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
 
-            // Check if in admin group
-            if ($groupID == 1)
+            // Check for locallyManaged users
+            if ($res[0]['locallyManaged'] == 1)
             {
+                $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
+                    new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                    new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+                ]);
+
                 $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
             }
             else
             {
-                $res = $this->db->prepared_query('UPDATE users SET active=0, locallyManaged=1
+                $res = $this->db->prepared_query('UPDATE users SET locallyManaged=0, active=0
                                                     WHERE userID=:userID AND groupID=:groupID', $vars);
+
+                $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
+                    new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                    new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+                ]);
             }
-
-            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
-                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID)) 
-            ]);
-
-            return 1;
         }
     }
 
