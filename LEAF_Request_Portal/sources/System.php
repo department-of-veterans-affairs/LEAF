@@ -99,8 +99,8 @@ class System
                 $vars = array(':userID' => $emp['userName'],
                         ':serviceID' => $service['groupID'], );
 
-                $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
-                                    VALUES (:serviceID, :userID)', $vars);
+                $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, active)
+                                    VALUES (:serviceID, :userID, 0)', $vars);
 
                 // include the backups of employees
                 $backups = $employee->getBackups($emp['empUID']);
@@ -153,7 +153,7 @@ class System
 
         // clear out old data first
         $vars = array(':groupID' => $groupID);
-        $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND locallyManaged != 1', $vars);
+        //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND locallyManaged != 1', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
@@ -201,8 +201,9 @@ class System
                 $vars = array(':userID' => $emp['userName'],
                         ':groupID' => $groupID, );
 
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+                $this->db->prepared_query('INSERT INTO users (userID, groupID, active)
+                                                    VALUES (:userID, :groupID, 0)
+                                                    ON DUPLICATE KEY UPDATE userId=:userID, groupID=:groupID', $vars);
 
                 // include the backups of employees
                 $backups = $employee->getBackups($emp['empUID']);
@@ -214,7 +215,8 @@ class System
 
                     // Add backupID check for updates
                     $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-										VALUES (:userID, :groupID, :backupID)', $vars);
+                                                    VALUES (:userID, :groupID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userId=:userID, groupID=:groupID', $vars);
                 }
             }
         }
