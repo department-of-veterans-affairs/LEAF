@@ -135,20 +135,16 @@ class Service
 
             if ($res[0]['locallyManaged'] == 1)
             {
-                $vars = array(':userID' => $member,
-                        ':groupID' => $groupID, );
-                $res = $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
-
                 $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::SERVICE_CHIEF,[
                     new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
                     new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
                 ]);
+
+                $res = $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
             }
             else
             {
-                $vars = array(':userID' => $member,
-                        ':groupID' => $groupID, );
-                $res = $this->db->prepared_query('UPDATE service_chiefs SET active=0, locallyManaged=1
+                $res = $this->db->prepared_query('UPDATE service_chiefs SET locallyManaged=0, active=0
                                                     WHERE userID=:userID AND serviceID=:groupID', $vars);
 
                 $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::SERVICE_CHIEF, [
