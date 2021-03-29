@@ -415,7 +415,7 @@ function getGroupList() {
                                             $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
                                             // Check for Backups
                                             for (let j in res) {
-                                                if (res[i].userName == res[j].backupID && res[j].locallyManaged != 1) {
+                                                if (res[i].userName == res[j].backupID) {
                                                     $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
                                                 }
                                             }
@@ -794,8 +794,8 @@ function importGroup() {
         	tagAndUpdate(groupSel.selection);
             $.ajax({
                 type: 'POST',
-                url: "../api/group/",
-                data: {title: groupSel.selection,
+                url: "../api/group/import",
+                data: {title: groupSel.selectionData[groupSel.selection].groupTitle,
                 CSRFToken: '<!--{$CSRFToken}-->'},
                 cache: false
             });
