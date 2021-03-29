@@ -237,7 +237,6 @@ function initiateWidget(serviceID) {
                                 cache: false
                             });
                         }
-                        //getMembers(serviceID);
                         dialog.hide();
                     });
 
