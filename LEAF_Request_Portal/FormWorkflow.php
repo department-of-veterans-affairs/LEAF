@@ -875,7 +875,7 @@ class FormWorkflow
                     											LEFT JOIN dependency_privs USING (dependencyID)
                     											LEFT JOIN users USING (groupID)
                     											LEFT JOIN services USING (serviceID)
-                    											WHERE recordID=:recordID', $vars);
+                    											WHERE recordID=:recordID AND active=1', $vars);
 
                     if (count($approvers) > 0)
                     {
@@ -930,7 +930,7 @@ class FormWorkflow
                         {
                             $vars = array(':groupID' => $approvers[0]['groupID']);
                             $quadrad = $this->db->prepared_query('SELECT * FROM users
-                            											WHERE groupID=:groupID', $vars);
+                            											WHERE groupID=:groupID AND active=1', $vars);
 
                             foreach ($quadrad as $member)
                             {
