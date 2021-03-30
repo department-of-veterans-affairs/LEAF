@@ -104,7 +104,11 @@ class Group
                     {
                       $dirRes[0]['primary_admin'] = $member['primary_admin'];  
                     }
-                    $dirRes[0]['backupID'] = $member['backupID'];
+                    if($member['locallyManaged'] == 1) {
+                        $dirRes[0]['backupID'] = null;
+                    } else {
+                        $dirRes[0]['backupID'] = $member['backupID'];
+                    }
                     $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
                     $dirRes[0]['active'] = $member['active'];
                     
@@ -116,58 +120,88 @@ class Group
         return $members;
     }
 
-    public function addMember($member, $groupIDs)
+    public function addMember($member, $groupID)
     {
-        $groups = array();
-        $tmp = explode(',', $groupIDs);
-        foreach ($tmp as $group)
-        {
-            if (is_numeric($group))
-            {
-                $vars = array(':userID' => $member,
-                              ':groupID' => (int)$group,);
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
 
-                // Update on duplicate keys
-                $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID, locallyManaged, active)
+        $config = new Config();
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+
+        if (is_numeric($groupID)) {
+            $vars = array(':userID' => $member,
+                ':groupID' => $groupID,);
+
+            // Update on duplicate keys
+            $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID, locallyManaged, active)
                                                     VALUES (:userID, :groupID, null, 1, 1)
-                                                    ON DUPLICATE KEY UPDATE userId=:userID, groupID=:groupID, backupID=null, locallyManaged=1, active=1', $vars);
-                
-                $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
-                    new \LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
-                    new \LogItem("users", "groupID", $group, $this->getGroupName($group)) 
-                ]);     
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=null, locallyManaged=1, active=1', $vars);
+
+            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
+                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            ]);
+
+            // include the backups of employees
+            $emp = $employee->lookupLogin($member);
+            $backups = $employee->getBackups($emp[0]['empUID']);
+            foreach ($backups as $backup) {
+                $vars = array(':userID' => $backup['userName'],
+                    ':groupID' => $groupID,
+                    ':backupID' => $emp[0]['userName'],);
+
+                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+
+                // Check for locallyManaged users
+                if ($res[0]['locallyManaged'] == 1) {
+                    // Add backupID check for updates
+                    $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                    VALUES (:userID, :groupID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=null', $vars);
+                } else {
+                    // Add backupID check for updates
+                    $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                    VALUES (:userID, :groupID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $vars);
+                }
             }
         }
     }
 
     public function removeMember($member, $groupID)
     {
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
+        $config = new Config();
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+
         if (is_numeric($groupID) && $member != '')
         {
             $vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
-            $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
+                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            ]);
 
-            // Check for locallyManaged users
-            if ($res[0]['locallyManaged'] == 1)
-            {
-                $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
-                    new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                    new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
-                ]);
+            $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
 
-                $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
-            }
-            else
-            {
-                $res = $this->db->prepared_query('UPDATE users SET locallyManaged=0, active=0
-                                                    WHERE userID=:userID AND groupID=:groupID', $vars);
+            // include the backups of employee
+            $emp = $employee->lookupLogin($member);
+            $backups = $employee->getBackups($emp[0]['empUID']);
+            foreach ($backups as $backup) {
+                $vars = array(':userID' => $backup['userName'],
+                    ':groupID' => $groupID,
+                    ':backupID' => $member,);
 
-                $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
-                    new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                    new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
-                ]);
+                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $vars);
+
+                // Check for locallyManaged users
+                if ($res[0]['locallyManaged'] == 0) {
+                    $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $vars);
+                }
             }
         }
     }
