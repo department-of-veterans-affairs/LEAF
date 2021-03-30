@@ -91,12 +91,21 @@ class Service
 
     public function addMember($groupID, $member)
     {
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
+        $config = new Config();
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+
         if (is_numeric($groupID) && $member != '')
         {
             $vars = array(':userID' => $member,
-                    ':groupID' => $groupID, );
-            $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, locallyManaged)
-                                                   VALUES (:groupID, :userID, 1)', $vars);
+                    ':serviceID' => $groupID,);
+
+            // Update on duplicate keys
+            $res = $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID, locallyManaged, active)
+                                                    VALUES (:serviceID, :userID, null, 1, 1)
+                                                    ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID, backupID=null, locallyManaged=1, active=1', $vars);
 
             $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::SERVICE_CHIEF, [
                 new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
@@ -116,6 +125,30 @@ class Service
                 $this->db->prepared_query('INSERT INTO users (userID, groupID)
                                                 VALUES (:userID, :groupID)', $vars);
             }
+
+            // include the backups of employees
+            $emp = $employee->lookupLogin($member);
+            $backups = $employee->getBackups($emp[0]['empUID']);
+            foreach ($backups as $backup) {
+                $vars = array(':userID' => $backup['userName'],
+                    ':serviceID' => $groupID,
+                    ':backupID' => $emp[0]['userName'],);
+
+                $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID AND serviceID=:serviceID', $vars);
+
+                // Check for locallyManaged users
+                if ($res[0]['locallyManaged'] == 1) {
+                    // Add backupID check for updates
+                    $this->db->prepared_query('INSERT INTO service_chiefs (userID, serviceID, backupID)
+                                                    VALUES (:userID, :serviceID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, serviceID=:serviceID, backupID=null', $vars);
+                } else {
+                    // Add backupID check for updates
+                    $this->db->prepared_query('INSERT INTO service_chiefs (userID, serviceID, backupID)
+                                                    VALUES (:userID, :serviceID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, serviceID=:serviceID, backupID=:backupID', $vars);
+                }
+            }
         }
 
         return 1;
@@ -123,36 +156,23 @@ class Service
 
     public function removeMember($groupID, $member)
     {
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
+        $config = new Config();
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+
         if (is_numeric($groupID) && $member != '')
         {
             $vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
-            $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
 
-            if ($res[0]['locallyManaged'] == 1)
-            {
-                $vars = array(':userID' => $member,
-                        ':groupID' => $groupID, );
-                $res = $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
+            $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::SERVICE_CHIEF,[
+                new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
+                new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
+            ]);
 
-                $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::SERVICE_CHIEF,[
-                    new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
-                    new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
-                ]);
-            }
-            else
-            {
-                $vars = array(':userID' => $member,
-                        ':groupID' => $groupID, );
-                $res = $this->db->prepared_query('UPDATE service_chiefs SET active=0, locallyManaged=1
-                                                    WHERE userID=:userID AND serviceID=:groupID', $vars);
-
-                $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::SERVICE_CHIEF, [
-                    new LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID)),
-                    new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
-                ]);
-
-            }
+            $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
 
             // check if this service is also an ELT
             $vars = array(':groupID' => $groupID);
@@ -166,6 +186,22 @@ class Service
                 $this->db->prepared_query('DELETE FROM users
     										WHERE userID=:userID
     											AND groupID=:groupID', $vars);
+            }
+
+            // include the backups of employee
+            $emp = $employee->lookupLogin($member);
+            $backups = $employee->getBackups($emp[0]['empUID']);
+            foreach ($backups as $backup) {
+                $vars = array(':userID' => $backup['userName'],
+                    ':serviceID' => $groupID,
+                    ':backupID' => $member,);
+
+                $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID AND serviceID=:serviceID AND backupID=:backupID', $vars);
+
+                // Check for locallyManaged users
+                if ($res[0]['locallyManaged'] == 0) {
+                    $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:serviceID AND backupID=:backupID', $vars);
+                }
             }
         }
 
@@ -193,6 +229,11 @@ class Service
                 if (isset($dirRes[0]))
                 {
                     $temp = $dirRes[0];
+                    if($member['locallyManaged'] == 1) {
+                        $temp['backupID'] = null;
+                    } else {
+                        $temp['backupID'] = $member['backupID'];
+                    }
                     $temp['locallyManaged'] = $member['locallyManaged'];
                     $temp['active'] = $member['active'];
                     $members[] = $temp;
