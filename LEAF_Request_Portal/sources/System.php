@@ -61,7 +61,7 @@ class System
         // clear out old data first
         $vars = array(':serviceID' => $serviceID);
         $this->db->prepared_query('DELETE FROM services WHERE serviceID=:serviceID AND serviceID > 0', $vars);
-        $this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars); // Skip Local
+        //$this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars); // Skip Local
 
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
@@ -100,19 +100,23 @@ class System
                         ':serviceID' => $service['groupID'], );
 
                 $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, active)
-                                    VALUES (:serviceID, :userID, 0)', $vars);
+                                                    VALUES (:serviceID, :userID, 0)
+                                                    ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID', $vars);
 
                 // include the backups of employees
-                $backups = $employee->getBackups($emp['empUID']);
-                foreach ($backups as $backup)
-                {
-                    $vars = array(':userID' => $backup['userName'],
+                $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID AND serviceID=:serviceID', $vars);
+                if ($res[0]['active'] == 1) {
+                    $backups = $employee->getBackups($emp['empUID']);
+                    foreach ($backups as $backup) {
+                        $vars = array(':userID' => $backup['userName'],
                             ':serviceID' => $service['groupID'],
-                            ':backupID' => $emp['userName'], );
+                            ':backupID' => $emp['userName'],);
 
-                    // Add backupID check for updates
-                    $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID)
-                                    VALUES (:serviceID, :userID, :backupID)', $vars);
+                        // Add backupID check for updates
+                        $this->db->prepared_query('INSERT INTO service_chiefs (userID, serviceID, backupID)
+                                                    VALUES (:userID, :serviceID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, serviceID=:groupID', $vars);
+                    }
                 }
             }
         }
@@ -137,6 +141,28 @@ class System
             }
         }
 
+        //refresh request portal members backups
+        $vars = array(':serviceID' => $service['groupID'],);
+
+        $resRP = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE serviceID=:serviceID', $vars);
+
+        foreach ($resRP as $empRP) {
+            if ($empRP['active'] == 1) {
+                $empID = $employee->lookupLogin($empRP['userID']);
+                $backups = $employee->getBackups($empID[0]['empUID']);
+                foreach ($backups as $backup) {
+                    $vars = array(':userID' => $backup['userName'],
+                        ':serviceID' => $service['groupID'],
+                        ':backupID' => $empRP['userID'],);
+
+                    // Add backupID check for updates
+                    $this->db->prepared_query('INSERT INTO service_chiefs (userID, serviceID, backupID)
+                                                    VALUES (:userID, :serviceID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, serviceID=:serviceID, backupID=:backupID', $vars);
+                }
+            }
+        }
+
         return "groupID: {$serviceID} updated";
     }
 
@@ -153,7 +179,7 @@ class System
 
         // clear out old data first
         $vars = array(':groupID' => $groupID);
-        //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND locallyManaged != 1', $vars);
+        //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
@@ -203,23 +229,48 @@ class System
 
                 $this->db->prepared_query('INSERT INTO users (userID, groupID, active)
                                                     VALUES (:userID, :groupID, 0)
-                                                    ON DUPLICATE KEY UPDATE userId=:userID, groupID=:groupID', $vars);
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
 
                 // include the backups of employees
-                $backups = $employee->getBackups($emp['empUID']);
-                foreach ($backups as $backup)
-                {
-                    $vars = array(':userID' => $backup['userName'],
+                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+                if ($res[0]['active'] == 1) {
+                    $backups = $employee->getBackups($emp['empUID']);
+                    foreach ($backups as $backup) {
+                        $vars = array(':userID' => $backup['userName'],
                             ':groupID' => $groupID,
-                            ':backupID' => $emp['userName'], );
+                            ':backupID' => $emp['userName'],);
+
+                        // Add backupID check for updates
+                        $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                    VALUES (:userID, :groupID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
+                    }
+                }
+            }
+        }
+
+        //refresh request portal members backups
+        $vars = array(':groupID' => $groupID,);
+
+        $resRP = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID', $vars);
+
+        foreach ($resRP as $empRP) {
+            if ($empRP['active'] == 1) {
+                $empID = $employee->lookupLogin($empRP['userID']);
+                $backups = $employee->getBackups($empID[0]['empUID']);
+                foreach ($backups as $backup) {
+                    $vars = array(':userID' => $backup['userName'],
+                        ':groupID' => $groupID,
+                        ':backupID' => $empRP['userID'],);
 
                     // Add backupID check for updates
                     $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
                                                     VALUES (:userID, :groupID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userId=:userID, groupID=:groupID', $vars);
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $vars);
                 }
             }
         }
+
 
         //if the group is removed, also remove the category_privs
         $vars = array(':groupID' => $groupID);

@@ -464,7 +464,6 @@ function getGroupList() {
                                             success: function(res) {
                                                 if(!isNaN(res)) {
                                                     addMember(groupID, selectedUserName);
-                                                    //console.log(empSel.selection);
                                                 }
                                                 else {
                                                     alert(res);
@@ -855,16 +854,18 @@ function showAllGroupHistory() {
      // reset dialog for regular content
     $(".ui-dialog>div").css('width', 'auto');
     $(".leaf-dialog-content").css('width', 'auto');
-    dialog.setTitle('All group history');
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('All group history');
+    dialog_simple.indicateBusy();
+    dialog.showButtons();
     $.ajax({
         type: 'GET',
         url: 'ajaxIndex.php?a=gethistoryall&type=group&tz='+tz,
         dataType: 'text',
         success: function(res) {
-            dialog.setContent(res);
-            dialog.indicateIdle();
-            dialog.show();
-            dialog.hideButtons();
+            dialog_simple.setContent(res);
+            dialog_simple.indicateIdle();
+            dialog_simple.show();
         },
         cache: false
     });
