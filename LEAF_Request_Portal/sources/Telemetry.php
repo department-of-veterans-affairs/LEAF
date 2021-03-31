@@ -14,7 +14,6 @@ include_once $currDir . '/../globals.php';
 
 class Telemetry
 {
-    private const UPLOAD_DIR = '/var/www/ERM_UPLOADS';
     public $siteRoot = '';
 
     private $db;
