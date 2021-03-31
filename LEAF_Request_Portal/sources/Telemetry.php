@@ -8,7 +8,7 @@
     Date Created: March 3, 2016
 
 */
-$currDir = __DIR__;
+$currDir = dirname(__FILE__);
 
 include_once $currDir . '/../globals.php';
 
@@ -29,13 +29,6 @@ class Telemetry
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
     }
 
-    /**
-     * Purpose:Get simple request for Telemetry reporting
-     * Optional: Start/End UNIX DateTime numbers
-     * @param int $from
-     * @param int $to
-     * @return array
-     */
     public function getRequestsSimple($from = 0, $to = 0)
     {
         $to = $to == 0 ? time() : $to;
@@ -56,41 +49,6 @@ class Telemetry
         return $res;
     }
 
-    /**
-     * Purpose: Get list of Portals and their sizes (in KB)
-     * @return array
-     */
-    public function getRequestUploadSizes() {
-
-        $rtnDirectories = array();
-        if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/_portal-upload-sizes')) {
-            // Get list of upload directory values from flat-file
-            $directoryList = file($_SERVER['DOCUMENT_ROOT'] . '/_portal-upload-sizes',
-                FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES
-            );
-            // For each line in flat file
-            foreach($directoryList as $directoryItem) {
-                // Split out directory item to get size and location of portal
-                $lineData = explode("\t", $directoryItem);
-                // Split out directory levels so we only take portals
-                $directoryLevel = explode("/", $lineData[1]);
-                if (count($directoryLevel) === 3) {
-                    // Add directory size and location to output
-                    $tmpInfo = array(
-                        'location' => (string)($lineData[1]),
-                        'filesize' => $lineData[0]
-                    );
-                    $rtnDirectories[] = $tmpInfo;
-                }
-            }
-        }
-        return $rtnDirectories;
-    }
-
-    /**
-     * Purpose: Get data about number of Requests per in a given month
-     * @return array
-     */
     public function getRequestsPerMonth()
     {
         $vars = array();
@@ -170,4 +128,17 @@ class Telemetry
 
         return $output;
     }
+
+    /*
+    SELECT count(*), categoryName, date FROM records
+                                                LEFT JOIN category_count USING (recordID)
+                                                LEFT JOIN categories USING (categoryID)
+                                                WHERE submitted > 0
+                                                    AND deleted = 0
+                                                    AND workflowID > 0
+                                                    AND disabled = 0
+                                                    AND count >= 1
+                                                GROUP BY CONCAT(categoryID, YEAR(FROM_UNIXTIME(date)), MONTH(FROM_UNIXTIME(date)))
+    ORDER BY `records`.`date`  DESC
+    */
 }
