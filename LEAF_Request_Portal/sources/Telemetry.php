@@ -14,6 +14,7 @@ include_once $currDir . '/../globals.php';
 
 class Telemetry
 {
+    private const UPLOAD_DIR = '/var/www/ERM_UPLOADS';
     public $siteRoot = '';
 
     private $db;
@@ -54,37 +55,6 @@ class Telemetry
     											AND date <= :to', $vars);
 
         return $res;
-    }
-
-    /**
-     * Purpose: Get list of Portals and their sizes (in KB)
-     * @return array
-     */
-    public function getRequestUploadSizes() {
-
-        $rtnDirectories = array();
-        if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/_portal-upload-sizes')) {
-            // Get list of upload directory values from flat-file
-            $directoryList = file($_SERVER['DOCUMENT_ROOT'] . '/_portal-upload-sizes',
-                FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES
-            );
-            // For each line in flat file
-            foreach($directoryList as $directoryItem) {
-                // Split out directory item to get size and location of portal
-                $lineData = explode("\t", $directoryItem);
-                // Split out directory levels so we only take portals
-                $directoryLevel = explode("/", $lineData[1]);
-                if (count($directoryLevel) === 3) {
-                    // Add directory size and location to output
-                    $tmpInfo = array(
-                        'location' => (string)($lineData[1]),
-                        'filesize' => $lineData[0]
-                    );
-                    $rtnDirectories[] = $tmpInfo;
-                }
-            }
-        }
-        return $rtnDirectories;
     }
 
     /**
