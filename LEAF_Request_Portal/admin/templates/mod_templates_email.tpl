@@ -337,7 +337,7 @@ function loadContent(file, subjectFile, emailToFile, emailCcFile) {
     currentEmailCcFile = emailCcFile;
     $('#filename').html(file.replace('.tpl', '').replaceAll('_', ' '));
 
-	if (subjectFile === '')
+    if (typeof(subjectFile) == 'undefined' || subjectFile == 'null' || subjectFile == '')
 	{
 		$('#subject, #emailLists, #emailTo, #emailCc').hide();
         $('#divSubject, #divEmailTo, #divEmailCc').hide().attr('disabled', 'disabled');
