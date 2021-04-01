@@ -247,7 +247,7 @@ function getPrimaryAdmin() {
                 if(response[i].primary_admin == 1)
                 {
                     foundPrimary = true;
-                    $('#membersPrimaryAdmin').append('<div class="groupUser">' + toTitleCase(response[i].Fname) + ' ' + toTitleCase(response[i].Lname) + ' </div>');
+                    $('#membersPrimaryAdmin').append('<div class="groupUserFirst">' + toTitleCase(response[i].Fname) + ' ' + toTitleCase(response[i].Lname) + ' </div>');
                 }
             }
             if(!foundPrimary)
@@ -747,7 +747,7 @@ function tagAndUpdate(groupID, callback) {
             }),
             $.ajax({
                 type: 'GET',
-                url: '../api/?a=system/updateGroup/' + groupID,
+                url: '../api/?a=system/importGroup/' + groupID,
                 success: function() {
                 },
                 cache: false
