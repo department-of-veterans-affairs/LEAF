@@ -49,6 +49,11 @@ class Telemetry
         return $res;
     }
 
+
+    /**
+     * Purpose: Get data about number of Requests per in a given month
+     * @return array
+     */
     public function getRequestsPerMonth()
     {
         $vars = array();
