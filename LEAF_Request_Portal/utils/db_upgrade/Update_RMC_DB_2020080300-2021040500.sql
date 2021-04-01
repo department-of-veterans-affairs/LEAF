@@ -14,7 +14,7 @@ UPDATE `settings` SET `data` = '2021040500' WHERE `settings`.`setting` = 'dbvers
 
 COMMIT;
 
-/**** Revert ****
+/**** Revert DB ****
 
 START TRANSACTION;
 
