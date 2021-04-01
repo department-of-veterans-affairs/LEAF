@@ -247,7 +247,7 @@ function getPrimaryAdmin() {
                 if(response[i].primary_admin == 1)
                 {
                     foundPrimary = true;
-                    $('#membersPrimaryAdmin').append('<div class="groupUser">' + toTitleCase(response[i].Fname) + ' ' + toTitleCase(response[i].Lname) + ' </div>');
+                    $('#membersPrimaryAdmin').append('<div class="groupUserFirst">' + toTitleCase(response[i].Fname) + ' ' + toTitleCase(response[i].Lname) + ' </div>');
                 }
             }
             if(!foundPrimary)
