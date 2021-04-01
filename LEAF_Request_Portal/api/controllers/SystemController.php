@@ -53,6 +53,10 @@ class SystemController extends RESTfulResponse
             return $system->updateGroup($args[0]);
         });
 
+        $this->index['GET']->register('system/importGroup/[digit]', function ($args) use ($system) {
+            return $system->importGroup($args[0]);
+        });
+
         $this->index['GET']->register('system/services', function ($args) use ($system) {
             return $system->getServices();
         });
