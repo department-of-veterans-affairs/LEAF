@@ -488,9 +488,9 @@ class FormWorkflow
                     if ($resPerson[0]['userID'] != $this->login->getUserID())
                     {
                         $empUID = $this->getEmpUIDByUserName($resPerson[0]['userID']);
-                                                                
+
                         $userAuthorized = $this->checkIfBackup($empUID);
-    
+
                         if (!$userAuthorized)
                         {
                             return array('status' => 0, 'errors' => array('User account does not match'));
@@ -741,11 +741,11 @@ class FormWorkflow
     /**
      * Checks if logged in user serves as a backup for given empUID
      * Also returns true when the logged in user has the same empUID
-     * @param string $empUID empUID to check 
+     * @param string $empUID empUID to check
      * @return boolean
      */
     public function checkIfBackup($empUID)
-    { 
+    {
 
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':empId' => $empUID);
@@ -822,9 +822,29 @@ class FormWorkflow
 
             $requester = $dir->lookupLogin($record[0]['userID']);
             $author = $dir->lookupLogin($this->login->getUserID());
-
             $email->addRecipient($requester[0]['Email']);
             $email->addRecipient($author[0]['Email']);
+
+            // Get backups to requester so they can be notified as well
+            $nexusDB = $this->login->getNexusDB();
+            $vars = array(
+              ':reqEmpUID'  => $requester[0]['empUiD'],
+              ':authEmpUID' => $author[0]['empUID']
+            );
+            $backupIds = $nexusDB->prepared_query(
+              'SELECT DISTINCT backupEmpUID FROM relation_employee_backup
+               WHERE empUID IN (:reqEmpUID, :authEmpUID)', $vars);
+
+            // Add backups to email recepients
+            foreach($backupIds as $backup) {
+              // Don't re-email requestor or author if they are backups of each other
+              if (($backup['backupEmpUID'] != $author[0]['empUID']) &&
+                ($backup['backupEmpUID'] != $requester[0]['empID'])) {
+                  $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
+                  $email->addRecipient($theirBackup[0]['Email']);
+              }
+            }
+
             $email->setSender($author[0]['Email']);
 
             $email->sendMail();
@@ -855,7 +875,7 @@ class FormWorkflow
                     											LEFT JOIN dependency_privs USING (dependencyID)
                     											LEFT JOIN users USING (groupID)
                     											LEFT JOIN services USING (serviceID)
-                    											WHERE recordID=:recordID', $vars);
+                    											WHERE recordID=:recordID AND active=1', $vars);
 
                     if (count($approvers) > 0)
                     {
@@ -910,7 +930,7 @@ class FormWorkflow
                         {
                             $vars = array(':groupID' => $approvers[0]['groupID']);
                             $quadrad = $this->db->prepared_query('SELECT * FROM users
-                            											WHERE groupID=:groupID', $vars);
+                            											WHERE groupID=:groupID AND active=1', $vars);
 
                             foreach ($quadrad as $member)
                             {
@@ -1019,6 +1039,17 @@ class FormWorkflow
 
                     $author = $dir->lookupLogin($this->login->getUserID());
                     $email->setSender($author[0]['Email']);
+
+                    // Get backups to requester so they can be notified as well
+                    $nexusDB = $this->login->getNexusDB();
+                    $vars = array(':empUID' => $author[0]['empUID']);
+                    $backupIds = $nexusDB->prepared_query('SELECT backupEmpUID FROM relation_employee_backup WHERE empUID = :empUID', $vars);
+
+                    // Add backups to email recepients
+                    foreach($backupIds as $backup) {
+                      $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
+                      $email->addRecipient($theirBackup[0]['Email']);
+                    }
 
                     $tmp = $dir->lookupLogin($approvers[0]['userID']);
                     $email->addRecipient($tmp[0]['Email']);

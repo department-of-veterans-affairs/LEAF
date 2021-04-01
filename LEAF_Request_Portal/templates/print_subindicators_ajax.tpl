@@ -133,7 +133,7 @@
             <!--{if $indicator.value[0] != ''}-->
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.value item=file}-->
-            <img src="image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" style="max-width: 200px" />
+            <img src="image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" style="max-width: 200px" onclick="window.open('image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->', 'newName', 'width=550', 'height=550'); return false;" />
             <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
             <!--{else}-->

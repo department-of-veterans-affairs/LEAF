@@ -1,8 +1,12 @@
 name: PR
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the dev branch
+  # Trigger the workflow on push or pull request for master, dev and preprod
+  push:
+    branches:
+      - master
+      - dev
+      - preprod
   pull_request:
     branches:
       - dev
@@ -13,17 +17,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pull Request
+        if: ${{ github.event_name == 'pull_request' }}
         uses: aliencube/microsoft-teams-actions@v0.8.0
         with:
-          webhook_uri: https://adaptivestackinc.webhook.office.com/webhookb2/f005c5f4-a27b-4892-9004-c2f0cf73245b@74d4c0f8-eff1-47bd-85d7-cadf3cf8718e/IncomingWebhook/5e47e85b8a34485983810b79f29756e2/d11786a1-618e-4ee6-b1d8-9e42bcb26ae1
-          title: 'New Pull Request Has Been Created'
+          webhook_uri: ${{ secrets.WEBHOOK_URI }}
+          title: ''
           # Message summary
-          summary: 'Please Review Pull Request on Github'
+          summary: 'Pull Request'
           # Message text
-          text: 'Please Review Pull Request on Github'
+          text: ''
           # Message theme color
           theme_color: ''
           # JSON array for message sections
-          sections: ''
+          sections: '[{ "activityImage": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png", "activityTitle": "Pull Request",  "activitySubtitle": "Event triggered by ${{ github.event.pull_request.user.login }}", "activityText": "Pull Request: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})" }]'
           # JSON array for message actions
-          actions: ''
+          actions: '[{ "@type": "OpenUri", "name": "View Pull Request", "targets": [{ "os": "default", "uri": "${{ github.event.pull_request.html_url }}" }] }]'

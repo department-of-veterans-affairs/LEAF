@@ -33,7 +33,7 @@
                         <!--{$log.timestamp}-->
                     </td>
                     <td class="leaf-width75pct">
-                        <span><b><!--{$log.action|sanitize}--></b> by <!--{$log.userName|sanitize}--> <!--{$log.history|sanitize}--></span>
+                        <span><!--{$log.history|sanitize}--> by <b><!--{$log.userName|sanitize}--></b></span>
                     </td>
                 </tr>
 
