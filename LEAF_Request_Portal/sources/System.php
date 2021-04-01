@@ -365,7 +365,7 @@ class System
             }
         }
 
-        return "groupID: {$groupID} updated";
+        return "groupID: {$groupID} imported";
     }
 
     public function getServices()
