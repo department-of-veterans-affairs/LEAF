@@ -747,7 +747,7 @@ function tagAndUpdate(groupID, callback) {
             }),
             $.ajax({
                 type: 'GET',
-                url: '../api/?a=system/updateGroup/' + groupID,
+                url: '../api/?a=system/importGroup/' + groupID,
                 success: function() {
                 },
                 cache: false
