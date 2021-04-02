@@ -39,6 +39,8 @@ class System
 
     private $dataActionLogger;
 
+    private const UPLOAD_DIR = '/var/www/ERM_UPLOADS/';
+
     public function __construct($db, $login)
     {
         $this->db = $db;
@@ -61,7 +63,7 @@ class System
         // clear out old data first
         $vars = array(':serviceID' => $serviceID);
         $this->db->prepared_query('DELETE FROM services WHERE serviceID=:serviceID AND serviceID > 0', $vars);
-        $this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars);
+        //$this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars); // Skip Local
 
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
@@ -99,18 +101,24 @@ class System
                 $vars = array(':userID' => $emp['userName'],
                         ':serviceID' => $service['groupID'], );
 
-                $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
-                                    VALUES (:serviceID, :userID)', $vars);
+                $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, active)
+                                                    VALUES (:serviceID, :userID, 0)
+                                                    ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID', $vars);
 
                 // include the backups of employees
-                $backups = $employee->getBackups($emp['empUID']);
-                foreach ($backups as $backup)
-                {
-                    $vars = array(':userID' => $backup['userName'],
-                            ':serviceID' => $service['groupID'], );
+                $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID AND serviceID=:serviceID', $vars);
+                if ($res[0]['active'] == 1) {
+                    $backups = $employee->getBackups($emp['empUID']);
+                    foreach ($backups as $backup) {
+                        $vars = array(':userID' => $backup['userName'],
+                            ':serviceID' => $service['groupID'],
+                            ':backupID' => $emp['userName'],);
 
-                    $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
-                                    VALUES (:serviceID, :userID)', $vars);
+                        // Add backupID check for updates
+                        $this->db->prepared_query('INSERT INTO service_chiefs (userID, serviceID, backupID)
+                                                    VALUES (:userID, :serviceID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, serviceID=:groupID', $vars);
+                    }
                 }
             }
         }
@@ -135,6 +143,28 @@ class System
             }
         }
 
+        //refresh request portal members backups
+        $vars = array(':serviceID' => $service['groupID'],);
+
+        $resRP = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE serviceID=:serviceID', $vars);
+
+        foreach ($resRP as $empRP) {
+            if ($empRP['active'] == 1) {
+                $empID = $employee->lookupLogin($empRP['userID']);
+                $backups = $employee->getBackups($empID[0]['empUID']);
+                foreach ($backups as $backup) {
+                    $vars = array(':userID' => $backup['userName'],
+                        ':serviceID' => $service['groupID'],
+                        ':backupID' => $empRP['userID'],);
+
+                    // Add backupID check for updates
+                    $this->db->prepared_query('INSERT INTO service_chiefs (userID, serviceID, backupID)
+                                                    VALUES (:userID, :serviceID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, serviceID=:serviceID, backupID=:backupID', $vars);
+                }
+            }
+        }
+
         return "groupID: {$serviceID} updated";
     }
 
@@ -151,7 +181,7 @@ class System
 
         // clear out old data first
         $vars = array(':groupID' => $groupID);
-        $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
+        //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
@@ -199,21 +229,50 @@ class System
                 $vars = array(':userID' => $emp['userName'],
                         ':groupID' => $groupID, );
 
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+                $this->db->prepared_query('INSERT INTO users (userID, groupID, active)
+                                                    VALUES (:userID, :groupID, 0)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
 
                 // include the backups of employees
-                $backups = $employee->getBackups($emp['empUID']);
-                foreach ($backups as $backup)
-                {
-                    $vars = array(':userID' => $backup['userName'],
-                            ':groupID' => $groupID, );
+                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+                if ($res[0]['active'] == 1) {
+                    $backups = $employee->getBackups($emp['empUID']);
+                    foreach ($backups as $backup) {
+                        $vars = array(':userID' => $backup['userName'],
+                            ':groupID' => $groupID,
+                            ':backupID' => $emp['userName'],);
 
-                    $this->db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+                        // Add backupID check for updates
+                        $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                    VALUES (:userID, :groupID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
+                    }
                 }
             }
         }
+
+        //refresh request portal members backups
+        $vars = array(':groupID' => $groupID,);
+
+        $resRP = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID', $vars);
+
+        foreach ($resRP as $empRP) {
+            if ($empRP['active'] == 1) {
+                $empID = $employee->lookupLogin($empRP['userID']);
+                $backups = $employee->getBackups($empID[0]['empUID']);
+                foreach ($backups as $backup) {
+                    $vars = array(':userID' => $backup['userName'],
+                        ':groupID' => $groupID,
+                        ':backupID' => $empRP['userID'],);
+
+                    // Add backupID check for updates
+                    $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                    VALUES (:userID, :groupID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $vars);
+                }
+            }
+        }
+
 
         //if the group is removed, also remove the category_privs
         $vars = array(':groupID' => $groupID);
@@ -229,6 +288,86 @@ class System
 
 
         return "groupID: {$groupID} updated";
+    }
+
+    public function importGroup($groupID)
+    {
+        if (!is_numeric($groupID)) {
+            return 'Invalid Group';
+        }
+        if ($groupID == 1) {
+            return 'Cannot update admin group';
+        }
+
+        // clear out old data first
+        $vars = array(':groupID' => $groupID);
+        //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
+        $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
+
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
+
+        $config = new Config();
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $group = new Orgchart\Group($db_phonebook, $this->login);
+        $position = new Orgchart\Position($db_phonebook, $this->login);
+        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+        $tag = new Orgchart\Tag($db_phonebook, $this->login);
+
+        // find quadrad/ELT tag name
+        $upperLevelTag = $tag->getParent('service');
+        $isQuadrad = false;
+        if (array_search($upperLevelTag, $group->getAllTags($groupID)) !== false) {
+            $isQuadrad = true;
+        }
+
+        $resGroup = $group->getGroup($groupID)[0];
+        $vars = array(':groupID' => $groupID,
+            ':parentGroupID' => ($isQuadrad == true ? -1 : null),
+            ':name' => $resGroup['groupTitle'],
+            ':groupDescription' => '',);
+
+        $this->db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name, groupDescription)
+                    					VALUES (:groupID, :parentGroupID, :name, :groupDescription)', $vars);
+
+        // build list of member employees
+        $resEmp = array();
+        $positions = $group->listGroupPositions($groupID);
+        $resEmp = $group->listGroupEmployees($groupID);
+        foreach ($positions as $tposition) {
+            $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
+        }
+
+        foreach ($resEmp as $emp) {
+            if ($emp['userName'] != '') {
+                $vars = array(':userID' => $emp['userName'],
+                    ':groupID' => $groupID,);
+
+                $this->db->prepared_query('INSERT INTO users (userID, groupID)
+                                                    VALUES (:userID, :groupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
+
+                // include the backups of employees
+                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+                if ($res[0]['active'] == 1) {
+                    $backups = $employee->getBackups($emp['empUID']);
+                    foreach ($backups as $backup) {
+                        $vars = array(':userID' => $backup['userName'],
+                            ':groupID' => $groupID,
+                            ':backupID' => $emp['userName'],);
+
+                        // Add backupID check for updates
+                        $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                    VALUES (:userID, :groupID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
+                    }
+                }
+            }
+        }
+
+        return "groupID: {$groupID} imported";
     }
 
     public function getServices()
@@ -311,29 +450,34 @@ class System
         return $out;
     }
 
-    public function getEmailSubjectData($template, $getStandard = false)
+    public function getEmailData($template, $getStandard = false)
     {
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
         }
 
-        $data['subjectFileName'] = '';
-        $data['subjectFile'] = '';
+        $data = array();
 
+        // If we have a body file, we need to add subject, emailTo, and emailCC template files
         if (preg_match('/_body.tpl$/', $template))
         {
-            $subject = str_replace("_body.tpl", "_subject.tpl", $template, $count);
+            // We have a body template (non-default) so grab what kind
+            $emailKind = str_replace("_body.tpl", "", $template, $count);
             if ($count == 1)
             {
-                $data['subjectFileName'] = $subject;
+                $emailData = array('emailTo', 'emailCc', 'subject');
 
-                if (file_exists("../templates/email/custom_override/{$subject}") && !$getStandard)
-                    $data['subjectFile'] = file_get_contents("../templates/email/custom_override/{$subject}");          
-                else if (file_exists("../templates/email/{$subject}"))
-                    $data['subjectFile'] = file_get_contents("../templates/email/{$subject}");
-                else
-                    $data['subjectFile'] = '';
+                foreach ($emailData as $dataType) {
+                    $data[$dataType.'FileName'] = $emailKind.'_'.$dataType.'.tpl';
+
+                    if (file_exists("../templates/email/custom_override/{$data[$dataType.'FileName']}") && !$getStandard)
+                        $data[$dataType.'File'] = file_get_contents("../templates/email/custom_override/{$data[$dataType.'FileName']}");
+                    else if (file_exists("../templates/email/{$data[$dataType.'FileName']}"))
+                        $data[$dataType.'File'] = file_get_contents("../templates/email/{$data[$dataType.'FileName']}");
+                    else
+                        $data[$dataType.'File'] = '';
+                }
             }
         }
 
@@ -353,12 +497,16 @@ class System
             if (preg_match('/.tpl$/', $item))
             {
                 $temp =  array();
-                preg_match('/subject/', $item, $temp);
+                $emailData = array('emailTo', 'emailCc', 'subject');
+
+                preg_match('/subject|emailTo|emailCc/', $item, $temp);
                 if (count($temp) == 0) 
                 {                    
                     $data['fileName'] = $item;
-                    $res = $this->getEmailSubjectData($item);
-                    $data['subjectFileName'] = $res['subjectFileName'];
+                    $res = $this->getEmailData($item);
+                    foreach ($emailData as $dataType) {
+                        $data[$dataType.'FileName'] = $res[$dataType.'FileName'];
+                    }
                     $out[] = $data;
                 }
             }
@@ -440,8 +588,12 @@ class System
                 $data['file'] = file_get_contents("../templates/email/{$template}");
             }
 
-            $res = $this->getEmailSubjectData($template, $getStandard);
-            $data['subjectFile'] = $res['subjectFile'];
+            $res = $this->getEmailData($template, $getStandard);
+
+            $emailInfo = array('emailTo', 'emailCc', 'subject');
+            foreach($emailInfo as $infoType) {
+                $data[$infoType.'File'] = $res[$infoType.'File'];
+            }
         }
 
         return $data;
@@ -474,6 +626,10 @@ class System
         
             if ($_POST['subjectFileName'] != '')
                 file_put_contents("../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
+            if ($_POST['emailToFileName'] != '')
+                file_put_contents("../templates/email/custom_override/" . $_POST['emailToFileName'], $_POST['emailToFile']);
+            if ($_POST['emailCcFileName'] != '')
+                file_put_contents("../templates/email/custom_override/" . $_POST['emailCcFileName'], $_POST['emailCcFile']);
         }
     }
 
@@ -513,6 +669,16 @@ class System
             if ($subjectFileName != '' && file_exists("../templates/email/custom_override/{$subjectFileName}"))
             {
                 unlink("../templates/email/custom_override/{$subjectFileName}");
+            }
+            $emailToFileName = $_REQUEST['emailToFileName'];
+            if ($emailToFileName != '' && file_exists("../templates/email/custom_override/{$emailToFileName}"))
+            {
+                unlink("../templates/email/custom_override/{$emailToFileName}");
+            }
+            $emailCcFileName = $_REQUEST['emailCcFileName'];
+            if ($emailCcFileName != '' && file_exists("../templates/email/custom_override/{$emailCcFileName}"))
+            {
+                unlink("../templates/email/custom_override/{$emailCcFileName}");
             }
         }
     }
@@ -924,5 +1090,25 @@ class System
     public function getHistory($filterById)
     {
         return $this->dataActionLogger->getHistory($filterById, null, \LoggableTypes::PRIMARY_ADMIN);
+    }
+
+    /**
+     * Purpose: Get total size of all uploads in portal folder
+     * @param $visn
+     * @param $facility
+     * @param $name
+     * @return string
+     */
+    public function getRequestUploadSize($visn = '', $facility = '', $name = '') {
+
+        $command = 'du -h '.self::UPLOAD_DIR.$visn.'/'.$facility.'/'.$name;
+        $output = exec($command);
+        if ($output) {
+            //$output = trim($output);
+            $sizeOutput = explode("\t", $output);
+            return $sizeOutput[0];
+        } else {
+            return '';
+        }
     }
 }

@@ -49,7 +49,7 @@ Copy `globals.php.example` to `globals.php` and change the following variables t
 
 ```php
 const DIRECTORY_HOST = 'mysql';
-const DIRECTORY_DB = 'leaf_portal';
+const DIRECTORY_DB = 'leaf_users';
 const DIRECTORY_USER = 'tester';
 const DIRECTORY_PASS = 'tester';
 const LEAF_NEXUS_URL = 'https://localhost/LEAF_Nexus/';
