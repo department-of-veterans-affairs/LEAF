@@ -9,6 +9,7 @@
 
 */
 include_once __DIR__ . '/../libs/smarty/Smarty.class.php';
+require_once 'VAMC_Directory.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -38,6 +39,7 @@ class Email
     private $orgchartInitialized = false;
 
     private $portal_db;
+    private $nexus_db;
 
     public $smartyVariables = array();
 
@@ -48,6 +50,7 @@ class Email
     public function __construct()
     {
         $this->initPortalDB();
+        $this->initNexusDB();
     }
 
     /**
@@ -114,27 +117,55 @@ class Email
     }
 
     /**
-     * Validates entered email address and adds to recipient if valid
-     * Returns true if added false if not
-     * @param string $strEmailAddress
+     * Purpose: To check that email address is not already attached to this email send
+     * @param $address
      * @return bool
      */
-    public function addRecipient($strEmailAddress)
+    public function emailActiveNotAlreadyAdded($address) {
+
+        if ( ( strpos($this->emailRecipient, $address) === false  )
+            && (!in_array($address, $this->emailCC) )
+            && (!in_array($$address ,$this->emailBCC) ) ) {
+
+            $dir = new VAMC_Directory;
+
+            // Check that email address is active in Nexus
+            $res = $this->nexus_db->prepared_query(
+                "SELECT e.deleted 
+                        FROM employee as e
+                            INNER JOIN employee_data ed on e.empUID = ed.empUID
+                        WHERE e.deleted = 0 
+                            AND ed.data=:emailAddress ;",
+                array(':emailAddress' => $address));
+            return ( (!empty($res)) ? true : false );
+        }
+        return false;
+    }
+
+    /**
+     * Purpose: Add Receipient to email
+     * @param $address
+     * @return bool
+     */
+    public function addRecipient($address)
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $strEmailAddress) == 0)
+        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
         {
             return false;
         }
 
         if ($this->emailRecipient == '')
         {
-            $this->emailRecipient = $strEmailAddress;
+            $this->emailRecipient = $address;
         }
         else
         {
-            $this->emailRecipient .= ", $strEmailAddress";
+            if ( $this->emailActiveNotAlreadyAdded($address) ) {
+                $this->emailRecipient .= ", " . $address;
+            }
         }
 
+        // Returning true because either added here or already added
         return true;
     }
 
@@ -162,7 +193,6 @@ class Email
      */
     public function addGroupRecipient($groupID)
     {
-        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $res = $this->portal_db->prepared_query("SELECT `userID`
@@ -178,22 +208,23 @@ class Email
 
     /**
      * Scrubs email address and adds to object email CC array if valid
-     * @param $strEmailAddress
+     * @param $address
      * @return bool
      */
-    public function addCcBcc($strEmailAddress, $isBcc = false)
+    public function addCcBcc($address, $isBcc = false)
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $strEmailAddress) == 0)
+        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
         {
             return false;
         }
 
-        if (!$isBcc) {
-            $this->emailCC[] = $strEmailAddress;
-        } else {
-            $this->emailBCC[] = $strEmailAddress;
+        if ( $this->emailActiveNotAlreadyAdded($address) ) {
+          if (!$isBcc) {
+              $this->emailCC[] = $address;
+          } else {
+              $this->emailBCC[] = $address;
+          }
         }
-
         return true;
     }
 
@@ -310,6 +341,26 @@ class Email
 
         $db_config = new DB_Config;
         $this->portal_db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+    }
+
+    /**
+     * Initialize Nexus db object
+     * @return void
+     */
+    function initNexusDB()
+    {
+        // set up org chart assets
+        if (!class_exists('DB'))
+        {
+            include 'db_mysql.php';
+        }
+        if (!class_exists('DB_Config'))
+        {
+            include 'db_config.php';
+        }
+
+        $nexus_config = new Config;
+        $this->nexus_db = new DB($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
     }
 
     private function getHeaders()
