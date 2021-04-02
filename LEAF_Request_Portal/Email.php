@@ -132,10 +132,10 @@ class Email
             // Check that email address is active in Nexus
             $res = $this->nexus_db->prepared_query(
                 "SELECT e.deleted 
-                        FROM employee as e
-                            INNER JOIN employee_data ed on e.empUID = ed.empUID
-                        WHERE e.deleted = 0 
-                            AND ed.data=:emailAddress ;",
+                    FROM employee as e
+                        INNER JOIN employee_data ed on e.empUID = ed.empUID
+                    WHERE e.deleted = 0 
+                        AND ed.data=:emailAddress ;",
                 array(':emailAddress' => $address));
             return ( (!empty($res)) ? true : false );
         }
@@ -147,7 +147,7 @@ class Email
      * @param $address
      * @return bool
      */
-    public function addRecipient($address)
+    public function addRecipient($address, $requiredAddress = false)
     {
         if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
         {
@@ -160,7 +160,7 @@ class Email
         }
         else
         {
-            if ( $this->emailActiveNotAlreadyAdded($address) ) {
+            if ( $this->emailActiveNotAlreadyAdded($address) || $requiredAddress ) {
                 $this->emailRecipient .= ", " . $address;
             }
         }
@@ -211,19 +211,20 @@ class Email
      * @param $strEmailAddress
      * @return bool
      */
-    public function addCcBcc($strEmailAddress, $isBcc = false)
+
+    public function addCcBcc($address, $requiredAddress = false, $isBcc = false)
     {
         if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $strEmailAddress) == 0)
         {
             return false;
         }
 
-        if ( $this->emailActiveNotAlreadyAdded($strEmailAddress) ) {
-            if (!$isBcc) {
-                $this->emailCC[] = $strEmailAddress;
-            } else {
-                $this->emailBCC[] = $strEmailAddress;
-            }
+        if ( $this->emailActiveNotAlreadyAdded($address) || ($requiredAddress)  ) {
+          if (!$isBcc) {
+              $this->emailCC[] = $address;
+          } else {
+              $this->emailBCC[] = $address;
+          }
         }
 
         return true;
@@ -250,7 +251,7 @@ class Email
         {
             foreach (Config::$emailBCC as $recipient)
             {
-                $this->addCcBcc($recipient, true);
+                $this->addCcBcc($recipient, false,true);
             }
         }
         $email['recipient'] = html_entity_decode($this->emailRecipient, ENT_QUOTES);
@@ -453,9 +454,9 @@ class Email
             // For each line in template, add that email address, if valid
             foreach($emailList as $emailAddress) {
                 if ($isCc) {
-                    $this->addCcBcc(XSSHelpers::xscrub($emailAddress));
+                    $this->addCcBcc(XSSHelpers::xscrub($emailAddress), true);
                 } else {
-                    $this->addRecipient(XSSHelpers::xscrub($emailAddress));
+                    $this->addRecipient(XSSHelpers::xscrub($emailAddress), true);
                 }
             }
         }
