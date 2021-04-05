@@ -20,6 +20,8 @@ class Telemetry
 
     private $login;
 
+    private const ROOT_UPLOAD = '/var/www/ERM_UPLOADS/';
+
     public function __construct($db, $login)
     {
         $this->db = $db;
@@ -139,4 +141,57 @@ class Telemetry
 
         return $output;
     }
+
+    /**
+     * Purpose: Get total size of all uploads in portal folder
+     * @param $visn
+     * @param $facility
+     * @param $name
+     * @return string
+     */
+    public function getRequestUploadStorage($showAll = true, $visn = "", $facility = "", $name = "") {
+        $runCommand = false;
+        if ($showAll) {
+            $command = 'du --max-depth=3 ' . self::ROOT_UPLOAD . ' | sort -rn';
+            $runCommand = true;
+        } else {
+            if (!empty($visn) && !empty($facility) && !empty($name)) {
+                $command = 'du ' . self::ROOT_UPLOAD . $visn . '/' . $facility . '/' . $name. ' | sort -rn';
+                $runCommand = true;
+            }
+        }
+
+        $output = false;
+        if ($runCommand) {
+            $output = shell_exec($command);
+        }
+        if ($output) {
+            $rtnDirectories = array();
+            $sizeOutput = explode("\n", $output);
+            foreach($sizeOutput as $outputLine) {
+                // Need to remove root directory from path and replace if neccessary
+                $outputInfo = explode("\t", $outputLine);
+
+                $outputInfo[1] = str_replace(self::ROOT_UPLOAD, "", $outputInfo[1]);
+
+                // Need to include only portals not main directories
+                $directoryLevel = explode("/", $outputInfo[1]);
+                if (count($directoryLevel) === 3) {
+                    // Add directory size and location to output
+                    $tmpInfo = array(
+                        'location' => (string)($outputInfo[1]),
+                        'filesize' => $outputInfo[0]
+                    );
+                    if (!empty($outputInfo[0]) && !empty($outputInfo[1])) {
+                        $rtnDirectories[] = $tmpInfo;
+                    }
+                }
+            }
+            return $rtnDirectories;
+
+        } else {
+            return '';
+        }
+    }
+
 }

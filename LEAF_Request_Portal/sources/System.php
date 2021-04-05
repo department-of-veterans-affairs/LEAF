@@ -39,8 +39,6 @@ class System
 
     private $dataActionLogger;
 
-    private const UPLOAD_DIR = '/var/www/ERM_UPLOADS/';
-
     public function __construct($db, $login)
     {
         $this->db = $db;
@@ -928,23 +926,4 @@ class System
         return $this->dataActionLogger->getHistory($filterById, null, \LoggableTypes::PRIMARY_ADMIN);
     }
 
-    /**
-     * Purpose: Get total size of all uploads in portal folder
-     * @param $visn
-     * @param $facility
-     * @param $name
-     * @return string
-     */
-    public function getRequestUploadSize($visn = '', $facility = '', $name = '') {
-
-        $command = 'du -h '.self::UPLOAD_DIR.$visn.'/'.$facility.'/'.$name;
-        $output = exec($command);
-        if ($output) {
-            //$output = trim($output);
-            $sizeOutput = explode("\t", $output);
-            return $sizeOutput[0];
-        } else {
-            return '';
-        }
-    }
 }

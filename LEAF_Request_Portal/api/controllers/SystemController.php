@@ -105,22 +105,6 @@ class SystemController extends RESTfulResponse
             return $system->getPrimaryAdmin();
         });
 
-        $this->index['GET']->register('system/upload/size', function ($args) use ($system) {
-            return $system->getRequestUploadSize();
-        });
-
-        $this->index['GET']->register('system/upload/size/[text]', function ($args) use ($system) {
-            return $system->getRequestUploadSize($args[0]);
-        });
-
-        $this->index['GET']->register('system/upload/size/[text]/[text]', function ($args) use ($system) {
-            return $system->getRequestUploadSize($args[0], $args[1]);
-        });
-
-        $this->index['GET']->register('system/upload/size/[text]/[text]/[text]', function ($args) use ($system) {
-            return $system->getRequestUploadSize($args[0], $args[1], $args[2]);
-        });
-
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
