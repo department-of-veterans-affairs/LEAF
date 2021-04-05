@@ -67,7 +67,17 @@ class GroupController extends RESTfulResponse
         $this->index['DELETE']->register('group/[digit]/tag', function ($args) use ($group) {
             try
             {
-                $group->deleteTag((int)$args[0], $group->sanitizeInput($_GET['tag']));
+                return $group->deleteTag((int)$args[0], $group->sanitizeInput($_GET['tag']));
+            }
+            catch (Exception $e)
+            {
+                return $e->getMessage();
+            }
+        });
+        $this->index['DELETE']->register('group/[digit]/local/tag', function ($args) use ($group) {
+            try
+            {
+                return $group->deleteLocalTag((int)$args[0], $group->sanitizeInput($_GET['tag']));
             }
             catch (Exception $e)
             {
