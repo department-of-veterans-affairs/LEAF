@@ -456,7 +456,8 @@ class Login
         // incorporate groups from local DB
         $vars = array(':userName' => $this->userID);
         $res = $this->userDB->prepared_query('SELECT * FROM users
-												WHERE userID = :userName', $vars);
+												WHERE userID = :userName
+                                                    AND active=1', $vars);
         if (count($res) > 0)
         {
             foreach ($res as $item)
