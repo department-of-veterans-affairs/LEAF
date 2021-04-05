@@ -441,6 +441,15 @@ function getGroupList() {
                                             },
                                             cache: false
                                         });
+                                        $.ajax({
+                                            type: 'DELETE',
+                                            url: '<!--{$orgchartPath}-->/api/?a=group/' + groupID + '/local/tag&'
+                                                + $.param({tag: '<!--{$orgchartImportTag}-->',
+                                                    CSRFToken: '<!--{$CSRFToken}-->'}),
+                                            success: function() {
+                                            },
+                                            cache: false
+                                        });
                                     });
                                     dialog_confirm.show();
                                 });
