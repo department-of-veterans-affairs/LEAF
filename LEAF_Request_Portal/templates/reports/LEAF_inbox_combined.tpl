@@ -14,14 +14,14 @@
      */
     let sites = [
         {
-            url: 'https://leaf.va.gov/Academy/Demo1/',
+            url: './',
             name: 'Demo 1',
             backgroundColor: 'Green',
             fontColor: 'white',
             icon: 'internet-web-browser.svg'
         },
         {
-            url: 'https://leaf.va.gov/Academy/Demo2/',
+            url: './another_portal',
             name: 'Demo 2',
             backgroundColor: 'Blue',
             fontColor: 'white',
