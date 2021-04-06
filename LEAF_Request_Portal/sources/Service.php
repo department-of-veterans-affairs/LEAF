@@ -67,11 +67,11 @@ class Service
         {
             $parentGroupID = (int)$parentGroupID;
         }
-        $vars = array(':serviceID' => (int)$newID,
+        $sql_vars = array(':serviceID' => (int)$newID,
                       ':service' => $groupName,
                       ':groupID' => $parentGroupID, );
         $res = $this->db->prepared_query("INSERT INTO services (serviceID, service, abbreviatedService, groupID)
-                                            VALUES (:serviceID, :service, '', :groupID)", $vars);
+                                            VALUES (:serviceID, :service, '', :groupID)", $sql_vars);
 
         return $newID;
     }
@@ -82,21 +82,30 @@ class Service
         {
             return 'Admin access required';
         }
-        $vars = array(':groupID' => $groupID);
-        $this->db->prepared_query('DELETE FROM services WHERE serviceID=:groupID', $vars);
-        $this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:groupID', $vars);
+        $sql_vars = array(':groupID' => $groupID);
+        $this->db->prepared_query('DELETE FROM services WHERE serviceID=:groupID', $sql_vars);
+        $this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:groupID', $sql_vars);
 
         return 1;
     }
 
     public function addMember($groupID, $member)
     {
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
+        $config = new Config();
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+
         if (is_numeric($groupID) && $member != '')
         {
-            $vars = array(':userID' => $member,
-                    ':groupID' => $groupID, );
-            $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, locallyManaged)
-                                                   VALUES (:groupID, :userID, 1)', $vars);
+            $sql_vars = array(':userID' => $member,
+                    ':serviceID' => $groupID,);
+
+            // Update on duplicate keys
+            $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID, locallyManaged, active)
+                                                    VALUES (:serviceID, :userID, null, 1, 1)
+                                                    ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID, backupID=null, locallyManaged=1, active=1', $sql_vars);
 
             $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::SERVICE_CHIEF, [
                 new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
@@ -105,16 +114,38 @@ class Service
             ]);
 
             // check if this service is also an ELT
-            $vars = array(':groupID' => $groupID);
+            $sql_vars = array(':groupID' => $groupID);
             $res = $this->db->prepared_query('SELECT * FROM services
-   												WHERE serviceID=:groupID', $vars);
+   												WHERE serviceID=:groupID', $sql_vars);
             // if so, update groups table
             if ($res[0]['groupID'] == $groupID)
             {
-                $vars = array(':userID' => $member,
+                $sql_vars = array(':userID' => $member,
                               ':groupID' => $groupID, );
                 $this->db->prepared_query('INSERT INTO users (userID, groupID)
-                                                VALUES (:userID, :groupID)', $vars);
+                                                VALUES (:userID, :groupID)', $sql_vars);
+            }
+
+            // include the backups of employees
+            $emp = $employee->lookupLogin($member);
+            $backups = $employee->getBackups($emp[0]['empUID']);
+            foreach ($backups as $backup) {
+                $sql_vars = array(':userID' => $backup['userName'],
+                    ':serviceID' => $groupID,
+                    ':backupID' => $emp[0]['userName'],);
+
+                $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID AND serviceID=:serviceID', $sql_vars);
+
+                // Check for locallyManaged users
+                if ($res[0]['locallyManaged'] == 1) {
+                    $sql_vars[':backupID'] = null;
+                } else {
+                    $sql_vars[':backupID'] = $emp[0]['userName'];
+                }
+                // Add backupID check for updates
+                $this->db->prepared_query('INSERT INTO service_chiefs (userID, serviceID, backupID)
+                                                    VALUES (:userID, :serviceID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, serviceID=:serviceID, backupID=:backupID', $sql_vars);
             }
         }
 
@@ -123,49 +154,52 @@ class Service
 
     public function removeMember($groupID, $member)
     {
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
+        $config = new Config();
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+
         if (is_numeric($groupID) && $member != '')
         {
-            $vars = array(':userID' => $member,
+            $sql_vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
-            $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
 
-            if ($res[0]['locallyManaged'] == 1)
-            {
-                $vars = array(':userID' => $member,
-                        ':groupID' => $groupID, );
-                $res = $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $vars);
+            $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::SERVICE_CHIEF,[
+                new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
+                new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
+            ]);
 
-                $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::SERVICE_CHIEF,[
-                    new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
-                    new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
-                ]);
-            }
-            else
-            {
-                $vars = array(':userID' => $member,
-                        ':groupID' => $groupID, );
-                $res = $this->db->prepared_query('UPDATE service_chiefs SET active=0, locallyManaged=1
-                                                    WHERE userID=:userID AND serviceID=:groupID', $vars);
-
-                $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::SERVICE_CHIEF, [
-                    new LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID)),
-                    new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
-                ]);
-
-            }
+            $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:groupID', $sql_vars);
 
             // check if this service is also an ELT
-            $vars = array(':groupID' => $groupID);
+            $sql_vars = array(':groupID' => $groupID);
             $res = $this->db->prepared_query('SELECT * FROM services
-   												WHERE serviceID=:groupID', $vars);
+   												WHERE serviceID=:groupID', $sql_vars);
             // if so, update groups table
             if ($res[0]['groupID'] == $groupID)
             {
-                $vars = array(':userID' => $member,
+                $sql_vars = array(':userID' => $member,
                         ':groupID' => $groupID, );
                 $this->db->prepared_query('DELETE FROM users
     										WHERE userID=:userID
-    											AND groupID=:groupID', $vars);
+    											AND groupID=:groupID', $sql_vars);
+            }
+
+            // include the backups of employee
+            $emp = $employee->lookupLogin($member);
+            $backups = $employee->getBackups($emp[0]['empUID']);
+            foreach ($backups as $backup) {
+                $sql_vars = array(':userID' => $backup['userName'],
+                    ':serviceID' => $groupID,
+                    ':backupID' => $member,);
+
+                $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID AND serviceID=:serviceID AND backupID=:backupID', $sql_vars);
+
+                // Check for locallyManaged users
+                if ($res[0]['locallyManaged'] == 0) {
+                    $this->db->prepared_query('DELETE FROM service_chiefs WHERE userID=:userID AND serviceID=:serviceID AND backupID=:backupID', $sql_vars);
+                }
             }
         }
 
@@ -178,8 +212,8 @@ class Service
         {
             return;
         }
-        $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE serviceID=:groupID ORDER BY userID', $vars);
+        $sql_vars = array(':groupID' => $groupID);
+        $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE serviceID=:groupID ORDER BY userID', $sql_vars);
 
         $members = array();
         if (count($res) > 0)
@@ -193,6 +227,11 @@ class Service
                 if (isset($dirRes[0]))
                 {
                     $temp = $dirRes[0];
+                    if($member['locallyManaged'] == 1) {
+                        $temp['backupID'] = null;
+                    } else {
+                        $temp['backupID'] = $member['backupID'];
+                    }
                     $temp['locallyManaged'] = $member['locallyManaged'];
                     $temp['active'] = $member['active'];
                     $members[] = $temp;
@@ -260,9 +299,9 @@ class Service
      */
     public function getServiceName($serviceID)
     {
-        $vars = array(':serviceID' => $serviceID);
+        $sql_vars = array(':serviceID' => $serviceID);
         return $this->db->prepared_query('SELECT * FROM services
-                                            where serviceid=:serviceID', $vars)[0]['service'];
+                                            where serviceid=:serviceID', $sql_vars)[0]['service'];
     }
 
     /**

@@ -598,6 +598,26 @@ abstract class Data
         return true;
     }
 
+    // Locally delete tags
+    public function deleteLocalTag($uid, $tag)
+    {
+        $vars = array(':UID' => $uid,
+            ':tag' => $tag, );
+
+        $res = $this->db->prepared_query("DELETE FROM {$this->dataTagTable}
+                                            WHERE {$this->dataTableUID}=:UID
+                                                AND tag=:tag", $vars);
+
+        $this->updateLastModified();
+
+        $this->logAction(\DataActions::DELETE, \LoggableTypes::TAG, [
+            new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        ]);
+
+        return true;
+    }
+
     // deletes old tags, inserts new ones
     /*public function parseTags($recordID, $input)
     {
