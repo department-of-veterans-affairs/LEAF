@@ -67,7 +67,7 @@ function createGroup() {
     	type: 'GET',
     	url: '../api/service/quadrads',
     	success: function(res) {
-    		for(var i in res) {
+    		for(let i in res) {
                 $('#division').append('<option value="'+ res[i].groupID+'">'+ res[i].name +'</option>');
     		}
     	},
@@ -120,14 +120,20 @@ function getMembers(groupID) {
 
 function populateMembers(groupID, members) {
     $('#members' + groupID).html('');
-    var memberCt = (members.length - 1);
-    var countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
-    for(var i in members) {
-    	if(members[i].active == 1) {
-            if (i == 0) {
-                $('#members' + groupID).append('<span>' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</span>');
+    let memberCt = -1;
+    for (let i in members) {
+        if (members[i].active == 1 && members[i].backupID == null) {
+            memberCt++;
+        }
+    }
+    let countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
+    for (let i in members) {
+        if (members[i].active == 1 && members[i].backupID == null) {
+            if ($('#members' + groupID).html('')) {
+                $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</div>');
             }
-    	}
+            $('#members' + groupID).append('<div class="groupUser">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + ' <div>');
+        }
     }
 }
 
@@ -137,9 +143,6 @@ function addUser(groupID, userID) {
         url: "../api/service/" + groupID + "/members",
         data: {'userID': userID,
                'CSRFToken': '<!--{$CSRFToken}-->'},
-        success: function(response) {
-            getMembers(groupID);
-        },
         cache: false
     });
 }
@@ -148,9 +151,6 @@ function removeUser(groupID, userID) {
     $.ajax({
         type: 'DELETE',
         url: "../api/service/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
-        success: function(response) {
-            getMembers(groupID);
-        },
         cache: false
     });
 }
@@ -163,34 +163,36 @@ function initiateWidget(serviceID) {
                 url: '../api/service/' + serviceID + '/members',
                 success: function(res) {
                     dialog.clear();
-                    var button_deleteGroup = '<button id="deleteGroup_'+serviceID+'" class="usa-button usa-button--secondary leaf-btn-small">Delete this group</button>';
+                    let button_deleteGroup = '<div><button id="deleteGroup_'+serviceID+'" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
                     if(serviceID > 0) {
                         button_deleteGroup = '';
                     }
                     dialog.setContent(
-                        '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(' + serviceID + ')">View History</button>'+
-                        '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>' + button_deleteGroup);
+                        '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory(' + serviceID + ')">View History</button></div>' + button_deleteGroup + '</div>' +
+                        '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>');
                     $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
-                    var counter = 0;
-                    for(var i in res) {
-                        var removeButton = '<a href="#" class="text-secondary-darker leaf-font0-8rem" id="removeMember_'+ counter +'">REMOVE</a>';
-                        var managedBy = '';
-                        if(res[i].locallyManaged != 1) {
-                            managedBy += '<div class="leaf-marginLeft-qtrRem leaf-font0-8rem">&bull; Managed in Org. Chart</div>';
+                    let counter = 0;
+                    for(let i in res) {
+                        // Check for active members to list
+                        if (res[i].active == 1) {
+                            if (res[i].backupID == null || res[i].locallyManaged == 1) {
+                                let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
+                                $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
+                                // Check for Backups
+                                for (let j in res) {
+                                    if (res[i].userName == res[j].backupID && res[j].locallyManaged != 1) {
+                                        $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
+                                    }
+                                }
+                                $('#removeMember_' + counter).on('click', function (userID) {
+                                    return function () {
+                                        removeUser(serviceID, userID);
+                                        dialog.hide();
+                                    };
+                                }(res[i].userName));
+                                counter++;
+                            }
                         }
-                        if(res[i].active != 1) {
-                            managedBy += '<div class="leaf-marginLeft-qtrRem leaf-font0-8rem">&bull; Managed in Org. Chart</div>';
-                            managedBy += '<div class="leaf-marginLeft-qtrRem leaf-font0-8rem">&bull; Override set, and they do not have access</div>';
-                            removeButton = '<a href="#" class="text-secondary-darker leaf-font0-8rem" id="removeMember_'+ counter +'">REMOVE OVERRIDE</a>';
-                        }
-                        $('#employee_table').append('<div class="leaf-font0-9rem leaf-marginTop-halfRem"><span class="leaf-bold">'+ toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span> - ' + removeButton + ' '+ managedBy +'</div>');
-                        $('#removeMember_' + counter).on('click', function(userID) {
-                            return function() {
-                                removeUser(serviceID, userID);
-                                dialog.hide();
-                            };
-                        }(res[i].userName));
-                        counter++;
                     }
 
                     $('#deleteGroup_' + serviceID).on('click', function() {
@@ -213,10 +215,13 @@ function initiateWidget(serviceID) {
                     empSel.rootPath = '<!--{$orgchartPath}-->/';
                     empSel.outputStyle = 'micro';
                     empSel.initialize();
-
+                    // Update on any action
+                    dialog.setCancelHandler(function() {
+                        getMembers(serviceID);
+                    });
                     dialog.setSaveHandler(function() {
                         if(empSel.selection != '') {
-                            var selectedUserName = empSel.selectionData[empSel.selection].userName;
+                            let selectedUserName = empSel.selectionData[empSel.selection].userName;
                             $.ajax({
                                 type: 'POST',
                                 url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
@@ -232,7 +237,6 @@ function initiateWidget(serviceID) {
                                 cache: false
                             });
                         }
-                        getMembers(serviceID);
                         dialog.hide();
                     });
 
@@ -258,12 +262,12 @@ function getGroupList() {
         })
      )
 	.done(function(res1, res2) {
-		var quadrads = res1[0];
-		var services = res2[0];
-	    for(var i in quadrads) {
+		let quadrads = res1[0];
+		let services = res2[0];
+	    for(let i in quadrads) {
 	    	$('#groupList').append('<h2>'+ toTitleCase(quadrads[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
 	    }
-	    for(var i in services) {
+	    for(let i in services) {
 	    	$('#group_' + services[i].groupID).append('<div id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'
                     + '<h2 id="groupTitle'+ services[i].serviceID +'">'+ services[i].service +'</h2>'
                     + '<div id="members'+ services[i].serviceID +'"></div>'
@@ -297,6 +301,10 @@ function toTitleCase(str) {
     return (str == "" || str == null) ? "" : str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
+// Define dialog boxes
+let dialog;
+let dialog_simple;
+let dialog_confirm;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
