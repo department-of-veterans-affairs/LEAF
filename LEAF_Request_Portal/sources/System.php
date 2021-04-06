@@ -39,8 +39,6 @@ class System
 
     private $dataActionLogger;
 
-    private const UPLOAD_DIR = '/var/www/ERM_UPLOADS/';
-
     public function __construct($db, $login)
     {
         $this->db = $db;
@@ -450,34 +448,29 @@ class System
         return $out;
     }
 
-    public function getEmailData($template, $getStandard = false)
+    public function getEmailSubjectData($template, $getStandard = false)
     {
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
         }
 
-        $data = array();
+        $data['subjectFileName'] = '';
+        $data['subjectFile'] = '';
 
-        // If we have a body file, we need to add subject, emailTo, and emailCC template files
         if (preg_match('/_body.tpl$/', $template))
         {
-            // We have a body template (non-default) so grab what kind
-            $emailKind = str_replace("_body.tpl", "", $template, $count);
+            $subject = str_replace("_body.tpl", "_subject.tpl", $template, $count);
             if ($count == 1)
             {
-                $emailData = array('emailTo', 'emailCc', 'subject');
+                $data['subjectFileName'] = $subject;
 
-                foreach ($emailData as $dataType) {
-                    $data[$dataType.'FileName'] = $emailKind.'_'.$dataType.'.tpl';
-
-                    if (file_exists("../templates/email/custom_override/{$data[$dataType.'FileName']}") && !$getStandard)
-                        $data[$dataType.'File'] = file_get_contents("../templates/email/custom_override/{$data[$dataType.'FileName']}");
-                    else if (file_exists("../templates/email/{$data[$dataType.'FileName']}"))
-                        $data[$dataType.'File'] = file_get_contents("../templates/email/{$data[$dataType.'FileName']}");
-                    else
-                        $data[$dataType.'File'] = '';
-                }
+                if (file_exists("../templates/email/custom_override/{$subject}") && !$getStandard)
+                    $data['subjectFile'] = file_get_contents("../templates/email/custom_override/{$subject}");          
+                else if (file_exists("../templates/email/{$subject}"))
+                    $data['subjectFile'] = file_get_contents("../templates/email/{$subject}");
+                else
+                    $data['subjectFile'] = '';
             }
         }
 
@@ -497,16 +490,12 @@ class System
             if (preg_match('/.tpl$/', $item))
             {
                 $temp =  array();
-                $emailData = array('emailTo', 'emailCc', 'subject');
-
-                preg_match('/subject|emailTo|emailCc/', $item, $temp);
+                preg_match('/subject/', $item, $temp);
                 if (count($temp) == 0) 
                 {                    
                     $data['fileName'] = $item;
-                    $res = $this->getEmailData($item);
-                    foreach ($emailData as $dataType) {
-                        $data[$dataType.'FileName'] = $res[$dataType.'FileName'];
-                    }
+                    $res = $this->getEmailSubjectData($item);
+                    $data['subjectFileName'] = $res['subjectFileName'];
                     $out[] = $data;
                 }
             }
@@ -588,12 +577,8 @@ class System
                 $data['file'] = file_get_contents("../templates/email/{$template}");
             }
 
-            $res = $this->getEmailData($template, $getStandard);
-
-            $emailInfo = array('emailTo', 'emailCc', 'subject');
-            foreach($emailInfo as $infoType) {
-                $data[$infoType.'File'] = $res[$infoType.'File'];
-            }
+            $res = $this->getEmailSubjectData($template, $getStandard);
+            $data['subjectFile'] = $res['subjectFile'];
         }
 
         return $data;
@@ -626,10 +611,6 @@ class System
         
             if ($_POST['subjectFileName'] != '')
                 file_put_contents("../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
-            if ($_POST['emailToFileName'] != '')
-                file_put_contents("../templates/email/custom_override/" . $_POST['emailToFileName'], $_POST['emailToFile']);
-            if ($_POST['emailCcFileName'] != '')
-                file_put_contents("../templates/email/custom_override/" . $_POST['emailCcFileName'], $_POST['emailCcFile']);
         }
     }
 
@@ -669,16 +650,6 @@ class System
             if ($subjectFileName != '' && file_exists("../templates/email/custom_override/{$subjectFileName}"))
             {
                 unlink("../templates/email/custom_override/{$subjectFileName}");
-            }
-            $emailToFileName = $_REQUEST['emailToFileName'];
-            if ($emailToFileName != '' && file_exists("../templates/email/custom_override/{$emailToFileName}"))
-            {
-                unlink("../templates/email/custom_override/{$emailToFileName}");
-            }
-            $emailCcFileName = $_REQUEST['emailCcFileName'];
-            if ($emailCcFileName != '' && file_exists("../templates/email/custom_override/{$emailCcFileName}"))
-            {
-                unlink("../templates/email/custom_override/{$emailCcFileName}");
             }
         }
     }
@@ -1090,25 +1061,5 @@ class System
     public function getHistory($filterById)
     {
         return $this->dataActionLogger->getHistory($filterById, null, \LoggableTypes::PRIMARY_ADMIN);
-    }
-
-    /**
-     * Purpose: Get total size of all uploads in portal folder
-     * @param $visn
-     * @param $facility
-     * @param $name
-     * @return string
-     */
-    public function getRequestUploadSize($visn = '', $facility = '', $name = '') {
-
-        $command = 'du -h '.self::UPLOAD_DIR.$visn.'/'.$facility.'/'.$name;
-        $output = exec($command);
-        if ($output) {
-            //$output = trim($output);
-            $sizeOutput = explode("\t", $output);
-            return $sizeOutput[0];
-        } else {
-            return '';
-        }
     }
 }

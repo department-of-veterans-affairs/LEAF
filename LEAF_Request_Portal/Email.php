@@ -63,57 +63,33 @@ class Email
         return file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}") ? "custom_override/{$tpl}" : "{$tpl}";
     }
 
-    /**
-     * Removes all email addresses from object recipient variable
-     */
     public function clearRecipients()
     {
         $this->emailRecipient = '';
     }
 
-    /**
-     * Set email sender object variable
-     * @param $strAddress
-     */
-    public function setSender($strAddress)
+    public function setSender($i)
     {
-        $this->emailSender = $strAddress;
+        $this->emailSender = $i;
     }
 
-    /**
-     * Clean and Set subject of email object variable
-     * @param $strSubject
-     */
-    public function setSubject($strSubject)
+    public function setSubject($i)
     {
         $prefix = isset(Config::$emailPrefix) ? Config::$emailPrefix : 'Resources: ';
-        $this->emailSubject = $prefix . strip_tags($strSubject);
+        $this->emailSubject = $prefix . strip_tags($i);
     }
 
-    /**
-     * Add content into template variable then into template file
-     * This result will then be added into the object variable as HTML output
-     * @param $objVar       - private variable in Email object
-     * @param $strContent   - content to add to template
-     * @param $tplVar       - variable within template
-     * @param $tplFile      = template file name
-     */
-    public function setContent($tplFile, $tplVar = '', $strContent = '') {
-        if($tplVar != '') {
-            $strContent = str_replace("\r\n", '<br />', $strContent);
-        }
+    public function setBody($i)
+    {
+        $i = str_replace("\r\n", '<br />', $i);
         $smarty = new Smarty;
         $smarty->template_dir = __DIR__ . '/templates/email/';
         $smarty->compile_dir = __DIR__ . '/templates_c/';
         $smarty->left_delimiter = '{{';
         $smarty->right_delimiter = '}}';
-        if (($tplVar != '') && ($strContent != '')) {
-            $smarty->assign($tplVar, $strContent);
-        } else {
-            $smarty->assign($this->smartyVariables);
-        }
-        $htmlOutput = $smarty->fetch($tplFile);
-        return $htmlOutput;
+        $smarty->assign('emailBody', $i);
+        $htmlOutput = $smarty->fetch('LEAF_main_email_template.tpl');
+        $this->emailBody = $htmlOutput;
     }
 
     /**
@@ -132,10 +108,10 @@ class Email
             // Check that email address is active in Nexus
             $res = $this->nexus_db->prepared_query(
                 "SELECT e.deleted 
-                    FROM employee as e
-                        INNER JOIN employee_data ed on e.empUID = ed.empUID
-                    WHERE e.deleted = 0 
-                        AND ed.data=:emailAddress ;",
+                        FROM employee as e
+                            INNER JOIN employee_data ed on e.empUID = ed.empUID
+                        WHERE e.deleted = 0 
+                            AND ed.data=:emailAddress ;",
                 array(':emailAddress' => $address));
             return ( (!empty($res)) ? true : false );
         }
@@ -147,7 +123,7 @@ class Email
      * @param $address
      * @return bool
      */
-    public function addRecipient($address, $requiredAddress = false)
+    public function addRecipient($address)
     {
         if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
         {
@@ -160,7 +136,7 @@ class Email
         }
         else
         {
-            if ( $this->emailActiveNotAlreadyAdded($address) || $requiredAddress ) {
+            if ( $this->emailActiveNotAlreadyAdded($address) ) {
                 $this->emailRecipient .= ", " . $address;
             }
         }
@@ -169,10 +145,6 @@ class Email
         return true;
     }
 
-    /**
-     * Adds all users in a given Position to the receipient object variable list
-     * @param $positionID
-     */
     public function addPositionRecipient($positionID)
     {
         if ($this->orgchartInitialized == false)
@@ -187,10 +159,6 @@ class Email
         }
     }
 
-    /**
-     * Adds all users in a given Group to the reeeipient object variable list
-     * @param $groupID
-     */
     public function addGroupRecipient($groupID)
     {
         $dir = new VAMC_Directory;
@@ -207,33 +175,43 @@ class Email
     }
 
     /**
-     * Scrubs email address and adds to object email CC array if valid
+     * Purpose: Add email to Email CC
      * @param $address
      * @return bool
      */
-    public function addCcBcc($address, $requiredAddress = false, $isBcc = false)
+    public function addCC($address)
     {
         if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
         {
             return false;
         }
 
-        if ( $this->emailActiveNotAlreadyAdded($address) || ($requiredAddress)  ) {
-          if (!$isBcc) {
-              $this->emailCC[] = $address;
-          } else {
-              $this->emailBCC[] = $address;
-          }
+        if ( $this->emailActiveNotAlreadyAdded($address) ) {
+            $this->emailCC[] = $address;
         }
+        // Returning true because either added here or already added
         return true;
     }
 
     /**
-     * Assign email variables to email send and perform Send
-     * Will throw exception if Send not completed and then return false
-     * @return false
-     * @throws Exception
+     * Purpose: Add email to Email BCC
+     * @param $address
+     * @return bool
      */
+    public function addBCC($address)
+    {
+        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
+        {
+            return false;
+        }
+
+        if ( $this->emailActiveNotAlreadyAdded($address) ) {
+            $this->emailBCC[] = $address;
+        }
+        // Returning true because either added here or already added
+        return true;
+    }
+
     public function sendMail()
     {
         $currDir = dirname(__FILE__);
@@ -242,14 +220,14 @@ class Email
         {
             foreach (Config::$emailCC as $recipient)
             {
-                $this->addCcBcc($recipient);
+                $this->addCC($recipient);
             }
         }
         if (isset(Config::$emailBCC) && count(Config::$emailBCC) > 0)
         {
             foreach (Config::$emailBCC as $recipient)
             {
-                $this->addCcBcc($recipient, false,true);
+                $this->addBCC($recipient);
             }
         }
         $email['recipient'] = html_entity_decode($this->emailRecipient, ENT_QUOTES);
@@ -278,10 +256,6 @@ class Email
         }
     }
 
-    /**
-     * Gets current user's employeeID, positionID, groupID
-     * and assigns them to email object variables
-     */
     private function initOrgchart()
     {
         // set up org chart assets
@@ -406,12 +380,10 @@ class Email
      */
     function setTemplateByID($emailTemplateID)
     {
-        $res = $this->portal_db->prepared_query("SELECT `emailTo`, `emailCc`,`subject`, `body` 
+        $res = $this->portal_db->prepared_query("SELECT `subject`, `body` 
                                                  FROM `email_templates` 
                                                  WHERE emailTemplateID = :emailTemplateID;", 
                                                 array(':emailTemplateID' => $emailTemplateID));
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc']), true);
         $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
         $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
     }
@@ -423,42 +395,12 @@ class Email
      */
     function setTemplateByLabel($emailTemplateLabel)
     {
-        $res = $this->portal_db->prepared_query("SELECT `emailTo`,`emailCc`,`subject`, `body` 
+        $res = $this->portal_db->prepared_query("SELECT `subject`, `body` 
                                                  FROM `email_templates` 
                                                  WHERE label = :emailTemplateLabel;", 
                                                 array(':emailTemplateLabel' => $emailTemplateLabel));
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc']), true);
         $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
         $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
-    }
-
-    /**
-     * Given email template location where email addresses are stored
-     * Get the email addresses, line by line, and add them if valid to CC or BCC
-     * @param $tplLocation
-     * @param false $isBcc
-     */
-    function setEmailToCcWithTemplate($tplLocation, $isCc = false)
-    {
-        // Determine if template currently has any email addresses saved
-        $tplLocation = str_replace('email_to', 'emailTo', $tplLocation);
-        $tplLocation = str_replace('email_cc', 'emailCC', $tplLocation);
-        $hasEmailTemplate = $this->getFilepath($tplLocation);
-        if ($hasEmailTemplate) {
-            $emailList = file(__DIR__ . '/templates/email/' . $hasEmailTemplate,
-                FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES
-            );
-            // For each line in template, add that email address, if valid
-            foreach($emailList as $emailAddress) {
-                if ($isCc) {
-                    $this->addCcBcc(XSSHelpers::xscrub($emailAddress), true);
-                } else {
-                    $this->addRecipient(XSSHelpers::xscrub($emailAddress), true);
-                }
-            }
-        }
-
     }
 
     /**
@@ -468,7 +410,13 @@ class Email
      */
     function setSubjectWithTemplate($subjectTemplate)
     {
-        $htmlOutput = $this->setContent($this->getFilepath($subjectTemplate));
+        $smartySubject = new Smarty;
+        $smartySubject->template_dir = __DIR__ . '/templates/email/';
+        $smartySubject->compile_dir = __DIR__ . '/templates_c/';
+        $smartySubject->left_delimiter = '{{';
+        $smartySubject->right_delimiter = '}}';
+        $smartySubject->assign($this->smartyVariables);
+        $htmlOutput = $smartySubject->fetch($this->getFilepath($subjectTemplate));
         $this->setSubject($htmlOutput);
     }
 
@@ -479,12 +427,14 @@ class Email
      */
     function setBodyWithTemplate($bodyTemplate)
     {
-        $htmlOutput = $this->setContent($this->getFilepath($bodyTemplate));
-        $this->emailBody = $this->setContent(
-            'LEAF_main_email_template.tpl',
-            'emailBody',
-            $htmlOutput
-        );
+        $smartyBody = new Smarty;
+        $smartyBody->template_dir = __DIR__ . '/templates/email/';
+        $smartyBody->compile_dir = __DIR__ . '/templates_c/';
+        $smartyBody->left_delimiter = '{{';
+        $smartyBody->right_delimiter = '}}';
+        $smartyBody->assign($this->smartyVariables);
+        $htmlOutput = $smartyBody->fetch($this->getFilepath($bodyTemplate));
+        $this->setBody($htmlOutput);
     }
 
     /**

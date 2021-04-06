@@ -973,7 +973,7 @@ class FormWorkflow
                                 $tmp = $dir->lookupEmpUID($empUID);
                                 if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '')
                                 {
-                                    $email->addCcBcc($tmp[0]['Email']);
+                                    $email->addCC($tmp[0]['Email']);
                                 }
                             }
                         }
