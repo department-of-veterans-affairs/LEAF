@@ -52,6 +52,9 @@ function syncServices() {
         },
         cache: false
     });
+    dialog_simple.setCancelHandler(function() {
+        location.reload();
+    });
 }
 
 function createGroup() {
