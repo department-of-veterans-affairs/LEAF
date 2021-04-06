@@ -30,29 +30,39 @@ class Group
         $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
 
+    public function importGroup($groupName, $groupDesc = '', $parentGroupID = null)
+    {
+        // Log group imports
+        $this->dataActionLogger->logAction(\DataActions::IMPORT, \LoggableTypes::PORTAL_GROUP, [
+            new \LogItem("users", "groupID", $groupName, $groupName)
+        ]);
+    }
+
     public function addGroup($groupName, $groupDesc = '', $parentGroupID = null)
     {
-        $vars = array(':groupName' => $groupName,
-                      ':groupDesc' => $groupDesc,
-                      ':parentGroupID' => $parentGroupID, );
-        $res = $this->db->prepared_query('INSERT INTO groups (name, groupDescription, parentGroupID)
-                                            VALUES (:groupName, :groupDesc, :parentGroupID)', $vars);
-
-        return $this->db->getLastInsertID();
+        // Log group creates
+        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PORTAL_GROUP, [
+            new \LogItem("groups", "name", $groupName, $groupName)
+        ]);
     }
 
     public function removeGroup($groupID)
     {
         if ($groupID != 1)
         {
-            $vars = array(':groupID' => $groupID);
-            $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID=:groupID', $vars);
+            $sql_vars = array(':groupID' => $groupID);
+            $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID=:groupID', $sql_vars);
 
             if (isset($res[0])
                 && $res[0]['parentGroupID'] == null)
             {
-                $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
-                $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
+                // Log group deletes
+                $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PORTAL_GROUP, [
+                    new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+                ]);
+
+                $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $sql_vars);
+                $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $sql_vars);
 
                 return 1;
             }
@@ -68,8 +78,8 @@ class Group
         {
             return;
         }
-        $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $vars);
+        $sql_vars = array(':groupID' => $groupID);
+        $res = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $sql_vars);
 
         $members = array();
         if (count($res) > 0)
@@ -86,6 +96,11 @@ class Group
                     {
                       $dirRes[0]['primary_admin'] = $member['primary_admin'];  
                     }
+                    if($member['locallyManaged'] == 1) {
+                        $dirRes[0]['backupID'] = null;
+                    } else {
+                        $dirRes[0]['backupID'] = $member['backupID'];
+                    }
                     $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
                     $dirRes[0]['active'] = $member['active'];
                     
@@ -97,53 +112,87 @@ class Group
         return $members;
     }
 
-    public function addMember($member, $groupIDs)
+    public function addMember($member, $groupID)
     {
-        $groups = array();
-        $tmp = explode(',', $groupIDs);
-        foreach ($tmp as $group)
-        {
-            if (is_numeric($group))
-            {
-                $vars = array(':userID' => $member,
-                              ':groupID' => (int)$group, 
-                              ':locallyManaged' => 1);
-                $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, locallyManaged)
-                                                    VALUES (:userID, :groupID, :locallyManaged)', $vars);
-                
-                $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
-                    new \LogItem("users","userID", $member, $this->getEmployeeDisplay($member)),
-                    new \LogItem("users", "groupID", $group, $this->getGroupName($group)) 
-                ]);     
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
+        $config = new Config();
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+
+        if (is_numeric($groupID)) {
+            $sql_vars = array(':userID' => $member,
+                ':groupID' => $groupID,);
+
+            // Update on duplicate keys
+            $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID, locallyManaged, active)
+                                                    VALUES (:userID, :groupID, null, 1, 1)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=null, locallyManaged=1, active=1', $sql_vars);
+
+            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
+                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            ]);
+
+            // include the backups of employees
+            $emp = $employee->lookupLogin($member);
+            $backups = $employee->getBackups($emp[0]['empUID']);
+            foreach ($backups as $backup) {
+                $sql_vars = array(':userID' => $backup['userName'],
+                    ':groupID' => $groupID,
+                    ':backupID' => $emp[0]['userName'],);
+
+                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
+
+                // Check for locallyManaged users
+                if ($res[0]['locallyManaged'] == 1) {
+                    $sql_vars[':backupID'] = null;
+                } else {
+                    $sql_vars[':backupID'] = $emp[0]['userName'];
+                }
+                // Add backupID check for updates
+                $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                    VALUES (:userID, :groupID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $sql_vars);
             }
         }
     }
 
     public function removeMember($member, $groupID)
     {
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
+        $config = new Config();
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+
         if (is_numeric($groupID) && $member != '')
         {
-            $vars = array(':userID' => $member,
+            $sql_vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
-            $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
-
-            if ($res[0]['locallyManaged'] == 1
-                || $groupID == 1)
-            {
-                $res = $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
-            }
-            else
-            {
-                $res = $this->db->prepared_query('UPDATE users SET active=0, locallyManaged=1
-                                                    WHERE userID=:userID AND groupID=:groupID', $vars);
-            }
 
             $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
                 new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID)) 
+                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
-            return 1;
+            $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
+
+            // include the backups of employee
+            $emp = $employee->lookupLogin($member);
+            $backups = $employee->getBackups($emp[0]['empUID']);
+            foreach ($backups as $backup) {
+                $sql_vars = array(':userID' => $backup['userName'],
+                    ':groupID' => $groupID,
+                    ':backupID' => $member,);
+
+                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
+
+                // Check for locallyManaged users
+                if ($res[0]['locallyManaged'] == 0) {
+                    $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
+                }
+            }
         }
     }
 
@@ -179,8 +228,8 @@ class Group
      */
     public function getGroupName($groupId)
     {
-        $vars = array(":groupID" => $groupId);
-        $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID = :groupID', $vars);
+        $sql_vars = array(":groupID" => $groupId);
+        $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID = :groupID', $sql_vars);
         if($res[0] != null){
             return $res[0]["name"];
         }
