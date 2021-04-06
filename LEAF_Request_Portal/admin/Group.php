@@ -40,18 +40,10 @@ class Group
 
     public function addGroup($groupName, $groupDesc = '', $parentGroupID = null)
     {
-        /*$sql_vars = array(':groupName' => $groupName,
-                      ':groupDesc' => $groupDesc,
-                      ':parentGroupID' => $parentGroupID, );
-        $res = $this->db->prepared_query('INSERT INTO groups (name, groupDescription, parentGroupID)
-                                            VALUES (:groupName, :groupDesc, :parentGroupID)', $sql_vars);*/
-
         // Log group creates
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PORTAL_GROUP, [
             new \LogItem("groups", "name", $groupName, $groupName)
         ]);
-
-
     }
 
     public function removeGroup($groupID)
