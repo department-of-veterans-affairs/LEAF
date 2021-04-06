@@ -11,7 +11,6 @@
     content: '\25ba\25ba\25ba';
 }
 #subjectCompare .CodeMirror-merge, .CodeMirror-merge .CodeMirror {
-  height: 50px;
 }
 #emailLists fieldset legend {
     font-size: 1.5em;
@@ -388,7 +387,7 @@ function loadContent(file, subjectFile, emailToFile, emailCcFile) {
 function updateEditorSize() {
     codeWidth = $('#codeArea').width() - 30;
     $('#codeContainer').css('width', codeWidth + 'px');
-    $('#divSubject .CodeMirror').css('height', '50px');
+    //$('#divSubject .CodeMirror').css('height', '50px');
     // Refresh CodeMirror
     $('.CodeMirror').each(function(i, el){
         el.CodeMirror.refresh();
