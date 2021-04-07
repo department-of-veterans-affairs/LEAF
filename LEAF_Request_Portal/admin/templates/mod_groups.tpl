@@ -15,10 +15,7 @@
 
     <main class="main-content">
 
-       <!-- LEAF-1839 -- rbs -- fix issue with url misdirect due to hard code url
-       <h2><a href="/LEAF_Request_Portal/admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2> -->
         <h2><a href="../admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2>
-
 
         <div class="leaf-user-search">
             <p>Filter by group or user name</p>
