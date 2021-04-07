@@ -13,9 +13,6 @@ START TRANSACTION;
 
 ALTER TABLE `users` DROP COLUMN `backupID`;
 ALTER TABLE `service_chiefs` DROP COLUMN `backupID`;
-ALTER TABLE `email_templates`
-  DROP COLUMN `emailTo`,
-  DROP COLUMN `emailCC`;
 
 COMMIT;
 
