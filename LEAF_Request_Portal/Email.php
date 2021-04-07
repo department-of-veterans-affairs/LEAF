@@ -214,7 +214,7 @@ class Email
 
     public function addCcBcc($address, $requiredAddress = false, $isBcc = false)
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $strEmailAddress) == 0)
+        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
         {
             return false;
         }

@@ -15,10 +15,18 @@
 #emailLists fieldset legend {
     font-size: 1.5em;
 }
+#emailTemplateHeader {
+    margin: 10px;
+}
+#emailLists fieldset legend {
+    font-size: 1.2em;
+}
 .emailToCc {
     padding: 8px;
-    font-size: 140%;
     font-weight: bold;
+}
+#divSubject .CodeMirror {
+    height: 50px;
 }
 </style>
 
@@ -37,28 +45,29 @@
 
         <div id="codeContainer" class="leaf-code-container">
 
+            <h2 id="emailTemplateHeader">Default Email Template</h2>
             <div id="emailLists">
                 <fieldset><legend>Email To and CC</legend><br />
                     <p>
                         Enter email addresses, one per line.  Users will be
                         emailed each time this template is used in any workflow.
                     </p>
-                    <div id="emailTo" class="emailToCc"></div>
+                    <div id="emailTo" class="emailToCc">Email To:</div>
                     <div id="divEmailTo">
                         <textarea id="emailToCode" style="width: 95%;" rows="5"></textarea>
                     </div>
-                    <div id="emailCc" class="emailToCc"></div>
+                    <div id="emailCc" class="emailToCc">Email CC:</div>
                     <div id="divEmailCc">
                         <textarea id="emailCcCode" style="width: 95%;" rows="5"></textarea>
                     </div>
                 </fieldset>
             </div>
-            <div id="subject" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
+            <div id="subject" style="padding: 8px; font-size: 140%; font-weight: bold">Subject</div>
             <div id="divSubject" style="border: 1px solid black">
                 <textarea id="subjectCode"></textarea>
                 <div id="subjectCompare"></div>
             </div>
-            <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold"></div>
+            <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold">Email Content</div>
             <div id="divCode" style="border: 1px solid black">
                 <textarea id="code"></textarea>
                 <div id="codeCompare"></div>
@@ -220,7 +229,7 @@ function restore() {
 	        type: 'DELETE',
 	        url: '../api/system/emailtemplates/_' + currentFile + '&subjectFileName=' + currentSubjectFile + '&emailToFileName='+currentEmailToFile+'&emailCcFileName='+currentEmailCcFile+'&CSRFToken=<!--{$CSRFToken}-->',
 	        success: function() {
-	            loadContent(currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
+	            loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
 	        }
 	    });
 		dialog.hide();
@@ -287,6 +296,7 @@ function compare() {
     });
 }
 
+var currentName = '';
 var currentFile = '';
 var currentSubjectFile = '';
 var currentFileContent = '';
@@ -308,18 +318,9 @@ var currentEmailCcContent = '';
  * @param file
  * @param subjectFile
  */
-function loadContent(file, subjectFile, emailToFile, emailCcFile) {
+function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
     if(file == undefined) {
         file = currentFile;
-    }
-    if(subjectFile == undefined) {
-        subjectFile = currentSubjectFile;
-    }
-    if(emailToFile == undefined) {
-        emailToFile = currentSubjectFile.replace('subject', 'emailTo');
-    }
-    if(emailCcFile == undefined) {
-        emailCcFile = currentSubjectFile.replace('subject', 'emailCc');
     }
     $('.CodeMirror').remove();
     $('#codeCompare').empty();
@@ -330,12 +331,14 @@ function loadContent(file, subjectFile, emailToFile, emailCcFile) {
     $('#codeContainer').css('display', 'none');
     $('#controls').css('visibility', 'visible');
 
+    currentName = name;
     currentFile = file;
 	currentSubjectFile = subjectFile;
+	console.log(currentSubjectFile);
 	currentEmailToFile = emailToFile;
     currentEmailCcFile = emailCcFile;
-    $('#filename').html(file.replace('.tpl', '').replaceAll('_', ' '));
 
+    $('#emailTemplateHeader').html(currentName);
     if (typeof(subjectFile) == 'undefined' || subjectFile == 'null' || subjectFile == '')
 	{
 		$('#subject, #emailLists, #emailTo, #emailCc').hide();
@@ -346,11 +349,7 @@ function loadContent(file, subjectFile, emailToFile, emailCcFile) {
 	{
         $('#subject, #emailLists, #emailTo, #emailCc').show();
         $('#divSubject, #divEmailTo, #divEmailCc').show().removeAttr('disabled');
-        $('#subject').html(subjectFile.replace('.tpl', '').replaceAll('_', ' '));
-        $('#emailTo').html(emailToFile.replace('.tpl', '').replaceAll('_', ' '));
-        $('#emailCc').html(emailCcFile.replace('.tpl', '').replaceAll('_', ' '));
 	}
-
 	$.ajax({
 		type: 'GET',
 		url: '../api/system/emailtemplates/_' + file,
@@ -359,7 +358,7 @@ function loadContent(file, subjectFile, emailToFile, emailCcFile) {
 		    currentSubjectContent = res.subjectFile;
 		    currentEmailToContent = res.emailToFile;
 		    currentEmailCcContent = res.emailCcFile;
-			$('#codeContainer').fadeIn();
+		    $('#codeContainer').fadeIn();
 			codeEditor.setValue(currentFileContent);
 			subjectEditor.setValue(currentSubjectContent);
 			$("#emailToCode").val(currentEmailToContent);
@@ -458,13 +457,16 @@ $(function() {
  		success: function(res) {
 			var buffer = '<ul class="leaf-ul">';
 			for(var i in res) {
-				file = res[i]['fileName'].replace('.tpl', '');
-				buffer += '<li onclick="loadContent(' +
-                    '\'' + res[i]['fileName'] +'\', ' +
-                    '\'' + res[i]['subjectFileName'] + '\', ' +
-                    '\'' + res[i]['emailToFileName'] + '\', ' +
-                    '\'' + res[i]['emailCcFileName'] + '\');">' +
-                    '<a href="#">' + file + '</a></li>';
+			    buffer += '<li onclick="loadContent(\'' + res[i].displayName + '\', ' +
+                    '\'' + res[i].fileName +'\'';
+                if (res[i].subjectFileName != '') {
+                    buffer += ', \'' + res[i].subjectFileName + '\', ' +
+                        '\'' + res[i].emailToFileName + '\', ' +
+                        '\'' + res[i].emailCcFileName + '\'';
+                } else {
+                    buffer += ', undefined, undefined, undefined';
+                }
+                buffer += ');"><a href="#">' + res[i].displayName + '</a></li>';
 			}
 			buffer += '</ul>';
 			$('#fileList').html(buffer);
@@ -473,7 +475,7 @@ $(function() {
 	});
 
 	// Load content from those templates to the current main template
-	loadContent('LEAF_main_email_template.tpl', undefined, undefined, undefined);
+	loadContent('Default Email Template', 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
 
     // Refresh CodeMirror
     $('.CodeMirror').each(function(i, el) {

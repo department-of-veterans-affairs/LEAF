@@ -351,52 +351,20 @@ class System
         {
             return 'Admin access required';
         }
-        $list = scandir('../templates/email');
         $out = array();
-        foreach ($list as $item)
-        {
-            if (preg_match('/.tpl$/', $item))
-            {
-                $temp =  array();
-                $emailData = array('emailTo', 'emailCc', 'subject');
-
-                preg_match('/subject|emailTo|emailCc/', $item, $temp);
-                if (count($temp) == 0) 
-                {                    
-                    $data['fileName'] = $item;
-                    $res = $this->getEmailData($item);
-                    foreach ($emailData as $dataType) {
-                        $data[$dataType.'FileName'] = $res[$dataType.'FileName'];
-                    }
-                    $out[] = $data;
-                }
-            }
+        $emailList = $this->db->query(
+            'SELECT label, emailTo, emailCc, subject, body from email_templates ORDER BY emailTemplateID DESC'
+        );
+        foreach($emailList as $listItem) {
+            $data = array(
+                'displayName' => $listItem['label'],
+                'fileName' => $listItem['body'],
+                'emailToFileName' => $listItem['emailTo'],
+                'emailCcFileName' => $listItem['emailCc'],
+                'subjectFileName' => $listItem['subject']
+            );
+            $out[] = $data;
         }
-
-        return $out;
-    }
-
-    public function getEmailTemplateList()
-    {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-        $list = scandir('../templates/email');
-        $out = array();
-        foreach ($list as $item)
-        {
-            if (preg_match('/.tpl$/', $item))
-            {
-                $temp =  array();
-                preg_match('/subject/', $item, $temp);
-                if (count($temp) == 0) 
-                {                    
-                    $out[] = $item;
-                }
-            }
-        }
-
         return $out;
     }
 
@@ -427,15 +395,26 @@ class System
         return $data;
     }
 
+    public function isEmailTemplateValid($template, $list) {
+        $validTemplate = false;
+        foreach ($list as $item) {
+            if ($template == $item['fileName']) {
+                $validTemplate = true;
+            }
+        }
+        return $validTemplate;
+    }
+
     public function getEmailTemplate($template, $getStandard = false)
     {
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
         }
-        $list = $this->getEmailTemplateList();
+        $list = $this->getEmailAndSubjectTemplateList();
         $data = array();
-        if (array_search($template, $list) !== false)
+        $validTemplate = $this->isEmailTemplateValid($template, $list);
+        if ($validTemplate)
         {
             if (file_exists("../templates/email/custom_override/{$template}")
                   && !$getStandard)
@@ -480,16 +459,17 @@ class System
         {
             return 'Admin access required';
         }
-        $list = $this->getEmailTemplateList();
-        if (array_search($template, $list) !== false)
+        $list = $this->getEmailAndSubjectTemplateList();
+        $validTemplate = $this->isEmailTemplateValid($template, $list);
+        if ($validTemplate)
         {
             file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
         
-            if ($_POST['subjectFileName'] != '')
+            if (htmlentities($_POST['subjectFileName'], ENT_QUOTES) != '')
                 file_put_contents("../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
-            if ($_POST['emailToFileName'] != '')
+            if (htmlentities($_POST['emailToFileName'], ENT_QUOTES) != '')
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailToFileName'], $_POST['emailToFile']);
-            if ($_POST['emailCcFileName'] != '')
+            if (htmlentities($_POST['emailCcFileName'], ENT_QUOTES) != '')
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailCcFileName'], $_POST['emailCcFile']);
         }
     }
@@ -517,26 +497,26 @@ class System
         {
             return 'Admin access required';
         }
-        $list = $this->getEmailTemplateList();
-
-        if (array_search($template, $list) !== false)
+        $list = $this->getEmailAndSubjectTemplateList();
+        $validTemplate = $this->isEmailTemplateValid($template, $list);
+        if ($validTemplate)
         {
             if (file_exists("../templates/email/custom_override/{$template}"))
             {
                 unlink("../templates/email/custom_override/{$template}");
             }
 
-            $subjectFileName = $_REQUEST['subjectFileName'];
+            $subjectFileName = htmlentities($_REQUEST['subjectFileName'], ENT_QUOTES);
             if ($subjectFileName != '' && file_exists("../templates/email/custom_override/{$subjectFileName}"))
             {
                 unlink("../templates/email/custom_override/{$subjectFileName}");
             }
-            $emailToFileName = $_REQUEST['emailToFileName'];
+            $emailToFileName = htmlentities($_REQUEST['emailToFileName'], ENT_QUOTES);
             if ($emailToFileName != '' && file_exists("../templates/email/custom_override/{$emailToFileName}"))
             {
                 unlink("../templates/email/custom_override/{$emailToFileName}");
             }
-            $emailCcFileName = $_REQUEST['emailCcFileName'];
+            $emailCcFileName = htmlentities($_REQUEST['emailCcFileName'], ENT_QUOTES);
             if ($emailCcFileName != '' && file_exists("../templates/email/custom_override/{$emailCcFileName}"))
             {
                 unlink("../templates/email/custom_override/{$emailCcFileName}");
