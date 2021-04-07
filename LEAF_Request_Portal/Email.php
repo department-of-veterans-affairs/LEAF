@@ -101,7 +101,7 @@ class Email
 
         if ( ( strpos($this->emailRecipient, $address) === false  )
             && (!in_array($address, $this->emailCC) )
-            && (!in_array($$address ,$this->emailBCC) ) ) {
+            && (!in_array($address ,$this->emailBCC) ) ) {
 
             $dir = new VAMC_Directory;
 
