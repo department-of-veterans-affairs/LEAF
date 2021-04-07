@@ -320,7 +320,11 @@ var currentEmailCcContent = '';
  */
 function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
     if(file == undefined) {
+        name = currentName;
         file = currentFile;
+        subjectFile = currentSubjectFile;
+        emailToFile = currentEmailToFile;
+        emailCcFile = currentEmailCcFile;
     }
     $('.CodeMirror').remove();
     $('#codeCompare').empty();
