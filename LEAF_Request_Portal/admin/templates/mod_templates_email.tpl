@@ -12,9 +12,6 @@
 }
 #subjectCompare .CodeMirror-merge, .CodeMirror-merge .CodeMirror {
 }
-#emailLists fieldset legend {
-    font-size: 1.5em;
-}
 #emailTemplateHeader {
     margin: 10px;
 }
@@ -338,7 +335,6 @@ function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
     currentName = name;
     currentFile = file;
 	currentSubjectFile = subjectFile;
-	console.log(currentSubjectFile);
 	currentEmailToFile = emailToFile;
     currentEmailCcFile = emailCcFile;
 
@@ -390,7 +386,6 @@ function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
 function updateEditorSize() {
     codeWidth = $('#codeArea').width() - 30;
     $('#codeContainer').css('width', codeWidth + 'px');
-    //$('#divSubject .CodeMirror').css('height', '50px');
     // Refresh CodeMirror
     $('.CodeMirror').each(function(i, el){
         el.CodeMirror.refresh();
