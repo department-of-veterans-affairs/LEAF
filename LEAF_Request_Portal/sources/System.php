@@ -1062,4 +1062,5 @@ class System
     {
         return $this->dataActionLogger->getHistory($filterById, null, \LoggableTypes::PRIMARY_ADMIN);
     }
+
 }

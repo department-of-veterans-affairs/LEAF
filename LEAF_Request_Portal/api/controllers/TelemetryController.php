@@ -44,6 +44,10 @@ class TelemetryController extends RESTfulResponse
             return $telemetry->getRequestsSimple($_GET['startTime'], $_GET['endTime']);
         });
 
+        $this->index['GET']->register('telemetry/upload/storage', function ($args) use ($telemetry) {
+            return $telemetry->getRequestUploadStorage();
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 }
