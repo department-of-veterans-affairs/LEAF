@@ -8,7 +8,7 @@
     Date Created: March 3, 2016
 
 */
-$currDir = dirname(__FILE__);
+$currDir = __DIR__;
 
 include_once $currDir . '/../globals.php';
 
@@ -29,6 +29,13 @@ class Telemetry
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
     }
 
+    /**
+     * Purpose:Get simple request for Telemetry reporting
+     * Optional: Start/End UNIX DateTime numbers
+     * @param int $from
+     * @param int $to
+     * @return array
+     */
     public function getRequestsSimple($from = 0, $to = 0)
     {
         $to = $to == 0 ? time() : $to;
@@ -49,6 +56,10 @@ class Telemetry
         return $res;
     }
 
+    /**
+     * Purpose: Get data about number of Requests per in a given month
+     * @return array
+     */
     public function getRequestsPerMonth()
     {
         $vars = array();
@@ -129,16 +140,24 @@ class Telemetry
         return $output;
     }
 
-    /*
-    SELECT count(*), categoryName, date FROM records
-                                                LEFT JOIN category_count USING (recordID)
-                                                LEFT JOIN categories USING (categoryID)
-                                                WHERE submitted > 0
-                                                    AND deleted = 0
-                                                    AND workflowID > 0
-                                                    AND disabled = 0
-                                                    AND count >= 1
-                                                GROUP BY CONCAT(categoryID, YEAR(FROM_UNIXTIME(date)), MONTH(FROM_UNIXTIME(date)))
-    ORDER BY `records`.`date`  DESC
-    */
+    /**
+     * Purpose: Get total size of all uploads in portal folder
+     * @param $visn
+     * @param $facility
+     * @param $name
+     * @return string
+     */
+    public function getRequestUploadStorage() {
+
+        $command = 'du ' . Config::$uploadDir;
+        $output = shell_exec($command);
+        if ($output) {
+            $sizeOutput = explode("\t", $output);
+            return $sizeOutput[0];
+
+        } else {
+            return '';
+        }
+    }
+
 }
