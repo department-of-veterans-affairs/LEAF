@@ -875,7 +875,7 @@ class FormWorkflow
                     											LEFT JOIN dependency_privs USING (dependencyID)
                     											LEFT JOIN users USING (groupID)
                     											LEFT JOIN services USING (serviceID)
-                    											WHERE recordID=:recordID AND active=1', $vars);
+                    											WHERE recordID=:recordID AND (active=1 OR active IS NULL)', $vars);
 
                     if (count($approvers) > 0)
                     {
@@ -973,7 +973,7 @@ class FormWorkflow
                                 $tmp = $dir->lookupEmpUID($empUID);
                                 if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '')
                                 {
-                                    $email->addCC($tmp[0]['Email']);
+                                    $email->addCcBcc($tmp[0]['Email']);
                                 }
                             }
                         }
