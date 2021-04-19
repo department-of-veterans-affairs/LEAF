@@ -1,7 +1,7 @@
 <div class="leaf-center-content">
 
     <!-- LEFT SIDE NAV -->
-    <!--{assign var=left_nav_content value="
+    <!--{assign var=left_uag_content value="
         <aside class='sidenav'>
             <h3 class='navhead'>Access categories</h3>
             <ul class='usa-sidenav'>
@@ -10,12 +10,25 @@
                 <li class='usa-sidenav__item'><a href='javascript:void(0)' id='userGroupsLink'>User groups (<span id='userGroupsCount'>-</span>)</a></li>
             </ul>
         </aside>
+        </br>
+        <aside class='sidenav'>
+            <h3 class='navhead'>Access groups</h3>
+            <button class='usa-button leaf-btn-green leaf-btn-med leaf-side-btn' onclick='createGroup();'>
+                + Create group
+            </button>
+            <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='importGroup();'>
+                Import group
+            </button>
+            <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='showAllGroupHistory();'>
+                Show group history
+            </button>
+        </aside>
     "}-->
-    <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
+    <!--{include file="partial_layouts/left_uag_nav.tpl" contentLeft="$left_uag_content"}-->
 
     <main class="main-content">
 
-        <h2><a href="/LEAF_Request_Portal/admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2>
+        <h2><a href="../admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2>
 
         <div class="leaf-user-search">
             <p>Filter by group or user name</p>
@@ -43,22 +56,6 @@
 
     </main>
 
-    <!-- RIGHT SIDE NAV -->
-    <!--{assign var=right_nav_content value="
-        <aside class='sidenav-right'>
-            <h3 class='navhead'>Access groups</h3>
-            <button class='usa-button leaf-btn-green leaf-btn-med leaf-side-btn' onclick='createGroup();'>
-                + Create group
-            </button>
-            <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='importGroup();'>
-                Import group
-            </button>
-            <button class='usa-button usa-button--outline leaf-btn-med leaf-side-btn' onclick='showAllGroupHistory();'>
-                Show group history
-            </button>
-        </aside>
-    "}-->
-    <!--{include file="partial_layouts/right_side_nav.tpl" contentRight="$right_nav_content"}-->
 
 </div>
 
@@ -396,7 +393,7 @@ function getGroupList() {
             	}
 
                 if(res[i].groupID != 1) { // if not admin
-                    function openGroup(groupID, parentGroupID) {
+                    function openGroup(groupID, parentGroupID, groupName) {
                         $.ajax({
                             type: 'GET',
                             url: '../api/group/' + groupID + '/members',
@@ -404,7 +401,7 @@ function getGroupList() {
                                 dialog.clear();
                                 let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
                                 dialog.setContent('<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+groupID+')">View History</button></div>' + button_deleteGroup + '</div>' +
-                                    '<div id="employees"></div><div id="removed"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>');
+                                    '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
                                 $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                                 let counter = 0;
                                 for(let i in res) {
@@ -412,7 +409,7 @@ function getGroupList() {
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
                                             let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
-                                            $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
+                                            $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
                                             // Check for Backups
                                             for (let j in res) {
                                                 if (res[i].userName == res[j].backupID) {
@@ -495,18 +492,18 @@ function getGroupList() {
                     }
 
                     //508 fix
-                    $('#' + res[i].groupID).on('click', function(groupID, parentGroupID) {
+                    $('#' + res[i].groupID).on('click', function(groupID, parentGroupID, groupName) {
                         return function() {
-                            openGroup(groupID, parentGroupID);
+                            openGroup(groupID, parentGroupID, groupName);
                         };
-                    }(res[i].groupID, res[i].parentGroupID));
-                    $('#' + res[i].groupID).on('keydown', function(groupID, parentGroupID) {
+                    }(res[i].groupID, res[i].parentGroupID, res[i].name));
+                    $('#' + res[i].groupID).on('keydown', function(groupID, parentGroupID, groupName) {
                         return function(event) {
                             if(event.keyCode === 13 || event.keyCode === 32) {
-                                openGroup(groupID, parentGroupID);
+                                openGroup(groupID, parentGroupID, groupName);
                             }
                         };
-                    }(res[i].groupID, res[i].parentGroupID));
+                    }(res[i].groupID, res[i].parentGroupID, res[i].name));
                 }
                 else { // if is admin
                     function openAdminGroup(){
@@ -516,8 +513,8 @@ function getGroupList() {
                         dialog.showButtons();
                         dialog.setTitle('Editor');
                         dialog.setContent(
-                            '<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
-                            '<h3 role="heading" tabindex="-1">System Administrators</h3><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><h3 class="usa-label leaf-marginTop-1rem" role="heading" tabindex="-1">Add Administrator</h3></div><div id="employeeSelector" class="leaf-marginTop-1rem"></div>');
+                            '<button class="usa-button leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
+                            '<h2 role="heading" tabindex="-1">System Administrators</h2><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Administrator</h3></div><div id="employeeSelector"></div></br><div id="adminSummary"></div><div class="leaf-marginTop-2rem">');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -552,7 +549,7 @@ function getGroupList() {
                                 $('#adminSummary').html('');
                                 let counter = 0;
                                 for(let i in res) {
-                                    $('#adminSummary').append('<div class="leaf-marginTop-qtrRem leaf-marginLeft-qtrRem"><span class="leaf-bold leaf-font0-8rem">'+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'</span> - <a tabindex="0" aria-label="REMOVE ' + toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="removeAdmin_'+ counter +'">REMOVE</a></div>');
+                                    $('#adminSummary').append('<a class="leaf-user-link" href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-qtrRem leaf-marginLeft-qtrRem"><span class="leaf-bold leaf-font0-8rem">'+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'</span></a> - <a tabindex="0" aria-label="REMOVE ' + toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="removeAdmin_'+ counter +'">REMOVE</a></div>');
                                     $('#removeAdmin_' + counter).on('click', function(userID) {
                                         return function() {
                                             removeAdmin(userID);
@@ -590,8 +587,8 @@ function getGroupList() {
                         </div>');
 
                     function openPrimaryAdminGroup(){
-                      dialog.setContent('<button class="usa-button usa-button--secondary leaf-btn-small leaf-float-right" onclick="viewHistory()">View History</button>'+
-                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><div id="primaryAdminSummary"></div><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Set Primary Administrator</h3><div id="employeeSelector"></div>');
+                      dialog.setContent('<button class="usa-button leaf-btn-small leaf-float-right" onclick="viewHistory()">View History</button>'+
+                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Set Primary Administrator</h3><div id="employeeSelector"></div></br></br><div id="primaryAdminSummary"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -640,7 +637,7 @@ function getGroupList() {
                                     if(res[i].primary_admin == 1)
                                     {
                                         foundPrimary = true;
-                                        $('#primaryAdminSummary').append('<div><span class="leaf-bold leaf-font0-9rem">'+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'</span> - <a tabindex="0" aria-label="Unset '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="unsetPrimaryAdmin">UNSET</a></div>');
+                                        $('#primaryAdminSummary').append('<a class="leaf-user-link" href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div><span class="leaf-bold leaf-font0-9rem">'+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'</span></a> - <a tabindex="0" aria-label="Unset '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="unsetPrimaryAdmin">UNSET</a></div>');
                                         $('#unsetPrimaryAdmin').on('click', function() {
                                                 unsetPrimaryAdmin();
                                                 dialog.hide();
