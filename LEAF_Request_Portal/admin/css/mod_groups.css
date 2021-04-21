@@ -87,7 +87,7 @@ div.groupBlockWhite h3 {
 }
 
 .loadingModal {
-    display: none;
+    display: block;
     position: fixed;
     height: 100%;
     width: 100%;
@@ -101,7 +101,7 @@ div.groupBlockWhite h3 {
 }
 
 .loadingImage {
-    margin: 25% auto;
+    margin: 15% auto;
     height: 248px;
     width: 250px;
     border-radius: 10%;

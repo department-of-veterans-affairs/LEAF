@@ -365,6 +365,10 @@ function setPrimaryAdmin(userID) {
     });
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function getGroupList() {
 
     // reset dialog for regular content
@@ -379,10 +383,11 @@ function getGroupList() {
         type: 'GET',
         url: "../api/group/members",
         dataType: "json",
-        success: function(res) {
+        success: async function(res) {
             $('#groupList').html('');
             for(let i in res) {
-
+                updateAndGetMembers(res[i].groupID);
+                await sleep(50);
             	// only show explicit groups, not ELTs
             	if(res[i].parentGroupID == null
             		&& res[i].groupID != 1) {
