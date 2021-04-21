@@ -55,8 +55,12 @@
         </div>
 
     </main>
-
-
+    <div class="loadingModal">
+        <div class="loadingImage">
+            <div class="loadText">User Groups</div>
+            <div class="loadCancel"><button id="loadCancel" type="button" class="usa-button usa-button--outline usa-button--inverse" title="Cancel">Cancel</button></div>
+        </div>
+    </div>
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -66,6 +70,10 @@
 <script>
 
 $(document).ready(function() {
+    // cancel loading
+    $('#loadCancel').click(function () {
+        $('#body').removeClass("loading");
+    });
     // side nav show/hide
     // all groups
     $('#allGroupsLink').click(function() {
@@ -175,7 +183,7 @@ function searchGroups() {
             else if (isSysAdmin && !isUserGroup) {
                 $('.groupBlock, .groupBlockWhite, .groupHeaders').hide();
                 $('.groupBlock:Contains(' + srchInput + ')').show(); 
-                $('.groupSysAdmins').show(); 
+                $('.groupSysAdmins').show();
             }
             else if (!isSysAdmin && isUserGroup) {
                 $('.groupBlock, .groupBlockWhite, .groupHeaders').hide();
@@ -183,7 +191,7 @@ function searchGroups() {
                 $('.groupBlockWhite').each(function() {
                     $(this).not(':Contains(' + srchInput + ')').hide();
                 }); 
-                $('.groupUserGroups').show(); 
+                $('.groupUserGroups').show();
             }
             else {
                 $('.groupSysAdmins, .groupBlock').hide();
@@ -272,7 +280,7 @@ function populateMembers(groupID, members) {
         if (members[i].active == 1 && members[i].backupID == null && groupID != 1) {
             if ($('#members' + groupID).html('')) {
                $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</div>'); 
-            } 
+            }
             $('#members' + groupID).append('<div class="groupUser">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + ' <div>');
         } else if (groupID == 1) {
             if (i == 0) {
@@ -365,7 +373,7 @@ function getGroupList() {
     // vars for group counts
     let allGroupsCount = 0, userGroupCount = 0, sysAdminCount = 0;
 
-    $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
+    $('#body').addClass("loading");
     dialog.showButtons();
     $.ajax({
         type: 'GET',
@@ -381,7 +389,7 @@ function getGroupList() {
                         userGroupCount++;
                         $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlockWhite">\
                             <h2 id="groupTitle'+ res[i].groupID +'" class="groupName">'+ res[i].name +' </h2>\
-                            <div id="members' + res[i].groupID + '" class="groupMemberList"></div>\
+                            <div id="members' + res[i].groupID + '"></div>\
                             </div>');
             	}
             	else if(res[i].groupID == 1) {
@@ -577,6 +585,7 @@ function getGroupList() {
                     });
                 }
                 populateMembers(res[i].groupID, res[i].members);
+                $('#body').removeClass("loading");
 
                 //Primary Admin Section
                 if(res[i].groupID == 1) {
