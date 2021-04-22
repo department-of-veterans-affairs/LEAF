@@ -55,6 +55,7 @@
         </div>
     </main>
 </div>
+<!--Loading Modal-->
 <div class="loadingModal">
     <div class="loadingImage">
         <div class="loadText">User Groups</div>
@@ -392,7 +393,6 @@ function getGroupList() {
 
             	// only show explicit groups, not ELTs
             	if(res[i].parentGroupID == null && res[i].groupID != 1) {
-                    updateAndGetMembers(res[i].groupID);
                     userGroupCount++;
                     $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlockWhite">\
                         <h2 id="groupTitle'+ res[i].groupID +'" class="groupName">'+ res[i].name +' </h2>\
@@ -400,7 +400,6 @@ function getGroupList() {
                         </div>');
             	}
             	else if(res[i].groupID == 1) {
-                    updateAndGetMembers(res[i].groupID);
                     sysAdminCount++;
                     $('#adminList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
                         <h2 id="groupTitle'+ res[i].groupID +'" class="groupName">'+ res[i].name +' </h2>\
@@ -594,6 +593,7 @@ function getGroupList() {
                         }
                     });
                 }
+                populateMembers(res[i].groupID, res[i].members);
 
                 //Primary Admin Section
                 if(res[i].groupID == 1) {
