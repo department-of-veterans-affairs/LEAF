@@ -53,13 +53,12 @@
                 <div id="groupList" class="leaf-displayFlexRow"></div>
             </div>
         </div>
-
     </main>
-    <div class="loadingModal">
-        <div class="loadingImage">
-            <div class="loadText">User Groups</div>
-            <div class="loadCancel"><button id="loadCancel" type="button" class="usa-button usa-button--outline usa-button--inverse" title="Cancel">Cancel</button></div>
-        </div>
+</div>
+<div class="loadingModal">
+    <div class="loadingImage">
+        <div class="loadText">User Groups</div>
+        <div class="loadCancel"><button id="loadCancel" type="button" class="usa-button usa-button--outline usa-button--inverse" title="Cancel">Cancel</button></div>
     </div>
 </div>
 
@@ -68,6 +67,8 @@
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 
 <script>
+
+let loadTime; // page load time
 
 $(document).ready(function() {
     // cancel loading
@@ -105,6 +106,12 @@ $(document).ready(function() {
         $('#sysAdminsLink, #allGroupsLink').removeClass('usa-current');
         $(this).addClass('usa-current');
     });
+// loading spinner on each ajax request > 1 second
+}).ajaxStart(function() {
+    loadTime = setTimeout(function() {$('#body').addClass("loading");}, 1000);
+}).ajaxStop(function() {
+    clearTimeout(loadTime);
+    $('#body').removeClass("loading");
 });
 
 let tz = '<!--{$timeZone}-->';
@@ -365,10 +372,6 @@ function setPrimaryAdmin(userID) {
     });
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 function getGroupList() {
 
     // reset dialog for regular content
@@ -383,26 +386,26 @@ function getGroupList() {
         type: 'GET',
         url: "../api/group/members",
         dataType: "json",
-        success: async function(res) {
+        success: function(res) {
             $('#groupList').html('');
             for(let i in res) {
-                updateAndGetMembers(res[i].groupID);
-                await sleep(50);
+
             	// only show explicit groups, not ELTs
-            	if(res[i].parentGroupID == null
-            		&& res[i].groupID != 1) {
-                        userGroupCount++;
-                        $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlockWhite">\
-                            <h2 id="groupTitle'+ res[i].groupID +'" class="groupName">'+ res[i].name +' </h2>\
-                            <div id="members' + res[i].groupID + '"></div>\
-                            </div>');
+            	if(res[i].parentGroupID == null && res[i].groupID != 1) {
+                    updateAndGetMembers(res[i].groupID);
+                    userGroupCount++;
+                    $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlockWhite">\
+                        <h2 id="groupTitle'+ res[i].groupID +'" class="groupName">'+ res[i].name +' </h2>\
+                        <div id="members' + res[i].groupID + '" class="groupMemberList"></div>\
+                        </div>');
             	}
             	else if(res[i].groupID == 1) {
+                    updateAndGetMembers(res[i].groupID);
                     sysAdminCount++;
                     $('#adminList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
-                            <h2 id="groupTitle'+ res[i].groupID +'" class="groupName">'+ res[i].name +' </h2>\
-                            <div id="members'+ res[i].groupID +'"></div>\
-                            </div>');
+                        <h2 id="groupTitle'+ res[i].groupID +'" class="groupName">'+ res[i].name +' </h2>\
+                        <div id="members'+ res[i].groupID +'"></div>\
+                        </div>');
             	}
 
                 if(res[i].groupID != 1) { // if not admin
@@ -534,7 +537,9 @@ function getGroupList() {
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
-
+                        dialog.setCancelHandler(function() {
+                            updateAndGetMembers(1);
+                        });
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
                                 let selectedUserName = empSel.selectionData[empSel.selection].userName;
@@ -589,8 +594,6 @@ function getGroupList() {
                         }
                     });
                 }
-                populateMembers(res[i].groupID, res[i].members);
-                $('#body').removeClass("loading");
 
                 //Primary Admin Section
                 if(res[i].groupID == 1) {
