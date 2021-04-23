@@ -56,21 +56,13 @@
     </main>
 </div>
 <!--Loading Modal-->
-<div class="loadingModal">
-    <div class="loadingImage">
-        <div class="loadText">User Groups</div>
-        <div class="loadCancel"><button id="loadCancel" type="button" class="usa-button usa-button--outline usa-button--inverse" title="Cancel">Cancel</button></div>
-    </div>
-</div>
+<!--{include file="../../../libs/smarty/loading_spinner.tpl"}-->
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 
 <script>
-
-let loadTime; // page load time
-
 $(document).ready(function() {
     // cancel loading
     $('#loadCancel').click(function () {
@@ -78,7 +70,7 @@ $(document).ready(function() {
     });
     // side nav show/hide
     // all groups
-    $('#allGroupsLink').click(function() {
+    $('#allGroupsLink').click(function () {
         $('#userGroupSearch').val('');
         searchGroups();
         $('#userGroupSearch').focus();
@@ -88,7 +80,7 @@ $(document).ready(function() {
         $(this).addClass('usa-current');
     });
     // sys admins
-    $('#sysAdminsLink').click(function() {
+    $('#sysAdminsLink').click(function () {
         $('#userGroupSearch').val('');
         searchGroups();
         $('#userGroupSearch').focus();
@@ -98,7 +90,7 @@ $(document).ready(function() {
         $(this).addClass('usa-current');
     });
     // user groups
-    $('#userGroupsLink').click(function() {
+    $('#userGroupsLink').click(function () {
         $('#userGroupSearch').val('');
         searchGroups();
         $('#userGroupSearch').focus();
@@ -107,12 +99,6 @@ $(document).ready(function() {
         $('#sysAdminsLink, #allGroupsLink').removeClass('usa-current');
         $(this).addClass('usa-current');
     });
-// loading spinner on each ajax request > 1 second
-}).ajaxStart(function() {
-    loadTime = setTimeout(function() {$('#body').addClass("loading");}, 1000);
-}).ajaxStop(function() {
-    clearTimeout(loadTime);
-    $('#body').removeClass("loading");
 });
 
 let tz = '<!--{$timeZone}-->';
