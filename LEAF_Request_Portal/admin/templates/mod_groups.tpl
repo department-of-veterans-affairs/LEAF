@@ -266,19 +266,21 @@ function populateMembers(groupID, members) {
             memberCt++;
         }
     }
+    let j = 0;
     let countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     let countAdminTxt = (adminCt > 0) ? (' + ' + adminCt + ' others') : '';
     for(let i in members) {
         if (members[i].active == 1 && members[i].backupID == null && groupID != 1) {
-            if ($('#members' + groupID).html('')) {
-               $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</div>'); 
-            } 
-            $('#members' + groupID).append('<div class="groupUser">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + ' <div>');
+            if (j == 0) {
+                $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</div>');
+            }
+            $('#members' + groupID).append('<div class="groupUser">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + '</div>');
+            j++;
         } else if (groupID == 1) {
             if (i == 0) {
                 $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countAdminTxt + '</div>');
             }
-            $('#members' + groupID).append('<div class="groupUser">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + ' <div>');
+            $('#members' + groupID).append('<div class="groupUser">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + '</div>');
         }
     }
 }
