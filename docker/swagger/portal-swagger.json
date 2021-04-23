@@ -3652,6 +3652,20 @@
         }
       }
     },
+    "/group/list": {
+      "get": {
+        "summary": "Call getGroupsList()",
+        "description": "original endpont:group/list; calls getGroupsList()",
+        "tags": [
+          "group"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
     "/group/members": {
       "get": {
         "summary": "Call getGroupsAndMembers()",

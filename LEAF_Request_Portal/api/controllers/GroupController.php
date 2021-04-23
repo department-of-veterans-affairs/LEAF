@@ -38,6 +38,10 @@ class GroupController extends RESTfulResponse
             return $this->API_VERSION;
         });
 
+        $this->index['GET']->register('group/list', function ($args) use ($group) {
+            return $group->getGroupsList();
+        });
+
         $this->index['GET']->register('group/members', function ($args) use ($group) {
             return $group->getGroupsAndMembers();
         });

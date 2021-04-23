@@ -204,6 +204,15 @@ class Group
         return $res;
     }
 
+    /**
+     * Purpose - Get list of groups for API display
+     */
+    public function getGroupsList() {
+        $res = $this->db->query('SELECT groupID, name FROM `groups` WHERE groupID > 1 AND parentGroupID IS NULL ORDER BY name', array());
+
+        return $res;
+    }
+
     public function getGroupsAndMembers()
     {
         $groups = $this->getGroups();
