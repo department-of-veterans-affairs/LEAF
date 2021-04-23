@@ -56,7 +56,7 @@
     </main>
 </div>
 <!--Loading Modal-->
-<!--{include file="../../../libs/smarty/loading_spinner.tpl"}-->
+<!--{include file="../../../libs/smarty/loading_spinner.tpl" title='User Groups'}-->
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
@@ -64,13 +64,9 @@
 
 <script>
 $(document).ready(function() {
-    // cancel loading
-    $('#loadCancel').click(function () {
-        $('#body').removeClass("loading");
-    });
     // side nav show/hide
     // all groups
-    $('#allGroupsLink').click(function () {
+    $('#allGroupsLink').click(function() {
         $('#userGroupSearch').val('');
         searchGroups();
         $('#userGroupSearch').focus();
@@ -80,7 +76,7 @@ $(document).ready(function() {
         $(this).addClass('usa-current');
     });
     // sys admins
-    $('#sysAdminsLink').click(function () {
+    $('#sysAdminsLink').click(function() {
         $('#userGroupSearch').val('');
         searchGroups();
         $('#userGroupSearch').focus();
@@ -90,7 +86,7 @@ $(document).ready(function() {
         $(this).addClass('usa-current');
     });
     // user groups
-    $('#userGroupsLink').click(function () {
+    $('#userGroupsLink').click(function() {
         $('#userGroupSearch').val('');
         searchGroups();
         $('#userGroupSearch').focus();
