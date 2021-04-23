@@ -86,8 +86,7 @@ div.groupBlockWhite h3 {
 
 }
 
-/* Loading Spinner CSS */
-.loadingModal {
+.loading-modal {
     display: none;
     position: fixed;
     height: 100%;
@@ -97,31 +96,27 @@ div.groupBlockWhite h3 {
     background: rgba(96, 96, 96, 0.8);
 }
 
-/* Show Loading Spinner */
-#body.loading .loadingModal {
+#body.loading .loading-modal {
     display: block;
 }
 
-/* Loading Image */
-.loadingImage {
+.loading-image {
     margin: 15% auto;
     height: 248px;
     width: 250px;
-    border-radius: 10%;
+    border-radius: 50px;
     background: url('../../images/loading_spinner.gif')
     no-repeat;
 }
 
-/* Custom Text for what is Loading */
-.loadText {
+.load-text {
     margin: auto;
     text-align: center;
     padding-top: 10%;
     color: white;
 }
 
-/* Loading Cancel Button */
-.loadCancel {
+.load-cancel {
     margin: auto;
     left: 0;
     bottom: 0;
@@ -130,6 +125,6 @@ div.groupBlockWhite h3 {
     padding-left: 5%;
 }
 
-.loadCancel .usa-button--outline:hover {
+.load-cancel .usa-button--outline:hover {
     background-color: red;
 }
