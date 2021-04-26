@@ -405,7 +405,7 @@ function getGroupList() {
                                     // Check for active members to list
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
-                                            let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
+                                            let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem leaf-remove-button" id="removeMember_' + counter + '">REMOVE</a>';
                                             $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
                                             // Check for Backups
                                             for (let j in res) {

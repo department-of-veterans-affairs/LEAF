@@ -416,6 +416,13 @@ ul.leaf-progress-bar {
 .leaf-font0-9rem { font-size: 0.9rem; }
 .leaf-font1rem { font-size: 1.0rem; }
 
+/* ############### USER GROUPS ################# */
+a.leaf-user-link { text-decoration: none; }
+a.leaf-group-link { color: #227ed7; }
+a.leaf-user-link:hover { text-decoration: underline; }
+a.leaf-group-link:hover { text-decoration: none; }
+a.leaf-remove-button:hover { text-decoration: none; }
+
 /* ############### LOADING SPINNER ############### */
 .loading-modal { display: none; position: fixed; height: 100%; width: 100%; top: 0; bottom: 0; background: rgba(96, 96, 96, 0.8); }
 #body.loading .loading-modal { display: block; }
