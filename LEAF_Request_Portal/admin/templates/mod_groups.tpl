@@ -53,18 +53,16 @@
                 <div id="groupList" class="leaf-displayFlexRow"></div>
             </div>
         </div>
-
     </main>
-
-
 </div>
+<!--Loading Modal-->
+<!--{include file="../../../libs/smarty/loading_spinner.tpl" title='User Groups'}-->
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 
 <script>
-
 $(document).ready(function() {
     // side nav show/hide
     // all groups
@@ -175,7 +173,7 @@ function searchGroups() {
             else if (isSysAdmin && !isUserGroup) {
                 $('.groupBlock, .groupBlockWhite, .groupHeaders').hide();
                 $('.groupBlock:Contains(' + srchInput + ')').show(); 
-                $('.groupSysAdmins').show(); 
+                $('.groupSysAdmins').show();
             }
             else if (!isSysAdmin && isUserGroup) {
                 $('.groupBlock, .groupBlockWhite, .groupHeaders').hide();
@@ -183,7 +181,7 @@ function searchGroups() {
                 $('.groupBlockWhite').each(function() {
                     $(this).not(':Contains(' + srchInput + ')').hide();
                 }); 
-                $('.groupUserGroups').show(); 
+                $('.groupUserGroups').show();
             }
             else {
                 $('.groupSysAdmins, .groupBlock').hide();
@@ -367,7 +365,7 @@ function getGroupList() {
     // vars for group counts
     let allGroupsCount = 0, userGroupCount = 0, sysAdminCount = 0;
 
-    $('#groupList').html('<div style="text-align: center; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div>');
+    $('#body').addClass("loading");
     dialog.showButtons();
     $.ajax({
         type: 'GET',
@@ -378,20 +376,19 @@ function getGroupList() {
             for(let i in res) {
 
             	// only show explicit groups, not ELTs
-            	if(res[i].parentGroupID == null
-            		&& res[i].groupID != 1) {
-                        userGroupCount++;
-                        $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlockWhite">\
-                            <h2 id="groupTitle'+ res[i].groupID +'" class="groupName">'+ res[i].name +' </h2>\
-                            <div id="members' + res[i].groupID + '" class="groupMemberList"></div>\
-                            </div>');
+            	if(res[i].parentGroupID == null && res[i].groupID != 1) {
+                    userGroupCount++;
+                    $('#groupList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlockWhite">\
+                        <h2 id="groupTitle'+ res[i].groupID +'" class="groupName">'+ res[i].name +' </h2>\
+                        <div id="members' + res[i].groupID + '" class="groupMemberList"></div>\
+                        </div>');
             	}
             	else if(res[i].groupID == 1) {
                     sysAdminCount++;
                     $('#adminList').append('<div tabindex="0" id="'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
-                            <h2 id="groupTitle'+ res[i].groupID +'" class="groupName">'+ res[i].name +' </h2>\
-                            <div id="members'+ res[i].groupID +'"></div>\
-                            </div>');
+                        <h2 id="groupTitle'+ res[i].groupID +'" class="groupName">'+ res[i].name +' </h2>\
+                        <div id="members'+ res[i].groupID +'"></div>\
+                        </div>');
             	}
 
                 if(res[i].groupID != 1) { // if not admin
@@ -410,7 +407,7 @@ function getGroupList() {
                                     // Check for active members to list
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
-                                            let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
+                                            let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem leaf-remove-button" id="removeMember_' + counter + '">REMOVE</a>';
                                             $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
                                             // Check for Backups
                                             for (let j in res) {
@@ -523,7 +520,9 @@ function getGroupList() {
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
-
+                        dialog.setCancelHandler(function() {
+                            updateAndGetMembers(1);
+                        });
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
                                 let selectedUserName = empSel.selectionData[empSel.selection].userName;
