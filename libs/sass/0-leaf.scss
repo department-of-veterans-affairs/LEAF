@@ -298,7 +298,8 @@ ul.leaf-progress-bar {
         margin: 0.6rem auto 0.6rem auto; 
         font-family: 'PublicSans-Regular';
     }
-        .leaf-left-nav {flex: 20%; margin: 0.6rem 1rem 0.6rem 1rem; }
+        .leaf-uag-nav {margin: 0.6rem 1rem 0.6rem 1rem;}
+        .leaf-left-nav {flex: 20%; margin: 0.6rem 1rem 0.6rem 1rem;}
         .leaf-right-nav {flex: 20%; margin: 0.6rem 1rem 0.6rem 1rem;}
         .main-content {
             position: relative;
@@ -415,3 +416,18 @@ ul.leaf-progress-bar {
 .leaf-font0-9rem { font-size: 0.9rem; }
 .leaf-font1rem { font-size: 1.0rem; }
 
+/* ############### USER GROUPS ################# */
+a.leaf-user-link { text-decoration: none; }
+a.leaf-group-link { color: #227ed7; }
+a.leaf-user-link:hover { text-decoration: underline; }
+a.leaf-group-link:hover { text-decoration: none; }
+a.leaf-remove-button:hover { text-decoration: none; }
+
+/* ############### LOADING SPINNER ############### */
+.loading-modal { display: none; position: fixed; height: 100%; width: 100%; top: 0; bottom: 0; background: rgba(96, 96, 96, 0.8); }
+#body.loading .loading-modal { display: block; }
+.loading-image { margin: 15% auto; height: 248px; width: 250px; border-radius: 50px; background: url('../img/loading_spinner.gif') no-repeat; }
+.load-text { margin: auto; text-align: center; padding-top: 10%; color: white; }
+.load-cancel { margin: auto; left: 0; bottom: 0; text-align: center; padding-top: 63%; padding-left: 5%; }
+.load-cancel button { width: 50%; }
+.load-cancel .usa-button--outline:hover { background-color: red; }
