@@ -160,8 +160,7 @@ function loadInboxData(depID) {
         error: function(err) {
         	alert('Error: ' + err.statusText + ' in api/inbox/dependency/_' + depID);
         },
-        cache: false,
-        timeout: 5000
+        cache: false
     });
 }
 
