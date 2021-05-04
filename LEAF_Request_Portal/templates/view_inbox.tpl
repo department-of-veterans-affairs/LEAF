@@ -95,107 +95,111 @@ var CSRFToken = '<!--{$CSRFToken}-->';
 var inboxDataLoaded = new Object();
 function loadInboxData(depID) {
 	$('#depContainerIndicator_' + depID).css('display', 'block');
-	var formGrid = new LeafFormGrid('depContainer_' + depID);
 
-    $.ajax({
+	$.ajax({
         type: 'GET',
         url: 'api/?a=inbox/dependency/_' + depID,
         success: function(res) {
             inboxDataLoaded[depID] = 1;
-
-            var recordIDs = '';
-            for (var i in res[depID]['records']) {
-                recordIDs += res[depID]['records'][i].recordID + ',';
-            }
-
-            formGrid.setDataBlob(res);
-            formGrid.setHeaders([
-                 {name: 'Type', indicatorID: 'type', editable: false, callback: function(data, blob) {
-                    var listRecord = blob[depID]['records'][data.recordID];
-                    var cellContainer = $('#'+data.cellContainerID);
-                    var categoryNames = '';
-                	if(listRecord.categoryNames != undefined) {
-                	    categoryNames = listRecord.categoryNames.replace(' | ', ', ');
-                    }
-                	else {
-                        categoryNames = '<span style="color: red">Warning: This request is based on an old or deleted form.</span>';
-                    }
-                    cellContainer.html(categoryNames).attr('tabindex', '0').attr('aria-label', categoryNames);
-                 }},
-                 {name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
-                    var listRecord = blob[depID]['records'][data.recordID];
-                    var cellContainer = $('#'+data.cellContainerID);
-                    cellContainer.html(listRecord.service).attr('tabindex', '0').attr('aria-label', listRecord.service);
-                 }},
-                 {name: 'Title', indicatorID: 'title', editable: false, callback: function(data, blob) {
-                    var listRecord = blob[depID]['records'][data.recordID];
-                    var cellContainer = $('#'+data.cellContainerID);
-                    cellContainer.attr('tabindex', '0').attr('aria-label', listRecord.title);
-                    cellContainer.html('<a href="index.php?a=printview&recordID='+ data.recordID + '" target="_blank">' + listRecord.title + '</a>'
-                        + ' <button id="'+ data.cellContainerID +'_preview" class="buttonNorm">Quick View</button>'
-                        + '<div id="inboxForm_' + depID + '_' + data.recordID +'" style="background-color: white; display: none; height: 300px; overflow: scroll"></div>');
-                    $('#'+data.cellContainerID + '_preview').on('click', function() {
-                        $('#'+data.cellContainerID + '_preview').hide();
-                        if($('#inboxForm_'+depID+'_'+data.recordID).html() == '') {
-                            $('#inboxForm_'+depID+'_'+data.recordID).html('Loading...');
-                            $('#inboxForm_'+depID+'_'+data.recordID).slideDown();
-                            $.ajax({
-                                type: 'GET',
-                                url: 'ajaxIndex.php?a=printview&recordID=' + data.recordID,
-                                success: function(res) {
-                                    $('#inboxForm_'+depID+'_'+data.recordID).html(res);
-                                    $('#inboxForm_'+depID+'_'+data.recordID).slideDown();
-                                    $('#requestTitle').attr('tabindex', '0');
-                                    $('#requestInfo').attr('tabindex', '0');
-                                    ariaSubIndicators(1);
-                                }
-                             });
-                        }
-                    });
-                 }},
-                 {name: 'Status', indicatorID: 'currentStatus', editable: false, callback: function(data, blob) {
-                    var listRecord = blob[depID]['records'][data.recordID];
-                    var cellContainer = $('#'+data.cellContainerID);
-                    var waitText = listRecord.blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
-                    var status = '';
-                    if(listRecord.stepID == null && listRecord.submitted == '0') {
-                        status = '<span style="color: #e00000">Not Submitted</span>';
-                    }
-                    else if(listRecord.stepID == null) {
-                        var lastStatus = listRecord.lastStatus;
-                        if(lastStatus == '') {
-                            lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
-                        }
-                        status = '<span style="font-weight: bold">' + lastStatus + '</span>';
-                    }
-                    else {
-                        status = waitText + listRecord.stepTitle;
-                    }
-
-                    if(listRecord.deleted > 0) {
-                        status += ', Cancelled';
-                    }
-
-                    cellContainer.html(status).attr('tabindex', '0').attr('aria-label', status);
-                    if(listRecord.userID == '<!--{$userID}-->') {
-                        cellContainer.css('background-color', '#feffd1');
-                    }
-                 }},
-                 {name: 'Action', indicatorID: 'action', editable: false, sortable: false, callback: function(data, blob) {
-                	 var depDescription = 'Take Action';
-                	 $('#'+data.cellContainerID).html('<button class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" onclick="loadWorkflow('+ data.recordID +', \''+ depID +'\', \''+ formGrid.getPrefixID() +'\');">'+ depDescription +'</button>');
-                 }}
-             ]);
-            formGrid.loadData(recordIDs);
-            $('#' + formGrid.getPrefixID() + 'header_title').css('width', '60%');
-            $('#depContainerIndicator_' + depID).css('display', 'none');
+            processInboxData(depID, res);
         },
         error: function(err) {
         	alert('Error: ' + err.statusText + ' in api/inbox/dependency/_' + depID);
         },
-        cache: false,
-        timeout: 5000
+        cache: false
     });
+}
+
+function processInboxData(depID, res) {
+    var formGrid = new LeafFormGrid('depContainer_' + depID);
+
+    var recordIDs = '';
+    for (var i in res[depID]['records']) {
+        recordIDs += res[depID]['records'][i].recordID + ',';
+    }
+
+    formGrid.setDataBlob(res);
+    formGrid.setHeaders([
+        {name: 'Type', indicatorID: 'type', editable: false, callback: function(data, blob) {
+            var listRecord = blob[depID]['records'][data.recordID];
+            var cellContainer = $('#'+data.cellContainerID);
+            var categoryNames = '';
+            if(listRecord.categoryNames != undefined) {
+                categoryNames = listRecord.categoryNames.replace(' | ', ', ');
+            }
+            else {
+                categoryNames = '<span style="color: red">Warning: This request is based on an old or deleted form.</span>';
+            }
+            cellContainer.html(categoryNames).attr('tabindex', '0').attr('aria-label', categoryNames);
+        }},
+        {name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
+            var listRecord = blob[depID]['records'][data.recordID];
+            var cellContainer = $('#'+data.cellContainerID);
+            cellContainer.html(listRecord.service).attr('tabindex', '0').attr('aria-label', listRecord.service);
+        }},
+        {name: 'Title', indicatorID: 'title', editable: false, callback: function(data, blob) {
+            var listRecord = blob[depID]['records'][data.recordID];
+            var cellContainer = $('#'+data.cellContainerID);
+            cellContainer.attr('tabindex', '0').attr('aria-label', listRecord.title);
+            cellContainer.html('<a href="index.php?a=printview&recordID='+ data.recordID + '" target="_blank">' + listRecord.title + '</a>'
+                + ' <button id="'+ data.cellContainerID +'_preview" class="buttonNorm">Quick View</button>'
+                + '<div id="inboxForm_' + depID + '_' + data.recordID +'" style="background-color: white; display: none; height: 300px; overflow: scroll"></div>');
+            $('#'+data.cellContainerID + '_preview').on('click', function() {
+                $('#'+data.cellContainerID + '_preview').hide();
+                if($('#inboxForm_'+depID+'_'+data.recordID).html() == '') {
+                    $('#inboxForm_'+depID+'_'+data.recordID).html('Loading...');
+                    $('#inboxForm_'+depID+'_'+data.recordID).slideDown();
+                    $.ajax({
+                        type: 'GET',
+                        url: 'ajaxIndex.php?a=printview&recordID=' + data.recordID,
+                        success: function(res) {
+                            $('#inboxForm_'+depID+'_'+data.recordID).html(res);
+                            $('#inboxForm_'+depID+'_'+data.recordID).slideDown();
+                            $('#requestTitle').attr('tabindex', '0');
+                            $('#requestInfo').attr('tabindex', '0');
+                            ariaSubIndicators(1);
+                        }
+                    });
+                }
+            });
+        }},
+        {name: 'Status', indicatorID: 'currentStatus', editable: false, callback: function(data, blob) {
+            var listRecord = blob[depID]['records'][data.recordID];
+            var cellContainer = $('#'+data.cellContainerID);
+            var waitText = listRecord.blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
+            var status = '';
+            if(listRecord.stepID == null && listRecord.submitted == '0') {
+                status = '<span style="color: #e00000">Not Submitted</span>';
+            }
+            else if(listRecord.stepID == null) {
+                var lastStatus = listRecord.lastStatus;
+                if(lastStatus == '') {
+                    lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
+                }
+                status = '<span style="font-weight: bold">' + lastStatus + '</span>';
+            }
+            else {
+                status = waitText + listRecord.stepTitle;
+            }
+
+            if(listRecord.deleted > 0) {
+                status += ', Cancelled';
+            }
+
+            cellContainer.html(status).attr('tabindex', '0').attr('aria-label', status);
+            if(listRecord.userID == '<!--{$userID}-->') {
+                cellContainer.css('background-color', '#feffd1');
+            }
+        }},
+        {name: 'Action', indicatorID: 'action', editable: false, sortable: false, callback: function(data, blob) {
+            var depDescription = 'Take Action';
+            $('#'+data.cellContainerID).html('<button class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" onclick="loadWorkflow('+ data.recordID +', \''+ depID +'\', \''+ formGrid.getPrefixID() +'\');">'+ depDescription +'</button>');
+        }}
+    ]);
+
+    formGrid.loadData(recordIDs);
+    $('#' + formGrid.getPrefixID() + 'header_title').css('width', '60%');
+    $('#depContainerIndicator_' + depID).css('display', 'none');
 }
 
 function ariaSubIndicators(i) {
