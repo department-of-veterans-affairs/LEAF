@@ -55,6 +55,5 @@ The following is a list of requests that are pending your action:
         <!--{foreach from=$inbox item=dep}-->
         toggleDepVisibility('<!--{$dep.dependencyID|strip_tags}-->', 1, CSRFToken);
         <!--{/foreach}-->
-
     });
 </script>
