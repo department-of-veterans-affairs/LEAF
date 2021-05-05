@@ -10,9 +10,9 @@ var dialog_message;
  * @param evt - Event
  * @param depID - Dependency ID
  */
-function toggleDepVisibilityKeypress(evt, depID) {
+function toggleDepVisibilityKeypress(evt, depID, csrfToken) {
     if(evt.keyCode === 13) {
-        toggleDepVisibility(depID);
+        toggleDepVisibility(depID, csrfToken);
     }
 }
 
