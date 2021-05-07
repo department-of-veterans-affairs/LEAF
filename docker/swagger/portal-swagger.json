@@ -4682,6 +4682,30 @@
         }
       }
     },
+    "/inbox/dependency/{dependencyID}/nonadmin": {
+      "get": {
+        "summary": "Call getInbox() as Non-Admin (if admin)",
+        "description": "original endpont:inbox/dependency/[text]/nonadmin; calls getInbox({dependencyID}, true)",
+        "tags": [
+          "inbox"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dependencyID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
     "/classicphonebook/search": {
       "get": {
         "summary": "Call search()",
