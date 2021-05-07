@@ -475,6 +475,25 @@ class Email
     }
 
     /**
+     * Purpose (deprecated): set email body directly from passed in HTML
+     * LEGACY: Included as scripts created by portal uses that implement sends using this feature
+     * @param $i
+     * @throws SmartyException
+     */
+    public function setBody($i)
+    {
+        $i = str_replace("\r\n", '<br />', $i);
+        $smarty = new Smarty;
+        $smarty->template_dir = __DIR__ . '/templates/email/';
+        $smarty->compile_dir = __DIR__ . '/templates_c/';
+        $smarty->left_delimiter = '{{';
+        $smarty->right_delimiter = '}}';
+        $smarty->assign('emailBody', $i);
+        $htmlOutput = $smarty->fetch('LEAF_main_email_template.tpl');
+        $this->emailBody = $htmlOutput;
+    }
+
+    /**
      * Sets the body based on the given smarty template
      * @param string $bodyTemplate the filename of the template for the body
      * @return void
