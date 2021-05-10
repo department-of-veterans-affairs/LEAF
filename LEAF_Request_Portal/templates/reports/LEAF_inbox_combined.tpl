@@ -4,11 +4,12 @@
 
     /**
      * This is the section of the script where you add the LEAF's you want added to this combined inbox.
-     * url: Define the full url with backslash at end.
-     * name: Title of the LEAF in the combined inbox.
-     * fontColor: Color of title font.
-     * icon: Icon you would like next to the name of the inbox.
-     * Icon Repository: https://leaf.va.gov/libs/dynicons/gallery.php
+     * - url: Define the full url with backslash at end.
+     * - name: Title of the LEAF in the combined inbox.
+     * - fontColor: Color of title font.
+     * - icon: Icon you would like next to the name of the inbox.
+     *      Icon Repository: https://leaf.va.gov/libs/dynicons/gallery.php
+     * - nonadmin: Set to true if you want Admins to see only their own info and not all requests
      * Find the Icon you want to use and copy its .svg name and simply put it into the icon: field below.
      * To add multiple sites just copy template from the brackets and comma like Demo 2 { },
      */
@@ -18,15 +19,17 @@
             name: 'Demo 1',
             backgroundColor: 'Green',
             fontColor: 'white',
-            icon: 'internet-web-browser.svg'
+            icon: 'internet-web-browser.svg',
+            nonadmin: false
         },
         {
             url: './another_portal',
             name: 'Demo 2',
             backgroundColor: 'Blue',
             fontColor: 'white',
-            icon: 'applications-system.svg'
-        },
+            icon: 'applications-system.svg',
+            nonadmin: false
+        }
     ];
 
     // Do Not Edit!! (Only Edit Sites Above)
@@ -109,9 +112,10 @@
             {name: 'Title', indicatorID: 'title', editable: false, callback: function(data, blob) {
             $('#'+data.cellContainerID).attr('tabindex', '0');
             $('#'+data.cellContainerID).attr('aria-label', blob[depID]['records'][data.recordID].title);
-            $('#'+data.cellContainerID).html(blob[depID]['records'][data.recordID].title
-            + ' <button id="'+ data.cellContainerID +'_preview" class="buttonNorm">View Request</button>'
-            + '<div id="inboxForm'+ hash +'_' + depID + '_' + data.recordID +'" style="background-color: white; display: none; height: 300px; overflow: scroll"></div>');
+            $('#'+data.cellContainerID).html('<a href="index.php?a=printview&recordID='+ data.recordID + '" target="_blank">'
+                + blob[depID]['records'][data.recordID].title + '</a>'
+                + ' <button id="'+ data.cellContainerID +'_preview" class="buttonNorm">Quick View</button>'
+                + '<div id="inboxForm'+ hash +'_' + depID + '_' + data.recordID +'" style="background-color: white; display: none; height: 300px; overflow: scroll"></div>');
             $('#'+data.cellContainerID + '_preview').on('click', function() {
             $('#'+data.cellContainerID + '_preview').hide();
             if($('#inboxForm'+ hash +'_'+depID+'_'+data.recordID).html() == '') {
@@ -125,13 +129,40 @@
                      $('#inboxForm'+ hash +'_'+depID+'_'+data.recordID).slideDown();
                      $('#requestTitle').attr('tabindex', '0');
                      $('#requestInfo').attr('tabindex', '0');
-                     ariaSubIndicators(1);
                     }
                 })
             }
             })
             }
             },
+            {name: 'Status', indicatorID: 'currentStatus', editable: false, callback: function(data, blob) {
+                let listRecord = blob[depID]['records'][data.recordID];
+                let cellContainer = $('#'+data.cellContainerID);
+                let waitText = listRecord.blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
+                let status = '';
+                if(listRecord.stepID == null && listRecord.submitted == '0') {
+                    status = '<span style="color: #e00000">Not Submitted</span>';
+                }
+                else if(listRecord.stepID == null) {
+                    let lastStatus = listRecord.lastStatus;
+                    if(lastStatus == '') {
+                        lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
+                    }
+                    status = '<span style="font-weight: bold">' + lastStatus + '</span>';
+                }
+                else {
+                    status = waitText + listRecord.stepTitle;
+                }
+
+                if(listRecord.deleted > 0) {
+                    status += ', Cancelled';
+                }
+
+                cellContainer.html(status).attr('tabindex', '0').attr('aria-label', status);
+                if(listRecord.userID == '<!--{$userID}-->') {
+                    cellContainer.css('background-color', '#feffd1');
+                }
+            }},
             {name: 'Action', indicatorID: 'action', editable: false, sortable: false, callback: function(data, blob) {
             let depDescription = 'Take Action';
             $('#'+data.cellContainerID).html('<button id="btn_action'+ hash +'_'+depID+'_'+data.recordID + '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal">'+ depDescription +'</button>');
@@ -166,11 +197,16 @@
     let sitesLoaded = [];
 
     // API Requests for inbox data from each site
-    function loadInboxData(site) {
+    function loadInboxData(site, nonadmin) {
         site = site == undefined ? '' : site;
+        let siteURL = site + './api/?a=inbox/dependency/_';
+
+        if (nonadmin) {
+            siteURL += '/nonadmin';
+        }
         $.ajax({
             type: 'GET',
-            url: site + './api/?a=inbox/dependency/_',
+            url: siteURL,
             success: function (res) {
                 dataInboxes[site] = res;
                 sitesLoaded.push(site);
@@ -229,7 +265,7 @@
     $(function () {
         dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
         sites.forEach(function (site) {
-            loadInboxData(site.url);
+            loadInboxData(site.url, site.nonadmin);
         });
         let checkLoaded = setInterval(function () {
             if (sitesLoaded.length == sites.length) {
