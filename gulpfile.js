@@ -67,7 +67,7 @@ gulp.task("build-sass", function(done) {
   ];
   return (
     gulp
-      .src([`${PROJECT_SASS_SRC}/*.scss`])
+      .src([`${PROJECT_SASS_SRC}/styles.scss`])
       .pipe(sourcemaps.init({ largeFile: true }))
       .pipe(
         sass.sync({
