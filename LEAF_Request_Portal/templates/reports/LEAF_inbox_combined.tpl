@@ -136,15 +136,15 @@
             }
             },
             {name: 'Status', indicatorID: 'currentStatus', editable: false, callback: function(data, blob) {
-                var listRecord = blob[depID]['records'][data.recordID];
-                var cellContainer = $('#'+data.cellContainerID);
-                var waitText = listRecord.blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
-                var status = '';
+                let listRecord = blob[depID]['records'][data.recordID];
+                let cellContainer = $('#'+data.cellContainerID);
+                let waitText = listRecord.blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
+                let status = '';
                 if(listRecord.stepID == null && listRecord.submitted == '0') {
                     status = '<span style="color: #e00000">Not Submitted</span>';
                 }
                 else if(listRecord.stepID == null) {
-                    var lastStatus = listRecord.lastStatus;
+                    let lastStatus = listRecord.lastStatus;
                     if(lastStatus == '') {
                         lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
                     }
