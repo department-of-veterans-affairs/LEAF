@@ -444,13 +444,11 @@ class Email
     function setEmailToCcWithTemplate($tplLocation, $isCc = false)
     {
         // Determine if template currently has any email addresses saved
-        $tplLocation = str_replace('email_to', 'emailTo', $tplLocation);
-        $tplLocation = str_replace('email_cc', 'emailCC', $tplLocation);
+        $tplLocation = str_replace(array('email_to', 'email_cc'), array('emailTo', 'emailCC'), $tplLocation);
         $hasEmailTemplate = $this->getFilepath($tplLocation);
-        if ($hasEmailTemplate) {
-            $emailList = file(__DIR__ . '/templates/email/' . $hasEmailTemplate,
-                FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES
-            );
+        $emailTemplate = __DIR__ . '/templates/email/' . $hasEmailTemplate;
+        if (file_exists($emailTemplate)) {
+            $emailList = file($emailTemplate, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
             // For each line in template, add that email address, if valid
             foreach($emailList as $emailAddress) {
                 if ($isCc) {
