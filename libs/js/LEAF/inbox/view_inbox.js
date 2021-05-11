@@ -178,7 +178,7 @@ function processInboxData(depID, res, csrftoken) {
             }},
         {name: 'Action', indicatorID: 'action', editable: false, sortable: false, callback: function(data, blob) {
                 var depDescription = 'Take Action';
-                $('#'+data.cellContainerID).html('<button class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" onclick="loadWorkflow('+ data.recordID +', \''+ depID +'\', \''+ formGrid.getPrefixID() +'\');">'+ depDescription +'</button>');
+                $('#'+data.cellContainerID).html('<button class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" onclick="loadWorkflow('+ data.recordID +', \''+ depID +'\', \''+ formGrid.getPrefixID() +'\', \''+csrftoken+'\');">'+ depDescription +'</button>');
             }}
     ]);
 
