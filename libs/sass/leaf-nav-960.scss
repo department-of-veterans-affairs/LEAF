@@ -1,0 +1,68 @@
+/* ############# STYLES TO MAX WIDTH OF 50 REM (800px) ################# */
+
+@media screen and (min-width: 60rem) {
+  #nav {
+    float: right;
+    margin: 2.6rem 3.4rem 0 0;
+  }
+  #nav ul {z-index: 9999;}
+  #nav li {position: relative; margin-right: 0.9rem;}
+  #nav ul li a {
+    text-decoration: none;
+    display: block;
+    padding: 0.4rem 0.7rem 0.4rem 0.7rem;
+    color: #f0f0ec;
+  }
+  // Submenu
+  a + ul {position: absolute;}
+  a + ul:not(.js-showElement) {display: none;}
+
+  /* Navigation Level One */
+  #nav > ul > li {
+    position: relative;
+    float: left;
+    font-size: 0.8rem;
+    margin-left: 0.2rem;
+  }
+  .leaf-usericon {font-size: 1.1rem; line-height: 0.9rem;}
+  #nav > ul > li > a { background-color: #252f3e; }
+  #nav > ul > li > a:hover,
+  #nav > ul > li > a:focus,
+  #nav > ul > li > a.js-openSubMenu {background-color: #274863; font-family: 'PublicSans-Bold', sans-serif;}
+  #nav > ul > li:hover > a,
+  #nav > ul > li:focus > a {background-color: #274863;}
+  #nav > ul > li:not(:last-child) {border: 0;}
+
+  #nav > ul > li:not(#toggleMenu):not(.js-showElement) {display: inline-block;}
+
+  #nav #toggleMenu {display: none;}
+
+  /* Second Level Dropdown */
+  #nav > ul > li > ul {background-color: #274863; top: 32px; left: -4.0rem; width: 12.0rem; font-size: 0.8rem; box-shadow: -2px 4px 4px #a9aeb1;}
+  #nav > ul > li > ul.leaf-usernavmenu {left: -8rem;}
+  #nav > ul > li > ul > li {padding: 0.2rem; width: 12.0rem;}
+  #nav > ul > li > ul > li > a {padding: 0.2rem;}
+  #nav > ul > li > ul > li:hover,
+  #nav > ul > li > ul > li > a:hover,
+  #nav > ul > li > ul > li > a:focus,
+  #nav > ul > li > ul > li > a:focus-within {
+    background-color: #2378c3;
+    font-family: 'PublicSans-Bold', sans-serif;
+  }
+  /* //////////////// Third Level Dropdown ////////////////// */
+  #nav > ul > li > ul > li > ul {
+    top: 0;
+    left: -12.0rem;
+    width: 12.0rem;
+    font-family: 'PublicSans-Regular', sans-serif;
+    z-index: 9999;
+    box-shadow: -2px 2px 4px #a9aeb1;
+    background-color: #2378c3;
+  }
+  #nav > ul > li > ul > li > ul > li > a {
+    color: #f0f0ec;
+    padding: 0.3rem 0.3rem 0.3rem 0.3rem;
+    text-decoration: none;
+    margin-left: 0.1rem;
+  }
+}

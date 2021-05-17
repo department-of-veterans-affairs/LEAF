@@ -35,6 +35,10 @@ class InboxController extends RESTfulResponse
             return $inbox->getInbox($args[0]);
         });
 
+        $this->index['GET']->register('inbox/dependency/[text]/nonadmin', function ($args) use ($inbox) {
+            return $inbox->getInbox($args[0], true);
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
