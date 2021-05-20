@@ -3629,4 +3629,141 @@ class Form
             
         return 1;
     }
+
+    /**
+     * Purpose: Send reminder emails to users depending on current step of record
+     * @param $recordID
+     * @param $days
+     * @throws SmartyException
+     */
+    function sendReminderEmail($recordID, $days) {
+
+        // Lookup approvers of current record so we can notify
+        $vars = array(':recordID' => $recordID);
+        $approvers = $this->db->prepared_query('SELECT *, users.userID AS approverID 
+                                                FROM records_workflow_state
+                                                    LEFT JOIN records USING (recordID)
+                                                    LEFT JOIN step_dependencies USING (stepID)
+                                                    LEFT JOIN dependency_privs USING (dependencyID)
+                                                    LEFT JOIN users USING (groupID)
+                                                    LEFT JOIN services USING (serviceID)
+                                                WHERE recordID=:recordID AND (active=1 OR active IS NULL)', $vars);
+
+        if (count($approvers) > 0)
+        {
+            require_once 'Email.php';
+            $email = new Email();
+            $email->emailSender('leaf.noreply@va.gov');
+            $email->setSubject('LEAF Action Requested - Record #'.$recordID." - ".$days."+ Day Reminder");
+
+            $strHtmlOutput  = "<p>Your review of following record is requested as it as been ".$days."+ days since it was ";
+            $strHtmlOutput .= "assigned to you in LEAF:</p>";
+            $strURL = "https://". $_SERVER['SERVER_NAME'] ."/index.php?a=printview&recordID=".$recordID;
+            $strHtmlOutput .= "<p><a href='".$strURL."'>".$strURL."</a></p>";
+            $strHtmlOutput .= "<p>Your review of this request would be appreciated at your earliest convenience.</p>";
+            $strHtmlOutput .= "<p><strong>Sincerely,<br />LEAF Team</strong></p>";
+            $email->setBody($strHtmlOutput);
+
+            require_once 'VAMC_Directory.php';
+            $dir = new VAMC_Directory;
+
+            foreach ($approvers as $approver) {
+                if (strlen($approver['approverID']) > 0) {
+                    $tmp = $dir->lookupLogin($approver['approverID']);
+                    $email->addRecipient($tmp[0]['Email']);
+                }
+            }
+
+            // Special cases depending on dependency of record
+            switch ($approvers[0]['dependencyID']) {
+                // special case for service chiefs
+                case 1:
+                    $vars = array(':serviceID' => $approvers[0]['serviceID']);
+                    $chief = $this->db->prepared_query('SELECT * FROM service_chiefs 
+                                                        WHERE serviceID=:serviceID AND active=1', $vars);
+
+                    foreach ($chief as $member) {
+                        if (strlen($member['userID']) > 0) {
+                            $tmp = $dir->lookupLogin($member['userID']);
+                            $email->addRecipient($tmp[0]['Email']);
+                        }
+                    }
+                    break;
+
+                // special case for quadrads
+                case 8:
+                    $vars = array(':groupID' => $approvers[0]['groupID']);
+                    $quadrad = $this->db->prepared_query('SELECT * FROM users
+                                                            WHERE groupID=:groupID AND active=1', $vars);
+                    foreach ($quadrad as $member) {
+                        if (strlen($member['userID']) > 0) {
+                            $tmp = $dir->lookupLogin($member['userID']);
+                            $email->addRecipient($tmp[0]['Email']);
+                        }
+                    }
+                    break;
+
+                // special case for a person designated by the requestor
+                case -1:
+                    require_once 'form.php';
+                    $form = new Form($this->db, $this->login);
+
+                    // find the next step
+                    $varsStep = array(':stepID' => $approvers[0]['stepID']);
+                    $resStep = $this->db->prepared_query('SELECT * FROM workflow_steps
+                											WHERE stepID=:stepID', $varsStep);
+
+                    $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
+                    $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
+
+                    //check if the requester has any backups
+                    $nexusDB = $this->login->getNexusDB();
+                    $vars4 = array(':empId' => $empUID);
+                    $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
+
+                    if ($empUID > 0) {
+                        $tmp = $dir->lookupEmpUID($empUID);
+                        $email->addRecipient($tmp[0]['Email']);
+                    }
+
+                    // add for backups
+                    foreach ($backupIds as $row) {
+                        $tmp = $dir->lookupEmpUID($empUID);
+                        if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                            $email->addCcBcc($tmp[0]['Email']);
+                        }
+                    }
+                    break;
+
+                // requestor followup
+                case -2:
+                    $vars = array(':recordID' => $this->recordID);
+                    $resRequestor = $this->db->prepared_query('SELECT userID FROM records
+                    													WHERE recordID=:recordID', $vars);
+                    $tmp = $dir->lookupLogin($resRequestor[0]['userID']);
+                    $email->addRecipient($tmp[0]['Email']);
+                    break;
+
+                // special case for a group designated by the requestor
+                case -3:
+                    require_once 'form.php';
+                    $form = new Form($this->db, $this->login);
+
+                    // find the next step
+                    $varsStep = array(':stepID' => $approvers[0]['stepID']);
+                    $resStep = $this->db->prepared_query('SELECT * FROM workflow_steps
+            												WHERE stepID=:stepID', $varsStep);
+
+                    $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                    $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
+
+                    if ($groupID > 0) {
+                        $email->addGroupRecipient($groupID);
+                    }
+                    break;
+            }
+
+            $email->sendMail();
+        }
+    }
 }
