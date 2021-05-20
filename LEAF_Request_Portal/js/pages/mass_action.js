@@ -11,8 +11,6 @@ $.getScript('js/formSearch.js', function()
 let massActionToken = document.getElementById("mass-action-js").getAttribute("data-token");
 let processedRequests = 0;
 let totalActions = 0;
-let actionValue = '';
-let reminderValue = '';
 let successfulActionRecordIDs = [];
 let failedActionRecordIDs = [];
 let dialog_confirm;
@@ -66,14 +64,15 @@ $(document).ready(function(){
 function chooseAction() {
 
     // If nothing selected and action selected is not 'Email Reminder'
-    if (($('#action').val() !== '') && ($('#action').val() !== 'email')) {
+    let actionValue = $('#action').val();
+    if ((actionValue !== '') && (actionValue !== 'email')) {
         // Hide the email reminder and reset then show other options search and perform
         $('#emailSection').val('').hide();
         $('#searchRequestsContainer').show();
         doSearch();
     }
     // If selected 'Email Reminder' then hide searches, show last action select
-    else if (($('#action').val() === 'email')) {
+    else if ((actionValue === 'email')) {
         $('#emailSection').show();
         $('#searchRequestsContainer, #searchResults, #errorMessage').hide();
         // When changing the time of last action, grab the value selected and search it
@@ -125,7 +124,7 @@ function doSearch() {
  *
  * @param {boolean}  [getCancelled]     filter by cancelled
  * @param {boolean}  [getSubmitted]     filter by submitted
- * @param {integer}   [getReminder]     value of email reminder selection
+ * @param {int}      [getReminder]      value of email reminder selection
  *
  * @return {Object} query object to pass to form/query.
  */
@@ -175,8 +174,9 @@ function buildQuery(getCancelled, getSubmitted, getReminder)
 /**
  * Looks up requests based on filter/searchbar and builds table with the results
  *
- * @param {Object}  [queryObj]  Object to pass to form/query
+ * @param {Object}  [queryObj]      Object to pass to form/query
  * @param {Integer} [thisSearchID]  When done() is called, this param is compared to the global searchID. If they are not equal, then the results are not processed.
+ * @param {Number}  [getReminder]   Number of days for email reminder selection
  */
 function listRequests(queryObj, thisSearchID, getReminder = 0)
 {
@@ -200,8 +200,10 @@ function listRequests(queryObj, thisSearchID, getReminder = 0)
                     let displayRecord = true;
                     // If this is email reminder list, then compare against give time period
                     if (getReminder) {
-                        // Get record
-                        let lastActionDate = Number(value.action_history[0].time) * 1000;
+                        // Get if we can show record for time period selected
+                        let numberActions = value.action_history.length;
+                        let lastActionDate = Number(value.action_history[numberActions-1].time) * 1000;
+
                         // Current date minus selected reminder time period
                         let comparisonDate = Date.now();
                         comparisonDate -= (getReminder * 86400 * 1000);
@@ -212,7 +214,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0)
                     if (displayRecord) {
                         requestsRow = '<tr class="requestRow">';
                         requestsRow += '<td><a href="index.php?a=printview&amp;recordID=' + value.recordID + '">' + value.recordID + '</a></td>';
-                        requestsRow += '<td>' + ((value.categoryNames === undefined || value.categoryNames.length == 0) ? 'non' : value.categoryNames[0]) + '</td>';
+                        requestsRow += '<td>' + ((value.categoryNames === undefined || value.categoryNames.length === 0) ? 'non' : value.categoryNames[0]) + '</td>';
                         requestsRow += '<td>' + (value.service == null ? '' : value.service) + '</td>';
                         requestsRow += '<td>' + value.title + '</td>';
                         requestsRow += '<td><input type="checkbox" name="massActionRequest" class="massActionRequest" value="' + value.recordID + '"></td>';
@@ -224,8 +226,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0)
             }
             else
             {
-                $('#errorMessage').html('No Results');
-                $('#errorMessage').show();
+                $('#errorMessage').html('No Results').show();
             }
         }
     }).fail(function (jqXHR, error, errorThrown) {
@@ -243,6 +244,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0)
 function executeMassAction()
 {
     let selectedRequests = $('input.massActionRequest:checked');
+    let reminderDaysSince = Number($('#lastAction').val());
     processedRequests = 0;
     totalActions = selectedRequests.length;
     successfulActionRecordIDs = [];
@@ -267,6 +269,9 @@ function executeMassAction()
                 ajaxPath = './ajaxIndex.php?a=restore';
                 ajaxData['restore'] = recordID;
                 break;
+            case 'email':
+                ajaxPath = './api/?a=form/'+recordID+'/reminder/'+reminderDaysSince;
+                break;
         }
 
         executeOneAction(recordID, ajaxPath, ajaxData);
@@ -288,7 +293,7 @@ function executeOneAction(recordID, ajaxPath, ajaxData)
         data: ajaxData,
         dataType: "text",
         cache: false
-    }).done(function(data) {
+    }).done(function() {
         successTrueFalse = true;
         updateProgress(recordID, successTrueFalse);
     }).fail(function (jqXHR, error, errorThrown) {
