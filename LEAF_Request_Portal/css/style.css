@@ -214,7 +214,6 @@ span#headerTab {
 }
 
 #content {
-    padding: 4px;
     margin: 0px auto;
     text-align: left;
 }
@@ -1059,7 +1058,9 @@ button.buttonNorm {
 }
 
 .card {
+    margin-left: 3px;
     box-shadow: 0 2px 6px #8e8e8e;
+    border: 1px solid black;
     background-color: white;
 }
 
@@ -1204,4 +1205,83 @@ div.sensitiveIndicator > .printResponse {
 .tools>div:focus {
   background-color: #2372b0;
   color: white;
+}
+
+.usa-button {
+    font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+    font-size: 1.06rem;
+    line-height: .9;
+    color: #fff;
+    background-color: #005ea2;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 0;
+    border-radius: .25rem;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: 700;
+    margin-right: .5rem;
+    padding: .75rem 1.25rem;
+    text-align: center;
+    text-decoration: none;
+    width: 100%
+}
+
+.usa-button--outline {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 2px #005ea2;
+    color: #005ea2
+}
+
+.usa-button--outline.usa-button--hover,
+.usa-button--outline:hover {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 2px #1a4480;
+    color: #1a4480
+}
+
+.usa-button--outline.usa-button--inverse {
+    box-shadow: inset 0 0 0 2px #dfe1e2;
+    color: #dfe1e2
+}
+
+.loading-modal {
+    display: none; position: fixed; height: 100%; width: 100%; top: 0; bottom: 0; background: rgba(96, 96, 96, 0.8);
+}
+
+#body.loading .loading-modal {
+    display: block;
+}
+
+.loading-image {
+    margin: 15% auto;
+    height: 248px;
+    width: 250px;
+    border-radius: 50px;
+    background: url('../../libs/img/loading_spinner.gif') no-repeat;
+}
+
+.load-text {
+    margin: auto;
+    text-align: center;
+    padding-top: 10%;
+    color: white;
+}
+
+.load-cancel {
+    margin: auto;
+    left: 0;
+    bottom: 0;
+    text-align: center;
+    padding-top: 63%;
+    padding-left: 5%;
+}
+
+.load-cancel button {
+    width: 50%;
+}
+
+.load-cancel .usa-button--outline:hover {
+    background-color: red;
 }
