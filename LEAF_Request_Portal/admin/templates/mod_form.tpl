@@ -523,6 +523,7 @@ function newQuestion(parentIndicatorID) {
                     <option value="radio">Radio (single select, multiple options)</option>\
                     <option value="checkbox">Checkbox (A single checkbox)</option>\
                     <option value="checkboxes">Checkboxes (Multiple Checkboxes)</option>\
+                    <option value="multiselect">Multi-Select Dropdown</option>\
                     <option value="dropdown">Dropdown Menu (single select, multiple options)</option>\
                     <option value="fileupload">File Attachment</option>\
                     <option value="image">Image Attachment</option>\
@@ -563,6 +564,7 @@ function newQuestion(parentIndicatorID) {
                 break;
             case 'radio':
             case 'checkboxes':
+            case 'multiselect':
             case 'dropdown':
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
                 $('#xhr').css('width', 'auto');
@@ -696,6 +698,7 @@ function newQuestion(parentIndicatorID) {
                 break;
             case 'radio':
             case 'checkboxes':
+            case 'multiselect':
             case 'dropdown':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 var buffer = $('#indicatorType').val();
@@ -957,6 +960,7 @@ function getForm(indicatorID, series) {
                     <option value="radio">Radio (single select, multiple options)</option>\
                     <option value="checkbox">Checkbox (A single checkbox)</option>\
                     <option value="checkboxes">Checkboxes (Multiple Checkboxes)</option>\
+                    <option value="multiselect">Multi-Select Dropdown</option>\
                     <option value="dropdown">Dropdown Menu (single select, multiple options)</option>\
                     <option value="fileupload">File Attachment</option>\
                     <option value="image">Image Attachment</option>\
@@ -1029,6 +1033,7 @@ function getForm(indicatorID, series) {
                 break;
     	    case 'radio':
     	    case 'checkboxes':
+            case 'multiselect':
     	    case 'dropdown':
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
                 $('#xhr').css('width', 'auto');
@@ -1292,6 +1297,7 @@ function getForm(indicatorID, series) {
                             break;
                         case 'radio':
                         case 'checkboxes':
+                        case 'multiselect':
                         case 'dropdown':
                         default:
                             $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
@@ -1358,6 +1364,9 @@ function getForm(indicatorID, series) {
                 break;
             case 'radio':
             case 'checkboxes':
+            case 'multiselect':
+                $('#container_indicatorMultiAnswer').css('display', 'block');
+                break;
             case 'dropdown':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 var buffer = $('#indicatorType').val();
