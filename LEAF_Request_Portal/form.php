@@ -3649,19 +3649,28 @@ class Form
                                                     LEFT JOIN services USING (serviceID)
                                                 WHERE recordID=:recordID AND (active=1 OR active IS NULL)', $vars);
 
-        if (count($approvers) > 0)
-        {
+        if (count($approvers) > 0)  {
+
             require_once 'Email.php';
             $email = new Email();
-            $email->emailSender('leaf.noreply@va.gov');
-            $email->setSubject('LEAF Action Requested - Record #'.$recordID." - ".$days."+ Day Reminder");
+            $email->setSender('leaf.noreply@va.gov');
+            $email->setSubject('LEAF Action Requested - Record #'.$recordID.' - '.$days.'+ Day Reminder');
 
-            $strHtmlOutput  = "<p>Your review of following record is requested as it as been ".$days."+ days since it was ";
-            $strHtmlOutput .= "assigned to you in LEAF:</p>";
-            $strURL = "https://". $_SERVER['SERVER_NAME'] ."/index.php?a=printview&recordID=".$recordID;
-            $strHtmlOutput .= "<p><a href='".$strURL."'>".$strURL."</a></p>";
-            $strHtmlOutput .= "<p>Your review of this request would be appreciated at your earliest convenience.</p>";
-            $strHtmlOutput .= "<p><strong>Sincerely,<br />LEAF Team</strong></p>";
+            $strHtmlOutput  = "Your review of following record is requested as it as been ".$days."+ days since it was ";
+            $strHtmlOutput .= "assigned to you in LEAF:<br /><br />";
+            $aryReferrer = explode('/', $_SERVER['REQUEST_URI']);
+            $strReferrer = "";
+            foreach($aryReferrer as $section) {
+                if ($section !== 'api') {
+                    $strReferrer .= $section . '/';
+                } else {
+                    break;
+                }
+            }
+            $strURL = "https://". $_SERVER['SERVER_NAME'] ."/". $strReferrer . "index.php?a=printview&recordID=".$recordID;
+            $strHtmlOutput .= "<a href='".$strURL."' target='_blank'>".$strURL."</a><br /><br />";
+            $strHtmlOutput .= "Your review of this request would be appreciated at your earliest convenience.<br /><br />";
+            $strHtmlOutput .= "<em>Sincerely,<br />LEAF Team</em><br /><br />";
             $email->setBody($strHtmlOutput);
 
             require_once 'VAMC_Directory.php';
@@ -3679,7 +3688,7 @@ class Form
                 // special case for service chiefs
                 case 1:
                     $vars = array(':serviceID' => $approvers[0]['serviceID']);
-                    $chief = $this->db->prepared_query('SELECT * FROM service_chiefs 
+                    $chief = $this->db->prepared_query('SELECT * FROM service_chiefs
                                                         WHERE serviceID=:serviceID AND active=1', $vars);
 
                     foreach ($chief as $member) {
