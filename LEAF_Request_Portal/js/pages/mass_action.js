@@ -2,12 +2,12 @@
  * Mass Action Page Javascript
  */
 
+// Global variables
 let LeafSearch;
 $.getScript('js/formSearch.js', function()
 {
     leafSearch.init();
 });
-
 let massActionToken = document.getElementById("mass-action-js").getAttribute("data-token");
 let processedRequests = 0;
 let totalActions = 0;
@@ -245,6 +245,8 @@ function executeMassAction()
 {
     let selectedRequests = $('input.massActionRequest:checked');
     let reminderDaysSince = Number($('#lastAction').val());
+    // Update global variables for execution - used in updateProgress function
+    // Setting them to default at beginning of mass execution run
     processedRequests = 0;
     totalActions = selectedRequests.length;
     successfulActionRecordIDs = [];
