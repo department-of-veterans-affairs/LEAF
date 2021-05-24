@@ -213,7 +213,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0)
                     }
                     if (displayRecord) {
                         requestsRow = '<tr class="requestRow">';
-                        requestsRow += '<td><a href="index.php?a=printview&amp;recordID=' + value.recordID + '">' + value.recordID + '</a></td>';
+                        requestsRow += '<td><a href="index.php?a=printview&amp;recordID=' + value.recordID + '" target="_blank">' + value.recordID + '</a></td>';
                         requestsRow += '<td>' + ((value.categoryNames === undefined || value.categoryNames.length === 0) ? 'non' : value.categoryNames[0]) + '</td>';
                         requestsRow += '<td>' + (value.service == null ? '' : value.service) + '</td>';
                         requestsRow += '<td>' + value.title + '</td>';
