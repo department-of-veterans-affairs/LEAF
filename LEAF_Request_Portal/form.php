@@ -3640,14 +3640,15 @@ class Form
 
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
-        $approvers = $this->db->prepared_query('SELECT *, users.userID AS approverID 
-                                                FROM records_workflow_state
-                                                    LEFT JOIN records USING (recordID)
-                                                    LEFT JOIN step_dependencies USING (stepID)
-                                                    LEFT JOIN dependency_privs USING (dependencyID)
-                                                    LEFT JOIN users USING (groupID)
-                                                    LEFT JOIN services USING (serviceID)
-                                                WHERE recordID=:recordID AND (active=1 OR active IS NULL)', $vars);
+        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, ser.serviceID, users.groupID".
+            "FROM records_workflow_state ".
+            "LEFT JOIN records USING (recordID) ".
+            "LEFT JOIN step_dependencies AS sd USING (stepID) ".
+            "LEFT JOIN dependency_privs USING (dependencyID) ".
+            "LEFT JOIN users USING (groupID) ".
+            "LEFT JOIN services AS ser USING (serviceID) ".
+            "WHERE recordID=:recordID AND (active=1 OR active IS NULL)";
+        $approvers = $this->db->prepared_query($strSQL, $vars);
 
         if (count($approvers) > 0)  {
 
@@ -3688,8 +3689,8 @@ class Form
                 // special case for service chiefs
                 case 1:
                     $vars = array(':serviceID' => $approvers[0]['serviceID']);
-                    $chief = $this->db->prepared_query('SELECT * FROM service_chiefs
-                                                        WHERE serviceID=:serviceID AND active=1', $vars);
+                    $strSQL = "SELECT userID FROM service_chiefs WHERE serviceID=:serviceID AND active=1";
+                    $chief = $this->db->prepared_query($strSQL, $vars);
 
                     foreach ($chief as $member) {
                         if (strlen($member['userID']) > 0) {
@@ -3702,8 +3703,8 @@ class Form
                 // special case for quadrads
                 case 8:
                     $vars = array(':groupID' => $approvers[0]['groupID']);
-                    $quadrad = $this->db->prepared_query('SELECT * FROM users
-                                                            WHERE groupID=:groupID AND active=1', $vars);
+                    $strSQL = "SELECT userID FROM users WHERE groupID=:groupID AND active=1";
+                    $quadrad = $this->db->prepared_query($strSQL, $vars);
                     foreach ($quadrad as $member) {
                         if (strlen($member['userID']) > 0) {
                             $tmp = $dir->lookupLogin($member['userID']);
@@ -3719,8 +3720,8 @@ class Form
 
                     // find the next step
                     $varsStep = array(':stepID' => $approvers[0]['stepID']);
-                    $resStep = $this->db->prepared_query('SELECT * FROM workflow_steps
-                											WHERE stepID=:stepID', $varsStep);
+                    $strSQL = "SELECT indicatorID_for_assigned_empUID FROM workflow_steps WHERE stepID=:stepID";
+                    $resStep = $this->db->prepared_query($strSQL, $varsStep);
 
                     $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
                     $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
@@ -3728,7 +3729,8 @@ class Form
                     //check if the requester has any backups
                     $nexusDB = $this->login->getNexusDB();
                     $vars4 = array(':empId' => $empUID);
-                    $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
+                    $strSQL = "SELECT backupEmpUID FROM relation_employee_backup WHERE empUID =:empId";
+                    $backupIds = $nexusDB->prepared_query($strSQL, $vars4);
 
                     if ($empUID > 0) {
                         $tmp = $dir->lookupEmpUID($empUID);
@@ -3737,7 +3739,7 @@ class Form
 
                     // add for backups
                     foreach ($backupIds as $row) {
-                        $tmp = $dir->lookupEmpUID($empUID);
+                        $tmp = $dir->lookupEmpUID($row['backupEmpUID']);
                         if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                             $email->addCcBcc($tmp[0]['Email']);
                         }
@@ -3747,8 +3749,8 @@ class Form
                 // requestor followup
                 case -2:
                     $vars = array(':recordID' => $this->recordID);
-                    $resRequestor = $this->db->prepared_query('SELECT userID FROM records
-                    													WHERE recordID=:recordID', $vars);
+                    $strSQL = "SELECT userID FROM records WHERE recordID=:recordID";
+                    $resRequestor = $this->db->prepared_query($strSQL, $vars);
                     $tmp = $dir->lookupLogin($resRequestor[0]['userID']);
                     $email->addRecipient($tmp[0]['Email']);
                     break;
@@ -3760,8 +3762,8 @@ class Form
 
                     // find the next step
                     $varsStep = array(':stepID' => $approvers[0]['stepID']);
-                    $resStep = $this->db->prepared_query('SELECT * FROM workflow_steps
-            												WHERE stepID=:stepID', $varsStep);
+                    $strSQL = "SELECT indicatorID_for_assigned_groupID FROM workflow_steps WHERE stepID=:stepID";
+                    $resStep = $this->db->prepared_query($strSQL, $varsStep);
 
                     $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
                     $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
