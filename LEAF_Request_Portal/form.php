@@ -3640,7 +3640,7 @@ class Form
 
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
-        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, ser.serviceID, users.groupID".
+        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, ser.serviceID, users.groupID ".
             "FROM records_workflow_state ".
             "LEFT JOIN records USING (recordID) ".
             "LEFT JOIN step_dependencies AS sd USING (stepID) ".
