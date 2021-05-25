@@ -149,7 +149,7 @@ class Telemetry
      */
     public function getRequestUploadStorage() {
 
-        $command = 'du ' . Config::$uploadDir;
+        $command = 'du -sb ' . Config::$uploadDir;
         $output = shell_exec($command);
         if ($output) {
             $sizeOutput = explode("\t", $output);
