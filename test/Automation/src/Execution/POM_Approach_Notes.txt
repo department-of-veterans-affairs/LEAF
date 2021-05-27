@@ -1,0 +1,16 @@
+- TestBaseSetup class
+	- void setDriver(String browserType, String appURL)
+		- switch(browserType)    Driver is set by browserType
+			- initChromeDriver(appURL)
+			- initFirefoxDriver(appURL)
+	- private static WebDriver initChromeDriver(String appURL)
+		
+- BasePage class
+	- document methods
+
+- SignInPage
+	- document methods
+
+- BasePageTest				//will be my HomePage class
+	- document methods
+

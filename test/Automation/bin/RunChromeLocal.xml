@@ -1,0 +1,21 @@
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="Page Object test example">
+
+<parameter name="appURL" value="https://www.google.co.in/">
+
+<parameter name="browserType" value="Chrome"/>
+
+<test name="sample test">
+
+<classes>
+
+	<class name="Execution.HomePageTest"/>
+
+</classes>
+
+</test>
+
+</parameter>
+</suite>
