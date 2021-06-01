@@ -8,54 +8,77 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.4.6/crossfilter.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.0.9/dc.min.js"></script>
 
+<!--Loading Modal-->
+<!--{include file="../../../libs/smarty/loading_spinner.tpl" title='Timeline Explorer'}-->
+
 <style>
-.label {
-    text-align: center;
-    background-color: #5b616b;
-    color: white;
-    font-size: 120%;
-    font-weight: bold;
-    padding: 4px;
-    cursor: grab;
-}
+    .label {
+        text-align: center;
+        background-color: #5b616b;
+        color: white;
+        font-size: 120%;
+        font-weight: bold;
+        padding: 4px;
+        cursor: grab;
+    }
 
-.chart {
-    height: 90%;
-    width: 100%;
-}
-    
-.dc-chart g.row text {
-    fill: black;
-}
+    .chart {
+        height: 90%;
+        width: 100%;
+    }
 
-.chartContainer {
-    overflow-y: scroll;
-}
+    .dc-chart g.row text {
+        fill: black;
+    }
 
-#chart .axis.x text {
-    text-anchor: end;
-    transform: rotate(-45deg);
-}
+    .chartContainer {
+        overflow-y: scroll;
+    }
+
+    #chart .axis.x text {
+        text-anchor: end;
+        transform: rotate(-45deg);
+    }
 </style>
 
 <script>
-    
-var CSRFToken = '<!--{$CSRFToken}-->';
-var siteLinks = ['./'];
+/*
+ * Timeline Explorer Javascript
+ */
 
-var excludedSteps = []; // array of stepIDs to be excluded
-var getDataFields = {};
+$('#body').addClass("loading");
+let CSRFToken = '<!--{$CSRFToken}-->';
+let siteLinks = ['./'];
 
+let excludedSteps = []; // array of stepIDs to be excluded
+let getDataFields = {};
+
+/**
+ * Purpose: Get Site URL
+ * @param $site
+ */
 function getSiteURL(site) {
     return site;
 }
 
+/**
+ * Purpose: Parse request data
+ * @param site
+ * @param service
+ * @param label
+ * @param recordID
+ * @param categoryID
+ * @param stepID
+ * @param days
+ * @param timestamp
+ * @param data
+ */
 function prepCrossfilter(site, service, label, recordID, categoryID, stepID, days, timestamp, data) {
     if(isExcludedStep(stepID)) {
         return;
     }
 
-    var dataSet = {};
+    let dataSet = {};
     dataSet.site = site;
     dataSet.service = service;
     dataSet.label = label;
@@ -64,7 +87,7 @@ function prepCrossfilter(site, service, label, recordID, categoryID, stepID, day
     dataSet.stepID = stepID;
     dataSet.days = days;
     dataSet.timestamp = new Date(timestamp * 1000);
-    for(var i in getDataFields) {
+    for(let i in getDataFields) {
         if(getDataFields[i].transform != undefined) {
             dataSet[i] = getDataFields[i].transform(data[i]);
         }
@@ -72,33 +95,43 @@ function prepCrossfilter(site, service, label, recordID, categoryID, stepID, day
             dataSet[i] = data[i];
         }
     }
-    
+
     // process custom data fields
-    
+
     parsedData.push(dataSet);
 }
 
 // Calculates time difference during business hours
-var startBusinessHours = 8; // 8am
-var endBusinessHours = 17; // 5pm
-var currentTzOffset = new Date().getTimezoneOffset() / 60;
-var siteTzOffset = moment.tz.zone("<!--{$systemSettings['timeZone']}-->").offset(moment.utc()) / 60; // time zone offset, in hours
-var tzOffset = siteTzOffset - currentTzOffset;
+let startBusinessHours = 8; // 8am
+let endBusinessHours = 17; // 5pm
+let currentTzOffset = new Date().getTimezoneOffset() / 60;
+let siteTzOffset = moment.tz.zone("<!--{$systemSettings['timeZone']}-->").offset(moment.utc()) / 60; // time zone offset, in hours
+let tzOffset = siteTzOffset - currentTzOffset;
 
-// data variables
-var dataTimelines = {}; // store for all sites
-var dataServiceTimelines = {}; // store for all sites with services, if services exist
-var dataSteps = {};
-var parsedData = []; // for crossfilter
+// data letiables
+let dataTimelines = {}; // store for all sites
+let dataServiceTimelines = {}; // store for all sites with services, if services exist
+let dataSteps = {};
+let parsedData = []; // for crossfilter
 
-// Chart variables
-var chart;
-var facts;
+// Chart letiables
+let chart;
+let facts;
 
+/**
+ * Purpose: Round inputted number
+ * @param input
+ * @returns {number}
+ */
 function round(input) {
     return Math.round(input * 10) / 10;
 }
 
+/**
+ * Purpose: Check if stepID is excluded from parse
+ * @param stepID
+ * @returns {boolean}
+ */
 function isExcludedStep(stepID) {
     if(excludedSteps.indexOf(Number(stepID)) != -1) {
         return true;
@@ -106,7 +139,12 @@ function isExcludedStep(stepID) {
     return false;
 }
 
-// Given 2 timestamps, return the number of seconds that count as "business hours"
+/**
+ * Purpose: Given 2 timestamps, return the number of seconds that count as "business hours"
+ * @param startTime
+ * @param endTime
+ * @returns {number}
+ */
 function diffBusinessTime(startTime, endTime) {
     startTime = Number(startTime);
     endTime = Number(endTime);
@@ -114,10 +152,10 @@ function diffBusinessTime(startTime, endTime) {
         return (endTime - startTime);
     }
 
-    var timer = 0;
-    var timeResolution = 900;// in seconds
+    let timer = 0;
+    let timeResolution = 900;// in seconds
     while(startTime < endTime) {
-        var startDate = new Date(startTime * 1000);
+        let startDate = new Date(startTime * 1000);
         if(startDate.getHours() - tzOffset >= startBusinessHours
             && startDate.getHours() - tzOffset <= endBusinessHours
             && startDate.getDay() >= 1
@@ -129,46 +167,53 @@ function diffBusinessTime(startTime, endTime) {
     return timer;
 }
 
-var hasServices = false;
-var minTimestamp = Infinity;
+let minTimestamp = Infinity;
+
+/**
+ * Purpose: Processes workflow data from query on requests
+ * @param queryResult
+ * @param workflowData
+ * @param site
+ */
 function processData(queryResult, workflowData, site) {
-    var workflow = {};
-    for(var i in workflowData) {
+    let workflow = {};
+    for(let i in workflowData) {
         workflow[workflowData[i].stepID] = workflowData[i].stepTitle;
     }
-    var res = queryResult;
-    var timelines = {};
-    var serviceTimelines = {};
+    let res = queryResult;
+    let timelines = {};
+    let serviceTimelines = {};
 
-    for(var i in res) {
-        var request = res[i];
-        var service = '';
+    for(let i in res) {
+        let request = res[i];
+        let service = '';
+        let hasServices = false;
         if(res[i].service != null) {
             serviceTimelines[res[i].service] = serviceTimelines[res[i].service] || {};
             service = res[i].service;
             hasServices = true;
         }
 
-        var data = {};
-        for(var k in getDataFields) {
+        let data = {};
+        for(let k in getDataFields) {
             data[k] = res[i].s1['id' + k];
         }
 
-        for(var j in request.action_history) {
-            var isCounted = false;
-            var idx = Number(j);
-            var lastActionTimestamp = 0;
+        for(let j in request.action_history) {
+            let isCounted = false;
+            let idx = Number(j);
+            let lastActionTimestamp = 0;
             if(request.action_history[idx + 1] != undefined) {
-                var stepID = request.action_history[idx + 1].stepID;
-                var startTime = request.action_history[idx].time;
-                var endTime = request.action_history[idx + 1].time;
+                let stepID = request.action_history[idx + 1].stepID;
+                let startTime = request.action_history[idx].time;
+                let endTime = request.action_history[idx + 1].time;
                 lastActionTimestamp = lastActionTimestamp < endTime ? endTime : lastActionTimestamp;
                 minTimestamp = minTimestamp > startTime ? startTime : minTimestamp;
 
                 if(workflow[stepID] != undefined) {
                     timelines[stepID] = timelines[stepID] || {};
                     timelines[stepID].label = workflow[stepID];
-                    
+
                     if(hasServices) {
                         serviceTimelines[res[i].service] = serviceTimelines[res[i].service] || {};
                         serviceTimelines[res[i].service][stepID] = serviceTimelines[res[i].service][stepID] || {};
@@ -202,7 +247,7 @@ function processData(queryResult, workflowData, site) {
                     }
                 }
 
-                // only count the slowest approver in a multi-requirement step   
+                // only count the slowest approver in a multi-requirement step
                 if(request.action_history[idx].stepID != request.action_history[idx + 1].stepID) {
                     timelines[stepID].count = timelines[stepID].count == undefined ? 1 : timelines[stepID].count + 1;
                     if(hasServices) {
@@ -217,7 +262,7 @@ function processData(queryResult, workflowData, site) {
                 }
                 dataSteps[stepID] = timelines[stepID].label;
 
-                var businessDaysSpent = Math.round(diffBusinessTime(startTime, endTime) /60 /60 / (endBusinessHours - startBusinessHours + 1) *100000) / 100000;
+                let businessDaysSpent = Math.round(diffBusinessTime(startTime, endTime) /60 /60 / (endBusinessHours - startBusinessHours + 1) *100000) / 100000;
                 prepCrossfilter(site, service, timelines[stepID].label, res[i].recordID, res[i].categoryID, stepID, businessDaysSpent, lastActionTimestamp, data)
 
                 // don't count time taken during sendbacks or other route overrides
@@ -244,36 +289,60 @@ function processData(queryResult, workflowData, site) {
     sitesLoaded.push(site);
 }
 
+/**
+ * Purpose: Random number generation
+ * @param min
+ * @param max
+ * @returns {number}
+ */
 function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-var labels = [];
-var labelColors = [];
-var niceColors = ['#0071bc', '#fad980', '#2e8540', '#e31c3d', '#00AEE8', '#92F098', '#FFF700', '#e59393', '#1EE7FD', '#B31EFD', '#b9ccb5', '#8ba6ca', '#6800E8', '#4DE800', '#FFDBDB', '#112e51', '#fdb81e', '#E800D9', '#FFFEDB', '#140DD6'];
-function getLabelColor(label) { 
-    var idx = labels.indexOf(label);
+let labels = [];
+let labelColors = [];
+let niceColors = ['#0071bc', '#fad980', '#2e8540', '#e31c3d', '#00AEE8', '#92F098', '#FFF700', '#e59393', '#1EE7FD', '#B31EFD', '#b9ccb5', '#8ba6ca', '#6800E8', '#4DE800', '#FFDBDB', '#112e51', '#fdb81e', '#E800D9', '#FFFEDB', '#140DD6'];
+
+/**
+ * Purpose: Return label color for service/form
+ * @param label
+ * @returns {string|*}
+ */
+function getLabelColor(label) {
+    let idx = labels.indexOf(label);
     if(idx >= 0) {
         return labelColors[idx];
     }
 
-    var color = niceColors[labels.length % niceColors.length]; 
+    let color = niceColors[labels.length % niceColors.length];
     labels.push(label);
     labelColors.push(color);
     return color;
-    
+
 }
 
+/**
+ * Purpose: Time Conversion
+ * @param time
+ * @param count
+ * @returns {number}
+ */
 function timeConvert(time, count) {
-    var res = Math.round((time / count) /60 /60 /8 *10) / 10; // to days
+    let res = Math.round((time / count) /60 /60 /8 *10) / 10; // to days
     return isNaN(res) ? 0 : res;
 }
 
-var queryFirstDateSubmitted = '3 months ago';
-var numCategories = 0;
+let queryFirstDateSubmitted = '3 months ago';
+let numCategories = 0;
+
+/**
+ * Purpose: Query for workflow data
+ * @param site
+ * @param categoryID
+ */
 function renderCategory(site, categoryID) {
-    var siteURL = getSiteURL(site);
-    var query = new LeafFormQuery();
+    let siteURL = getSiteURL(site);
+    let query = new LeafFormQuery();
 
     query.addTerm('dateSubmitted', '>=', queryFirstDateSubmitted);
     query.addTerm('deleted', '=', 0);
@@ -283,11 +352,11 @@ function renderCategory(site, categoryID) {
     query.join('action_history');
     query.join('service');
 
-    for(var i in getDataFields) {
+    for(let i in getDataFields) {
         query.getData(i);
     }
-    
-    var data = {};
+
+    let data = {};
     query.onSuccess(function(res) {
         numCategories++;
 
@@ -295,20 +364,23 @@ function renderCategory(site, categoryID) {
             type: 'GET',
             url: siteURL + 'api/form/_' + categoryID + '/workflow'
         })
-        .then(function(workflow) {
-            $.ajax({
-                type: 'GET',
-                url: siteURL + 'api/workflow/' + workflow[0].workflowID
-            })
-            .then(function(workflowData) {
-                processData(res, workflowData, site);
+            .then(function(workflow) {
+                $.ajax({
+                    type: 'GET',
+                    url: siteURL + 'api/workflow/' + workflow[0].workflowID
+                })
+                    .then(function(workflowData) {
+                        processData(res, workflowData, site);
+                    });
             });
-        });
     });
-    
+
     query.execute();
 }
 
+/**
+ * Purpose: Init containers
+ */
 function changeDataset() {
     $('#chartBody').slideUp();
     $('#progressContainer').fadeIn();
@@ -318,7 +390,7 @@ function changeDataset() {
     dataTimelines = {};
     dataServiceTimelines = {};
     dataSteps = {};
-    var checkLoaded = setInterval(function() {
+    let checkLoaded = setInterval(function() {
         if(sitesLoaded.length >= siteLinks.length) {
             clearInterval(checkLoaded);
 
@@ -329,52 +401,62 @@ function changeDataset() {
         }
     }, 250);
 
-    for(var i in siteLinks) {
+    for(let i in siteLinks) {
         loadSite(siteLinks[i], $('#categories input:checked').val());
     }
 }
 
-var uniqueCategories = {};
-var dataCategories = {};
+let uniqueCategories = {};
+let dataCategories = {};
+
+/**
+ * Purpose: Init Data Containers for Forms
+ * @param site
+ * @param limitCategoryID
+ */
 function loadSite(site, limitCategoryID) {
-    var siteURL = getSiteURL(site);
+    let siteURL = getSiteURL(site);
     $.ajax({
         type: 'GET',
         url: siteURL + 'api/formStack/categoryList/all'
     })
-    .then(function(categories) {
-        var tNumCategories = 0;
-        for(var i in categories) {
-            dataCategories[categories[i].categoryID] = categories[i].categoryName;
-            if(categories[i].workflowID > 0
-                && categories[i].parentID == '') {
+        .then(function(categories) {
+            let tNumCategories = 0;
+            for(let i in categories) {
+                dataCategories[categories[i].categoryID] = categories[i].categoryName;
+                if(categories[i].workflowID > 0
+                    && categories[i].parentID == '') {
 
-                tNumCategories++;
-                if(!document.getElementById('category_'+ categories[i].categoryID)) {
-                    $('#categories').append('<div style="float: left; padding: 8px; white-space: nowrap"><input type="radio" id="category_'+ categories[i].categoryID +'" name="categoryID" value="'+ categories[i].categoryID +'" /><label class="checkable" for="category_'+ categories[i].categoryID +'">' + categories[i].categoryName + '</label></div>');
-                }
+                    tNumCategories++;
+                    if(!document.getElementById('category_'+ categories[i].categoryID)) {
+                        $('#categories').append('<div style="float: left; padding: 8px; white-space: nowrap"><input type="radio" id="category_'+ categories[i].categoryID +'" name="categoryID" value="'+ categories[i].categoryID +'" /><label class="checkable" for="category_'+ categories[i].categoryID +'">' + categories[i].categoryName + '</label></div>');
+                    }
 
-                if(limitCategoryID == undefined) {
-                    renderCategory(site, categories[i].categoryID);
-                    $('#category_'+ categories[i].categoryID).attr('checked', 'checked');
-                }
-                else if(limitCategoryID == categories[i].categoryID){
-                    renderCategory(site, categories[i].categoryID);
-                    $('#category_'+ categories[i].categoryID).attr('checked', 'checked');
+                    if(limitCategoryID == undefined) {
+                        renderCategory(site, categories[i].categoryID);
+                        $('#category_'+ categories[i].categoryID).attr('checked', 'checked');
+                    }
+                    else if(limitCategoryID == categories[i].categoryID){
+                        renderCategory(site, categories[i].categoryID);
+                        $('#category_'+ categories[i].categoryID).attr('checked', 'checked');
+                    }
                 }
             }
-        }
-        numTotalCategories = tNumCategories;
-    });
+            numTotalCategories = tNumCategories;
+        });
 }
 
+/**
+ * Purpose: Populate grid for services/forms
+ * @returns {number}
+ */
 function renderGrid() {
     return 0;
-    var dataTimelineRes = [];
-    if(hasServices) {
-        var count = 1;
-        for(var i in dataServiceTimelines) {
-            for(var j in dataServiceTimelines[i]) {
+    let dataTimelineRes = [];
+    if (hasServices) {
+        let count = 1;
+        for (let i in dataServiceTimelines) {
+            for (let j in dataServiceTimelines[i]) {
                 dataTimelineRes.push({
                     recordID: count,
                     site: i,
@@ -384,9 +466,8 @@ function renderGrid() {
                 count++;
             }
         }
-    }
-    else {
-        for(var i in dataTimelines) {
+    } else {
+        for (let i in dataTimelines) {
             dataTimelineRes.push({
                 recordID: i.substr(4),
                 site: i,
@@ -395,79 +476,87 @@ function renderGrid() {
         }
     }
 
-    var grid = new LeafFormGrid('gridData', {readOnly: true});
+    let grid = new LeafFormGrid('gridData', {readOnly: true});
     grid.hideIndex();
     grid.enableToolbar();
     grid.setData(dataTimelineRes);
     grid.setDataBlob(dataTimelineRes);
-    var headers = [
-        {name: 'Site', indicatorID: 'site', callback: function(data, blob) {
-            var recordData = grid.getDataByRecordID(data.recordID);
-            $('#'+ data.cellContainerID).html(recordData.site);
-        }}
-    ];
-    if(hasServices) {
-        headers.push({name: 'Service', indicatorID: 'service', callback: function(data, blob) {
-            var recordData = grid.getDataByRecordID(data.recordID);
-            $('#'+ data.cellContainerID).html(recordData.service);
-        }});
-    }
-    for(var i in dataSteps) {
-        (function(i) {
-            if(hasServices) {
-                headers.push({
-                    name: dataSteps[i],
-                    indicatorID: i + 'step',
-                    callback: function(data, blob) {
-                        var recordData = grid.getDataByRecordID(data.recordID);
-                        var service = recordData.service;
-                        var time = recordData.data[service][i] == undefined ? 0 : timeConvert(recordData.data[service][i].time, recordData.data[service][i].count);
-                        $('#'+ data.cellContainerID).html(time);
-                        //                            $('#'+ data.cellContainerID).css('background-color', getLabelColor(i));
-                    }
-                });
-            }
-            else {
-                headers.push({
-                    name: dataSteps[i] + ' (Business Days)',
-                    indicatorID: i + 'step',
-                    callback: function(data, blob) {
-                        var recordData = grid.getDataByRecordID(data.recordID);
-                        var time = recordData.data[i] == undefined ? 0 : timeConvert(recordData.data[i].time, recordData.data[i].count);
-                        $('#'+ data.cellContainerID).html(time);
-                        //                            $('#'+ data.cellContainerID).css('background-color', getLabelColor(i));
-                    }
-                });
-            }
-        })(i);
-    }
-    headers.push({
-        name: 'Total Business Days',
-        indicatorID: 'totalDays',
-        callback: function(data, blob) {
-            var time = 0;
-            var tTime = 0;
-            var recordData = grid.getDataByRecordID(data.recordID);
-            for(var i in dataSteps) {
-                if(hasServices) {
-                    var service = recordData.service;
-                    tTime = recordData.data[service][i] == undefined? 0 : timeConvert(recordData.data[service][i].time, recordData.data[service][i].count);;
+    let headers = [
+    {name: 'Site', indicatorID: 'site', callback: function(data, blob) {
+    let recordData = grid.getDataByRecordID(data.recordID);
+    $('#'+ data.cellContainerID).html(recordData.site);
+    }}
+
+]
+;
+if (hasServices) {
+    headers.push({name: 'Service', indicatorID: 'service', callback: function(data, blob) {
+    let recordData = grid.getDataByRecordID(data.recordID);
+    $('#'+ data.cellContainerID).html(recordData.service);
+    }}
+)
+;
+}
+for (let i in dataSteps) {
+    (function (i) {
+        if (hasServices) {
+            headers.push({
+                name: dataSteps[i],
+                indicatorID: i + 'step',
+                callback: function (data, blob) {
+                    let recordData = grid.getDataByRecordID(data.recordID);
+                    let service = recordData.service;
+                    let time = recordData.data[service][i] == undefined ? 0 : timeConvert(recordData.data[service][i].time, recordData.data[service][i].count);
+                    $('#' + data.cellContainerID).html(time);
+                    //                            $('#'+ data.cellContainerID).css('background-color', getLabelColor(i));
                 }
-                else {
-                    tTime = recordData.data[i] == undefined? 0 : timeConvert(recordData.data[i].time, recordData.data[i].count);;
+            });
+        } else {
+            headers.push({
+                name: dataSteps[i] + ' (Business Days)',
+                indicatorID: i + 'step',
+                callback: function (data, blob) {
+                    let recordData = grid.getDataByRecordID(data.recordID);
+                    let time = recordData.data[i] == undefined ? 0 : timeConvert(recordData.data[i].time, recordData.data[i].count);
+                    $('#' + data.cellContainerID).html(time);
+                    //                            $('#'+ data.cellContainerID).css('background-color', getLabelColor(i));
                 }
-                if(!isNaN(tTime)) {
-                    time += tTime;
-                }
-            }
-            $('#'+ data.cellContainerID).html(Math.round(time * 10) / 10);
+            });
         }
-    });
-    grid.setHeaders(headers);
-    grid.renderBody();
+    })(i);
+}
+headers.push({
+    name: 'Total Business Days',
+    indicatorID: 'totalDays',
+    callback: function (data, blob) {
+        let time = 0;
+        let tTime = 0;
+        let recordData = grid.getDataByRecordID(data.recordID);
+        for (let i in dataSteps) {
+            if (hasServices) {
+                let service = recordData.service;
+                tTime = recordData.data[service][i] == undefined ? 0 : timeConvert(recordData.data[service][i].time, recordData.data[service][i].count);
+                ;
+            } else {
+                tTime = recordData.data[i] == undefined ? 0 : timeConvert(recordData.data[i].time, recordData.data[i].count);
+                ;
+            }
+            if (!isNaN(tTime)) {
+                time += tTime;
+            }
+        }
+        $('#' + data.cellContainerID).html(Math.round(time * 10) / 10);
+    }
+});
+grid.setHeaders(headers);
+grid.renderBody();
 }
 
-var chart_workload_timescale;
+let chart_workload_timescale;
+
+/**
+ * Purpose: Init Pie/Graph Charts
+ */
 function setupChart() {
     facts = crossfilter(parsedData);
 
@@ -485,29 +574,29 @@ function setupChart() {
     chart_table_requests = dc.dataTable("#chart_table_requests");
     chart_count_avgCompletionTime = dc.numberDisplay("#chart_count_avgCompletionTime");
     chart_countResolvedRequests = dc.numberDisplay("#chart_countResolvedRequests");
-    
 
-    var dimSite = facts.dimension(function(d) { return d.site; });
-    var dimService = facts.dimension(function(d) { return d.service; });
-    var dimService2 = facts.dimension(function(d) { return d.service; });
-    var dimService3 = facts.dimension(function(d) { return d.service; });
-    var dimActionsPerMonth = facts.dimension(function(d) { return d3.timeDay(d.timestamp); });
-    var dimSteps = facts.dimension(function(d) { return d.label; });
-    var dimRequests = facts.dimension(function(d) { return d.recordID; });
-    var dimDataClassificationType = facts.dimension(function(d) { return d.categoryID; });
 
-    var groupDataClassificationType = dimDataClassificationType.group().reduce(
+    let dimSite = facts.dimension(function(d) { return d.site; });
+    let dimService = facts.dimension(function(d) { return d.service; });
+    let dimService2 = facts.dimension(function(d) { return d.service; });
+    let dimService3 = facts.dimension(function(d) { return d.service; });
+    let dimActionsPerMonth = facts.dimension(function(d) { return d3.timeDay(d.timestamp); });
+    let dimSteps = facts.dimension(function(d) { return d.label; });
+    let dimRequests = facts.dimension(function(d) { return d.recordID; });
+    let dimDataClassificationType = facts.dimension(function(d) { return d.categoryID; });
+
+    let groupDataClassificationType = dimDataClassificationType.group().reduce(
         function(p, v) {
-            var key = v.site + v.recordID;
+            let key = v.site + v.recordID;
             if(p.records[key] == undefined
-              || p.records[key] == 0) {
+                || p.records[key] == 0) {
                 p.records[key] = 1;
                 p.count++;
             }
             return p;
         },
         function(p, v) {
-            var key = v.site + v.recordID;
+            let key = v.site + v.recordID;
             if(p.records[key] == 1) {
                 p.records[key] = 0;
                 p.count--;
@@ -515,17 +604,17 @@ function setupChart() {
             return p;
         },
         function() {
-            var p = {};
+            let p = {};
             p.records = {};
             p.count = 0;
             return p;
         }
     );
 
-    var groupActionsPerMonth = dimActionsPerMonth.group().reduceCount();
-    var totalRequestsPerService = dimService.group().reduce(
+    let groupActionsPerMonth = dimActionsPerMonth.group().reduceCount();
+    let totalRequestsPerService = dimService.group().reduce(
         function(p, v) {
-            var key = v.site + v.recordID;
+            let key = v.site + v.recordID;
             if(p.records[key] == undefined) {
                 p.records[key] = 1;
                 p.count++;
@@ -536,7 +625,7 @@ function setupChart() {
             return p;
         },
         function(p, v) {
-            var key = v.site + v.recordID;
+            let key = v.site + v.recordID;
             p.records[key]--;
             if(p.records[key] == 0) {
                 delete p.records[key];
@@ -545,21 +634,21 @@ function setupChart() {
             return p;
         },
         function() {
-            var p = {};
+            let p = {};
             p.records = {};
             p.count = 0;
             return p;
         }
     );
-    var totalUniqueRequests = dimRequests.group().reduceCount();
-    var avgTimeSpentByService = dimService2.group().reduce(
+    let totalUniqueRequests = dimRequests.group().reduceCount();
+    let avgTimeSpentByService = dimService2.group().reduce(
         function(p, v) {
-            var key = v.site + v.recordID;
+            let key = v.site + v.recordID;
             p.records[key] = p.records[key] + v.days || v.days;
             return p;
         },
         function(p, v) {
-            var key = v.site + v.recordID;
+            let key = v.site + v.recordID;
             p.records[key] -= v.days;
             if(round(p.records[key]) <= 0) {
                 delete p.records[key];
@@ -567,14 +656,14 @@ function setupChart() {
             return p;
         },
         function() {
-            var p = {};
+            let p = {};
             p.records = {};
             return p;
         }
     );
-    var totalWorkloadService = dimService3.group().reduceCount();
+    let totalWorkloadService = dimService3.group().reduceCount();
 
-    var groupSteps = dimSteps.group().reduce(
+    let groupSteps = dimSteps.group().reduce(
         function(p, v) {
             p.days += v.days;
             p.count++;
@@ -588,21 +677,21 @@ function setupChart() {
             return p;
         },
         function() {
-            var p = {};
+            let p = {};
             p.days = 0;
             p.count = 0;
             p.stepID = '';
             return p;
         }
     );
-    var avgTimeSpentBySite = dimSite.group().reduce(
+    let avgTimeSpentBySite = dimSite.group().reduce(
         function(p, v) {
-            var key = v.site + v.recordID;
+            let key = v.site + v.recordID;
             p.records[key] = p.records[key] + v.days || v.days;
             return p;
         },
         function(p, v) {
-            var key = v.site + v.recordID;
+            let key = v.site + v.recordID;
             p.records[key] -= v.days;
             if(round(p.records[key]) <= 0) {
                 delete p.records[key];
@@ -610,17 +699,17 @@ function setupChart() {
             return p;
         },
         function() {
-            var p = {};
+            let p = {};
             p.records = {};
             return p;
         }
     );
-    
+
     chart_count_avgCompletionTime
         .valueAccessor(function(d) {
-            var totalTime = 0;
-            var count = 0;
-            for(var i in d.value.records) {
+            let totalTime = 0;
+            let count = 0;
+            for(let i in d.value.records) {
                 if(!isNaN(d.value.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
@@ -644,8 +733,8 @@ function setupChart() {
         .group(groupDataClassificationType)
         .valueAccessor(function(d) { return d.value.count; })
         .title(function(d) { return d.key + ': ' + round(d.value.count) + ' requests'; })
-//      .ordering(function(d) { return d.value.days; })
-//      .legend(dc.legend().y(0).x(40))
+        //      .ordering(function(d) { return d.value.days; })
+        //      .legend(dc.legend().y(0).x(40))
         .ordinalColors(niceColors)
         .legend(dc.legend())
         .label(function(d) {
@@ -660,12 +749,12 @@ function setupChart() {
             chart.select('g :not(.dc-legend)').attr('transform', 'translate(0, 30)');
         });
 
-    var today = new Date();
-//  var minDate = new Date(today.getFullYear(), today.getMonth() - 4);
-    var minDate = new Date(minTimestamp * 1000);
+    let today = new Date();
+//  let minDate = new Date(today.getFullYear(), today.getMonth() - 4);
+    let minDate = new Date(minTimestamp * 1000);
     minDate.setDate(minDate.getDate() - 1);
-    var lastMonth = new Date(today).setMonth(today.getMonth() - 1);
-    var maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    let lastMonth = new Date(today).setMonth(today.getMonth() - 1);
+    let maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
     chart_workload_timescale
         .useViewBoxResizing(true)
         .dimension(dimActionsPerMonth)
@@ -686,7 +775,7 @@ function setupChart() {
         .valueAccessor(function(d) { return d.value.count > 0 ? d.value.days / d.value.count : 0; })
         .title(function(d) { return d.key + ': ' + round(d.value.days / d.value.count) + ' days'; })
         .ordering(function(d) { return d.value.count > 0 ? d.value.days / d.value.count : 0; })
-//      .legend(dc.legend().y(0).x(40))
+        //      .legend(dc.legend().y(0).x(40))
         .label(function() {}, false)
         .on("pretransition", function(chart) {
             chart.selectAll('g path').style('fill', function (d) {
@@ -725,7 +814,7 @@ function setupChart() {
         .valueAccessor(function(d) { return d.value.days; })
         .title(function(d) { return d.key + ': ' + round(d.value.days) + ' days'; })
         .ordering(function(d) { return d.value.days; })
-//      .legend(dc.legend().y(0).x(40))
+        //      .legend(dc.legend().y(0).x(40))
         .label(function() {}, false)
         .on("pretransition", function(chart) {
             chart.selectAll('g path').style('fill', function (d) {
@@ -762,9 +851,9 @@ function setupChart() {
         .dimension(dimService2)
         .group(avgTimeSpentByService)
         .valueAccessor(function(d) {
-            var totalTime = 0;
-            var count = 0;
-            for(var i in d.value.records) {
+            let totalTime = 0;
+            let count = 0;
+            for(let i in d.value.records) {
                 if(!isNaN(d.value.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
@@ -773,36 +862,36 @@ function setupChart() {
             return count > 0 ? totalTime / count : 0;
         })
         .title(function(d) {
-            var totalTime = 0;
-            var count = 0;
-            for(var i in d.value.records) {
+            let totalTime = 0;
+            let count = 0;
+            for(let i in d.value.records) {
                 if(!isNaN(d.value.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
             }
-            var averageDays = count > 0 ? totalTime / count : 0;
+            let averageDays = count > 0 ? totalTime / count : 0;
             return d.key + ': ' + round(averageDays) + ' days'; })
         .ordering(function(d) {
-            var totalTime = 0;
-            var count = 0;
-            for(var i in d.value.records) {
+            let totalTime = 0;
+            let count = 0;
+            for(let i in d.value.records) {
                 if(!isNaN(d.value.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
             }
-            var averageDays = count > 0 ? totalTime / count : 0;
+            let averageDays = count > 0 ? totalTime / count : 0;
             return -averageDays;
         })
         .gap(2)
-//      .rowsCap(9)
+        //      .rowsCap(9)
         .othersLabel('All others')
         .fixedBarHeight(14)
         .elasticX(true);
 
     chart_facilities.xAxis().ticks(4);
-    
+
     chart_workload_facilities
         .useViewBoxResizing(true)
         .height((totalWorkloadService.all().length * 18) + 60)
@@ -857,18 +946,24 @@ function setupChart() {
         .endSlice(10);
 }
 
+/**
+ * Purpose: Reinit for different filter (date)
+ */
 function resetFilters() {
     // pre-select last month
-    var today = new Date();
-    var lastMonth = new Date(today).setMonth(today.getMonth() - 1);
-    var maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    let today = new Date();
+    let lastMonth = new Date(today).setMonth(today.getMonth() - 1);
+    let maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
     chart_workload_timescale.filter(dc.filters.RangedFilter(lastMonth, maxDate));
 }
 
+/**
+ * Purpose: Loading visual for Init of chart and data
+ */
 function start() {
-    var progressbar = $('#progressbar').progressbar();
+    let progressbar = $('#progressbar').progressbar();
 
-    var checkLoaded = setInterval(function() {
+    let checkLoaded = setInterval(function() {
         $('#progressbar').progressbar('option', 'value', sitesLoaded.length);
         if(sitesLoaded.length == numTotalCategories) {
             clearInterval(checkLoaded);
@@ -878,23 +973,23 @@ function start() {
             setupChart();
             dc.renderAll();
 
-/*          resetFilters();
-            dc.renderAll();*/
+            /*          resetFilters();
+                        dc.renderAll();*/
 
-//          for (var chart of dc.chartRegistry.list()) { console.log(chart.anchor(), chart.filters())}
+//          for (let chart of dc.chartRegistry.list()) { console.log(chart.anchor(), chart.filters())}
             renderGrid();
 
         }
     }, 250);
 
     $('#progressbar').progressbar('option', 'max', siteLinks.length);
-    for(var i in siteLinks) {
+    for(let i in siteLinks) {
         loadSite(siteLinks[i]);
     }
 }
 
-var sitesLoaded = [];
-var numTotalCategories = Infinity;
+let sitesLoaded = [];
+let numTotalCategories = Infinity;
 $(function() {
     start();
 
@@ -907,30 +1002,26 @@ $(function() {
         start();
     });
 
-    
+
     $('#btn_saveData').on('click', function() {
-            var uploadPacket = JSON.stringify(facts.all());
-            var uploadData = new FormData();
-            uploadData.append('CSRFToken', CSRFToken);
-            uploadData.append('file', new Blob([ uploadPacket ]), 'temp_leaf_timeline_data.json');
-            $.ajax({
-                type: 'POST',
-                url: './admin/ajaxIndex.php?a=uploadFile',
-                data: uploadData,
-                processData: false,
-                contentType: false,
-                success: function() {
-                    $('#linkToSavedData').html('<a href="./files/temp_leaf_timeline_data.json">Download JSON data</a>');
-                }
-            });
+        let uploadPacket = JSON.stringify(facts.all());
+        let uploadData = new FormData();
+        uploadData.append('CSRFToken', CSRFToken);
+        uploadData.append('file', new Blob([ uploadPacket ]), 'temp_leaf_timeline_data.json');
+        $.ajax({
+            type: 'POST',
+            url: './admin/ajaxIndex.php?a=uploadFile',
+            data: uploadData,
+            processData: false,
+            contentType: false,
+            success: function() {
+                $('#linkToSavedData').html('<a href="./files/temp_leaf_timeline_data.json">Download JSON data</a>');
+            }
+        });
     });
 });
 
 </script>
-<div id="progressContainer" style="width: 50%; border: 1px solid black; background-color: white; margin: auto; padding: 16px">
-    <h1 style="text-align: center">Loading...</h1>
-    <div id="progressbar"></div>
-</div>
 
 <div id="chartBody" style="display: none">
     <h1 style="text-align: center">Timeline Data Explorer <span style="background-color: white; color: red; border: 2px solid black; padding: 8px; font-style: italic">BETA</span></h1>
@@ -942,7 +1033,7 @@ $(function() {
             <option value="1 year ago">1 year ago</option>
         </select>
     </h2>
-    
+
     <span class="buttonNorm" style="float: right" onclick="dc.filterAll(); dc.filterAll(); dc.renderAll(); resetFilters();">Reset Filters</span>
     <br style="clear: both" />
 
@@ -1031,10 +1122,10 @@ $(function() {
                 <div class="label">Snapshot of slow actions</div>
                 <table id="chart_table_requests" class="chart table" style="width: 99%; padding: 8px">
                     <thead>
-                        <td>Service</td>
-                        <td>recordID</td>
-                        <td>Action</td>
-                        <td>Business days for the action</td>
+                    <td>Service</td>
+                    <td>recordID</td>
+                    <td>Action</td>
+                    <td>Business days for the action</td>
                     </thead>
                 </table>
             </div>
@@ -1066,36 +1157,36 @@ $(function() {
 
     </div>
 
-<!--
-    <br />
-    <div class="card" style="padding: 8px; text-align: center">
-        <div id="sendBackOptions">
-            <div style="float: left; padding: 8px; white-space: nowrap">
-                <input type="checkbox" id="showSendBackData" name="showSendBack" />
-                <label class="checkable" for="showSendBackData">Include Send Back times in averages</label>
+    <!--
+        <br />
+        <div class="card" style="padding: 8px; text-align: center">
+            <div id="sendBackOptions">
+                <div style="float: left; padding: 8px; white-space: nowrap">
+                    <input type="checkbox" id="showSendBackData" name="showSendBack" />
+                    <label class="checkable" for="showSendBackData">Include Send Back times in averages</label>
+                </div>
             </div>
+            <br style="clear: both" />
+            <div id="categories" style="display: none"></div>
+            <br style="clear: both" />
+            <button class="buttonNorm" onclick="changeDataset();">Select Dataset</button>
         </div>
-        <br style="clear: both" />
-        <div id="categories" style="display: none"></div>
-        <br style="clear: both" />
-        <button class="buttonNorm" onclick="changeDataset();">Select Dataset</button>
-    </div>
 
-    <br />
-    <br style="clear: both" />
-    <hr />
-    <div class="card" style="padding: 8px">
-        <div class="label">Dataset over the past year</div>
-        <div id="gridData"></div>
-    </div>
--->
+        <br />
+        <br style="clear: both" />
+        <hr />
+        <div class="card" style="padding: 8px">
+            <div class="label">Dataset over the past year</div>
+            <div id="gridData"></div>
+        </div>
+    -->
 
     <br />
     <p>
-    * Business day defined as Monday - Friday, 8am - 5pm  (Time zones may reflect minor differences)<br />
-    * "Handoff" defined as an action taken that routes a request to another stakeholder
+        * Business day defined as Monday - Friday, 8am - 5pm  (Time zones may reflect minor differences)<br />
+        * "Handoff" defined as an action taken that routes a request to another stakeholder
     </p>
-    
+
     <hr />
     Advanced users:<br />
     <div>
