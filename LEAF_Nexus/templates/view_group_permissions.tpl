@@ -35,6 +35,38 @@
             <td style="width: 100px" title="This allows permissions to be granted to others">Grant</td>
         </tr>
     <!--{foreach from=$permissions item=permission}-->
+        <!--{if $permission.UID == 2 || $permission.UID == 1}-->
+        <tr style="background-color: <!--{cycle values='#e0e0e0,#c4c4c4'}-->; opacity: 50%;">
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->" style="font-size: 14px; font-weight: bold"><img src="images/largespinner.gif" alt="loading..." /> Loading <!--{$permission.categoryID|strip_tags}-->...</td>
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_read" style="font-size: 14px">
+                <div class="buttonNorm">
+                    <!--{if $permission.read == 1}-->
+                    <img src="../libs/dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
+                    <!--{else}-->
+                    <img src="../libs/dynicons/?img=process-stop.svg&amp;w=32" alt="No" /> No
+                    <!--{/if}-->
+                </div>
+            </td>
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_write" style="font-size: 14px">
+                <div class="buttonNorm">
+                    <!--{if $permission.write == 1}-->
+                    <img src="../libs/dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
+                    <!--{else}-->
+                    <img src="../libs/dynicons/?img=process-stop.svg&amp;w=32" alt="No" /> No
+                    <!--{/if}-->
+                </div>
+            </td>
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_grant" style="font-size: 14px">
+                <div class="buttonNorm">
+                    <!--{if $permission.grant == 1}-->
+                    <img src="../libs/dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
+                    <!--{else}-->
+                    <img src="../libs/dynicons/?img=process-stop.svg&amp;w=32" alt="No" /> No
+                    <!--{/if}-->
+                </div>
+            </td>
+        </tr>
+        <!--{else}-->
         <tr style="background-color: <!--{cycle values='#e0e0e0,#c4c4c4'}-->">
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->" style="font-size: 14px; font-weight: bold"><img src="images/largespinner.gif" alt="loading..." /> Loading <!--{$permission.categoryID|strip_tags}-->...</td>
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_read" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', <!--{$permission.UID|strip_tags}-->, 'read')">
@@ -65,6 +97,7 @@
                 </div>
             </td>
         </tr>
+        <!--{/if}-->
     <!--{/foreach}-->
     <!--{if count($permissions) == 0}-->
         <tr><td colspan="4" style="background-color: #c10303; color: white; font-weight: bold; font-size: 14px; padding: 4px"><img src="../libs/dynicons/?img=emblem-notice.svg&amp;w=32" alt="Notice" style="vertical-align: middle" /> Permissions have not been set. The following default settings are in effect:</td></tr>
@@ -149,6 +182,9 @@ function addEmployeePosition() {
                 success: function(response) {
                     window.location.reload();
                 },
+                fail: function(err) {
+                    alert('Error: ' + err.statusText);
+                },
                 cache: false
             });
         }
@@ -161,6 +197,9 @@ function addEmployeePosition() {
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(response) {
                     window.location.reload();
+                },
+                fail: function(err) {
+                    alert('Error: ' + err.statusText);
                 },
                 cache: false
             });
@@ -188,6 +227,9 @@ function addEmployee() {
             success: function(response) {
                 window.location.reload();
             },
+            fail: function(err) {
+                alert('Error: ' + err.statusText);
+            },
             cache: false
         });
     });
@@ -210,6 +252,9 @@ function addGroup() {
             success: function(response) {
                 window.location.reload();
             },
+            fail: function(err) {
+                alert('Error: ' + err.statusText);
+            },
             cache: false
         });
     });
@@ -223,6 +268,9 @@ function addEveryone() {
             CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
             window.location.reload();
+        },
+        fail: function(err) {
+            alert('Error: ' + err.statusText);
         },
         cache: false
     });
@@ -245,6 +293,9 @@ function togglePermission(categoryID, UID, type)
                 }
             }
         },
+        fail: function(err) {
+            alert('Error: ' + err.statusText);
+        },
         cache: false
     });
 }
@@ -265,15 +316,18 @@ $(function() {
                     	   + response.employee.lastName + ', ' + response.employee.firstName + '</a>');
             		   break;
             	   case "position":
-                       $("#<!--{$permission.categoryID}-->_<!--{$permission.UID}-->").html('<img src="../libs/dynicons/?img=contact-new.svg&w=32" alt="employee" style="vertical-align: middle" /> <a href="?a=view_position&positionID=<!--{$permission.UID}-->">'
+                       $("#<!--{$permission.categoryID}-->_<!--{$permission.UID}-->").html('<img src="../libs/dynicons/?img=contact-new.svg&w=32" alt="position" style="vertical-align: middle" /> <a href="?a=view_position&positionID=<!--{$permission.UID}-->">'
                     	   + response.title + '</a>');
                        break;
                    case "group":
-                       $("#<!--{$permission.categoryID}-->_<!--{$permission.UID}-->").html('<img src="../libs/dynicons/?img=system-users.svg&w=32" alt="employee" style="vertical-align: middle" /> <a href="?a=view_group&groupID=<!--{$permission.UID}-->">'
+                       $("#<!--{$permission.categoryID}-->_<!--{$permission.UID}-->").html('<img src="../libs/dynicons/?img=system-users.svg&w=32" alt="group" style="vertical-align: middle" /> <a href="?a=view_group&groupID=<!--{$permission.UID}-->">'
                            + response.title + '</a>');
                        break;
             	}
             }
+        },
+        fail: function(err) {
+            alert('Error: ' + err.statusText);
         },
         cache: false
     });

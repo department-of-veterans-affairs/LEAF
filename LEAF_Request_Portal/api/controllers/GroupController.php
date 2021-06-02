@@ -38,6 +38,10 @@ class GroupController extends RESTfulResponse
             return $this->API_VERSION;
         });
 
+        $this->index['GET']->register('group/list', function ($args) use ($group) {
+            return $group->getGroupsList();
+        });
+
         $this->index['GET']->register('group/members', function ($args) use ($group) {
             return $group->getGroupsAndMembers();
         });
@@ -57,10 +61,12 @@ class GroupController extends RESTfulResponse
         $this->index['POST'] = new ControllerMap();
 
         $this->index['POST']->register('group', function ($args) use ($group) {
-            return $group->addGroup(
-                XSSHelpers::sanitizeHTML($_POST['groupName']),
-                XSSHelpers::sanitizeHTML($_POST['groupDesc'])
-            );
+            return $group->addGroup(XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
+        });
+
+        // Controller for Import Group
+        $this->index['POST']->register('group/import', function ($args) use ($group) {
+            return $group->importGroup(XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
         });
 
         $this->index['POST']->register('group/[digit]/members', function ($args) use ($group) {

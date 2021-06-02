@@ -3652,6 +3652,20 @@
         }
       }
     },
+    "/group/list": {
+      "get": {
+        "summary": "Call getGroupsList()",
+        "description": "original endpont:group/list; calls getGroupsList()",
+        "tags": [
+          "group"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
     "/group/members": {
       "get": {
         "summary": "Call getGroupsAndMembers()",
@@ -4648,6 +4662,30 @@
       "get": {
         "summary": "Call getInbox()",
         "description": "original endpont:inbox/dependency/[text]; calls getInbox({dependencyID})",
+        "tags": [
+          "inbox"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dependencyID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/inbox/dependency/{dependencyID}/nonadmin": {
+      "get": {
+        "summary": "Call getInbox() as Non-Admin (if admin)",
+        "description": "original endpont:inbox/dependency/[text]/nonadmin; calls getInbox({dependencyID}, true)",
         "tags": [
           "inbox"
         ],
