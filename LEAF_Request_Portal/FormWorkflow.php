@@ -868,169 +868,25 @@ class FormWorkflow
                     require_once 'Email.php';
                     $email = new Email();
 
-                    $vars = array(':recordID' => $this->recordID);
-                    $approvers = $this->db->prepared_query('SELECT *, users.userID AS approverID FROM records_workflow_state
-                    											LEFT JOIN records USING (recordID)
-                    											LEFT JOIN step_dependencies USING (stepID)
-                    											LEFT JOIN dependency_privs USING (dependencyID)
-                    											LEFT JOIN users USING (groupID)
-                    											LEFT JOIN services USING (serviceID)
-                    											WHERE recordID=:recordID AND (active=1 OR active IS NULL)', $vars);
+                    $email->addSmartyVariables(array(
+                        "comment" => $comment
+                    ));
 
-                    if (count($approvers) > 0)
-                    {
-                        $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+                    require_once 'VAMC_Directory.php';
+                    $dir = new VAMC_Directory;
 
-                        $email->addSmartyVariables(array(
-                            "truncatedTitle" => $title,
-                            "fullTitle" => $approvers[0]['title'],
-                            "recordID" => $this->recordID,
-                            "service" => $approvers[0]['service'],
-                            "lastStatus" => $approvers[0]['lastStatus'],
-                            "comment" => $comment,
-                            "siteRoot" => $this->siteRoot
-                        ));
-                        $email->setTemplateByID(\Email::NOTIFY_NEXT);
+                    $author = $dir->lookupLogin($this->login->getUserID());
+                    $email->setSender($author[0]['Email']);
 
-                        require_once 'VAMC_Directory.php';
-                        $dir = new VAMC_Directory;
-
-                        $author = $dir->lookupLogin($this->login->getUserID());
-                        $email->setSender($author[0]['Email']);
-
-                        foreach ($approvers as $approver)
-                        {
-                            if (strlen($approver['approverID']) > 0)
-                            {
-                                $tmp = $dir->lookupLogin($approver['approverID']);
-                                $email->addRecipient($tmp[0]['Email']);
-                            }
-                        }
-
-                        // special case for service chiefs
-                        if ($approvers[0]['dependencyID'] == 1)
-                        {
-                            $vars = array(':serviceID' => $approvers[0]['serviceID']);
-                            $chief = $this->db->prepared_query('SELECT * FROM service_chiefs
-                            										WHERE serviceID=:serviceID
-                            											AND active=1', $vars);
-
-                            foreach ($chief as $member)
-                            {
-                                if (strlen($member['userID']) > 0)
-                                {
-                                    $tmp = $dir->lookupLogin($member['userID']);
-                                    $email->addRecipient($tmp[0]['Email']);
-                                }
-                            }
-                        }
-
-                        // special case for quadrads
-                        if ($approvers[0]['dependencyID'] == 8)
-                        {
-                            $vars = array(':groupID' => $approvers[0]['groupID']);
-                            $quadrad = $this->db->prepared_query('SELECT * FROM users
-                            											WHERE groupID=:groupID AND active=1', $vars);
-
-                            foreach ($quadrad as $member)
-                            {
-                                if (strlen($member['userID']) > 0)
-                                {
-                                    $tmp = $dir->lookupLogin($member['userID']);
-                                    $email->addRecipient($tmp[0]['Email']);
-                                }
-                            }
-                        }
-
-                        // dependencyID -1 : special case for a person designated by the requestor
-                        if ($approvers[0]['dependencyID'] == -1)
-                        {
-                            require_once 'form.php';
-                            $form = new Form($this->db, $this->login);
-
-                            // find the next step
-                            $varsStep = array(':stepID' => $approvers[0]['stepID']);
-                            $resStep = $this->db->prepared_query('SELECT * FROM workflow_steps
-                													WHERE stepID=:stepID', $varsStep);
-
-                            $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
-                            $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
-
-                            //check if the requester has any backups
-                            $nexusDB = $this->login->getNexusDB();
-                            $vars4 = array(':empId' => $empUID);
-                            $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
-
-                            if ($empUID > 0)
-                            {
-                                $tmp = $dir->lookupEmpUID($empUID);
-                                $email->addRecipient($tmp[0]['Email']);
-                            }
-
-                            // add for backups
-                            foreach ($backupIds as $row)
-                            {
-                                $tmp = $dir->lookupEmpUID($empUID);
-                                if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '')
-                                {
-                                    $email->addCcBcc($tmp[0]['Email']);
-                                }
-                            }
-                        }
-
-                        // dependencyID -2 : requestor followup
-                        if ($approvers[0]['dependencyID'] == -2)
-                        {
-                            $vars = array(':recordID' => $this->recordID);
-                            $resRequestor = $this->db->prepared_query('SELECT userID FROM records
-                    													WHERE recordID=:recordID', $vars);
-                            $tmp = $dir->lookupLogin($resRequestor[0]['userID']);
-                            $email->addRecipient($tmp[0]['Email']);
-                        }
-
-                        // dependencyID -3 : special case for a group designated by the requestor
-                        if ($approvers[0]['dependencyID'] == -3)
-                        {
-                            require_once 'form.php';
-                            $form = new Form($this->db, $this->login);
-
-                            // find the next step
-                            $varsStep = array(':stepID' => $approvers[0]['stepID']);
-                            $resStep = $this->db->prepared_query('SELECT * FROM workflow_steps
-                													WHERE stepID=:stepID', $varsStep);
-
-                            $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
-                            $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
-
-                            if ($groupID > 0)
-                            {
-                                $email->addGroupRecipient($groupID);
-                            }
-                        }
-
-                        $email->sendMail();
-                    }
+                    $email->attachApproversAndEmail($this->recordID, Email::NOTIFY_NEXT, $this->login);
 
                     break;
                 case 'std_email_notify_completed': // notify requestor of completed request
                     require_once 'Email.php';
                     $email = new Email();
 
-                    $vars = array(':recordID' => $this->recordID);
-                    $approvers = $this->db->prepared_query('SELECT * FROM records
-                    											LEFT JOIN services USING (serviceID)
-                    											WHERE recordID=:recordID', $vars);
-
-                    $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
-
                     $email->addSmartyVariables(array(
-                        "truncatedTitle" => $title,
-                        "fullTitle" => $approvers[0]['title'],
-                        "recordID" => $this->recordID,
-                        "service" => $approvers[0]['service'],
-                        "lastStatus" => $approvers[0]['lastStatus'],
-                        "comment" => $comment,
-                        "siteRoot" => $this->siteRoot
+                        "comment" => $comment
                     ));
                     $email->setTemplateByID(\Email::NOTIFY_COMPLETE);
 
