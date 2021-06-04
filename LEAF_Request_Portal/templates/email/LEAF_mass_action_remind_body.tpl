@@ -1,5 +1,5 @@
-The last request action below is older than {{$daysSince}} days.<br />
-Your review of this request would be appreciated at your earliest convenience.<br /><br />
+The last action on Request #{{$recordID}} is older than {{$daysSince}} days.
+Please review this request at your earliest convenience.<br /><br />
 
 Request title: <a href="{{$siteRoot}}?a=printview&recordID={{$recordID}}" target="_blank">
     {{$fullTitle}}</a><br />
