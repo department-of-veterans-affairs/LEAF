@@ -141,13 +141,12 @@ class Email
             $dir = new VAMC_Directory;
 
             // Check that email address is active in Nexus
-            $res = $this->nexus_db->prepared_query(
-                "SELECT e.deleted 
-                    FROM employee as e
-                        INNER JOIN employee_data ed on e.empUID = ed.empUID
-                    WHERE e.deleted = 0 
-                        AND ed.data=:emailAddress ;",
-                array(':emailAddress' => $address));
+            $vars = array(':emailAddress' => $address);
+            $strSQL = "SELECT e.deleted FROM employee as e ".
+                        "INNER JOIN employee_data ed on e.empUID = ed.empUID ".
+                        "WHERE e.deleted = 0 ".
+                        "AND ed.data=:emailAddress";
+            $res = $this->nexus_db->prepared_query($strSQL, $vars);
             return ( (!empty($res)) ? true : false );
         }
         return false;
@@ -206,11 +205,11 @@ class Email
     {
         $dir = new VAMC_Directory;
 
-        $res = $this->portal_db->prepared_query("SELECT `userID`
-                                                 FROM `users` 
-                                                 WHERE groupID=:groupID
-                                                    AND active=1", 
-                                                array(':groupID' => $groupID));
+        $vars = array(':groupID' => $groupID);
+        $strSQL = "SELECT `userID` FROM `users` ".
+                    "WHERE groupID=:groupID ".
+                    "AND active=1";
+        $res = $this->portal_db->prepared_query($strSQL, $vars);
         foreach($res as $user) {
             $tmp = $dir->lookupLogin($user['userID']);
             $this->addRecipient($tmp[0]['Email']);
@@ -419,10 +418,10 @@ class Email
      */
     function setTemplateByID($emailTemplateID)
     {
-        $res = $this->portal_db->prepared_query("SELECT `emailTo`, `emailCc`,`subject`, `body` 
-                                                 FROM `email_templates` 
-                                                 WHERE emailTemplateID = :emailTemplateID;", 
-                                                array(':emailTemplateID' => $emailTemplateID));
+        $vars = array(':emailTemplateID' => $emailTemplateID);
+        $strSQL = "SELECT `emailTo`, `emailCc`,`subject`, `body` FROM `email_templates` ".
+                    "WHERE emailTemplateID = :emailTemplateID;";
+        $res = $this->portal_db->prepared_query($strSQL, $vars);
         $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo']));
         $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc']), true);
         $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
@@ -436,10 +435,10 @@ class Email
      */
     function setTemplateByLabel($emailTemplateLabel)
     {
-        $res = $this->portal_db->prepared_query("SELECT `emailTo`,`emailCc`,`subject`, `body` 
-                                                 FROM `email_templates` 
-                                                 WHERE label = :emailTemplateLabel;", 
-                                                array(':emailTemplateLabel' => $emailTemplateLabel));
+        $vars = array(':emailTemplateLabel' => $emailTemplateLabel);
+        $strSQL = "SELECT `emailTo`,`emailCc`,`subject`, `body` FROM `email_templates` ".
+                    "WHERE label = :emailTemplateLabel;";
+        $res = $this->portal_db->prepared_query($strSQL, $vars);
         $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo']));
         $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc']), true);
         $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
@@ -529,17 +528,17 @@ class Email
     }
 
     /**
-     * Purpose: Add approvers to email from given record ID
+     * Purpose: Add approvers to email from given record ID*
      * @param $recordID
+     * @param $emailTemplateID
+     * @param $loggedInUser
+     * @throws Exception
      */
     function attachApproversAndEmail($recordID, $emailTemplateID, $loggedInUser) {
 
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
-        $strSQL = "SELECT users.userID AS approverID, ".
-                "sd.dependencyID, ser.serviceID, ser.service, users.groupID, ".
-                "rec.title, rec.lastStatus ".
-            "FROM records_workflow_state ".
+        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, ser.serviceID, ser.service, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
             "LEFT JOIN records AS rec USING (recordID) ".
             "LEFT JOIN step_dependencies AS sd USING (stepID) ".
             "LEFT JOIN dependency_privs USING (dependencyID) ".

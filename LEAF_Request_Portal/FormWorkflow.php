@@ -774,6 +774,7 @@ class FormWorkflow
      * @param string $actionType
      * @param string $comment
      * @return array {status(int), errors[]}
+     * @throws Exception
      */
     public function handleEvents($workflowID, $stepID, $actionType, $comment)
     {
@@ -797,12 +798,14 @@ class FormWorkflow
             $email = new Email();
 
             $vars = array(':recordID' => $this->recordID);
-            $record = $this->db->prepared_query('SELECT * FROM records
-                                                    LEFT JOIN services USING (serviceID)
-                                                    WHERE recordID=:recordID', $vars);
+            $strSQL = "SELECT rec.title, rec.userID, sec.service FROM records AS rec ".
+                        "LEFT JOIN services AS ser USING (serviceID) ".
+                        "WHERE recordID=:recordID";
+            $record = $this->db->prepared_query($strSQL, $vars);
 
             $vars = array(':stepID' => $stepID);
-            $groupName = $this->db->prepared_query('SELECT * FROM workflow_steps WHERE stepID=:stepID', $vars);
+            $strSQL = "SELECT stepTitle FROM workflow_steps WHERE stepID=:stepID";
+            $groupName = $this->db->prepared_query($strSQL, $vars);
 
             $title = strlen($record[0]['title']) > 45 ? substr($record[0]['title'], 0, 42) . '...' : $record[0]['title'];
 
@@ -831,9 +834,9 @@ class FormWorkflow
               ':reqEmpUID'  => $requester[0]['empUiD'],
               ':authEmpUID' => $author[0]['empUID']
             );
-            $backupIds = $nexusDB->prepared_query(
-              'SELECT DISTINCT backupEmpUID FROM relation_employee_backup
-               WHERE empUID IN (:reqEmpUID, :authEmpUID)', $vars);
+            $strSQL = "SELECT DISTINCT backupEmpUID FROM relation_employee_backup ".
+                        "WHERE empUID IN (:reqEmpUID, :authEmpUID)";
+            $backupIds = $nexusDB->prepared_query($strSQL, $vars);
 
             // Add backups to email recepients
             foreach($backupIds as $backup) {
@@ -851,15 +854,16 @@ class FormWorkflow
         }
 
         // Handle Events
-        $vars = array(':workflowID' => $workflowID,
+        $varEvents = array(':workflowID' => $workflowID,
                        ':stepID' => $stepID,
                        ':actionType' => $actionType, );
-        $res = $this->db->prepared_query('SELECT * FROM route_events
-        									LEFT JOIN events USING (eventID)
-        									WHERE workflowID=:workflowID
-        										AND stepID=:stepID
-        										AND actionType=:actionType
-        									ORDER BY eventID ASC', $vars);
+        $strSQL = "SELECT rt.eventID FROM route_events AS rt ".
+                    "LEFT JOIN events as et USING (eventID) ".
+                    "WHERE workflowID=:workflowID ".
+                    "AND stepID=:stepID ".
+                    "AND actionType=:actionType ".
+                    "ORDER BY eventID ASC";
+        $res = $this->db->prepared_query($strSQL, $varEvents);
 
         foreach ($res as $event)
         {
@@ -885,8 +889,23 @@ class FormWorkflow
                     require_once 'Email.php';
                     $email = new Email();
 
+                    $vars = array(':recordID' => $this->recordID);
+                    $strSQL = "SELECT rec.title, rec.lastStatus, rec.userID, ser.service ".
+                        "FROM records AS rec ".
+                        "LEFT JOIN services AS ser USING (serviceID) ".
+                        "WHERE recordID=:recordID";
+                    $approvers = $this->db->prepared_query($strSQL, $vars);
+
+                    $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+
                     $email->addSmartyVariables(array(
-                        "comment" => $comment
+                        "truncatedTitle" => $title,
+                        "fullTitle" => $approvers[0]['title'],
+                        "recordID" => $this->recordID,
+                        "service" => $approvers[0]['service'],
+                        "lastStatus" => $approvers[0]['lastStatus'],
+                        "comment" => $comment,
+                        "siteRoot" => $this->siteRoot
                     ));
                     $email->setTemplateByID(\Email::NOTIFY_COMPLETE);
 
@@ -899,7 +918,9 @@ class FormWorkflow
                     // Get backups to requester so they can be notified as well
                     $nexusDB = $this->login->getNexusDB();
                     $vars = array(':empUID' => $author[0]['empUID']);
-                    $backupIds = $nexusDB->prepared_query('SELECT backupEmpUID FROM relation_employee_backup WHERE empUID = :empUID', $vars);
+                    $strSQL = "SELECT backupEmpUID FROM relation_employee_backup ".
+                                "WHERE empUID = :empUID";
+                    $backupIds = $nexusDB->prepared_query($strSQL, $vars);
 
                     // Add backups to email recepients
                     foreach($backupIds as $backup) {
