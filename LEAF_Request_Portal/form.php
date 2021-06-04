@@ -1128,24 +1128,29 @@ class Form
 
         foreach ($keys as $key)
         {
-            if (is_numeric($key))
-            {
-                if(!$this->writeDataField($recordID, $key, $series))
-                {
+            // If form has _selected key use over initial key (Multi-Select Dropdown)
+            if (is_numeric($key) && $_POST[$key . '_selected']) {
+                $_POST[$key] = $_POST[$key . '_selected'];
+                if (!$this->writeDataField($recordID, $key, $series)) {
                     return 0;
                 }
             }
-            else
+            elseif (is_numeric($key))
+            {
+                if (!$this->writeDataField($recordID, $key, $series)) {
+                    return 0;
+                }
+            }
+            elseif (!strpos($key, '_selected')) // Check for keys that don't include _selected
             {
                 list($tRecordID, $tIndicatorID) = explode('_', $key);
-                if($tRecordID == $recordID
-                    && is_numeric($tIndicatorID))
-                {
-                    if(!$this->writeDataField($recordID, $tIndicatorID, $series))
-                    {
+                if ($tRecordID == $recordID
+                    && is_numeric($tIndicatorID)) {
+                    if (!$this->writeDataField($recordID, $tIndicatorID, $series)) {
                         return 0;
                     }
                 }
+
             }
         }
 

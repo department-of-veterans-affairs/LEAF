@@ -565,6 +565,12 @@ function newQuestion(parentIndicatorID) {
             case 'radio':
             case 'checkboxes':
             case 'multiselect':
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
+                $('#container_indicatorMultiAnswer').css('display', 'block');
+                $('#container_indicatorSingleAnswer').css('display', 'none');
+                break;
             case 'dropdown':
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
                 $('#xhr').css('width', 'auto');
@@ -699,6 +705,11 @@ function newQuestion(parentIndicatorID) {
             case 'radio':
             case 'checkboxes':
             case 'multiselect':
+                $('#container_indicatorMultiAnswer').css('display', 'block');
+                var buffer = $('#indicatorType').val();
+                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
+                $('#format').val(buffer);
+                break;
             case 'dropdown':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 var buffer = $('#indicatorType').val();
@@ -1034,6 +1045,12 @@ function getForm(indicatorID, series) {
     	    case 'radio':
     	    case 'checkboxes':
             case 'multiselect':
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
+                $('#container_indicatorMultiAnswer').css('display', 'block');
+                $('#container_indicatorSingleAnswer').css('display', 'none');
+                break;
     	    case 'dropdown':
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
                 $('#xhr').css('width', 'auto');
@@ -1366,6 +1383,9 @@ function getForm(indicatorID, series) {
             case 'checkboxes':
             case 'multiselect':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
+                var buffer = $('#indicatorType').val();
+                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
+                $('#format').val(buffer);
                 break;
             case 'dropdown':
                 $('#container_indicatorMultiAnswer').css('display', 'block');

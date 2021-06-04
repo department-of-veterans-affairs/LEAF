@@ -45,14 +45,10 @@
                 <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect'}-->
-            <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-            <!--{foreach from=$indicator.options item=option}-->
-                <!--{if $option.defaultSelected == true}-->
-                    <!--{$option|sanitize}--><br />
-                <!--{/if}-->
-            <!--{/foreach}-->
-            </span>
-            <!--{$indicator.htmlPrint}-->
+                <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
+                &bull;&nbsp;<!--{$indicator.value|replace:',':'<br/>&bull;&nbsp;'|sanitize}-->
+                </span>
+                <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'dropdown'}-->
                 <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
