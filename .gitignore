@@ -15,6 +15,8 @@ test_logins.txt
 LEAF_Request_Portal/templates/email/custom_override/*
 LEAF_Request_Portal/templates_c/email/custom_override/*
 
+/LEAF_Request_Portal/files/wall-murals-sunburst-.jpg
+
 db_config.php
 config.php
 LEAF_Nexus/globals.php
