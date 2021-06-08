@@ -11,6 +11,11 @@
 
 var indicatorEditing;
 
+/**
+ * Purpose: Check if an indicator is sensitive (needs to be masked)
+ * @param indicator
+ * @returns {number}
+ */
 function checkSensitive(indicator) {
     let result = 0;
     $.each(indicator, function( index, value )
@@ -28,6 +33,10 @@ function checkSensitive(indicator) {
     return result;
 }
 
+/**
+ * Purpose: Edit the form (or Sub form)
+ * @param isSubForm
+ */
 function editProperties(isSubForm) {
     dialog.setTitle('Edit Properties');
     dialog.setContent('<table>\
@@ -243,6 +252,11 @@ function editProperties(isSubForm) {
              });
         });}
 var currCategoryID = '';
+
+/**
+ * Purpose: Opens form content
+ * @param url
+ */
 function openContent(url) {
 	let isSubForm = categories[currCategoryID].parentID == '' ? false : true;
 	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
@@ -288,6 +302,11 @@ function openContent(url) {
     });
 }
 
+/**
+ * Purpose: Add Permissions to Form
+ * @param categoryID
+ * @param group
+ */
 function addPermission(categoryID, group) {
     dialog.setTitle('Edit Collaborators');
     dialog.setContent('Add collaborators to the <b>'+ formTitle +'</b> form:<div id="groups"></div>');
@@ -331,7 +350,10 @@ function addPermission(categoryID, group) {
 
 }
 
-
+/**
+ * Purpose: Remove Permissions from Form
+ * @param groupID
+ */
 function removePermission(groupID) {
     $.ajax({
         type: 'POST',
@@ -346,6 +368,9 @@ function removePermission(groupID) {
     });
 }
 
+/**
+ * Purpose: Edit existing Permissions
+ */
 function editPermissions() {
 	formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 
@@ -377,6 +402,11 @@ function editPermissions() {
 
 }
 
+/**
+ * Purpose: Remove specific Indicator Privileges
+ * @param indicatorID
+ * @param groupID
+ */
 function removeIndicatorPrivilege(indicatorID, groupID) {
     portalAPI.FormEditor.removeIndicatorPrivilege(
         indicatorID,
@@ -391,6 +421,10 @@ function removeIndicatorPrivilege(indicatorID, groupID) {
     );
 }
 
+/**
+ * Purpose: Add specific Indicator Privileges
+ * @param indicatorID
+ */
 function addIndicatorPrivilege(indicatorID) {
     dialog.setTitle('Edit Privileges');
     dialog.setContent('Add privileges to the <b>'+ currentIndicator.name +'</b> form:<div id="groups"></div>');
@@ -439,6 +473,11 @@ function addIndicatorPrivilege(indicatorID) {
 }
 
 var currentIndicator = {};
+
+/**
+ * Purpose: Edit exisitng Indicator Privileges
+ * @param indicatorID
+ */
 function editIndicatorPrivileges(indicatorID) {
     dialog_simple.setContent('<h2>Special access restrictions for this field</h2>'
                             + '<p>These restrictions will limit view access to the request initiator and members of any groups you specify.</p>'
@@ -492,12 +531,18 @@ if(columns === undefined) {
     var columns = 0;
 }
 
-// function that generates unique id to track columns
-// so that user input order updates with the grid format
+/**
+ * Purpose: Generates Unique ID to track columns to update user input with grid format
+ * @returns {string}
+ */
 function makeColumnID(){
     return "col_" + (((1+Math.random())*0x10000)|0).toString(16).substring(1);
 }
 
+/**
+ * Purpose: Add a new question to Form
+ * @param parentIndicatorID
+ */
 function newQuestion(parentIndicatorID) {
 	let title = '';
 	if(parentIndicatorID == null) {
@@ -760,6 +805,9 @@ function newQuestion(parentIndicatorID) {
     });
 }
 
+/**
+ * Purpose: Update Input Name
+ */
 function updateNames(){
     $(gridBodyElement).children('div').each(function(i) {
         if (gridJSON[i] === undefined) {
@@ -770,7 +818,10 @@ function updateNames(){
     });
 }
 
-
+/**
+ * Purpose: Make Grid for Input Option
+ * @param columns
+ */
 function makeGrid(columns) {
     $(gridBodyElement).html('');
     if(columns === 0){
@@ -809,9 +860,9 @@ function makeGrid(columns) {
             $(gridBodyElement + '> div:eq(' + i + ') > select option[value="' + gridJSON[i].type + '"]').attr('selected', 'selected');
             if(gridJSON[i].type.toString() === 'dropdown'){
                 if(gridJSON[i].options !== ""){
-                    let options = gridJSON[i].options.join("\n").toString();
+                    var options = gridJSON[i].options.join("\n").toString();
                 } else {
-                    let options = "";
+                    var options = "";
                 }
                 $(gridBodyElement + ' > div:eq(' + i + ')').css('padding-bottom', '11px');
                 if($(gridBodyElement + ' > div:eq(' + i + ') > span.dropdown').length === 0){
@@ -819,9 +870,9 @@ function makeGrid(columns) {
                 }
             } else if(gridJSON[i].type.toString() === 'multiselect'){
                 if(gridJSON[i].options !== ""){
-                    let options = gridJSON[i].options.join("\n").toString();
+                    var options = gridJSON[i].options.join("\n").toString();
                 } else {
-                    let options = "";
+                    var options = "";
                 }
                 $(gridBodyElement + ' > div:eq(' + i + ')').css('padding-bottom', '11px');
                 if($(gridBodyElement + ' > div:eq(' + i + ') > span.multiselect').length === 0){
@@ -832,6 +883,11 @@ function makeGrid(columns) {
     }
 }
 
+/**
+ * Purpose: Dropdown/Multi-Select for Grid Options
+ * @param type
+ * @param cell
+ */
 function toggleDropDown(type, cell){
     if(type === 'dropdown'){
         $(cell).parent().append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" value="" style="width: 153px; resize:none"></textarea></span>');
@@ -848,6 +904,11 @@ function toggleDropDown(type, cell){
     }
 }
 
+/**
+ * Purpose: Left arrow for Grid
+ * @param cell
+ * @param toggle
+ */
 function leftArrows(cell, toggle){
     if(toggle){
         cell.find('[title="Move column left"]').css('display', 'inline');
@@ -855,6 +916,12 @@ function leftArrows(cell, toggle){
         cell.find('[title="Move column left"]').css('display', 'none');
     }
 }
+
+/**
+ * Purpose: Right arrow for Grid
+ * @param cell
+ * @param toggle
+ */
 function rightArrows(cell, toggle){
     if(toggle){
         cell.find('[title="Move column right"]').css('display', 'inline');
@@ -863,6 +930,9 @@ function rightArrows(cell, toggle){
     }
 }
 
+/**
+ * Purpose: Add Cells for Grid Input Option
+ */
 function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > div:last'), true);
@@ -878,12 +948,19 @@ function addCells(){
     updateColumnNumbers();
 }
 
+/**
+ * Purpose: Update the number of columns
+ */
 function updateColumnNumbers(){
     $(gridBodyElement).find('span.columnNumber').each(function(index) {
         $(this).html('Column #' + (index + 1) +':&nbsp;');
     });
 }
 
+/**
+ * Purpose: Delete a column from Grid
+ * @param event
+ */
 function deleteColumn(event){
     let column = $(event.target).closest('div');
     let tbody = $(event.target).closest('div').parent('div');
@@ -924,6 +1001,10 @@ function deleteColumn(event){
     updateColumnNumbers();
 }
 
+/**
+ * Purpose: Move Column Right
+ * @param event
+ */
 function moveRight(event){
     let column = $(event.target).closest('div');
     let nextColumnLast = column.next().find('[title="Move column right"]').css('display') === 'none';
@@ -946,6 +1027,10 @@ function moveRight(event){
     updateColumnNumbers();
 }
 
+/**
+ * Purpose: Move Column Left
+ * @param event
+ */
 function moveLeft(event){
     let column = $(event.target).closest('div.cell');
     let nextColumnFirst = column.prev().find('[title="Move column left"]').css('display') === 'none';
@@ -968,7 +1053,11 @@ function moveLeft(event){
     updateColumnNumbers();
 }
 
-// edit question
+/**
+ * Purpose: Edit existing Indicator
+ * @param indicatorID
+ * @param series
+ */
 function getForm(indicatorID, series) {
 	dialog.setTitle('Editing indicatorID: ' + indicatorID);
     dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button></fieldset> \
@@ -1183,6 +1272,9 @@ function getForm(indicatorID, series) {
     // resets overflow on new dialog open
     $('#xhr').css('overflow-y', 'unset');
 
+    /**
+     * Purpose: Save custom HTML Code
+     */
     function saveCodeHTML() {
         $.ajax({
             type: 'POST',
@@ -1198,6 +1290,9 @@ function getForm(indicatorID, series) {
         });
     }
 
+    /**
+     * Purpose: Save custom HTML Print Code
+     */
     function saveCodeHTMLPrint() {
         $.ajax({
             type: 'POST',
@@ -1608,7 +1703,11 @@ function getForm(indicatorID, series) {
     });
 }
 
-//this is a modified version formatIndicatorMultiAnswer() in order to returns array
+/**
+ * Purpose: Create Array for Dropdown Options
+ * @param dropDownOptions
+ * @returns {[]|*}
+ */
 function gridDropdown(dropDownOptions){
     if(dropDownOptions == null || dropDownOptions.length === 0){
         return dropDownOptions;
@@ -1629,6 +1728,11 @@ function gridDropdown(dropDownOptions){
     return returnArray;
 }
 
+/**
+ * Purpose: Create Array for Multi-Select Options
+ * @param multiSelectOptions
+ * @returns {[]|*}
+ */
 function gridMultiselect(multiSelectOptions){
     if(multiSelectOptions == null || multiSelectOptions.length === 0){
         return multiSelectOptions;
@@ -1649,6 +1753,11 @@ function gridMultiselect(multiSelectOptions){
     return returnArray;
 }
 
+/**
+ * Purpose: Create Array for Multi-Answer Text
+ * @param multiAnswerValue
+ * @returns {string|*}
+ */
 function formatIndicatorMultiAnswer(multiAnswerValue){
     if(multiAnswerValue == null || multiAnswerValue.length === 0){
         return multiAnswerValue;
@@ -1668,6 +1777,10 @@ function formatIndicatorMultiAnswer(multiAnswerValue){
     return multiAnswerValue;
 }
 
+/**
+ * Purpose: Merge Stapled Forms
+ * @param categoryID
+ */
 function mergeForm(categoryID) {
     dialog.setTitle('Staple other form');
     dialog.setContent('Select a form to staple: <div id="formOptions"></div>');
@@ -1718,6 +1831,11 @@ function mergeForm(categoryID) {
 
 }
 
+/**
+ * Purpose: Remove Stapled Form
+ * @param categoryID
+ * @param stapledCategoryID
+ */
 function unmergeForm(categoryID, stapledCategoryID) {
     $.ajax({
         type: 'DELETE',
@@ -1728,6 +1846,10 @@ function unmergeForm(categoryID, stapledCategoryID) {
     });
 }
 
+/**
+ * Purpose: Merge another Form Dialog Box
+ * @param categoryID
+ */
 function mergeFormDialog(categoryID) {
     dialog_simple.setTitle('Staple other form');
     dialog_simple.setContent('Stapled forms will show up on the same page as the primary form.<div id="mergedForms"></div>');
@@ -1755,6 +1877,10 @@ function mergeFormDialog(categoryID) {
 
 }
 
+/**
+ * Purpose: Export Form
+ * @param categoryID
+ */
 function exportForm(categoryID) {
 	let packet = {};
 	packet.form = {};
@@ -1821,6 +1947,9 @@ function triggerClick(event){
     }
 }
 
+/**
+ * Purpose: Delete Form
+ */
 function deleteForm() {
 	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 	dialog_confirm.setTitle('Delete Form?');
@@ -1846,6 +1975,10 @@ function deleteForm() {
 
 }
 
+/**
+ * Purpose: Build Menu on Left Nav
+ * @param categoryID
+ */
 function buildMenu(categoryID) {
 	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser(); fetchFormSecureInfo();" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
 	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" onkeypress="onKeyPressClick(event)" role="button"><img src="../../libs/dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
@@ -1904,6 +2037,10 @@ function buildMenu(categoryID) {
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 
+/**
+ * Purpose: Select a Form
+ * @param categoryID
+ */
 function selectForm(categoryID) {
     currCategoryID = categoryID;
     buildMenu(categoryID);
@@ -1913,6 +2050,10 @@ function selectForm(categoryID) {
 var postRenderFormBrowser;
 
 var categories = {};
+
+/**
+ * Purpose: Show Form Nav
+ */
 function showFormBrowser() {
     window.location = '#';
 	$('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
@@ -1967,6 +2108,10 @@ function showFormBrowser() {
     });
 }
 
+/**
+ * Purpose: Show Secure Form Info
+ * @param res
+ */
 function renderSecureFormsInfo(res) {
     $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: red; display:none;" ></div>');
     $('#secure_forms_info').append('<span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span> ');
@@ -2018,6 +2163,10 @@ function renderSecureFormsInfo(res) {
     }
 }
 
+/**
+ * Purpose: History for Forms
+ * @param categoryId
+ */
 function viewHistory(categoryId){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Form History');
@@ -2036,6 +2185,11 @@ function viewHistory(categoryId){
     });
 }
 
+/**
+ * Purpose: Check for Secure Form Certifcation
+ * @param searchResolved
+ * @returns {*|jQuery}
+ */
 function fetchLEAFSRequests(searchResolved) {
     let deferred = $.Deferred();
     let query = new LeafFormQuery();
@@ -2057,7 +2211,10 @@ function fetchLEAFSRequests(searchResolved) {
     return deferred.promise();
 }
 
-
+/**
+ * Purpose: Get all Indicators on Form
+ * @returns {*|jQuery}
+ */
 function fetchIndicators() {
     let deferred = $.Deferred();
     $.ajax({
@@ -2071,6 +2228,9 @@ function fetchIndicators() {
     return deferred.promise();
 }
 
+/**
+ * Purpose: Get Form Secure Information
+ */
 function fetchFormSecureInfo() {
     $.ajax({
         type: 'GET',
@@ -2082,6 +2242,10 @@ function fetchFormSecureInfo() {
     });
 }
 
+/**
+ * Purpose: Create New form
+ * @param parentID
+ */
 function createForm(parentID) {
 	if(parentID == undefined) {
 		parentID = '';
@@ -2139,10 +2303,16 @@ function createForm(parentID) {
     });
 }
 
+/**
+ * Purpose: Import Form
+ */
 function importForm() {
 	window.location.href = './?a=importForm';
 }
 
+/**
+ * Purpose: Import Form from Library
+ */
 function formLibrary() {
     window.location.href = './?a=formLibrary';
 }
