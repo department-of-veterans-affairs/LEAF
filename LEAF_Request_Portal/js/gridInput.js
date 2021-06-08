@@ -13,7 +13,7 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
      * @param selected
      * @returns {string}
      */
-    function makeDropdown(options, selected){
+    function makeDropdown(options = Array(), selected = null){
         let dropdownElement = '<select role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">';
         for(let i = 0; i < options.length; i++){
             if(selected === options[i]){
@@ -32,7 +32,7 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
      * @param selected
      * @returns {string}
      */
-    function makeMultiselect(options, selected){
+    function makeMultiselect(options = Array(), selected = null){
         let multiselectElement = '<select multiple role="multiselect" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">';
         for(let i = 0; i < options.length; i++){
             if(selected === options[i]){
