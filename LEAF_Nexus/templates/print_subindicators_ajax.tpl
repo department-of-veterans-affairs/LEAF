@@ -18,6 +18,20 @@
             <!--{/foreach}-->
                 </span>
         <!--{/if}-->
+        <!--{if $indicator.format == 'multiselect'}-->
+                <span class="printResponse" id="data_<!--{$indicator.indicatorID|strip_tags|escape}-->_<!--{$categoryID|strip_tags|escape}-->_<!--{$uid|strip_tags|escape}-->">
+            <!--{foreach from=$indicator.options item=option}-->
+                <!--{if is_array($option)}-->
+                    <!--{assign var='option' value=$option[0]}-->
+                    <!--{if $option == $indicator.data}-->
+                        <!--{$option|strip_tags|escape}-->
+                    <!--{/if}-->
+                <!--{elseif $option == $indicator.data}-->
+                    <!--{$option|strip_tags|escape}-->
+                <!--{/if}-->
+            <!--{/foreach}-->
+                </span>
+        <!--{/if}-->
         <!--{if $indicator.format == 'dropdown'}-->
                 <span class="printResponse" id="data_<!--{$indicator.indicatorID|strip_tags|escape}-->_<!--{$categoryID|strip_tags|escape}-->_<!--{$uid|strip_tags|escape}-->">
             <!--{foreach from=$indicator.options item=option}-->

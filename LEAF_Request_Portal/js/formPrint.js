@@ -414,6 +414,7 @@ var printer = function() {
                             verticalShift += 2.17 * (lineSpacing + 2);
                             break;
                         case 'radio':
+                        case 'multiselect':
                         case 'dropdown':
                         case 'checkbox':
                         case 'checkboxes':
@@ -649,6 +650,7 @@ var printer = function() {
                             }
                             break;
                         case 'radio':
+                        case 'multiselect':
                         case 'dropdown':
                         case 'checkbox':
                         case 'checkboxes':
