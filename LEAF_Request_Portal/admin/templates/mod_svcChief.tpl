@@ -158,7 +158,7 @@ function removeUser(groupID, userID) {
     });
 }
 
-function initiateWidget(serviceID) {
+function initiateWidget(serviceID, serviceName) {
     $('#' + serviceID).on('click', function(serviceID) {
         return function() {
             $.ajax({
@@ -171,19 +171,19 @@ function initiateWidget(serviceID) {
                         button_deleteGroup = '';
                     }
                     dialog.setContent(
-                        '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory(' + serviceID + ')">View History</button></div>' + button_deleteGroup + '</div>' +
-                        '<div id="employees"></div><h3 class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div>');
+                        '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+serviceID+')">View History</button></div></div>' +
+                        '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + serviceID + '" title="groupID: ' + serviceID + '" target="_blank"><h2 role="heading" tabindex="-1">' + serviceName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
                     $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                     let counter = 0;
                     for(let i in res) {
                         // Check for active members to list
                         if (res[i].active == 1) {
-                            if (res[i].backupID == null || res[i].locallyManaged == 1) {
-                                let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem" id="removeMember_' + counter + '">REMOVE</a>';
-                                $('#employee_table').append('<div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + ' <span class="leaf-font-normal">' + removeButton + '</span></div>');
+                            if (res[i].backupID == null) {
+                                let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem leaf-remove-button" id="removeMember_' + counter + '">REMOVE</a>';
+                                $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Lname) + ', ' + toTitleCase(res[i].Fname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
                                 // Check for Backups
                                 for (let j in res) {
-                                    if (res[i].userName == res[j].backupID && res[j].locallyManaged != 1) {
+                                    if (res[i].userName == res[j].backupID) {
                                         $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
                                     }
                                 }
@@ -275,7 +275,7 @@ function getGroupList() {
                     + '<h2 id="groupTitle'+ services[i].serviceID +'">'+ services[i].service +'</h2>'
                     + '<div id="members'+ services[i].serviceID +'"></div>'
                     + '</div>');
-	    	initiateWidget(services[i].serviceID);
+	    	initiateWidget(services[i].serviceID, services[i].service);
 	    	populateMembers(services[i].serviceID, services[i].members);
 	    }
 	});
