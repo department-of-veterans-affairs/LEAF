@@ -1,4 +1,18 @@
+/**
+ * Purpose: Grid Init
+ * @param gridParameters
+ * @param indicatorID
+ * @param series
+ * @param recordID
+ * @returns {{preview: printTablePreview, output: printTableOutput, input: (function(*): number), deleteRow: deleteRow, triggerClick: triggerClick, addRow: addRow, moveDown: moveDown, moveUp: moveUp}}
+ */
 let gridInput = function(gridParameters, indicatorID, series, recordID) {
+    /**
+     * Purpose: Create Dropdown html Visual for Grid
+     * @param options
+     * @param selected
+     * @returns {string}
+     */
     function makeDropdown(options, selected){
         let dropdownElement = '<select role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">';
         for(let i = 0; i < options.length; i++){
@@ -11,6 +25,13 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
         dropdownElement += '</select>';
         return dropdownElement;
     }
+
+    /**
+     * Purpose: Create Multi-Select html Visual for Grid
+     * @param options
+     * @param selected
+     * @returns {string}
+     */
     function makeMultiselect(options, selected){
         let multiselectElement = '<select multiple role="multiselect" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">';
         for(let i = 0; i < options.length; i++){
@@ -23,6 +44,12 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
         multiselectElement += '</select>';
         return multiselectElement;
     }
+
+    /**
+     * Purpose: Create Up Arrow for Grid
+     * @param row
+     * @param toggle
+     */
     function upArrows(row, toggle){
         if(toggle){
             row.find('[title="Move line up"]').css('display', 'inline');
@@ -30,6 +57,12 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
             row.find('[title="Move line up"]').css('display', 'none');
         }
     }
+
+    /**
+     * Purpose: Create Down Arrow for Grid
+     * @param row
+     * @param toggle
+     */
     function downArrows(row, toggle){
         if(toggle){
             row.find('[title="Move line down"]').css('display', 'inline');
@@ -37,6 +70,12 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
             row.find('[title="Move line down"]').css('display', 'none');
         }
     }
+
+    /**
+     * Purpose: Prints input table for Grid
+     * @param values
+     * @returns {number}
+     */
     function printTableInput(values){
         let gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
         let gridHeadElement = '#grid_' + indicatorID + '_' + series + '_input > thead';
@@ -134,6 +173,10 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
             }
         }
     }
+
+    /**
+     * Purpose: Add a Row to Grid
+     */
     function addRow(){
         let gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
         //makes down arrow in last row visible
@@ -174,6 +217,11 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
             $(event.target).trigger('click');
         }
     }
+
+    /**
+     * Purpose: Delete a Row from Grid
+     * @param event
+     */
     function deleteRow(event){
         let row = $(event.target).closest('tr');
         let tbody = $(event.target).closest('tbody');
@@ -215,6 +263,10 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
         $('#tableStatus').attr('aria-label', 'Row ' + rowDeleted + ' removed, ' + $(tbody).children().length + ' total.');
     }
 
+    /**
+     * Purpose: Move Row Down
+     * @param event
+     */
     function moveDown(event){
         let row = $(event.target).closest('tr');
         let nextRowBottom = row.next().find('[title="Move line down"]').css('display') === 'none';
@@ -240,6 +292,11 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
         }, 0);
         $('#tableStatus').attr('aria-label', 'Moved down to row ' + (parseInt($(row).index()) + 1) + ' of ' + $(event.target).closest('tbody').children().length);
     }
+
+    /**
+     * Purpose: Move Row Up
+     * @param event
+     */
     function moveUp(event){
         let row = $(event.target).closest('tr');
         let prevRowTop = row.prev().find('[title="Move line up"]').css('display') === 'none';
@@ -265,6 +322,11 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
         }, 0);
         $('#tableStatus').attr('aria-label', 'Moved up to row ' + (parseInt($(row).index()) + 1) + ' of ' + $(event.target).closest('tbody').children().length);
     }
+
+    /**
+     * Purpose: Print output table for Grid
+     * @param values
+     */
     function printTableOutput(values) {
         let gridBodyElement = '#grid_' + indicatorID + '_' + series + '_' + recordID + '_output > tbody';
         let gridHeadElement = '#grid_' + indicatorID + '_' + series + '_' + recordID + '_output > thead';
@@ -297,6 +359,10 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
             }
         }
     }
+
+    /**
+     * Purpose: Table Preview for Grid
+     */
     function printTablePreview(){
         let previewElement = '#grid' + indicatorID + '_' + series;
 
