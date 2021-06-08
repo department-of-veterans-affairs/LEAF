@@ -3036,10 +3036,13 @@ class Form
 
         if($joinRecordResolutionData)
         {
+            require_once 'VAMC_Directory.php';
+            $dir = new VAMC_Directory;
+
             $conditions .= 'records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0 AND ';
             $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
-            $res2 = $this->db->prepared_query('SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime FROM records
+            $res2 = $this->db->prepared_query('SELECT recordID, userID as resolvedBy, lastStatus, records_step_fulfillment.stepID, fulfillmentTime FROM records
                     LEFT JOIN records_step_fulfillment USING (recordID)
                     LEFT JOIN records_workflow_state USING (recordID)
                     WHERE recordID IN (' . $recordIDs . ')
@@ -3048,8 +3051,11 @@ class Form
                         AND deleted = 0', array());
             foreach ($res2 as $item)
             {
-                if($data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] == null
-                    || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] < $item['fulfillmentTime']) {
+                if($data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] == null || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] < $item['fulfillmentTime']) {
+                    //LEAF-2239
+                    $user = $dir->lookupLogin($item['resolvedBy']);
+                    $nameResolved = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $item['resolvedBy'];
+                    $data[$item['recordID']]['recordResolutionData']['resolvedBy'] = $nameResolved;
                     $data[$item['recordID']]['recordResolutionData']['lastStatus'] = $item['lastStatus'];
                     $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] = $item['fulfillmentTime'];
                 }

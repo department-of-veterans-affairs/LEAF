@@ -137,7 +137,12 @@ function addHeader(column) {
                     $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
                 }
             }});
-        break;
+            headers.push({name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
+				if(blob[data.recordID].recordResolutionData != undefined) {
+					$('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.resolvedBy);
+				}
+            }});
+            break;
         case 'actionButton':
         	headers.unshift({name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
                 $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
