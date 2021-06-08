@@ -55,8 +55,7 @@ class Email
         $this->initPortalDB();
         $this->initNexusDB();
 
-        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
+        $this->siteRoot = "https://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $apiEntry = strpos($this->siteRoot, '/api/');
         if ($apiEntry !== false)
         {
