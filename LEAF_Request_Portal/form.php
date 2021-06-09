@@ -3059,7 +3059,7 @@ class Form
                 }
             }
         }
-        //LEAF-2239
+
         if($joinRecordResolutionBy) {
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
