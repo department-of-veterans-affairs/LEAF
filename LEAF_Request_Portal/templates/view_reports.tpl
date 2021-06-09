@@ -137,9 +137,12 @@ function addHeader(column) {
                     $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
                 }
             }});
+            break;
+        case 'resolvedBy':
+            leafSearch.getLeafFormQuery().join('recordResolutionBy');
             headers.push({name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
-				if(blob[data.recordID].recordResolutionData != undefined) {
-					$('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.resolvedBy);
+				if(blob[data.recordID].recordResolutionBy != undefined) {
+					$('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
 				}
             }});
             break;
@@ -404,6 +407,9 @@ function loadSearchPrereqs() {
                             buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Date Request Initiated</label></div>';
                             buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" />';
                             buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateResolved" title="Date request resolved"> Date Request Resolved</label></div>';
+                            //LEAF-2239
+                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" />';
+                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_resolvedBy" title="Resolved By"> Resolved By</label></div>';
 
                             for(var i in res) {
                                 buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
