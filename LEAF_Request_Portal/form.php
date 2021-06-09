@@ -3073,7 +3073,7 @@ class Form
             foreach ($res2 as $item)
             {
                 $user = $dir->lookupLogin($item['userID']);
-                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
+                $name = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']}" : $res[0]['userID'];
                 $item['resolvedBy'] = $name;
                 $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $item['resolvedBy'];
             }
