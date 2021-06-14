@@ -190,8 +190,10 @@ function processData(queryResult, workflowData, site) {
         let hasServices = false;
         if(res[i].service != null) {
             serviceTimelines[res[i].service] = serviceTimelines[res[i].service] || {};
-            service = res[i].service;
+            service = res[i].service.replace("&amp;", "&").replace("&apos;", "'"); // Clean up output
             hasServices = true;
+        } else { // Label if No Service
+            service = "No Service Selected";
         }
 
         let data = {};
@@ -581,7 +583,7 @@ function setupChart() {
     let dimService2 = facts.dimension(function(d) { return d.service; });
     let dimService3 = facts.dimension(function(d) { return d.service; });
     let dimActionsPerMonth = facts.dimension(function(d) { return d3.timeDay(d.timestamp); });
-    let dimSteps = facts.dimension(function(d) { return d.label; });
+    let dimSteps = facts.dimension(function(d) { return d.label.replace("&amp;", "&").replace("&apos;", "'"); }); // Clean up output
     let dimRequests = facts.dimension(function(d) { return d.recordID; });
     let dimDataClassificationType = facts.dimension(function(d) { return d.categoryID; });
 
