@@ -23,6 +23,13 @@ var LeafPreview = function(domID) {
                 }
                 out = out.slice(0, -6);
                 break;
+            case 'multiselect':
+                out += '<select multiple>';
+                for(var i in field.options) {
+                    out += '<option> ' + field.options[i] + '</option>';
+                }
+                out += '</select>';
+                break;
             case 'dropdown':
                 out += '<select>';
                 for(var i in field.options) {

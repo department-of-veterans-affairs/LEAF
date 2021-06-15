@@ -685,6 +685,7 @@ var LeafFormSearch = function(containerID) {
 											$('.chosen').chosen({disable_search_threshold: 6});
 											createGroupSelectorWidget(widgetID);
 											break;
+										case 'multiselect':
 										case 'dropdown':
 										case 'radio':
 											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> IS');
