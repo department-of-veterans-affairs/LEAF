@@ -1,21 +1,7 @@
-/**
- * Purpose: Grid Init
- * @param gridParameters
- * @param indicatorID
- * @param series
- * @param recordID
- * @returns {{preview: printTablePreview, output: printTableOutput, input: (function(*): number), deleteRow: deleteRow, triggerClick: triggerClick, addRow: addRow, moveDown: moveDown, moveUp: moveUp}}
- */
-let gridInput = function(gridParameters, indicatorID, series, recordID) {
-    /**
-     * Purpose: Create Dropdown html Visual for Grid
-     * @param options
-     * @param selected
-     * @returns {string}
-     */
-    function makeDropdown(options = Array(), selected = null){
-        let dropdownElement = '<select role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">';
-        for(let i = 0; i < options.length; i++){
+var gridInput = function(gridParameters, indicatorID, series, recordID) {
+    function makeDropdown(options, selected){
+        var dropdownElement = '<select role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">';
+        for(var i = 0; i < options.length; i++){
             if(selected === options[i]){
                 dropdownElement += '<option value="' + options[i] + '" selected="selected">' + options[i] + '</option>';
             } else {
@@ -25,31 +11,6 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
         dropdownElement += '</select>';
         return dropdownElement;
     }
-
-    /**
-     * Purpose: Create Multi-Select html Visual for Grid
-     * @param options
-     * @param selected
-     * @returns {string}
-     */
-    function makeMultiselect(options = Array(), selected = null){
-        let multiselectElement = '<select multiple role="multiselect" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">';
-        for(let i = 0; i < options.length; i++){
-            if(selected === options[i]){
-                multiselectElement += '<option value="' + options[i] + '" selected="selected">' + options[i] + '</option>';
-            } else {
-                multiselectElement += '<option value="' + options[i] + '">' + options[i] + '</option>';
-            }
-        }
-        multiselectElement += '</select>';
-        return multiselectElement;
-    }
-
-    /**
-     * Purpose: Create Up Arrow for Grid
-     * @param row
-     * @param toggle
-     */
     function upArrows(row, toggle){
         if(toggle){
             row.find('[title="Move line up"]').css('display', 'inline');
@@ -57,12 +18,6 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
             row.find('[title="Move line up"]').css('display', 'none');
         }
     }
-
-    /**
-     * Purpose: Create Down Arrow for Grid
-     * @param row
-     * @param toggle
-     */
     function downArrows(row, toggle){
         if(toggle){
             row.find('[title="Move line down"]').css('display', 'inline');
@@ -70,19 +25,13 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
             row.find('[title="Move line down"]').css('display', 'none');
         }
     }
-
-    /**
-     * Purpose: Prints input table for Grid
-     * @param values
-     * @returns {number}
-     */
     function printTableInput(values){
-        let gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
-        let gridHeadElement = '#grid_' + indicatorID + '_' + series + '_input > thead';
-        let rows = values.cells !== undefined && values.cells.length > 0 ? values.cells.length : 0;
-        let columns = gridParameters.length;
-        let element = '';
-        let columnOrder = [];
+        var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
+        var gridHeadElement = '#grid_' + indicatorID + '_' + series + '_input > thead';
+        var rows = values.cells !== undefined && values.cells.length > 0 ? values.cells.length : 0;
+        var columns = gridParameters.length;
+        var element = '';
+        var columnOrder = [];
 
         //fix for report builder
         //prevents duplicate table from being created on edit
@@ -92,7 +41,7 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
 
         //finds and displays column names
         //gives each cell in table head unique ID from form editor
-        for(let i = 0; i < columns; i++){
+        for(var i = 0; i < columns; i++){
             $(gridHeadElement).append('<td><div style="width: 100px;" id="' + gridParameters[i].id + '">' + gridParameters[i].name + '</div></td>');
             columnOrder.push(gridParameters[i].id);
         }
@@ -101,15 +50,12 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
         $(gridHeadElement).append('<td style="width: 17px;">&nbsp;</td><td style="width: 17px;">&nbsp;</td>');
 
         //populates table
-        for(let i = 0; i < rows; i++){
+        for(var i = 0; i < rows; i++){
             $(gridBodyElement).append('<tr></tr>');
 
             //generates row layout
-            for(let j = 0; j < columns; j++){
+            for(var j = 0; j < columns; j++){
                 switch (gridParameters[j].type) {
-                    case 'multiselect':
-                        element = makeMultiselect(gridParameters[j].options, null);
-                        break;
                     case 'dropdown':
                         element = makeDropdown(gridParameters[j].options, null);
                         break;
@@ -131,10 +77,10 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
 
             //assigns pre-existing values to cells based on its column
             //if its column has been deleted, the value is not assigned
-            for(let j = 0; j < values.columns.length; j++){
+            for(var j = 0; j < values.columns.length; j++){
                 if(columnOrder.indexOf(values.columns[j]) !== -1) {
-                    let value = values.cells === undefined || values.cells[i] === undefined || values.cells[i][j] === undefined || columnOrder.indexOf(values.columns[j]) === -1 ? '' : values.cells[i][j];
-                    let newCoordinates = gridBodyElement + ' > tr:eq(' + i + ') > td:eq(' + columnOrder.indexOf(values.columns[j]) + ')';
+                    var value = values.cells === undefined || values.cells[i] === undefined || values.cells[i][j] === undefined || columnOrder.indexOf(values.columns[j]) === -1 ? '' : values.cells[i][j];
+                    var newCoordinates = gridBodyElement + ' > tr:eq(' + i + ') > td:eq(' + columnOrder.indexOf(values.columns[j]) + ')';
                     switch ($(newCoordinates).children().first().prop("tagName")) {
                         case 'SELECT':
                             $(newCoordinates + ' > select').val(value);
@@ -173,20 +119,13 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
             }
         }
     }
-
-    /**
-     * Purpose: Add a Row to Grid
-     */
     function addRow(){
-        let gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
+        var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
         //makes down arrow in last row visible
         $(gridBodyElement + ' > tr:last > td:last').find('[title="Move line down"]').css('display', 'inline');
         $(gridBodyElement).append('<tr></tr>');
-        for(let i = 0; i < gridParameters.length; i++){
+        for(var i = 0; i < gridParameters.length; i++){
             switch (gridParameters[i].type) {
-                case 'multiselect':
-                    $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '">' + makeMultiselect(gridParameters[i].options, null) + '</td>');
-                    break;
                 case 'dropdown':
                     $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '">' + makeDropdown(gridParameters[i].options, null) + '</td>');
                     break;
@@ -217,16 +156,11 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
             $(event.target).trigger('click');
         }
     }
-
-    /**
-     * Purpose: Delete a Row from Grid
-     * @param event
-     */
     function deleteRow(event){
-        let row = $(event.target).closest('tr');
-        let tbody = $(event.target).closest('tbody');
-        let rowDeleted = parseInt($(row).index()) + 1;
-        let focus;
+        var row = $(event.target).closest('tr');
+        var tbody = $(event.target).closest('tbody');
+        var rowDeleted = parseInt($(row).index()) + 1;
+        var focus;
         switch(tbody.find('tr').length){
             case 1:
                 row.remove();
@@ -263,15 +197,11 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
         $('#tableStatus').attr('aria-label', 'Row ' + rowDeleted + ' removed, ' + $(tbody).children().length + ' total.');
     }
 
-    /**
-     * Purpose: Move Row Down
-     * @param event
-     */
     function moveDown(event){
-        let row = $(event.target).closest('tr');
-        let nextRowBottom = row.next().find('[title="Move line down"]').css('display') === 'none';
-        let rowTop = row.find('[title="Move line up"]').css('display') === 'none';
-        let focus;
+        var row = $(event.target).closest('tr');
+        var nextRowBottom = row.next().find('[title="Move line down"]').css('display') === 'none';
+        var rowTop = row.find('[title="Move line up"]').css('display') === 'none';
+        var focus;
         upArrows(row, true);
         if(nextRowBottom){
             downArrows(row, false);
@@ -292,16 +222,11 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
         }, 0);
         $('#tableStatus').attr('aria-label', 'Moved down to row ' + (parseInt($(row).index()) + 1) + ' of ' + $(event.target).closest('tbody').children().length);
     }
-
-    /**
-     * Purpose: Move Row Up
-     * @param event
-     */
     function moveUp(event){
-        let row = $(event.target).closest('tr');
-        let prevRowTop = row.prev().find('[title="Move line up"]').css('display') === 'none';
-        let rowBottom = row.find('[title="Move line down"]').css('display') === 'none';
-        let focus;
+        var row = $(event.target).closest('tr');
+        var prevRowTop = row.prev().find('[title="Move line up"]').css('display') === 'none';
+        var rowBottom = row.find('[title="Move line down"]').css('display') === 'none';
+        var focus;
         downArrows(row, true);
         if(prevRowTop){
             upArrows(row, false);
@@ -322,53 +247,44 @@ let gridInput = function(gridParameters, indicatorID, series, recordID) {
         }, 0);
         $('#tableStatus').attr('aria-label', 'Moved up to row ' + (parseInt($(row).index()) + 1) + ' of ' + $(event.target).closest('tbody').children().length);
     }
-
-    /**
-     * Purpose: Print output table for Grid
-     * @param values
-     */
     function printTableOutput(values) {
-        let gridBodyElement = '#grid_' + indicatorID + '_' + series + '_' + recordID + '_output > tbody';
-        let gridHeadElement = '#grid_' + indicatorID + '_' + series + '_' + recordID + '_output > thead';
-        let rows = values.cells === undefined ? 0 : values.cells.length;
-        let columns = gridParameters.length;
-        let columnOrder = [];
+        var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_' + recordID + '_output > tbody';
+        var gridHeadElement = '#grid_' + indicatorID + '_' + series + '_' + recordID + '_output > thead';
+        var rows = values.cells === undefined ? 0 : values.cells.length;
+        var columns = gridParameters.length;
+        var columnOrder = [];
 
         //finds and displays column names
-        for(let i = 0; i < columns; i++){
+        for(var i = 0; i < columns; i++){
             $(gridHeadElement).append('<td style="width:100px">' + gridParameters[i].name + '</td>');
             columnOrder.push(gridParameters[i].id);
         }
 
         //populates table
-        for (let i = 0; i < rows; i++) {
+        for (var i = 0; i < rows; i++) {
             $(gridBodyElement).append('<tr></tr>');
 
             //generates row layout
-            for (let j = 0; j < columns; j++) {
+            for (var j = 0; j < columns; j++) {
                 $(gridBodyElement + ' > tr:eq(' + i + ')').append('<td style="width:100px"></td>')
             }
 
             //assigns pre-existing values to cells based on its column
             //if its column has been deleted, the value is not assigned
-            for (let j = 0; j < values.columns.length; j++) {
+            for (var j = 0; j < values.columns.length; j++) {
                 if(columnOrder.indexOf(values.columns[j]) !== -1) {
-                    let value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
+                    var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
                     $(gridBodyElement + ' > tr:eq(' + i + ') > td:eq(' + columnOrder.indexOf(values.columns[j]) + ')').html(value);
                 }
             }
         }
     }
-
-    /**
-     * Purpose: Table Preview for Grid
-     */
     function printTablePreview(){
-        let previewElement = '#grid' + indicatorID + '_' + series;
+        var previewElement = '#grid' + indicatorID + '_' + series;
 
-        for(let i = 0; i < gridParameters.length; i++){
+        for(var i = 0; i < gridParameters.length; i++){
             $(previewElement).append('<div style="padding: 10px; vertical-align: top; display: inline-block; flex: 1; order: '+ (i + 1) + '"><b>Column #' + (i + 1) + '</b></br>Title:' + gridParameters[i].name + '</br>Type:' + gridParameters[i].type + '</br></div>');
-            if(gridParameters[i].type === 'dropdown' || 'multiselect'){
+            if(gridParameters[i].type === 'dropdown'){
                 $(previewElement + '> div:eq(' + i + ')').append('Options:</br><li>' + gridParameters[i].options.toString().replace(/,/g, "</li><li>") + '</li></br>');
             }
         }

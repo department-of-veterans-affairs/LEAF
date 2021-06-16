@@ -724,7 +724,7 @@ function newQuestion(parentIndicatorID) {
                 let gridJSON = [];
 
                 //gather column names and column types
-                //if column type is dropdown/multiselect, adds property.options
+                //if column type is dropdown, adds property.options
                 $(gridBodyElement).find('div.cell').each(function() {
                     let properties = new Object();
                     if($(this).children('input:eq(0)').val() === 'undefined'){
@@ -735,7 +735,7 @@ function newQuestion(parentIndicatorID) {
                     properties.id = $(this).attr('id');
                     properties.type = $(this).find('select').val();
                     if(properties.type !== undefined){
-                        if(properties.type === 'dropdown' || 'multiselect'){
+                        if(properties.type === 'dropdown'){
                             properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
                         }
                     } else {
@@ -868,23 +868,13 @@ function makeGrid(columns) {
                 if($(gridBodyElement + ' > div:eq(' + i + ') > span.dropdown').length === 0){
                     $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" style="width: 153px; resize: none;"value="">' + options + '</textarea></span>');
                 }
-            } else if(gridJSON[i].type.toString() === 'multiselect'){
-                if(gridJSON[i].options !== ""){
-                    var options = gridJSON[i].options.join("\n").toString();
-                } else {
-                    var options = "";
-                }
-                $(gridBodyElement + ' > div:eq(' + i + ')').css('padding-bottom', '11px');
-                if($(gridBodyElement + ' > div:eq(' + i + ') > span.multiselect').length === 0){
-                    $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="multiselect"><div>One option per line</div><textarea aria-label="Multi-Select options, one option per line" style="width: 153px; resize: none;"value="">' + options + '</textarea></span>');
-                }
             }
         }
     }
 }
 
 /**
- * Purpose: Dropdown/Multi-Select for Grid Options
+ * Purpose: Dropdown for Grid Options
  * @param type
  * @param cell
  */
@@ -892,15 +882,9 @@ function toggleDropDown(type, cell){
     if(type === 'dropdown'){
         $(cell).parent().append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" value="" style="width: 153px; resize:none"></textarea></span>');
         $('#tableStatus').attr('aria-label', 'Make drop options in the space below, one option per line.');
-        $(cell).parent().find('span.multiselect').remove();
-    } else if(type === 'multiselect'){
-        $(cell).parent().append('<span class="multiselect"><div>One option per line</div><textarea aria-label="Multi-Select options, one option per line" value="" style="width: 153px; resize:none"></textarea></span>');
-        $('#tableStatus').attr('aria-label', 'Make drop options in the space below, one option per line.');
-        $(cell).parent().find('span.dropdown').remove();
     } else {
         $(cell).parent().find('span.dropdown').remove();
-        $(cell).parent().find('span.multiselect').remove();
-        $('#tableStatus').attr('aria-label', 'Dropdown/Multi-Select options box removed');
+        $('#tableStatus').attr('aria-label', 'Dropdown options box removed');
     }
 }
 
@@ -1463,7 +1447,7 @@ function getForm(indicatorID, series) {
                 let gridJSON = [];
 
                 //gather column names and column types
-                //if column type is dropdown/multiselect, adds property.options
+                //if column type is dropdown, adds property.options
                 $(gridBodyElement).find('div.cell').each(function() {
                     let properties = new Object();
                     if($(this).children('input:eq(0)').val() === 'undefined'){
@@ -1474,7 +1458,7 @@ function getForm(indicatorID, series) {
                     properties.id = $(this).attr('id');
                     properties.type = $(this).find('select').val();
                     if(properties.type !== undefined){
-                        if(properties.type === 'dropdown' || 'multiselect'){
+                        if(properties.type === 'dropdown'){
                             properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
                         }
                     } else {
