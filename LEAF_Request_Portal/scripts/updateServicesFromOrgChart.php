@@ -32,15 +32,15 @@ $tag = new Orgchart\Tag($db_phonebook, $login);
 $res = $group->listGroupsByTag('service');
 
 // update quadrad/pentad/elt nomenclature
-$vars = array(':leadershipType' => ucfirst($tag->getParent('service')) . ' Review');
+$sql_vars = array(':leadershipType' => ucfirst($tag->getParent('service')) . ' Review');
 $db->prepared_query('UPDATE dependencies
 						SET description = :leadershipType
-						WHERE dependencyID = 8', $vars);
+						WHERE dependencyID = 8', $sql_vars);
 
-$vars = array(':leadershipType' => ucfirst($tag->getParent('service')));
+$sql_vars = array(':leadershipType' => ucfirst($tag->getParent('service')));
 $db->prepared_query('UPDATE groups
 						SET name = :leadershipType
-						WHERE groupID = -1', $vars);
+						WHERE groupID = -1', $sql_vars);
 
 // get quadrad groups
 $resquadrad = $group->listGroupsByTag($tag->getParent('service'));
@@ -49,7 +49,7 @@ $db->beginTransaction();
 
 echo 'Clearing out existing users/groups.<br />';
 
-$db->prepared_query('DELETE FROM users WHERE groupID > 1 AND locallyManaged != 1', array());
+$db->prepared_query('DELETE FROM users WHERE groupID > 1 AND locallyManaged != 1 AND active != 0', array());
 $db->prepared_query('DELETE FROM `groups` WHERE groupID > 1', array());
 
 // import quadrads
@@ -57,12 +57,12 @@ foreach ($resquadrad as $quadrad)
 {
     echo "Synching Quadrad: {$quadrad['groupTitle']}<br />";
 
-    $vars = array(':groupID' => $quadrad['groupID'],
+    $sql_vars = array(':groupID' => $quadrad['groupID'],
             ':quadrad' => $quadrad['groupTitle'], );
 
     $db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name)
                             VALUES (:groupID, -1, :quadrad)
-                            ON DUPLICATE KEY UPDATE name=:quadrad', $vars);
+                            ON DUPLICATE KEY UPDATE name=:quadrad', $sql_vars);
 
     $leaderGroupID = $group->getGroupLeader($quadrad['groupID']);
 
@@ -72,31 +72,31 @@ foreach ($resquadrad as $quadrad)
     {
         if ($emp['userName'] != '')
         {
-            $vars = array(':userID' => $emp['userName'],
+            $sql_vars = array(':userID' => $emp['userName'],
                           ':groupID' => $quadrad['groupID'], );
 
             $db->prepared_query('INSERT INTO users (userID, groupID)
-                                    VALUES (:userID, :groupID)', $vars);
+                                    VALUES (:userID, :groupID)', $sql_vars);
 
             // include the backups of employees
             $backups = $employee->getBackups($emp['empUID']);
             foreach ($backups as $backup)
             {
-                $vars = array(':userID' => $backup['userName'],
+                $sql_vars = array(':userID' => $backup['userName'],
                               ':groupID' => $quadrad['groupID'],
                               ':backupID' => $emp['userName'], );
 
                 // Add backupID for sync checks
                 $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                   		 VALUES (:userID, :groupID, :backupID)', $vars);
+                                   		 VALUES (:userID, :groupID, :backupID)', $sql_vars);
             }
         }
     }
 }
 
-$vars = array();
+$sql_vars = array();
 $db->prepared_query('DELETE FROM services WHERE serviceID > 0', array());
-$db->prepared_query('DELETE FROM service_chiefs WHERE serviceID > 0 AND locallyManaged != 1', array());
+$db->prepared_query('DELETE FROM service_chiefs WHERE serviceID > 0 AND locallyManaged != 1 AND active != 0', array());
 // import services
 foreach ($res as $service)
 {
@@ -110,14 +110,14 @@ foreach ($res as $service)
 
     echo "Synching Service: {$service['groupTitle']}<br />";
     $abbrService = isset($service['groupAbbreviation']) ? $service['groupAbbreviation'] : '';
-    $vars = array(':serviceID' => $service['groupID'],
+    $sql_vars = array(':serviceID' => $service['groupID'],
                   ':service' => $service['groupTitle'],
                   ':abbrService' => $abbrService,
                   ':groupID' => $quadID, );
 
     $db->prepared_query('INSERT INTO services (serviceID, service, abbreviatedService, groupID)
                             VALUES (:serviceID, :service, :abbrService, :groupID)
-    						ON DUPLICATE KEY UPDATE service=:service, groupID=:groupID', $vars);
+    						ON DUPLICATE KEY UPDATE service=:service, groupID=:groupID', $sql_vars);
 
     $leaderGroupID = $group->getGroupLeader($service['groupID']);
     $resEmp = $position->getEmployees($leaderGroupID);
@@ -126,23 +126,23 @@ foreach ($res as $service)
     {
         if ($emp['userName'] != '')
         {
-            $vars = array(':userID' => $emp['userName'],
+            $sql_vars = array(':userID' => $emp['userName'],
                           ':serviceID' => $service['groupID'], );
 
             $db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
-                                    VALUES (:serviceID, :userID)', $vars);
+                                    VALUES (:serviceID, :userID)', $sql_vars);
 
             // include the backups of employees
             $backups = $employee->getBackups($emp['empUID']);
             foreach ($backups as $backup)
             {
-                $vars = array(':userID' => $backup['userName'],
+                $sql_vars = array(':userID' => $backup['userName'],
                               ':serviceID' => $service['groupID'],
                               ':backupID' => $emp['userName'],  );
 
                 // Add backupID for sync checks
                 $db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID)
-                                    VALUES (:serviceID, :userID, :backupID)', $vars);
+                                    VALUES (:serviceID, :userID, :backupID)', $sql_vars);
             }
         }
     }
@@ -151,40 +151,40 @@ foreach ($res as $service)
     // if so, update groups table
     if ($service['groupID'] == $quadID)
     {
-        $vars = array(':groupID' => $service['groupID']);
+        $sql_vars = array(':groupID' => $service['groupID']);
 
-        $db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $vars);
+        $db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $sql_vars);
 
         $resChief = $db->prepared_query('SELECT * FROM service_chiefs
     											WHERE serviceID=:groupID
-    												AND active=1', $vars);
+    												AND active=1', $sql_vars);
         foreach ($resChief as $chief)
         {
-            $vars = array(':userID' => $chief['userID'],
+            $sql_vars = array(':userID' => $chief['userID'],
                           ':groupID' => $quadID, );
             $db->prepared_query('INSERT INTO users (userID, groupID)
-                                   		 VALUES (:userID, :groupID)', $vars);
+                                   		 VALUES (:userID, :groupID)', $sql_vars);
         }
     }
 
     //refresh request portal members backups
-    $vars = array(':serviceID' => $service['groupID'],);
+    $sql_vars = array(':serviceID' => $service['groupID'],);
 
-    $resEmp = $db->prepared_query('SELECT * FROM service_chiefs WHERE serviceID=:serviceID', $vars);
+    $resEmp = $db->prepared_query('SELECT * FROM service_chiefs WHERE serviceID=:serviceID AND active=1', $sql_vars);
     foreach ($resEmp as $emp)
     {
         $empID = $employee->lookupLogin($emp['userID']);
         $backups = $employee->getBackups($empID[0]['empUID']);
         foreach ($backups as $backup)
         {
-            $vars = array(':userID' => $backup['userName'],
+            $sql_vars = array(':userID' => $backup['userName'],
                 ':serviceID' => $service['groupID'],
                 ':backupID' => $emp['userID'], );
 
             // Add backupID check for updates
             $db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID)
                                                     VALUES (:serviceID, :userID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID, backupID=:backupID', $vars);
+                                                    ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID, backupID=:backupID', $sql_vars);
         }
     }
 }
@@ -198,12 +198,12 @@ foreach (Config::$orgchartImportTags as $tag)
     {
         echo "Synching Group: {$tgroup['groupTitle']}<br />";
 
-        $vars = array(':groupID' => $tgroup['groupID'],
+        $sql_vars = array(':groupID' => $tgroup['groupID'],
                 ':title' => $tgroup['groupTitle'], );
 
         $db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name)
                             VALUES (:groupID, NULL, :title)
-                            ON DUPLICATE KEY UPDATE name=:title', $vars);
+                            ON DUPLICATE KEY UPDATE name=:title', $sql_vars);
 
         $positions = $group->listGroupPositions($tgroup['groupID']);
         $resEmp = $group->listGroupEmployees($tgroup['groupID']);
@@ -215,44 +215,47 @@ foreach (Config::$orgchartImportTags as $tag)
         {
             if ($emp['userName'] != '')
             {
-                $vars = array(':userID' => $emp['userName'],
+                $sql_vars = array(':userID' => $emp['userName'],
                               ':groupID' => $tgroup['groupID'], );
 
                 $db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $vars);
+										VALUES (:userID, :groupID)', $sql_vars);
+
+                $res = $db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
 
                 // include the backups of employees
-                $backups = $employee->getBackups($emp['empUID']);
-                foreach ($backups as $backup)
-                {
-                    $vars = array(':userID' => $backup['userName'],
-                                  ':groupID' => $tgroup['groupID'],
-                                  ':backupID' => $emp['userName'], );
+                if ($res[0]['active'] == 1) {
+                    $backups = $employee->getBackups($emp['empUID']);
+                    foreach ($backups as $backup) {
+                        $sql_vars = array(':userID' => $backup['userName'],
+                            ':groupID' => $tgroup['groupID'],
+                            ':backupID' => $emp['userName'],);
 
-                    // Add backupID for sync checks
-                    $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-										VALUES (:userID, :groupID, :backupID)', $vars);
+                        // Add backupID for sync checks
+                        $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+										VALUES (:userID, :groupID, :backupID)', $sql_vars);
+                    }
                 }
             }
         }
         //refresh request portal members backups
-        $vars = array(':groupID' => $tgroup['groupID'],);
+        $sql_vars = array(':groupID' => $tgroup['groupID'],);
 
-        $resEmp = $db->prepared_query('SELECT * FROM users WHERE groupID=:groupID', $vars);
+        $resEmp = $db->prepared_query('SELECT * FROM users WHERE groupID=:groupID AND active=1', $sql_vars);
         foreach ($resEmp as $emp)
         {
             $empID = $employee->lookupLogin($emp['userID']);
             $backups = $employee->getBackups($empID[0]['empUID']);
             foreach ($backups as $backup)
             {
-                $vars = array(':userID' => $backup['userName'],
+                $sql_vars = array(':userID' => $backup['userName'],
                     ':groupID' => $tgroup['groupID'],
                     ':backupID' => $emp['userID'], );
 
                 // Add backupID check for updates
                 $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
                                                     VALUES (:userID, :groupID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $vars);
+                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $sql_vars);
             }
         }
     }
