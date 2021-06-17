@@ -39,7 +39,6 @@ var LeafFormQuery = function() {
     	temp.operator = operator;
     	temp.match = match;
     	temp.op = op;
-    	console.log(op);
     	query.terms.push(temp);
     }
 

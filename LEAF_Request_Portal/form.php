@@ -2489,9 +2489,13 @@ class Form
         $op = '';
         foreach ($query['terms'] as $q)
         {
+
             $op = 'AND';
             if ($q['op']) {
                 $op = $q['op'];
+                if ($op == 'OR') {
+                    $conditions .= ')';
+                }
             }
             $operator = '';
             switch ($q['operator']) {
@@ -2529,7 +2533,7 @@ class Form
             $vars[':' . $q['id'] . $count] = $q['match'];
             switch ($q['id']) {
                 case 'recordID':
-                    $conditions .= "recordID {$operator} :recordID{$count} {$op} ";
+                    $conditions .= " {$op} recordID {$operator} :recordID{$count}";
 
                     break;
                 case 'recordIDs':
@@ -2545,31 +2549,31 @@ class Form
                     }
                     $validRecordIDs = trim($validRecordIDs, ',');
 
-                    $conditions .= "recordID IN ({$validRecordIDs}) {$op} ";
+                    $conditions .= " {$op} recordID IN ({$validRecordIDs})";
 
                     unset($vars[":recordIDs{$count}"]);
 
                     break;
                 case 'serviceID':
-                    $conditions .= "serviceID {$operator} :serviceID{$count} {$op} ";
+                    $conditions .= " {$op} serviceID {$operator} :serviceID{$count}";
 
                     break;
                 case 'submitted':
-                    $conditions .= "submitted {$operator} :submitted{$count} {$op} ";
+                    $conditions .= " {$op} submitted {$operator} :submitted{$count}";
 
                     break;
                 case 'deleted':
-                    $conditions .= "deleted {$operator} :deleted{$count} {$op} ";
+                    $conditions .= " {$op} deleted {$operator} :deleted{$count}";
 
                     break;
                 case 'title':
-                    $conditions .= "(title {$operator} :title{$count}) {$op} ";
+                    $conditions .= " {$op} (title {$operator} :title{$count})";
                     $scrubSpace = array('/^(%\s)+/', '/(\s+%)$/');
                     $vars[':title' . $count] = preg_replace($scrubSpace, '%', $vars[':title' . $count]);
 
                     break;
                 case 'userID':
-                    $conditions .= "userID {$operator} :userID{$count} {$op} ";
+                    $conditions .= " {$op} userID {$operator} :userID{$count}";
 
                     break;
                 case 'date': // backwards compatibility
@@ -2577,14 +2581,14 @@ class Form
                     switch ($operator) {
                         case '=':
                             $vars[':date' . $count . 'b'] = $vars[':date' . $count] + 86400;
-                            $conditions .= "(date >= :date{$count} AND date <= :date{$count}b) {$op} ";
+                            $conditions .= " {$op} (date >= :date{$count} AND date <= :date{$count}b)";
 
                             break;
                         case '<=':
                             $vars[':date' . $count] += 86400; // set to end of day
                             // no break
                         default:
-                            $conditions .= "date {$operator} :date{$count} {$op} ";
+                            $conditions .= " {$op} date {$operator} :date{$count}";
 
                             break;
                     }
@@ -2595,14 +2599,14 @@ class Form
                     switch ($operator) {
                         case '=':
                             $vars[':dateInitiated' . $count . 'b'] = $vars[':dateInitiated' . $count] + 86400;
-                            $conditions .= "(date >= :dateInitiated{$count} AND date <= :dateInitiated{$count}b) {$op} ";
+                            $conditions .= " {$op} (date >= :dateInitiated{$count} AND date <= :dateInitiated{$count}b)";
 
                             break;
                         case '<=':
                             $vars[':dateInitiated' . $count] += 86400; // set to end of day
                             // no break
                         default:
-                            $conditions .= "date {$operator} :dateInitiated{$count} {$op} ";
+                            $conditions .= " {$op} date {$operator} :dateInitiated{$count}";
 
                             break;
                     }
@@ -2613,14 +2617,14 @@ class Form
                     switch ($operator) {
                         case '=':
                             $vars[':dateSubmitted' . $count . 'b'] = $vars[':dateSubmitted' . $count] + 86400;
-                            $conditions .= "(submitted >= :dateSubmitted{$count} AND submitted <= :dateSubmitted{$count}b) {$op} ";
+                            $conditions .= " {$op} (submitted >= :dateSubmitted{$count} AND submitted <= :dateSubmitted{$count}b)";
 
                             break;
                         case '<=':
                             $vars[':dateSubmitted' . $count] += 86400; // set to end of day
                             // no break
                         default:
-                            $conditions .= "submitted {$operator} :dateSubmitted{$count} {$op} ";
+                            $conditions .= " {$op} submitted {$operator} :dateSubmitted{$count}";
 
                             break;
                     }
@@ -2648,28 +2652,28 @@ class Form
                     {
                         switch ($vars[':stepID' . $count]) {
                             case 'submitted':
-                                $conditions .= 'submitted > 0 {$op} ';
+                                $conditions .= " {$op} submitted > 0";
 
                                 break;
                             case 'notSubmitted': // backwards compat
-                                $conditions .= 'submitted = 0 {$op} ';
+                                $conditions .= " {$op} submitted = 0";
 
                                 break;
                             case 'deleted':
-                                $conditions .= 'deleted > 0 {$op} ';
+                                $conditions .= " {$op} deleted > 0";
 
                                 break;
                             case 'notDeleted': // backwards compat
-                                $conditions .= 'deleted = 0 {$op} ';
+                                $conditions .= " {$op} deleted = 0";
 
                                 break;
                             case 'resolved':
-                                $conditions .= "(records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0) {$op} ";
+                                $conditions .= " {$op} (records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)";
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
                             case 'notResolved': // backwards compat
-                                $conditions .= "(records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0) {$op} ";
+                                $conditions .= " {$op} (records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0)";
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
@@ -2694,28 +2698,28 @@ class Form
                         {
                             switch ($vars[':stepID' . $count]) {
                             case 'submitted':
-                                $conditions .= "submitted = 0 {$op} ";
+                                $conditions .= " {$op} submitted = 0";
 
                                 break;
                             case 'notSubmitted': // backwards compat
-                                $conditions .= "submitted > 0 {$op} ";
+                                $conditions .= " {$op} submitted > 0";
 
                                 break;
                             case 'deleted':
-                                $conditions .= "deleted = 0 {$op} ";
+                                $conditions .= " {$op} deleted = 0";
 
                                 break;
                             case 'notDeleted': // backwards compat
-                                $conditions .= "deleted > 0 {$op} ";
+                                $conditions .= " {$op} deleted > 0";
 
                                 break;
                             case 'resolved':
-                                $conditions .= "(records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0) {$op} ";
+                                $conditions .= " {$op} (records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0)";
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
                             case 'notResolved': // backwards compat
-                                $conditions .= "(records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0) {$op} ";
+                                $conditions .= " {$op} (records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)";
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
@@ -2788,13 +2792,13 @@ class Form
                     // fix to select null data
                     if ($operator == '=' && $vars[':data' . $count] == '')
                     {
-                        $conditions .= "(lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NULL) {$op} ";
+                        $conditions .= " {$op} (lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NULL)";
                     }
                     else
                     {
                         if ($operator == '!=' && $vars[':data' . $count] == '')
                         {
-                            $conditions .= "(lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NOT NULL) {$op} ";
+                            $conditions .= " {$op} (lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NOT NULL)";
                         }
                         else
                         {
@@ -2825,11 +2829,11 @@ class Form
                             if (isset($tResTypeHint[0]['default'])
                             && $tResTypeHint[0]['default'] == $vars[':data' . $count])
                             {
-                                $conditions .= "({$dataTerm} {$operator} $dataMatch OR {$dataTerm} IS NULL) {$op} ";
+                                $conditions .= " {$op} ({$dataTerm} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
                             }
                             else
                             {
-                                $conditions .= "{$dataTerm} {$operator} $dataMatch {$op} ";
+                                $conditions .= " {$op} {$dataTerm} {$operator} $dataMatch";
                             }
                         }
                     }
@@ -2908,7 +2912,9 @@ class Form
             }
         }
 
-        $conditions = substr($conditions, 0, strlen($conditions) - (strlen($op) + 1)); // trim trailing "and "
+        $conditions = substr($conditions, 5, strlen($conditions) - 5); // trim trailing "and "
+        var_dump($conditions);
+        exit;
         $conditions = $conditions == '' ? '1=1' : $conditions;
         $limit = '';
         if (isset($query['limit']) && is_numeric($query['limit']))
@@ -3047,7 +3053,7 @@ class Form
 
         if($joinRecordResolutionData)
         {
-            $conditions .= '(records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0) OR ';
+            $conditions .= 'AND (records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)';
             $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
             $res2 = $this->db->prepared_query('SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime FROM records
