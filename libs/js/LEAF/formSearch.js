@@ -33,6 +33,7 @@ var LeafFormSearch = function(containerID) {
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="'+prefixID+'searchTerms"></table>\
 		        <button class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</button>\
+		        <button class="buttonNorm" id="'+prefixID+'orTerm" style="float: left">Or...</button>\
 		        <br /><br />\
 		        <button id="'+prefixID+'advancedSearchApply" class="buttonNorm" style="text-align: center; width: 100%">Apply Filters</button>\
 		    </fieldset>\
@@ -93,6 +94,10 @@ var LeafFormSearch = function(containerID) {
 	    	newSearchWidget();
 	    	$('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
 	    });
+		$('#' + prefixID + 'orTerm').on('click', function() {
+			newSearchWidget('OR');
+			$('.chosen').chosen({disable_search_threshold: 6}); // needs to be here due to chosen issue with display:none
+		});
 
 		$('#' + prefixID+ 'searchtxt').on('keydown', function(e) {
 			showBusy();
@@ -167,7 +172,7 @@ var LeafFormSearch = function(containerID) {
         }
         if(isJSON && advSearch != null && widgetCounter <= advSearch.length) {
         	for(var i = 1; i < advSearch.length; i++) {
-        		newSearchWidget();
+				newSearchWidget(advSearch[i].op);
         	}
         	for(var i = 0; i < advSearch.length; i++) {
         		$('#' + prefixID + 'widgetTerm_' + i).val(advSearch[i].id);
@@ -739,9 +744,9 @@ var LeafFormSearch = function(containerID) {
 	/**
 	 * @memberOf LeafFormSearch
 	 */
-	function newSearchWidget() {
+	function newSearchWidget(op = 'AND') {
 		var widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'">\
-						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" /></button></td>\
+						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" /></button> <strong id="'+prefixID+'widgetOp_'+widgetCounter+'" value="'+op+'">'+ op +'</strong></td>\
 						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen" aria-label="condition">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
@@ -782,20 +787,22 @@ var LeafFormSearch = function(containerID) {
 					id = $('#' + prefixID + 'widgetTerm_' + i).val();
 					cod = $('#' + prefixID + 'widgetCod_' + i).val();
 					match = $('#' + prefixID + 'widgetMat_' + i).val();
+					op = document.getElementById(prefixID + 'widgetOp_' + i).innerHTML;
 					if(cod == 'LIKE') {
 						match = '*' + match + '*';
 					}
-					leafFormQuery.addTerm(id, cod, match);
+					leafFormQuery.addTerm(id, cod, match, op);
 				}
 				else {
 					id = $('#' + prefixID + 'widgetTerm_' + i).val();
 					indicatorID = $('#' + prefixID + 'widgetIndicator_' + i).val();
 					cod = $('#' + prefixID + 'widgetCod_' + i).val();
 					match = $('#' + prefixID + 'widgetMat_' + i).val();
+					op = document.getElementById(prefixID + 'widgetOp_' + i).innerHTML;
 					if(cod == 'LIKE') {
 						match = '*' + match + '*';
 					}
-					leafFormQuery.addDataTerm(id, indicatorID, cod, match);
+					leafFormQuery.addDataTerm(id, indicatorID, cod, match. op);
 				}
 			}
 		}
