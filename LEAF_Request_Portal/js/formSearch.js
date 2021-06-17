@@ -174,6 +174,7 @@ var LeafFormSearch = function(containerID) {
         if(isJSON && advSearch != null && widgetCounter <= advSearch.length) {
         	for(var i = 1; i < advSearch.length; i++) {
         		newSearchWidget(advSearch[i].op);
+        		document.getElementById(prefixID+"searchTerms").children[0].style.display = "none";
         	}
         	for(var i = 0; i < advSearch.length; i++) {
         		$('#' + prefixID + 'widgetTerm_' + i).val(advSearch[i].id);
@@ -754,8 +755,11 @@ var LeafFormSearch = function(containerID) {
 	 * @memberOf LeafFormSearch
 	 */
 	function newSearchWidget(op = 'AND') {
-		var widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'">\
-						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button> <strong id="'+prefixID+'widgetOp_'+widgetCounter+'" value="'+op+'">'+ op +'</strong></td>\
+		var widget = '<tr id="'+prefixID+'widgetOp_'+widgetCounter+'">\
+					  	<td><strong value="'+op+'">'+ op +'</strong></td>\
+					  </tr>\
+					  <tr id="'+prefixID+'widget_'+widgetCounter+'">\
+						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
 						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen" aria-label="condition">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
@@ -778,6 +782,8 @@ var LeafFormSearch = function(containerID) {
 		});
 		$('#' + prefixID + 'widgetRemove_' + widgetCounter).on('click', '', widgetCounter, function(e) {
 			$('#' + prefixID + 'widget_' + e.data).remove();
+			$('#' + prefixID + 'widgetOp_' + e.data).remove();
+			document.getElementById(prefixID+"searchTerms").children[0].style.display = "none";
 		});
 
 		widgetCounter++;
