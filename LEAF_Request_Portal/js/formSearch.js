@@ -173,7 +173,7 @@ var LeafFormSearch = function(containerID) {
         }
         if(isJSON && advSearch != null && widgetCounter <= advSearch.length) {
         	for(var i = 1; i < advSearch.length; i++) {
-        		newSearchWidget();
+        		newSearchWidget(advSearch[i].op);
         	}
         	for(var i = 0; i < advSearch.length; i++) {
         		$('#' + prefixID + 'widgetTerm_' + i).val(advSearch[i].id);
@@ -182,7 +182,7 @@ var LeafFormSearch = function(containerID) {
         			|| advSearch[i].id == 'serviceID'
         			|| advSearch[i].id == 'categoryID'
         			|| advSearch[i].id == 'stepID') {
-            		renderWidget(i, function(widgetID, indicatorID, operator, match) {
+            		renderWidget(i, function(widgetID, indicatorID, operator, match, op) {
             			return function() {
             				$('#' + prefixID + 'widgetIndicator_' + widgetID).val(indicatorID);
             				$('#' + prefixID + 'widgetIndicator_' + widgetID).trigger('chosen:updated');
@@ -191,7 +191,7 @@ var LeafFormSearch = function(containerID) {
                     		$('#' + prefixID + 'widgetMat_' + widgetID).val(match.replace(/\*/g, ''));
                     		$('#' + prefixID + 'widgetMat_' + widgetID).trigger('chosen:updated');
             			};
-            		}(i, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match));
+            		}(i, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match, advSearch[i].op));
         		}
         		else {
             		renderWidget(i);
@@ -755,7 +755,7 @@ var LeafFormSearch = function(containerID) {
 	 */
 	function newSearchWidget(op = 'AND') {
 		var widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'">\
-						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button><strong> '+ op +'</strong></td>\
+						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button> <strong id="'+prefixID+'widgetOp_'+widgetCounter+'" value="'+op+'">'+ op +'</strong></td>\
 						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen" aria-label="condition">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
@@ -796,20 +796,23 @@ var LeafFormSearch = function(containerID) {
 					id = $('#' + prefixID + 'widgetTerm_' + i).val();
 					cod = $('#' + prefixID + 'widgetCod_' + i).val();
 					match = $('#' + prefixID + 'widgetMat_' + i).val();
+					op = document.getElementById(prefixID + 'widgetOp_' + i).innerHTML;
+					console.log(op);
 					if(cod == 'LIKE') {
 						match = '*' + match + '*';
 					}
-					leafFormQuery.addTerm(id, cod, match);
+					leafFormQuery.addTerm(id, cod, match, op);
 				}
 				else {
 					id = $('#' + prefixID + 'widgetTerm_' + i).val();
 					indicatorID = $('#' + prefixID + 'widgetIndicator_' + i).val();
 					cod = $('#' + prefixID + 'widgetCod_' + i).val();
 					match = $('#' + prefixID + 'widgetMat_' + i).val();
+					op = document.getElementById(prefixID + 'widgetOp_' + i).innerHTML;
 					if(cod == 'LIKE') {
 						match = '*' + match + '*';
 					}
-					leafFormQuery.addDataTerm(id, indicatorID, cod, match);
+					leafFormQuery.addDataTerm(id, indicatorID, cod, match, op);
 				}
 			}
 		}
