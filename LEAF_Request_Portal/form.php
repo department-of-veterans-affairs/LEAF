@@ -2469,8 +2469,7 @@ class Form
     public function query($inQuery)
     {
         $query = json_decode(html_entity_decode(html_entity_decode($inQuery)), true);
-        if ($query == null)
-        {
+        if ($query == null) {
             return 'Invalid query';
         }
 
@@ -2480,8 +2479,7 @@ class Form
         $conditions = '';
         $joins = '';
         $count = 0;
-        foreach ($query['terms'] as $q)
-        {
+        foreach ($query['terms'] as $q) {
             $operator = '';
             switch ($q['operator']) {
                 case '>':
@@ -2497,12 +2495,9 @@ class Form
                 case 'LIKE':
                 case 'NOT LIKE':
                     $operator = $q['operator'];
-                    if (strpos($q['match'], '*') !== false)
-                    {
+                    if (strpos($q['match'], '*') !== false) {
                         $q['match'] = str_replace('*', '%', $q['match']);
-                    }
-                    else
-                    {
+                    } else {
                         $q['match'] = '%' . $q['match'] . '%';
                     }
 
@@ -2524,10 +2519,8 @@ class Form
                 case 'recordIDs':
                     $tempRecordIDs = explode(',', $vars[":recordIDs{$count}"]);
                     $validRecordIDs = '';
-                    foreach ($tempRecordIDs as $id)
-                    {
-                        if (!is_numeric($id) && $id != '')
-                        {
+                    foreach ($tempRecordIDs as $id) {
+                        if (!is_numeric($id) && $id != '') {
                             return false;
                         }
                         $validRecordIDs .= $id . ',';
@@ -2571,7 +2564,7 @@ class Form
                             break;
                         case '<=':
                             $vars[':date' . $count] += 86400; // set to end of day
-                            // no break
+                        // no break
                         default:
                             $conditions .= "date {$operator} :date{$count} AND ";
 
@@ -2589,7 +2582,7 @@ class Form
                             break;
                         case '<=':
                             $vars[':dateInitiated' . $count] += 86400; // set to end of day
-                            // no break
+                        // no break
                         default:
                             $conditions .= "date {$operator} :dateInitiated{$count} AND ";
 
@@ -2607,7 +2600,7 @@ class Form
                             break;
                         case '<=':
                             $vars[':dateSubmitted' . $count] += 86400; // set to end of day
-                            // no break
+                        // no break
                         default:
                             $conditions .= "submitted {$operator} :dateSubmitted{$count} AND ";
 
@@ -2616,15 +2609,12 @@ class Form
 
                     break;
                 case 'categoryID':
-                    if ($q['operator'] != '!=')
-                    {
+                    if ($q['operator'] != '!=') {
                         $joins .= "INNER JOIN (SELECT * FROM category_count
     								WHERE categoryID = :categoryID{$count}
     									  AND count > 0) rj_categoryID{$count}
     								USING (recordID) ";
-                    }
-                    else
-                    {
+                    } else {
                         $joins .= "INNER JOIN (SELECT * FROM category_count
     								WHERE categoryID != :categoryID{$count}
     									  AND count > 0) rj_categoryID{$count}
@@ -2633,8 +2623,7 @@ class Form
 
                     break;
                 case 'stepID':
-                    if ($q['operator'] == '=')
-                    {
+                    if ($q['operator'] == '=') {
                         switch ($vars[':stepID' . $count]) {
                             case 'submitted':
                                 $conditions .= 'submitted > 0 AND ';
@@ -2663,89 +2652,75 @@ class Form
 
                                 break;
                             default:
-                                if (is_numeric($vars[':stepID' . $count]))
-                                {
+                                if (is_numeric($vars[':stepID' . $count])) {
                                     $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
                 									WHERE stepID=:stepID{$count}) rj_stepID{$count}
                 									USING (recordID) ";
-                                }
-                                else
-                                {
+                                } else {
                                     return 'Unsupported match in stepID';
                                 }
 
                                 break;
                         }
-                    }
-                    else
-                    {
-                        if ($q['operator'] == '!=')
-                        {
+                    } else {
+                        if ($q['operator'] == '!=') {
                             switch ($vars[':stepID' . $count]) {
-                            case 'submitted':
-                                $conditions .= 'submitted = 0 AND ';
+                                case 'submitted':
+                                    $conditions .= 'submitted = 0 AND ';
 
-                                break;
-                            case 'notSubmitted': // backwards compat
-                                $conditions .= 'submitted > 0 AND ';
+                                    break;
+                                case 'notSubmitted': // backwards compat
+                                    $conditions .= 'submitted > 0 AND ';
 
-                                break;
-                            case 'deleted':
-                                $conditions .= 'deleted = 0 AND ';
+                                    break;
+                                case 'deleted':
+                                    $conditions .= 'deleted = 0 AND ';
 
-                                break;
-                            case 'notDeleted': // backwards compat
-                                $conditions .= 'deleted > 0 AND ';
+                                    break;
+                                case 'notDeleted': // backwards compat
+                                    $conditions .= 'deleted > 0 AND ';
 
-                                break;
-                            case 'resolved':
-                                $conditions .= 'records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0 AND ';
-                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+                                    break;
+                                case 'resolved':
+                                    $conditions .= 'records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0 AND ';
+                                    $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
-                                break;
-                            case 'notResolved': // backwards compat
-                                $conditions .= 'records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0 AND ';
-                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+                                    break;
+                                case 'notResolved': // backwards compat
+                                    $conditions .= 'records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0 AND ';
+                                    $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
-                                break;
-                            default:
-                                if (is_numeric($vars[':stepID' . $count]))
-                                {
-                                    $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
+                                    break;
+                                default:
+                                    if (is_numeric($vars[':stepID' . $count])) {
+                                        $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
                 									WHERE stepID != :stepID{$count}) rj_stepID{$count}
                 									USING (recordID) ";
-                                }
-                                else
-                                {
-                                    return 'Unsupported match in stepID';
-                                }
+                                    } else {
+                                        return 'Unsupported match in stepID';
+                                    }
 
-                                break;
-                        }
-                        }
-                        else
-                        {
+                                    break;
+                            }
+                        } else {
                             return 'Invalid operator for stepID';
                         }
                     }
 
-                    if (!is_numeric($vars[':stepID' . $count]))
-                    {
+                    if (!is_numeric($vars[':stepID' . $count])) {
                         unset($vars[':stepID' . $count]);
                     }
 
                     break;
                 case 'data':
-                    if (!isset($q['indicatorID']) || !is_numeric($q['indicatorID']))
-                    {
+                    if (!isset($q['indicatorID']) || !is_numeric($q['indicatorID'])) {
                         return 0;
                     }
 
                     $tResTypeHint = array();
-                    if ($q['indicatorID'] > 0)
-                    {
+                    if ($q['indicatorID'] > 0) {
                         // check protected field mask, ignore query if masked
-                        if($this->isMasked($q['indicatorID'])) {
+                        if ($this->isMasked($q['indicatorID'])) {
                             continue 2;
                         }
 
@@ -2758,75 +2733,58 @@ class Form
                         $joins .= "LEFT JOIN (SELECT recordID, indicatorID, series, data FROM data
 										WHERE indicatorID=:indicatorID{$count}) lj_data{$count}
 										USING (recordID) ";
-                    }
-                    else
-                    {
-                        if ($q['indicatorID'] === '0')
-                        {
+                    } else {
+                        if ($q['indicatorID'] === '0') {
                             $joinSearchAllData = true;
-                        }
-                        else
-                        {
-                            if ($q['indicatorID'] == '0.0')
-                            { // to search all fields matching the orgchart_employee input format
+                        } else {
+                            if ($q['indicatorID'] == '0.0') { // to search all fields matching the orgchart_employee input format
                                 $joinSearchOrgchartEmployeeData = true;
                             }
                         }
                     }
 
                     // fix to select null data
-                    if ($operator == '=' && $vars[':data' . $count] == '')
-                    {
+                    if ($operator == '=' && $vars[':data' . $count] == '') {
                         $conditions .= "(lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NULL) AND ";
-                    }
-                    else
-                    {
-                        if ($operator == '!=' && $vars[':data' . $count] == '')
-                        {
+                    } else {
+                        if ($operator == '!=' && $vars[':data' . $count] == '') {
                             $conditions .= "(lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NOT NULL) AND ";
-                        }
-                        else
-                        {
+                        } else {
                             $dataTerm = "lj_data{$count}.data";
                             if ($joinSearchAllData
-                            || $joinSearchOrgchartEmployeeData)
-                            {
+                                || $joinSearchOrgchartEmployeeData) {
                                 $dataTerm = 'lj_data.data';
                             }
 
                             $dataMatch = ":data{$count}";
                             switch ($tResTypeHint[0]['format']) {
-                            case 'number':
-                            case 'currency':
-                                $dataTerm = "CAST({$dataTerm} as DECIMAL(21,5))";
+                                case 'number':
+                                case 'currency':
+                                    $dataTerm = "CAST({$dataTerm} as DECIMAL(21,5))";
 
-                                break;
-                            case 'date':
-                                $dataTerm = "STR_TO_DATE({$dataTerm}, '%m/%d/%Y')";
-                                $dataMatch = "STR_TO_DATE(:data{$count}, '%m/%d/%Y')";
+                                    break;
+                                case 'date':
+                                    $dataTerm = "STR_TO_DATE({$dataTerm}, '%m/%d/%Y')";
+                                    $dataMatch = "STR_TO_DATE(:data{$count}, '%m/%d/%Y')";
 
-                                break;
-                            default:
-                                break;
-                        }
+                                    break;
+                                default:
+                                    break;
+                            }
 
                             // catch default data
                             if (isset($tResTypeHint[0]['default'])
-                            && $tResTypeHint[0]['default'] == $vars[':data' . $count])
-                            {
+                                && $tResTypeHint[0]['default'] == $vars[':data' . $count]) {
                                 $conditions .= "({$dataTerm} {$operator} $dataMatch OR {$dataTerm} IS NULL) AND ";
-                            }
-                            else
-                            {
+                            } else {
                                 $conditions .= "{$dataTerm} {$operator} $dataMatch AND ";
                             }
                         }
                     }
 
                     break;
-                case 'dependencyID':	//search records_dependencies
-                    if (!isset($q['indicatorID']) || !is_numeric($q['indicatorID']))
-                    {
+                case 'dependencyID':    //search records_dependencies
+                    if (!isset($q['indicatorID']) || !is_numeric($q['indicatorID'])) {
                         return 0;
                     }
                     $vars[':indicatorID' . $count] = $q['indicatorID'];
@@ -2848,11 +2806,10 @@ class Form
         $joinRecords_Step_Fulfillment = false;
         $joinActionHistory = false;
         $joinRecordResolutionData = false;
+        $joinRecordResolutionBy = false;
         $joinInitiatorNames = false;
-        if (isset($query['joins']))
-        {
-            foreach ($query['joins'] as $table)
-            {
+        if (isset($query['joins'])) {
+            foreach ($query['joins'] as $table) {
                 switch ($table) {
                     case 'service':
                         $joins .= 'LEFT JOIN services USING (serviceID) ';
@@ -2887,6 +2844,10 @@ class Form
                         $joinRecordResolutionData = true;
 
                         break;
+                    case 'recordResolutionBy':
+                        $joinRecordResolutionBy = true;
+
+                        break;
                     case 'initiatorName':
                         $joinInitiatorNames = true;
 
@@ -2900,18 +2861,15 @@ class Form
         $conditions = substr($conditions, 0, strlen($conditions) - 4); // trim trailing "and "
         $conditions = $conditions == '' ? '1=1' : $conditions;
         $limit = '';
-        if (isset($query['limit']) && is_numeric($query['limit']))
-        {
+        if (isset($query['limit']) && is_numeric($query['limit'])) {
             $offset = '';
-            if (isset($query['limitOffset']) && is_numeric($query['limitOffset']))
-            {
+            if (isset($query['limitOffset']) && is_numeric($query['limitOffset'])) {
                 $offset = "{$query['limitOffset']},";
             }
             $limit = ' LIMIT ' . $offset . $query['limit'];
         }
         $sort = '';
-        if (isset($query['sort']['column']) && isset($query['sort']['direction']))
-        {
+        if (isset($query['sort']['column']) && isset($query['sort']['direction'])) {
             switch ($query['sort']['column']) {
                 case 'date':
                     $sort = 'ORDER BY date ';
@@ -2940,25 +2898,21 @@ class Form
 
         // join tables for queries on data fields without filtering by indicatorID
         if ($joinSearchAllData
-            || $joinSearchOrgchartEmployeeData)
-        {
+            || $joinSearchOrgchartEmployeeData) {
             $joins .= 'LEFT JOIN (SELECT recordID, indicatorID, series, data FROM data) lj_data ON (lj_data.recordID = records.recordID) ';
         }
-        if ($joinSearchAllData)
-        {
+        if ($joinSearchAllData) {
             $joins .= "INNER JOIN (SELECT indicatorID, format FROM indicators
 									WHERE format != 'orgchart_employee'
 										AND format != 'orgchart_position'
 										AND format != 'orgchart_group') rj_AllData ON (lj_data.indicatorID = rj_AllData.indicatorID) ";
         }
-        if ($joinSearchOrgchartEmployeeData)
-        {
+        if ($joinSearchOrgchartEmployeeData) {
             $joins .= "INNER JOIN (SELECT indicatorID, format FROM indicators
 									WHERE format = 'orgchart_employee') rj_OCEmployeeData ON (lj_data.indicatorID = rj_OCEmployeeData.indicatorID) ";
         }
 
-        if ($joinInitiatorNames)
-        {
+        if ($joinInitiatorNames) {
             $joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
         }
 
@@ -2967,55 +2921,47 @@ class Form
                                             WHERE ' . $conditions . $sort . $limit, $vars);
         $data = array();
         $recordIDs = '';
-        foreach ($res as $item)
-        {
+        foreach ($res as $item) {
             $data[$item['recordID']] = $item;
             $recordIDs .= $item['recordID'] . ',';
         }
         $recordIDs = trim($recordIDs, ',');
 
-        if ($joinCategoryID)
-        {
+        if ($joinCategoryID) {
             $res2 = $this->db->prepared_query('SELECT * FROM category_count
     											LEFT JOIN categories USING (categoryID)
     											WHERE recordID IN (' . $recordIDs . ')
     												AND disabled = 0
     												AND count > 0', array());
-            foreach ($res2 as $item)
-            {
+            foreach ($res2 as $item) {
                 $data[$item['recordID']]['categoryNames'][] = $item['categoryName'];
                 $data[$item['recordID']]['categoryIDs'][] = $item['categoryID'];
             }
         }
 
-        if ($joinAllCategoryID)
-        {
+        if ($joinAllCategoryID) {
             $res2 = $this->db->prepared_query('SELECT * FROM category_count
     											LEFT JOIN categories USING (categoryID)
     											WHERE recordID IN (' . $recordIDs . ')
     												AND count > 0', array());
-            foreach ($res2 as $item)
-            {
+            foreach ($res2 as $item) {
                 $data[$item['recordID']]['categoryNamesUnabridged'][] = $item['categoryName'];
                 $data[$item['recordID']]['categoryIDsUnabridged'][] = $item['categoryID'];
             }
         }
 
-        if ($joinRecordsDependencies)
-        {
+        if ($joinRecordsDependencies) {
             $res2 = $this->db->prepared_query('SELECT * FROM records_dependencies
     											LEFT JOIN dependencies USING (dependencyID)
     											WHERE recordID IN (' . $recordIDs . ')
     												AND filled != 0', array());
-            foreach ($res2 as $item)
-            {
+            foreach ($res2 as $item) {
                 $data[$item['recordID']]['recordsDependencies'][$item['dependencyID']]['time'] = $item['time'];
                 $data[$item['recordID']]['recordsDependencies'][$item['dependencyID']]['description'] = $item['description'];
             }
         }
 
-        if ($joinActionHistory)
-        {
+        if ($joinActionHistory) {
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
@@ -3024,8 +2970,7 @@ class Form
     											LEFT JOIN actions USING (actionType)
     											WHERE recordID IN (' . $recordIDs . ')
                                                 ORDER BY time', array());
-            foreach ($res2 as $item)
-            {
+            foreach ($res2 as $item) {
                 $user = $dir->lookupLogin($item['userID']);
                 $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
                 $item['approverName'] = $name;
@@ -3034,28 +2979,42 @@ class Form
             }
         }
 
-        if($joinRecordResolutionData)
-        {
+        if ($joinRecordResolutionData) {
             $conditions .= 'records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0 AND ';
             $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
             $res2 = $this->db->prepared_query('SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime FROM records
-                    LEFT JOIN records_step_fulfillment USING (recordID)
-                    LEFT JOIN records_workflow_state USING (recordID)
-                    WHERE recordID IN (' . $recordIDs . ')
-                        AND records_workflow_state.stepID IS NULL
-                        AND submitted > 0
-                        AND deleted = 0', array());
-            foreach ($res2 as $item)
-            {
-                if($data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] == null
+                                                LEFT JOIN records_step_fulfillment USING (recordID)
+                                                LEFT JOIN records_workflow_state USING (recordID)
+                                                WHERE recordID IN (' . $recordIDs . ')
+                                                    AND records_workflow_state.stepID IS NULL
+                                                    AND submitted > 0
+                                                    AND deleted = 0', array());
+            foreach ($res2 as $item) {
+                if ($data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] == null
                     || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] < $item['fulfillmentTime']) {
                     $data[$item['recordID']]['recordResolutionData']['lastStatus'] = $item['lastStatus'];
                     $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] = $item['fulfillmentTime'];
                 }
             }
         }
+        if ($joinRecordResolutionBy) {
+            require_once 'VAMC_Directory.php';
+            $dir = new VAMC_Directory;
 
+            $res2 = $this->db->prepared_query('SELECT recordID, userID as resolvedBy FROM action_history
+                                                LEFT JOIN dependencies USING (dependencyID)
+                                                LEFT JOIN actions USING (actionType)
+                                                WHERE recordID IN (' . $recordIDs . ')
+                                                and stepID > 0
+                                                ORDER BY time', array());
+
+            foreach ($res2 as $item) {
+                $user = $dir->lookupLogin($item['resolvedBy']);
+                $nameResolved = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $item['resolvedBy'];
+                $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
+            }
+        }
         if ($joinRecords_Step_Fulfillment)
         {
             $res2 = $this->db->prepared_query('SELECT * FROM records_step_fulfillment
