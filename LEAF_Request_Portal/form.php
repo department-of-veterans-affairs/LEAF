@@ -3065,9 +3065,6 @@ class Form
 
         if($joinRecordResolutionData)
         {
-            $conditions .= 'AND (records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)';
-            $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
-
             $res2 = $this->db->prepared_query('SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime FROM records
                     LEFT JOIN records_step_fulfillment USING (recordID)
                     LEFT JOIN records_workflow_state USING (recordID)
