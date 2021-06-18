@@ -27,7 +27,7 @@ var LeafFormQuery = function() {
 	 * @param id - columnID
 	 * @param operator - SQL comparison operator
 	 * @param match - search term to match on
-	 * @param op
+	 * @param op - AND or OR operator
 	 * @memberOf LeafFormQuery
 	 */
     function addTerm(id, operator, match, op = 'AND') {
@@ -45,7 +45,7 @@ var LeafFormQuery = function() {
 	 * @param indicatorID - indicatorID / dependencyID / "0" to search all indicators
 	 * @param operator - SQL comparison operator
 	 * @param match - search term to match on
-	 * @param op
+	 * @param op - AND or OR operator
 	 * @memberOf LeafFormQuery
 	 */
     function addDataTerm(id, indicatorID, operator, match, op = 'AND') {
