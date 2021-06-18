@@ -145,7 +145,7 @@ function addHeader(column) {
                     $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
                 }
             }});
-            break;
+        break;
         case 'actionButton':
         	headers.unshift({name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
                 $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
