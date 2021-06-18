@@ -2496,8 +2496,7 @@ class Form
             if ($count === 0) {
                 $op = '';
                 $conditions = '(';
-            }
-            if ($count != 0) {
+            } else {
                 if ($op == 'AND') {
                     $conditions = $conditions . ') AND (';
                 } elseif ($op == 'OR') {
