@@ -3070,12 +3070,16 @@ class Form
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
-            $res2 = $this->db->prepared_query('SELECT recordID, userID as resolvedBy FROM action_history
-                                                LEFT JOIN dependencies USING (dependencyID)
-                                                LEFT JOIN actions USING (actionType)
+            $res2 = $this->db->prepared_query('SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType FROM action_history
+                                                LEFT JOIN records USING (recordID)
+                                                INNER JOIN workflow_routes USING (stepID)
+                                                LEFT JOIN records_workflow_state USING (recordID)
                                                 WHERE recordID IN (' . $recordIDs . ')
-                                                and stepID > 0
-                                                ORDER BY time', array());
+                                                  AND action_history.actionType = workflow_routes.actionType
+                                                  AND records_workflow_state.stepID IS NULL
+                                                  AND nextStepID = 0
+                                                  AND submitted > 0
+                                                  AND deleted = 0', array());
 
             foreach ($res2 as $item) {
                 $user = $dir->lookupLogin($item['resolvedBy']);
