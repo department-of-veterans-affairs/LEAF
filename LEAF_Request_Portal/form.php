@@ -3069,7 +3069,7 @@ class Form
         if ($joinRecordResolutionBy === true) {
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
-            $var = "approve";
+
             $res2 = $this->db->prepared_query('SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType FROM action_history
                                                 LEFT JOIN records USING (recordID)
                                                 INNER JOIN workflow_routes USING (stepID)
