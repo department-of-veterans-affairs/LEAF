@@ -754,7 +754,11 @@ var LeafFormSearch = function(containerID) {
 	/**
 	 * @memberOf LeafFormSearch
 	 */
-	function newSearchWidget(op = 'AND') {
+	function newSearchWidget(op) {
+		// @TODO IE Fix (No overloading)
+		if (op === undefined) {
+			op = 'AND';
+		}
 		let widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'" style="border-spacing: 5px">\
 						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
 						<td style="text-align: center"><strong id="'+prefixID+'widgetOpTerm_'+widgetCounter+'" value="'+op+'">'+ op +'</strong></td>\

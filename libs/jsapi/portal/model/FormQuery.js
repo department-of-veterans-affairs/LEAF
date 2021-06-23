@@ -56,7 +56,11 @@ var FormQuery = function () {
          * @param match     string  search term to match on
          * @param op        string  AND/OR operator
          */
-        addTerm = function (id, operator, match, op = 'AND') {
+        addTerm = function (id, operator, match, op) {
+            // @TODO IE Fix (No overloading)
+            if (op === undefined) {
+                op = 'AND';
+            }
             terms.push({
                 "id": id,
                 "operator": operator,
@@ -74,7 +78,11 @@ var FormQuery = function () {
          * @param match         string  search term to match on
          * @param op            string  AND/OR operator
          */
-        addDataTerm = function (id, indicatorID, operator, match, op = 'AND') {
+        addDataTerm = function (id, indicatorID, operator, match, op) {
+            // @TODO IE Fix (No overloading)
+            if (op === undefined) {
+                op = 'AND';
+            }
             terms.push({
                 "id": id,
                 "indicatorID": indicatorID,
