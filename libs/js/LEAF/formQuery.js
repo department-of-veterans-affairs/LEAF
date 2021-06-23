@@ -30,7 +30,11 @@ var LeafFormQuery = function() {
 	 * @param op - AND or OR operator
 	 * @memberOf LeafFormQuery
 	 */
-    function addTerm(id, operator, match, op = 'AND') {
+    function addTerm(id, operator, match, op) {
+		// @TODO IE Fix (No overloading)
+		if (op === undefined) {
+			op = 'AND';
+		}
     	var temp = {};
     	temp.id = id;
     	temp.operator = operator;
@@ -48,7 +52,11 @@ var LeafFormQuery = function() {
 	 * @param op - AND or OR operator
 	 * @memberOf LeafFormQuery
 	 */
-    function addDataTerm(id, indicatorID, operator, match, op = 'AND') {
+    function addDataTerm(id, indicatorID, operator, match, op) {
+		// @TODO IE Fix (No overloading)
+		if (op === undefined) {
+			op = 'AND';
+		}
     	var temp = {};
     	temp.id = id;
     	temp.indicatorID = indicatorID;
