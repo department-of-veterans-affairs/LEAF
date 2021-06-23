@@ -11,8 +11,13 @@
 
 var indicatorEditing;
 
+/**
+ * Purpose: Check if an indicator is sensitive (needs to be masked)
+ * @param indicator
+ * @returns {number}
+ */
 function checkSensitive(indicator) {
-    var result = 0;
+    let result = 0;
     $.each(indicator, function( index, value )
     {
         if (value.is_sensitive === '1') {
@@ -28,6 +33,10 @@ function checkSensitive(indicator) {
     return result;
 }
 
+/**
+ * Purpose: Edit the form (or Sub form)
+ * @param isSubForm
+ */
 function editProperties(isSubForm) {
     dialog.setTitle('Edit Properties');
     dialog.setContent('<table>\
@@ -93,7 +102,7 @@ function editProperties(isSubForm) {
         		if(res.length > 0) {
                     var buffer = '<select id="workflowID">';
                     buffer += '<option value="0">No Workflow</option>';
-                    for(var i in res) {
+                    for(let i in res) {
                         if(res[i].workflowID > 0) {
                             buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
                         }
@@ -111,15 +120,15 @@ function editProperties(isSubForm) {
         });
 
         dialog.setSaveHandler(function() {
-            var calls = [];
+            let calls = [];
             
-            var nameChanged = (categories[currCategoryID].categoryName || "") != $('#name').val();
-            var descriptionChanged  = (categories[currCategoryID].categoryDescription || "") != $('#description').val();
-            var workflowChanged  = (categories[currCategoryID].workflowID || "") != $('#workflowID').val();
-            var needToKnowChanged = (categories[currCategoryID].needToKnow || "") != $('#needToKnow').val();
-            var sortChanged = (categories[currCategoryID].sort || "") != $('#sort').val();
-            var visibleChanged = (categories[currCategoryID].visible || "") != $('#visible').val();
-            var typeChanged = (categories[currCategoryID].type || "") != $('#formType').val();
+            let nameChanged = (categories[currCategoryID].categoryName || "") != $('#name').val();
+            let descriptionChanged  = (categories[currCategoryID].categoryDescription || "") != $('#description').val();
+            let workflowChanged  = (categories[currCategoryID].workflowID || "") != $('#workflowID').val();
+            let needToKnowChanged = (categories[currCategoryID].needToKnow || "") != $('#needToKnow').val();
+            let sortChanged = (categories[currCategoryID].sort || "") != $('#sort').val();
+            let visibleChanged = (categories[currCategoryID].visible || "") != $('#visible').val();
+            let typeChanged = (categories[currCategoryID].type || "") != $('#formType').val();
 
             if(nameChanged){
                 calls.push($.ajax({
@@ -243,10 +252,15 @@ function editProperties(isSubForm) {
              });
         });}
 var currCategoryID = '';
+
+/**
+ * Purpose: Opens form content
+ * @param url
+ */
 function openContent(url) {
-	var isSubForm = categories[currCategoryID].parentID == '' ? false : true;
-	var formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
-	var workflow = '';
+	let isSubForm = categories[currCategoryID].parentID == '' ? false : true;
+	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
+	let workflow = '';
 	if(categories[currCategoryID].workflowID != 0) {
 		workflow = categories[currCategoryID].description + ' (ID #' + categories[currCategoryID].workflowID + ')';
 	}
@@ -288,6 +302,11 @@ function openContent(url) {
     });
 }
 
+/**
+ * Purpose: Add Permissions to Form
+ * @param categoryID
+ * @param group
+ */
 function addPermission(categoryID, group) {
     dialog.setTitle('Edit Collaborators');
     dialog.setContent('Add collaborators to the <b>'+ formTitle +'</b> form:<div id="groups"></div>');
@@ -298,7 +317,7 @@ function addPermission(categoryID, group) {
         url: '../api/?a=system/groups',
         success: function(res) {
             var buffer = '<select id="groupID">';
-            for(var i in res) {
+            for(let i in res) {
                 buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
             }
             buffer += '</select>';
@@ -331,7 +350,10 @@ function addPermission(categoryID, group) {
 
 }
 
-
+/**
+ * Purpose: Remove Permissions from Form
+ * @param groupID
+ */
 function removePermission(groupID) {
     $.ajax({
         type: 'POST',
@@ -346,6 +368,9 @@ function removePermission(groupID) {
     });
 }
 
+/**
+ * Purpose: Edit existing Permissions
+ */
 function editPermissions() {
 	formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 
@@ -360,7 +385,7 @@ function editPermissions() {
 		url: '../api/?a=formEditor/_'+ currCategoryID +'/privileges',
 		success: function(res) {
 			var buffer = '<ul>';
-			for(var i in res) {
+			for(let i in res) {
 				buffer += '<li>' + res[i].name + ' [ <a href="#" tabindex="0" onkeypress="onKeyPressClick(event);" onclick="removePermission(\''+ res[i].groupID +'\');">Remove</a> ]</li>';
 			}
 			buffer += '</ul>';
@@ -377,6 +402,11 @@ function editPermissions() {
 
 }
 
+/**
+ * Purpose: Remove specific Indicator Privileges
+ * @param indicatorID
+ * @param groupID
+ */
 function removeIndicatorPrivilege(indicatorID, groupID) {
     portalAPI.FormEditor.removeIndicatorPrivilege(
         indicatorID,
@@ -391,6 +421,10 @@ function removeIndicatorPrivilege(indicatorID, groupID) {
     );
 }
 
+/**
+ * Purpose: Add specific Indicator Privileges
+ * @param indicatorID
+ */
 function addIndicatorPrivilege(indicatorID) {
     dialog.setTitle('Edit Privileges');
     dialog.setContent('Add privileges to the <b>'+ currentIndicator.name +'</b> form:<div id="groups"></div>');
@@ -402,7 +436,7 @@ function addIndicatorPrivilege(indicatorID) {
         success: function(res) {
             var buffer = '<select id="groupID">';
             buffer += '<option value="1">System Administrators</option>';
-            for(var i in res) {
+            for(let i in res) {
                 buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
             }
             buffer += '</select>';
@@ -439,6 +473,11 @@ function addIndicatorPrivilege(indicatorID) {
 }
 
 var currentIndicator = {};
+
+/**
+ * Purpose: Edit exisitng Indicator Privileges
+ * @param indicatorID
+ */
 function editIndicatorPrivileges(indicatorID) {
     dialog_simple.setContent('<h2>Special access restrictions for this field</h2>'
                             + '<p>These restrictions will limit view access to the request initiator and members of any groups you specify.</p>'
@@ -457,8 +496,8 @@ function editIndicatorPrivileges(indicatorID) {
             portalAPI.FormEditor.getIndicatorPrivileges(indicatorID,
                 function (groups) {
                     var buffer = '<ul>';
-                    var count = 0;
-                    for (var group in groups) {
+                    let count = 0;
+                    for (let group in groups) {
                         if (groups[group].id !== undefined) {
                             buffer += '<li>' + groups[group].name + ' [ <a href="#" tabindex="0" onkeypress="onKeyPressClick(event);" onclick="removeIndicatorPrivilege(' + indicatorID + ',' + groups[group].id + ');">Remove</a> ]</li>';
                             count++;
@@ -466,7 +505,7 @@ function editIndicatorPrivileges(indicatorID) {
                     }
                     buffer += '</ul>';
                     buffer += '<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addIndicatorPrivilege(' + indicatorID + ');">Add Group</span>';
-                    var statusMessage = "Special access restrictions are not enabled. Normal access rules apply.";
+                    let statusMessage = "Special access restrictions are not enabled. Normal access rules apply.";
                     if(count > 0) {
                         statusMessage = "Special access restrictions are enabled!";
                     }
@@ -492,14 +531,20 @@ if(columns === undefined) {
     var columns = 0;
 }
 
-// function that generates unique id to track columns
-// so that user input order updates with the grid format
+/**
+ * Purpose: Generates Unique ID to track columns to update user input with grid format
+ * @returns {string}
+ */
 function makeColumnID(){
     return "col_" + (((1+Math.random())*0x10000)|0).toString(16).substring(1);
 }
 
+/**
+ * Purpose: Add a new question to Form
+ * @param parentIndicatorID
+ */
 function newQuestion(parentIndicatorID) {
-	var title = '';
+	let title = '';
 	if(parentIndicatorID == null) {
 		title = 'Adding New Question';
 	}
@@ -523,6 +568,7 @@ function newQuestion(parentIndicatorID) {
                     <option value="radio">Radio (single select, multiple options)</option>\
                     <option value="checkbox">Checkbox (A single checkbox)</option>\
                     <option value="checkboxes">Checkboxes (Multiple Checkboxes)</option>\
+                    <option value="multiselect">Multi-Select Dropdown</option>\
                     <option value="dropdown">Dropdown Menu (single select, multiple options)</option>\
                     <option value="fileupload">File Attachment</option>\
                     <option value="image">Image Attachment</option>\
@@ -563,6 +609,13 @@ function newQuestion(parentIndicatorID) {
                 break;
             case 'radio':
             case 'checkboxes':
+            case 'multiselect':
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
+                $('#container_indicatorMultiAnswer').css('display', 'block');
+                $('#container_indicatorSingleAnswer').css('display', 'none');
+                break;
             case 'dropdown':
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
                 $('#xhr').css('width', 'auto');
@@ -649,8 +702,8 @@ function newQuestion(parentIndicatorID) {
 		}, 0);
 
     dialog.setSaveHandler(function() {
-    	var isRequired = $('#required').is(':checked') ? 1 : 0;
-        var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
+    	let isRequired = $('#required').is(':checked') ? 1 : 0;
+        let isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
         if (isSensitive === 1) {
             $.ajax({
                 type: 'POST',
@@ -668,12 +721,12 @@ function newQuestion(parentIndicatorID) {
 
         switch($('#indicatorType').val()) {
             case 'grid':
-                var gridJSON = [];
+                let gridJSON = [];
 
                 //gather column names and column types
                 //if column type is dropdown, adds property.options
                 $(gridBodyElement).find('div.cell').each(function() {
-                    var properties = new Object();
+                    let properties = new Object();
                     if($(this).children('input:eq(0)').val() === 'undefined'){
                         properties.name = 'No title';
                     } else {
@@ -696,6 +749,12 @@ function newQuestion(parentIndicatorID) {
                 break;
             case 'radio':
             case 'checkboxes':
+            case 'multiselect':
+                $('#container_indicatorMultiAnswer').css('display', 'block');
+                var buffer = $('#indicatorType').val();
+                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
+                $('#format').val(buffer);
+                break;
             case 'dropdown':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 var buffer = $('#indicatorType').val();
@@ -746,6 +805,9 @@ function newQuestion(parentIndicatorID) {
     });
 }
 
+/**
+ * Purpose: Update Input Name
+ */
 function updateNames(){
     $(gridBodyElement).children('div').each(function(i) {
         if (gridJSON[i] === undefined) {
@@ -756,19 +818,22 @@ function updateNames(){
     });
 }
 
-
+/**
+ * Purpose: Make Grid for Input Option
+ * @param columns
+ */
 function makeGrid(columns) {
     $(gridBodyElement).html('');
     if(columns === 0){
         gridJSON = [];
         columns = 1;
     }
-    for (var i = 0; i < columns; i++) {
+    for (let i = 0; i < columns; i++) {
         if(gridJSON[i] === undefined){
             gridJSON.push(new Object());
         }
-        var name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
-        var id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
+        let name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
+        let id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
         $(gridBodyElement).append(
             '<div tabindex="0" id="' + id + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
             '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
@@ -808,6 +873,11 @@ function makeGrid(columns) {
     }
 }
 
+/**
+ * Purpose: Dropdown for Grid Options
+ * @param type
+ * @param cell
+ */
 function toggleDropDown(type, cell){
     if(type === 'dropdown'){
         $(cell).parent().append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" value="" style="width: 153px; resize:none"></textarea></span>');
@@ -818,6 +888,11 @@ function toggleDropDown(type, cell){
     }
 }
 
+/**
+ * Purpose: Left arrow for Grid
+ * @param cell
+ * @param toggle
+ */
 function leftArrows(cell, toggle){
     if(toggle){
         cell.find('[title="Move column left"]').css('display', 'inline');
@@ -825,6 +900,12 @@ function leftArrows(cell, toggle){
         cell.find('[title="Move column left"]').css('display', 'none');
     }
 }
+
+/**
+ * Purpose: Right arrow for Grid
+ * @param cell
+ * @param toggle
+ */
 function rightArrows(cell, toggle){
     if(toggle){
         cell.find('[title="Move column right"]').css('display', 'inline');
@@ -833,6 +914,9 @@ function rightArrows(cell, toggle){
     }
 }
 
+/**
+ * Purpose: Add Cells for Grid Input Option
+ */
 function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > div:last'), true);
@@ -848,17 +932,24 @@ function addCells(){
     updateColumnNumbers();
 }
 
+/**
+ * Purpose: Update the number of columns
+ */
 function updateColumnNumbers(){
     $(gridBodyElement).find('span.columnNumber').each(function(index) {
         $(this).html('Column #' + (index + 1) +':&nbsp;');
     });
 }
 
+/**
+ * Purpose: Delete a column from Grid
+ * @param event
+ */
 function deleteColumn(event){
-    var column = $(event.target).closest('div');
-    var tbody = $(event.target).closest('div').parent('div');
-    var columnDeleted = parseInt($(column).index()) + 1;
-    var focus;
+    let column = $(event.target).closest('div');
+    let tbody = $(event.target).closest('div').parent('div');
+    let columnDeleted = parseInt($(column).index()) + 1;
+    let focus;
     switch(tbody.find('div').length){
         case 1:
             alert('Cannot remove initial column.');
@@ -894,10 +985,14 @@ function deleteColumn(event){
     updateColumnNumbers();
 }
 
+/**
+ * Purpose: Move Column Right
+ * @param event
+ */
 function moveRight(event){
-    var column = $(event.target).closest('div');
-    var nextColumnLast = column.next().find('[title="Move column right"]').css('display') === 'none';
-    var first = column.find('[title="Move column left"]').css('display') === 'none';
+    let column = $(event.target).closest('div');
+    let nextColumnLast = column.next().find('[title="Move column right"]').css('display') === 'none';
+    let first = column.find('[title="Move column left"]').css('display') === 'none';
     leftArrows(column, true);
     if(first){
         leftArrows(column.next(), false);
@@ -916,10 +1011,14 @@ function moveRight(event){
     updateColumnNumbers();
 }
 
+/**
+ * Purpose: Move Column Left
+ * @param event
+ */
 function moveLeft(event){
-    var column = $(event.target).closest('div.cell');
-    var nextColumnFirst = column.prev().find('[title="Move column left"]').css('display') === 'none';
-    var last = column.find('[title="Move column right"]').css('display') === 'none';
+    let column = $(event.target).closest('div.cell');
+    let nextColumnFirst = column.prev().find('[title="Move column left"]').css('display') === 'none';
+    let last = column.find('[title="Move column right"]').css('display') === 'none';
     rightArrows(column, true);
     if(last){
         rightArrows(column.prev(), false);
@@ -938,7 +1037,11 @@ function moveLeft(event){
     updateColumnNumbers();
 }
 
-// edit question
+/**
+ * Purpose: Edit existing Indicator
+ * @param indicatorID
+ * @param series
+ */
 function getForm(indicatorID, series) {
 	dialog.setTitle('Editing indicatorID: ' + indicatorID);
     dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button></fieldset> \
@@ -957,6 +1060,7 @@ function getForm(indicatorID, series) {
                     <option value="radio">Radio (single select, multiple options)</option>\
                     <option value="checkbox">Checkbox (A single checkbox)</option>\
                     <option value="checkboxes">Checkboxes (Multiple Checkboxes)</option>\
+                    <option value="multiselect">Multi-Select Dropdown</option>\
                     <option value="dropdown">Dropdown Menu (single select, multiple options)</option>\
                     <option value="fileupload">File Attachment</option>\
                     <option value="image">Image Attachment</option>\
@@ -999,9 +1103,9 @@ function getForm(indicatorID, series) {
                 </table>\
         </fieldset>\
         <span class="buttonNorm" id="button_advanced">Advanced Options</span>\
-        <div><fieldset id="advanced" style="visibility: hidden; height: 0;"><legend>Advanced Options</legend>\
+        <div><fieldset id="advanced" style="visibility: collapse; height: 0;"><legend>Advanced Options</legend>\
             Template Variables:<br />\
-            <table class="table">\
+            <table class="table" style="border-collapse: inherit">\
             <tr>\
                 <td><b>{{ iID }}</b></td>\
                 <td>The indicatorID # of the current data field.</td>\
@@ -1017,7 +1121,7 @@ function getForm(indicatorID, series) {
             </table><br />\
             html (for pages where the user can edit data): <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button><textarea id="html"></textarea><br />\
             htmlPrint (for pages where the user can only read data): <button id="btn_codeSave_htmlPrint" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button><textarea id="htmlPrint"></textarea><br />\
-        </div></div>');
+        </fieldset></div></div>');
     $('#indicatorType').on('change', function() {
         switch($('#indicatorType').val()) {
             case 'grid':
@@ -1029,6 +1133,13 @@ function getForm(indicatorID, series) {
                 break;
     	    case 'radio':
     	    case 'checkboxes':
+            case 'multiselect':
+                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
+                $('#xhr').css('width', 'auto');
+                $('#container_indicatorGrid').css('display', 'none');
+                $('#container_indicatorMultiAnswer').css('display', 'block');
+                $('#container_indicatorSingleAnswer').css('display', 'none');
+                break;
     	    case 'dropdown':
                 $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
                 $('#xhr').css('width', 'auto');
@@ -1128,22 +1239,21 @@ function getForm(indicatorID, series) {
     $('#button_advanced').on('click', function() {
         if(<!--{$hasDevConsoleAccess}--> == 1) {
             $('#button_advanced').css('display', 'none');
-            // triggers overflow of content
-            $('#xhr').css('overflow-y', 'scroll');
             $('#advanced').css('height', 'auto');
     	    $('#advanced').css('visibility', 'visible');
+    	    $('.table').css('border-collapse', 'collapse');
         }
         else {
-            //alert('Please go to Admin Panel -> LEAF Programmer to gain access to this area.');
             alert('Notice: Please go to Admin Panel -> LEAF Programmer to ensure continued access to this area.');
             $('#button_advanced').css('display', 'none');
     	    $('#advanced').css('visibility', 'visible');
         }
     });
 
-    // resets overflow on new dialog open
-    $('#xhr').css('overflow-y', 'unset');
 
+    /**
+     * Purpose: Save custom HTML Code
+     */
     function saveCodeHTML() {
         $.ajax({
             type: 'POST',
@@ -1151,7 +1261,7 @@ function getForm(indicatorID, series) {
             data: {html: codeEditorHtml.getValue(),
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
-                var time = new Date().toLocaleTimeString();
+                let time = new Date().toLocaleTimeString();
                 $('#codeSaveStatus_html').html('<br /> Last saved: ' + time);
                 if(res != null) {
                 }
@@ -1159,6 +1269,9 @@ function getForm(indicatorID, series) {
         });
     }
 
+    /**
+     * Purpose: Save custom HTML Print Code
+     */
     function saveCodeHTMLPrint() {
         $.ajax({
             type: 'POST',
@@ -1166,7 +1279,7 @@ function getForm(indicatorID, series) {
             data: {htmlPrint: codeEditorHtmlPrint.getValue(),
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
-            	var time = new Date().toLocaleTimeString();
+            	let time = new Date().toLocaleTimeString();
             	$('#codeSaveStatus_htmlPrint').html('<br /> Last saved: ' + time);
                 if(res != null) {
                 }
@@ -1179,7 +1292,7 @@ function getForm(indicatorID, series) {
     $('#btn_codeSave_htmlPrint').on('click', function() {
         saveCodeHTMLPrint();
     });
-    var codeEditorHtml = CodeMirror.fromTextArea(document.getElementById("html"), {
+    let codeEditorHtml = CodeMirror.fromTextArea(document.getElementById("html"), {
         mode: "htmlmixed",
         lineNumbers: true,
         extraKeys: {
@@ -1194,7 +1307,7 @@ function getForm(indicatorID, series) {
             }
           }
     });
-    var codeEditorHtmlPrint = CodeMirror.fromTextArea(document.getElementById("htmlPrint"), {
+    let codeEditorHtmlPrint = CodeMirror.fromTextArea(document.getElementById("htmlPrint"), {
         mode: "htmlmixed",
         lineNumbers: true,
         extraKeys: {
@@ -1222,7 +1335,7 @@ function getForm(indicatorID, series) {
     	        success: function(res) {
     	            var buffer = '<select id="parentID" style="width: 300px">';
     	            buffer += '<option value="">None</option>';
-    	            for(var i in res) {
+    	            for(let i in res) {
     	                if(indicatorID != i) {
     	                    buffer += '<option value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
     	                }
@@ -1238,11 +1351,11 @@ function getForm(indicatorID, series) {
             url: '../api/formEditor/indicator/' + indicatorID,
             success: function(res) {
                 indicatorEditing = res[indicatorID];
-                var format = res[indicatorID].format;
+                let format = res[indicatorID].format;
                 if(res[indicatorID].options != undefined
                     && res[indicatorID].options.length > 0
                         && format != 'grid') {
-                    for(var i in res[indicatorID].options) {
+                    for(let i in res[indicatorID].options) {
                         format += "\n" + res[indicatorID].options[i];
                     }
                 }
@@ -1272,7 +1385,7 @@ function getForm(indicatorID, series) {
                 codeEditorHtmlPrint.setValue((res[indicatorID].htmlPrint == null ? '' : res[indicatorID].htmlPrint));
 
                 // render input format UI
-                var formatIdx = format === 'grid' ? 4 : format.indexOf('\n');
+                let formatIdx = format === 'grid' ? 4 : format.indexOf('\n');
                 if(formatIdx != -1 && format.substr(0, formatIdx) != '') {
                     switch(format.substr(0, formatIdx)) {
                         case 'grid':
@@ -1292,6 +1405,7 @@ function getForm(indicatorID, series) {
                             break;
                         case 'radio':
                         case 'checkboxes':
+                        case 'multiselect':
                         case 'dropdown':
                         default:
                             $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
@@ -1310,9 +1424,9 @@ function getForm(indicatorID, series) {
     });
 
     dialog.setSaveHandler(function() {
-    	var isRequired = $('#required').is(':checked') ? 1 : 0;
-        var isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
-    	var isDisabled = $('#disabled').is(':checked') ? 1 : 0;
+    	let isRequired = $('#required').is(':checked') ? 1 : 0;
+        let isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
+    	let isDisabled = $('#disabled').is(':checked') ? 1 : 0;
         if (isSensitive === 1) {
             $.ajax({
                 type: 'POST',
@@ -1330,12 +1444,12 @@ function getForm(indicatorID, series) {
 
         switch($('#indicatorType').val()) {
             case 'grid':
-                var gridJSON = [];
+                let gridJSON = [];
 
                 //gather column names and column types
                 //if column type is dropdown, adds property.options
                 $(gridBodyElement).find('div.cell').each(function() {
-                    var properties = new Object();
+                    let properties = new Object();
                     if($(this).children('input:eq(0)').val() === 'undefined'){
                         properties.name = 'No title';
                     } else {
@@ -1358,6 +1472,12 @@ function getForm(indicatorID, series) {
                 break;
             case 'radio':
             case 'checkboxes':
+            case 'multiselect':
+                $('#container_indicatorMultiAnswer').css('display', 'block');
+                var buffer = $('#indicatorType').val();
+                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
+                $('#format').val(buffer);
+                break;
             case 'dropdown':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 var buffer = $('#indicatorType').val();
@@ -1383,17 +1503,17 @@ function getForm(indicatorID, series) {
         	return false;
         }
 
-        var calls = [];
-        var nameChanged = (indicatorEditing.name || "") != $('#name').val();
-        var formatChanged = (indicatorEditing.format || "") != $('#format').val();
-        var descriptionChanged = (indicatorEditing.description || "") != $('#description').val();
-        var defaultChanged = (indicatorEditing.default || "") != $('#default').val();
-        var requiredChanged = (indicatorEditing.required || "") != isRequired;
-        var sensitiveChanged = (indicatorEditing.is_sensitive || "") != isSensitive;
-        var parentIDChanged = (indicatorEditing.parentID || "") != $("#parentID").val();
-        var sortChanged = (indicatorEditing.sort || "") != $("#sort").val();
-        var htmlChanged = (indicatorEditing.html || "") != codeEditorHtml.getValue();
-        var htmlPrintChanged =  (indicatorEditing.htmlPrint || "") != codeEditorHtmlPrint.getValue();
+        let calls = [];
+        let nameChanged = (indicatorEditing.name || "") != $('#name').val();
+        let formatChanged = (indicatorEditing.format || "") != $('#format').val();
+        let descriptionChanged = (indicatorEditing.description || "") != $('#description').val();
+        let defaultChanged = (indicatorEditing.default || "") != $('#default').val();
+        let requiredChanged = (indicatorEditing.required || "") != isRequired;
+        let sensitiveChanged = (indicatorEditing.is_sensitive || "") != isSensitive;
+        let parentIDChanged = (indicatorEditing.parentID || "") != $("#parentID").val();
+        let sortChanged = (indicatorEditing.sort || "") != $("#sort").val();
+        let htmlChanged = (indicatorEditing.html || "") != codeEditorHtml.getValue();
+        let htmlPrintChanged =  (indicatorEditing.htmlPrint || "") != codeEditorHtmlPrint.getValue();
         
         if(nameChanged){
             calls.push(
@@ -1562,13 +1682,17 @@ function getForm(indicatorID, series) {
     });
 }
 
-//this is a modified version formatIndicatorMultiAnswer() in order to returns array
+/**
+ * Purpose: Create Array for Dropdown Options
+ * @param dropDownOptions
+ * @returns {[]|*}
+ */
 function gridDropdown(dropDownOptions){
     if(dropDownOptions == null || dropDownOptions.length === 0){
         return dropDownOptions;
     }
-    var uniqueNames = dropDownOptions.split("\n");
-    var returnArray = [];
+    let uniqueNames = dropDownOptions.split("\n");
+    let returnArray = [];
     uniqueNames = uniqueNames.filter(function(elem, index, self) {
         return index == self.indexOf(elem);
     });
@@ -1583,11 +1707,41 @@ function gridDropdown(dropDownOptions){
     return returnArray;
 }
 
+/**
+ * Purpose: Create Array for Multi-Select Options
+ * @param multiSelectOptions
+ * @returns {[]|*}
+ */
+function gridMultiselect(multiSelectOptions){
+    if(multiSelectOptions == null || multiSelectOptions.length === 0){
+        return multiSelectOptions;
+    }
+    let uniqueNames = multiSelectOptions.split("\n");
+    let returnArray = [];
+    uniqueNames = uniqueNames.filter(function(elem, index, self) {
+        return index == self.indexOf(elem);
+    });
+
+    $.each(uniqueNames, function(i, el){
+        if(el === "no") {
+            uniqueNames[i] = "No";
+        }
+        returnArray.push(uniqueNames[i]);
+    });
+
+    return returnArray;
+}
+
+/**
+ * Purpose: Create Array for Multi-Answer Text
+ * @param multiAnswerValue
+ * @returns {string|*}
+ */
 function formatIndicatorMultiAnswer(multiAnswerValue){
     if(multiAnswerValue == null || multiAnswerValue.length === 0){
         return multiAnswerValue;
     }
-    var uniqueNames = multiAnswerValue.split("\n");
+    let uniqueNames = multiAnswerValue.split("\n");
     uniqueNames = uniqueNames.filter(function(elem, index, self) {
        return index == self.indexOf(elem);
     });
@@ -1602,6 +1756,10 @@ function formatIndicatorMultiAnswer(multiAnswerValue){
     return multiAnswerValue;
 }
 
+/**
+ * Purpose: Merge Stapled Forms
+ * @param categoryID
+ */
 function mergeForm(categoryID) {
     dialog.setTitle('Staple other form');
     dialog.setContent('Select a form to staple: <div id="formOptions"></div>');
@@ -1612,7 +1770,7 @@ function mergeForm(categoryID) {
         url: '../api/formStack/categoryList/all',
         success: function(res) {
             var buffer = '<select id="stapledCategoryID">';
-            for(var i in res) {
+            for(let i in res) {
             	if(res[i].workflowID == 0
             		&& res[i].categoryID != categoryID
             		&& res[i].parentID == '') {
@@ -1652,6 +1810,11 @@ function mergeForm(categoryID) {
 
 }
 
+/**
+ * Purpose: Remove Stapled Form
+ * @param categoryID
+ * @param stapledCategoryID
+ */
 function unmergeForm(categoryID, stapledCategoryID) {
     $.ajax({
         type: 'DELETE',
@@ -1662,6 +1825,10 @@ function unmergeForm(categoryID, stapledCategoryID) {
     });
 }
 
+/**
+ * Purpose: Merge another Form Dialog Box
+ * @param categoryID
+ */
 function mergeFormDialog(categoryID) {
     dialog_simple.setTitle('Staple other form');
     dialog_simple.setContent('Stapled forms will show up on the same page as the primary form.<div id="mergedForms"></div>');
@@ -1672,7 +1839,7 @@ function mergeFormDialog(categoryID) {
         url: '../api/?a=formEditor/_'+ categoryID +'/stapled',
         success: function(res) {
             var buffer = '<ul>';
-            for(var i in res) {
+            for(let i in res) {
                 buffer += '<li>' + res[i].categoryName + ' [ <a href="#" onkeypress="onKeyPressClick(event)" onclick="unmergeForm(\''+ categoryID +'\', \''+ res[i].stapledCategoryID +'\');">Remove</a> ]</li>';
             }
             buffer += '</ul>';
@@ -1689,13 +1856,17 @@ function mergeFormDialog(categoryID) {
 
 }
 
+/**
+ * Purpose: Export Form
+ * @param categoryID
+ */
 function exportForm(categoryID) {
-	var packet = {};
+	let packet = {};
 	packet.form = {};
 	packet.subforms = {};
 
-	var defer = $.Deferred();
-	var promise = defer.promise();
+	let defer = $.Deferred();
+	let promise = defer.promise();
 	promise = promise.then(function() {
 		return $.ajax({
 	        type: 'GET',
@@ -1717,7 +1888,7 @@ function exportForm(categoryID) {
         });
     });
 
-	for(var i in categories) {
+	for(let i in categories) {
         if(categories[i].parentID == categoryID) {
         	promise = promise.then(
             	function(subCategoryID) {
@@ -1738,13 +1909,13 @@ function exportForm(categoryID) {
 	defer.resolve();
 
 	promise.done(function() {
-		var outPacket = {};
+		let outPacket = {};
 		outPacket.version = 1;
 		outPacket.name = categories[categoryID].categoryName + ' (Copy)';
 		outPacket.description = categories[categoryID].categoryDescription;
 		outPacket.packet = packet;
 
-		var outBlob = new Blob([JSON.stringify(outPacket).replace(/[^ -~]/g,'')], {type : 'text/plain'}); // Regex replace needed to workaround IE11 encoding issue
+		let outBlob = new Blob([JSON.stringify(outPacket).replace(/[^ -~]/g,'')], {type : 'text/plain'}); // Regex replace needed to workaround IE11 encoding issue
 		saveAs(outBlob, 'LEAF_FormPacket_'+ categoryID +'.txt');
 	});
 }
@@ -1755,8 +1926,11 @@ function triggerClick(event){
     }
 }
 
+/**
+ * Purpose: Delete Form
+ */
 function deleteForm() {
-	var formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
+	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 	dialog_confirm.setTitle('Delete Form?');
 	dialog_confirm.setContent('Are you sure you want to delete the <b>'+ formTitle +'</b> form?');
 
@@ -1780,6 +1954,10 @@ function deleteForm() {
 
 }
 
+/**
+ * Purpose: Build Menu on Left Nav
+ * @param categoryID
+ */
 function buildMenu(categoryID) {
 	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser(); fetchFormSecureInfo();" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
 	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" onkeypress="onKeyPressClick(event)" role="button"><img src="../../libs/dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
@@ -1792,7 +1970,7 @@ function buildMenu(categoryID) {
         };
     }(categoryID));
 
-	for(var i in categories) {
+	for(let i in categories) {
 		if(categories[i].parentID == categoryID) {
 			$('#menu').append('<div tabindex="0" id="'+ categories[i].categoryID +'" onkeypress="onKeyPressClick(event)" class="buttonNorm" role="button"><img src="../../libs/dynicons/?img=text-x-generic.svg&w=32" alt="Open Form" /> '+ categories[i].categoryName +'</div>');
             $('#' + categories[i].categoryID).on('click', function(categoryID) {
@@ -1819,8 +1997,8 @@ function buildMenu(categoryID) {
         type: 'GET',
         url: '../api/formEditor/_'+ categoryID + '/stapled',
         success: function(res) {
-            let buffer = '<ul>';
-            for(var i in res) {
+            var buffer = '<ul>';
+            for(let i in res) {
                 buffer += '<li>'+ res[i].categoryName +'</li>';
             }
             buffer += '</ul>';
@@ -1838,6 +2016,10 @@ function buildMenu(categoryID) {
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 
+/**
+ * Purpose: Select a Form
+ * @param categoryID
+ */
 function selectForm(categoryID) {
     currCategoryID = categoryID;
     buildMenu(categoryID);
@@ -1847,6 +2029,10 @@ function selectForm(categoryID) {
 var postRenderFormBrowser;
 
 var categories = {};
+
+/**
+ * Purpose: Show Form Nav
+ */
 function showFormBrowser() {
     window.location = '#';
 	$('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
@@ -1859,23 +2045,23 @@ function showFormBrowser() {
         success: function(res) {
             var buffer = '<div id="forms" style="padding: 8px"></div><br style="clear: both" /><hr style="margin-top: 32px" tabindex="0" aria-label="Not associated with a workflow" />Not associated with a workflow:<div id="forms_inactive" style="padding: 8px"></div>';
             $('#formEditor_content').html(buffer);
-            for(var i in res) {
+            for(let i in res) {
             	categories[res[i].categoryID] = res[i];
             	if(res[i].parentID == '') {
             		formTitle = res[i].categoryName == '' ? 'Untitled' : res[i].categoryName;
             		availability = res[i].visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
-            		var needToKnow = '';
+            		let needToKnow = '';
             		if(res[i].needToKnow == 1) {
             			needToKnow = ' <img src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="Need to know mode enabled" title="Need to know mode enabled" />';
             		}
-            		var formActiveID = '';
+            		let formActiveID = '';
             		if(res[i].workflowID > 0) {
             			formActiveID = '#forms';
             		}
             		else {
             			formActiveID = '#forms_inactive';
             		}
-            		var workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
+            		let workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
                     $(formActiveID).append('<div tabindex="0"  onkeypress="onKeyPressClick(event)"class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
                     		<div tabindex="0" class="formPreviewTitle">'+ formTitle + needToKnow + '</div>\
                     		<div tabindex="0" class="formPreviewDescription">'+ res[i].categoryDescription +'</div>\
@@ -1901,17 +2087,21 @@ function showFormBrowser() {
     });
 }
 
+/**
+ * Purpose: Show Secure Form Info
+ * @param res
+ */
 function renderSecureFormsInfo(res) {
     $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: red; display:none;" ></div>');
     $('#secure_forms_info').append('<span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span> ');
     $('#secure_forms_info').append('<a id="secureBtn" class="buttonNorm">View Details</a>');
     if(res['leafSecure'] >= 1) { // Certified
         $.when(fetchIndicators(), fetchLEAFSRequests(true)).then(function(indicators, leafSRequests) {
-            var mostRecentID = null;
-            var newIndicator = false;
-            var mostRecentDate = 0;
+            let mostRecentID = null;
+            let newIndicator = false;
+            let mostRecentDate = 0;
 
-            for(var i in leafSRequests) {
+            for(let i in leafSRequests) {
                 if(leafSRequests[i].recordResolutionData.lastStatus === 'Approved'
                     && leafSRequests[i].recordResolutionData.fulfillmentTime > mostRecentDate) {
                     mostRecentDate = leafSRequests[i].recordResolutionData.fulfillmentTime;
@@ -1920,10 +2110,10 @@ function renderSecureFormsInfo(res) {
             }
             
             $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ mostRecentID);
-            var mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
+            let mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
 
             // check for new indicators since certification
-            for(var i in indicators) {
+            for(let i in indicators) {
                 if(new Date(indicators[i].timeAdded).getTime() > mostRecentTimestamp.getTime()) {
                     newIndicator = true;
                     break;
@@ -1938,7 +2128,7 @@ function renderSecureFormsInfo(res) {
                         $('#secureBtn').text('Please Recertify Your Site');
                         $('#secureBtn').attr('href', '../report.php?a=LEAF_start_leaf_secure_certification');
                     } else {
-                        var recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
+                        let recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
 
                         $('#secureStatus').text('Re-certification in progress.');
                         $('#secureBtn').text('Check Certification Progress');
@@ -1952,6 +2142,10 @@ function renderSecureFormsInfo(res) {
     }
 }
 
+/**
+ * Purpose: History for Forms
+ * @param categoryId
+ */
 function viewHistory(categoryId){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Form History');
@@ -1970,9 +2164,14 @@ function viewHistory(categoryId){
     });
 }
 
+/**
+ * Purpose: Check for Secure Form Certifcation
+ * @param searchResolved
+ * @returns {*|jQuery}
+ */
 function fetchLEAFSRequests(searchResolved) {
-    var deferred = $.Deferred();
-    var query = new LeafFormQuery();
+    let deferred = $.Deferred();
+    let query = new LeafFormQuery();
     query.setRootURL('../');
     query.addTerm('categoryID', '=', 'leaf_secure');
 
@@ -1991,9 +2190,12 @@ function fetchLEAFSRequests(searchResolved) {
     return deferred.promise();
 }
 
-
+/**
+ * Purpose: Get all Indicators on Form
+ * @returns {*|jQuery}
+ */
 function fetchIndicators() {
-    var deferred = $.Deferred();
+    let deferred = $.Deferred();
     $.ajax({
         type: 'GET',
         url: '../api/form/indicator/list',
@@ -2005,6 +2207,9 @@ function fetchIndicators() {
     return deferred.promise();
 }
 
+/**
+ * Purpose: Get Form Secure Information
+ */
 function fetchFormSecureInfo() {
     $.ajax({
         type: 'GET',
@@ -2016,6 +2221,10 @@ function fetchFormSecureInfo() {
     });
 }
 
+/**
+ * Purpose: Create New form
+ * @param parentID
+ */
 function createForm(parentID) {
 	if(parentID == undefined) {
 		parentID = '';
@@ -2041,8 +2250,8 @@ function createForm(parentID) {
 
 
     dialog.setSaveHandler(function() {
-    	var categoryName = $('#name').val();
-    	var categoryDescription = $('#description').val();
+    	let categoryName = $('#name').val();
+    	let categoryDescription = $('#description').val();
     	$.ajax({
     		type: 'POST',
     		url: '<!--{$APIroot}-->?a=formEditor/new',
@@ -2073,10 +2282,16 @@ function createForm(parentID) {
     });
 }
 
+/**
+ * Purpose: Import Form
+ */
 function importForm() {
 	window.location.href = './?a=importForm';
 }
 
+/**
+ * Purpose: Import Form from Library
+ */
 function formLibrary() {
     window.location.href = './?a=formLibrary';
 }
