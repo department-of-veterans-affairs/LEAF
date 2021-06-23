@@ -3066,7 +3066,7 @@ class Form
             }
         }
 
-        if ($joinRecordResolutionBy) {
+        if ($joinRecordResolutionBy === true) {
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
@@ -3079,7 +3079,7 @@ class Form
 
             foreach ($res2 as $item) {
                 $user = $dir->lookupLogin($item['resolvedBy']);
-                $nameResolved = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $item['resolvedBy'];
+                $nameResolved = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']} " : $item['resolvedBy'];
                 $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
             }
         }

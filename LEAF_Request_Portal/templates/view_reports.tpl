@@ -142,7 +142,7 @@ function addHeader(column) {
             leafSearch.getLeafFormQuery().join('recordResolutionBy');
             headers.push({name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionBy != undefined) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
+                     $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
                 }
             }});
         break;
