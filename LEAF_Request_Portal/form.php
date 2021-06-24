@@ -3634,4 +3634,23 @@ class Form
             
         return 1;
     }
+
+    /**
+     * Purpose: Send reminder emails to users depending on current step of record
+     * @param $recordID
+     * @param $days
+     * @throws SmartyException
+     */
+    function sendReminderEmail($recordID, $days) {
+
+        require_once 'Email.php';
+        $email = new Email();
+        $email->setSender('leaf.noreply@va.gov');
+        $email->addSmartyVariables(array(
+            "daysSince" => $days
+        ));
+
+        $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login);
+
+    }
 }
