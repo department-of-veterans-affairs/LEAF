@@ -2876,6 +2876,7 @@ class Form
         $joinRecords_Step_Fulfillment = false;
         $joinActionHistory = false;
         $joinRecordResolutionData = false;
+        $joinRecordResolutionBy = false;
         $joinInitiatorNames = false;
         if (isset($query['joins']))
         {
@@ -2913,6 +2914,10 @@ class Form
                         break;
                     case 'recordResolutionData':
                         $joinRecordResolutionData = true;
+
+                        break;
+                    case 'recordResolutionBy':
+                        $joinRecordResolutionBy = true;
 
                         break;
                     case 'initiatorName':
@@ -3077,6 +3082,30 @@ class Form
                     $data[$item['recordID']]['recordResolutionData']['lastStatus'] = $item['lastStatus'];
                     $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] = $item['fulfillmentTime'];
                 }
+            }
+        }
+
+        if ($joinRecordResolutionBy === true) {
+            require_once 'VAMC_Directory.php';
+            $dir = new VAMC_Directory;
+
+            $strSQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType FROM action_history ".
+                      "LEFT JOIN records USING (recordID) ".
+                      "INNER JOIN workflow_routes USING (stepID) ".
+                      "LEFT JOIN records_workflow_state USING (recordID) ".
+                      "WHERE recordID IN ($recordIDs) ".
+                        "AND action_history.actionType = workflow_routes.actionType ".
+                        "AND records_workflow_state.stepID IS NULL ".
+                        "AND nextStepID = 0 ".
+                        "AND submitted > 0 ".
+                        "AND deleted = 0";
+
+            $res2 = $this->db->prepared_query($strSQL, array());
+
+            foreach ($res2 as $item) {
+                $user = $dir->lookupLogin($item['resolvedBy']);
+                $nameResolved = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']} " : $item['resolvedBy'];
+                $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
             }
         }
 
