@@ -2488,18 +2488,21 @@ class Form
         foreach ($query['terms'] as $q)
         {
             // Logic for AND/OR Operator's
-            $op = ') AND (';
-            if ($q['op']) {
-                $op = $q['op'];
-            }
             if ($count === 0) {
                 $op = '';
                 $conditions = '(';
             } else {
-                if ($op == 'AND') {
-                    $op = ') AND (';
-                } elseif ($op == 'OR') {
-                    $op = ' OR ';
+                switch ($q['op']) {
+                    case 'AND':
+                        $op = ') AND (';
+
+                        break;
+                    case 'OR':
+                        $op = ' OR ';
+
+                        break;
+                    default:
+                        return 0;
                 }
             }
 
@@ -2532,8 +2535,6 @@ class Form
                     break;
                 default:
                     return 0;
-
-                    break;
             }
 
             $vars[':' . $q['id'] . $count] = $q['match'];
