@@ -173,7 +173,7 @@ var LeafFormSearch = function(containerID) {
 		}
 		if(isJSON && advSearch != null && widgetCounter <= advSearch.length) {
 			for(var i = 1; i < advSearch.length; i++) {
-				newSearchWidget(advSearch[i].op);
+				newSearchWidget(advSearch[i].gate);
 				firstChild();
 			}
 			for(var i = 0; i < advSearch.length; i++) {
@@ -183,7 +183,7 @@ var LeafFormSearch = function(containerID) {
 					|| advSearch[i].id == 'serviceID'
 					|| advSearch[i].id == 'categoryID'
 					|| advSearch[i].id == 'stepID') {
-					renderWidget(i, function(widgetID, indicatorID, operator, match, op) {
+					renderWidget(i, function(widgetID, indicatorID, operator, match, gate) {
 						return function() {
 							$('#' + prefixID + 'widgetIndicator_' + widgetID).val(indicatorID);
 							$('#' + prefixID + 'widgetIndicator_' + widgetID).trigger('chosen:updated');
@@ -192,7 +192,7 @@ var LeafFormSearch = function(containerID) {
 							$('#' + prefixID + 'widgetMat_' + widgetID).val(match.replace(/\*/g, ''));
 							$('#' + prefixID + 'widgetMat_' + widgetID).trigger('chosen:updated');
 						};
-					}(i, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match, advSearch[i].op));
+					}(i, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match, advSearch[i].gate));
 				}
 				else {
 					renderWidget(i);
@@ -754,14 +754,14 @@ var LeafFormSearch = function(containerID) {
 	/**
 	 * @memberOf LeafFormSearch
 	 */
-	function newSearchWidget(op) {
+	function newSearchWidget(gate) {
 		// @TODO IE Fix (No overloading)
-		if (op === undefined) {
-			op = 'AND';
+		if (gate === undefined) {
+			gate = 'AND';
 		}
 		let widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'" style="border-spacing: 5px">\
 						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
-						<td style="text-align: center"><strong id="'+prefixID+'widgetOpTerm_'+widgetCounter+'" value="'+op+'">'+ op +'</strong></td>\
+						<td style="text-align: center"><strong id="'+prefixID+'widgetGate_'+widgetCounter+'" value="'+gate+'">'+ gate +'</strong></td>\
 						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen" aria-label="condition">\
             				<option value="title">Title</option>\
             				<option value="serviceID">Service</option>\
@@ -805,22 +805,22 @@ var LeafFormSearch = function(containerID) {
 					id = $('#' + prefixID + 'widgetTerm_' + i).val();
 					cod = $('#' + prefixID + 'widgetCod_' + i).val();
 					match = $('#' + prefixID + 'widgetMat_' + i).val();
-					op = document.getElementById(prefixID + 'widgetOpTerm_' + i).innerHTML; // Assign Operator
+					gate = document.getElementById(prefixID + 'widgetGate_' + i).innerHTML; // Assign Operator
 					if(cod == 'LIKE') {
 						match = '*' + match + '*';
 					}
-					leafFormQuery.addTerm(id, cod, match, op);
+					leafFormQuery.addTerm(id, cod, match, gate);
 				}
 				else {
 					id = $('#' + prefixID + 'widgetTerm_' + i).val();
 					indicatorID = $('#' + prefixID + 'widgetIndicator_' + i).val();
 					cod = $('#' + prefixID + 'widgetCod_' + i).val();
 					match = $('#' + prefixID + 'widgetMat_' + i).val();
-					op = document.getElementById(prefixID + 'widgetOpTerm_' + i).innerHTML; // Assign Operator
+					gate = document.getElementById(prefixID + 'widgetGate_' + i).innerHTML; // Assign Operator
 					if(cod == 'LIKE') {
 						match = '*' + match + '*';
 					}
-					leafFormQuery.addDataTerm(id, indicatorID, cod, match, op);
+					leafFormQuery.addDataTerm(id, indicatorID, cod, match, gate);
 				}
 			}
 		}

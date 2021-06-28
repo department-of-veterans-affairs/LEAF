@@ -27,19 +27,19 @@ var LeafFormQuery = function() {
 	 * @param id - columnID
 	 * @param operator - SQL comparison operator
 	 * @param match - search term to match on
-	 * @param op - AND or OR operator
+	 * @param gate - AND or OR gate
 	 * @memberOf LeafFormQuery
 	 */
-    function addTerm(id, operator, match, op) {
+    function addTerm(id, operator, match, gate) {
 		// @TODO IE Fix (No overloading)
-		if (op === undefined) {
-			op = 'AND';
+		if (gate === undefined) {
+			gate = 'AND';
 		}
     	var temp = {};
     	temp.id = id;
     	temp.operator = operator;
     	temp.match = match;
-		temp.op = op;
+		temp.gate = gate;
     	query.terms.push(temp);
     }
 
@@ -49,20 +49,20 @@ var LeafFormQuery = function() {
 	 * @param indicatorID - indicatorID / dependencyID / "0" to search all indicators
 	 * @param operator - SQL comparison operator
 	 * @param match - search term to match on
-	 * @param op - AND or OR operator
+	 * @param gate - AND or OR gate
 	 * @memberOf LeafFormQuery
 	 */
-    function addDataTerm(id, indicatorID, operator, match, op) {
+    function addDataTerm(id, indicatorID, operator, match, gate) {
 		// @TODO IE Fix (No overloading)
-		if (op === undefined) {
-			op = 'AND';
+		if (gate === undefined) {
+			gate = 'AND';
 		}
     	var temp = {};
     	temp.id = id;
     	temp.indicatorID = indicatorID;
     	temp.operator = operator;
     	temp.match = match;
-		temp.op = op;
+		temp.gate = gate;
     	query.terms.push(temp);
     }
 
@@ -76,10 +76,10 @@ var LeafFormQuery = function() {
     	for(var i in input.terms) {
     		switch(Object.keys(input.terms[i]).length) {
     			case 4:
-    				addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match, input.terms[i].op);
+    				addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
     				break;
     			case 5:
-    				addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match, input.terms[i].op);
+    				addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
     				break;
     			default:
     				console.log('Format error');
@@ -158,19 +158,19 @@ var LeafFormQuery = function() {
 	 * @param id - columnID or "stepID"
 	 * @param operator - SQL comparison operator
 	 * @param match - search term to match on
-	 * @param op - AND or OR operator
+	 * @param gate - AND or OR gate
 	 * @memberOf LeafFormQuery
 	 */
-    function updateTerm(id, operator, match, op) {
+    function updateTerm(id, operator, match, gate) {
     	for(var i in query.terms) {
     		if(query.terms[i].id == id
     				&& query.terms[i].operator == operator) {
     			query.terms[i].match = match;
-				query.terms[i].op = op;
+				query.terms[i].gate = gate;
     			return;
     		}
     	}
-    	addTerm(id, operator, match, op);
+    	addTerm(id, operator, match, gate);
     }
 
     /**
@@ -179,21 +179,21 @@ var LeafFormQuery = function() {
 	 * @param indicatorID - indicatorID / dependencyID
 	 * @param operator - SQL comparison operator
 	 * @param match - search term to match on
-	 * @param op - AND or OR operator
+	 * @param gate - AND or OR gate
 	 * @memberOf LeafFormQuery
 	 */
-    function updateDataTerm(id, indicatorID, operator, match, op) {
+    function updateDataTerm(id, indicatorID, operator, match, gate) {
     	var found = 0;
     	for(var i in query.terms) {
     		if(query.terms[i].id == id
     				&& query.terms[i].indicatorID == indicatorID
     				&& query.terms[i].operator == operator) {
     			query.terms[i].match = match;
-				query.terms[i].op = op;
+				query.terms[i].gate = gate;
     			return;
     		}
     	}
-    	addDataTerm(id, indicatorID, operator, match, op);
+    	addDataTerm(id, indicatorID, operator, match, gate);
     }
 
     /**

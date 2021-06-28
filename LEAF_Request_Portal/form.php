@@ -2487,18 +2487,18 @@ class Form
         $count = 0;
         foreach ($query['terms'] as $q)
         {
-            // Logic for AND/OR Operator's
+            // Logic for AND/OR Gate
             if ($count === 0) {
-                $op = '';
+                $gate = '';
                 $conditions = '(';
             } else {
-                switch ($q['op']) {
+                switch ($q['gate']) {
                     case 'AND':
-                        $op = ') AND (';
+                        $gate = ') AND (';
 
                         break;
                     case 'OR':
-                        $op = ' OR ';
+                        $gate = ' OR ';
 
                         break;
                     default:
@@ -2540,7 +2540,7 @@ class Form
             $vars[':' . $q['id'] . $count] = $q['match'];
             switch ($q['id']) {
                 case 'recordID':
-                    $conditions .= "{$op}recordID {$operator} :recordID{$count}";
+                    $conditions .= "{$gate}recordID {$operator} :recordID{$count}";
 
                     break;
                 case 'recordIDs':
@@ -2556,31 +2556,31 @@ class Form
                     }
                     $validRecordIDs = trim($validRecordIDs, ',');
 
-                    $conditions .= "{$op}recordID IN ({$validRecordIDs})";
+                    $conditions .= "{$gate}recordID IN ({$validRecordIDs})";
 
                     unset($vars[":recordIDs{$count}"]);
 
                     break;
                 case 'serviceID':
-                    $conditions .= "{$op}serviceID {$operator} :serviceID{$count}";
+                    $conditions .= "{$gate}serviceID {$operator} :serviceID{$count}";
 
                     break;
                 case 'submitted':
-                    $conditions .= "{$op}submitted {$operator} :submitted{$count}";
+                    $conditions .= "{$gate}submitted {$operator} :submitted{$count}";
 
                     break;
                 case 'deleted':
-                    $conditions .= "{$op}deleted {$operator} :deleted{$count}";
+                    $conditions .= "{$gate}deleted {$operator} :deleted{$count}";
 
                     break;
                 case 'title':
-                    $conditions .= "{$op}title {$operator} :title{$count}";
+                    $conditions .= "{$gate}title {$operator} :title{$count}";
                     $scrubSpace = array('/^(%\s)+/', '/(\s+%)$/');
                     $vars[':title' . $count] = preg_replace($scrubSpace, '%', $vars[':title' . $count]);
 
                     break;
                 case 'userID':
-                    $conditions .= "{$op}userID {$operator} :userID{$count}";
+                    $conditions .= "{$gate}userID {$operator} :userID{$count}";
 
                     break;
                 case 'date': // backwards compatibility
@@ -2588,14 +2588,14 @@ class Form
                     switch ($operator) {
                         case '=':
                             $vars[':date' . $count . 'b'] = $vars[':date' . $count] + 86400;
-                            $conditions .= "{$op}(date >= :date{$count} AND date <= :date{$count}b)";
+                            $conditions .= "{$gate}(date >= :date{$count} AND date <= :date{$count}b)";
 
                             break;
                         case '<=':
                             $vars[':date' . $count] += 86400; // set to end of day
                             // no break
                         default:
-                            $conditions .= "{$op}date {$operator} :date{$count}";
+                            $conditions .= "{$gate}date {$operator} :date{$count}";
 
                             break;
                     }
@@ -2606,14 +2606,14 @@ class Form
                     switch ($operator) {
                         case '=':
                             $vars[':dateInitiated' . $count . 'b'] = $vars[':dateInitiated' . $count] + 86400;
-                            $conditions .= "{$op}(date >= :dateInitiated{$count} AND date <= :dateInitiated{$count}b)";
+                            $conditions .= "{$gate}(date >= :dateInitiated{$count} AND date <= :dateInitiated{$count}b)";
 
                             break;
                         case '<=':
                             $vars[':dateInitiated' . $count] += 86400; // set to end of day
                             // no break
                         default:
-                            $conditions .= "{$op}date {$operator} :dateInitiated{$count}";
+                            $conditions .= "{$gate}date {$operator} :dateInitiated{$count}";
 
                             break;
                     }
@@ -2624,14 +2624,14 @@ class Form
                     switch ($operator) {
                         case '=':
                             $vars[':dateSubmitted' . $count . 'b'] = $vars[':dateSubmitted' . $count] + 86400;
-                            $conditions .= "{$op}(submitted >= :dateSubmitted{$count} AND submitted <= :dateSubmitted{$count}b)";
+                            $conditions .= "{$gate}(submitted >= :dateSubmitted{$count} AND submitted <= :dateSubmitted{$count}b)";
 
                             break;
                         case '<=':
                             $vars[':dateSubmitted' . $count] += 86400; // set to end of day
                             // no break
                         default:
-                            $conditions .= "{$op}submitted {$operator} :dateSubmitted{$count}";
+                            $conditions .= "{$gate}submitted {$operator} :dateSubmitted{$count}";
 
                             break;
                     }
@@ -2659,28 +2659,28 @@ class Form
                     {
                         switch ($vars[':stepID' . $count]) {
                             case 'submitted':
-                                $conditions .= "{$op}submitted > 0";
+                                $conditions .= "{$gate}submitted > 0";
 
                                 break;
                             case 'notSubmitted': // backwards compat
-                                $conditions .= "{$op}submitted = 0";
+                                $conditions .= "{$gate}submitted = 0";
 
                                 break;
                             case 'deleted':
-                                $conditions .= "{$op}deleted > 0";
+                                $conditions .= "{$gate}deleted > 0";
 
                                 break;
                             case 'notDeleted': // backwards compat
-                                $conditions .= "{$op}deleted = 0";
+                                $conditions .= "{$gate}deleted = 0";
 
                                 break;
                             case 'resolved':
-                                $conditions .= "{$op}(records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)";
+                                $conditions .= "{$gate}(records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)";
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
                             case 'notResolved': // backwards compat
-                                $conditions .= "{$op}(records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0)";
+                                $conditions .= "{$gate}(records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0)";
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
@@ -2705,28 +2705,28 @@ class Form
                         {
                             switch ($vars[':stepID' . $count]) {
                             case 'submitted':
-                                $conditions .= "{$op}submitted = 0";
+                                $conditions .= "{$gate}submitted = 0";
 
                                 break;
                             case 'notSubmitted': // backwards compat
-                                $conditions .= "{$op}submitted > 0";
+                                $conditions .= "{$gate}submitted > 0";
 
                                 break;
                             case 'deleted':
-                                $conditions .= "{$op}deleted = 0";
+                                $conditions .= "{$gate}deleted = 0";
 
                                 break;
                             case 'notDeleted': // backwards compat
-                                $conditions .= "{$op}deleted > 0";
+                                $conditions .= "{$gate}deleted > 0";
 
                                 break;
                             case 'resolved':
-                                $conditions .= "{$op}(records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0)";
+                                $conditions .= "{$gate}(records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0)";
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
                             case 'notResolved': // backwards compat
-                                $conditions .= "{$op}(records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)";
+                                $conditions .= "{$gate}(records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)";
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
@@ -2799,13 +2799,13 @@ class Form
                     // fix to select null data
                     if ($operator == '=' && $vars[':data' . $count] == '')
                     {
-                        $conditions .= "{$op}(lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NULL)";
+                        $conditions .= "{$gate}(lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NULL)";
                     }
                     else
                     {
                         if ($operator == '!=' && $vars[':data' . $count] == '')
                         {
-                            $conditions .= "{$op}(lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NOT NULL)";
+                            $conditions .= "{$gate}(lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NOT NULL)";
                         }
                         else
                         {
@@ -2836,11 +2836,11 @@ class Form
                             if (isset($tResTypeHint[0]['default'])
                             && $tResTypeHint[0]['default'] == $vars[':data' . $count])
                             {
-                                $conditions .= "{$op}({$dataTerm} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
+                                $conditions .= "{$gate}({$dataTerm} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
                             }
                             else
                             {
-                                $conditions .= "{$op}{$dataTerm} {$operator} $dataMatch";
+                                $conditions .= "{$gate}{$dataTerm} {$operator} $dataMatch";
                             }
                         }
                     }
