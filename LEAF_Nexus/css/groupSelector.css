@@ -8,7 +8,7 @@
     border: 1px solid #bbb;
     border-right: 1px solid #bbb!important;
     padding: 4px;
-    width: 21rem!important;
+    width: 100%;
 }
 
 .groupSelectorIcon {
@@ -43,13 +43,14 @@ table.groupSelectorTable {
     width: 100%;
     border: 1px solid #bbb;
     border-collapse: collapse;
+    margin-top: 25px;
 }
 
 .groupSelectorTable th {
     background-color: #ececec;
     text-align: center;
     color: #565c65;
-    font-size: 80%
+    font-size: 80%;
 }
 
 .groupSelectorTable td {

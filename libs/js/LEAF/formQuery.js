@@ -1,6 +1,5 @@
 /**
  * Form Query Helper
- * @deprecated
  */
 
 var LeafFormQuery = function() {
@@ -24,34 +23,46 @@ var LeafFormQuery = function() {
     }
 
     /**
-     * Add a new search term
-     * @param id - columnID
-     * @param operator - SQL comparison operator
-     * @param match - search term to match on
-     * @memberOf LeafFormQuery
-     */
-    function addTerm(id, operator, match) {
+	 * Add a new search term
+	 * @param id - columnID
+	 * @param operator - SQL comparison operator
+	 * @param match - search term to match on
+	 * @param gate - AND or OR gate
+	 * @memberOf LeafFormQuery
+	 */
+    function addTerm(id, operator, match, gate) {
+		// @TODO IE Fix (No overloading)
+		if (gate === undefined) {
+			gate = 'AND';
+		}
     	var temp = {};
     	temp.id = id;
     	temp.operator = operator;
     	temp.match = match;
+		temp.gate = gate;
     	query.terms.push(temp);
     }
 
     /**
-     * Add a new search term for data table
-     * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
-     * @param indicatorID - indicatorID / dependencyID / "0" to search all indicators
-     * @param operator - SQL comparison operator
-     * @param match - search term to match on
-     * @memberOf LeafFormQuery
-     */
-    function addDataTerm(id, indicatorID, operator, match) {
+	 * Add a new search term for data table
+	 * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
+	 * @param indicatorID - indicatorID / dependencyID / "0" to search all indicators
+	 * @param operator - SQL comparison operator
+	 * @param match - search term to match on
+	 * @param gate - AND or OR gate
+	 * @memberOf LeafFormQuery
+	 */
+    function addDataTerm(id, indicatorID, operator, match, gate) {
+		// @TODO IE Fix (No overloading)
+		if (gate === undefined) {
+			gate = 'AND';
+		}
     	var temp = {};
     	temp.id = id;
     	temp.indicatorID = indicatorID;
     	temp.operator = operator;
     	temp.match = match;
+		temp.gate = gate;
     	query.terms.push(temp);
     }
 
@@ -64,11 +75,11 @@ var LeafFormQuery = function() {
     function importQuery(input) {
     	for(var i in input.terms) {
     		switch(Object.keys(input.terms[i]).length) {
-    			case 3:
-    				addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match);
-    				break;
     			case 4:
-    				addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match);
+    				addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
+    				break;
+    			case 5:
+    				addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
     				break;
     			default:
     				console.log('Format error');
@@ -143,42 +154,46 @@ var LeafFormQuery = function() {
     }
 
     /**
-     * Update an existing search term
-     * @param id - columnID or "stepID"
-     * @param operator - SQL comparison operator
-     * @param match - search term to match on
-     * @memberOf LeafFormQuery
-     */
-    function updateTerm(id, operator, match) {
+	 * Update an existing search term
+	 * @param id - columnID or "stepID"
+	 * @param operator - SQL comparison operator
+	 * @param match - search term to match on
+	 * @param gate - AND or OR gate
+	 * @memberOf LeafFormQuery
+	 */
+    function updateTerm(id, operator, match, gate) {
     	for(var i in query.terms) {
     		if(query.terms[i].id == id
     				&& query.terms[i].operator == operator) {
-    			query.terms[i].match = match
+    			query.terms[i].match = match;
+				query.terms[i].gate = gate;
     			return;
     		}
     	}
-    	addTerm(id, operator, match);
+    	addTerm(id, operator, match, gate);
     }
 
     /**
-     * Update an existing data search term
-     * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
-     * @param indicatorID - indicatorID / dependencyID
-     * @param operator - SQL comparison operator
-     * @param match - search term to match on
-     * @memberOf LeafFormQuery
-     */
-    function updateDataTerm(id, indicatorID, operator, match) {
+	 * Update an existing data search term
+	 * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
+	 * @param indicatorID - indicatorID / dependencyID
+	 * @param operator - SQL comparison operator
+	 * @param match - search term to match on
+	 * @param gate - AND or OR gate
+	 * @memberOf LeafFormQuery
+	 */
+    function updateDataTerm(id, indicatorID, operator, match, gate) {
     	var found = 0;
     	for(var i in query.terms) {
     		if(query.terms[i].id == id
     				&& query.terms[i].indicatorID == indicatorID
     				&& query.terms[i].operator == operator) {
-    			query.terms[i].match = match
+    			query.terms[i].match = match;
+				query.terms[i].gate = gate;
     			return;
     		}
     	}
-    	addDataTerm(id, indicatorID, operator, match);
+    	addDataTerm(id, indicatorID, operator, match, gate);
     }
 
     /**
