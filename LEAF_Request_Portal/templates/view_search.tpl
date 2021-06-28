@@ -184,10 +184,10 @@ $(function() {
             for(var i in advSearch) {
                 if(advSearch[i].id != 'data'
                     && advSearch[i].id != 'dependencyID') {
-                    query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
+                    query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);
                 }
                 else {
-                    query.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
+                    query.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match);
                 }
 
                 if(advSearch[i].id == 'title'

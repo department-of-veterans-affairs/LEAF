@@ -5,10 +5,12 @@ on:
   push:
     branches:
       - master
-      - qa-testing
+      - dev
+      - preprod
   pull_request:
     branches:
-      - qa-testing
+      - dev
+      - preprod
 jobs:
   send-team-notification:
     name: PullRequestAction
