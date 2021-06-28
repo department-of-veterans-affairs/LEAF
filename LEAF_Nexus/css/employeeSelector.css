@@ -8,7 +8,7 @@
     border: 1px solid #bbb;
     border-right: 1px solid #bbb!important;
     padding: 4px;
-    width: 100%;
+    width: 21rem!important;
 }
 
 .employeeSelectorIcon {
@@ -49,6 +49,7 @@ table.employeeSelectorTable {
     width: 100%;
     border: 1px solid black;
     border-collapse: collapse;
+    margin-top: 3rem;
 }
 
 .employeeSelectorTable th {

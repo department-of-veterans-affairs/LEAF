@@ -54,18 +54,12 @@ var FormQuery = function () {
          * @param id        string  columnID
          * @param operator  string  SQL comparison operator
          * @param match     string  search term to match on
-         * @param gate      string  AND/OR gate
          */
-        addTerm = function (id, operator, match, gate) {
-            // @TODO IE Fix (No overloading)
-            if (gate === undefined) {
-                gate = 'AND';
-            }
+        addTerm = function (id, operator, match) {
             terms.push({
                 "id": id,
                 "operator": operator,
-                "match": match,
-                "gate": gate
+                "match": match
             });
         },
 
@@ -76,19 +70,13 @@ var FormQuery = function () {
          * @param indicatorID   string  indicatorID / dependencyID / "0" to search all indicators
          * @param operator      string  SQL comparison operator
          * @param match         string  search term to match on
-         * @param gate          string  AND/OR gate
          */
-        addDataTerm = function (id, indicatorID, operator, match, gate) {
-            // @TODO IE Fix (No overloading)
-            if (gate === undefined) {
-                gate = 'AND';
-            }
+        addDataTerm = function (id, indicatorID, operator, match) {
             terms.push({
                 "id": id,
                 "indicatorID": indicatorID,
                 "operator": operator,
-                "match": match,
-                "gate": gate
+                "match": match
             });
         },
 
@@ -100,11 +88,11 @@ var FormQuery = function () {
         importQuery = function (input) {
             for (var i in input.terms) {
                 switch (Object.keys(input.terms[i]).length) {
-                    case 4:
-                        addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
+                    case 3:
+                        addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match);
                         break;
-                    case 5:
-                        addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
+                    case 4:
+                        addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match);
                         break;
                     default:
                         console.log('Format error');
