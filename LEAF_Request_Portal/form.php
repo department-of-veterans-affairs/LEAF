@@ -2690,9 +2690,11 @@ class Form
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
-                                    $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
+                                    $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
                 									WHERE stepID=:stepID{$count}) rj_stepID{$count}
                 									USING (recordID) ";
+                                    // Backwards Compatibility
+                                    $conditions .= "{$gate}rj_stepID{$count}.stepID = :stepID{$count}";
                                 }
                                 else
                                 {
@@ -2736,9 +2738,11 @@ class Form
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
-                                    $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
+                                    $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
                 									WHERE stepID != :stepID{$count}) rj_stepID{$count}
                 									USING (recordID) ";
+                                    // Backwards Compatibility
+                                    $conditions .= "{$gate}rj_stepID{$count}.stepID = :stepID{$count}";
                                 }
                                 else
                                 {
