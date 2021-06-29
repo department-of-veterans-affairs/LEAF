@@ -2481,6 +2481,13 @@ class Form
 
         $joinSearchAllData = false;
         $joinSearchOrgchartEmployeeData = false;
+        $joinCategoryID = false;
+        $joinAllCategoryID = false;
+        $joinRecords_Dependencies = false;
+        $joinRecords_Step_Fulfillment = false;
+        $joinActionHistory = false;
+        $joinRecordResolutionData = false;
+        $joinInitiatorNames = false;
         $vars = array();
         $conditions = '';
         $joins = '';
@@ -2493,16 +2500,14 @@ class Form
                 $conditions = '(';
             } else {
                 switch ($q['gate']) {
-                    case 'AND':
-                        $gate = ') AND (';
-
-                        break;
                     case 'OR':
                         $gate = ' OR ';
 
                         break;
                     default:
-                        return 0;
+                        $gate = ') AND (';
+
+                        break;
                 }
             }
 
@@ -2640,17 +2645,19 @@ class Form
                 case 'categoryID':
                     if ($q['operator'] != '!=')
                     {
-                        $joins .= "INNER JOIN (SELECT * FROM category_count
-    								WHERE categoryID = :categoryID{$count}
-    									  AND count > 0) rj_categoryID{$count}
-    								USING (recordID) ";
+                        if (!$joinCategoryID) {
+                            $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID USING (recordID) ";
+                            $joinCategoryID = true;
+                        }
+                        $conditions .= "{$gate}categoryID = :categoryID{$count}";
                     }
                     else
                     {
-                        $joins .= "INNER JOIN (SELECT * FROM category_count
-    								WHERE categoryID != :categoryID{$count}
-    									  AND count > 0) rj_categoryID{$count}
-    								USING (recordID) ";
+                        if (!$joinCategoryID) {
+                            $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID USING (recordID) ";
+                            $joinCategoryID = true;
+                        }
+                        $conditions .= "{$gate}categoryID != :categoryID{$count}";
                     }
 
                     break;
@@ -2866,18 +2873,11 @@ class Form
 
         // End Check for Conditions Query
         if ($count) {
-            $conditions = $conditions . ') ';
+            $conditions .= ') ';
         } else {
             $conditions = '';
         }
 
-        $joinCategoryID = false;
-        $joinAllCategoryID = false;
-        $joinRecords_Dependencies = false;
-        $joinRecords_Step_Fulfillment = false;
-        $joinActionHistory = false;
-        $joinRecordResolutionData = false;
-        $joinInitiatorNames = false;
         if (isset($query['joins']))
         {
             foreach ($query['joins'] as $table)
@@ -2990,9 +2990,14 @@ class Form
             $joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
         }
 
+        $strSQL = "SELECT * FROM records {$joins} WHERE {$conditions} {$sort} {$limit}";
+
         $res = $this->db->prepared_query('SELECT * FROM records
     										' . $joins . '
                                             WHERE ' . $conditions . $sort . $limit, $vars);
+
+//        var_dump($strSQL);
+//        exit;
         $data = array();
         $recordIDs = '';
         foreach ($res as $item)
