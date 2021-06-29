@@ -2742,7 +2742,7 @@ class Form
                 									WHERE stepID != :stepID{$count}) rj_stepID{$count}
                 									USING (recordID) ";
                                     // Backwards Compatibility
-                                    $conditions .= "{$gate}rj_stepID{$count}.stepID = :stepID{$count}";
+                                    $conditions .= "{$gate}rj_stepID{$count}.stepID != :stepID{$count}";
                                 }
                                 else
                                 {
