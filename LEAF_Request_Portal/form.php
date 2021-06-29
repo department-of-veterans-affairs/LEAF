@@ -2481,13 +2481,6 @@ class Form
 
         $joinSearchAllData = false;
         $joinSearchOrgchartEmployeeData = false;
-        $joinCategoryID = false;
-        $joinAllCategoryID = false;
-        $joinRecords_Dependencies = false;
-        $joinRecords_Step_Fulfillment = false;
-        $joinActionHistory = false;
-        $joinRecordResolutionData = false;
-        $joinInitiatorNames = false;
         $vars = array();
         $conditions = '';
         $joins = '';
@@ -2880,6 +2873,13 @@ class Form
             $conditions = '';
         }
 
+        $joinCategoryID = false;
+        $joinAllCategoryID = false;
+        $joinRecords_Dependencies = false;
+        $joinRecords_Step_Fulfillment = false;
+        $joinActionHistory = false;
+        $joinRecordResolutionData = false;
+        $joinInitiatorNames = false;
         if (isset($query['joins']))
         {
             foreach ($query['joins'] as $table)
