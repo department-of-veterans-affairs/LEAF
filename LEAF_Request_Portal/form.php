@@ -2645,11 +2645,13 @@ class Form
                 case 'categoryID':
                     if ($q['operator'] != '!=')
                     {
+                        // Backwards Compatibility
                         $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
                         $conditions .= "{$gate}lj_categoryID{$count}.categoryID = :categoryID{$count}";
                     }
                     else
                     {
+                        // Backwards Compatibility
                         $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
                         $conditions .= "{$gate}lj_categoryID{$count}.categoryID != :categoryID{$count}";
                     }
@@ -2852,11 +2854,13 @@ class Form
                     {
                         return 0;
                     }
+                    // Backwards Compatibility
                     $vars[':indicatorID' . $count] = $q['indicatorID'];
-                    $joins .= "INNER JOIN (SELECT *, time as `depTime_{$q['indicatorID']}` FROM records_dependencies
+                    $joins .= "LEFT JOIN (SELECT *, time as `depTime_{$q['indicatorID']}` FROM records_dependencies
 								WHERE dependencyID=:indicatorID{$count}
                                     AND filled{$operator}:dependencyID{$count}) lj_dependency{$count}
 								USING (recordID) ";
+                    $conditions .= "{$gate}lj_dependency{$count}.dependencyID = :indicatorID{$count}";
 
                     break;
                 default:
