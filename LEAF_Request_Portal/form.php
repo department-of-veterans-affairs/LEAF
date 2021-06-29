@@ -2645,19 +2645,13 @@ class Form
                 case 'categoryID':
                     if ($q['operator'] != '!=')
                     {
-                        if (!$joinCategoryID) {
-                            $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID USING (recordID) ";
-                            $joinCategoryID = true;
-                        }
-                        $conditions .= "{$gate}categoryID = :categoryID{$count}";
+                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                        $conditions .= "{$gate}lj_categoryID{$count}.categoryID = :categoryID{$count}";
                     }
                     else
                     {
-                        if (!$joinCategoryID) {
-                            $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID USING (recordID) ";
-                            $joinCategoryID = true;
-                        }
-                        $conditions .= "{$gate}categoryID != :categoryID{$count}";
+                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                        $conditions .= "{$gate}lj_categoryID{$count}.categoryID != :categoryID{$count}";
                     }
 
                     break;
@@ -2990,14 +2984,10 @@ class Form
             $joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
         }
 
-        $strSQL = "SELECT * FROM records {$joins} WHERE {$conditions} {$sort} {$limit}";
-
         $res = $this->db->prepared_query('SELECT * FROM records
     										' . $joins . '
                                             WHERE ' . $conditions . $sort . $limit, $vars);
 
-//        var_dump($strSQL);
-//        exit;
         $data = array();
         $recordIDs = '';
         foreach ($res as $item)
