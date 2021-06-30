@@ -2493,16 +2493,14 @@ class Form
                 $conditions = '(';
             } else {
                 switch ($q['gate']) {
-                    case 'AND':
-                        $gate = ') AND (';
-
-                        break;
                     case 'OR':
                         $gate = ' OR ';
 
                         break;
                     default:
-                        return 0;
+                        $gate = ') AND (';
+
+                        break;
                 }
             }
 
@@ -2640,17 +2638,15 @@ class Form
                 case 'categoryID':
                     if ($q['operator'] != '!=')
                     {
-                        $joins .= "INNER JOIN (SELECT * FROM category_count
-    								WHERE categoryID = :categoryID{$count}
-    									  AND count > 0) rj_categoryID{$count}
-    								USING (recordID) ";
+                        // Backwards Compatibility
+                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                        $conditions .= "{$gate}lj_categoryID{$count}.categoryID = :categoryID{$count}";
                     }
                     else
                     {
-                        $joins .= "INNER JOIN (SELECT * FROM category_count
-    								WHERE categoryID != :categoryID{$count}
-    									  AND count > 0) rj_categoryID{$count}
-    								USING (recordID) ";
+                        // Backwards Compatibility
+                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                        $conditions .= "{$gate}lj_categoryID{$count}.categoryID != :categoryID{$count}";
                     }
 
                     break;
@@ -2687,9 +2683,11 @@ class Form
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
-                                    $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
+                                    $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
                 									WHERE stepID=:stepID{$count}) rj_stepID{$count}
                 									USING (recordID) ";
+                                    // Backwards Compatibility
+                                    $conditions .= "{$gate}rj_stepID{$count}.stepID = :stepID{$count}";
                                 }
                                 else
                                 {
@@ -2733,9 +2731,11 @@ class Form
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
-                                    $joins .= "INNER JOIN (SELECT * FROM records_workflow_state
+                                    $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
                 									WHERE stepID != :stepID{$count}) rj_stepID{$count}
                 									USING (recordID) ";
+                                    // Backwards Compatibility
+                                    $conditions .= "{$gate}rj_stepID{$count}.stepID != :stepID{$count}";
                                 }
                                 else
                                 {
@@ -2851,11 +2851,13 @@ class Form
                     {
                         return 0;
                     }
+                    // Backwards Compatibility
                     $vars[':indicatorID' . $count] = $q['indicatorID'];
-                    $joins .= "INNER JOIN (SELECT *, time as `depTime_{$q['indicatorID']}` FROM records_dependencies
+                    $joins .= "LEFT JOIN (SELECT *, time as `depTime_{$q['indicatorID']}` FROM records_dependencies
 								WHERE dependencyID=:indicatorID{$count}
                                     AND filled{$operator}:dependencyID{$count}) lj_dependency{$count}
 								USING (recordID) ";
+                    $conditions .= "{$gate}lj_dependency{$count}.dependencyID = :indicatorID{$count}";
 
                     break;
                 default:
@@ -2866,7 +2868,7 @@ class Form
 
         // End Check for Conditions Query
         if ($count) {
-            $conditions = $conditions . ') ';
+            $conditions .= ') ';
         } else {
             $conditions = '';
         }
@@ -2998,6 +3000,7 @@ class Form
         $res = $this->db->prepared_query('SELECT * FROM records
     										' . $joins . '
                                             WHERE ' . $conditions . $sort . $limit, $vars);
+
         $data = array();
         $recordIDs = '';
         foreach ($res as $item)
