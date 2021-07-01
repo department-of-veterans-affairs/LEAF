@@ -76,19 +76,27 @@ var LeafFormQuery = function() {
      * @memberOf LeafFormQuery
      */
     function importQuery(input) {
-    	for(var i in input.terms) {
-    		switch(Object.keys(input.terms[i]).length) {
-    			case 4:
-    				addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
-    				break;
-    			case 5:
-    				addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
-    				break;
-    			default:
-    				console.log('Format error');
-    				break;
-    		}
-    	}
+		for(let i in input.terms) {
+			switch(Object.keys(input.terms[i]).length) {
+				case 3:
+					addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match);
+					break;
+				case 4:
+					if (input.terms[i].gate === undefined) {
+						addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match);
+						break;
+					} else {
+						addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
+						break;
+					}
+				case 5:
+					addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
+					break;
+				default:
+					console.log('Format error');
+					break;
+			}
+		}
     	
     	for(var i in input.joins) {
     		join(input.joins[i]);
