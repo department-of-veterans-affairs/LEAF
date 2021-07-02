@@ -187,22 +187,51 @@ function addHeader(column) {
                          }});
             break;
         case 'days_since_last_action':
+        case 'days_since_last_step_movement':
             leafSearch.getLeafFormQuery().join('action_history');
-            headers.push({name: 'Days since last action', indicatorID: 'daysSinceLastAction', editable: false, callback: function(data, blob) {
-                var daysSinceAction;
-                if(blob[data.recordID].action_history != undefined) {
-                    var lastAction = blob[data.recordID].action_history[blob[data.recordID].action_history.length - 1];
-                    var date = new Date(lastAction.time * 1000);
-                    daysSinceAction = Math.round((today.getTime() - date.getTime()) / 86400000);
-                    if(blob[data.recordID].submitted == 0) {
+            leafSearch.getLeafFormQuery().join('stepFulfillmentOnly');
+
+            let headerName = (column == 'days_since_last_action') ? 'Days Since Last Action' : 'Days Since Last Workflow Change';
+            let indicatorIDName = (column == 'days_since_last_action') ? 'daysSinceLastAction' : 'daysSinceLastStepMovement';
+            headers.push({
+                name: headerName,
+                indicatorID: indicatorIDName,
+                editable: false,
+                callback: function(data, blob) {
+                    let daysSinceAction;
+                    let recordBlob = blob[data.recordID];
+                    if(recordBlob.action_history != undefined) {
+                        // Get Last Action no matter what (could change for non-comment)
+                        let lastActionRecord = recordBlob.action_history.length - 1;
+                        let lastAction = recordBlob.action_history[lastActionRecord];
+                        let date = new Date(lastAction.time * 1000);
+
+                        // We want to get date of last non-comment action so let's roll
+                        if (column == 'days_since_last_step_movement') {
+                            // Already have date we need if
+                            //  1) Only submit
+                            //  2) Last action was a manual step move
+                            //  3) No records in Step Fulfillment - Completed
+                            if ( (lastActionRecord > 0)
+                                && (lastAction.stepID != 0 && lastAction.dependencyID != 0 && lastAction.actionType != 'move')
+                                && (recordBlob.stepFulfillmentOnly != undefined)
+                            ) {
+                                // Newest addition to Step Fulfillment table is date we need
+                                let lastStep = recordBlob.stepFulfillmentOnly[0];
+                                date = new Date(lastStep.time * 1000);
+                            }
+                        }
+                        daysSinceAction = Math.round((today.getTime() - date.getTime()) / 86400000);
+                        if(recordBlob.submitted == 0) {
+                            daysSinceAction = "Not Submitted";
+                        }
+                    }
+                    else {
                         daysSinceAction = "Not Submitted";
                     }
+                    $('#'+data.cellContainerID).html(daysSinceAction);
                 }
-                else {
-                    daysSinceAction = "Not Submitted";
-                }
-                $('#'+data.cellContainerID).html(daysSinceAction);
-            }});
+            });
             break;
 	    default:
 	    	if(column.substr(0, 6) == 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
@@ -286,7 +315,9 @@ function loadSearchPrereqs() {
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_approval_history"> Approval History</label></div>';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_action"> Days since last action</label></div>';
+            buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_action"> Days Since Last Action</label></div>';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" />';
+            buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_step_movement"> Days Since Last Step Movement</label></div>';
             buffer += '</div>';
             var groupList = {};
             var groupNames = [];

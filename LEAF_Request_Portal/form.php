@@ -2851,6 +2851,7 @@ class Form
         $joinAllCategoryID = false;
         $joinRecords_Dependencies = false;
         $joinRecords_Step_Fulfillment = false;
+        $addJoinRecords_Step_Fulfillment_Only = false;
         $joinActionHistory = false;
         $joinRecordResolutionData = false;
         $joinInitiatorNames = false;
@@ -2886,8 +2887,12 @@ class Form
                         break;
                     case 'stepFulfillment':
                         $joinRecords_Step_Fulfillment = true;
-
                         break;
+
+                    case 'stepFulfillmentOnly':
+                        $addJoinRecords_Step_Fulfillment_Only = true;
+                        break;
+
                     case 'recordResolutionData':
                         $joinRecordResolutionData = true;
 
@@ -3063,13 +3068,29 @@ class Form
 
         if ($joinRecords_Step_Fulfillment)
         {
-            $res2 = $this->db->prepared_query('SELECT * FROM records_step_fulfillment
-    											LEFT JOIN workflow_steps USING (stepID)
-    											WHERE recordID IN (' . $recordIDs . ')', array());
+            $strSQL = 'SELECT * FROM records_step_fulfillment LEFT JOIN workflow_steps USING (stepID) '.
+                'WHERE recordID IN (' . $recordIDs . ')';
+            $res2 = $this->db->prepared_query($strSQL, array());
             foreach ($res2 as $item)
             {
                 $data[$item['recordID']]['stepFulfillment'][$item['stepID']]['time'] = $item['fulfillmentTime'];
                 $data[$item['recordID']]['stepFulfillment'][$item['stepID']]['step'] = $item['stepTitle'];
+            }
+        }
+        if ($addJoinRecords_Step_Fulfillment_Only) {
+            $strSQL = 'SELECT recordID, stepID, fulfillmentTime FROM records_step_fulfillment WHERE recordID IN (' . $recordIDs . ') '.
+                'ORDER BY recordID, fulfillmentTime DESC';
+            $res2 = $this->db->prepared_query($strSQL, array());
+            foreach ($res2 as $item)
+            {
+                // Need all bits to add to stepFullfillmentOnly otherwise skip
+                if (!empty($item['recordID']) && !empty($item['fulfillmentTime']) && !empty($item['stepID']))
+                {
+                    $stepFulfill = [];
+                    $stepFulfill['stepID'] = $item['stepID'];
+                    $stepFulfill['time'] = $item['fulfillmentTime'];
+                    $data[$item['recordID']]['stepFulfillmentOnly'][] = $stepFulfill;
+                }
             }
         }
 
