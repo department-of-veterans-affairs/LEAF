@@ -56,7 +56,7 @@
             <!--{if $groupPrivileges[$groupID].write == 1}-->
             <br /><br />
             <!--{foreach $tag_hierarchy as $tag}-->
-            <button class="buttonNorm" style="width: 100%" onclick="writeTag('<!--{$tag.tag}-->'); announceAction('Wrote tag <!--{$tag.tag}-->');">Add '<!--{$tag.tag}-->'</button>
+            <button class="buttonNorm" style="width: 100%" onclick="writeTag('<!--{$tag.tag}-->', '<!--{$groupID}-->'); announceAction('Wrote tag <!--{$tag.tag}-->');">Add '<!--{$tag.tag}-->'</button>
             <!--{/foreach}-->
             <br />
             <br />
@@ -362,22 +362,51 @@ function confirmDeleteTag(inTag) {
     confirm_dialog.show();
 }
 
-function writeTag(input) {
-    $.ajax({
-    	type: 'POST',
-        url: './api/?a=group/<!--{$groupID}-->/tag',
-        data: {tag: input,
+function writeTag(input, groupID) {
+    if (input === 'service' && !checkPosition(groupID)) {
+        alert('Service Groups are only allowed One Position.\r\n' +
+            '(Remove all but one Position to convert group into service)')
+    } else {
+        $.ajax({
+            type: 'POST',
+            url: './api/?a=group/<!--{$groupID}-->/tag',
+            data: {tag: input,
             CSRFToken: '<!--{$CSRFToken}-->'},
-        success: function(response) {
-        	if(response == true) {
-        		window.location.reload();
-        	}
-        	else {
-        		alert(response);
-        	}
-        },
-        cache: false
-    });
+            success: function (response) {
+                if (response == true) {
+                    window.location.reload();
+                } else {
+                    alert(response);
+                }
+            },
+            cache: false
+        });
+    }
+}
+
+/**
+ * Check for Positions in group
+ * @param groupID - ID of Group
+ * @param returnValue - return value
+ * @return true or false
+ */
+function checkPosition(groupID) {
+    let returnValue = false;
+    if (groupID !== undefined) {
+        $.ajax({
+            type: 'GET',
+            async: false,
+            url: './api/group/' + groupID + '/positions',
+            datatype: 'json',
+            success: function (response) {
+                if (response[1] === undefined) {
+                    returnValue = true;
+                }
+            },
+            cache: false
+        });
+    }
+    return returnValue;
 }
 
 function addTag() {
