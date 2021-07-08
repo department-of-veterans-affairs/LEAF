@@ -3170,21 +3170,26 @@ class Form
     public function getDisabledIndicatorList($disabled)
     {
         $vars = array(':disabled' => (int)$disabled);
-        $res = $this->db->prepared_query('SELECT * FROM indicators
-											LEFT JOIN categories USING (categoryID)
-						                    WHERE indicators.disabled >= :disabled
-						    					AND categories.disabled = 0
-						    				ORDER BY name', $vars);
+        $res = $this->db->prepared_query('SELECT indicatorID, name, format, 
+                                                 description, categories.categoryName,
+                                                 indicators.disabled FROM indicators
+                                                LEFT JOIN categories USING (categoryID)
+                                                WHERE indicators.disabled >= :disabled
+                                                AND categories.disabled = 0 
+                                                ORDER BY name', $vars);
 
         $data = array();
         foreach ($res as $item)
         {
             $temp = array();
+            $delDate = $item['disabled'] + 30*24*60*60; //30 days from timestamp
+            $delDate = date("m/d/Y",$delDate);
             $temp['indicatorID'] = $item['indicatorID'];
             $temp['name'] = $item['name'];
             $temp['format'] = $item['format'];
             $temp['description'] = $item['description'];
             $temp['categoryName'] = $item['categoryName'];
+            $temp['disabled'] = ($item['disabled'] == 1) ? 'disabled' : 'delete on <br >'. $delDate;
             $data[] = $temp;
         }
 

@@ -1095,9 +1095,16 @@ function getForm(indicatorID, series) {
                     </tr>\
                     <tr>\
                         <td>Disabled</td>\
-                        <td colspan="1"><input id="disabled" name="disabled" type="checkbox" /></td>\
+                        <td colspan="1"><input id="disabled" name="disable_or_delete" type="radio" /></td>\
                         <td style="width: 275px;">\
-                            <span id="disabled-warning" style="color: red; visibility: hidden;">This field will be disabled. It can be</br>re-enabled within 30 days under</br>Form Editor -&gt; Restore Fields</span>\
+                            <span id="disabled-warning" style="color: red; visibility: hidden;">This field will be archived.  It can be</br>re-enabled by using the Form Editor</span>\
+                        </td>\
+                    </tr>\
+                    <tr>\
+                        <td>Deleted</td>\
+                        <td colspan="1"><input id="deleted" name="disable_or_delete" type="radio" /></td>\
+                        <td style="width: 275px;">\
+                            <span id="deletion-warning" style="color: red; visibility: hidden;">Deleted items can only be re-enabled</br>within 30 days by using the Form Editor</span>\
                         </td>\
                     </tr>\
                 </table>\
@@ -1181,13 +1188,39 @@ function getForm(indicatorID, series) {
     $('#disabled').on("change", function(event) {
         if($(this).is(':checked'))
         {
+
+            $('#deletion-warning').css('visibility','hidden');
             $('#disabled-warning').css('visibility','visible');
         }
         else
         {
+            $('#deletion-warning').css('visibility','visible');
             $('#disabled-warning').css('visibility','hidden');
         }
     });
+    $('#deleted').keypress(function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
+    $('#deleted').keypress(function(e){
+        if((e.keyCode ? e.keyCode : e.which) === 13){
+            $(this).trigger('click');
+        }
+    });
+    $('#deleted').on("change", function(event) {
+        if($(this).is(':checked'))
+        {
+            $('#disabled-warning').css('visibility', 'hidden');
+            $('#deletion-warning').css('visibility','visible');
+        }
+        else
+        {
+            $('#disabled-warning').css('visibility', 'visible');
+            $('#deletion-warning').css('visibility','hidden');
+        }
+    });
+
     $('#required').keypress(function(e){
         if((e.keyCode ? e.keyCode : e.which) === 13){
             $(this).trigger('click');
@@ -1427,6 +1460,7 @@ function getForm(indicatorID, series) {
     	let isRequired = $('#required').is(':checked') ? 1 : 0;
         let isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
     	let isDisabled = $('#disabled').is(':checked') ? 1 : 0;
+    	let isDeleted = $('#deleted').is(':checked') ? 2 : 0;
         if (isSensitive === 1) {
             $.ajax({
                 type: 'POST',
@@ -1616,8 +1650,21 @@ function getForm(indicatorID, series) {
                     }
                 }));
         }
+        if(isDeleted == 2) {
+            calls.push(
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/deleted',
+                    data: {deleted: isDeleted,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                    success: function (res) {
+                        if (res != null) {
+                        }
+                    }
+                }));
+        }
 
-        if(parentIDChanged){
+            if(parentIDChanged){
             calls.push(
                 $.ajax({
                     type: 'POST',
