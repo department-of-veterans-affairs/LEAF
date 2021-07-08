@@ -363,21 +363,25 @@ function confirmDeleteTag(inTag) {
 }
 
 function writeTag(input) {
-    $.ajax({
-    	type: 'POST',
-        url: './api/?a=group/<!--{$groupID}-->/tag',
-        data: {tag: input,
+    if (input !== 'service') {
+        $.ajax({
+            type: 'POST',
+            url: './api/?a=group/<!--{$groupID}-->/tag',
+            data: {tag: input,
             CSRFToken: '<!--{$CSRFToken}-->'},
-        success: function(response) {
-        	if(response == true) {
-        		window.location.reload();
-        	}
-        	else {
-        		alert(response);
-        	}
-        },
-        cache: false
-    });
+            success: function (response) {
+                if (response == true) {
+                    window.location.reload();
+                } else {
+                    alert(response);
+                }
+            },
+            cache: false
+        });
+    } else {
+        alert('Service Groups are only allowed One Position.\r\n' +
+            '(Remove all but one Position to convert group into service)')
+    }
 }
 
 function addTag() {
