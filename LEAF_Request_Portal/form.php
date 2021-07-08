@@ -3097,13 +3097,14 @@ class Form
     public function getDisabledIndicatorList($disabled)
     {
         $vars = array(':disabled' => (int)$disabled);
-        $res = $this->db->prepared_query('SELECT indicatorID, name, format, 
-                                                 description, categories.categoryName,
-                                                 indicators.disabled FROM indicators
-                                                LEFT JOIN categories USING (categoryID)
-                                                WHERE indicators.disabled >= :disabled
-                                                AND categories.disabled = 0 
-                                                ORDER BY name', $vars);
+        $strSQL = "SELECT indicatorID, name, format, description, categories.categoryName, ".
+                    "indicators.disabled FROM indicators ".
+                    "LEFT JOIN categories USING (categoryID) ".
+                    "WHERE indicators.disabled >= :disabled ".
+                    "AND categories.disabled = 0 ".
+                    "ORDER BY name";
+
+        $res = $this->db->prepared_query($strSQL, $vars);
 
         $data = array();
         foreach ($res as $item)

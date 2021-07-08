@@ -2,7 +2,7 @@
 
 <div style="margin: 2em;">
     <h2>List of disabled fields available for recovery</h2>
-    <div>Disabled fields and associated data may be permanently deleted after 30 days</div>
+    <div>Deleted fields and associated data will be permanently deleted after 30 days</div>
     <div class="leaf-center-content">
         <table class="usa-table leaf-whitespace-normal">
             <thead>
