@@ -1,0 +1,13 @@
+eclipse.preferences.version=1
+org.eclipse.jdt.debug.PREF_HCR_WITH_COMPILATION_ERRORS=true
+org.eclipse.jdt.debug.PREF_REQUEST_TIMEOUT=3000
+org.eclipse.jdt.debug.PREF_SHOW_STEP_RESULT=true
+org.eclipse.jdt.debug.PREF_SHOW_STEP_RESULT_REMOTE=false
+org.eclipse.jdt.debug.PREF_SHOW_STEP_TIMEOUT=7000
+org.eclipse.jdt.debug.PREF_SUSPEND_ON_RECURRENCE_STRATEGY=RECURRENCE_UNCONFIGURED
+org.eclipse.jdt.debug.default_breakpoint_suspend_policy=2
+org.eclipse.jdt.debug.do_not_install_breakpoints_from_unrelated_sources=true
+org.eclipse.jdt.debug.enable_advanced_sourcelookup=true
+org.eclipse.jdt.debug.enable_hcr=true
+org.eclipse.jdt.debug.suspend_for_breakpoints_during_evaluation=true
+org.eclipse.jdt.debugdefault_watchpoint_suspend_policy=0

@@ -1,0 +1,389 @@
+<html>
+<head>
+<title>TestNG:  WIP Script</title>
+<link href="../testng.css" rel="stylesheet" type="text/css" />
+<link href="../my-testng.css" rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+.log { display: none;} 
+.stack-trace { display: none;} 
+</style>
+<script type="text/javascript">
+<!--
+function flip(e) {
+  current = e.style.display;
+  if (current == 'block') {
+    e.style.display = 'none';
+    return 0;
+  }
+  else {
+    e.style.display = 'block';
+    return 1;
+  }
+}
+
+function toggleBox(szDivId, elem, msg1, msg2)
+{
+  var res = -1;  if (document.getElementById) {
+    res = flip(document.getElementById(szDivId));
+  }
+  else if (document.all) {
+    // this is the way old msie versions work
+    res = flip(document.all[szDivId]);
+  }
+  if(elem) {
+    if(res == 0) elem.innerHTML = msg1; else elem.innerHTML = msg2;
+  }
+
+}
+
+function toggleAllBoxes() {
+  if (document.getElementsByTagName) {
+    d = document.getElementsByTagName('div');
+    for (i = 0; i < d.length; i++) {
+      if (d[i].className == 'log') {
+        flip(d[i]);
+      }
+    }
+  }
+}
+
+// -->
+</script>
+
+</head>
+<body>
+<h2 align='center'>WIP Script</h2><table border='1' align="center">
+<tr>
+<td>Tests passed/Failed/Skipped:</td><td>62/0/0</td>
+</tr><tr>
+<td>Started on:</td><td>Mon Jul 12 11:12:32 CDT 2021</td>
+</tr>
+<tr><td>Total time:</td><td>135 seconds (135902 ms)</td>
+</tr><tr>
+<td>Included groups:</td><td></td>
+</tr><tr>
+<td>Excluded groups:</td><td></td>
+</tr>
+</table><p/>
+<small><i>(Hover the method name to see the test class name)</i></small><p/>
+<table width='100%' border='1' class='invocation-passed'>
+<tr><td colspan='4' align='center'><b>PASSED TESTS</b></td></tr>
+<tr><td><b>Test method</b></td>
+<td width="30%"><b>Exception</b></td>
+<td width="10%"><b>Time (seconds)</b></td>
+<td><b>Instance</b></td>
+</tr>
+<tr>
+<td title='Execution.adminUserAccessTest.userAccessHeaderHome()'><b>userAccessHeaderHome</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.deleteUserGroup3()'><b>deleteUserGroup3</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.filterByGroupClear()'><b>filterByGroupClear</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>0</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.removeAddedAdministrator()'><b>removeAddedAdministrator</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.saveNameToGroup1()'><b>saveNameToGroup1</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.viewHistory()'><b>viewHistory</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.closeShowHistory()'><b>closeShowHistory</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.selectedSysAdmin2()'><b>selectedSysAdmin2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.saveGroup2()'><b>saveGroup2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.clickLeftUserGroups()'><b>clickLeftUserGroups</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.getNewlyCreatedUserGroup2()'><b>getNewlyCreatedUserGroup2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.confirmDeleteUserGroup()'><b>confirmDeleteUserGroup</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.selectedSysAdmin()'><b>selectedSysAdmin</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.inputAdminCandidate()'><b>inputAdminCandidate</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.selectAdminCandidate()'><b>selectAdminCandidate</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.inputImportGroupTitle()'><b>inputImportGroupTitle</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>5</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.runDeleteUserGroup()'><b>runDeleteUserGroup</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.findMemberInputBox2()'><b>findMemberInputBox2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.selectImportGroup2()'><b>selectImportGroup2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.testForCertPage()'><b>testForCertPage</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>3</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.confirmDeleteUserGroup4()'><b>confirmDeleteUserGroup4</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.userAccessHeaderReportBuilder()'><b>userAccessHeaderReportBuilder</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.cancelDialogueBox()'><b>cancelDialogueBox</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.userAccessHeaderSiteLinks()'><b>userAccessHeaderSiteLinks</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.selectImportedGroupOnPage()'><b>selectImportedGroupOnPage</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.saveNameToGroup2()'><b>saveNameToGroup2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.getNewlyCreatedUserGroup4()'><b>getNewlyCreatedUserGroup4</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.removeGroupMember1()'><b>removeGroupMember1</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.selectGroupMember()'><b>selectGroupMember</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.deleteUserGroup2()'><b>deleteUserGroup2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.clickLeftMenuCreateGroup()'><b>clickLeftMenuCreateGroup</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.deleteUserGroup()'><b>deleteUserGroup</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.inputGroupTitle()'><b>inputGroupTitle</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>8</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.saveGroup()'><b>saveGroup</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.verifyAddAdministrator()'><b>verifyAddAdministrator</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.filterByGroup()'><b>filterByGroup</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.clickSaveButton()'><b>clickSaveButton</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.clickedLeftMenuShowHistory()'><b>clickedLeftMenuShowHistory</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.selectGroupMember2()'><b>selectGroupMember2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.getGroupMember1()'><b>getGroupMember1</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.selectImportedGroup()'><b>selectImportedGroup</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.confirmDeleteUserGroup2()'><b>confirmDeleteUserGroup2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.clickLeftMenuSysAdmins()'><b>clickLeftMenuSysAdmins</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.selectGroupBasedOnSearch()'><b>selectGroupBasedOnSearch</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.getNewlyCreatedUserGroup()'><b>getNewlyCreatedUserGroup</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.filterByName2()'><b>filterByName2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>4</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.selectImportedGroupOnPage2()'><b>selectImportedGroupOnPage2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.getNewlyCreatedUserGroup3()'><b>getNewlyCreatedUserGroup3</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.selectImportGroup()'><b>selectImportGroup</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.clickLeftMenuAllGroups()'><b>clickLeftMenuAllGroups</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.inputImportGroupMember1()'><b>inputImportGroupMember1</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>3</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.cancelDeleteUserGroup()'><b>cancelDeleteUserGroup</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.closeHistory()'><b>closeHistory</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.cancelPopUpMenu()'><b>cancelPopUpMenu</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.filterByName1()'><b>filterByName1</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.clickHistory()'><b>clickHistory</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.recallSysAdminDialogue()'><b>recallSysAdminDialogue</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.closeViewHistory()'><b>closeViewHistory</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.userAccessHeaderHomeLinks()'><b>userAccessHeaderHomeLinks</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.findMemberInputBox()'><b>findMemberInputBox</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.inputImportGroupMember2()'><b>inputImportGroupMember2</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>4</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+<tr>
+<td title='Execution.adminUserAccessTest.clickAddAdministrator()'><b>clickAddAdministrator</b><br>Test class: Execution.adminUserAccessTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminUserAccessTest@22e357dc</td></tr>
+</table><p>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<html>
+<head>
+<title>TestNG:  Admin Page</title>
+<link href="../testng.css" rel="stylesheet" type="text/css" />
+<link href="../my-testng.css" rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+.log { display: none;} 
+.stack-trace { display: none;} 
+</style>
+<script type="text/javascript">
+<!--
+function flip(e) {
+  current = e.style.display;
+  if (current == 'block') {
+    e.style.display = 'none';
+    return 0;
+  }
+  else {
+    e.style.display = 'block';
+    return 1;
+  }
+}
+
+function toggleBox(szDivId, elem, msg1, msg2)
+{
+  var res = -1;  if (document.getElementById) {
+    res = flip(document.getElementById(szDivId));
+  }
+  else if (document.all) {
+    // this is the way old msie versions work
+    res = flip(document.all[szDivId]);
+  }
+  if(elem) {
+    if(res == 0) elem.innerHTML = msg1; else elem.innerHTML = msg2;
+  }
+
+}
+
+function toggleAllBoxes() {
+  if (document.getElementsByTagName) {
+    d = document.getElementsByTagName('div');
+    for (i = 0; i < d.length; i++) {
+      if (d[i].className == 'log') {
+        flip(d[i]);
+      }
+    }
+  }
+}
+
+// -->
+</script>
+
+</head>
+<body>
+<h2 align='center'>Admin Page</h2><table border='1' align="center">
+<tr>
+<td>Tests passed/Failed/Skipped:</td><td>26/0/0</td>
+</tr><tr>
+<td>Started on:</td><td>Wed Jun 30 09:19:31 CDT 2021</td>
+</tr>
+<tr><td>Total time:</td><td>70 seconds (70998 ms)</td>
+</tr><tr>
+<td>Included groups:</td><td></td>
+</tr><tr>
+<td>Excluded groups:</td><td></td>
+</tr>
+</table><p/>
+<small><i>(Hover the method name to see the test class name)</i></small><p/>
+<table width='100%' border='1' class='invocation-passed'>
+<tr><td colspan='4' align='center'><b>PASSED TESTS</b></td></tr>
+<tr><td><b>Test method</b></td>
+<td width="30%"><b>Exception</b></td>
+<td width="10%"><b>Time (seconds)</b></td>
+<td><b>Instance</b></td>
+</tr>
+<tr>
+<td title='Execution.adminPageTest.headerAdminHomeLinks()'><b>headerAdminHomeLinks</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>3</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminInitiatorNewAccountButton()'><b>adminInitiatorNewAccountButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminHeaderHome()'><b>adminHeaderHome</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminTimelineExplorerButtonl()'><b>adminTimelineExplorerButtonl</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>5</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminTemplateEditorButton()'><b>adminTemplateEditorButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminLEAFProgrammerButton()'><b>adminLEAFProgrammerButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminLeafLibraryButton()'><b>adminLeafLibraryButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminReportBuilderButton()'><b>adminReportBuilderButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.verifyAdminPageTitle()'><b>verifyAdminPageTitle</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>0</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminFileManagerButton()'><b>adminFileManagerButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminMassActionsButton()'><b>adminMassActionsButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminSitemapEditorButton()'><b>adminSitemapEditorButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminWorkflowEditorButton()'><b>adminWorkflowEditorButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.testForCertPage()'><b>testForCertPage</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>0</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminServiceChiefsLabel()'><b>adminServiceChiefsLabel</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.headerAdminUserAccessGroups()'><b>headerAdminUserAccessGroups</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>1</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminHeaderReportBuilder()'><b>adminHeaderReportBuilder</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>3</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminUserAccessGroupsLink()'><b>adminUserAccessGroupsLink</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminSyncServicesButton()'><b>adminSyncServicesButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminUpdateDatabaseButton()'><b>adminUpdateDatabaseButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminSiteSettingsButton()'><b>adminSiteSettingsButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminHeaderSiteLinks()'><b>adminHeaderSiteLinks</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminEmailTemplateEditorButton()'><b>adminEmailTemplateEditorButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminImportSpreadsheetButton()'><b>adminImportSpreadsheetButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>3</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminSearchDatabaseButton()'><b>adminSearchDatabaseButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+<tr>
+<td title='Execution.adminPageTest.adminFormEditorButton()'><b>adminFormEditorButton</b><br>Test class: Execution.adminPageTest</td>
+<td></td>
+<td>2</td>
+<td>Execution.adminPageTest@16610890</td></tr>
+</table><p>
+</body>
+</html>

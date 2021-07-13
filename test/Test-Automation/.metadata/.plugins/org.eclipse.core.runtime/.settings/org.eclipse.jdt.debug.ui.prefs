@@ -1,0 +1,6 @@
+eclipse.preferences.version=1
+org.eclipse.debug.ui.ExpressionView.org.eclipse.jdt.debug.ui.show_null_entries=true
+org.eclipse.debug.ui.VariableView.org.eclipse.jdt.debug.ui.show_null_entries=true
+org.eclipse.jdt.debug.ui.active_filters=com.ibm.*,com.sun.*,java.*,javax.*,jdk.*,jrockit.*,org.eclipse.jdt.launching.internal.*,org.omg.*,sun.*,sunw.*,com.sun.org.apache.bcel.internal.classfile.Method,com.sun.org.apache.bcel.internal.classfile.Method,java.lang.ClassLoader,jdk.internal.reflect.DelegatingMethodAccessorImpl,jdk.internal.reflect.NativeMethodAccessorImpl,org.testng.TestRunner,org.testng.internal.MethodInvocationHelper,org.testng.internal.MethodRunner,org.testng.internal.TestInvoker,org.testng.internal.TestMethodWorker
+org.eclipse.jdt.debug.ui.inactive_filters=
+org.eclipse.jdt.debug.ui.javaDebug.alertHCRFailed=false

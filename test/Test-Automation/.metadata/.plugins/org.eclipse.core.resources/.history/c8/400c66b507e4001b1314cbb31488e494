@@ -1,0 +1,25 @@
+package zArchive;
+
+public class arrays {
+
+	public static void main(String[] args) {
+		int[] aryTypeI = {6,7,8,9,-55,16,7,72};
+		int[] ary = new int[10];
+		int min, max;
+		ary[0] = 6;
+		
+		
+		
+		
+		
+		for (int i = 0; i < ary.length; i++) {
+			if (ary[i] < min)
+				min = ary[i];
+			if (ary[i] > max)
+				max = ary[i];
+		}
+
+		System.out.println("Min: " + min + "\n" + "Max: " + max + "\n------\n" + "nums.length = " + nums.length + "\n");
+	}
+
+}

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [RegressionSuite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" name="User Access Groups(failed)">
+    <parameter name="browser" value="chrome"/>
+    <parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups"/>
+    <classes>
+      <class name="Execution.adminUserAccessTest">
+        <methods>
+          <include name="cancelPopUpMenu"/>
+          <include name="clickLeftMenuSysAdmins"/>
+          <include name="deleteUserGroup"/>
+          <include name="selectAdminCandidate"/>
+          <include name="getNewlyCreatedUserGroup3"/>
+          <include name="getNewlyCreatedUserGroup4"/>
+          <include name="clickAddAdministrator"/>
+          <include name="saveNameToGroup2"/>
+          <include name="saveNameToGroup1"/>
+          <include name="getNewlyCreatedUserGroup"/>
+          <include name="getNewlyCreatedUserGroup2"/>
+          <include name="removeGroupMember1"/>
+          <include name="cancelDialogueBox"/>
+          <include name="inputGroupTitle"/>
+          <include name="selectImportedGroupOnPage"/>
+          <include name="confirmDeleteUserGroup2"/>
+          <include name="clickLeftMenuAllGroups"/>
+          <include name="closeShowHistory"/>
+          <include name="confirmDeleteUserGroup4"/>
+          <include name="saveGroup2"/>
+          <include name="setUp"/>
+          <include name="selectImportedGroupOnPage2"/>
+          <include name="initializeFramework"/>
+          <include name="closeHistory"/>
+          <include name="cancelDeleteUserGroup"/>
+          <include name="selectImportGroup2"/>
+          <include name="saveGroup"/>
+          <include name="recallSysAdminDialogue"/>
+          <include name="clickedLeftMenuShowHistory"/>
+          <include name="selectedSysAdmin2"/>
+          <include name="closeViewHistory"/>
+          <include name="inputImportGroupTitle"/>
+          <include name="clickLeftUserGroups"/>
+          <include name="selectImportGroup"/>
+          <include name="viewHistory"/>
+          <include name="confirmDeleteUserGroup"/>
+          <include name="selectImportedGroup"/>
+          <include name="closeDown"/>
+          <include name="runDeleteUserGroup"/>
+          <include name="selectGroupBasedOnSearch"/>
+          <include name="getGroupMember1"/>
+          <include name="inputImportGroupMember2"/>
+          <include name="selectGroupMember2"/>
+          <include name="clickSaveButton"/>
+          <include name="deleteUserGroup2"/>
+          <include name="selectGroupMember"/>
+          <include name="clickLeftMenuCreateGroup"/>
+          <include name="inputImportGroupMember1"/>
+          <include name="deleteUserGroup3"/>
+          <include name="removeAddedAdministrator"/>
+        </methods>
+      </class> <!-- Execution.adminUserAccessTest -->
+    </classes>
+  </test> <!-- User Access Groups(failed) -->
+</suite> <!-- Failed suite [RegressionSuite] -->

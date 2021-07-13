@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="expressionHistory">
+	</section>
+	<section name="conditionHistory">
+	</section>
+	<section name="AddExceptionDialog">
+		<item key="caughtChecked" value="true"/>
+		<item key="uncaughtChecked" value="true"/>
+	</section>
+	<section name="org.eclipse.jdt.debug.ui.CREATE_STEP_FILTER_DIALOG_SECTION">
+		<item key="DIALOG_X_ORIGIN" value="96"/>
+		<item key="DIALOG_Y_ORIGIN" value="267"/>
+		<item key="DIALOG_WIDTH" value="469"/>
+		<item key="DIALOG_HEIGHT" value="169"/>
+		<item key="DIALOG_FONT_NAME" value="1|Segoe UI|9.0|0|WINDOWS|1|-15|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI"/>
+	</section>
+</section>

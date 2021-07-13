@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="RegressionSuite">
+	
+	<test name="WIP Script">
+		<!-- <parameter name="env" value="https://localhost/LEAF_Request_Portal/"> -->
+		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups">
+		<!-- <parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/"> -->
+		<!-- <parameter name="env" value="https://localhost/LEAF_Request_Portal/">  -->
+		<parameter name="browser" value="chrome"/>
+			<classes>
+				<!-- <class name="Execution.homePageTest"/> -->
+				 <class name="Execution.adminUserAccessTest"/>
+				<!-- <class name="Execution.adminPageTest"/> -->
+				<!--<class name="Execution.createNewRequest"/> -->
+				
+			</classes>
+			</parameter>
+	</test>    
+
+</suite>
+

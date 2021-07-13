@@ -1,0 +1,12 @@
+package zArchive;
+
+public class arrays {
+
+	public static void main(String[] args) {
+		int[] aryTypeI = {6,7,8,9,-55,16,7,72};
+		int[] ary = new int[10];
+		
+		ary[0] = 6;
+	}
+
+}

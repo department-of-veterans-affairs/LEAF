@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 2 elements from project &apos;LEAF-Automation&apos;&#x0D;&#x0A;- Original project: &apos;LEAF-Automation&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     Execution 2021-06-11.zip&#x0D;&#x0A;     Framework 2021-06-11.zip" description="Delete elements" element1="src/Execution 2021-06-11.zip" element2="src/Framework 2021-06-11.zip" elements="0" flags="589830" id="org.eclipse.jdt.ui.delete" resources="2" stamp="1623873649300" subPackages="false" version="1.0"/>
+</session>
