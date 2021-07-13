@@ -3,7 +3,7 @@
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
 </style>
 
-<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: 70%; background-color: white; border: 1px solid black; margin: auto; padding: 0px">
+<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: 600px; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
     <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 1: Develop search filter
     </div>
@@ -12,7 +12,7 @@
     </div>
 </div>
 
-<div id="step_2" style="display: none; width: 95%; background-color: white; border: 1px solid black; margin: auto; padding: 0px">
+<div id="step_2" style="display: none; width: 95%; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
     <div style="background-color: #0059a4; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 2: Select Data Columns
     </div>
@@ -28,6 +28,17 @@
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
 </div>
 <div id="results" style="display: none">Loading...</div>
+
+<form id="newRequest" style="display: none; margin: 2em 0; width: 70%; max-width:500px; min-width: 190px" method="post" action="ajaxIndex.php?a=newform">
+    <div class="item" style="border: 2px dotted black; padding: 0.5em; margin-bottom: 2em;">
+        <h3>New Requests for this form can be created below</h3>
+        <p>After entering a title and clicking "proceed", you will be presented with a series of request related questions. Incomplete requests may result in delays. Upon completion of the request, you will be given an opportunity to print the submission.</p>
+    </div>
+    <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
+    <label for="title">Title of Request</label>
+    <input id="title" type='text' name='title' required />
+    <button class="buttonNorm" type="submit"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Next" />Create New Request</button>
+</form>
 
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -852,7 +863,26 @@ $(function() {
                 }
             	grid.loadData(recordIDs);
             }
-    	});
+            let results = grid.getCurrentData().slice();
+            //categoryID property not present unless searched for in step 1
+            results = results.filter(function(r) { return r.categoryID !== undefined; });
+//DONE: check if all results have the same formID
+            if (results.length){
+                let formID = results[0].categoryID;
+                if (results.every(function(fr) { return fr.categoryID === formID} )){
+                    $('#newRequest').css('display', 'block');
+                    //DONE: add new request button and use form id to make a new request.  ONLY ONE tho
+                    let inputEl = document.getElementById('newRequestFromReportBuilder');
+                    if (!inputEl){
+                        $('#newRequest').append('<input name="num'+ formID +'" type="checkbox" class="ischecked" checked id="newRequestFromReportBuilder" style="font-family: Courier; font-size: 24px; font-weight: bold; margin: 4px">')
+                    }
+                }
+                else { //in case the form has been changed to display: block due to the results of a previous query
+                    $('#newRequest').css('display', 'none');
+                    $('#newRequestFromReportBuilder').remove();
+                }
+            }
+        });
 
     	// get data
     	leafSearch.getLeafFormQuery().execute();
@@ -862,16 +892,32 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
-            $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '460px');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify report" /> Modify Report</button> ');
+
+            $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editColumns"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Modify Columns" /> Modify Columns</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=32" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
             extendedToolbar = true;
 
+            $('#editColumns').on('click', function() {
+                grid.stop();
+                isNewQuery = true;
+                $('#reportTitleDisplay').css('display', 'none');
+                $('#reportTitle').css('display', 'block');
+                $('#newRequest').css('display', 'none');
+                $('#newRequestFromReportBuilder').remove();
+                loadSearchPrereqs();
+                $('#saveLinkContainer').slideUp(700);
+                $('#results').fadeOut(700);
+                $('#step_2').fadeIn(400);
+            });
             $('#editReport').on('click', function() {
             	grid.stop();
             	isNewQuery = true;
                 $('#reportTitleDisplay').css('display', 'none');
                 $('#reportTitle').css('display', 'block');
+                $('#newRequest').css('display', 'none');
+                $('#newRequestFromReportBuilder').remove();
             	loadSearchPrereqs();
                 $('#saveLinkContainer').slideUp(700);
                 $('#results').fadeOut(700);
