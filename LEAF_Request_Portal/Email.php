@@ -653,7 +653,7 @@ class Email
                     // find the next step
                     $varsStep = array(':stepID' => $approvers[0]['stepID']);
                     $strSQL = "SELECT indicatorID_for_assigned_groupID FROM workflow_steps WHERE stepID=:stepID";
-                    $resStep = $this->db->prepared_query($strSQL, $varsStep);
+                    $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
                     $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
                     $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
