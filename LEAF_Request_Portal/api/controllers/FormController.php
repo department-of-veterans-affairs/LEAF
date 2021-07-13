@@ -255,6 +255,10 @@ class FormController extends RESTfulResponse
             return $form->permanentlyDeleteRecord((int)$args[0]);
         });
 
+        $this->index['POST']->register('form/[digit]/reminder/[digit]', function ($args) use ($form) {
+            return $form->sendReminderEmail((int)$args[0], (int)$args[1]);
+        });
+
         // form/customData/ recordID list (csv) / indicatorID list (csv)
         $this->index['POST']->register('form/customData', function ($args) use ($form) {
             $recordIDs = array();

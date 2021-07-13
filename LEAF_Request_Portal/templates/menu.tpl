@@ -26,7 +26,7 @@
 
     function menu508(menuButton, subMenu, subMenuButton)
     {
-        $(menuButton).keypress(function(e) {
+        $(menuButton).keydown(function(e) {
             if (e.keyCode === 13) {
                 $(subMenu).css("display", "block");
                 $(menuButton).attr('aria-expanded', 'true');
@@ -34,10 +34,9 @@
             }
         });
 
-        $(subMenuButton).focusout(function() {
-                $(subMenu).css("display", "none");
-                $(menuButton).attr('aria-expanded', 'false');
-                $(menuButton).focus();
+        $(menuButton).focusout(function() {
+            $(subMenu).css("display", "none");
+            $(menuButton).attr('aria-expanded', 'false');
         });
     }
 </script>

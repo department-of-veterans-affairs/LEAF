@@ -276,19 +276,45 @@ function addGroup() {
     //grpSel.searchTag('service');
 
     dialog.setSaveHandler(function() {
-        dialog.indicateBusy();
-
-        $.ajax({
-        	type: 'POST',
-            url: './api/?a=group/'+ grpSel.selection +'/position',
-            data: {positionID: <!--{$positionID}-->,
-                CSRFToken: '<!--{$CSRFToken}-->'},
-            success: function(response) {
-                window.location.reload();
-            },
-            cache: false
-        });
+        if (grpSel.selectionData[grpSel.selection].tags['service'] !== undefined && checkPosition(grpSel.selection)) {
+            alert('Group is a Service and already has a set position.');
+        } else {
+            dialog.indicateBusy();
+            $.ajax({
+                type: 'POST',
+                url: './api/?a=group/'+ grpSel.selection +'/position',
+                data: {positionID: <!--{$positionID}-->,
+                       CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(response) {
+                    window.location.reload();
+                },
+                cache: false
+            });
+        }
     });
+}
+
+/**
+ * Check for Positions in group
+ * @param groupID - ID of Group
+ * @param returnValue - return value
+ * @return true or false
+ */
+function checkPosition(groupID) {
+    let returnValue = false;
+    $.ajax({
+        type: 'GET',
+        async: false,
+        url: './api/group/'+ groupID +'/positions',
+        datatype: 'json',
+        success: function(response) {
+            if (response[0] !== undefined) {
+                returnValue = true;
+            }
+        },
+        cache: false
+    });
+    return returnValue;
 }
 
 function changeSupervisor() {
