@@ -638,7 +638,7 @@ class Email
 
                 // requestor followup
                 case -2:
-                    $vars = array(':recordID' => $this->recordID);
+                    $vars = array(':recordID' => $recordID);
                     $strSQL = "SELECT userID FROM records WHERE recordID=:recordID";
                     $resRequestor = $this->portal_db->prepared_query($strSQL, $vars);
                     $tmp = $dir->lookupLogin($resRequestor[0]['userID']);
@@ -655,7 +655,7 @@ class Email
                     $strSQL = "SELECT indicatorID_for_assigned_groupID FROM workflow_steps WHERE stepID=:stepID";
                     $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
-                    $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                    $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
                     $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
 
                     if ($groupID > 0) {
