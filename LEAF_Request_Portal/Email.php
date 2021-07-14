@@ -541,7 +541,7 @@ class Email
 
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
-        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, ser.serviceID, ser.service, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
+        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ser.serviceID, ser.service, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
             "LEFT JOIN records AS rec USING (recordID) ".
             "LEFT JOIN step_dependencies AS sd USING (stepID) ".
             "LEFT JOIN dependency_privs USING (dependencyID) ".
@@ -614,7 +614,7 @@ class Email
                     $strSQL = "SELECT indicatorID_for_assigned_empUID FROM workflow_steps WHERE stepID=:stepID";
                     $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
-                    $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
+                    $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
                     $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
 
                     //check if the requester has any backups
