@@ -1095,14 +1095,14 @@ function getForm(indicatorID, series) {
                     </tr>\
                     <tr>\
                         <td>Disabled</td>\
-                        <td colspan="1"><input id="disabled" name="disable_or_delete" type="radio" /></td>\
+                        <td colspan="1"><input id="disabled" name="disable_or_delete" type="checkbox" value="disabled" /></td>\
                         <td style="width: 275px;">\
                             <span id="disabled-warning" style="color: red; visibility: hidden;">This field will be archived.  It can be</br>re-enabled by using the Form Editor</span>\
                         </td>\
                     </tr>\
                     <tr>\
                         <td>Deleted</td>\
-                        <td colspan="1"><input id="deleted" name="disable_or_delete" type="radio" /></td>\
+                        <td colspan="1"><input id="deleted" name="disable_or_delete" type="checkbox" value="deleted" /></td>\
                         <td style="width: 275px;">\
                             <span id="deletion-warning" style="color: red; visibility: hidden;">Deleted items can only be re-enabled</br>within 30 days by using the Form Editor</span>\
                         </td>\
@@ -1188,13 +1188,13 @@ function getForm(indicatorID, series) {
     $('#disabled').on("change", function(event) {
         if($(this).is(':checked'))
         {
-
+            $('#deleted').prop('checked', false);
             $('#deletion-warning').css('visibility','hidden');
             $('#disabled-warning').css('visibility','visible');
         }
         else
         {
-            $('#deletion-warning').css('visibility','visible');
+            $('#disabled').prop('checked', false);
             $('#disabled-warning').css('visibility','hidden');
         }
     });
@@ -1211,12 +1211,13 @@ function getForm(indicatorID, series) {
     $('#deleted').on("change", function(event) {
         if($(this).is(':checked'))
         {
-            $('#disabled-warning').css('visibility', 'hidden');
+            $('#disabled').prop('checked', false);
             $('#deletion-warning').css('visibility','visible');
+            $('#disabled-warning').css('visibility','hidden');
         }
         else
         {
-            $('#disabled-warning').css('visibility', 'visible');
+            $('#deleted').prop('checked', false);
             $('#deletion-warning').css('visibility','hidden');
         }
     });
@@ -1459,8 +1460,10 @@ function getForm(indicatorID, series) {
     dialog.setSaveHandler(function() {
     	let isRequired = $('#required').is(':checked') ? 1 : 0;
         let isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
+
     	let isDisabled = $('#disabled').is(':checked') ? 1 : 0;
-    	let isDeleted = $('#deleted').is(':checked') ? 2 : 0;
+    	let isDeleted =  $('#deleted').is(':checked')  ? 2 : 0;
+
         if (isSensitive === 1) {
             $.ajax({
                 type: 'POST',
