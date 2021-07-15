@@ -864,14 +864,11 @@ $(function() {
             	grid.loadData(recordIDs);
             }
             let results = grid.getCurrentData().slice();
-            //categoryID property not present unless searched for in step 1
             results = results.filter(function(r) { return r.categoryID !== undefined; });
-//DONE: check if all results have the same formID
             if (results.length){
                 let formID = results[0].categoryID;
                 if (results.every(function(fr) { return fr.categoryID === formID} )){
                     $('#newRequest').css('display', 'block');
-                    //DONE: add new request button and use form id to make a new request.  ONLY ONE tho
                     let inputEl = document.getElementById('newRequestFromReportBuilder');
                     if (!inputEl){
                         $('#newRequest').append('<input name="num'+ formID +'" type="checkbox" class="ischecked" checked id="newRequestFromReportBuilder" style="font-family: Courier; font-size: 24px; font-weight: bold; margin: 4px">')
