@@ -44,9 +44,9 @@ $(function() {
         url: '../api/form/indicator/list/disabled',
         success: function(res) {
 
-            var buffer = '';
+            let buffer = '';
 
-            for(var i in res) {
+            for(let i in res) {
 
                 buffer += '<tr id="field_'+ res[i].indicatorID +'">';
                 buffer += '<td>'+ res[i].indicatorID +'</td>';

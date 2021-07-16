@@ -260,7 +260,7 @@ class FormEditor
     
     function setDisabled($indicatorID, $input) 
     {
-    	$disabledTime = 0;
+
     	if($input == 1) {
             $this->setRequired($indicatorID, 0);
             $this->disableSubindicators($indicatorID);
@@ -270,7 +270,9 @@ class FormEditor
     		$this->setRequired($indicatorID, 0);
     		$this->disableSubindicators($indicatorID);
     		$disabledTime = time();
-    	}
+    	} else {
+            $disabledTime = 0;
+        }
 
     	$vars = array(':indicatorID' => $indicatorID,
                       ':input' => $disabledTime);

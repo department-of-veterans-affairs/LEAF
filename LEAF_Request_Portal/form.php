@@ -3167,7 +3167,7 @@ class Form
         return $data;
     }
 
-    public function getDisabledIndicatorList($disabled)
+    public function getDisabledIndicatorList(int $disabled)
     {
         $vars = array(':disabled' => (int)$disabled);
         $strSQL = "SELECT indicatorID, name, format, description, categories.categoryName, ".
@@ -3179,22 +3179,22 @@ class Form
 
         $res = $this->db->prepared_query($strSQL, $vars);
 
-        $data = array();
+        $disabledIndicatorList = array();
         foreach ($res as $item)
         {
             $temp = array();
             $delDate = $item['disabled'] + 30*24*60*60; //30 days from timestamp
-            $delDate = date("m/d/Y",$delDate);
+            $delDateFormat = date("m/d/Y",$delDate);
             $temp['indicatorID'] = $item['indicatorID'];
             $temp['name'] = $item['name'];
             $temp['format'] = $item['format'];
             $temp['description'] = $item['description'];
             $temp['categoryName'] = $item['categoryName'];
-            $temp['disabled'] = ($item['disabled'] == 1) ? 'disabled' : 'delete on <br >'. $delDate;
-            $data[] = $temp;
+            $temp['disabled'] = ($item['disabled'] == 1) ? 'disabled' : 'delete on <br >'. $delDateFormat;
+            $disabledIndicatorList[] = $temp;
         }
 
-        return $data;
+        return $disabledIndicatorList;
     }
 
     /**
