@@ -29,7 +29,10 @@
 </div>
 <div id="results" style="display: none">Loading...</div>
 
-<form id="newRequest" style="display: none; margin: 2em 0; width: 70%; max-width:500px; min-width: 190px" method="post" action="ajaxIndex.php?a=newform">
+<!-- this section will be available if a single type of form is returned when reports are generated
+#newRequestButton has a listener that will post to the portal API, and recall 'generate report' to
+update the reports table -->
+<div id="newRequest"  style="display: none; margin: 2em 0; width: 70%; max-width:500px; min-width: 190px" >
     <div class="item" style="border: 2px dotted black; padding: 0.5em; margin-bottom: 2em;">
         <h3>New Requests for this form can be created below</h3>
         <p>After entering a title and clicking "proceed", you will be presented with a series of request related questions. Incomplete requests may result in delays. Upon completion of the request, you will be given an opportunity to print the submission.</p>
@@ -37,13 +40,13 @@
     <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
     <label for="title">Title of Request</label>
     <input id="title" type='text' name='title' required />
-    <button class="buttonNorm" type="submit"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Next" />Create New Request</button>
-</form>
+    <button id="newRequestButton" class="buttonNorm" type="button"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Next" />Create New Request</button>
+</div>
 
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <script>
-var CSRFToken = '<!--{$CSRFToken}-->';
+const CSRFToken = '<!--{$CSRFToken}-->';
 
 function loadWorkflow(recordID, prefixID) {
     dialog_message.setTitle('Apply Action to #' + recordID);
@@ -771,6 +774,38 @@ $(function() {
         }
     });
 
+
+    const portalAPI = LEAFRequestPortalAPI();
+    portalAPI.setBaseURL('./api/?a=');
+    portalAPI.setCSRFToken(CSRFToken);
+    let formID = ''; //updated to store form ID if only single type of form is found
+    $('#newRequestButton').on('click', function() {
+        const titleInput = document.getElementById('title').value;
+        if (!titleInput) {
+            return alert('A request title is required');
+        }
+        const categoryID = formID;
+        const requestData = { "title": titleInput };
+        if (categoryID && requestData ) {
+            portalAPI.Forms.newRequest(
+                categoryID,
+                requestData,
+                function (results) {
+                    //0 if there was an error
+                    if (results > 0) {
+                        $('#generateReport').click();
+                        dialog.hide();
+                    } else {
+                        console.log('error')
+                    }
+                },
+                function (error) {
+                    console.log('error');
+                }
+            );
+        }
+    });
+
     <!--{if $query == '' || $indicators == ''}-->
     loadSearchPrereqs();
     isNewQuery = true;
@@ -863,20 +898,16 @@ $(function() {
                 }
             	grid.loadData(recordIDs);
             }
+
             let results = grid.getCurrentData().slice();
-            results = results.filter(function(r) { return r.categoryID !== undefined; });
-            if (results.length){
-                let formID = results[0].categoryID;
-                if (results.every(function(fr) { return fr.categoryID === formID} )){
+            let filteredResults = results.filter(function(r) { return r.categoryID !== undefined; });
+            if (filteredResults.length){
+                formID = filteredResults[0].categoryID;
+                if (filteredResults.every(function(fr) { return fr.categoryID === formID} )){
                     $('#newRequest').css('display', 'block');
-                    let inputEl = document.getElementById('newRequestFromReportBuilder');
-                    if (!inputEl){
-                        $('#newRequest').append('<input name="num'+ formID +'" type="checkbox" class="ischecked" checked id="newRequestFromReportBuilder" style="font-family: Courier; font-size: 24px; font-weight: bold; margin: 4px">')
-                    }
                 }
                 else { //in case the form has been changed to display: block due to the results of a previous query
                     $('#newRequest').css('display', 'none');
-                    $('#newRequestFromReportBuilder').remove();
                 }
             }
         });
@@ -902,7 +933,6 @@ $(function() {
                 $('#reportTitleDisplay').css('display', 'none');
                 $('#reportTitle').css('display', 'block');
                 $('#newRequest').css('display', 'none');
-                $('#newRequestFromReportBuilder').remove();
                 loadSearchPrereqs();
                 $('#saveLinkContainer').slideUp(700);
                 $('#results').fadeOut(700);
@@ -914,7 +944,6 @@ $(function() {
                 $('#reportTitleDisplay').css('display', 'none');
                 $('#reportTitle').css('display', 'block');
                 $('#newRequest').css('display', 'none');
-                $('#newRequestFromReportBuilder').remove();
             	loadSearchPrereqs();
                 $('#saveLinkContainer').slideUp(700);
                 $('#results').fadeOut(700);
@@ -954,6 +983,9 @@ $(function() {
     		url = window.location.href;
     	}
     });
+
+
+
 
     <!--{if $query != '' && $indicators != ''}-->
     function loadReport() {
