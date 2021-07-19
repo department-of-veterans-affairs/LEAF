@@ -662,12 +662,14 @@ function newQuestion(parentIndicatorID) {
         }
     });
     $('#required').keypress(function(e){
-        if((e.keyCode ? e.keyCode : e.which) === 13){
+        let keyC = e.keyCode ? e.keyCode : e.which;
+        if(keyC === 13){
             $(this).trigger('click');
         }
     });
     $('#disabled').keypress(function(e){
-        if((e.keyCode ? e.keyCode : e.which) === 13){
+        let keyC = e.keyCode ? e.keyCode : e.which;
+        if(keyC === 13){
             $(this).trigger('click');
         }
     });
@@ -683,11 +685,10 @@ function newQuestion(parentIndicatorID) {
             alert('You can\'t mark a field as sensitive if the Input Format is "None".');
         }
     });
-
-		//ie11 fix
-		setTimeout(function () {
-			dialog.show();
-		}, 0);
+    //ie11 fix
+    setTimeout(function () {
+        dialog.show();
+    }, 0);
 
     dialog.setSaveHandler(function() {
     	let isRequired = $('#required').is(':checked') ? 1 : 0;
@@ -1166,7 +1167,8 @@ function getForm(indicatorID, series) {
         }
     });
     $('#disabled').keypress(function(e){
-        if((e.keyCode ? e.keyCode : e.which) === 13){
+        let keyC = e.keyCode ? e.keyCode : e.which;
+        if(keyC === 13){
             $(this).trigger('click');
         }
     });
@@ -1189,7 +1191,8 @@ function getForm(indicatorID, series) {
         }
     });
     $('#deleted').keypress(function(e){
-        if((e.keyCode ? e.keyCode : e.which) === 13){
+        let keyC = e.keyCode ? e.keyCode : e.which;
+        if(keyC === 13){
             $(this).trigger('click');
         }
     });
@@ -1208,7 +1211,8 @@ function getForm(indicatorID, series) {
     });
 
     $('#required').keypress(function(e){
-        if((e.keyCode ? e.keyCode : e.which) === 13){
+        let keyC = e.keyCode ? e.keyCode : e.which;
+        if(keyC === 13){
             $(this).trigger('click');
         }
     });
@@ -1435,10 +1439,10 @@ function getForm(indicatorID, series) {
 
     dialog.setSaveHandler(function() {
         /*the below values are used by the indicators table*/
-    	let requiredIndicator = $('#required').is(':checked') ? 1 : 0;
+        let requiredIndicator = $('#required').is(':checked') ? 1 : 0;
         let sensitiveIndicator = $('#sensitive').is(':checked') ? 1 : 0;
-    	let disabledIndicator = $('#disabled').is(':checked') ? 1 : 0;
-    	let deletedIndicator =  $('#deleted').is(':checked')  ? 2 : 0;
+        let disabledIndicator = $('#disabled').is(':checked') ? 1 : 0;
+        let deletedIndicator =  $('#deleted').is(':checked')  ? 2 : 0;
 
         if (sensitiveIndicator === 1) {
             $.ajax({
@@ -2305,8 +2309,9 @@ $(function() {
 
 // keypress functions for 508 compliance
 function onKeyPressClick(e){
-	if((e.keyCode ? e.keyCode : e.which) === 13){
-			$(e.target).trigger('click');
-	}
+    let keyC = e.keyCode ? e.keyCode : e.which;
+    if(keyC === 13){
+        $(e.target).trigger('click');
+    }
 }
 </script>
