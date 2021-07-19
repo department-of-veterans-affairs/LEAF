@@ -23,25 +23,29 @@
     </div>
 </div>
 
+<!-- this section will be available if a single type of form is returned when reports are generated
+#newRequestButton has a listener that will post to the portal API, and recall 'generate report' to
+update the reports table -->
+<div id="newRequest"  style="display: none; margin: 1.5em 0.5em; width: 70%; max-width:500px; min-width: 190px" >
+    <h3>New Requests can be created for this form </h3>
+    <p>Enter a title and use the button to create new requests. They will appear at the top of the table. Please remember to enter any necessary information, as incomplete requests may result in delays.</p>
+    <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
+    <label for="title" style="border: 0;clip: rect(0 0 0 0);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;">Title of Request</label>
+    <input id="title" type='text' name='title' required placeholder="title"/>
+    <button id="newRequestButton" class="buttonNorm" type="button"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Next" />Create New Request</button>
+    <!-- the div below is temporarily populated after a new request is created -->
+    <div id="newRequestFeedback" style="height: 20px;"></div>
+</div>
+
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%"></div>
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
 </div>
+
+
 <div id="results" style="display: none">Loading...</div>
 
-<!-- this section will be available if a single type of form is returned when reports are generated
-#newRequestButton has a listener that will post to the portal API, and recall 'generate report' to
-update the reports table -->
-<div id="newRequest"  style="display: none; margin: 2em 0; width: 70%; max-width:500px; min-width: 190px" >
-    <div class="item" style="border: 2px dotted black; padding: 0.5em; margin-bottom: 2em;">
-        <h3>New Requests for this form can be created below</h3>
-        <p>After entering a title and clicking "proceed", you will be presented with a series of request related questions. Incomplete requests may result in delays. Upon completion of the request, you will be given an opportunity to print the submission.</p>
-    </div>
-    <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
-    <label for="title">Title of Request</label>
-    <input id="title" type='text' name='title' required />
-    <button id="newRequestButton" class="buttonNorm" type="button"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Next" />Create New Request</button>
-</div>
+
 
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -778,29 +782,45 @@ $(function() {
     const portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('./api/?a=');
     portalAPI.setCSRFToken(CSRFToken);
-    let formID = ''; //updated to store form ID if only single type of form is found
+    let categoryID = ''; //updated at report generation if only single type of form is found
     $('#newRequestButton').on('click', function() {
         const titleInput = document.getElementById('title').value;
+        const elfeedback = document.getElementById('newRequestFeedback');
         if (!titleInput) {
             return alert('A request title is required');
         }
-        const categoryID = formID;
         const requestData = { "title": titleInput };
         if (categoryID && requestData ) {
             portalAPI.Forms.newRequest(
                 categoryID,
                 requestData,
-                function (results) {
-                    //0 if there was an error
-                    if (results > 0) {
+                function (formNumber) {
+                    //> 0 if there was no error
+                    if (formNumber > 0) {
                         $('#generateReport').click();
+                        elfeedback.style.color = 'green';
+                        elfeedback.textContent = "Your new request had been created";
                         dialog.hide();
-                    } else {
-                        console.log('error')
+                        setTimeout(function() {
+                            let el_ID = grid.getPrefixID() + "tbody_tr" + formNumber;
+                            let newRow = document.getElementById(el_ID);
+                            console.log(el_ID, newRow);
+                            newRow.style.backgroundColor = 'rgb(254, 255, 209)';
+                        },250);
+
+                        setTimeout(function(){
+                            elfeedback.textContent = "";
+                        },6000);
                     }
                 },
-                function (error) {
-                    console.log('error');
+                function (error) {  //this runs if title or id are not submitted, but error is false
+                    if (error) {
+                        elfeedback.style.color = 'red';
+                        elfeedback.textContent = "An error has occurred. You can still try to create a new request via the New Request page";
+                        setTimeout(function () {
+                            elfeedback.textContent = "";
+                        }, 6000);
+                    }
                 }
             );
         }
@@ -902,8 +922,8 @@ $(function() {
             let results = grid.getCurrentData().slice();
             let filteredResults = results.filter(function(r) { return r.categoryID !== undefined; });
             if (filteredResults.length){
-                formID = filteredResults[0].categoryID;
-                if (filteredResults.every(function(fr) { return fr.categoryID === formID} )){
+                categoryID = filteredResults[0].categoryID;
+                if (filteredResults.every(function(fr) { return fr.categoryID === categoryID} )){
                     $('#newRequest').css('display', 'block');
                 }
                 else { //in case the form has been changed to display: block due to the results of a previous query
