@@ -26,13 +26,15 @@
 <!-- this section will be available if a single type of form is returned when reports are generated
 #newRequestButton has a listener that will post to the portal API, and recall 'generate report' to
 update the reports table -->
-<div id="newRequest"  style="display: none; margin: 1.5em 0.5em; width: 70%; max-width:500px; min-width: 190px" >
+<div id="newRequest"  style="display: none; margin: 1.5em 0.5em; width: 70%; max-width:350px; min-width: 190px" >
     <h3>New Requests can be created for this form </h3>
-    <p>Enter a title and use the button to create new requests. They will appear at the top of the table. Please remember to enter any necessary information, as incomplete requests may result in delays.</p>
+    <p>Enter a title and use the button to create new requests. They will appear at the top of the table.</p>
     <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
     <label for="title" style="border: 0;clip: rect(0 0 0 0);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;">Title of Request</label>
-    <input id="title" type='text' name='title' required placeholder="title"/>
-    <button id="newRequestButton" class="buttonNorm" type="button"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Next" />Create New Request</button>
+    <div style="display:flex; align-items: center">
+        <input id="title" type="text" name="title" style="height:24px; margin-right: 2px;" required placeholder="request title"/>
+        <button id="newRequestButton" class="buttonNorm" type="button"><img src="../libs/dynicons/?img=go-next.svg&amp;w=24" alt="Next" />Create New Request</button>
+    </div>
     <!-- the div below is temporarily populated after a new request is created -->
     <div id="newRequestFeedback" style="height: 20px;"></div>
 </div>
@@ -799,7 +801,7 @@ $(function() {
                     if (formNumber > 0) {
                         $('#generateReport').click();
                         elfeedback.style.color = 'green';
-                        elfeedback.textContent = "Your new request had been created";
+                        elfeedback.textContent = "Your new request has been created";
                         dialog.hide();
                         setTimeout(function() {
                             let el_ID = grid.getPrefixID() + "tbody_tr" + formNumber;
