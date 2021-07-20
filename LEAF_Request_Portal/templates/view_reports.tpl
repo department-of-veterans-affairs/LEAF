@@ -23,22 +23,6 @@
     </div>
 </div>
 
-<!-- this section will be available if a single type of form is returned when reports are generated
-#newRequestButton has a listener that will post to the portal API, and recall 'generate report' to
-update the reports table -->
-<div id="newRequest"  style="display: none; margin: 1.5em 0.5em; width: 70%; max-width:350px; min-width: 190px" >
-    <h3>New Requests can be created for this form </h3>
-    <p>Enter a title and use the button to create new requests. They will appear at the top of the table.</p>
-    <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
-    <label for="title" style="border: 0;clip: rect(0 0 0 0);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;">Title of Request</label>
-    <div style="display:flex; align-items: center">
-        <input id="title" type="text" name="title" style="height:24px; margin-right: 2px;" required placeholder="request title"/>
-        <button id="newRequestButton" class="buttonNorm" type="button"><img src="../libs/dynicons/?img=go-next.svg&amp;w=24" alt="Next" />Create New Request</button>
-    </div>
-    <!-- the div below is temporarily populated after a new request is created -->
-    <div id="newRequestFeedback" style="height: 20px;"></div>
-</div>
-
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%"></div>
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
@@ -708,6 +692,51 @@ function showJSONendpoint() {
 	dialog_message.show();
 }
 
+function createRequest(catID) {
+    const portalAPI = LEAFRequestPortalAPI();
+    portalAPI.setBaseURL('./api/?a=');
+    portalAPI.setCSRFToken(CSRFToken);
+    dialog.setTitle('New Request Title');
+    dialog.setContent('<div><h4>Title of Request</h4>'
+        + '<span class="text">'
+        + '<input id="newTitle" type="text" name="newTitle" required placeholder="Request Title"/>'
+        + '</span>'
+        + '</div>');
+    dialog.show();
+    dialog.setSaveHandler(function() {
+        let titleInput = document.getElementById('newTitle').value;
+        if (!titleInput) {
+            dialog.btnSaveID.on();
+        } else {
+            let requestData = {"title": titleInput};
+            if (catID && requestData) {
+                portalAPI.Forms.newRequest(
+                    catID,
+                    requestData,
+                    function (formNumber) {
+                        //> 0 if there was no error
+                        if (formNumber > 0) {
+                            $('#generateReport').click();
+                            dialog.hide();
+                            setTimeout(function () {
+                                let el_ID = grid.getPrefixID() + "tbody_tr" + formNumber;
+                                let newRow = document.getElementById(el_ID);
+                                console.log(el_ID, newRow);
+                                newRow.style.backgroundColor = 'rgb(254, 255, 209)';
+                            }, 500);
+                        }
+                    },
+                    function (error) {  //this runs if title or id are not submitted, but error is false
+                        if (error) {
+                            alert('New Request could not be processed');
+                        }
+                    }
+                );
+            }
+        }
+    });
+}
+
 var url, urlQuery, urlIndicators;
 var leafSearch;
 var headers = [];
@@ -777,54 +806,6 @@ $(function() {
         }
         else {
             $('#option_dateCancelled').css('display', 'none');
-        }
-    });
-
-
-    const portalAPI = LEAFRequestPortalAPI();
-    portalAPI.setBaseURL('./api/?a=');
-    portalAPI.setCSRFToken(CSRFToken);
-    let categoryID = ''; //updated at report generation if only single type of form is found
-    $('#newRequestButton').on('click', function() {
-        const titleInput = document.getElementById('title').value;
-        const elfeedback = document.getElementById('newRequestFeedback');
-        if (!titleInput) {
-            return alert('A request title is required');
-        }
-        const requestData = { "title": titleInput };
-        if (categoryID && requestData ) {
-            portalAPI.Forms.newRequest(
-                categoryID,
-                requestData,
-                function (formNumber) {
-                    //> 0 if there was no error
-                    if (formNumber > 0) {
-                        $('#generateReport').click();
-                        elfeedback.style.color = 'green';
-                        elfeedback.textContent = "Your new request has been created";
-                        dialog.hide();
-                        setTimeout(function() {
-                            let el_ID = grid.getPrefixID() + "tbody_tr" + formNumber;
-                            let newRow = document.getElementById(el_ID);
-                            console.log(el_ID, newRow);
-                            newRow.style.backgroundColor = 'rgb(254, 255, 209)';
-                        },250);
-
-                        setTimeout(function(){
-                            elfeedback.textContent = "";
-                        },6000);
-                    }
-                },
-                function (error) {  //this runs if title or id are not submitted, but error is false
-                    if (error) {
-                        elfeedback.style.color = 'red';
-                        elfeedback.textContent = "An error has occurred. You can still try to create a new request via the New Request page";
-                        setTimeout(function () {
-                            elfeedback.textContent = "";
-                        }, 6000);
-                    }
-                }
-            );
         }
     });
 
@@ -926,10 +907,10 @@ $(function() {
             if (filteredResults.length){
                 categoryID = filteredResults[0].categoryID;
                 if (filteredResults.every(function(fr) { return fr.categoryID === categoryID} )){
-                    $('#newRequest').css('display', 'block');
+                    $('#newRequestButton').css('display', 'block');
                 }
                 else { //in case the form has been changed to display: block due to the results of a previous query
-                    $('#newRequest').css('display', 'none');
+                    $('#newRequestButton').css('display', 'none');
                 }
             }
         });
@@ -947,6 +928,8 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editColumns"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Modify Columns" /> Modify Columns</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=32" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm" type="button" style="float:left;" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Next" />Create New Request</button>');
+
             extendedToolbar = true;
 
             $('#editColumns').on('click', function() {
