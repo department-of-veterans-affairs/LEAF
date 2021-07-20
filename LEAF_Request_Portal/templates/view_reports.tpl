@@ -692,43 +692,47 @@ function showJSONendpoint() {
 	dialog_message.show();
 }
 
+/**
+ * Purpose: Create New Row Requests
+ * @param catID - Form ID passing in for new request
+ * @return - Creates new request inline on grid
+ */
 function createRequest(catID) {
     const portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('./api/?a=');
     portalAPI.setCSRFToken(CSRFToken);
     dialog.setTitle('New Request Title');
     dialog.setContent('<div><h4>Title of Request</h4>'
-        + '<span class="text">'
-        + '<input id="newTitle" type="text" name="newTitle" required placeholder="Request Title"/>'
-        + '</span>'
-        + '</div>');
+                    + '<p>Enter a title and save changes to create new requests.<br/>They will appear at the top of the table.</p>'
+                    + '<span class="text">'
+                    + '<input id="newTitle" type="text" name="newTitle" required placeholder="Request Title" style="font-size: 1.3em; font-family: monospace"/>'
+                    + '</span>'
+                    + '</div>');
     dialog.show();
-    dialog.setSaveHandler(function() {
-        let titleInput = document.getElementById('newTitle').value;
-        if (!titleInput) {
-            dialog.btnSaveID.on();
-        } else {
+    let titleInput;
+    $('#button_save').on('click', function() {
+        titleInput = document.getElementById('newTitle').value;
+        if (titleInput) {
             let requestData = {"title": titleInput};
             if (catID && requestData) {
                 portalAPI.Forms.newRequest(
                     catID,
                     requestData,
                     function (formNumber) {
-                        //> 0 if there was no error
                         if (formNumber > 0) {
                             $('#generateReport').click();
                             dialog.hide();
                             setTimeout(function () {
                                 let el_ID = grid.getPrefixID() + "tbody_tr" + formNumber;
                                 let newRow = document.getElementById(el_ID);
-                                console.log(el_ID, newRow);
                                 newRow.style.backgroundColor = 'rgb(254, 255, 209)';
                             }, 500);
                         }
                     },
-                    function (error) {  //this runs if title or id are not submitted, but error is false
+                    function (error) {
                         if (error) {
                             alert('New Request could not be processed');
+                            dialog.hide();
                         }
                     }
                 );
@@ -1053,7 +1057,6 @@ $(function() {
         }
         catch(err) {
         	alert('Invalid report');
-        	console.log(err);
         }
     }
     if(typeof atob == 'function') {
