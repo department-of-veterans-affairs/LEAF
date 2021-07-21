@@ -739,6 +739,9 @@ function createRequest(catID) {
             }
         }
     });
+    dialog.setCancelHandler(function() {
+        dialog.clear();
+    });
 }
 
 var url, urlQuery, urlIndicators;
