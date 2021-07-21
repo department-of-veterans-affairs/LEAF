@@ -766,6 +766,8 @@ $(function() {
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.renderUI();
 
+    $('#' + leafSearch.getPrefixID() + 'searchIcon').toggle();
+
     $('#' + leafSearch.getPrefixID() + 'advancedSearchButton').click();
     $('#' + leafSearch.getPrefixID() + 'advancedOptions').css('border', '0');
     $('#' + leafSearch.getPrefixID() + 'advancedOptionsClose').css('visibility', 'hidden');
@@ -914,7 +916,7 @@ $(function() {
             if (filteredResults.length){
                 categoryID = filteredResults[0].categoryID;
                 if (filteredResults.every(function(fr) { return fr.categoryID === categoryID} )){
-                    $('#newRequestButton').css('display', 'block');
+                    $('#newRequestButton').css('display', 'inline-block');
                 }
                 else { //in case the form has been changed to display: block due to the results of a previous query
                     $('#newRequestButton').css('display', 'none');
@@ -934,8 +936,9 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editColumns"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Modify Columns" /> Modify Columns</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm" style="display: inline" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" alt="Next" />Create Row</button>');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=32" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm" type="button" style="float:left;" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Next" />Create New Request</button>');
+
 
             extendedToolbar = true;
 
@@ -944,7 +947,6 @@ $(function() {
                 isNewQuery = true;
                 $('#reportTitleDisplay').css('display', 'none');
                 $('#reportTitle').css('display', 'block');
-                $('#newRequest').css('display', 'none');
                 loadSearchPrereqs();
                 $('#saveLinkContainer').slideUp(700);
                 $('#results').fadeOut(700);
@@ -955,7 +957,6 @@ $(function() {
             	isNewQuery = true;
                 $('#reportTitleDisplay').css('display', 'none');
                 $('#reportTitle').css('display', 'block');
-                $('#newRequest').css('display', 'none');
             	loadSearchPrereqs();
                 $('#saveLinkContainer').slideUp(700);
                 $('#results').fadeOut(700);
