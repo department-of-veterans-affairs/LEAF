@@ -38,10 +38,8 @@ $login = new Login($db_phonebook, $db);
 $login->loginUser();
 if (!$login->isLogin() || !$login->isInDB())
 {
-    echo 'Session expired, please refresh the page.<br /><br />If this message persists, please contact your administrator.';
-    echo '<br />' . $login->getName();
-    echo '<br />' . $login->getUserID();
     $login->logout(); // destroy current session tokens
+    header("Location: session_expire.php?return=".urlencode($_SERVER['REQUEST_URI']));
     exit;
 }
 
