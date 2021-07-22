@@ -698,6 +698,9 @@ function showJSONendpoint() {
  * @return - Creates new request inline on grid
  */
 function createRequest(catID) {
+    if (catID === undefined) {
+        return alert('New Request could not be processed');
+    }
     const portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('./api/?a=');
     portalAPI.setCSRFToken(CSRFToken);
@@ -709,10 +712,10 @@ function createRequest(catID) {
                     + '</span>'
                     + '</div>');
     dialog.show();
-    let titleInput;
+    let titleInput = "";
     $('#button_save').on('click', function() {
         titleInput = document.getElementById('newTitle').value;
-        if (titleInput) {
+        if (titleInput !== "") {
             let requestData = {"title": titleInput};
             if (catID && requestData) {
                 portalAPI.Forms.newRequest(
