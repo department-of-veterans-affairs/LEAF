@@ -503,7 +503,7 @@ function editLabels() {
 		});
 	}
 
-	for(var i in resSelectList) {
+	for(let i in resSelectList) {
 		if(resIndicatorList[resSelectList[i]] != undefined) {
 			buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
 			buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
@@ -696,6 +696,7 @@ var isNewQuery = false;
 var dialog, dialog_message;
 var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
+let gridColorData = [];
 
 var version = 3;
 /* URL formats
@@ -865,6 +866,7 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '460px');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify report" /> Modify Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=32" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<input type="color" id="colorPicker" value="#d1dfff" />');
             extendedToolbar = true;
 
             $('#editReport').on('click', function() {
@@ -876,6 +878,26 @@ $(function() {
                 $('#saveLinkContainer').slideUp(700);
                 $('#results').fadeOut(700);
                 $('#step_1').fadeIn(700);
+            });
+            //listener to set and
+            const thead = document.getElementById(grid.getPrefixID() + 'thead');
+            const colorPicker = document.getElementById('colorPicker');
+            thead.addEventListener('click', function(event){
+                const t = event.target;
+                if ( t !== undefined ){
+                    let color = colorPicker.value;
+                    t.style.setProperty('background-color', color);
+                    gridColorData = grid.updateHeaderColorData();
+                    //change text color to black or white based on rgb components after
+                    //converting from hex. Criteria work well for most color combinations.
+                    let arrColor = [];
+                    for (let i = 1; i < 7; i += 2) {
+                        arrColor.push(parseInt(color.slice(i, i + 2), 16));
+                    }
+                    const maxVal = Math.max(...arrColor);
+                    const sum = arrColor.reduce((accumulator, currentVal) => accumulator + currentVal);
+                    t.style.color = maxVal < 135 || sum < 350 ? 'white' : 'black';
+                }
             });
     	}
 
@@ -910,6 +932,9 @@ $(function() {
     	else {
     		url = window.location.href;
     	}
+    	if(gridColorData){
+            grid.updateHeaderColors(gridColorData);
+        }
     });
 
     <!--{if $query != '' && $indicators != ''}-->

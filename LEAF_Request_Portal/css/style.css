@@ -504,6 +504,13 @@ table.leaf_grid {
 
 table.leaf_grid th {
     font-weight: normal;
+    border: 1px solid black;
+    padding: 4px 2px 4px 2px;
+    font-size: 12px;
+}
+table.leaf_grid th:hover,
+table.leaf_grid th:focus {
+    background-color: #79a2ff;
 }
 
 table.leaf_grid>tbody {

@@ -14,7 +14,6 @@ var LeafFormGrid = function(containerID, options) {
     var isDataLoaded = false;
     var defaultLimit = 50;
     var currLimit = 50;
-    var headerColor = '#d1dfff';
     var dataBlob = {}; // if data needs to be passed in
     var postProcessDataFunc = null;
     var preRenderFunc = null;
@@ -22,12 +21,12 @@ var LeafFormGrid = function(containerID, options) {
     var rootURL = '';
     var isRenderingVirtualHeader = true;
     var isRenderingBody = false;
+    const defaultHeaderColor = 'rgb(209, 223, 255)';
 
     $('#' + containerID).html('<div id="'+prefixID+'grid"></div><div id="'+prefixID+'form" style="display: none"></div>');
 
     $('#' + prefixID+'grid').html('<div style="position: relative"><div id="'+prefixID+'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="'+prefixID+'table_stickyHeader" style="display: none"></div><table id="'+prefixID+'table" class="leaf_grid"><thead id="'+prefixID+'thead" aria-label="Search Results"></thead><tbody id="'+prefixID+'tbody"></tbody><tfoot id="'+prefixID+'tfoot"></tfoot></table>');
 
-    $('#' + prefixID+'thead').css({'background-color': headerColor});
 
     if(options == undefined) {
         form = new LeafForm(prefixID + 'form');
@@ -149,19 +148,6 @@ var LeafFormGrid = function(containerID, options) {
                 }
                 renderBody(0, Infinity);
             });
-            // todo: move this into a stylesheet
-            $('#'+ prefixID +'header_UID').on('mouseover', null, null, function(data) {
-                $('#'+ prefixID +'header_UID').css('background-color', '#79a2ff');
-            });
-            $('#'+ prefixID +'header_UID').on('mouseout', null, null, function(data) {
-                $('#'+ prefixID +'header_UID').css({'background-color': headerColor});
-            });
-            $('#'+ prefixID +'header_UID').on('focusin', null, null, function(data) {
-                $('#'+ prefixID +'header_UID').css('background-color', '#79a2ff');
-            });
-            $('#'+ prefixID +'header_UID').on('focusout', null, null, function(data) {
-                $('#'+ prefixID +'header_UID').css({'background-color': headerColor});
-            });
         }
 
         for(var i in headers) {
@@ -200,19 +186,7 @@ var LeafFormGrid = function(containerID, options) {
                             renderBody(0, Infinity);
                         }
                         });
-                // todo: move this into a stylesheet
-                $('#'+ prefixID +'header_' + headers[i].indicatorID).on('mouseover', null, headers[i].indicatorID, function(data) {
-                    $('#'+ prefixID +'header_' + data.data).css('background-color', '#79a2ff');
-                });
-                $('#'+ prefixID +'header_' + headers[i].indicatorID).on('mouseout', null, headers[i].indicatorID, function(data) {
-                    $('#'+ prefixID +'header_' + data.data).css({'background-color': headerColor});
-                });
-                    $('#'+ prefixID +'header_' + headers[i].indicatorID).on('focusin', null, headers[i].indicatorID, function(data) {
-                            $('#'+ prefixID +'header_' + data.data).css('background-color', '#79a2ff');
-                    });
-                    $('#'+ prefixID +'header_' + headers[i].indicatorID).on('focusout', null, headers[i].indicatorID, function(data) {
-                            $('#'+ prefixID +'header_' + data.data).css({'background-color': headerColor});
-                    });
+
             }
         }
         $('#' + prefixID + 'thead').append('</tr>');
@@ -586,19 +560,19 @@ var LeafFormGrid = function(containerID, options) {
         renderVirtualHeader();
     }
 
-        /**
+    /**
      * @memberOf LeafFormGrid
      */
-         function announceResults(){
-             var term = $('[name="searchtxt"]').val();
+     function announceResults(){
+         var term = $('[name="searchtxt"]').val();
 
-             if(currentData.length == 0) {
-                 $('.status').text('No results found for term ' + term);
-         }else{
-                 $('.status').text('Search results found for term ' + term + ' listed below');
-            }
-
+         if(currentData.length == 0) {
+             $('.status').text('No results found for term ' + term);
+        }else{
+             $('.status').text('Search results found for term ' + term + ' listed below');
         }
+
+    }
 
     /**
      * @memberOf LeafFormGrid
@@ -803,6 +777,55 @@ var LeafFormGrid = function(containerID, options) {
         return null;
     }
 
+    /**
+     * @memberOf LeafFormGrid
+     *
+     */
+    function updateHeaderColorData(){
+        const selector = '#' + this.getPrefixID() + 'thead_tr th';
+        const headerElements = Array.from(document.querySelectorAll(selector));
+        let t = this;
+        this.tableHeaderColors = headerElements.map(function(th){
+            //the form prefix id changes each page load; use the remaining id
+            let id = th.id.slice(t.getPrefixID().length-1);
+            //update the bg_color, and get suitable text color
+            let bg_color = th.style.backgroundColor || t.defaultHeaderColor;
+            let arrRGB = bg_color.slice(4, bg_color.length-1).split(',');
+            let arrRGB_nums = arrRGB.map(function(str) {
+                return parseInt(str);
+            });
+            let maxVal = Math.max(...arrRGB_nums);
+            let sum = arrRGB_nums.reduce((accumulator, currentVal) => accumulator + currentVal);
+            let textColor = maxVal < 135 || sum < 350 ? 'white' : 'black';
+
+            return {id, bg_color, textColor};
+        });
+        //copy of data for the page using it
+        return this.tableHeaderColors.slice();
+    }
+    /**
+     * @params array of objects [{ id, bg_color, textColor}]
+     * @memberOf LeafFormGrid
+     * updates table's th elements with stored color info
+     */
+    function updateHeaderColors(arrHeaderElementColorData){
+        const selector = '#' + this.getPrefixID() + 'thead_tr th';
+        const headerElements = Array.from(document.querySelectorAll(selector));
+        let t = this;
+        headerElements.forEach(function(ele){
+            //remove the dynamic section of id
+            let id = ele.id.slice(t.getPrefixID().length-1);
+            //object matching this criteria.  undefined if not found.
+            let found = arrHeaderElementColorData.find(function(data){
+                return data.id === id;
+            });
+            if(found){
+                ele.style.setProperty('background-color', found.bg_color);
+                ele.style.setProperty('color', found.textColor);
+            }
+        });
+    }
+
     return {
         getPrefixID: function() { return prefixID; },
         form: function() { return form; },
@@ -828,6 +851,9 @@ var LeafFormGrid = function(containerID, options) {
         getDataByRecordID: getDataByRecordID,
         disableVirtualHeader: function() { isRenderingVirtualHeader = false },
         stop: function() { isRenderingBody = false },
-        setRootURL: function(url) { rootURL = url; }
+        setRootURL: function(url) { rootURL = url; },
+        updateHeaderColors: updateHeaderColors,
+        updateHeaderColorData: updateHeaderColorData,
+        defaultHeaderColor: defaultHeaderColor
     }
 };
