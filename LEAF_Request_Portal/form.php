@@ -3190,7 +3190,7 @@ class Form
             $temp['format'] = $item['format'];
             $temp['description'] = $item['description'];
             $temp['categoryName'] = $item['categoryName'];
-            $temp['disabled'] = ($item['disabled'] == 1) ? 'disabled' : 'delete on <br >'. $delDateFormat;
+            $temp['disabled'] = ($item['disabled'] == 1) ? 'Archived' : 'Deletion Date: '. $delDateFormat;
             $disabledIndicatorList[] = $temp;
         }
 
@@ -3223,25 +3223,27 @@ class Form
                 break;
         }
         $vars = array();
-        $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
-                    LEFT JOIN categories USING (categoryID)
-                    WHERE indicators.disabled = 0
-                        AND format != ""
-                        AND name != ""
-                        AND categories.disabled = 0' . $orderBy;
+        $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+                    "LEFT JOIN categories USING (categoryID) ".
+                    "WHERE indicators.disabled <= 1 ".
+                        "AND format != '' ".
+                        "AND name != '' ".
+                        "AND categories.disabled = 0" . $orderBy;
         if($includeHeadings) {
-            $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
-            LEFT JOIN categories USING (categoryID)
-            WHERE indicators.disabled = 0
-                AND name != ""
-                AND categories.disabled = 0' . $orderBy;
+            $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+                        "LEFT JOIN categories USING (categoryID) ".
+                        "WHERE indicators.disabled <= 1 ".
+                            "AND name != '' ".
+                            "AND categories.disabled = 0" . $orderBy;
         }
-        $res = $this->db->prepared_query($query, $vars);
+        $res = $this->db->prepared_query($strSQL, $vars);
 
-        $resAll = $this->db->prepared_query('SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
-													LEFT JOIN categories USING (categoryID)
-								                    WHERE indicators.disabled = 0
-								    					AND categories.disabled = 0' . $orderBy, $vars);
+        $strSQL = "SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+                    "LEFT JOIN categories USING (categoryID) ".
+					"WHERE indicators.disabled <= 1 ".
+					    "AND categories.disabled = 0" . $orderBy;
+
+        $resAll = $this->db->prepared_query($strSQL, $vars);
 
         $dataStaples = array();
         $resStaples = $this->db->prepared_query('SELECT stapledCategoryID, category_staples.categoryID as categoryID, categories.categoryID as stapledSubCategoryID, categories.parentID FROM category_staples LEFT JOIN categories ON (stapledCategoryID = categories.parentID)', $vars);

@@ -656,7 +656,7 @@ function newQuestion(parentIndicatorID) {
             event.preventDefault();
         }
     });
-    $('#disabled').keypress(function(event) {
+    $('#archived').keypress(function(event) {
         if(event.keyCode === 13) {
             event.preventDefault();
         }
@@ -667,7 +667,7 @@ function newQuestion(parentIndicatorID) {
             $(this).trigger('click');
         }
     });
-    $('#disabled').keypress(function(e){
+    $('#archived').keypress(function(e){
         let keyC = e.keyCode ? e.keyCode : e.which;
         if(keyC === 13){
             $(this).trigger('click');
@@ -1075,17 +1075,17 @@ function getForm(indicatorID, series) {
                         <td colspan="2"><div id="container_parentID"></div></td>\
                     </tr>\
                     <tr>\
-                        <td>Disabled</td>\
-                        <td colspan="1"><input id="disabled" name="disable_or_delete" type="checkbox" value="disabled" /></td>\
+                        <td>Archived</td>\
+                        <td colspan="1"><input id="archived" name="disable_or_delete" type="checkbox" value="archived" /></td>\
                         <td style="width: 275px;">\
-                            <span id="disabled-warning" style="color: red; visibility: hidden;">This field will be archived.  It can be</br>re-enabled by using the Form Editor</span>\
+                            <span id="archived-warning" style="color: red; visibility: hidden;">This field will be archived.  It can be</br>re-enabled by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>\
                         </td>\
                     </tr>\
                     <tr>\
                         <td>Deleted</td>\
                         <td colspan="1"><input id="deleted" name="disable_or_delete" type="checkbox" value="deleted" /></td>\
                         <td style="width: 275px;">\
-                            <span id="deletion-warning" style="color: red; visibility: hidden;">Deleted items can only be re-enabled</br>within 30 days by using the Form Editor</span>\
+                            <span id="deletion-warning" style="color: red; visibility: hidden;">Deleted items can only be re-enabled</br>within 30 days by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>\
                         </td>\
                     </tr>\
                 </table>\
@@ -1161,28 +1161,28 @@ function getForm(indicatorID, series) {
             event.preventDefault();
         }
     });
-    $('#disabled').keypress(function(event) {
+    $('#archived').keypress(function(event) {
         if(event.keyCode === 13) {
             event.preventDefault();
         }
     });
-    $('#disabled').keypress(function(e){
+    $('#archived').keypress(function(e){
         let keyC = e.keyCode ? e.keyCode : e.which;
         if(keyC === 13){
             $(this).trigger('click');
         }
     });
-    $('#disabled').on("change", function(event) {
+    $('#archived').on("change", function(event) {
         if($(this).is(':checked'))
         {
             $('#deleted').prop('checked', false);
             $('#deletion-warning').css('visibility','hidden');
-            $('#disabled-warning').css('visibility','visible');
+            $('#archived-warning').css('visibility','visible');
         }
         else
         {
-            $('#disabled').prop('checked', false);
-            $('#disabled-warning').css('visibility','hidden');
+            $('#archived').prop('checked', false);
+            $('#archived-warning').css('visibility','hidden');
         }
     });
     $('#deleted').keypress(function(event) {
@@ -1199,9 +1199,9 @@ function getForm(indicatorID, series) {
     $('#deleted').on("change", function(event) {
         if($(this).is(':checked'))
         {
-            $('#disabled').prop('checked', false);
+            $('#archived').prop('checked', false);
             $('#deletion-warning').css('visibility','visible');
-            $('#disabled-warning').css('visibility','hidden');
+            $('#archived-warning').css('visibility','hidden');
         }
         else
         {
@@ -1441,7 +1441,7 @@ function getForm(indicatorID, series) {
         /*the below values are used by the indicators table*/
         let requiredIndicator = $('#required').is(':checked') ? 1 : 0;
         let sensitiveIndicator = $('#sensitive').is(':checked') ? 1 : 0;
-        let disabledIndicator = $('#disabled').is(':checked') ? 1 : 0;
+        let archivedIndicator = $('#archived').is(':checked') ? 1 : 0;
         let deletedIndicator =  $('#deleted').is(':checked')  ? 2 : 0;
 
         if (sensitiveIndicator === 1) {
@@ -1592,12 +1592,12 @@ function getForm(indicatorID, series) {
                 }));
         }
 
-        if(disabledIndicator == 1){
+        if(archivedIndicator == 1){
             calls.push(   	        
                 $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/' + indicatorID + '/disabled',
-                    data: {disabled: disabledIndicator,
+                    data: {disabled: archivedIndicator,
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 }));
         }
@@ -1972,7 +1972,8 @@ function buildMenu(categoryID) {
                           <div id="stapledArea"></div><br />');
 
     $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" role="button"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>\
-                        <div id="stapledArea"></div><br />');                      
+                        <div id="stapledArea"></div><br />');
+
 
     // show stapled forms in the menu area
     $.ajax({
@@ -1993,8 +1994,8 @@ function buildMenu(categoryID) {
     
 	$('#menu').append('<br /><div tabindex="0"class="buttonNorm" onkeypress="onKeyPressClick(event)"onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
 
-	$('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div><br />');
-	
+	$('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div>');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="buttz"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 
