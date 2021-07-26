@@ -811,7 +811,6 @@ var LeafFormGrid = function(containerID, options) {
             let id = ele.id.slice(t.getPrefixID().length-1);
             //object matching this criteria (undefined if not found).
             let found = arrHeaderElementColorData.find(function(data){
-                console.log(id, data, data.hasOwnProperty(id));
                 return data.hasOwnProperty(id); //data.id === id;
             });
             if(found){

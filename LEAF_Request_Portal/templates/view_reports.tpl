@@ -883,11 +883,13 @@ $(function() {
             const thead = document.getElementById(grid.getPrefixID() + 'thead');
             const colorPicker = document.getElementById('colorPicker');
             thead.addEventListener('click', function(event){
-                const t = event.target;
-                if ( t !== undefined ){
+                const target = event.target;
+                if ( target !== undefined ){
                     let color = colorPicker.value;
-                    t.style.setProperty('background-color', color);
+                    target.style.setProperty('background-color', color);
                     gridColorData = grid.updateHeaderColorData();
+                    grid.updateHeaderColors(gridColorData);
+
                 }
             });
     	}
