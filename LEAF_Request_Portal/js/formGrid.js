@@ -786,27 +786,21 @@ var LeafFormGrid = function(containerID, options) {
         const headerElements = Array.from(document.querySelectorAll(selector));
         let t = this;
         this.tableHeaderColors = headerElements.map(function(th){
-            //the form prefix id changes each page load; use the remaining id
+            //the form prefix id changes if it is shared, so using remaining part of id
             let id = th.id.slice(t.getPrefixID().length-1);
-            //update the bg_color, and get suitable text color
+            //get the updated bg_color
             let bg_color = th.style.backgroundColor || t.defaultHeaderColor;
-            let arrRGB = bg_color.slice(4, bg_color.length-1).split(',');
-            let arrRGB_nums = arrRGB.map(function(str) {
-                return parseInt(str);
-            });
-            let maxVal = Math.max(...arrRGB_nums);
-            let sum = arrRGB_nums.reduce((accumulator, currentVal) => accumulator + currentVal);
-            let textColor = maxVal < 135 || sum < 350 ? 'white' : 'black';
-
-            return {id, bg_color, textColor};
+            return  {[id]: bg_color}; //this return is for the map method
         });
         //copy of data for the page using it
         return this.tableHeaderColors.slice();
     }
     /**
-     * @params array of objects [{ id, bg_color, textColor}]
+     * @params array of objects
+     * the key corresponds to an id, and its val is an RGB color
      * @memberOf LeafFormGrid
-     * updates table's th elements with stored color info
+     * updates background of table's th elements with stored color info
+     * and adjusts text color
      */
     function updateHeaderColors(arrHeaderElementColorData){
         const selector = '#' + this.getPrefixID() + 'thead_tr th';
@@ -815,13 +809,22 @@ var LeafFormGrid = function(containerID, options) {
         headerElements.forEach(function(ele){
             //remove the dynamic section of id
             let id = ele.id.slice(t.getPrefixID().length-1);
-            //object matching this criteria.  undefined if not found.
+            //object matching this criteria (undefined if not found).
             let found = arrHeaderElementColorData.find(function(data){
-                return data.id === id;
+                console.log(id, data, data.hasOwnProperty(id));
+                return data.hasOwnProperty(id); //data.id === id;
             });
             if(found){
-                ele.style.setProperty('background-color', found.bg_color);
-                ele.style.setProperty('color', found.textColor);
+                let bg_color = found[id];
+                let arrRGB = bg_color.slice(4, bg_color.length-1).split(',');
+                let arrRGB_nums = arrRGB.map(function(str) {
+                    return parseInt(str);
+                });
+                let maxVal = Math.max(...arrRGB_nums);
+                let sum = arrRGB_nums.reduce((total, currentVal) => total + currentVal);
+                let textColor = maxVal < 135 || sum < 350 ? 'white' : 'black';
+                ele.style.setProperty('background-color', bg_color);
+                ele.style.setProperty('color', textColor);
             }
         });
     }

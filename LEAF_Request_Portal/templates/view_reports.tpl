@@ -688,7 +688,7 @@ function showJSONendpoint() {
 	dialog_message.show();
 }
 
-var url, urlQuery, urlIndicators;
+var url, urlQuery, urlIndicators, urlColorData;
 var leafSearch;
 var headers = [];
 var t_inIndicators;
@@ -888,15 +888,6 @@ $(function() {
                     let color = colorPicker.value;
                     t.style.setProperty('background-color', color);
                     gridColorData = grid.updateHeaderColorData();
-                    //change text color to black or white based on rgb components after
-                    //converting from hex. Criteria work well for most color combinations.
-                    let arrColor = [];
-                    for (let i = 1; i < 7; i += 2) {
-                        arrColor.push(parseInt(color.slice(i, i + 2), 16));
-                    }
-                    const maxVal = Math.max(...arrColor);
-                    const sum = arrColor.reduce((accumulator, currentVal) => accumulator + currentVal);
-                    t.style.color = maxVal < 135 || sum < 350 ? 'white' : 'black';
                 }
             });
     	}
@@ -907,9 +898,14 @@ $(function() {
     	else {
     		$('#editLabels').css('display', 'inline');
     	}
-
+        //console.log(selectedIndicators);
     	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
+    	if(gridColorData.length > 0) {
+            urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
+            console.log(gridColorData, urlColorData);
+            console.log(selectedIndicators, urlIndicators);
+        };
 
     	if(isNewQuery) {
     		baseURL = '';
