@@ -903,11 +903,7 @@ $(function() {
         //console.log(selectedIndicators);
     	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
-    	if(gridColorData.length > 0) {
-            urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
-            console.log(gridColorData, urlColorData);
-            console.log(selectedIndicators, urlIndicators);
-        };
+        //urlColorData updated (if necessary) at keyup event, since colors are changed later
 
     	if(isNewQuery) {
     		baseURL = '';
@@ -921,15 +917,23 @@ $(function() {
             if($('#reportTitle').val() != '') {
                 url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
             }
+
             window.history.pushState('', '', url);
             $('#reportTitle').on('keyup', function() {
                 url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+                if(gridColorData.length > 0) {
+                    urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
+                    // console.log(urlColorData);
+                    // console.log(JSON.parse(LZString.decompressFromBase64(urlColorData)));
+                    url = url + '&colors=' + encodeURIComponent(urlColorData);
+                };
                 window.history.pushState('', '', url);
             });
     	}
     	else {
     		url = window.location.href;
     	}
+    	//reapply colors if user has moved away from reports view
     	if(gridColorData){
             grid.updateHeaderColors(gridColorData);
         }
@@ -940,6 +944,7 @@ $(function() {
         var inQuery;
         var inIndicators;
         var title = '';
+
         title = atob('<!--{$title|escape:"html"}-->');
         title = title.replace(/[^\040-\176]/g, '');
         title = title.replace(/</g, '&lt;');
@@ -959,12 +964,19 @@ $(function() {
         });
         try {
         	if(<!--{$version}--> >= 2) {
-        	    var query = '<!--{$query|escape:"html"}-->';
-        	    var indicators = '<!--{$indicators|escape:"html"}-->';
+        	    let query = '<!--{$query|escape:"html"}-->';
+        	    let indicators = '<!--{$indicators|escape:"html"}-->';
+                let colors = '<!--{$colors|escape:"html"}-->';
                 query = query.replace(/ /g, '+');
                 indicators = indicators.replace(/ /g, '+');
+                colors = colors.replace(/ /g, '+');
                 inQuery = JSON.parse(LZString.decompressFromBase64(query));
                 t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
+                let queryColors = JSON.parse(LZString.decompressFromBase64(colors));
+                if (queryColors !== null) {
+                    gridColorData = queryColors;
+                    grid.updateHeaderColors(gridColorData);
+                }
         	}
         	else {
                 inQuery = JSON.parse(atob('<!--{$query|escape:"html"}-->'));

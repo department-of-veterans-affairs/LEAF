@@ -489,6 +489,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('query', XSSHelpers::xscrub($_GET['query']));
         $t_form->assign('indicators', XSSHelpers::xscrub($_GET['indicators']));
+        $t_form->assign('colors', XSSHelpers::xscrub($_GET['colors']));
         $t_form->assign('title', XSSHelpers::sanitizeHTML($_GET['title']));
         $t_form->assign('version', (int)$_GET['v']);
         $t_form->assign('empMembership', $login->getMembership());
