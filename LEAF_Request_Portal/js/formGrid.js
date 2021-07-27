@@ -131,7 +131,7 @@ var LeafFormGrid = function(containerID, options) {
         var virtualHeader = '<tr id="'+prefixID + 'tVirt_tr'+'">';
         if(showIndex) {
             temp += '<th tabindex="0" id="'+ prefixID +'header_UID" style="text-align: center">UID</th>';
-            virtualHeader += '<th style="text-align: center">UID</th>';
+            virtualHeader += '<th id="Vheader_UID" style="text-align: center">UID</th>';
         }
         $('#' + prefixID + 'thead').html(temp);
 
@@ -268,7 +268,7 @@ var LeafFormGrid = function(containerID, options) {
         var isNumeric = true;
         var idKey = 'id' + key;
         var tDate;
-        for(var i in currentData) {
+        for(let i in currentData) {
             currentData[i].recordID = parseInt(currentData[i].recordID);
             if(currentData[i][key] == undefined) {
                 currentData[i][key] = $('#'+ prefixID + currentData[i].recordID + '_' + key).html();
@@ -781,20 +781,21 @@ var LeafFormGrid = function(containerID, options) {
      * @memberOf LeafFormGrid
      *
      */
-    function updateHeaderColorData(){
-        const selector = '#' + this.getPrefixID() + 'thead_tr th';
-        const headerElements = Array.from(document.querySelectorAll(selector));
-        let t = this;
-        this.tableHeaderColors = headerElements.map(function(th){
-            //the form prefix id changes if it is shared, so using remaining part of id
-            let id = th.id.slice(t.getPrefixID().length-1);
-            //get the updated bg_color
-            let bg_color = th.style.backgroundColor || t.defaultHeaderColor;
-            return  {[id]: bg_color}; //this return is for the map method
-        });
-        //copy of data for the page using it
-        return this.tableHeaderColors.slice();
-    }
+    // function updateHeaderColorData(){
+    //     const selector = '#' + this.getPrefixID() + 'thead_tr th';
+    //     const headerElements = Array.from(document.querySelectorAll(selector));
+    //     let t = this;
+    //     let tableHeaderColors = headerElements.map(function(th){
+    //         //number part has variable digits, _header_ won't be needed
+    //         let textLength = '_header_'.length;
+    //         let id = th.id.slice(t.getPrefixID().length-1 + textLength);
+    //         //get the updated bg_color
+    //         let bg_color = th.style.backgroundColor || t.defaultHeaderColor;
+    //         return  {[id]: bg_color};
+    //     });
+    //     //copy of data for the page using it
+    //     return tableHeaderColors.slice();
+    // }
     /**
      * @params array of objects
      * the key corresponds to an id, and its val is an RGB color
@@ -802,28 +803,37 @@ var LeafFormGrid = function(containerID, options) {
      * updates background of table's th elements with stored color info
      * and adjusts text color
      */
-    function updateHeaderColors(arrHeaderElementColorData){
+    function updateHeaderColors(objHeaderElementColorData){
         const selector = '#' + this.getPrefixID() + 'thead_tr th';
         const headerElements = Array.from(document.querySelectorAll(selector));
         let t = this;
         headerElements.forEach(function(ele){
-            //remove the dynamic section of id
-            let id = ele.id.slice(t.getPrefixID().length-1);
+            //remove the dynamic section of id + _header_ (using .length because it's more obvious than just + 8 in slice
+            let textLength = '_header_'.length;
+            let id = ele.id.slice(t.getPrefixID().length-1 + textLength);
             //object matching this criteria (undefined if not found).
-            let found = arrHeaderElementColorData.find(function(data){
-                return data.hasOwnProperty(id); //data.id === id;
-            });
-            if(found){
-                let bg_color = found[id];
-                let arrRGB = bg_color.slice(4, bg_color.length-1).split(',');
-                let arrRGB_nums = arrRGB.map(function(str) {
-                    return parseInt(str);
-                });
-                let maxVal = Math.max(...arrRGB_nums);
-                let sum = arrRGB_nums.reduce((total, currentVal) => total + currentVal);
-                let textColor = maxVal < 135 || sum < 350 ? 'white' : 'black';
-                ele.style.setProperty('background-color', bg_color);
-                ele.style.setProperty('color', textColor);
+            // let found = arrHeaderElementColorData.find(function(data){
+            //     return data.hasOwnProperty(id);
+            // });
+            let found = objHeaderElementColorData[id];
+            console.log('log: ', objHeaderElementColorData, found);
+            if(found !== undefined){
+                // let bg_color = found.id;
+                // let arrRGB = bg_color.slice(4, bg_color.length-1).split(',');
+                // let arrRGB_nums = arrRGB.map(function(str) {
+                //     return parseInt(str);
+                // });
+                // let maxVal = Math.max(...arrRGB_nums);
+                // let sum = arrRGB_nums.reduce((total, currentVal) => total + currentVal);
+                // let textColor = maxVal < 135 || sum < 350 ? 'white' : 'black';
+                //
+                // let vheader_id = "Vheader_" + Object.keys(found)[0];
+                // let vheaderEl = document.getElementById(vheader_id);
+                //
+                // ele.style.setProperty('background-color', bg_color);
+                // ele.style.setProperty('color', textColor);
+                // vheaderEl.style.setProperty('background-color', bg_color);
+                // vheaderEl.style.setProperty('color', textColor);
             }
         });
     }
@@ -855,7 +865,7 @@ var LeafFormGrid = function(containerID, options) {
         stop: function() { isRenderingBody = false },
         setRootURL: function(url) { rootURL = url; },
         updateHeaderColors: updateHeaderColors,
-        updateHeaderColorData: updateHeaderColorData,
+        //updateHeaderColorData: updateHeaderColorData,
         defaultHeaderColor: defaultHeaderColor
     }
 };

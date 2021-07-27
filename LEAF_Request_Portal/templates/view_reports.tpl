@@ -369,7 +369,7 @@ function loadSearchPrereqs() {
                 return 0;
             });
 
-            for(var k in groupNames) {
+            for(let k in groupNames) {
                 var i = groupNames[k].categoryID;
                 var associatedCategories = groupIDmap[i].categoryID;
                 if(groupIDmap[i].parentCategoryID != '') {
@@ -507,7 +507,8 @@ function editLabels() {
 		if(resIndicatorList[resSelectList[i]] != undefined) {
 			buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
 			buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
-			buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button></td></tr>';
+			buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
+            buffer += '<input type="color" id="colorPicker' + i + '" value="#d1dfff" /></td></tr>';
 		}
 	}
 	buffer += '</table>';
@@ -533,6 +534,18 @@ function editLabels() {
         $('#generateReport').click();
         dialog.hide();
     });
+    for (let i in resSelectList){
+        if(resIndicatorList[resSelectList[i]] != undefined) {
+            let elInput = document.getElementById("colorPicker" + i);
+            elInput.addEventListener('change', function () {
+                let headerText = resSelectList[i];
+                //let el_th = document.getElementById(grid.getPrefixID() + "header_" + headerText);
+                //el_th.style.setProperty('background-color', elInput.value);
+                gridColorData[headerText] = elInput.value //grid.updateHeaderColorData();
+                grid.updateHeaderColors(gridColorData);
+            });
+        }
+    }
 }
 
 function isSearchingDeleted(searchObj) {
@@ -696,7 +709,7 @@ var isNewQuery = false;
 var dialog, dialog_message;
 var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
-let gridColorData = [];
+let gridColorData = null; //object updated with #id: color
 
 var version = 3;
 /* URL formats
@@ -848,7 +861,7 @@ $(function() {
             }
             else {
                 var recordIDs = '';
-                for (var i in res) {
+                for (let i in res) {
                     recordIDs += res[i].recordID + ',';
                 }
             	grid.loadData(recordIDs);
@@ -866,7 +879,6 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '460px');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify report" /> Modify Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=32" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<input type="color" id="colorPicker" value="#d1dfff" />');
             extendedToolbar = true;
 
             $('#editReport').on('click', function() {
@@ -879,19 +891,6 @@ $(function() {
                 $('#results').fadeOut(700);
                 $('#step_1').fadeIn(700);
             });
-            //listener to set and
-            const thead = document.getElementById(grid.getPrefixID() + 'thead');
-            const colorPicker = document.getElementById('colorPicker');
-            thead.addEventListener('click', function(event){
-                const target = event.target;
-                if ( target !== undefined ){
-                    let color = colorPicker.value;
-                    target.style.setProperty('background-color', color);
-                    gridColorData = grid.updateHeaderColorData();
-                    grid.updateHeaderColors(gridColorData);
-
-                }
-            });
     	}
 
     	if($.isEmptyObject(resIndicatorList)) {
@@ -900,10 +899,9 @@ $(function() {
     	else {
     		$('#editLabels').css('display', 'inline');
     	}
-        //console.log(selectedIndicators);
     	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
-        //urlColorData updated (if necessary) at keyup event, since colors are changed later
+        //urlColorData updated (if necessary) at same keyup event on title input
 
     	if(isNewQuery) {
     		baseURL = '';
@@ -921,12 +919,10 @@ $(function() {
             window.history.pushState('', '', url);
             $('#reportTitle').on('keyup', function() {
                 url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
-                if(gridColorData.length > 0) {
+                if(gridColorData !== null) {  //if(gridColorData.length > 0) {
                     urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
-                    // console.log(urlColorData);
-                    // console.log(JSON.parse(LZString.decompressFromBase64(urlColorData)));
                     url = url + '&colors=' + encodeURIComponent(urlColorData);
-                };
+                }
                 window.history.pushState('', '', url);
             });
     	}
