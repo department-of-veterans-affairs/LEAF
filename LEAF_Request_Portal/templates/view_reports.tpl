@@ -61,14 +61,15 @@ var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help
 var delimLF = "\r\n";
 var tDepHeader = [];
 var tStepHeader = [];
+let categoryID = '';
+
 function addHeader(column) {
     var today = new Date();
 	switch(column) {
 	    case 'title':
 	    	headers.push({name: 'Title', indicatorID: 'title', callback: function(data, blob) {
-                            $('#'+data.cellContainerID).html(blob[data.recordID].title);
-                            $('#'+data.cellContainerID).on('click', function() {
-                                window.open('index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                            $('#'+data.cellContainerID).on('click', function(){
+                                    changeTitle(data);
                             });
                          }});
 		    break;
@@ -693,58 +694,69 @@ function showJSONendpoint() {
 }
 
 /**
+ * Purpose: Update Request Titles
+*/
+
+ function changeTitle(form_data) {
+     console.log(form_data);
+	dialog.setContent('Title: <input type="text" id="title" style="width: 300px" name="title" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
+  //ie11 fix
+  setTimeout(function () {
+    dialog.show();
+  }, 0);
+    dialog.setSaveHandler(function() {
+        $.ajax({
+        	type: 'POST',
+        	url: 'api/?a=form/' + form_data.recordID + '/title',
+        	data: {title: $('#title').val(),
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+        	success: function(res) {
+        		if(res != null) {
+                    $('#' + form_data.cellContainerID).fadeOut(400);
+                    $('#' + form_data.cellContainerID).empty().html(res);
+                    $('#' + form_data.cellContainerID).fadeIn(400);
+
+        		}
+                dialog.hide();
+
+        	}
+        });
+    });
+}
+
+/**
  * Purpose: Create New Row Requests
  * @param catID - Form ID passing in for new request
  * @return - Creates new request inline on grid
  */
 function createRequest(catID) {
-    if (catID === undefined) {
-        return alert('New Request could not be processed');
-    }
     const portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('./api/?a=');
     portalAPI.setCSRFToken(CSRFToken);
-    dialog.setTitle('New Request Title');
-    dialog.setContent('<div><h4>Title of Request</h4>'
-                    + '<p>Enter a title and save changes to create new requests.<br/>They will appear at the top of the table.</p>'
-                    + '<span class="text">'
-                    + '<input id="newTitle" type="text" name="newTitle" required placeholder="Request Title" style="font-size: 1.3em; font-family: monospace"/>'
-                    + '</span>'
-                    + '</div>');
-    dialog.show();
-    let titleInput = "";
-    $('#button_save').on('click', function() {
-        titleInput = document.getElementById('newTitle').value;
-        if (titleInput !== "") {
-            let requestData = {"title": titleInput};
-            if (catID && requestData) {
-                portalAPI.Forms.newRequest(
-                    catID,
-                    requestData,
-                    function (formNumber) {
-                        if (formNumber > 0) {
-                            $('#generateReport').click();
-                            dialog.hide();
-                            setTimeout(function () {
-                                let el_ID = grid.getPrefixID() + "tbody_tr" + formNumber;
-                                let newRow = document.getElementById(el_ID);
-                                newRow.style.backgroundColor = 'rgb(254, 255, 209)';
-                            }, 500);
-                        }
-                    },
-                    function (error) {
-                        if (error) {
-                            alert('New Request could not be processed');
-                            dialog.hide();
-                        }
-                    }
-                );
+
+    if (catID) {
+        portalAPI.Forms.newRequest(
+            catID,
+            {title: ''},
+            function (formNumber) {
+                if (formNumber > 0) {
+                    $('#generateReport').click();
+                    dialog.hide();
+                    setTimeout(function () {
+                        let el_ID = grid.getPrefixID() + "tbody_tr" + formNumber;
+                        let newRow = document.getElementById(el_ID);
+                        newRow.style.backgroundColor = 'rgb(254, 255, 209)';
+                    }, 750);
+                }
+            },
+            function (error) {
+                if (error) {
+                    alert('New Request could not be processed');
+                    dialog.hide();
+                }
             }
-        }
-    });
-    dialog.setCancelHandler(function() {
-        dialog.clear();
-    });
+        );
+    }
 }
 
 var url, urlQuery, urlIndicators;
@@ -913,16 +925,12 @@ $(function() {
                 }
             	grid.loadData(recordIDs);
             }
-
             let results = grid.getCurrentData().slice();
             let filteredResults = results.filter(function(r) { return r.categoryID !== undefined; });
             if (filteredResults.length){
                 categoryID = filteredResults[0].categoryID;
                 if (filteredResults.every(function(fr) { return fr.categoryID === categoryID} )){
                     $('#newRequestButton').css('display', 'inline-block');
-                }
-                else { //in case the form has been changed to display: block due to the results of a previous query
-                    $('#newRequestButton').css('display', 'none');
                 }
             }
         });
@@ -932,34 +940,24 @@ $(function() {
 
     	// create save link once
     	if(!extendedToolbar) {
+    	    //adding the below line to overwrite the grid's export button instead of changing it in the grid file, since I'm not sure it's not used for anything else
+            $('#' + grid.getPrefixID() + 'gridToolbar').html('<br/><button type="button" id="'+ grid.getPrefixID() +'getExcel" class="buttonNorm"><img src="../libs/dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>')
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
-
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editColumns"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Modify Columns" /> Modify Columns</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm" style="display: inline" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" alt="Next" />Create Row</button>');
-            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=32" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
-
-
+            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=16" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button>');
             extendedToolbar = true;
 
-            $('#editColumns').on('click', function() {
-                grid.stop();
-                isNewQuery = true;
-                $('#reportTitleDisplay').css('display', 'none');
-                $('#reportTitle').css('display', 'block');
-                loadSearchPrereqs();
-                $('#saveLinkContainer').slideUp(700);
-                $('#results').fadeOut(700);
-                $('#step_2').fadeIn(400);
-            });
+
             $('#editReport').on('click', function() {
             	grid.stop();
             	isNewQuery = true;
                 $('#reportTitleDisplay').css('display', 'none');
                 $('#reportTitle').css('display', 'block');
+                $('#newRequestButton').css('display', 'none');
             	loadSearchPrereqs();
                 $('#saveLinkContainer').slideUp(700);
                 $('#results').fadeOut(700);
