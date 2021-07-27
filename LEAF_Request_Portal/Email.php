@@ -573,95 +573,95 @@ class Email
                     $tmp = $dir->lookupLogin($approver['approverID']);
                     $this->addRecipient($tmp[0]['Email']);
                 }
-            }
 
-            // Special cases depending on dependency of record
-            switch ($approvers[0]['dependencyID']) {
-                // special case for service chiefs
-                case 1:
-                    $vars = array(':serviceID' => $approvers[0]['serviceID']);
-                    $strSQL = "SELECT userID FROM service_chiefs WHERE serviceID=:serviceID AND active=1";
-                    $chief = $this->portal_db->prepared_query($strSQL, $vars);
+                // Special cases depending on dependency of record
+                switch ($approver['dependencyID']) {
+                    // special case for service chiefs
+                    case 1:
+                        $vars = array(':serviceID' => $approver['serviceID']);
+                        $strSQL = "SELECT userID FROM service_chiefs WHERE serviceID=:serviceID AND active=1";
+                        $chief = $this->portal_db->prepared_query($strSQL, $vars);
 
-                    foreach ($chief as $member) {
-                        if (strlen($member['userID']) > 0) {
-                            $tmp = $dir->lookupLogin($member['userID']);
+                        foreach ($chief as $member) {
+                            if (strlen($member['userID']) > 0) {
+                                $tmp = $dir->lookupLogin($member['userID']);
+                                $this->addRecipient($tmp[0]['Email']);
+                            }
+                        }
+                        break;
+
+                    // special case for quadrads
+                    case 8:
+                        $vars = array(':groupID' => $approver['groupID']);
+                        $strSQL = "SELECT userID FROM users WHERE groupID=:groupID AND active=1";
+                        $quadrad = $this->portal_db->prepared_query($strSQL, $vars);
+                        foreach ($quadrad as $member) {
+                            if (strlen($member['userID']) > 0) {
+                                $tmp = $dir->lookupLogin($member['userID']);
+                                $this->addRecipient($tmp[0]['Email']);
+                            }
+                        }
+                        break;
+
+                    // special case for a person designated by the requestor
+                    case -1:
+                        require_once 'form.php';
+                        $form = new Form($this->portal_db, $loggedInUser);
+
+                        // find the next step
+                        $varsStep = array(':stepID' => $approver['stepID']);
+                        $strSQL = "SELECT indicatorID_for_assigned_empUID FROM workflow_steps WHERE stepID=:stepID";
+                        $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
+
+                        $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
+                        $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
+
+                        //check if the requester has any backups
+                        $vars4 = array(':empId' => $empUID);
+                        $strSQL = "SELECT backupEmpUID FROM relation_employee_backup WHERE empUID =:empId";
+                        $backupIds = $this->nexus_db->prepared_query($strSQL, $vars4);
+
+                        if ($empUID > 0) {
+                            $tmp = $dir->lookupEmpUID($empUID);
                             $this->addRecipient($tmp[0]['Email']);
                         }
-                    }
-                    break;
 
-                // special case for quadrads
-                case 8:
-                    $vars = array(':groupID' => $approvers[0]['groupID']);
-                    $strSQL = "SELECT userID FROM users WHERE groupID=:groupID AND active=1";
-                    $quadrad = $this->portal_db->prepared_query($strSQL, $vars);
-                    foreach ($quadrad as $member) {
-                        if (strlen($member['userID']) > 0) {
-                            $tmp = $dir->lookupLogin($member['userID']);
-                            $this->addRecipient($tmp[0]['Email']);
+                        // add for backups
+                        foreach ($backupIds as $row) {
+                            $tmp = $dir->lookupEmpUID($row['backupEmpUID']);
+                            if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                $this->addCcBcc($tmp[0]['Email']);
+                            }
                         }
-                    }
-                    break;
+                        break;
 
-                // special case for a person designated by the requestor
-                case -1:
-                    require_once 'form.php';
-                    $form = new Form($this->portal_db, $loggedInUser);
-
-                    // find the next step
-                    $varsStep = array(':stepID' => $approvers[0]['stepID']);
-                    $strSQL = "SELECT indicatorID_for_assigned_empUID FROM workflow_steps WHERE stepID=:stepID";
-                    $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
-
-                    $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
-                    $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
-
-                    //check if the requester has any backups
-                    $vars4 = array(':empId' => $empUID);
-                    $strSQL = "SELECT backupEmpUID FROM relation_employee_backup WHERE empUID =:empId";
-                    $backupIds = $this->nexus_db->prepared_query($strSQL, $vars4);
-
-                    if ($empUID > 0) {
-                        $tmp = $dir->lookupEmpUID($empUID);
+                    // requestor followup
+                    case -2:
+                        $vars = array(':recordID' => $recordID);
+                        $strSQL = "SELECT userID FROM records WHERE recordID=:recordID";
+                        $resRequestor = $this->portal_db->prepared_query($strSQL, $vars);
+                        $tmp = $dir->lookupLogin($resRequestor[0]['userID']);
                         $this->addRecipient($tmp[0]['Email']);
-                    }
+                        break;
 
-                    // add for backups
-                    foreach ($backupIds as $row) {
-                        $tmp = $dir->lookupEmpUID($row['backupEmpUID']);
-                        if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
-                            $this->addCcBcc($tmp[0]['Email']);
+                    // special case for a group designated by the requestor
+                    case -3:
+                        require_once 'form.php';
+                        $form = new Form($this->portal_db, $loggedInUser);
+
+                        // find the next step
+                        $varsStep = array(':stepID' => $approver['stepID']);
+                        $strSQL = "SELECT indicatorID_for_assigned_groupID FROM workflow_steps WHERE stepID=:stepID";
+                        $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
+
+                        $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
+                        $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
+
+                        if ($groupID > 0) {
+                            $this->addGroupRecipient($groupID);
                         }
-                    }
-                    break;
-
-                // requestor followup
-                case -2:
-                    $vars = array(':recordID' => $recordID);
-                    $strSQL = "SELECT userID FROM records WHERE recordID=:recordID";
-                    $resRequestor = $this->portal_db->prepared_query($strSQL, $vars);
-                    $tmp = $dir->lookupLogin($resRequestor[0]['userID']);
-                    $this->addRecipient($tmp[0]['Email']);
-                    break;
-
-                // special case for a group designated by the requestor
-                case -3:
-                    require_once 'form.php';
-                    $form = new Form($this->portal_db, $loggedInUser);
-
-                    // find the next step
-                    $varsStep = array(':stepID' => $approvers[0]['stepID']);
-                    $strSQL = "SELECT indicatorID_for_assigned_groupID FROM workflow_steps WHERE stepID=:stepID";
-                    $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
-
-                    $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
-                    $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
-
-                    if ($groupID > 0) {
-                        $this->addGroupRecipient($groupID);
-                    }
-                    break;
+                        break;
+                }
             }
             $this->sendMail();
         } elseif ($emailTemplateID === -4) {
