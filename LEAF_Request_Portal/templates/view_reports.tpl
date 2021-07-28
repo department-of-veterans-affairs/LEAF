@@ -61,13 +61,14 @@ var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help
 var delimLF = "\r\n";
 var tDepHeader = [];
 var tStepHeader = [];
-let categoryID = '';
+let categoryID = 'catID';
 
 function addHeader(column) {
     var today = new Date();
 	switch(column) {
 	    case 'title':
 	    	headers.push({name: 'Title', indicatorID: 'title', callback: function(data, blob) {
+                            $('#'+data.cellContainerID).html(blob[data.recordID].title);
                             $('#'+data.cellContainerID).on('click', function(){
                                     changeTitle(data);
                             });
@@ -698,8 +699,7 @@ function showJSONendpoint() {
 */
 
  function changeTitle(form_data) {
-     console.log(form_data);
-	dialog.setContent('Title: <input type="text" id="title" style="width: 300px" name="title" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
+	dialog.setContent('<label for="recordTitle"><b>Report Title</b></label><br/><input type="text" id="recordTitle" style="width: 250px" name="recordTitle" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
   //ie11 fix
   setTimeout(function () {
     dialog.show();
@@ -708,7 +708,7 @@ function showJSONendpoint() {
         $.ajax({
         	type: 'POST',
         	url: 'api/?a=form/' + form_data.recordID + '/title',
-        	data: {title: $('#title').val(),
+        	data: {title: $('#recordTitle').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
         	success: function(res) {
         		if(res != null) {
@@ -734,16 +734,17 @@ function createRequest(catID) {
     portalAPI.setBaseURL('./api/?a=');
     portalAPI.setCSRFToken(CSRFToken);
 
-    if (catID) {
+    if (catID !== 'catID') {
         portalAPI.Forms.newRequest(
             catID,
-            {title: ''},
-            function (formNumber) {
-                if (formNumber > 0) {
+            {title: 'untitled'},
+            function (requestID) {
+                //number of requestID (UID column of report builder) is sent back on success
+                if (requestID > 0) {
                     $('#generateReport').click();
                     dialog.hide();
                     setTimeout(function () {
-                        let el_ID = grid.getPrefixID() + "tbody_tr" + formNumber;
+                        let el_ID = grid.getPrefixID() + "tbody_tr" + requestID;
                         let newRow = document.getElementById(el_ID);
                         newRow.style.backgroundColor = 'rgb(254, 255, 209)';
                     }, 750);
@@ -909,7 +910,7 @@ $(function() {
 
             // this replaces grid.loadData()
             var tGridData = [];
-            for(var i in res) {
+            for(let i in res) {
                 tGridData.push(res[i]);
             }
 
@@ -919,19 +920,26 @@ $(function() {
                 grid.renderBody();
             }
             else {
-                var recordIDs = '';
-                for (var i in res) {
+                let recordIDs = '';
+                for (let i in res) {
                     recordIDs += res[i].recordID + ',';
                 }
             	grid.loadData(recordIDs);
             }
-            let results = grid.getCurrentData().slice();
-            let filteredResults = results.filter(function(r) { return r.categoryID !== undefined; });
-            if (filteredResults.length){
+            let results = grid.getCurrentData();
+            let filteredResults = results.filter(function(r) {
+                return r.categoryID !== undefined
+            });
+            if (filteredResults.length > 0) {
                 categoryID = filteredResults[0].categoryID;
-                if (filteredResults.every(function(fr) { return fr.categoryID === categoryID} )){
+                let isOneFormType = filteredResults.every(function(fr){ return fr.categoryID === categoryID});
+                if (isOneFormType){
                     $('#newRequestButton').css('display', 'inline-block');
+                } else {
+                    $('#newRequestButton').css('display', 'none');
                 }
+            } else {
+                $('#newRequestButton').css('display', 'none');
             }
         });
 
@@ -995,7 +1003,7 @@ $(function() {
     	}
     	else {
     		url = window.location.href;
-    	}
+        }
     });
 
 
