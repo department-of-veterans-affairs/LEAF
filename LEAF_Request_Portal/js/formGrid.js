@@ -777,66 +777,43 @@ var LeafFormGrid = function(containerID, options) {
         return null;
     }
 
-    /**
-     * @memberOf LeafFormGrid
-     *
-     */
-    // function updateHeaderColorData(){
+    // /**
+    //  * @params array of objects
+    //  * the key corresponds to an id, and its val is an RGB color
+    //  * @memberOf LeafFormGrid
+    //  * updates background of table's th elements with stored color info
+    //  * and adjusts text color
+    //  */
+    // function updateHeaderColors(objHeaderElementColorData){
     //     const selector = '#' + this.getPrefixID() + 'thead_tr th';
     //     const headerElements = Array.from(document.querySelectorAll(selector));
     //     let t = this;
-    //     let tableHeaderColors = headerElements.map(function(th){
-    //         //number part has variable digits, _header_ won't be needed
+    //     headerElements.forEach(function(ele){
+    //         //remove the dynamic section of id + _header_ (using .length because it's more obvious than just + 8 in slice
     //         let textLength = '_header_'.length;
-    //         let id = th.id.slice(t.getPrefixID().length-1 + textLength);
-    //         //get the updated bg_color
-    //         let bg_color = th.style.backgroundColor || t.defaultHeaderColor;
-    //         return  {[id]: bg_color};
+    //         let ele_id = ele.id.slice(t.getPrefixID().length-1 + textLength);
+    //         console.log('headers: ', headers);
+    //         if (objHeaderElementColorData.hasOwnProperty(ele_id)){
+    //             let bg_color = objHeaderElementColorData[ele_id];
+    //
+    //             let arrRGB = bg_color.slice(4, bg_color.length-1).split(',');
+    //             let arrRGB_nums = arrRGB.map(function(str) {
+    //                 return parseInt(str);
+    //             });
+    //             let maxVal = Math.max(...arrRGB_nums);
+    //             let sum = arrRGB_nums.reduce((total, currentVal) => total + currentVal);
+    //             let textColor = maxVal < 135 || sum < 350 ? 'white' : 'black';
+    //
+    //             let vheader_id = "Vheader_" + ele_id;
+    //             let vheaderEl = document.getElementById(vheader_id);
+    //
+    //             ele.style.setProperty('background-color', bg_color);
+    //             ele.style.setProperty('color', textColor);
+    //             vheaderEl.style.setProperty('background-color', bg_color);
+    //             vheaderEl.style.setProperty('color', textColor);
+    //         }
     //     });
-    //     //copy of data for the page using it
-    //     return tableHeaderColors.slice();
-    // }
-    /**
-     * @params array of objects
-     * the key corresponds to an id, and its val is an RGB color
-     * @memberOf LeafFormGrid
-     * updates background of table's th elements with stored color info
-     * and adjusts text color
-     */
-    function updateHeaderColors(objHeaderElementColorData){
-        const selector = '#' + this.getPrefixID() + 'thead_tr th';
-        const headerElements = Array.from(document.querySelectorAll(selector));
-        let t = this;
-        headerElements.forEach(function(ele){
-            //remove the dynamic section of id + _header_ (using .length because it's more obvious than just + 8 in slice
-            let textLength = '_header_'.length;
-            let id = ele.id.slice(t.getPrefixID().length-1 + textLength);
-            //object matching this criteria (undefined if not found).
-            // let found = arrHeaderElementColorData.find(function(data){
-            //     return data.hasOwnProperty(id);
-            // });
-            let found = objHeaderElementColorData[id];
-            console.log('log: ', objHeaderElementColorData, found);
-            if(found !== undefined){
-                // let bg_color = found.id;
-                // let arrRGB = bg_color.slice(4, bg_color.length-1).split(',');
-                // let arrRGB_nums = arrRGB.map(function(str) {
-                //     return parseInt(str);
-                // });
-                // let maxVal = Math.max(...arrRGB_nums);
-                // let sum = arrRGB_nums.reduce((total, currentVal) => total + currentVal);
-                // let textColor = maxVal < 135 || sum < 350 ? 'white' : 'black';
-                //
-                // let vheader_id = "Vheader_" + Object.keys(found)[0];
-                // let vheaderEl = document.getElementById(vheader_id);
-                //
-                // ele.style.setProperty('background-color', bg_color);
-                // ele.style.setProperty('color', textColor);
-                // vheaderEl.style.setProperty('background-color', bg_color);
-                // vheaderEl.style.setProperty('color', textColor);
-            }
-        });
-    }
+    //}
 
     return {
         getPrefixID: function() { return prefixID; },
@@ -863,9 +840,6 @@ var LeafFormGrid = function(containerID, options) {
         getDataByRecordID: getDataByRecordID,
         disableVirtualHeader: function() { isRenderingVirtualHeader = false },
         stop: function() { isRenderingBody = false },
-        setRootURL: function(url) { rootURL = url; },
-        updateHeaderColors: updateHeaderColors,
-        //updateHeaderColorData: updateHeaderColorData,
-        defaultHeaderColor: defaultHeaderColor
+        setRootURL: function(url) { rootURL = url; }
     }
 };

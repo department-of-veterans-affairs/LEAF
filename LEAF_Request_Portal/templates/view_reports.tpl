@@ -76,8 +76,8 @@ function addHeader(column) {
 	    case 'type':
 	    	leafSearch.getLeafFormQuery().join('categoryName');
             headers.push({name: 'Type', indicatorID: 'type', editable: false, callback: function(data, blob) {
-                             var types = '';
-                             for(var i in blob[data.recordID].categoryNames) {
+                             let types = '';
+                             for(let i in blob[data.recordID].categoryNames) {
                                  types += blob[data.recordID].categoryNames[i] + ' | ';
                              }
                              types = types.substr(0, types.length - 3);
@@ -160,7 +160,7 @@ function addHeader(column) {
                              var buffer = '<table style="min-width: 300px">';
                              var now = new Date();
 
-                             for(var i in blob[data.recordID].action_history) {
+                             for(let i in blob[data.recordID].action_history) {
                             	 var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
                                  var formattedDate = date.toLocaleDateString();
                                  if(blob[data.recordID].action_history[i]['comment'] != '') {
@@ -179,7 +179,7 @@ function addHeader(column) {
                              var buffer = '<table class="table" style="min-width: 300px">';
                              var now = new Date();
 
-                             for(var i in blob[data.recordID].action_history) {
+                             for(let i in blob[data.recordID].action_history) {
                                  var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
                                  var formattedDate = date.toLocaleDateString();
                                  var actionDescription = blob[data.recordID].action_history[i]['description'] != null ? blob[data.recordID].action_history[i]['description'] : '';
@@ -332,7 +332,7 @@ function loadSearchPrereqs() {
             var groupIDmap = {};
             var tmp = document.createElement('div');
             var temp;
-            for(var i in res) {
+            for(let i in res) {
                 temp = res[i].name;
                 tmp.innerHTML = temp;
                 temp = tmp.textContent || tmp.innerText || '';
@@ -414,7 +414,7 @@ function loadSearchPrereqs() {
             	success: function(res) {
                     buffer = '';
                     buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
-                    for(var i in res) {
+                    for(let i in res) {
                         buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />';
                         buffer += '<label class="checkable" style="width: 100px" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'"> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
                     }
@@ -441,7 +441,7 @@ function loadSearchPrereqs() {
                             buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" />';
                             buffer2 += '<label class="checkable" style="width: 100px" for="indicators_resolvedBy" title="Resolved By"> Resolved By</label></div>';
 
-                            for(var i in res) {
+                            for(let i in res) {
                                 buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
                                 buffer2 += '<label class="checkable" style="width: 100px" for="indicators_depID_'+ res[i].dependencyID +'"> ' + res[i].description +'</label></div>';
                             }
@@ -454,7 +454,7 @@ function loadSearchPrereqs() {
 
                             // set user selections
                             if(t_inIndicators != undefined) {
-                                for(var i in t_inIndicators) {
+                                for(let i in t_inIndicators) {
                                     $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
                                 }
                             }
@@ -470,6 +470,27 @@ function loadSearchPrereqs() {
             });
         },
         cache: false
+    });
+}
+
+function updateHeaderColors(){
+    headers.forEach(function(header) {
+        if (gridColorData.hasOwnProperty(header.indicatorID)) {
+            let bg_color = gridColorData[header.indicatorID];
+            let elHeader = document.getElementById(grid.getPrefixID() + "header_" + header.indicatorID);
+            let elVHeader = document.getElementById("Vheader_" + header.indicatorID);
+            let arrRGB = [];  //convert to RGB, pick text color based on bgcolor, apply to headers
+            for (let i = 1; i < 7; i += 2) {
+                arrRGB.push(parseInt(bg_color.slice(i, i + 2), 16));
+            }
+            let maxVal = Math.max(...arrRGB);
+            let sum = arrRGB.reduce((total, currentVal) => total + currentVal);
+            let textColor = maxVal < 135 || sum < 350 ? 'white' : 'black';
+            elHeader.style.setProperty('background-color', bg_color);
+            elVHeader.style.setProperty('background-color', bg_color);
+            elHeader.style.setProperty('color', textColor);
+            elVHeader.style.setProperty('color', textColor);
+        }
     });
 }
 
@@ -515,6 +536,25 @@ function editLabels() {
     dialog.setContent(buffer);
     dialog.show();
 
+    for (let i in resSelectList){
+        if(resIndicatorList[resSelectList[i]] != undefined) {
+            let elInput = document.getElementById("colorPicker" + i);
+            let gridColorKey = resSelectList[i];
+            elInput.addEventListener('change', function () {
+                gridColorData[gridColorKey] = elInput.value;
+                updateHeaderColors();
+
+                urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
+                //v, query, indicators, and urlColorData will exist at this point, but there might not be a title
+                url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&colors=' + encodeURIComponent(urlColorData);
+                if($('#reportTitle').val() != '') {
+                    url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+                }
+                console.log(gridColorData, urlColorData, url);
+            });
+        }
+    }
+
     dialog.setSaveHandler(function() {
     	$('#labelSorter tr').each(function(i) {
     		var curID = this.id.substr(7);
@@ -522,7 +562,7 @@ function editLabels() {
     	});
         var tmp = document.createElement('div');
         var temp;
-        for(var i in resSelectList) {
+        for(let i in resSelectList) {
             if(resIndicatorList[resSelectList[i]] != undefined) {
                 temp = $('#id_' + resSelectList[i]).val();
                 tmp.innerHTML = temp;
@@ -534,25 +574,13 @@ function editLabels() {
         $('#generateReport').click();
         dialog.hide();
     });
-    for (let i in resSelectList){
-        if(resIndicatorList[resSelectList[i]] != undefined) {
-            let elInput = document.getElementById("colorPicker" + i);
-            elInput.addEventListener('change', function () {
-                let headerText = resSelectList[i];
-                //let el_th = document.getElementById(grid.getPrefixID() + "header_" + headerText);
-                //el_th.style.setProperty('background-color', elInput.value);
-                gridColorData[headerText] = elInput.value //grid.updateHeaderColorData();
-                grid.updateHeaderColors(gridColorData);
-            });
-        }
-    }
 }
 
 function isSearchingDeleted(searchObj) {
     // check if the user explicitly wants to find deleted requests
     var t = searchObj.getLeafFormQuery().getQuery();
     var searchDeleted = false;
-    for(var i in t.terms) {
+    for(let i in t.terms) {
         if(t.terms[i].id == 'stepID'
             && t.terms[i].match == 'deleted'
             && t.terms[i].operator == '=') {
@@ -701,7 +729,8 @@ function showJSONendpoint() {
 	dialog_message.show();
 }
 
-var url, urlQuery, urlIndicators, urlColorData;
+var url, urlQuery, urlIndicators;
+let urlColorData = 'str';
 var leafSearch;
 var headers = [];
 var t_inIndicators;
@@ -709,7 +738,7 @@ var isNewQuery = false;
 var dialog, dialog_message;
 var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
-let gridColorData = null; //object updated with #id: color
+let gridColorData = {}; //object updated with #id: color
 
 var version = 3;
 /* URL formats
@@ -743,7 +772,7 @@ $(function() {
     	var filteredCategories = [];
         var showOptionCancelled = false;
 
-    	for(var i in tTerms) {
+    	for(let i in tTerms) {
     		if(tTerms[i].id == 'categoryID'
     			&& tTerms[i].operator == '=') {
     			filteredCategories.push(tTerms[i].match);
@@ -758,7 +787,7 @@ $(function() {
     	}
     	if(filteredCategories.length > 0) {
     		$('.category').css('display', 'none');
-    		for(var i in filteredCategories) {
+    		for(let i in filteredCategories) {
     			$('.' + filteredCategories[i]).css('display', 'inline');
     		}
     	}
@@ -820,7 +849,7 @@ $(function() {
             }
             return 0;
         });
-    	for(var i in resSelectList) {
+    	for(let i in resSelectList) {
             var temp = {};
             temp.indicatorID = resSelectList[i];
             temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
@@ -850,7 +879,7 @@ $(function() {
 
             // this replaces grid.loadData()
             var tGridData = [];
-            for(var i in res) {
+            for(let i in res) {
                 tGridData.push(res[i]);
             }
 
@@ -860,7 +889,7 @@ $(function() {
                 grid.renderBody();
             }
             else {
-                var recordIDs = '';
+                let recordIDs = '';
                 for (let i in res) {
                     recordIDs += res[i].recordID + ',';
                 }
@@ -901,7 +930,7 @@ $(function() {
     	}
     	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
-        //urlColorData updated (if necessary) at same keyup event on title input
+
 
     	if(isNewQuery) {
     		baseURL = '';
@@ -919,10 +948,10 @@ $(function() {
             window.history.pushState('', '', url);
             $('#reportTitle').on('keyup', function() {
                 url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
-                if(gridColorData !== null) {  //if(gridColorData.length > 0) {
-                    urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
-                    url = url + '&colors=' + encodeURIComponent(urlColorData);
+                if (urlColorData !== 'str'){
+                    url += '&colors=' + urlColorData;
                 }
+                console.log(url);
                 window.history.pushState('', '', url);
             });
     	}
@@ -931,15 +960,15 @@ $(function() {
     	}
     	//reapply colors if user has moved away from reports view
     	if(gridColorData){
-            grid.updateHeaderColors(gridColorData);
+            updateHeaderColors(gridColorData);
         }
     });
 
     <!--{if $query != '' && $indicators != ''}-->
     function loadReport() {
-        var inQuery;
-        var inIndicators;
-        var title = '';
+        let inQuery;
+        let inIndicators;
+        let title = '';
 
         title = atob('<!--{$title|escape:"html"}-->');
         title = title.replace(/[^\040-\176]/g, '');
@@ -969,9 +998,10 @@ $(function() {
                 inQuery = JSON.parse(LZString.decompressFromBase64(query));
                 t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
                 let queryColors = JSON.parse(LZString.decompressFromBase64(colors));
+                console.log('querycolors' , queryColors);
                 if (queryColors !== null) {
                     gridColorData = queryColors;
-                    grid.updateHeaderColors(gridColorData);
+                    updateHeaderColors(gridColorData);
                 }
         	}
         	else {
@@ -979,7 +1009,7 @@ $(function() {
                 t_inIndicators = JSON.parse(atob('<!--{$indicators|escape:"html"}-->'));
         	}
         	inIndicators = [];
-        	for(var i in t_inIndicators) {
+        	for(let i in t_inIndicators) {
         		var temp = {};
                 if($.isNumeric(t_inIndicators[i].indicatorID)) {
                     temp.indicatorID = parseInt(t_inIndicators[i].indicatorID);
