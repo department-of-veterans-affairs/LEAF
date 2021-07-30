@@ -548,13 +548,13 @@ function editLabels() {
                 gridColorData[indicator] = elInput.value;
                 updateHeaderColors();
                 //ISSUE move to 'share report' (openShareDialog)?
+                //ISSUE: check save (colors removed)
                 urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
-                //v, query, indicators, and urlColorData will exist at this point, but there might not be a title
                 url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&colors=' + encodeURIComponent(urlColorData);
                 if($('#reportTitle').val() != '') {
                     url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
                 }
-                console.log(url);
+                window.history.pushState('', '', url);
             });
         }
     }
@@ -608,9 +608,9 @@ function sortHeaders(a, b) {
 }
 
 function openShareDialog() {
-    //URL update here?
     var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
     var reportLink = document.URL.substr(document.URL.lastIndexOf('/') + 1);
+
 
     dialog_message.setTitle('Share Report');
     dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
@@ -948,6 +948,9 @@ $(function() {
             url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
             if($('#reportTitle').val() != '') {
                 url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+            }
+            if(urlColorData !== 'str'){
+                url += '&colors=' + encodeURIComponent(urlColorData);
             }
 
             window.history.pushState('', '', url);
