@@ -529,7 +529,7 @@ function editLabels() {
 			buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
 			buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
 			buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
-            buffer += '<input type="color" id="colorPicker' + i + '" value="#d1dfff" /></td></tr>';
+            buffer += '<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 16px; margin: 0 2px;" /></td></tr>';
 		}
 	}
 	buffer += '</table>';
@@ -538,19 +538,23 @@ function editLabels() {
 
     for (let i in resSelectList){
         if(resIndicatorList[resSelectList[i]] != undefined) {
-            let elInput = document.getElementById("colorPicker" + i);
-            let gridColorKey = resSelectList[i];
+            let indicator = resSelectList[i];
+            let elInput = document.getElementById("colorPicker" + indicator);
+            //update any inputs to the current color if they have already been set
+            if (gridColorData.hasOwnProperty(indicator)){
+                elInput.value = gridColorData[indicator];
+            }
             elInput.addEventListener('change', function () {
-                gridColorData[gridColorKey] = elInput.value;
+                gridColorData[indicator] = elInput.value;
                 updateHeaderColors();
-
+                //ISSUE move to 'share report' (openShareDialog)?
                 urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
                 //v, query, indicators, and urlColorData will exist at this point, but there might not be a title
                 url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&colors=' + encodeURIComponent(urlColorData);
                 if($('#reportTitle').val() != '') {
                     url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
                 }
-                console.log(gridColorData, urlColorData, url);
+                console.log(url);
             });
         }
     }
@@ -604,6 +608,7 @@ function sortHeaders(a, b) {
 }
 
 function openShareDialog() {
+    //URL update here?
     var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
     var reportLink = document.URL.substr(document.URL.lastIndexOf('/') + 1);
 
@@ -951,7 +956,6 @@ $(function() {
                 if (urlColorData !== 'str'){
                     url += '&colors=' + urlColorData;
                 }
-                console.log(url);
                 window.history.pushState('', '', url);
             });
     	}
@@ -998,7 +1002,6 @@ $(function() {
                 inQuery = JSON.parse(LZString.decompressFromBase64(query));
                 t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
                 let queryColors = JSON.parse(LZString.decompressFromBase64(colors));
-                console.log('querycolors' , queryColors);
                 if (queryColors !== null) {
                     gridColorData = queryColors;
                     updateHeaderColors(gridColorData);
