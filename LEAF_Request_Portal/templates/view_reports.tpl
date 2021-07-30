@@ -61,7 +61,7 @@ var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help
 var delimLF = "\r\n";
 var tDepHeader = [];
 var tStepHeader = [];
-let categoryID = 'catID';
+let categoryID = 'strCatID';
 
 function addHeader(column) {
     var today = new Date();
@@ -730,21 +730,23 @@ function showJSONendpoint() {
  * @return - Creates new request inline on grid
  */
 function createRequest(catID) {
+    catID = catID || 'strCatID';
     const portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('./api/?a=');
     portalAPI.setCSRFToken(CSRFToken);
 
-    if (catID !== 'catID') {
+    if (catID !== 'strCatID') {
         portalAPI.Forms.newRequest(
             catID,
             {title: 'untitled'},
-            function (requestID) {
-                //number of requestID (UID column of report builder) is sent back on success
-                if (requestID > 0) {
+            function (recordID) {
+                recordID = recordID || 0;
+                //Type number. Sent back on success (UID column of report builder)
+                if (recordID > 0) {
                     $('#generateReport').click();
                     dialog.hide();
                     setTimeout(function () {
-                        let el_ID = grid.getPrefixID() + "tbody_tr" + requestID;
+                        let el_ID = grid.getPrefixID() + "tbody_tr" + recordID;
                         let newRow = document.getElementById(el_ID);
                         newRow.style.backgroundColor = 'rgb(254, 255, 209)';
                     }, 750);
