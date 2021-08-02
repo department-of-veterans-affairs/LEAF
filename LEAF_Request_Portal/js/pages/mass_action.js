@@ -3,11 +3,7 @@
  */
 
 // Global variables
-let LeafSearch;
-$.getScript('js/formSearch.js', function()
-{
-    leafSearch.init();
-});
+let leafSearch;
 let massActionToken = document.getElementById("mass-action-js").getAttribute("data-token");
 let processedRequests = 0;
 let totalActions = 0;
@@ -69,6 +65,7 @@ function chooseAction() {
         // Hide the email reminder and reset then show other options search and perform
         $('#emailSection').hide();
         $('#searchRequestsContainer').show();
+        leafSearch.init();
         doSearch();
     }
     // If selected 'Email Reminder' then hide searches, show last action select
@@ -81,6 +78,7 @@ function chooseAction() {
         $('#submitSearchByDays').click(function() {
             reminderDaysSearch();
         });
+        leafSearch.init();
         reminderDaysSearch();
     }
     // Nothing selected so hide search and email sections
@@ -103,7 +101,7 @@ function reminderDaysSearch() {
 function doSearch() {
 
     let getCancelled = false;
-    let getSubmitted = false;
+    let getSubmitted = true;
     let getReminder = 0;
 
     $('input#selectAllRequests').prop('checked', false);
@@ -113,9 +111,10 @@ function doSearch() {
     switch(actionValue) {
         case 'email':
             getReminder = Number(document.getElementById('lastAction').value);
-            getSubmitted = true;
             break;
-
+        case 'submit':
+            getSubmitted = false;
+            break;
         case 'restore':
             getCancelled = true;
             break;

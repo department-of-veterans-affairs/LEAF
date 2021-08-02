@@ -64,6 +64,9 @@
         if (String(depID).substr(0, 2) == '-1') {
             dependencyName = res[depID].approverName != null ? res[depID].approverName : 'Person designated by requestor';
         }
+        if (String(depID).substr(0, 2) == '-3') {
+            dependencyName = res[depID].approverName != null ? res[depID].approverName : 'Group designated by requestor';
+        }
         let icon = getIcon(site.icon, site.name);
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 120%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
