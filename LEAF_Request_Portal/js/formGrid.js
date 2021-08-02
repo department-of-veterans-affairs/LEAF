@@ -574,7 +574,7 @@ var LeafFormGrid = function(containerID, options) {
             form.getForm(indicatorID, 1);
             form.dialog().show();
         });
-        for(var i in callbackBuffer) {
+        for(let i in callbackBuffer) {
             callbackBuffer[i]();
         }
 
