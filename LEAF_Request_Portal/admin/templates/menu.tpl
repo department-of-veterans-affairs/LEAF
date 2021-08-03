@@ -7,7 +7,7 @@
 
     <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>
 
-    <li class="leaf-width-8rem leaf-mob-menu"><a href="../?a=reports">Report Builder</a></li>
+    <li class="leaf-width-8rem leaf-mob-menu"><a href="../?a=reports&v=3">Report Builder</a></li>
 
     <li class="leaf-width-8rem leaf-mob-menu lev2">
         <a href="javascript:void(0);">Site Links</a>

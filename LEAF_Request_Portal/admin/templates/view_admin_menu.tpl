@@ -46,7 +46,7 @@
             <span class="leaf-admin-btndesc">Edit site name, time zone, and other labels</span>
         </a>
 
-        <a href="../?a=reports" role="button" class="leaf-admin-button bg-blue-cool-10 lf-trans-blue">
+        <a href="../?a=reports&v=3" role="button" class="leaf-admin-button bg-blue-cool-10 lf-trans-blue">
             <i class="leaf-admin-btnicon fas fa-file-invoice text-blue-cool-50 leaf-icn-narrow4" alt="Report Builder" title="Report Builder"></i>
             <span class="leaf-admin-btntitle">Report Builder</span>
             <span class="leaf-admin-btndesc">Create custom reports</span>
