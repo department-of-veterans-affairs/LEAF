@@ -94,10 +94,10 @@ dialogController.prototype.showButtons = function() {
 };
 
 dialogController.prototype.enableLiveValidation = function() {
-	var t = this;
-	$('input[type="text"]').on('keyup', function() {
-		t.isValid();
+	let t = this;
+	$('body').on('change', function() {
 		t.isComplete();
+		t.isValid();
 	});
 };
 

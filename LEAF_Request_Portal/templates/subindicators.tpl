@@ -117,6 +117,9 @@
                     },
                     setRequiredError: function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    },
+                    setRequiredOk: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                     }
                 };
                 <!--{/if}-->
@@ -152,6 +155,9 @@
                 },
                 setRequiredError: function() {
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                },
+                setRequiredOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                 }
             };
             <!--{/if}-->
@@ -192,6 +198,9 @@
                     },
                     setRequiredError: function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    },
+                    setRequiredOk: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                     }
                 };
                 <!--{/if}-->
@@ -236,6 +245,9 @@
                     },
                     setRequiredError: function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    },
+                    setRequiredOk: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                     }
                 };
                 <!--{/if}-->
@@ -271,6 +283,9 @@
                     },
                     setRequiredError: function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    },
+                    setRequiredOk: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                     }
                 };
                 <!--{/if}-->
@@ -289,6 +304,9 @@
                 },
                 setRequiredError: function() {
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                },
+                setRequiredOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                 }
             };
             <!--{/if}-->
@@ -326,6 +344,9 @@
                 },
                 setRequiredError: function() {
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                },
+                setRequiredOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                 }
             };
             <!--{/if}-->
@@ -360,6 +381,9 @@
                 },
                 setRequiredError: function() {
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                },
+                setRequiredOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                 }
             };
             <!--{/if}-->
@@ -434,6 +458,9 @@
                     },
                     setRequiredError: function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    },
+                    setRequiredOk: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                     }
                 };
                 <!--{/if}-->
@@ -471,6 +498,9 @@
                     },
                     setRequiredError: function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    },
+                    setRequiredOk: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                     }
                 };
                 <!--{/if}-->
@@ -538,6 +568,9 @@
                     },
                     setRequiredError: function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    },
+                    setRequiredOk: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                     }
                 };
             </script>
@@ -600,6 +633,9 @@
                     },
                     setRequiredError: function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    },
+                    setRequiredOk: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                     }
                 };
             </script>
@@ -645,6 +681,9 @@
                 },
                 setRequiredError: function() {
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                },
+                setRequiredOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                 }
             };
             <!--{/if}-->
@@ -796,6 +835,9 @@
                 },
                 setRequiredError: function() {
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                },
+                setRequiredOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                 }
             };
             <!--{/if}-->
@@ -895,6 +937,9 @@
                 },
                 setRequiredError: function() {
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                },
+                setRequiredOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                 }
             };
             <!--{/if}-->
