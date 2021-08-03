@@ -34,7 +34,7 @@
                         <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
                     <!--{/if}-->
             </label>
-            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: red; background-repeat: no-repeat; background-image: url(/libs/dynicons/?img=eye_invisible.svg&w=16); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
+            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: red; background-repeat: no-repeat; background-image: url('/libs/dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
                 <!--{/if}-->
         </div>
         <div class="response blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
@@ -375,16 +375,23 @@
         <!--{if $indicator.format == 'currency' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
                 <br />$<input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="font-size: 1.3em; font-family: monospace" /> (Amount in USD)
-                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Data must be numeric</span>
+                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Value must be a valid currency</span>
             </span>
             <script type="text/javascript">
             formValidator["id<!--{$indicator.indicatorID}-->"] = {
                     setValidator: function() {
-                    	return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                        let value = $('#<!--{$indicator.indicatorID|strip_tags}-->').val();
+                        //allows only specific length if . has been entered
+                        let maxLength = (value.indexOf('.') !== -1) ? value.indexOf('.') + 3 : value.length;
+                    	return (($.isNumeric(value) || value == '') && value.length <= maxLength);
                     },
                     setValidatorError: function() {
                     	$('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display', 'inline');
+                    },
+                    setValidatorOk: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '1px solid gray');
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').hide('fade');
                     }
                 };
             <!--{if $indicator.required == 1}-->
