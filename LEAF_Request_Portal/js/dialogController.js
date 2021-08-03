@@ -97,6 +97,7 @@ dialogController.prototype.enableLiveValidation = function() {
 	var t = this;
 	$('input[type="text"]').on('keyup', function() {
 		t.isValid();
+		t.isComplete();
 	});
 };
 

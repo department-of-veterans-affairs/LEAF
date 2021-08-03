@@ -379,21 +379,21 @@
             </span>
             <script type="text/javascript">
             formValidator["id<!--{$indicator.indicatorID}-->"] = {
-                    setValidator: function() {
-                        let value = $('#<!--{$indicator.indicatorID|strip_tags}-->').val();
-                        //allows only specific length if . has been entered
-                        let maxLength = (value.indexOf('.') !== -1) ? value.indexOf('.') + 3 : value.length;
-                    	return (($.isNumeric(value) || value == '') && value.length <= maxLength);
-                    },
-                    setValidatorError: function() {
-                    	$('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display', 'inline');
-                    },
-                    setValidatorOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '1px solid gray');
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').hide('fade');
-                    }
-                };
+                setValidator: function() {
+                    let value = $('#<!--{$indicator.indicatorID|strip_tags}-->').val();
+                    //allows only specific length if . has been entered
+                    let maxLength = (value.indexOf('.') !== -1) ? value.indexOf('.') + 3 : value.length;
+                    return (($.isNumeric(value) || value == '') && value.length <= maxLength);
+                },
+                setValidatorError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display', 'inline');
+                },
+                setValidatorOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '1px solid gray');
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_error').hide('fade');
+                }
+            };
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
@@ -401,6 +401,9 @@
                 },
                 setRequiredError: function() {
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                },
+                setRequiredOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
                 }
             };
             <!--{/if}-->
