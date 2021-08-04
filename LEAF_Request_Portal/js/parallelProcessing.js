@@ -46,17 +46,19 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         $.ajax({
             type: 'GET',
             url: 'api/?a=form/'+recordID+'/workflow/indicator/assigned',
-            success: function(obj) {
-                indicatorObject = obj;
-                for (var i = 0; i < indicatorObject.length; i++) {
-                    $(document.createElement('option'))
-                        .attr('value', indicatorObject[i].indicatorID)
-                        .html(indicatorObject[i].name)
-                        .appendTo($("select#indicator_selector"));
+            success: function(arr) {
+                indicatorObject = arr;
+                if (indicatorObject !== null) {
+                    for (let i = 0; i < indicatorObject.length; i++) {
+                        $(document.createElement('option'))
+                            .attr('value', indicatorObject[i].indicatorID)
+                            .html(indicatorObject[i].name)
+                            .appendTo($("select#indicator_selector"));
+                    }
                 }
-                if(obj.length == 0) {
+                else {
                     $('#submitControl').css('display', 'none');
-                    $('#selectDiv').html('<span style="font-size: 120%">Error: The form must contain a field of type "orgchart group" or "orgchart employee" to begin Parallel Processing.</span>');
+                    $('#selectDiv').html('<span style="font-size: 120%">Error: The form/workflow must contain a field of type "orgchart group" or "orgchart employee" to begin Parallel Processing.</span>');
                 }
             },
             cache: false

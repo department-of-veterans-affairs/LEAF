@@ -404,10 +404,8 @@
             <script type="text/javascript">
             formValidator["id<!--{$indicator.indicatorID}-->"] = {
                 setValidator: function() {
-                    let value = $('#<!--{$indicator.indicatorID|strip_tags}-->').val();
-                    //allows only specific length if . has been entered
-                    let maxLength = (value.indexOf('.') !== -1) ? value.indexOf('.') + 3 : value.length;
-                    return (($.isNumeric(value) || value == '') && value.length <= maxLength);
+                    let value = $('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim();
+                    return /^(\d+|\d{1,3}(,\d{3})*)(\.\d{1,2})?$/.test(value);
                 },
                 setValidatorError: function() {
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');

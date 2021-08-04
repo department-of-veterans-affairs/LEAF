@@ -92,10 +92,8 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'currency'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                <!--{if is_numeric($indicator.value)}-->
-                    $<!--{$indicator.value|number_format:2:".":","}-->
-                <!--{else}-->
-
+                <!--{if is_numeric($indicator.value|replace: ",": "" )}-->
+                    $<!--{$indicator.value|replace: ",": ""|number_format:2:".":","}-->
                 <!--{/if}-->
             </span>
             <!--{$indicator.htmlPrint}-->
