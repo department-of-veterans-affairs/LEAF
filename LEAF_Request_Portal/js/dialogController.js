@@ -103,9 +103,8 @@ dialogController.prototype.enableLiveValidation = function() {
 
 dialogController.prototype.isValid = function() {
 	this.invalid = 0;
-	for(var item in this.validators) {
+	for(let item in this.validators) {
     	if(!this.validators[item]()) {
-            console.log('Data entry error on indicator ID: ' + item); // helps identify validator triggers when custom styles hide the normal error UI
     		this.invalid = 1;
     		if(this.validatorErrors[item] != undefined) {
     			this.validatorErrors[item]();
