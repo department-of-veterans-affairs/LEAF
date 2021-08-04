@@ -483,9 +483,11 @@ function updateHeaderColors(){
             for (let i = 1; i < 7; i += 2) {
                 arrRGB.push(parseInt(bg_color.slice(i, i + 2), 16));
             }
-            let maxVal = Math.max(...arrRGB);
-            let sum = arrRGB.reduce((total, currentVal) => total + currentVal);
-            let textColor = maxVal < 135 || sum < 350 ? 'white' : 'black';
+            let maxVal = Math.max(arrRGB[0],arrRGB[1],arrRGB[2]); //IE dies with spread op
+            let sum = arrRGB.reduce(function(total, currentVal){
+                return total + currentVal;
+            });
+            let textColor = maxVal < 128 || sum < 300 ? 'white' : 'black';
             elHeader.style.setProperty('background-color', bg_color);
             elVHeader.style.setProperty('background-color', bg_color);
             elHeader.style.setProperty('color', textColor);
@@ -546,15 +548,6 @@ function editLabels() {
             }
             elInput.addEventListener('change', function () {
                 gridColorData[indicator] = elInput.value;
-                updateHeaderColors();
-                //ISSUE move to 'share report' (openShareDialog)?
-                //ISSUE: check save (colors removed)
-                urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
-                url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&colors=' + encodeURIComponent(urlColorData);
-                if($('#reportTitle').val() != '') {
-                    url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
-                }
-                window.history.pushState('', '', url);
             });
         }
     }
@@ -574,6 +567,15 @@ function editLabels() {
                 temp = temp.replace(/[^\040-\176]/g, '');
             	resIndicatorList[resSelectList[i]] = temp;
             }
+        }
+        if(gridColorData != {}) {
+            updateHeaderColors();
+            urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
+            url = baseURL + '&v=' + version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&colors=' + encodeURIComponent(urlColorData);
+            if ($('#reportTitle').val() != '') {
+                url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+            }
+            window.history.pushState('', '', url);
         }
         $('#generateReport').click();
         dialog.hide();
@@ -966,7 +968,7 @@ $(function() {
     		url = window.location.href;
     	}
     	//reapply colors if user has moved away from reports view
-    	if(gridColorData){
+    	if(gridColorData != {}){
             updateHeaderColors(gridColorData);
         }
     });
