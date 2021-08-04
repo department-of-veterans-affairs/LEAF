@@ -9,6 +9,8 @@
     <style type="text/css" media="print">
         @import "css/printer.css";
     </style>
+</head>
+<body>
     <div id="header">
         <div style="cursor: pointer" onclick="window.location='./'">
             <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
@@ -22,7 +24,7 @@
             <div id="bodyarea">
                 <div class="card" style="width: 50%; margin: auto; padding: 16px">
                     <h2>Your Session Has Expired</h2>
-                    <p>Return to your <a href="{$previousPage}">LEAF site</a></p>
+                    <p>Return to your <a href="./login">LEAF site</a></p>
                     <p>If this message persists, please contact your administrator.</p>
                 </div>
             </div>

@@ -7,7 +7,7 @@ if (!class_exists('XSSHelpers'))
 
 include '../libs/smarty/Smarty.class.php';
 
-function customTemplate($tpl)
+function customTemplate(string $tpl = "view_about.tpl"): string
 {
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
