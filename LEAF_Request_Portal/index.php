@@ -558,6 +558,7 @@ switch ($action) {
 
 $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
+$main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
