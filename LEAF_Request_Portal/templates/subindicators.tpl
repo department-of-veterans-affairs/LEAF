@@ -116,6 +116,9 @@
                         return !valid;
                     },
                     setRequiredError: function() {
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                        }, 700);
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                     },
                     setRequiredOk: function() {
@@ -154,6 +157,9 @@
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setRequiredError: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                    }, 700);
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                 },
                 setRequiredOk: function() {
@@ -197,6 +203,9 @@
                         return ($('.icheck<!--{$indicator.indicatorID|strip_tags}-->').is(':checked') == false);
                     },
                     setRequiredError: function() {
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                        }, 700);
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                     },
                     setRequiredOk: function() {
@@ -244,6 +253,9 @@
                         return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                     },
                     setRequiredError: function() {
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                        }, 700);
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                     },
                     setRequiredOk: function() {
@@ -282,6 +294,9 @@
                         return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                     },
                     setRequiredError: function() {
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                        }, 700);
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                     },
                     setRequiredOk: function() {
@@ -303,6 +318,9 @@
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
                 setRequiredError: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                    }, 700);
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                 },
                 setRequiredOk: function() {
@@ -326,7 +344,10 @@
             	setValidatorError: function() {
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
                     if($('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display') != 'none') {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').effect('pulsate');
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_error').offset().top
+                        }, 700);
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
                     }
                     else {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
@@ -343,6 +364,9 @@
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
                 setRequiredError: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                    }, 700);
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                 },
                 setRequiredOk: function() {
@@ -380,6 +404,9 @@
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
                 setRequiredError: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                    }, 700);
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                 },
                 setRequiredOk: function() {
@@ -410,6 +437,9 @@
                     return /^(\d+)(\.\d{2})?$/.test(value);
                 },
                 setValidatorError: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_error').offset().top
+                    }, 700);
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display', 'inline');
                 },
@@ -424,6 +454,9 @@
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
                 setRequiredError: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                    }, 700);
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                 },
                 setRequiredOk: function() {
@@ -457,6 +490,9 @@
                         return ($('#<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->').prop('checked') == false);
                     },
                     setRequiredError: function() {
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                        }, 700);
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                     },
                     setRequiredOk: function() {
@@ -497,6 +533,9 @@
                         return !selectionMade;
                     },
                     setRequiredError: function() {
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                        }, 700);
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                     },
                     setRequiredOk: function() {
@@ -567,6 +606,9 @@
                         return oldFiles.length === 0 && newFiles.length === 0;
                     },
                     setRequiredError: function() {
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                        }, 700);
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                     },
                     setRequiredOk: function() {
@@ -632,6 +674,9 @@
                         return oldFiles.length === 0 && newFiles.length === 0;
                     },
                     setRequiredError: function() {
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                        }, 700);
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                     },
                     setRequiredOk: function() {
@@ -663,7 +708,10 @@
                 setValidatorError: function() {
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
                     if($('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display') != 'none') {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').effect('pulsate');
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_error').offset().top
+                        }, 700);
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
                     }
                     else {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
@@ -680,6 +728,9 @@
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setRequiredError: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                    }, 700);
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                 },
                 setRequiredOk: function() {
@@ -834,6 +885,9 @@
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setRequiredError: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                    }, 700);
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                 },
                 setRequiredOk: function() {
@@ -936,6 +990,9 @@
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setRequiredError: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                    }, 700);
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
                 },
                 setRequiredOk: function() {
