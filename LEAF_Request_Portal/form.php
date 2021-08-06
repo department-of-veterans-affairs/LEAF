@@ -496,8 +496,6 @@ class Form
         $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
         $form[$idx]['sort'] = $data[0]['sort'];
 
-
-
         // handle file upload
         if (isset($data[0]['data'])
             && ($data[0]['format'] == 'fileupload'
