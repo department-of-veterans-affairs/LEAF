@@ -433,8 +433,13 @@
                 setValidator: function() {
                     let value = $('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim();
                     value = value.replace(/,/ig, '');
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->').val(value);
-                    return /^(\d+)(\.\d{2})?$/.test(value);
+                    if (!/^(\d+)(\.\d+)?$/.test(value)){
+                        return false;
+                    };
+                    let floatValue = parseFloat(value);
+                    let strRoundTwoDecimals = (Math.round(100*floatValue)/100).toFixed(2);
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->').val(strRoundTwoDecimals);
+                    return  ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
                 setValidatorError: function() {
                     $([document.documentElement, document.body]).animate({
