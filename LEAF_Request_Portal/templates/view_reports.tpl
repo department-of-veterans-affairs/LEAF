@@ -950,8 +950,6 @@ $(function() {
 
     	// create save link once
     	if(!extendedToolbar) {
-    	    //adding the below line to overwrite the grid's export button instead of changing it in the grid file, since I'm not sure it's not used for anything else
-            $('#' + grid.getPrefixID() + 'gridToolbar').html('<br/><button type="button" id="'+ grid.getPrefixID() +'getExcel" class="buttonNorm"><img src="../libs/dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>')
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
