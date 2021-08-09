@@ -70,7 +70,7 @@ function addHeader(column) {
 	    	headers.push({name: 'Title', indicatorID: 'title', callback: function(data, blob) {
                             $('#'+data.cellContainerID).html(blob[data.recordID].title);
                             $('#'+data.cellContainerID).on('click', function(){
-                                    changeTitle(data);
+                                    changeTitle(data, $('#'+data.cellContainerID).html());
                             });
                          }});
 		    break;
@@ -698,8 +698,8 @@ function showJSONendpoint() {
  * Purpose: Update Request Titles
 */
 
- function changeTitle(form_data) {
-	dialog.setContent('<label for="recordTitle"><b>Report Title</b></label><br/><input type="text" id="recordTitle" style="width: 250px" name="recordTitle" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
+ function changeTitle(form_data, current_title) {
+	dialog.setContent('<label for="recordTitle"><b>Report Title</b></label><br/><input type="text" id="recordTitle" style="width: 250px" name="recordTitle" value="' + current_title + '" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
   //ie11 fix
   setTimeout(function () {
     dialog.show();
