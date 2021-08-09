@@ -45,29 +45,51 @@ var LeafWorkflow = function(containerID, CSRFToken) {
             antiDblClick = 1;
         }
 
+        // Check if CSRFToken has Changed (Timeout Fix)
+        $.ajax({
+            type: 'GET',
+            url: rootURL + 'api/?a=formWorkflow/getCSRFToken',
+            async: false,
+            success: function(res) {
+                data.CSRFToken = res;
+            },
+            error: function(err) {
+                alert('Session Expired');
+            }
+        });
+
         $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Applying action... <img src="'+ rootURL +'images/largespinner.gif" alt="loading..." /></div>');
         $.ajax({
             type: 'POST',
             url: rootURL + 'api/?a=formWorkflow/' + currRecordID + '/apply',
             data: data,
             success: function(response) {
-                if(response.errors.length == 0) {
-                    $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Action applied!</div>');
-                    $("#workflowbox_dep" + data['dependencyID']).hide('blind', 500);
+                if (response !== "Invalid Token.") {
+                    if (response.errors.length === 0) {
+                        $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Action applied!</div>');
+                        $("#workflowbox_dep" + data['dependencyID']).hide('blind', 500);
 
-                    getWorkflow(currRecordID);
-                    if(actionSuccessCallback != undefined) {
-                        actionSuccessCallback();
-                    }
-                }
-                else {
-                    var errors = '';
-                    for(var i in response.errors) {
-                        errors += response.errors[i] + '<br />';
-                    }
-                    $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="'+ rootURL +'../libs/dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" /> '+ errors +'<br /><span style="font-size: 14px; font-weight: normal">After resolving the errors, <button id="workflowbtn_tryagain" class="buttonNorm">click here to try again</button>.</span></div>');
-                    $("#workflowbtn_tryagain").on('click', function() {
                         getWorkflow(currRecordID);
+                        if (actionSuccessCallback !== undefined) {
+                            actionSuccessCallback();
+                        }
+                    } else {
+                        var errors = '';
+                        for (var i in response.errors) {
+                            errors += response.errors[i] + '<br />';
+                        }
+                        $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="' + rootURL + '../libs/dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" /> ' + errors + '<br /><span style="font-size: 14px; font-weight: normal">After resolving the errors, <button id="workflowbtn_tryagain" class="buttonNorm">click here to try again</button>.</span></div>');
+                        $("#workflowbtn_tryagain").on('click', function () {
+                            getWorkflow(currRecordID);
+                        });
+                    }
+                } else {
+                    $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="' + rootURL + '../libs/dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" />Session has expired.<br /><span style="font-size: 14px; font-weight: normal"><button id="workflowbtn_tryagain" class="buttonNorm">Click here to try again</button></span></div>');
+                    $("#workflowbtn_tryagain").on('click', function () {
+                        getWorkflow(currRecordID);
+                        setTimeout(function() {
+                            $('#comment_dep'+ data.dependencyID).val(data.comment);
+                        }, 1000);
                     });
                 }
                 antiDblClick = 0;

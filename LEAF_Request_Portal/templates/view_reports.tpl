@@ -3,7 +3,7 @@
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
 </style>
 
-<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: 70%; background-color: white; border: 1px solid black; margin: auto; padding: 0px">
+<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: 600px; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
     <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 1: Develop search filter
     </div>
@@ -12,7 +12,7 @@
     </div>
 </div>
 
-<div id="step_2" style="display: none; width: 95%; background-color: white; border: 1px solid black; margin: auto; padding: 0px">
+<div id="step_2" style="display: none; width: 95%; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
     <div style="background-color: #0059a4; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 2: Select Data Columns
     </div>
@@ -27,12 +27,16 @@
     <div id="reportTitleDisplay" style="font-size: 200%"></div>
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
 </div>
+
+
 <div id="results" style="display: none">Loading...</div>
+
+
 
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <script>
-var CSRFToken = '<!--{$CSRFToken}-->';
+const CSRFToken = '<!--{$CSRFToken}-->';
 
 function loadWorkflow(recordID, prefixID) {
     dialog_message.setTitle('Apply Action to #' + recordID);
@@ -57,14 +61,16 @@ var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help
 var delimLF = "\r\n";
 var tDepHeader = [];
 var tStepHeader = [];
+let categoryID = 'strCatID';
+
 function addHeader(column) {
     var today = new Date();
 	switch(column) {
 	    case 'title':
 	    	headers.push({name: 'Title', indicatorID: 'title', callback: function(data, blob) {
                             $('#'+data.cellContainerID).html(blob[data.recordID].title);
-                            $('#'+data.cellContainerID).on('click', function() {
-                                window.open('index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                            $('#'+data.cellContainerID).on('click', function(){
+                                    changeTitle(data);
                             });
                          }});
 		    break;
@@ -688,6 +694,74 @@ function showJSONendpoint() {
 	dialog_message.show();
 }
 
+/**
+ * Purpose: Update Request Titles
+*/
+
+ function changeTitle(form_data) {
+	dialog.setContent('<label for="recordTitle"><b>Report Title</b></label><br/><input type="text" id="recordTitle" style="width: 250px" name="recordTitle" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
+  //ie11 fix
+  setTimeout(function () {
+    dialog.show();
+  }, 0);
+    dialog.setSaveHandler(function() {
+        $.ajax({
+        	type: 'POST',
+        	url: 'api/?a=form/' + form_data.recordID + '/title',
+        	data: {title: $('#recordTitle').val(),
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+        	success: function(res) {
+        		if(res != null) {
+                    $('#' + form_data.cellContainerID).fadeOut(400);
+                    $('#' + form_data.cellContainerID).empty().html(res);
+                    $('#' + form_data.cellContainerID).fadeIn(400);
+
+        		}
+                dialog.hide();
+
+        	}
+        });
+    });
+}
+
+/**
+ * Purpose: Create New Row Requests
+ * @param catID - Form ID passing in for new request
+ * @return - Creates new request inline on grid
+ */
+function createRequest(catID) {
+    catID = catID || 'strCatID';
+    const portalAPI = LEAFRequestPortalAPI();
+    portalAPI.setBaseURL('./api/?a=');
+    portalAPI.setCSRFToken(CSRFToken);
+
+    if (catID !== 'strCatID') {
+        portalAPI.Forms.newRequest(
+            catID,
+            {title: 'untitled'},
+            function (recordID) {
+                recordID = recordID || 0;
+                //Type number. Sent back on success (UID column of report builder)
+                if (recordID > 0) {
+                    $('#generateReport').click();
+                    dialog.hide();
+                    setTimeout(function () {
+                        let el_ID = grid.getPrefixID() + "tbody_tr" + recordID;
+                        let newRow = document.getElementById(el_ID);
+                        newRow.style.backgroundColor = 'rgb(254, 255, 209)';
+                    }, 750);
+                }
+            },
+            function (error) {
+                if (error) {
+                    alert('New Request could not be processed');
+                    dialog.hide();
+                }
+            }
+        );
+    }
+}
+
 var url, urlQuery, urlIndicators;
 var leafSearch;
 var headers = [];
@@ -709,6 +783,8 @@ $(function() {
     leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.renderUI();
+
+    $('#' + leafSearch.getPrefixID() + 'searchIcon').toggle();
 
     $('#' + leafSearch.getPrefixID() + 'advancedSearchButton').click();
     $('#' + leafSearch.getPrefixID() + 'advancedOptions').css('border', '0');
@@ -836,7 +912,7 @@ $(function() {
 
             // this replaces grid.loadData()
             var tGridData = [];
-            for(var i in res) {
+            for(let i in res) {
                 tGridData.push(res[i]);
             }
 
@@ -846,13 +922,28 @@ $(function() {
                 grid.renderBody();
             }
             else {
-                var recordIDs = '';
-                for (var i in res) {
+                let recordIDs = '';
+                for (let i in res) {
                     recordIDs += res[i].recordID + ',';
                 }
             	grid.loadData(recordIDs);
             }
-    	});
+            let results = grid.getCurrentData();
+            let filteredResults = results.filter(function(r) {
+                return r.categoryID !== undefined
+            });
+            if (filteredResults.length > 0) {
+                categoryID = filteredResults[0].categoryID;
+                let isOneFormType = filteredResults.every(function(fr){ return fr.categoryID === categoryID});
+                if (isOneFormType){
+                    $('#newRequestButton').css('display', 'inline-block');
+                } else {
+                    $('#newRequestButton').css('display', 'none');
+                }
+            } else {
+                $('#newRequestButton').css('display', 'none');
+            }
+        });
 
     	// get data
     	leafSearch.getLeafFormQuery().execute();
@@ -862,16 +953,19 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
-            $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '460px');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify report" /> Modify Report</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=32" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=16" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button>');
             extendedToolbar = true;
+
 
             $('#editReport').on('click', function() {
             	grid.stop();
             	isNewQuery = true;
                 $('#reportTitleDisplay').css('display', 'none');
                 $('#reportTitle').css('display', 'block');
+                $('#newRequestButton').css('display', 'none');
             	loadSearchPrereqs();
                 $('#saveLinkContainer').slideUp(700);
                 $('#results').fadeOut(700);
@@ -909,8 +1003,11 @@ $(function() {
     	}
     	else {
     		url = window.location.href;
-    	}
+        }
     });
+
+
+
 
     <!--{if $query != '' && $indicators != ''}-->
     function loadReport() {
@@ -973,7 +1070,6 @@ $(function() {
         }
         catch(err) {
         	alert('Invalid report');
-        	console.log(err);
         }
     }
     if(typeof atob == 'function') {

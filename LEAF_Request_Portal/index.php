@@ -466,6 +466,7 @@ switch ($action) {
                'js/gridInput.js',
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
+               '../libs/jsapi/portal/LEAFPortalAPI.js',
                '../libs/js/LEAF/XSSHelpers.js',
            ));
            $main->assign('useUI', true);
