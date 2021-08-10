@@ -479,7 +479,7 @@ function updateHeaderColors(){
             let bg_color = gridColorData[header.indicatorID];
             let elHeader = document.getElementById(grid.getPrefixID() + "header_" + header.indicatorID);
             let elVHeader = document.getElementById("Vheader_" + header.indicatorID);
-            let arrRGB = [];  //convert to RGB, pick text color based on bgcolor, apply to headers
+            let arrRGB = [];  //convert from hex to RGB
             for (let i = 1; i < 7; i += 2) {
                 arrRGB.push(parseInt(bg_color.slice(i, i + 2), 16));
             }
@@ -487,6 +487,7 @@ function updateHeaderColors(){
             let sum = arrRGB.reduce(function(total, currentVal){
                 return total + currentVal;
             });
+            //pick text color based on bgcolor, apply to headers
             let textColor = maxVal < 128 || sum < 300 ? 'white' : 'black';
             elHeader.style.setProperty('background-color', bg_color);
             elVHeader.style.setProperty('background-color', bg_color);
@@ -542,7 +543,7 @@ function editLabels() {
         if(resIndicatorList[resSelectList[i]] != undefined) {
             let indicator = resSelectList[i];
             let elInput = document.getElementById("colorPicker" + indicator);
-            //update any inputs to the current color if they have already been set
+            //update any inputs to the current color if they have been set
             if (gridColorData.hasOwnProperty(indicator)){
                 elInput.value = gridColorData[indicator];
             }

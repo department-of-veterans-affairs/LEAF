@@ -507,6 +507,7 @@ table.leaf_grid th {
     border: 1px solid white;
     padding: 4px 2px 4px 2px;
     font-size: 12px;
+    background-color: rgb(209, 223, 255);
 }
 table.leaf_grid th:hover,
 table.leaf_grid th:focus {

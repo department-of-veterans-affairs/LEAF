@@ -21,12 +21,10 @@ var LeafFormGrid = function(containerID, options) {
     var rootURL = '';
     var isRenderingVirtualHeader = true;
     var isRenderingBody = false;
-    const defaultHeaderColor = 'rgb(209, 223, 255)';
 
     $('#' + containerID).html('<div id="'+prefixID+'grid"></div><div id="'+prefixID+'form" style="display: none"></div>');
 
     $('#' + prefixID+'grid').html('<div style="position: relative"><div id="'+prefixID+'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="'+prefixID+'table_stickyHeader" style="display: none"></div><table id="'+prefixID+'table" class="leaf_grid"><thead id="'+prefixID+'thead" aria-label="Search Results"></thead><tbody id="'+prefixID+'tbody"></tbody><tfoot id="'+prefixID+'tfoot"></tfoot></table>');
-
 
     if(options == undefined) {
         form = new LeafForm(prefixID + 'form');
@@ -776,44 +774,6 @@ var LeafFormGrid = function(containerID, options) {
         }
         return null;
     }
-
-    // /**
-    //  * @params array of objects
-    //  * the key corresponds to an id, and its val is an RGB color
-    //  * @memberOf LeafFormGrid
-    //  * updates background of table's th elements with stored color info
-    //  * and adjusts text color
-    //  */
-    // function updateHeaderColors(objHeaderElementColorData){
-    //     const selector = '#' + this.getPrefixID() + 'thead_tr th';
-    //     const headerElements = Array.from(document.querySelectorAll(selector));
-    //     let t = this;
-    //     headerElements.forEach(function(ele){
-    //         //remove the dynamic section of id + _header_ (using .length because it's more obvious than just + 8 in slice
-    //         let textLength = '_header_'.length;
-    //         let ele_id = ele.id.slice(t.getPrefixID().length-1 + textLength);
-    //         console.log('headers: ', headers);
-    //         if (objHeaderElementColorData.hasOwnProperty(ele_id)){
-    //             let bg_color = objHeaderElementColorData[ele_id];
-    //
-    //             let arrRGB = bg_color.slice(4, bg_color.length-1).split(',');
-    //             let arrRGB_nums = arrRGB.map(function(str) {
-    //                 return parseInt(str);
-    //             });
-    //             let maxVal = Math.max(...arrRGB_nums);
-    //             let sum = arrRGB_nums.reduce((total, currentVal) => total + currentVal);
-    //             let textColor = maxVal < 135 || sum < 350 ? 'white' : 'black';
-    //
-    //             let vheader_id = "Vheader_" + ele_id;
-    //             let vheaderEl = document.getElementById(vheader_id);
-    //
-    //             ele.style.setProperty('background-color', bg_color);
-    //             ele.style.setProperty('color', textColor);
-    //             vheaderEl.style.setProperty('background-color', bg_color);
-    //             vheaderEl.style.setProperty('color', textColor);
-    //         }
-    //     });
-    //}
 
     return {
         getPrefixID: function() { return prefixID; },
