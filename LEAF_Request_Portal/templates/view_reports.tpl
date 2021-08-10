@@ -473,6 +473,9 @@ function loadSearchPrereqs() {
     });
 }
 
+//loop through headers array, and if its ID exists as a key on
+//the gridColor data object, updates background and text color
+//called at Edit Label's 'save' and report page load
 function updateHeaderColors(){
     headers.forEach(function(header) {
         if (gridColorData.hasOwnProperty(header.indicatorID)) {
@@ -488,7 +491,7 @@ function updateHeaderColors(){
                 return total + currentVal;
             });
             //pick text color based on bgcolor, apply to headers
-            let textColor = maxVal < 128 || sum < 300 ? 'white' : 'black';
+            let textColor = maxVal < 128 || (sum < 350 && arrRGB[1] < 225) ? 'white' : 'black';
             elHeader.style.setProperty('background-color', bg_color);
             elVHeader.style.setProperty('background-color', bg_color);
             elHeader.style.setProperty('color', textColor);
@@ -543,12 +546,14 @@ function editLabels() {
         if(resIndicatorList[resSelectList[i]] != undefined) {
             let indicator = resSelectList[i];
             let elInput = document.getElementById("colorPicker" + indicator);
-            //update any inputs to the current color if they have been set
+            //update inputs and tempColors to the current colors if they have been set
             if (gridColorData.hasOwnProperty(indicator)){
                 elInput.value = gridColorData[indicator];
+                tempColorData[indicator] = gridColorData[indicator]; //primitive
             }
+            //update temp color object on change
             elInput.addEventListener('change', function () {
-                gridColorData[indicator] = elInput.value;
+                tempColorData[indicator] = elInput.value;
             });
         }
     }
@@ -569,6 +574,7 @@ function editLabels() {
             	resIndicatorList[resSelectList[i]] = temp;
             }
         }
+        gridColorData = Object.assign({}, tempColorData);
         if(gridColorData != {}) {
             updateHeaderColors();
             urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
@@ -578,6 +584,7 @@ function editLabels() {
             }
             window.history.pushState('', '', url);
         }
+        tempColorData = gridColorData;
         $('#generateReport').click();
         dialog.hide();
     });
@@ -746,7 +753,8 @@ var isNewQuery = false;
 var dialog, dialog_message;
 var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
-let gridColorData = {}; //object updated with #id: color
+let gridColorData = {}; //object updated with id: color
+let tempColorData = {}; //object updated with id: color
 
 var version = 3;
 /* URL formats
