@@ -58,6 +58,7 @@ class DB
             }
             $this->isConnected = false;
         }
+        $this->checkLastModified();
         unset($pass);
     }
 
@@ -289,5 +290,24 @@ class DB
     public function enableDryRun()
     {
         $this->dryRun = true;
+    }
+
+    private function checkLastModified() {
+        //get the last build time
+        $lastBuildTime =  getenv('LAST_BUILD_DATE', true) ?: getenv('LAST_BUILD_DATE');
+
+        // set last-modified header
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Last-Modified: ' . $lastBuildTime );
+
+        // Check if last build time is exactly the same (if so, use cache)
+        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+            if ($lastBuildTime === $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
+                http_response_code(304);
+                header('X-MODIFIED-SINCE: MATCH');
+                die();
+            }
+        }
+        header('X-CONTENT-RETURN: YES');
     }
 }
