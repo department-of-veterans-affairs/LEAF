@@ -22,16 +22,16 @@
         <div class="mainlabel">
             <div>
             <span>
-                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: red;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
+                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: red;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
             </span>
             </div>
                 <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
             <label for="<!--{$indicator.indicatorID|strip_tags}-->">
                     <!--{if $indicator.format == null}-->
-                        <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
+                        <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->
-                        <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" style="margin-left: 8px; color: red;">*&nbsp;Required</span><!--{/if}-->
+                        <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{/if}-->
             </label>
             <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: red; background-repeat: no-repeat; background-image: url('/libs/dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
@@ -115,14 +115,16 @@
                         }
                         return !valid;
                     },
-                    setRequiredError: function() {
+                    setSubmitError: function() {
                         $([document.documentElement, document.body]).animate({
                             scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                        }, 700);
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                        }, 700).clearQueue();
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                     },
                     setRequiredOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                     }
                 };
                 <!--{/if}-->
@@ -156,14 +158,16 @@
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
-                setRequiredError: function() {
+                setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
                         scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                    }, 700);
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }, 700).clearQueue();
+                },
+                setRequiredError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                 },
                 setRequiredOk: function() {
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                 }
             };
             <!--{/if}-->
@@ -202,14 +206,16 @@
                     setRequired: function() {
                         return ($('.icheck<!--{$indicator.indicatorID|strip_tags}-->').is(':checked') == false);
                     },
-                    setRequiredError: function() {
+                    setSubmitError: function() {
                         $([document.documentElement, document.body]).animate({
                             scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                        }, 700);
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                        }, 700).clearQueue();
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                     },
                     setRequiredOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                     }
                 };
                 <!--{/if}-->
@@ -252,14 +258,16 @@
                     setRequired: function() {
                         return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                     },
-                    setRequiredError: function() {
+                    setSubmitError: function() {
                         $([document.documentElement, document.body]).animate({
                             scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                        }, 700);
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                        }, 700).clearQueue();
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                     },
                     setRequiredOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                     }
                 };
                 <!--{/if}-->
@@ -293,14 +301,16 @@
                     setRequired: function() {
                         return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                     },
-                    setRequiredError: function() {
+                    setSubmitError: function() {
                         $([document.documentElement, document.body]).animate({
                             scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                        }, 700);
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                        }, 700).clearQueue();
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                     },
                     setRequiredOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                     }
                 };
                 <!--{/if}-->
@@ -317,14 +327,16 @@
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
-                setRequiredError: function() {
+                setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
                         scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                    }, 700);
-                	$('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }, 700).clearQueue();
+                },
+                setRequiredError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                 },
                 setRequiredOk: function() {
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                 }
             };
             <!--{/if}-->
@@ -341,12 +353,14 @@
             	setValidator: function() {
                     return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
             	},
+                setSubmitValid: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_error').offset().top-50
+                    }, 700).clearQueue();
+                },
             	setValidatorError: function() {
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
                     if($('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display') != 'none') {
-                        $([document.documentElement, document.body]).animate({
-                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_error').offset().top
-                        }, 700);
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
                     }
                     else {
@@ -363,14 +377,16 @@
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
-                setRequiredError: function() {
+                setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
                         scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                    }, 700);
-                	$('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }, 700).clearQueue();
+                },
+                setRequiredError: function() {
+                	$('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                 },
                 setRequiredOk: function() {
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                 }
             };
             <!--{/if}-->
@@ -403,14 +419,16 @@
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
-                setRequiredError: function() {
+                setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
                         scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                    }, 700);
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }, 700).clearQueue();
+                },
+                setRequiredError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                 },
                 setRequiredOk: function() {
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                 }
             };
             <!--{/if}-->
@@ -441,10 +459,12 @@
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').val(strRoundTwoDecimals);
                     return  ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
-                setValidatorError: function() {
+                setSubmitValid: function() {
                     $([document.documentElement, document.body]).animate({
-                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_error').offset().top
-                    }, 700);
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_error').offset().top-50
+                    }, 700).clearQueue();
+                },
+                setValidatorError: function() {
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display', 'inline');
                 },
@@ -458,14 +478,16 @@
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
-                setRequiredError: function() {
+                setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
                         scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                    }, 700);
-                	$('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }, 700).clearQueue();
+                },
+                setRequiredError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                 },
                 setRequiredOk: function() {
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                 }
             };
             <!--{/if}-->
@@ -494,14 +516,16 @@
                     setRequired: function() {
                         return ($('#<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->').prop('checked') == false);
                     },
-                    setRequiredError: function() {
+                    setSubmitError: function() {
                         $([document.documentElement, document.body]).animate({
                             scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                        }, 700);
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                        }, 700).clearQueue();
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                     },
                     setRequiredOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                     }
                 };
                 <!--{/if}-->
@@ -537,14 +561,16 @@
                         }
                         return !selectionMade;
                     },
-                    setRequiredError: function() {
+                    setSubmitError: function() {
                         $([document.documentElement, document.body]).animate({
                             scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                        }, 700);
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                        }, 700).clearQueue();
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                     },
                     setRequiredOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                     }
                 };
                 <!--{/if}-->
@@ -610,14 +636,16 @@
                         
                         return oldFiles.length === 0 && newFiles.length === 0;
                     },
-                    setRequiredError: function() {
+                    setSubmitError: function() {
                         $([document.documentElement, document.body]).animate({
                             scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                        }, 700);
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                        }, 700).clearQueue();
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                     },
                     setRequiredOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                     }
                 };
             </script>
@@ -678,14 +706,16 @@
                         
                         return oldFiles.length === 0 && newFiles.length === 0;
                     },
-                    setRequiredError: function() {
+                    setSubmitError: function() {
                         $([document.documentElement, document.body]).animate({
                             scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                        }, 700);
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                        }, 700).clearQueue();
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                     },
                     setRequiredOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                     }
                 };
             </script>
@@ -710,12 +740,14 @@
                 setValidator: function() {
                     return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
                 },
+                setSubmitValid: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_error').offset().top-50
+                    }, 700).clearQueue();
+                },
                 setValidatorError: function() {
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
                     if($('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display') != 'none') {
-                        $([document.documentElement, document.body]).animate({
-                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_error').offset().top
-                        }, 700);
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
                     }
                     else {
@@ -732,14 +764,16 @@
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
-                setRequiredError: function() {
+                setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
                         scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                    }, 700);
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }, 700).clearQueue();
+                },
+                setRequiredError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                 },
                 setRequiredOk: function() {
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                 }
             };
             <!--{/if}-->
@@ -889,14 +923,16 @@
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
-                setRequiredError: function() {
+                setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
                         scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                    }, 700);
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }, 700).clearQueue();
+                },
+                setRequiredError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                 },
                 setRequiredOk: function() {
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                 }
             };
             <!--{/if}-->
@@ -994,14 +1030,16 @@
                 setRequired: function() {
                     return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
-                setRequiredError: function() {
+                setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
                         scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                    }, 700);
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "red", "color": "white", "padding": "4px", "font-weight": "bold"});
+                    }, 700).clearQueue();
+                },
+                setRequiredError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
                 },
                 setRequiredOk: function() {
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').css({"background-color": "white", "color": "red", "padding": "0", "font-weight": "normal"});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
                 }
             };
             <!--{/if}-->

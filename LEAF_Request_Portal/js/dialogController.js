@@ -12,9 +12,11 @@ function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCan
 	this.dialogControllerXhrEvent = null;
 	this.prefixID = 'dialog' + Math.floor(Math.random()*1000) + '_';
 	this.validators = {};
+	this.validatorSubmitErrors = {};
 	this.validatorErrors = {};
 	this.validatorOks = {};
 	this.requirements = {};
+	this.requirementSubmitErrors = {};
 	this.requirementErrors = {};
 	this.requirementOks = {};
 	this.invalid = 0;
@@ -95,23 +97,31 @@ dialogController.prototype.showButtons = function() {
 
 dialogController.prototype.enableLiveValidation = function() {
 	let t = this;
-	$('body').on('change', function() {
+	$('.mainform').on('change', function() {
 		t.isComplete();
 		t.isValid();
 	});
 };
 
-dialogController.prototype.isValid = function() {
+dialogController.prototype.isValid = function(isSubmit) {
+	isSubmit = isSubmit || false;
 	this.invalid = 0;
 	for(let item in this.validators) {
     	if(!this.validators[item]()) {
     		this.invalid = 1;
-    		if(this.validatorErrors[item] != undefined) {
-    			this.validatorErrors[item]();
-    		}
-    		else {
-    			alert('Data entry error. Please check your input.');
-    		}
+    		if (isSubmit === false) {
+				if (this.validatorErrors[item] != undefined) {
+					this.validatorErrors[item]();
+				} else {
+					alert('Data entry error. Please check your input.');
+				}
+			} else {
+				if (this.validatorSubmitErrors[item] != undefined) {
+					this.validatorSubmitErrors[item]();
+				} else {
+					alert('Data entry error. Please check your input.');
+				}
+			}
     	}
     	else {
     		if(this.validatorOks[item] != undefined) {
@@ -125,17 +135,25 @@ dialogController.prototype.isValid = function() {
 	return 1;
 };
 
-dialogController.prototype.isComplete = function() {
+dialogController.prototype.isComplete = function(isSubmit) {
+	isSubmit = isSubmit || false;
 	this.incomplete = 0;
 	for(var item in this.requirements) {
     	if(this.requirements[item]()) {
     		this.incomplete = 1;
-    		if(this.requirementErrors[item] != undefined) {
-    			this.requirementErrors[item]();
-    		}
-    		else {
-    			alert('Required field missing. Please check your input.');
-    		}
+    		if (isSubmit === false) {
+				if (this.requirementErrors[item] != undefined) {
+					this.requirementErrors[item]();
+				} else {
+					alert('Required field missing. Please check your input.');
+				}
+			} else {
+				if (this.requirementSubmitErrors[item] != undefined) {
+					this.requirementSubmitErrors[item]();
+				} else {
+					alert('Required field missing. Please check your input.');
+				}
+			}
     	}
     	else {
     		if(this.requirementOks[item] != undefined) {
@@ -153,7 +171,7 @@ dialogController.prototype.setSaveHandler = function(funct) {
 	$('#' + this.btnSaveID).off();
 	var t = this;
     this.dialogControllerXhrEvent = $('#' + this.btnSaveID).on('click', function() {
-        if(t.isValid() == 1 && t.isComplete() == 1) {        	
+        if(t.isValid(true) == 1 && t.isComplete(true) == 1) {
         	funct();
         	$('#' + t.btnSaveID).off();
         }
@@ -197,6 +215,10 @@ dialogController.prototype.clearValidators = function() {
 	$('input[type="text"]').off();
 };
 
+dialogController.prototype.setSubmitValid = function(id, func) {
+	this.validatorSubmitErrors[id] = func;
+};
+
 dialogController.prototype.setValidatorError = function(id, func) {
 	this.validatorErrors[id] = func;
 };
@@ -207,6 +229,10 @@ dialogController.prototype.setValidatorOk = function(id, func) {
 
 dialogController.prototype.setRequired = function(id, func) {
 	this.requirements[id] = func;
+};
+
+dialogController.prototype.setSubmitError = function(id, func) {
+	this.requirementSubmitErrors[id] = func;
 };
 
 dialogController.prototype.setRequiredError = function(id, func) {

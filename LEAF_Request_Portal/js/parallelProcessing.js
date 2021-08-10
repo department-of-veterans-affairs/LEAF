@@ -57,8 +57,9 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                     }
                 }
                 else {
+                    let failResponse = '<span style="font-size: 120%">Error: The form/workflow must contain a field of type "orgchart group" or "orgchart employee" to begin Parallel Processing.</span>';
                     $('#submitControl').css('display', 'none');
-                    $('#selectDiv').html('<span style="font-size: 120%">Error: The form/workflow must contain a field of type "orgchart group" or "orgchart employee" to begin Parallel Processing.</span>');
+                    $('#selectDiv').html(failResponse);
                 }
             },
             cache: false
