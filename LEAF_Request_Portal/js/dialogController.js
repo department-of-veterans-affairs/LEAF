@@ -23,7 +23,7 @@ function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCan
 	this.incomplete = 0;
 
 	//calculate min width of dialog based on min width of content div
-	var minWidth = parseInt($('#' + this.contentID).css('min-width'));
+	let minWidth = parseInt($('#' + this.contentID).css('min-width'));
 	minWidth = (minWidth == 0) ? 0 : (minWidth + 30);
 
 	$('#' + this.containerID).dialog({autoOpen: false,
@@ -33,7 +33,7 @@ function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCan
 										resizable: false,
 										minWidth: minWidth});
 	this.clearDialog();
-    var t = this;
+    let t = this;
 
     // xhrDialog controls
     $('#' + this.btnCancelID).on('click', function() {
@@ -138,7 +138,7 @@ dialogController.prototype.isValid = function(isSubmit) {
 dialogController.prototype.isComplete = function(isSubmit) {
 	isSubmit = isSubmit || false;
 	this.incomplete = 0;
-	for(var item in this.requirements) {
+	for(let item in this.requirements) {
     	if(this.requirements[item]()) {
     		this.incomplete = 1;
     		if (isSubmit === false) {
@@ -169,7 +169,7 @@ dialogController.prototype.isComplete = function(isSubmit) {
 
 dialogController.prototype.setSaveHandler = function(funct) {
 	$('#' + this.btnSaveID).off();
-	var t = this;
+	let t = this;
     this.dialogControllerXhrEvent = $('#' + this.btnSaveID).on('click', function() {
         if(t.isValid(true) == 1 && t.isComplete(true) == 1) {
         	funct();
@@ -183,7 +183,7 @@ dialogController.prototype.setSaveHandler = function(funct) {
 
 dialogController.prototype.setCancelHandler = function(funct) {
 	$('#' + this.containerID).off('dialogbeforeclose');
-	var t = this;
+	let t = this;
     $('#' + this.containerID).on('dialogbeforeclose', function() {
         if(t.isValid() == 1 && t.isComplete() == 1) {        	
         	funct();
