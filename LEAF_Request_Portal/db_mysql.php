@@ -294,7 +294,8 @@ class DB
 
     private function checkLastModified() {
         //get the last build time
-        $lastBuildTime =  getenv('LAST_BUILD_DATE', true) ?: getenv('LAST_BUILD_DATE');
+        $defaultTime = "Thur, January 1, 1970 00:00:00 GMT";
+        $lastBuildTime = getenv('LAST_BUILD_DATE', true) ? getenv('LAST_BUILD_DATE') : $defaultTime;
 
         // set last-modified header
         header('Cache-Control: no-cache, must-revalidate');
