@@ -34,7 +34,10 @@
     }
 </style>
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-<script id="mass-action-js" src="./js/pages/mass_action.js" data-token="<!--{$CSRFToken}-->" type="text/javascript"></script>
+<script id="mass-action-js" src="./js/pages/mass_action.js"
+        data-token="<!--{$CSRFToken}-->"
+        data-orgChartPath="<!--{$orgchartPath}-->"
+        type="text/javascript"></script>
 
 <div id="massActionContainer">
     <h1>Mass Action</h1>

@@ -5,6 +5,7 @@
 // Global variables
 let leafSearch;
 let massActionToken = document.getElementById("mass-action-js").getAttribute("data-token");
+let orgChartPath = document.getElementById("mass-action-js").getAttribute("data-orgChartPath");
 let processedRequests = 0;
 let totalActions = 0;
 let successfulActionRecordIDs = [];
@@ -48,6 +49,7 @@ $(document).ready(function(){
     // Do the search from the input textbox if it is requested
     leafSearch = new LeafFormSearch('searchRequestsContainer');
     leafSearch.setRootURL('./');
+    leafSearch.setOrgchartPath(orgChartPath);
     leafSearch.setSearchFunc(function(search) {
         extraTerms = search;
         doSearch();
