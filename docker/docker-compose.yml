@@ -21,6 +21,8 @@ services:
         code-network:
           aliases:
             - php
+      env_file:
+        - ./env_files/caching.env
       environment:
         - REMOTE_USER=${REMOTE_USER}
         - APACHE_RUN_USER=build_user
