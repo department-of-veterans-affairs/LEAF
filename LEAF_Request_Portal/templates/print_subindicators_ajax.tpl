@@ -94,8 +94,6 @@
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
                 <!--{if is_numeric($indicator.value)}-->
                     $<!--{$indicator.value|number_format:2:".":","}-->
-                <!--{else}-->
-
                 <!--{/if}-->
             </span>
             <!--{$indicator.htmlPrint}-->

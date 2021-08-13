@@ -125,16 +125,18 @@ var LeafForm = function(containerID) {
 	        	dialog.setTitle('Editing #' + recordID);
 	            dialog.setContent(response);
 
-	            for(var i in formValidator) {
-	            	var tID = i.slice(2);
+	            for(let i in formValidator) {
+	            	let tID = i.slice(2);
 	            	dialog.setValidator(tID, formValidator[i].setValidator);
+	            	dialog.setSubmitValid(tID, formValidator[i].setSubmitValid);
 	                dialog.setValidatorError(tID, formValidator[i].setValidatorError);
 	                dialog.setValidatorOk(tID, formValidator[i].setValidatorOk);
 	            }
 
-	            for(var i in formRequired) {
-	            	var tID = i.slice(2);
+	            for(let i in formRequired) {
+	            	let tID = i.slice(2);
 	            	dialog.setRequired(tID, formRequired[i].setRequired);
+					dialog.setSubmitError(tID, formRequired[i].setSubmitError);
 	            	dialog.setRequiredError(tID, formRequired[i].setRequiredError);
 	            	dialog.setRequiredOk(tID, formRequired[i].setRequiredOk);
 	            }

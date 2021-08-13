@@ -46,17 +46,21 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         $.ajax({
             type: 'GET',
             url: 'api/?a=form/'+recordID+'/workflow/indicator/assigned',
-            success: function(obj) {
-                indicatorObject = obj;
-                for (var i = 0; i < indicatorObject.length; i++) {
-                    $(document.createElement('option'))
-                        .attr('value', indicatorObject[i].indicatorID)
-                        .html(indicatorObject[i].name)
-                        .appendTo($("select#indicator_selector"));
+            success: function(indicatorObjectArr) {
+                indicatorObjectArr = indicatorObjectArr || 0;
+                if (indicatorObjectArr !== 0) {
+                    for (let i = 0; i < indicatorObjectArr.length; i++) {
+                        $(document.createElement('option'))
+                            .attr('value', indicatorObjectArr[i].indicatorID)
+                            .html(indicatorObjectArr[i].name)
+                            .appendTo($("select#indicator_selector"));
+                    }
                 }
-                if(obj.length == 0) {
+                else {
+                    let failResponse = 'Error: The form/workflow must contain a field of type "orgchart group" or "orgchart employee" to begin Parallel Processing.';
+                    let responseHTML = '<span style="font-size: 120%">' + failResponse + '</span>';
                     $('#submitControl').css('display', 'none');
-                    $('#selectDiv').html('<span style="font-size: 120%">Error: The form must contain a field of type "orgchart group" or "orgchart employee" to begin Parallel Processing.</span>');
+                    $('#selectDiv').html(responseHTML);
                 }
             },
             cache: false
@@ -100,7 +104,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                     grpSel.setResultHandler(function(){
                         if(this.numResults > 0) {
                             $('table.groupSelectorTable tr:first').append('<th>&nbsp;</th>');
-                            for(var i in this.selectionData) {
+                            for(let i in this.selectionData) {
                                 $('#'+this.prefixID+'grp'+i).off('click');
                                 $('#'+this.prefixID+'grp'+i).append('<td class="groupSelectorAddToList"><button id="btn'+i+'" type="button">Select</button></td>');
                             }
@@ -137,7 +141,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                     empSel.setResultHandler(function(){
                         if(this.numResults > 0) {
                             $('table.employeeSelectorTable tr:first').append('<th>&nbsp;</th>');
-                            for(var i in this.selectionData) {
+                            for(let i in this.selectionData) {
                                 $('#'+this.prefixID+'emp'+i).off('click');
                                 $('#'+this.prefixID+'emp'+i).append('<td class="employeeSelectorAddToList"><button id="btn'+i+'" type="button">Select</button></td>');
                             }
