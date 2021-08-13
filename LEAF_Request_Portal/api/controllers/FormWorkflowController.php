@@ -40,6 +40,10 @@ class FormWorkflowController extends RESTfulResponse
             return $this->API_VERSION;
         });
 
+        $this->index['GET']->register('formWorkflow/getCSRFToken', function () {
+            return $_SESSION['CSRFToken'];
+        });
+
         $this->index['GET']->register('formWorkflow/[digit]/currentStep', function ($args) use ($formWorkflow) {
             $formWorkflow->initRecordID($args[0]);
 
