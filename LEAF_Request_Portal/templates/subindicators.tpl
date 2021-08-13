@@ -822,6 +822,7 @@
                                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                 success: function(res) {
                                     $('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
+                                    $('#<!--{$indicator.indicatorID|strip_tags}-->').trigger('change');
                                     $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('');
                                 }
                             });
