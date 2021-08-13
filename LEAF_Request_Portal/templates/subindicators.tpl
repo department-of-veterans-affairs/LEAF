@@ -342,6 +342,7 @@
             <span class="text">
                 <input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="background: url(../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="<!--{$indicator.value|sanitize}-->" />
                 <input class="ui-helper-hidden-accessible" id="focusfix" type="text" autofocus/>
+                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Incorrect Date</span>
             </span>
             <script>
             $(function() {
@@ -353,6 +354,30 @@
                     }
                 });
             });
+            formValidator["id<!--{$indicator.indicatorID}-->"] = {
+                setValidator: function() {
+                    let regex = new RegExp(/^(?:(?:(?:0?[13578]|1[02])(\/|-|\.)31)\1|(?:(?:0?[1,3-9]|1[0-2])(\/|-|\.)(?:29|30)\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:0?2(\/|-|\.)29\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:(?:0?[1-9])|(?:1[0-2]))(\/|-|\.)(?:0?[1-9]|1\d|2[0-8])\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/gm);
+                    return (regex.test($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                },
+                setSubmitValid: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_error').offset().top-50
+                    }, 700).clearQueue();
+                },
+                setValidatorError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '2px solid red');
+                    if($('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display') != 'none') {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
+                    }
+                    else {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
+                    }
+                },
+                setValidatorOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->').css('border', '1px solid gray');
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_error').hide('fade');
+                }
+            };
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
