@@ -535,8 +535,15 @@ class Form
         // prevent masked data from being output
         if ($form[$idx]['isMasked'])
         {
-            $form[$idx]['value'] = '[protected data]';
-            $form[$idx]['displayedValue'] = '[protected data]';
+            if (isset($data[0]['data'])
+                && ($data[0]['format'] == 'fileupload'
+                    || $data[0]['format'] == 'image')) {
+                $form[$idx]['value'] = $this->fileToArray('[protected data]');
+                $form[$idx]['displayedValue'] = $this->fileToArray('[protected data]');
+            } else {
+                $form[$idx]['value'] = '[protected data]';
+                $form[$idx]['displayedValue'] = '[protected data]';
+            }
         }
 
         // handle radio/checkbox options
@@ -3559,6 +3566,10 @@ class Form
                 {
                     $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '')
                                                 ? '[protected data]' : '';
+                    if ($field['format'] == 'fileupload'
+                        || $field['format'] == 'image') {
+                        $child[$idx]['displayedValue'] = $this->fileToArray('[protected data]');
+                    }
                     if(isset($child[$idx]['displayedValue']) && $child[$idx]['displayedValue'] != '') {
                         $child[$idx]['displayedValue'] = '[protected data]';
                     }

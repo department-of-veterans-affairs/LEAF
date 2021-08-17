@@ -5,12 +5,6 @@
 
 error_reporting(E_ALL & ~E_NOTICE);
 
-if (false)
-{
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
-    exit();
-}
-
 include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include 'Login.php';
@@ -36,12 +30,9 @@ unset($db_config);
 $login = new Login($db_phonebook, $db);
 
 $login->loginUser();
-if (!$login->isLogin() || !$login->isInDB())
-{
-    echo 'Session expired, please refresh the page.<br /><br />If this message persists, please contact your administrator.';
-    echo '<br />' . $login->getName();
-    echo '<br />' . $login->getUserID();
+if (!$login->isLogin() || !$login->isInDB()) {
     $login->logout(); // destroy current session tokens
+    header("Location: session_expire.php");
     exit;
 }
 
@@ -559,6 +550,7 @@ switch ($action) {
 
 $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
+$main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('orgchartPath', Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
