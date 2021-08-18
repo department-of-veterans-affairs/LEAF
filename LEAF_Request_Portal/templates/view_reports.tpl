@@ -1,9 +1,9 @@
 <style>
 /* 3 column grid */
-.group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
+.group:after, .section{clear:both} .section{padding:0;margin:0} .col{display:block;float:left;margin:1% 0 1% 1.6%} .col:first-child{margin-left:0} .group:after,.group:before{content:"";display:table} .group{zoom:1} .span_3_of_3{width:100%} .span_2_of_3{width:66.13%} .span_1_of_3{width:32.26%} @media only screen and (max-width:480px){ .col{margin:1% 0} .span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%} }
 </style>
 
-<div id="step_1" style="<!--{if $query !== '' && $indicators !== ''}-->display: none; <!--{/if}-->width: 600px; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
+<div id="step_1" style="<!--{if $query !== '' && $indicators !== ''}-->display: none; <!--{/if}-->width: 600px; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0">
     <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 1: Develop search filter
     </div>
@@ -12,14 +12,14 @@
     </div>
 </div>
 
-<div id="step_2" style="display: none; width: 95%; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
+<div id="step_2" style="display: none; width: 95%; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0">
     <div style="background-color: #0059a4; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 2: Select Data Columns
     </div>
     <div style="padding: 8px">
         <div id="indicatorList" class="section group" style="padding: 8px">Loading...</div>
         <br style="clear: both" />
-        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="../libs/dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
+        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="../libs/dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
     </div>
 </div>
 
@@ -36,10 +36,14 @@
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
-//jQuery objects
+//constant jQuery objects used multiple times
 const generateReport = $('#generateReport');
 const reportTitle = $('#reportTitle');
 const reportTitleDisplay = $('#reportTitleDisplay');
+const jqExportPath = $('#exportPath');
+const jqFormat = $('#format');
+const jqIndicatorList = $('#indicatorList');
+const jqExportFormat = $('#exportFormat');
 
 //Object.assign for IE
 if (typeof Object.assign !== 'function') {
@@ -113,11 +117,12 @@ function addHeader(column) {
 	    	leafSearch.getLeafFormQuery().join('categoryName');
             headers.push({
                 name: 'Type', indicatorID: 'type', editable: false, callback: function(data, blob) {
-                    let types = '';
-                    for(let i in blob[data.recordID].categoryNames) {
-                        types += blob[data.recordID].categoryNames[i] + ' | ';
-                    }
-                    types = types.substr(0, types.length - 3);
+                    let types = [];
+                    let arrCatNames = blob[data.recordID].categoryNames;
+                    arrCatNames.map(function(name){
+                        types.push(name + ' | ');
+                    });
+                    types = types.join('').slice(0, types.length - 3);
                     $('#'+data.cellContainerID).html(types);
                 }
             });
@@ -213,40 +218,52 @@ function addHeader(column) {
         case 'action_history':
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({
-                name: 'Comment History', indicatorID: 'action_history', editable: false, callback: function(data, blob) {
-                    let buffer = '<table style="min-width: 300px">';
-                    for(let i in blob[data.recordID].action_history) {
-                         let date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                         let formattedDate = date.toLocaleDateString();
-                         if(blob[data.recordID].action_history[i]['comment'] !== '') {
-                             buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
-                                + formattedDate + delim + '</td><td style="padding-left: 4px">' + blob[data.recordID].action_history[i]['comment'] + '.</td>'
-                                + delimLF + '</tr>';
-                         }
+                name: 'Comment History',
+                indicatorID: 'action_history',
+                editable: false,
+                callback: function(data, blob) {
+                    let blobActionHistory = blob[data.recordID].action_history;
+                    let buffer = ['<table style="min-width: 300px">'];
+                    if (blobActionHistory !== undefined) {
+                        blobActionHistory.map(function(history) {
+                            let date = new Date(history['time'] * 1000);
+                            let formattedDate = date.toLocaleDateString();
+                            if (history['comment'] !== '') {
+                                buffer.push('<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
+                                    + formattedDate + delim + '</td><td style="padding-left: 4px">' + history['comment'] + '.</td>'
+                                    + delimLF + '</tr>');
+                            }
+                        });
                     }
-                    buffer += '</table>';
-                    $('#'+data.cellContainerID).html(buffer);
+                    buffer.push('</table>');
+                    $('#'+data.cellContainerID).html(buffer.join(''));
                 }
             });
             break;
         case 'approval_history':
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({
-                name: 'Approval History', indicatorID: 'approval_history', editable: false, callback: function(data, blob) {
-                    let buffer = '<table class="table" style="min-width: 300px">';
-                    for(let i in blob[data.recordID].action_history) {
-                        let date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                        let formattedDate = date.toLocaleDateString();
-                        let actionDescription = blob[data.recordID].action_history[i]['description'] !== null ? blob[data.recordID].action_history[i]['description'] : '';
-                        buffer += '<tr><td>'
-                           + formattedDate + delim + '</td>'
-                           + '<td>' + actionDescription + delim  + '</td>'
-                           + '<td>' + blob[data.recordID].action_history[i]['actionTextPasttense'] + delim + '</td>'
-                           + '<td>' + blob[data.recordID].action_history[i]['approverName'] + '</td>'
-                           + delimLF + '</tr>';
+                name: 'Approval History',
+                indicatorID: 'approval_history',
+                editable: false,
+                callback: function(data, blob) {
+                    let blobActionHistory = blob[data.recordID].action_history;
+                    if (blobActionHistory !== undefined) {
+                        let buffer = ['<table class="table" style="min-width: 300px">'];
+                        blobActionHistory.map(function(history){
+                            let date = new Date(history['time'] * 1000);
+                            let formattedDate = date.toLocaleDateString();
+                            let actionDescription = history['description'] !== null ? history['description'] : '';
+                            buffer.push('<tr><td>'
+                                + formattedDate + delim + '</td>'
+                                + '<td>' + actionDescription + delim + '</td>'
+                                + '<td>' + history['actionTextPasttense'] + delim + '</td>'
+                                + '<td>' + history['approverName'] + '</td>'
+                                + delimLF + '</tr>');
+                        });
+                        buffer.push('</table>');
+                        $('#' + data.cellContainerID).html(buffer.join(''));
                     }
-                    buffer += '</table>';
-                    $('#'+data.cellContainerID).html(buffer);
                 }
             });
             break;
@@ -298,22 +315,22 @@ function addHeader(column) {
             break;
 	    default:
 	    	if(column.substr(0, 6) === 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
-	    		depID = column.substr(6);
+	    		let depID = column.substr(6);
 	    		tDepHeader[depID] = 0;
 	    		leafSearch.getLeafFormQuery().join('recordsDependencies');
 
 	            headers.push({
                     name: 'Checkpoint Date', indicatorID: column, editable: false, callback: function(depID) {
 	            	return function(data, blob) {
-	                    if(blob[data.recordID].recordsDependencies !== undefined
-	                    	&& blob[data.recordID].recordsDependencies[depID] !== undefined) {
-	                        let date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
+	            	    let blobData = blob[data.recordID].recordsDependencies;
+	                    if(blobData !== undefined && blobData[depID] !== undefined) {
+	                        let date = new Date(blobData[depID].time * 1000);
 	                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
 
 	                        if(tDepHeader[depID] === 0) {
-	                        	headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
-	                            $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
-	                            $('#Vheader_' + column).html(blob[data.recordID].recordsDependencies[depID].description);
+	                        	let headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
+	                            $('#' + headerID).html(blobData[depID].description);
+	                            $('#Vheader_' + column).html(blobData[depID].description);
 	                        	tDepHeader[depID] = 1;
 	                        }
 	                    }
@@ -334,7 +351,7 @@ function addHeader(column) {
                             $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
 
                             if(tStepHeader[stepID] === 0) {
-                                headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
+                                let headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
                                 $('#' + headerID).html(blob[data.recordID].stepFulfillment[stepID].step);
                                 $('#Vheader_' + column).html(blob[data.recordID].stepFulfillment[stepID].step);
                                 tStepHeader[stepID] = 1;
@@ -347,8 +364,9 @@ function addHeader(column) {
 	}
 }
 
-let resIndicatorList = new Object();
+let resIndicatorList = { };
 let searchPrereqsLoaded = false;
+let resSelectList = [];
 function loadSearchPrereqs() {
 	if(searchPrereqsLoaded === true) {
 		return;
@@ -359,62 +377,62 @@ function loadSearchPrereqs() {
         url: './api/?a=form/indicator/list',
         dataType: 'json',
         success: function(res) {
-            let buffer = '';
-
+            let buffer = [];
             // special columns
-            buffer += '<div class="col span_1_of_3">';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_title" name="indicators[title]" value="title" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_title"> Title of Request</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_service" name="indicators[service]" value="service" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_service"> Service</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_type" name="indicators[type]" value="type" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_type"> Type of Request</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_status" name="indicators[status]" value="status" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_status"> Current Status</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_initiator" name="indicators[initiator]" value="initiator" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_initiator"> Initiator</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_actionButton" name="indicators[actionButton]" value="actionButton" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_actionButton"> Action Button</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_action_history" name="indicators[action_history]" value="action_history" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_action_history"> Comment History</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_approval_history"> Approval History</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_action"> Days Since Last Action</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_step_movement"> Days Since Last Step Movement</label></div>';
-            buffer += '</div>';
-            let groupList = new Object(); //
+            buffer.push('<div class="col span_1_of_3">');
+            buffer.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_title" name="indicators[title]" value="title" />');
+            buffer.push('<label class="checkable" style="width: 100px" for="indicators_title"> Title of Request</label></div>');
+            buffer.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_service" name="indicators[service]" value="service" />');
+            buffer.push('<label class="checkable" style="width: 100px" for="indicators_service"> Service</label></div>');
+            buffer.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_type" name="indicators[type]" value="type" />');
+            buffer.push('<label class="checkable" style="width: 100px" for="indicators_type"> Type of Request</label></div>');
+            buffer.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_status" name="indicators[status]" value="status" />');
+            buffer.push('<label class="checkable" style="width: 100px" for="indicators_status"> Current Status</label></div>');
+            buffer.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_initiator" name="indicators[initiator]" value="initiator" />');
+            buffer.push('<label class="checkable" style="width: 100px" for="indicators_initiator"> Initiator</label></div>');
+            buffer.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_actionButton" name="indicators[actionButton]" value="actionButton" />');
+            buffer.push('<label class="checkable" style="width: 100px" for="indicators_actionButton"> Action Button</label></div>');
+            buffer.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_action_history" name="indicators[action_history]" value="action_history" />');
+            buffer.push('<label class="checkable" style="width: 100px" for="indicators_action_history"> Comment History</label></div>');
+            buffer.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" />');
+            buffer.push('<label class="checkable" style="width: 100px" for="indicators_approval_history"> Approval History</label></div>');
+            buffer.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" />');
+            buffer.push('<label class="checkable" style="width: 100px" for="indicators_days_since_last_action"> Days Since Last Action</label></div>');
+            buffer.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" />');
+            buffer.push('<label class="checkable" style="width: 100px" for="indicators_days_since_last_step_movement"> Days Since Last Step Movement</label></div>');
+            buffer.push('</div>');
+            let groupList = { };
             let groupNames = [];
-            let groupIDmap = new Object();
+            let groupIDmap = { };
             let tmp = document.createElement('div');
             let temp;
-            for(let i in res) {
-                if (res.hasOwnProperty(i)) {
-                    temp = res[i].name;
-                    tmp.innerHTML = temp;
-                    temp = tmp.textContent || tmp.innerText || '';
-                    temp = temp.replace(/[^\040-\176]/g, '');
 
-                    resIndicatorList[res[i].indicatorID] = temp;
+            res.map(function(indicator) {
+                temp = indicator.name;
+                tmp.innerHTML = temp;
+                temp = tmp.textContent || tmp.innerText || '';
+                temp = temp.replace(/[^\040-\176]/g, '');
 
-                    if (groupList[res[i].categoryID] === undefined) {
-                        groupList[res[i].categoryID] = [];
-                    }
-                    groupList[res[i].categoryID].push(res[i].indicatorID);
-                    if (groupIDmap[res[i].categoryID] === undefined) {
-                        groupNames.push({categoryID: res[i].categoryID,
-                        categoryName: res[i].categoryName});
-                        groupIDmap[res[i].categoryID] = {};
-                        groupIDmap[res[i].categoryID].categoryName = res[i].categoryName;
-                        groupIDmap[res[i].categoryID].categoryID = res[i].categoryID;
-                        groupIDmap[res[i].categoryID].parentCategoryID = res[i].parentCategoryID;
-                        groupIDmap[res[i].categoryID].parentStaples = res[i].parentStaples;
-                    }
+                resIndicatorList[indicator.indicatorID] = temp;
+
+                if (groupList[indicator.categoryID] === undefined) {
+                    groupList[indicator.categoryID] = [];
                 }
-            }
-
-            buffer += '<div class="col span_1_of_3">';
+                groupList[indicator.categoryID].push(indicator.indicatorID);
+                if (groupIDmap[indicator.categoryID] === undefined) {
+                    groupNames.push({
+                        categoryID: indicator.categoryID,
+                        categoryName: indicator.categoryName
+                    });
+                    groupIDmap[indicator.categoryID] = { };
+                    groupIDmap[indicator.categoryID].categoryName = indicator.categoryName;
+                    groupIDmap[indicator.categoryID].categoryID = indicator.categoryID;
+                    groupIDmap[indicator.categoryID].parentCategoryID = indicator.parentCategoryID;
+                    groupIDmap[indicator.categoryID].parentStaples = indicator.parentStaples;
+                    groupIDmap[indicator.categoryID].format = indicator.format;
+                }
+            });
+            buffer.push('<div class="col span_1_of_3">');
 
             groupNames.sort(function(a, b) {
                 a = a.categoryName.toLowerCase();
@@ -427,7 +445,6 @@ function loadSearchPrereqs() {
                 }
                 return 0;
             });
-
             for(let k in groupNames) {
                 let i = groupNames[k].categoryID;
                 let associatedCategories = groupIDmap[i].categoryID;
@@ -439,30 +456,30 @@ function loadSearchPrereqs() {
                         associatedCategories += ' ' + groupIDmap[i].parentStaples[j];
                     }
                 }
-
                 let categoryLabel = groupNames[k].categoryName;
                 if(groupIDmap[i].parentCategoryID !== '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
                     categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
-                buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
+                buffer.push('<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>');
                 for(let j in groupList[i]) {
-                    buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
-                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
+                    if (groupList[i].hasOwnProperty(j)) {
+                        buffer.push('<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_' + groupList[i][j] + '" name="indicators[' + groupList[i][j] + ']" value="' + groupList[i][j] + '" />');
+                        buffer.push('<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '" title="indicatorID: ' + groupList[i][j] + '\n' + resIndicatorList[groupList[i][j]] + '" alt="indicatorID: ' + groupList[i][j] + '"> ' + resIndicatorList[groupList[i][j]] + '</label></div>');
+                    }
                 }
-                buffer += '</div>';
+                buffer.push('</div>');
             }
 
-            buffer += '</div>';
+            buffer.push('</div>');
 
-            $('#indicatorList').html(buffer);
-
-            $('#indicatorList').css('height', $(window).height() - 240);
+            jqIndicatorList.html(buffer.join('')).css('height', $(window).height() - 240);
             $('.form').on('click', function() {
             	$(this).children('.formLabel').removeClass('buttonNorm');
             	$(this).find('.formLabel>img').css('display', 'none');
             	$(this).css({width: '100%'});
             	$(this).children('div').css('display', 'block');
-            	$(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
+            	$(this).children('.formLabel').css({
+                    'border-bottom': '1px solid #e0e0e0',
             		'font-weight': 'bold'});
             });
 
@@ -471,42 +488,42 @@ function loadSearchPrereqs() {
             	url: './api/workflow/steps',
             	dataType: 'json',
             	success: function(res) {
-                    buffer = '';
-                    buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
+                    buffer = [];
+                    buffer.push('<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>');
                     for(let i in res) {
-                        buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />';
-                        buffer += '<label class="checkable" style="width: 100px" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'"> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
+                        buffer.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />');
+                        buffer.push('<label class="checkable" style="width: 100px" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'"> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>');
                     }
-                    buffer += '<div id="legacyDependencies"></div>'; // backwards compat
-                    buffer += '</div>';
+                    buffer.push('<div id="legacyDependencies"></div>'); // backwards compat
+                    buffer.push('</div>');
 
-                    $('#indicatorList').append(buffer);
+                    jqIndicatorList.append(buffer.join(''));
 
                     $.ajax({
                         type: 'GET',
                         url: './api/?a=workflow/dependencies',
                         dataType: 'json',
                         success: function(res) {
-                            buffer2 = '';
-                            buffer2 += '<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>';
+                            let buffer2 = [];
+                            buffer2.push('<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>');
 
                             // Option to retrieve Date Request Initiated / Resolved
-                            buffer2 += '<div id="option_dateCancelled" class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" />';
-                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateCancelled" title="Date request Cancelled"> Date Request Cancelled</label></div>';
-                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" />';
-                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Date Request Initiated</label></div>';
-                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" />';
-                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateResolved" title="Date request resolved"> Date Request Resolved</label></div>';
-                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" />';
-                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_resolvedBy" title="Resolved By"> Resolved By</label></div>';
+                            buffer2.push('<div id="option_dateCancelled" class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" />');
+                            buffer2.push('<label class="checkable" style="width: 100px" for="indicators_dateCancelled" title="Date request Cancelled"> Date Request Cancelled</label></div>');
+                            buffer2.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" />');
+                            buffer2.push('<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Date Request Initiated</label></div>');
+                            buffer2.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" />');
+                            buffer2.push('<label class="checkable" style="width: 100px" for="indicators_dateResolved" title="Date request resolved"> Date Request Resolved</label></div>');
+                            buffer2.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" />');
+                            buffer2.push('<label class="checkable" style="width: 100px" for="indicators_resolvedBy" title="Resolved By"> Resolved By</label></div>');
 
                             for(let i in res) {
-                                buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
-                                buffer2 += '<label class="checkable" style="width: 100px" for="indicators_depID_'+ res[i].dependencyID +'"> ' + res[i].description +'</label></div>';
+                                buffer2.push('<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />');
+                                buffer2.push('<label class="checkable" style="width: 100px" for="indicators_depID_'+ res[i].dependencyID +'"> ' + res[i].description +'</label></div>');
                             }
-                            buffer2 += '</div>';
+                            buffer2.push('</div>');
 
-                            $('#legacyDependencies').append(buffer2);
+                            $('#legacyDependencies').append(buffer2.join(''));
 
                             // write buffer and finalize view
                             //$('#indicatorList').append(buffer);
@@ -521,7 +538,6 @@ function loadSearchPrereqs() {
                                 // pre-select defaults
                                 $('#indicators_title').prop('checked', true);
                             }
-
                             $('.icheck').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
                         }
                     });
@@ -532,9 +548,8 @@ function loadSearchPrereqs() {
     });
 }
 
-//loop through headers array, and if its ID exists as a key on
-//the gridColor data object, updates background and text color
-//called at Edit Label's 'save' and report page load
+//loop through headers array, and if its ID exists as a key on the gridColor data object
+//updates background and text color called at Edit Label's 'save' and report page load
 function updateHeaderColors(){
     headers.forEach(function(header) {
         if (gridColorData.hasOwnProperty(header.indicatorID)) {
@@ -574,10 +589,10 @@ function editLabels_up(id) {
     row.prev().before(row);
 }
 
+
 function editLabels() {
 	dialog.setTitle('Edit Labels');
-
-	let buffer = '<table id="labelSorter">';
+	let buffer = ['<table id="labelSorter">'];
 
 	if (Object.keys(indicatorSort).length !== 0) {
 		resSelectList.sort(function(a, b) {
@@ -596,14 +611,14 @@ function editLabels() {
 
 	for(let i in resSelectList) {
 		if(resIndicatorList[resSelectList[i]] !== undefined) {
-			buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
-			buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" alt="edit labels down"/></button> ';
-			buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" alt="edit labels up"/></button>';
-            buffer += '<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 16px; margin: 0 2px;" /></td></tr>';
+			buffer.push('<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"/></td>');
+			buffer.push('<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" alt="edit labels down"/></button> ');
+			buffer.push('<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" alt="edit labels up"/></button>');
+            buffer.push('<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 16px; margin: 0 2px;" /></td></tr>');
 		}
 	}
-	buffer += '</table>';
-    dialog.setContent(buffer);
+	buffer.push('</table>');
+    dialog.setContent(buffer.join(''));
     dialog.show();
 
     for (let i in resSelectList){
@@ -637,7 +652,7 @@ function editLabels() {
             	resIndicatorList[resSelectList[i]] = temp;
             }
         }
-        gridColorData = Object.assign({}, tempColorData);
+        gridColorData = Object.assign({ }, tempColorData);
         if(Object.keys(gridColorData).length !== 0) {
             updateHeaderColors();
             let baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
@@ -658,15 +673,17 @@ function editLabels() {
 function isSearchingDeleted(searchObj) {
     // check if the user explicitly wants to find deleted requests
     let t = searchObj.getLeafFormQuery().getQuery();
-    for(let i in t.terms) {
-        if(t.terms[i].id === 'stepID'
-            && t.terms[i].match === 'deleted'
-            && t.terms[i].operator === '=') {
-
-            return true;
-        }
-    }
-    return false;
+    return t.terms.every(function(term){
+        return term.id === 'stepID' && term.match === 'deleted' && term.operator === '=';
+    });
+    // for(let i in t.terms) {
+    //     if(t.terms[i].id === 'stepID'
+    //         && t.terms[i].match === 'deleted'
+    //         && t.terms[i].operator === '=') {
+    //         return true;
+    //     }
+    // }
+    //return false;
 }
 
 function sortHeaders(a, b) {
@@ -745,40 +762,40 @@ function showJSONendpoint() {
 
     function setExportFormat() {
         if($('#shortenLink').css('display') === 'none') {
-            $('#exportFormat').html('?');
+            jqExportFormat.html('?');
         }
         else {
-            $('#exportFormat').html('&');
+            jqExportFormat.html('&');
         }
 
 
-        switch($('#format').val()) {
+        switch(jqFormat.val()) {
             case 'json':
-                $('#exportFormat').html('');
+                jqExportFormat.html('');
                 break;
             default:
-                $('#exportFormat').append('format=' + $('#format').val());
-                $("#formatStatus").show().text("Format changed to " + $('#format').val());
+                jqExportFormat.append('format=' + jqFormat.val());
+                $("#formatStatus").show().text("Format changed to " + jqFormat.val());
                 $("#formatStatus").fadeOut(3000);
                 break;
         }
     }
 
-    $('#format').on('change', function() {
+    jqFormat.on('change', function() {
         setExportFormat();
     });
 
     $('#expandLink').on('click', function() {
         $('#expandLink').css('display', 'none');
         $('#shortenLink').css('display', 'inline');
-        $('#exportPath').html(jsonPath);
-        $('#exportPath').off();
+        jqExportPath.html(jsonPath);
+        jqExportPath.off();
         setExportFormat();
     });
 
     $('#shortenLink').on('click', function() {
         $('#shortenLink').css('display', 'none');
-        $('#exportPath').on('focus', function() {
+        jqExportPath.on('focus', function() {
 		    document.execCommand("selectAll", false, null);
 	    });
         $.ajax({
@@ -788,10 +805,10 @@ function showJSONendpoint() {
                 CSRFToken: CSRFToken}
         })
         .then(function(res) {
-            $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
-           if($('#msCompatMode').is(':checked')) {
+            jqExportPath.html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
+            if($('#msCompatMode').is(':checked')) {
                 $('#expandLink').css('display', 'none');
-                $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res);
+                jqExportPath.html(powerQueryURL + 'api/open/form/query/_' + res);
             }
             else {
                 $('#expandLink').css('display', 'inline');
@@ -882,10 +899,10 @@ let headers = [];
 let t_inIndicators;
 let isNewQuery = false;
 let dialog, dialog_message;
-let indicatorSort = new Object(); // object = indicatorID : sortID
+let indicatorSort = { }; // object = indicatorID : sortID
 let grid;
-let gridColorData = new Object(); //object updated with id: color
-let tempColorData = new Object(); //object updated with id: color
+let gridColorData = { }; //object updated with id: color
+let tempColorData = { }; //object updated with id: color
 
 const version = 3;
 /* URL formats
@@ -979,7 +996,7 @@ $(function() {
             leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
         }
     	selectedIndicators = [];
-    	resSelectList = [];
+        resSelectList = [];
     	$('.icheck:checked').each(function() {
     		resSelectList.push(this.value);
     	});
@@ -996,7 +1013,7 @@ $(function() {
             return 0;
         });
     	for(let i in resSelectList) {
-            let temp = new Object();
+            let temp = { };
             temp.indicatorID = resSelectList[i];
             temp.name = resIndicatorList[temp.indicatorID] !== undefined ? resIndicatorList[temp.indicatorID] : '';
             temp.sort = indicatorSort[temp.indicatorID] === undefined ? 0 : indicatorSort[temp.indicatorID];
@@ -1020,14 +1037,12 @@ $(function() {
     	grid.setHeaders(headers);
 
     	leafSearch.getLeafFormQuery().onSuccess(function(res) {
-            grid.setDataBlob(res);
-
+            grid.setDataBlob(res); //
             // this replaces grid.loadData()
             let tGridData = [];
             for(let i in res) {
                 tGridData.push(res[i]);
             }
-
             if(<!--{$version}--> >= 3) {
                 grid.setData(tGridData);
                 grid.sort('recordID', 'desc');
@@ -1175,7 +1190,7 @@ $(function() {
         	}
         	inIndicators = [];
         	for(let i in t_inIndicators) {
-        		let temp = new Object();
+        		let temp = { };
                 if($.isNumeric(t_inIndicators[i].indicatorID)) {
                     temp.indicatorID = parseInt(t_inIndicators[i].indicatorID);
                     temp.name = t_inIndicators[i].name.replace(/[^\040-\176]/g, '');
