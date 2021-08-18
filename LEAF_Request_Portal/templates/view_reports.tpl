@@ -3,7 +3,7 @@
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
 </style>
 
-<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: 600px; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
+<div id="step_1" style="<!--{if $query !== '' && $indicators !== ''}-->display: none; <!--{/if}-->width: 600px; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
     <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 1: Develop search filter
     </div>
@@ -32,15 +32,40 @@
 <div id="results" style="display: none">Loading...</div>
 
 
-
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
+//jQuery objects
+const generateReport = $('#generateReport');
+const reportTitle = $('#reportTitle');
+const reportTitleDisplay = $('#reportTitleDisplay');
+
+//Object.assign for IE
+if (typeof Object.assign !== 'function') {
+    Object.assign = function(target) {
+        'use strict';
+        if (target === null) {
+            throw new TypeError('Cannot convert undefined or null to object');
+        }
+        target = Object(target);
+        for (let index = 1; index < arguments.length; index++) {
+            let source = arguments[index];
+            if (source !== null) {
+                for (let key in source) {
+                    if (Object.prototype.hasOwnProperty.call(source, key)) {
+                        target[key] = source[key];
+                    }
+                }
+            }
+        }
+        return target;
+    };
+}
+
 
 function loadWorkflow(recordID, prefixID) {
     dialog_message.setTitle('Apply Action to #' + recordID);
-
     currRecordID = recordID;
     dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
     workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
@@ -53,160 +78,184 @@ function loadWorkflow(recordID, prefixID) {
 }
 
 function prepareEmail(link) {
-	mailtoHref = 'mailto:?subject=Report%20for&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
+	let mailtoHref = 'mailto:?subject=Report%20for&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
     $('body').append($('<iframe id="ie9workaround" style="display:none;" src="' + mailtoHref + '"/>'));
 }
 
-var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help Excel users
-var delimLF = "\r\n";
-var tDepHeader = [];
-var tStepHeader = [];
+const delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help Excel users
+const delimLF = "\r\n";
+let tDepHeader = [];
+let tStepHeader = [];
 let categoryID = 'strCatID';
 
 function addHeader(column) {
-    var today = new Date();
+    let today = new Date();
 	switch(column) {
 	    case 'title':
-	    	headers.push({name: 'Title', indicatorID: 'title', callback: function(data, blob) {
-                            $('#'+data.cellContainerID).html(blob[data.recordID].title);
-                            $('#'+data.cellContainerID).on('click', function(){
-                                    changeTitle(data, $('#'+data.cellContainerID).html());
-                            });
-                         }});
+	    	headers.push({
+                name: 'Title', indicatorID: 'title', callback: function(data, blob) {
+                    $('#'+data.cellContainerID)
+                        .html(blob[data.recordID].title)
+                        .on('click', function(){
+                            changeTitle(data, $('#'+data.cellContainerID).html());
+                    });
+                }
+            });
 		    break;
 	    case 'service':
-            headers.push({name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
-                             $('#'+data.cellContainerID).html(blob[data.recordID].service);
-                         }});
+            headers.push({
+                name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
+                    $('#'+data.cellContainerID).html(blob[data.recordID].service);
+                }
+            });
             break;
 	    case 'type':
 	    	leafSearch.getLeafFormQuery().join('categoryName');
-            headers.push({name: 'Type', indicatorID: 'type', editable: false, callback: function(data, blob) {
-                             let types = '';
-                             for(let i in blob[data.recordID].categoryNames) {
-                                 types += blob[data.recordID].categoryNames[i] + ' | ';
-                             }
-                             types = types.substr(0, types.length - 3);
-                             $('#'+data.cellContainerID).html(types);
-                         }});
+            headers.push({
+                name: 'Type', indicatorID: 'type', editable: false, callback: function(data, blob) {
+                    let types = '';
+                    for(let i in blob[data.recordID].categoryNames) {
+                        types += blob[data.recordID].categoryNames[i] + ' | ';
+                    }
+                    types = types.substr(0, types.length - 3);
+                    $('#'+data.cellContainerID).html(types);
+                }
+            });
             break;
 	    case 'status':
 	    	leafSearch.getLeafFormQuery().join('status');
-            headers.push({name: 'Current Status', indicatorID: 'status', editable: false, callback: function(data, blob) {
-                             var status = blob[data.recordID].stepTitle == null ? blob[data.recordID].lastStatus : 'Pending ' + blob[data.recordID].stepTitle;
-                             status = status == 'null' ? 'Not Submitted' : status;
-                             if(blob[data.recordID].deleted > 0) {
-                            	 status += ', Cancelled';
-                             }
-                             $('#'+data.cellContainerID).html(status);
-                         }});
+            headers.push({
+                name: 'Current Status', indicatorID: 'status', editable: false, callback: function(data, blob) {
+                    let status = blob[data.recordID].stepTitle === null ? blob[data.recordID].lastStatus : 'Pending ' + blob[data.recordID].stepTitle;
+                    status = status === 'null' ? 'Not Submitted' : status;
+                    if(blob[data.recordID].deleted > 0) {
+                        status += ', Cancelled';
+                    }
+                    $('#'+data.cellContainerID).html(status);
+                }
+            });
             break;
         case 'initiator':
         	leafSearch.getLeafFormQuery().join('initiatorName');
-            headers.push({name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
-            	$('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
-            }});
+            headers.push({
+                name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
+                    $('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
+                }
+            });
             break;
         case 'dateCancelled':
             leafSearch.getLeafFormQuery().join('action_history');
-            headers.push({name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].deleted > 0) {
-                    var date = new Date(blob[data.recordID].deleted * 1000);
-                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-                }
-            }});
-            headers.push({name: 'Cancelled By', indicatorID: 'cancelledBy', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].action_history != undefined) {
-                    var cancelData = blob[data.recordID].action_history.pop();
-                    if(cancelData.actionType == 'deleted') {
-                        $('#'+data.cellContainerID).html(cancelData.approverName);
+            headers.push({
+                name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
+                    if(blob[data.recordID].deleted > 0) {
+                        let date = new Date(blob[data.recordID].deleted * 1000);
+                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
                     }
                 }
-            }});
+            });
+            headers.push({
+                name: 'Cancelled By', indicatorID: 'cancelledBy', editable: false, callback: function(data, blob) {
+                    if(blob[data.recordID].action_history !== undefined) {
+                        let cancelData = blob[data.recordID].action_history.pop();
+                        if(cancelData.actionType === 'deleted') {
+                            $('#'+data.cellContainerID).html(cancelData.approverName);
+                        }
+                    }
+                }
+            });
             break;
         case 'dateInitiated':
-            headers.push({name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
-                var date = new Date(blob[data.recordID].date * 1000);
-                $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-            }});
+            headers.push({
+                name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
+                    let date = new Date(blob[data.recordID].date * 1000);
+                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                }
+            });
             break;
         case 'dateResolved':
             leafSearch.getLeafFormQuery().join('recordResolutionData');
-            headers.push({name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].recordResolutionData != undefined) {
-                    var date = new Date(blob[data.recordID].recordResolutionData.fulfillmentTime * 1000);
-                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+            headers.push({
+                name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
+                    if(blob[data.recordID].recordResolutionData !== undefined) {
+                        let date = new Date(blob[data.recordID].recordResolutionData.fulfillmentTime * 1000);
+                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                    }
                 }
-            }});
-            headers.push({name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].recordResolutionData != undefined) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
+            });
+            headers.push({
+                name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
+                    if(blob[data.recordID].recordResolutionData !== undefined) {
+                        $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
+                    }
                 }
-            }});
+            });
             break;
         case 'resolvedBy':
             leafSearch.getLeafFormQuery().join('recordResolutionBy');
-            headers.push({name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].recordResolutionBy != undefined) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
+            headers.push({
+                name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
+                    if(blob[data.recordID].recordResolutionBy !== undefined) {
+                        $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
+                    }
                 }
-            }});
+            });
             break;
         case 'actionButton':
-        	headers.unshift({name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
-                $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
-                $('#'+data.cellContainerID).on('click', function() {
-                    loadWorkflow(data.recordID, grid.getPrefixID());
-                });
-        	}});
+        	headers.unshift({
+                name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
+                    $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>')
+                        .on('click', function() {
+                            loadWorkflow(data.recordID, grid.getPrefixID());
+                    });
+                }
+            });
         	break;
         case 'action_history':
             leafSearch.getLeafFormQuery().join('action_history');
-            headers.push({name: 'Comment History', indicatorID: 'action_history', editable: false, callback: function(data, blob) {
-                             var buffer = '<table style="min-width: 300px">';
-                             var now = new Date();
-
-                             for(let i in blob[data.recordID].action_history) {
-                            	 var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                                 var formattedDate = date.toLocaleDateString();
-                                 if(blob[data.recordID].action_history[i]['comment'] != '') {
-                                     buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
-                                        + formattedDate + delim + '</td><td style="padding-left: 4px">' + blob[data.recordID].action_history[i]['comment'] + '.</td>'
-                                        + delimLF + '</tr>';
-                                 }
-                             }
-                             buffer += '</table>';
-                             $('#'+data.cellContainerID).html(buffer);
-                         }});
+            headers.push({
+                name: 'Comment History', indicatorID: 'action_history', editable: false, callback: function(data, blob) {
+                    let buffer = '<table style="min-width: 300px">';
+                    for(let i in blob[data.recordID].action_history) {
+                         let date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
+                         let formattedDate = date.toLocaleDateString();
+                         if(blob[data.recordID].action_history[i]['comment'] !== '') {
+                             buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
+                                + formattedDate + delim + '</td><td style="padding-left: 4px">' + blob[data.recordID].action_history[i]['comment'] + '.</td>'
+                                + delimLF + '</tr>';
+                         }
+                    }
+                    buffer += '</table>';
+                    $('#'+data.cellContainerID).html(buffer);
+                }
+            });
             break;
         case 'approval_history':
             leafSearch.getLeafFormQuery().join('action_history');
-            headers.push({name: 'Approval History', indicatorID: 'approval_history', editable: false, callback: function(data, blob) {
-                             var buffer = '<table class="table" style="min-width: 300px">';
-                             var now = new Date();
-
-                             for(let i in blob[data.recordID].action_history) {
-                                 var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                                 var formattedDate = date.toLocaleDateString();
-                                 var actionDescription = blob[data.recordID].action_history[i]['description'] != null ? blob[data.recordID].action_history[i]['description'] : '';
-                                 buffer += '<tr><td>'
-                                       + formattedDate + delim + '</td>'
-                                       + '<td>' + actionDescription + delim  + '</td>'
-                                       + '<td>' + blob[data.recordID].action_history[i]['actionTextPasttense'] + delim + '</td>'
-                                       + '<td>' + blob[data.recordID].action_history[i]['approverName'] + '</td>'
-                                	   + delimLF + '</tr>';
-                             }
-                             buffer += '</table>';
-                             $('#'+data.cellContainerID).html(buffer);
-                         }});
+            headers.push({
+                name: 'Approval History', indicatorID: 'approval_history', editable: false, callback: function(data, blob) {
+                    let buffer = '<table class="table" style="min-width: 300px">';
+                    for(let i in blob[data.recordID].action_history) {
+                        let date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
+                        let formattedDate = date.toLocaleDateString();
+                        let actionDescription = blob[data.recordID].action_history[i]['description'] !== null ? blob[data.recordID].action_history[i]['description'] : '';
+                        buffer += '<tr><td>'
+                           + formattedDate + delim + '</td>'
+                           + '<td>' + actionDescription + delim  + '</td>'
+                           + '<td>' + blob[data.recordID].action_history[i]['actionTextPasttense'] + delim + '</td>'
+                           + '<td>' + blob[data.recordID].action_history[i]['approverName'] + '</td>'
+                           + delimLF + '</tr>';
+                    }
+                    buffer += '</table>';
+                    $('#'+data.cellContainerID).html(buffer);
+                }
+            });
             break;
         case 'days_since_last_action':
         case 'days_since_last_step_movement':
             leafSearch.getLeafFormQuery().join('action_history');
             leafSearch.getLeafFormQuery().join('stepFulfillmentOnly');
-
-            let headerName = (column == 'days_since_last_action') ? 'Days Since Last Action' : 'Days Since Last Workflow Change';
-            let indicatorIDName = (column == 'days_since_last_action') ? 'daysSinceLastAction' : 'daysSinceLastStepMovement';
+            let headerName = (column === 'days_since_last_action') ? 'Days Since Last Action' : 'Days Since Last Workflow Change';
+            let indicatorIDName = (column === 'days_since_last_action') ? 'daysSinceLastAction' : 'daysSinceLastStepMovement';
             headers.push({
                 name: headerName,
                 indicatorID: indicatorIDName,
@@ -214,21 +263,21 @@ function addHeader(column) {
                 callback: function(data, blob) {
                     let daysSinceAction;
                     let recordBlob = blob[data.recordID];
-                    if(recordBlob.action_history != undefined) {
+                    if(recordBlob.action_history !== undefined) {
                         // Get Last Action no matter what (could change for non-comment)
                         let lastActionRecord = recordBlob.action_history.length - 1;
                         let lastAction = recordBlob.action_history[lastActionRecord];
                         let date = new Date(lastAction.time * 1000);
 
                         // We want to get date of last non-comment action so let's roll
-                        if (column == 'days_since_last_step_movement') {
+                        if (column === 'days_since_last_step_movement') {
                             // Already have date we need if
                             //  1) Only submit
                             //  2) Last action was a manual step move
                             //  3) No records in Step Fulfillment - Completed
                             if ( (lastActionRecord > 0)
-                                && (lastAction.stepID != 0 && lastAction.dependencyID != 0 && lastAction.actionType != 'move')
-                                && (recordBlob.stepFulfillmentOnly != undefined)
+                                && (lastAction.stepID !== 0 && lastAction.dependencyID !== 0 && lastAction.actionType !== 'move')
+                                && (recordBlob.stepFulfillmentOnly !== undefined)
                             ) {
                                 // Newest addition to Step Fulfillment table is date we need
                                 let lastStep = recordBlob.stepFulfillmentOnly[0];
@@ -236,7 +285,7 @@ function addHeader(column) {
                             }
                         }
                         daysSinceAction = Math.round((today.getTime() - date.getTime()) / 86400000);
-                        if(recordBlob.submitted == 0) {
+                        if(recordBlob.submitted === 0) {
                             daysSinceAction = "Not Submitted";
                         }
                     }
@@ -248,19 +297,20 @@ function addHeader(column) {
             });
             break;
 	    default:
-	    	if(column.substr(0, 6) == 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
+	    	if(column.substr(0, 6) === 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
 	    		depID = column.substr(6);
 	    		tDepHeader[depID] = 0;
 	    		leafSearch.getLeafFormQuery().join('recordsDependencies');
 
-	            headers.push({name: 'Checkpoint Date', indicatorID: column, editable: false, callback: function(depID) {
+	            headers.push({
+                    name: 'Checkpoint Date', indicatorID: column, editable: false, callback: function(depID) {
 	            	return function(data, blob) {
-	                    if(blob[data.recordID].recordsDependencies != undefined
-	                    	&& blob[data.recordID].recordsDependencies[depID] != undefined) {
-	                        var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
+	                    if(blob[data.recordID].recordsDependencies !== undefined
+	                    	&& blob[data.recordID].recordsDependencies[depID] !== undefined) {
+	                        let date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
 	                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
 
-	                        if(tDepHeader[depID] == 0) {
+	                        if(tDepHeader[depID] === 0) {
 	                        	headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
 	                            $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
 	                            $('#Vheader_' + column).html(blob[data.recordID].recordsDependencies[depID].description);
@@ -270,19 +320,20 @@ function addHeader(column) {
 	            	}
                 }(depID)});
 	    	}
-            if(column.substr(0, 7) == 'stepID_') { // approval dates based on workflow steps
-                stepID = column.substr(7);
+            if(column.substr(0, 7) === 'stepID_') { // approval dates based on workflow steps
+                let stepID = column.substr(7);
                 tStepHeader[stepID] = 0;
                 leafSearch.getLeafFormQuery().join('stepFulfillment');
 
-                headers.push({name: 'Checkpoint Date', indicatorID: column, editable: false, callback: function(stepID) {
+                headers.push({
+                    name: 'Checkpoint Date', indicatorID: column, editable: false, callback: function(stepID) {
                     return function(data, blob) {
-                        if(blob[data.recordID].stepFulfillment != undefined
-                            && blob[data.recordID].stepFulfillment[stepID] != undefined) {
-                            var date = new Date(blob[data.recordID].stepFulfillment[stepID].time * 1000);
+                        if(blob[data.recordID].stepFulfillment !== undefined
+                            && blob[data.recordID].stepFulfillment[stepID] !== undefined) {
+                            let date = new Date(blob[data.recordID].stepFulfillment[stepID].time * 1000);
                             $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
 
-                            if(tStepHeader[stepID] == 0) {
+                            if(tStepHeader[stepID] === 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
                                 $('#' + headerID).html(blob[data.recordID].stepFulfillment[stepID].step);
                                 $('#Vheader_' + column).html(blob[data.recordID].stepFulfillment[stepID].step);
@@ -296,10 +347,10 @@ function addHeader(column) {
 	}
 }
 
-var resIndicatorList = {};
-var searchPrereqsLoaded = false;
+let resIndicatorList = new Object();
+let searchPrereqsLoaded = false;
 function loadSearchPrereqs() {
-	if(searchPrereqsLoaded == true) {
+	if(searchPrereqsLoaded === true) {
 		return;
 	}
 	searchPrereqsLoaded = true;
@@ -308,7 +359,7 @@ function loadSearchPrereqs() {
         url: './api/?a=form/indicator/list',
         dataType: 'json',
         success: function(res) {
-            var buffer = '';
+            let buffer = '';
 
             // special columns
             buffer += '<div class="col span_1_of_3">';
@@ -333,31 +384,33 @@ function loadSearchPrereqs() {
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_step_movement"> Days Since Last Step Movement</label></div>';
             buffer += '</div>';
-            var groupList = {};
-            var groupNames = [];
-            var groupIDmap = {};
-            var tmp = document.createElement('div');
-            var temp;
+            let groupList = new Object(); //
+            let groupNames = [];
+            let groupIDmap = new Object();
+            let tmp = document.createElement('div');
+            let temp;
             for(let i in res) {
-                temp = res[i].name;
-                tmp.innerHTML = temp;
-                temp = tmp.textContent || tmp.innerText || '';
-                temp = temp.replace(/[^\040-\176]/g, '');
+                if (res.hasOwnProperty(i)) {
+                    temp = res[i].name;
+                    tmp.innerHTML = temp;
+                    temp = tmp.textContent || tmp.innerText || '';
+                    temp = temp.replace(/[^\040-\176]/g, '');
 
-                resIndicatorList[res[i].indicatorID] = temp;
+                    resIndicatorList[res[i].indicatorID] = temp;
 
-                if(groupList[res[i].categoryID] == undefined) {
-                    groupList[res[i].categoryID] = [];
-                }
-                groupList[res[i].categoryID].push(res[i].indicatorID);
-                if(groupIDmap[res[i].categoryID] == undefined) {
-                    groupNames.push({categoryID: res[i].categoryID,
-                                                    categoryName: res[i].categoryName});
-                    groupIDmap[res[i].categoryID] = {};
-                    groupIDmap[res[i].categoryID].categoryName = res[i].categoryName;
-                    groupIDmap[res[i].categoryID].categoryID = res[i].categoryID;
-                    groupIDmap[res[i].categoryID].parentCategoryID = res[i].parentCategoryID;
-                    groupIDmap[res[i].categoryID].parentStaples = res[i].parentStaples;
+                    if (groupList[res[i].categoryID] === undefined) {
+                        groupList[res[i].categoryID] = [];
+                    }
+                    groupList[res[i].categoryID].push(res[i].indicatorID);
+                    if (groupIDmap[res[i].categoryID] === undefined) {
+                        groupNames.push({categoryID: res[i].categoryID,
+                        categoryName: res[i].categoryName});
+                        groupIDmap[res[i].categoryID] = {};
+                        groupIDmap[res[i].categoryID].categoryName = res[i].categoryName;
+                        groupIDmap[res[i].categoryID].categoryID = res[i].categoryID;
+                        groupIDmap[res[i].categoryID].parentCategoryID = res[i].parentCategoryID;
+                        groupIDmap[res[i].categoryID].parentStaples = res[i].parentStaples;
+                    }
                 }
             }
 
@@ -376,23 +429,23 @@ function loadSearchPrereqs() {
             });
 
             for(let k in groupNames) {
-                var i = groupNames[k].categoryID;
-                var associatedCategories = groupIDmap[i].categoryID;
-                if(groupIDmap[i].parentCategoryID != '') {
+                let i = groupNames[k].categoryID;
+                let associatedCategories = groupIDmap[i].categoryID;
+                if(groupIDmap[i].parentCategoryID !== '') {
                     associatedCategories += ' ' + groupIDmap[i].parentCategoryID;
                 }
-                if(groupIDmap[i].parentStaples != null) {
-                    for(var j in groupIDmap[i].parentStaples) {
+                if(groupIDmap[i].parentStaples !== null) {
+                    for(let j in groupIDmap[i].parentStaples) {
                         associatedCategories += ' ' + groupIDmap[i].parentStaples[j];
                     }
                 }
 
-                var categoryLabel = groupNames[k].categoryName;
-                if(groupIDmap[i].parentCategoryID != '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
+                let categoryLabel = groupNames[k].categoryName;
+                if(groupIDmap[i].parentCategoryID !== '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
                     categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
-                for(var j in groupList[i]) {
+                for(let j in groupList[i]) {
                     buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
                     buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
                 }
@@ -459,7 +512,7 @@ function loadSearchPrereqs() {
                             //$('#indicatorList').append(buffer);
 
                             // set user selections
-                            if(t_inIndicators != undefined) {
+                            if(t_inIndicators !== undefined) {
                                 for(let i in t_inIndicators) {
                                     $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
                                 }
@@ -486,6 +539,11 @@ function updateHeaderColors(){
     headers.forEach(function(header) {
         if (gridColorData.hasOwnProperty(header.indicatorID)) {
             let bg_color = gridColorData[header.indicatorID];
+            //IE uses text inputs. Allows only #<6digithex>
+            if (!/^#[0-9a-f]{6}$/i.test(bg_color)){
+                gridColorData[header.indicatorID] = '#D1DFFF';
+                bg_color = '#D1DFFF';
+            }
             let elHeader = document.getElementById(grid.getPrefixID() + "header_" + header.indicatorID);
             let elVHeader = document.getElementById("Vheader_" + header.indicatorID);
             let arrRGB = [];  //convert from hex to RGB
@@ -507,24 +565,24 @@ function updateHeaderColors(){
 }
 
 function editLabels_down(id) {
-    var row = $('#sortID_' + id);
+    let row = $('#sortID_' + id);
     row.next().after(row);
 }
 
 function editLabels_up(id) {
-    var row = $('#sortID_' + id);
+    let row = $('#sortID_' + id);
     row.prev().before(row);
 }
 
 function editLabels() {
 	dialog.setTitle('Edit Labels');
 
-	var buffer = '<table id="labelSorter">';
+	let buffer = '<table id="labelSorter">';
 
 	if (Object.keys(indicatorSort).length !== 0) {
 		resSelectList.sort(function(a, b) {
-			var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
-			var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
+			let sortA = indicatorSort[a] === undefined ? 0 : indicatorSort[a];
+			let sortB = indicatorSort[b] === undefined ? 0 : indicatorSort[b];
 
 		    if(sortA < sortB) {
 		        return -1
@@ -537,10 +595,10 @@ function editLabels() {
 	}
 
 	for(let i in resSelectList) {
-		if(resIndicatorList[resSelectList[i]] != undefined) {
+		if(resIndicatorList[resSelectList[i]] !== undefined) {
 			buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
-			buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
-			buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
+			buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" alt="edit labels down"/></button> ';
+			buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" alt="edit labels up"/></button>';
             buffer += '<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 16px; margin: 0 2px;" /></td></tr>';
 		}
 	}
@@ -549,7 +607,7 @@ function editLabels() {
     dialog.show();
 
     for (let i in resSelectList){
-        if(resIndicatorList[resSelectList[i]] != undefined) {
+        if(resIndicatorList[resSelectList[i]] !== undefined) {
             let indicator = resSelectList[i];
             let elInput = document.getElementById("colorPicker" + indicator);
             //update inputs and tempColors to the current colors if they have been set
@@ -563,16 +621,15 @@ function editLabels() {
             });
         }
     }
-
     dialog.setSaveHandler(function() {
     	$('#labelSorter tr').each(function(i) {
-    		var curID = this.id.substr(7);
+    		let curID = this.id.substr(7);
     		indicatorSort[curID] = i + 1;
     	});
-        var tmp = document.createElement('div');
-        var temp;
+        let tmp = document.createElement('div');
+        let temp;
         for(let i in resSelectList) {
-            if(resIndicatorList[resSelectList[i]] != undefined) {
+            if(resIndicatorList[resSelectList[i]] !== undefined) {
                 temp = $('#id_' + resSelectList[i]).val();
                 tmp.innerHTML = temp;
                 temp = tmp.textContent || tmp.innerText || '';
@@ -581,29 +638,30 @@ function editLabels() {
             }
         }
         gridColorData = Object.assign({}, tempColorData);
-        if(gridColorData != {}) {
+        if(Object.keys(gridColorData).length !== 0) {
             updateHeaderColors();
+            let baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
             urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
             url = baseURL + '&v=' + version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&colors=' + encodeURIComponent(urlColorData);
-            if ($('#reportTitle').val() != '') {
-                url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+            //add title last
+            if (reportTitle.val() !== '') {
+                url += '&title=' + encodeURIComponent(btoa(reportTitle.val()));
             }
             window.history.pushState('', '', url);
         }
         tempColorData = gridColorData;
-        $('#generateReport').click();
+        generateReport.click();
         dialog.hide();
     });
 }
 
 function isSearchingDeleted(searchObj) {
     // check if the user explicitly wants to find deleted requests
-    var t = searchObj.getLeafFormQuery().getQuery();
-    var searchDeleted = false;
+    let t = searchObj.getLeafFormQuery().getQuery();
     for(let i in t.terms) {
-        if(t.terms[i].id == 'stepID'
-            && t.terms[i].match == 'deleted'
-            && t.terms[i].operator == '=') {
+        if(t.terms[i].id === 'stepID'
+            && t.terms[i].match === 'deleted'
+            && t.terms[i].operator === '=') {
 
             return true;
         }
@@ -612,8 +670,8 @@ function isSearchingDeleted(searchObj) {
 }
 
 function sortHeaders(a, b) {
-    a.sort = a.sort == undefined ? 0 : a.sort;
-    b.sort = b.sort == undefined ? 0 : b.sort;
+    a.sort = a.sort === undefined ? 0 : a.sort;
+    b.sort = b.sort === undefined ? 0 : b.sort;
     if(a.sort < b.sort) {
         return -1
     }
@@ -624,8 +682,8 @@ function sortHeaders(a, b) {
 }
 
 function openShareDialog() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
-    var reportLink = document.URL.substr(document.URL.lastIndexOf('/') + 1);
+    const pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    let reportLink = document.URL.substr(document.URL.lastIndexOf('/') + 1);
 
 
     dialog_message.setTitle('Share Report');
@@ -654,10 +712,10 @@ function openShareDialog() {
 }
 
 function showJSONendpoint() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
-    var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-    var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
-    var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
+    const pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    const queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
+    const jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
+    const powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
 	dialog_message.setTitle('Data Endpoints');
     dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
@@ -683,11 +741,10 @@ function showJSONendpoint() {
 
     $('#msCompatMode').on('click', function() {
         $('#shortenLink').click();
-
     });
 
     function setExportFormat() {
-        if($('#shortenLink').css('display') == 'none') {
+        if($('#shortenLink').css('display') === 'none') {
             $('#exportFormat').html('?');
         }
         else {
@@ -767,7 +824,7 @@ function showJSONendpoint() {
         	data: {title: $('#recordTitle').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
         	success: function(res) {
-        		if(res != null) {
+        		if(res !== null) {
                     $('#' + form_data.cellContainerID).fadeOut(400);
                     $('#' + form_data.cellContainerID).empty().html(res);
                     $('#' + form_data.cellContainerID).fadeIn(400);
@@ -799,7 +856,7 @@ function createRequest(catID) {
                 recordID = recordID || 0;
                 //Type number. Sent back on success (UID column of report builder)
                 if (recordID > 0) {
-                    $('#generateReport').click();
+                    generateReport.click();
                     dialog.hide();
                     setTimeout(function () {
                         let el_ID = grid.getPrefixID() + "tbody_tr" + recordID;
@@ -818,19 +875,19 @@ function createRequest(catID) {
     }
 }
 
-var url, urlQuery, urlIndicators;
+let url, urlQuery, urlIndicators;
 let urlColorData = 'str';
-var leafSearch;
-var headers = [];
-var t_inIndicators;
-var isNewQuery = false;
-var dialog, dialog_message;
-var indicatorSort = {}; // object = indicatorID : sortID
-var grid;
-let gridColorData = {}; //object updated with id: color
-let tempColorData = {}; //object updated with id: color
+let leafSearch;
+let headers = [];
+let t_inIndicators;
+let isNewQuery = false;
+let dialog, dialog_message;
+let indicatorSort = new Object(); // object = indicatorID : sortID
+let grid;
+let gridColorData = new Object(); //object updated with id: color
+let tempColorData = new Object(); //object updated with id: color
 
-var version = 3;
+const version = 3;
 /* URL formats
     * v1 - base64
     * v2 - lz-string in base64
@@ -844,7 +901,6 @@ $(function() {
     leafSearch.renderUI();
 
     $('#' + leafSearch.getPrefixID() + 'searchIcon').toggle();
-
     $('#' + leafSearch.getPrefixID() + 'advancedSearchButton').click();
     $('#' + leafSearch.getPrefixID() + 'advancedOptions').css('border', '0');
     $('#' + leafSearch.getPrefixID() + 'advancedOptionsClose').css('visibility', 'hidden');
@@ -855,25 +911,25 @@ $(function() {
 
     // Step 1
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').on('click', function() {
-    	$('#step_2').fadeIn(400);
-    	$('#step_1').slideUp(400);
+        $('#step_2').fadeIn(400);
+        $('#step_1').slideUp(400);
 
     	// hide data fields that don't match forms selected by the user
     	leafSearch.generateQuery();
-    	var tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
-    	var filteredCategories = [];
-        var showOptionCancelled = false;
+    	let tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
+    	let filteredCategories = [];
+        let showOptionCancelled = false;
 
     	for(let i in tTerms) {
-    		if(tTerms[i].id == 'categoryID'
-    			&& tTerms[i].operator == '=') {
+    		if(tTerms[i].id === 'categoryID'
+    			&& tTerms[i].operator === '=') {
     			filteredCategories.push(tTerms[i].match);
     		}
 
             // hide dateCancelled option unless it's being searched for
-            if(tTerms[i].id == 'stepID'
-    			&& tTerms[i].operator == '='
-                && tTerms[i].match == 'deleted') {
+            if(tTerms[i].id === 'stepID'
+    			&& tTerms[i].operator === '='
+                && tTerms[i].match === 'deleted') {
     			showOptionCancelled = true;
     		}
     	}
@@ -895,25 +951,24 @@ $(function() {
         }
     });
 
-    <!--{if $query == '' || $indicators == ''}-->
+    <!--{if $query === '' || $indicators === ''}-->
     loadSearchPrereqs();
     isNewQuery = true;
     <!--{/if}-->
 
     // Step 2
-    var selectedIndicators = [];
+    let selectedIndicators = [];
     grid = new LeafFormGrid('results');
     grid.enableToolbar();
-    var extendedToolbar = false;
-    $('#generateReport').off();
-    $('#generateReport').on('click', function() {
+    let extendedToolbar = false;
+    generateReport.off();
+    generateReport.on('click', function() {
         $('#results').fadeIn(700);
         $('#saveLinkContainer').fadeIn(700);
         $('#step_2').slideUp(700);
 
         if(isNewQuery) {
             leafSearch.generateQuery();
-
             if(!isSearchingDeleted(leafSearch)) {
             	leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
             }
@@ -923,15 +978,14 @@ $(function() {
         else if(!isSearchingDeleted(leafSearch)) {
             leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
         }
-
     	selectedIndicators = [];
     	resSelectList = [];
     	$('.icheck:checked').each(function() {
     		resSelectList.push(this.value);
     	});
     	resSelectList.sort(function(a, b) {
-            var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
-            var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
+            let sortA = indicatorSort[a] === undefined ? 0 : indicatorSort[a];
+            let sortB = indicatorSort[b] === undefined ? 0 : indicatorSort[b];
 
             if(sortA < sortB) {
                 return -1
@@ -942,11 +996,11 @@ $(function() {
             return 0;
         });
     	for(let i in resSelectList) {
-            var temp = {};
+            let temp = new Object();
             temp.indicatorID = resSelectList[i];
-            temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
-            temp.sort = indicatorSort[temp.indicatorID] == undefined ? 0 : indicatorSort[temp.indicatorID];
-            var tmp = document.createElement('div');
+            temp.name = resIndicatorList[temp.indicatorID] !== undefined ? resIndicatorList[temp.indicatorID] : '';
+            temp.sort = indicatorSort[temp.indicatorID] === undefined ? 0 : indicatorSort[temp.indicatorID];
+            let tmp = document.createElement('div');
             tmp.innerHTML = temp.name;
             temp.name = tmp.textContent || tmp.innerText || '';
             temp.name = temp.name.replace(/[^\040-\176]/g, '');
@@ -963,14 +1017,13 @@ $(function() {
     	headers.sort(sortHeaders);
     	selectedIndicators.sort(sortHeaders);
 
-
     	grid.setHeaders(headers);
 
     	leafSearch.getLeafFormQuery().onSuccess(function(res) {
             grid.setDataBlob(res);
 
             // this replaces grid.loadData()
-            var tGridData = [];
+            let tGridData = [];
             for(let i in res) {
                 tGridData.push(res[i]);
             }
@@ -1009,21 +1062,21 @@ $(function() {
 
     	// create save link once
     	if(!extendedToolbar) {
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
+    	    let toolbar = $('#' + grid.getPrefixID() + 'gridToolbar');
+            toolbar.prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
+            toolbar.prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
-            $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=16" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button>');
+            toolbar.css('width', '100%');
+            toolbar.prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
+            toolbar.append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=16" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
+            toolbar.prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button>');
             extendedToolbar = true;
-
 
             $('#editReport').on('click', function() {
             	grid.stop();
             	isNewQuery = true;
-                $('#reportTitleDisplay').css('display', 'none');
-                $('#reportTitle').css('display', 'block');
+                reportTitleDisplay.css('display', 'none');
+                reportTitle.css('display', 'block');
                 $('#newRequestButton').css('display', 'none');
             	loadSearchPrereqs();
                 $('#saveLinkContainer').slideUp(700);
@@ -1043,27 +1096,27 @@ $(function() {
 
 
     	if(isNewQuery) {
-    		baseURL = '';
-    		if(window.location.href.indexOf('&') == -1) {
+    		let baseURL = '';
+    		if(window.location.href.indexOf('&') === -1) {
     			baseURL = window.location.href;
     		}
     		else {
     			baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
+                url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
     		}
-            url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
-            if($('#reportTitle').val() != '') {
-                url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
-            }
             if(urlColorData !== 'str'){
                 url += '&colors=' + encodeURIComponent(urlColorData);
             }
-
+            if(reportTitle.val() !== '') {
+                url += '&title=' + encodeURIComponent(btoa(reportTitle.val()));
+            }
             window.history.pushState('', '', url);
-            $('#reportTitle').on('keyup', function() {
-                url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+            reportTitle.on('keyup', function() {
+                url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
                 if (urlColorData !== 'str'){
                     url += '&colors=' + urlColorData;
                 }
+                url += '&title=' + encodeURIComponent(btoa(reportTitle.val()));
                 window.history.pushState('', '', url);
             });
     	}
@@ -1071,15 +1124,12 @@ $(function() {
     		url = window.location.href;
     	}
     	//reapply colors if user has moved away from reports view
-    	if(gridColorData != {}){
+    	if(Object.keys(gridColorData).length !== 0){
             updateHeaderColors(gridColorData);
         }
     });
 
-
-
-
-    <!--{if $query != '' && $indicators != ''}-->
+    <!--{if $query !== '' && $indicators !== ''}-->
     function loadReport() {
         let inQuery;
         let inIndicators;
@@ -1089,16 +1139,17 @@ $(function() {
         title = title.replace(/[^\040-\176]/g, '');
         title = title.replace(/</g, '&lt;');
         title = title.replace(/>/g, '&gt;');
-        $('#reportTitleDisplay').html(title);
-        $('#reportTitle').css('display', 'none');
-        $('#reportTitle').off();
-        $('#reportTitle').val(title);
-        $('#reportTitleDisplay').on('click', function() {
-            $('#reportTitleDisplay').css('display', 'none');
-            $('#reportTitle').css('display', 'inline');
-            $('#reportTitle').on('keyup', function() {
-                baseURL = window.location.href.substr(0, window.location.href.indexOf('&title='));
-                url = baseURL + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+        reportTitleDisplay.html(title);
+        reportTitle.css('display', 'none');
+        reportTitle.off();
+        reportTitle.val(title);
+        reportTitleDisplay.on('click', function() {
+            reportTitleDisplay.css('display', 'none');
+            reportTitle.css('display', 'inline');
+            reportTitle.on('keyup', function() {
+                //title is always last here
+                let baseURL = window.location.href.substr(0, window.location.href.indexOf('&title='));
+                url = baseURL + '&title=' + encodeURIComponent(btoa(reportTitle.val()));
                 window.history.pushState('', '', url);
             });
         });
@@ -1124,7 +1175,7 @@ $(function() {
         	}
         	inIndicators = [];
         	for(let i in t_inIndicators) {
-        		var temp = {};
+        		let temp = new Object();
                 if($.isNumeric(t_inIndicators[i].indicatorID)) {
                     temp.indicatorID = parseInt(t_inIndicators[i].indicatorID);
                     temp.name = t_inIndicators[i].name.replace(/[^\040-\176]/g, '');
@@ -1136,26 +1187,25 @@ $(function() {
                     addHeader(t_inIndicators[i].indicatorID);
                 }
         	}
-
         	leafSearch.getLeafFormQuery().setQuery(inQuery);
         	if(!isSearchingDeleted(leafSearch)) {
                 inQuery.terms.pop();
         	}
         	leafSearch.renderPreviousAdvancedSearch(inQuery.terms);
         	headers = headers.concat(inIndicators);
-        	$('#step_1').slideUp(700);
-        	$('#generateReport').click();
+            $('#step_1').slideUp(700);
+            generateReport.click();
         }
         catch(err) {
         	alert('Invalid report');
         }
     }
-    if(typeof atob == 'function') {
+    if(typeof atob === 'function') {
         loadReport();
     }
     <!--{/if}-->
     // ie9 workaround
-    if(typeof atob != 'function') {
+    if(typeof atob !== 'function') {
         $.ajax({
             type: 'GET',
             url: 'js/base64.js',
@@ -1163,15 +1213,14 @@ $(function() {
             success: function() {
                 window.atob = base64.decode;
                 window.btoa = base64.encode;
-                <!--{if $query != '' && $indicators != ''}-->
+                <!--{if $query !== '' && $indicators !== ''}-->
                 loadReport();
                 <!--{/if}-->
             }
         });
     }
-    if(typeof window.history.pushState != 'function') {
+    if(typeof window.history.pushState !== 'function') {
     	window.history.pushState = function(a, b, c) {
-
     	}
     }
 });

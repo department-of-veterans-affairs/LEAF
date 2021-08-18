@@ -53,27 +53,27 @@ var LeafFormGrid = function(containerID, options) {
         var tDelim = '';
 
         //finds and displays column names
-        for(var i = 0; i < columns; i++){
+        for(let i = 0; i < columns; i++){
             tDelim = (i == columns-1) ? '' : delim;
             gridHeadBuffer +='<td style="width: 100px;">' + values.format[i].name + tDelim + '</td>';
             columnOrder.push(values.format[i].id)
         }
 
         //populates table
-        for (var i = 0; i < rows; i++) {
-            var gridRow = '<tr>';
-            var rowBuffer = [];
+        for (let i = 0; i < rows; i++) {
+            let gridRow = '<tr>';
+            let rowBuffer = [];
 
             //makes array of cells
-            for (var j = 0; j < columns; j++) {
+            for (let j = 0; j < columns; j++) {
                 rowBuffer.push('<td style="width:100px"></td>');
             }
 
             //for all values with matching column id, replaces cell with value
-            for (var j = 0; j < values.columns.length; j++) {
+            for (let j = 0; j < values.columns.length; j++) {
                 tDelim = (j == values.columns.length-1) ? '' : delim;
                 if(columnOrder.indexOf(values.columns[j]) !== -1) {
-                    var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
+                    let value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
                     rowBuffer.splice(columnOrder.indexOf(values.columns[j]), 1, '<td style="width:100px">' + value + tDelim + '</td>');
                 }
             }
@@ -97,8 +97,8 @@ var LeafFormGrid = function(containerID, options) {
                 var data = response[indicatorID].displayedValue != '' ? response[indicatorID].displayedValue : response[indicatorID].value;
                 if(response[indicatorID].format == 'checkboxes'
                     && Array.isArray(data)) {
-                    var tData = '';
-                    for(var i in data) {
+                    let tData = '';
+                    for(let i in data) {
                         if(data[i] != 'no') {
                             tData += ', ' + data[i];
                         }
@@ -148,11 +148,11 @@ var LeafFormGrid = function(containerID, options) {
             });
         }
 
-        for(var i in headers) {
+        for(let i in headers) {
             if(headers[i].visible == false) {
                 continue;
             }
-            var align = headers[i].align != undefined ? headers[i].align : 'center';
+            let align = headers[i].align != undefined ? headers[i].align : 'center';
             $('#' + prefixID + 'thead_tr').append('<th id="' + prefixID + 'header_'+headers[i].indicatorID+'" tabindex="0"  style="text-align:'+align+'">'+headers[i].name+'<span id="'+ prefixID +'header_'+ headers[i].indicatorID +'_sort" class="'+prefixID+'sort"></span></th>');
             virtualHeader += '<th id="Vheader_'+headers[i].indicatorID+'" style="text-align:'+align+'">'+headers[i].name+'</th>';
             if(headers[i].sortable == undefined
@@ -195,8 +195,8 @@ var LeafFormGrid = function(containerID, options) {
                'font-size': '12px'});
 
         // sticky headers
-        var scrolled = false;
-        var initialTop;
+        let scrolled = false;
+        let initialTop;
 
         $('#' + prefixID + 'table_stickyHeader').html('<table><thead>' + virtualHeader + '</thead></table>');
         $(window).on('resize', function() {
@@ -447,9 +447,9 @@ var LeafFormGrid = function(containerID, options) {
         if(currentData.length == 0) {
             $('#' + prefixID + 'tbody').append('<tr><td colspan="'+ colspan +'" style="text-align: center">No Results</td></tr>');
         }
-        var counter = 0;
-        var validateHtml = document.createElement('div');
-        for(var i = startIdx; i < currentData.length; i++) {
+        let counter = 0;
+        let validateHtml = document.createElement('div');
+        for(let i = startIdx; i < currentData.length; i++) {
             if(counter >= limit) {
                 currentRenderIndex = i;
                 break;
@@ -459,11 +459,11 @@ var LeafFormGrid = function(containerID, options) {
             if(showIndex) {
                 buffer += '<td><a href="index.php?a=printview&recordID='+currentData[i].recordID+'">'+currentData[i].recordID+'</a></td>';
             }
-            for(var j in headers) {
-                if(headers[j].visible == false) {
+            for(let j in headers) {
+                if(headers[j].visible === false) {
                     continue;
                 }
-                if(currentData[i] != undefined) {
+                if(currentData[i] !== undefined) {
                     var data = {};
                     data.recordID = currentData[i].recordID;
                     data.indicatorID = headers[j].indicatorID;
@@ -581,7 +581,7 @@ var LeafFormGrid = function(containerID, options) {
         $('#' + prefixID + 'tbody').html('<tr><td colspan="'+colspan+'" style="text-align: left; padding: 8px">Building report... <img src="'+ rootURL +'images/largespinner.gif" alt="loading..." /></td></tr>');
 
         var headerIDList = '';
-        for(var i in headers) {
+        for(let i in headers) {
             if($.isNumeric(headers[i].indicatorID)) {
                 headerIDList += headers[i].indicatorID + ',';
             }
@@ -596,9 +596,9 @@ var LeafFormGrid = function(containerID, options) {
                    CSRFToken: CSRFToken},
             success: function(res) {
                 isDataLoaded = true;
-                for(var i in res) {
+                for(let i in res) {
                     if(dataBlob[i] != undefined) {
-                        for(var j in dataBlob[i]) {
+                        for(let j in dataBlob[i]) {
                             if(typeof dataBlob[i][j] == 'object') {
                                 //ECMA6
                                 //Object.assign(res[i][j], dataBlob[i][j]);
@@ -652,7 +652,7 @@ var LeafFormGrid = function(containerID, options) {
      */
     function importQueryResult(res) {
         var tGridData = [];
-        for(var i in res) {
+        for(let i in res) {
             tGridData.push(res[i]);
         }
         setData(tGridData);
@@ -679,7 +679,7 @@ var LeafFormGrid = function(containerID, options) {
             output.push(headers);//first row will be headers
 
             var line = [];
-            var i = 0;
+            let i = 0;
             var thisSite = document.createElement('a');
             var numColumns = headers.length - 1;
             $('#' + prefixID + 'tbody>tr>td').each(function(idx, val) {
@@ -767,7 +767,7 @@ var LeafFormGrid = function(containerID, options) {
      * Return data row from loadData() using recordID as the index
      */
     function getDataByRecordID(recordID) {
-        for(var i in currentData) {
+        for(let i in currentData) {
             if(currentData[i].recordID == recordID) {
                 return currentData[i];
             }
