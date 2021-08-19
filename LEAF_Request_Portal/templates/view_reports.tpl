@@ -306,7 +306,7 @@ function loadSearchPrereqs() {
     $.ajax({
         type: 'GET',
         url: './api/?a=form/indicator/list',
-        dataType: 'json',
+        dataType: 'text json',
         success: function(res) {
             var buffer = '';
 
@@ -338,6 +338,8 @@ function loadSearchPrereqs() {
             var groupIDmap = {};
             var tmp = document.createElement('div');
             var temp;
+            let grid = {};
+
             for(var i in res) {
                 temp = res[i].name;
                 tmp.innerHTML = temp;
@@ -358,9 +360,20 @@ function loadSearchPrereqs() {
                     groupIDmap[res[i].categoryID].categoryID = res[i].categoryID;
                     groupIDmap[res[i].categoryID].parentCategoryID = res[i].parentCategoryID;
                     groupIDmap[res[i].categoryID].parentStaples = res[i].parentStaples;
+                    groupIDmap[res[i].categoryID].format = res[i].format;
+                }
+                // check if indicator type is grid
+
+                if (groupIDmap[res[i].categoryID].format.indexOf('grid') !== -1) {
+                    // convert grid values to object and insert visibility property
+                    let grid = $.parseJSON(groupIDmap[res[i].categoryID].format.replace('grid\n', ''));
+
+                    groupIDmap[res[i].categoryID].grid = grid.map(function(col) {
+                        col.isChecked = true;
+                        return col;
+                    });
                 }
             }
-
             buffer += '<div class="col span_1_of_3">';
 
             groupNames.sort(function(a, b) {
@@ -374,7 +387,6 @@ function loadSearchPrereqs() {
                 }
                 return 0;
             });
-
             for(var k in groupNames) {
                 var i = groupNames[k].categoryID;
                 var associatedCategories = groupIDmap[i].categoryID;
@@ -395,6 +407,15 @@ function loadSearchPrereqs() {
                 for(var j in groupList[i]) {
                     buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
                     buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
+
+                    // sub checklist for case of grid indicator
+                    if (groupIDmap[i].grid !== undefined) {
+                        for (k in groupIDmap[i].grid) {
+                            // console.log(groupIDmap[i].grid[k]);
+                            buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="column_' + groupIDmap[i].grid[k].name + '" name="column[' + groupIDmap[i].grid[k].name + ']" value="' + groupIDmap[i].grid[k].isChecked + '" />';
+                            buffer += '<label class="checkable" style="width: 100px" for="column_'+ groupIDmap[i].grid[k].name +'" title="columnID: '+ groupIDmap[i].grid[k].name +'"> ' + groupIDmap[i].grid[k].name +'</label></div>';
+                        }
+                    }
                 }
                 buffer += '</div>';
             }
