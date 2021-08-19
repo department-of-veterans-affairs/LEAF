@@ -562,7 +562,7 @@ var LeafFormGrid = function(containerID, options) {
      * @memberOf LeafFormGrid
      */
      function announceResults(){
-         var term = $('[name="searchtxt"]').val();
+         let term = $('[name="searchtxt"]').val();
 
          if(currentData.length == 0) {
              $('.status').text('No results found for term ' + term);
