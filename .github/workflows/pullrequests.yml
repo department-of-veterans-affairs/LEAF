@@ -1,14 +1,13 @@
 name: PR
 
 on:
-  # Trigger the workflow on push or pull request for master, dev and preprod
+  # Trigger the workflow on push or pull request for master
   push:
     branches:
       - master
-      - qa-testing
   pull_request:
     branches:
-      - qa-testing
+      - master
 jobs:
   send-team-notification:
     name: PullRequestAction

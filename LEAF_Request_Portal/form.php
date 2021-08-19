@@ -535,8 +535,15 @@ class Form
         // prevent masked data from being output
         if ($form[$idx]['isMasked'])
         {
-            $form[$idx]['value'] = '[protected data]';
-            $form[$idx]['displayedValue'] = '[protected data]';
+            if (isset($data[0]['data'])
+                && ($data[0]['format'] == 'fileupload'
+                    || $data[0]['format'] == 'image')) {
+                $form[$idx]['value'] = $this->fileToArray('[protected data]');
+                $form[$idx]['displayedValue'] = $this->fileToArray('[protected data]');
+            } else {
+                $form[$idx]['value'] = '[protected data]';
+                $form[$idx]['displayedValue'] = '[protected data]';
+            }
         }
 
         // handle radio/checkbox options
@@ -3167,28 +3174,34 @@ class Form
         return $data;
     }
 
-    public function getDisabledIndicatorList($disabled)
+    public function getDisabledIndicatorList(int $disabled)
     {
         $vars = array(':disabled' => (int)$disabled);
-        $res = $this->db->prepared_query('SELECT * FROM indicators
-											LEFT JOIN categories USING (categoryID)
-						                    WHERE indicators.disabled >= :disabled
-						    					AND categories.disabled = 0
-						    				ORDER BY name', $vars);
+        $strSQL = "SELECT indicatorID, name, format, description, categories.categoryName, ".
+                    "indicators.disabled FROM indicators ".
+                    "LEFT JOIN categories USING (categoryID) ".
+                    "WHERE indicators.disabled >= :disabled ".
+                    "AND categories.disabled = 0 ".
+                    "ORDER BY name";
 
-        $data = array();
+        $res = $this->db->prepared_query($strSQL, $vars);
+
+        $disabledIndicatorList = array();
         foreach ($res as $item)
         {
             $temp = array();
+            $delDate = $item['disabled'] + 30*24*60*60; //30 days from timestamp
+            $delDateFormat = date("m/d/Y",$delDate);
             $temp['indicatorID'] = $item['indicatorID'];
             $temp['name'] = $item['name'];
             $temp['format'] = $item['format'];
             $temp['description'] = $item['description'];
             $temp['categoryName'] = $item['categoryName'];
-            $data[] = $temp;
+            $temp['disabled'] = ($item['disabled'] == 1) ? 'Archived' : 'Deletion Date: '. $delDateFormat;
+            $disabledIndicatorList[] = $temp;
         }
 
-        return $data;
+        return $disabledIndicatorList;
     }
 
     /**
@@ -3217,25 +3230,27 @@ class Form
                 break;
         }
         $vars = array();
-        $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
-                    LEFT JOIN categories USING (categoryID)
-                    WHERE indicators.disabled = 0
-                        AND format != ""
-                        AND name != ""
-                        AND categories.disabled = 0' . $orderBy;
+        $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+                    "LEFT JOIN categories USING (categoryID) ".
+                    "WHERE indicators.disabled <= 1 ".
+                        "AND format != '' ".
+                        "AND name != '' ".
+                        "AND categories.disabled = 0" . $orderBy;
         if($includeHeadings) {
-            $query = 'SELECT *, COALESCE(NULLIF(description, ""), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
-            LEFT JOIN categories USING (categoryID)
-            WHERE indicators.disabled = 0
-                AND name != ""
-                AND categories.disabled = 0' . $orderBy;
+            $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+                        "LEFT JOIN categories USING (categoryID) ".
+                        "WHERE indicators.disabled <= 1 ".
+                            "AND name != '' ".
+                            "AND categories.disabled = 0" . $orderBy;
         }
-        $res = $this->db->prepared_query($query, $vars);
+        $res = $this->db->prepared_query($strSQL, $vars);
 
-        $resAll = $this->db->prepared_query('SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators
-													LEFT JOIN categories USING (categoryID)
-								                    WHERE indicators.disabled = 0
-								    					AND categories.disabled = 0' . $orderBy, $vars);
+        $strSQL = "SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+                    "LEFT JOIN categories USING (categoryID) ".
+					"WHERE indicators.disabled <= 1 ".
+					    "AND categories.disabled = 0" . $orderBy;
+
+        $resAll = $this->db->prepared_query($strSQL, $vars);
 
         $dataStaples = array();
         $resStaples = $this->db->prepared_query('SELECT stapledCategoryID, category_staples.categoryID as categoryID, categories.categoryID as stapledSubCategoryID, categories.parentID FROM category_staples LEFT JOIN categories ON (stapledCategoryID = categories.parentID)', $vars);
@@ -3551,6 +3566,10 @@ class Form
                 {
                     $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '')
                                                 ? '[protected data]' : '';
+                    if ($field['format'] == 'fileupload'
+                        || $field['format'] == 'image') {
+                        $child[$idx]['displayedValue'] = $this->fileToArray('[protected data]');
+                    }
                     if(isset($child[$idx]['displayedValue']) && $child[$idx]['displayedValue'] != '') {
                         $child[$idx]['displayedValue'] = '[protected data]';
                     }
