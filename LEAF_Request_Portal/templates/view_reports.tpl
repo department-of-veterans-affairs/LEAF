@@ -301,7 +301,7 @@ function addHeader(column) {
             break;
 	    default:
 	    	if(column.substr(0, 6) === 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
-	    		let depID = column.substr(6);
+	    		depID = column.substr(6);
 	    		tDepHeader[depID] = 0;
 	    		leafSearch.getLeafFormQuery().join('recordsDependencies');
 	            headers.push({
@@ -1106,7 +1106,6 @@ $(function() {
     	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
 
-
     	if(isNewQuery) {
     		baseURL = '';
     		if(window.location.href.indexOf('&') === -1) {
@@ -1125,7 +1124,6 @@ $(function() {
                 url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
                 window.history.pushState('', '', url);
             });
-
     	}
     	else {
     		url = window.location.href;

@@ -566,7 +566,7 @@ var LeafFormGrid = function(containerID, options) {
 
          if(currentData.length == 0) {
              $('.status').text('No results found for term ' + term);
-        }else{
+        } else {
              $('.status').text('Search results found for term ' + term + ' listed below');
         }
 
