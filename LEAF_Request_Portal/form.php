@@ -2138,7 +2138,7 @@ class Form
                             $parsedDate = strtotime($item['data']);
                             if ($parsedDate !== false)
                             {
-                                $item['data'] = date('n/j/Y', $parsedDate);
+                                $item['data'] = date('m/d/Y', $parsedDate);
                             }
                         }
                         break;

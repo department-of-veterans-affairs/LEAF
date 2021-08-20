@@ -108,6 +108,13 @@ var LeafFormGrid = function(containerID, options) {
                 if(response[indicatorID].format == 'grid') {
                     data = printTableReportBuilder(data);
                 }
+                if(response[indicatorID].format == 'date') {
+                    data = new Date(data).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                    });
+                }
                 $('#' + prefixID+recordID+'_'+indicatorID).empty().html(data);
                 $('#' + prefixID+recordID+'_'+indicatorID).fadeOut(250, function() {
                     $('#' + prefixID+recordID+'_'+indicatorID).fadeIn(250);
