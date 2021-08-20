@@ -298,7 +298,7 @@ class DB
         $lastBuildTime = getenv('LAST_BUILD_DATE', true) ? getenv('LAST_BUILD_DATE') : $defaultTime;
 
         // set last-modified header
-        header('Cache-Control: no-cache, must-revalidate');
+        // header('Cache-Control: no-cache, must-revalidate');
         header('Last-Modified: ' . $lastBuildTime );
 
         // Check if last build time is exactly the same (if so, use cache)
