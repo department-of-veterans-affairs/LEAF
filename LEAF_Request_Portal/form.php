@@ -2812,7 +2812,7 @@ class Form
                     {
                         if ($operator == '!=' && $vars[':data' . $count] == '')
                         {
-                            $conditions .= "{$gate}(lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NOT NULL)";
+                            $conditions .= "{$gate}(lj_data{$count}.data {$operator} :data{$count})";
                         }
                         else
                         {
