@@ -14,7 +14,6 @@ var LeafFormGrid = function(containerID, options) {
     var isDataLoaded = false;
     var defaultLimit = 50;
     var currLimit = 50;
-    var headerColor = '#d1dfff';
     var dataBlob = {}; // if data needs to be passed in
     var postProcessDataFunc = null;
     var preRenderFunc = null;
@@ -26,8 +25,6 @@ var LeafFormGrid = function(containerID, options) {
     $('#' + containerID).html('<div id="'+prefixID+'grid"></div><div id="'+prefixID+'form" style="display: none"></div>');
 
     $('#' + prefixID+'grid').html('<div style="position: relative"><div id="'+prefixID+'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="'+prefixID+'table_stickyHeader" style="display: none"></div><table id="'+prefixID+'table" class="leaf_grid"><thead id="'+prefixID+'thead" aria-label="Search Results"></thead><tbody id="'+prefixID+'tbody"></tbody><tfoot id="'+prefixID+'tfoot"></tfoot></table>');
-
-    $('#' + prefixID+'thead').css({'background-color': headerColor});
 
     if(options == undefined) {
         form = new LeafForm(prefixID + 'form');
@@ -132,7 +129,7 @@ var LeafFormGrid = function(containerID, options) {
         var virtualHeader = '<tr id="'+prefixID + 'tVirt_tr'+'">';
         if(showIndex) {
             temp += '<th tabindex="0" id="'+ prefixID +'header_UID" style="text-align: center">UID</th>';
-            virtualHeader += '<th style="text-align: center">UID</th>';
+            virtualHeader += '<th id="Vheader_UID" style="text-align: center">UID</th>';
         }
         $('#' + prefixID + 'thead').html(temp);
 
@@ -148,19 +145,6 @@ var LeafFormGrid = function(containerID, options) {
                     headerToggle = 0;
                 }
                 renderBody(0, Infinity);
-            });
-            // todo: move this into a stylesheet
-            $('#'+ prefixID +'header_UID').on('mouseover', null, null, function(data) {
-                $('#'+ prefixID +'header_UID').css('background-color', '#79a2ff');
-            });
-            $('#'+ prefixID +'header_UID').on('mouseout', null, null, function(data) {
-                $('#'+ prefixID +'header_UID').css({'background-color': headerColor});
-            });
-            $('#'+ prefixID +'header_UID').on('focusin', null, null, function(data) {
-                $('#'+ prefixID +'header_UID').css('background-color', '#79a2ff');
-            });
-            $('#'+ prefixID +'header_UID').on('focusout', null, null, function(data) {
-                $('#'+ prefixID +'header_UID').css({'background-color': headerColor});
             });
         }
 
@@ -200,19 +184,7 @@ var LeafFormGrid = function(containerID, options) {
                             renderBody(0, Infinity);
                         }
                         });
-                // todo: move this into a stylesheet
-                $('#'+ prefixID +'header_' + headers[i].indicatorID).on('mouseover', null, headers[i].indicatorID, function(data) {
-                    $('#'+ prefixID +'header_' + data.data).css('background-color', '#79a2ff');
-                });
-                $('#'+ prefixID +'header_' + headers[i].indicatorID).on('mouseout', null, headers[i].indicatorID, function(data) {
-                    $('#'+ prefixID +'header_' + data.data).css({'background-color': headerColor});
-                });
-                    $('#'+ prefixID +'header_' + headers[i].indicatorID).on('focusin', null, headers[i].indicatorID, function(data) {
-                            $('#'+ prefixID +'header_' + data.data).css('background-color', '#79a2ff');
-                    });
-                    $('#'+ prefixID +'header_' + headers[i].indicatorID).on('focusout', null, headers[i].indicatorID, function(data) {
-                            $('#'+ prefixID +'header_' + data.data).css({'background-color': headerColor});
-                    });
+
             }
         }
         $('#' + prefixID + 'thead').append('</tr>');
@@ -294,7 +266,7 @@ var LeafFormGrid = function(containerID, options) {
         var isNumeric = true;
         var idKey = 'id' + key;
         var tDate;
-        for(var i in currentData) {
+        for(let i in currentData) {
             currentData[i].recordID = parseInt(currentData[i].recordID);
             if(currentData[i][key] == undefined) {
                 currentData[i][key] = $('#'+ prefixID + currentData[i].recordID + '_' + key).html();
@@ -586,19 +558,19 @@ var LeafFormGrid = function(containerID, options) {
         renderVirtualHeader();
     }
 
-        /**
+    /**
      * @memberOf LeafFormGrid
      */
-         function announceResults(){
-             var term = $('[name="searchtxt"]').val();
+     function announceResults(){
+         let term = $('[name="searchtxt"]').val();
 
-             if(currentData.length == 0) {
-                 $('.status').text('No results found for term ' + term);
-         }else{
-                 $('.status').text('Search results found for term ' + term + ' listed below');
-            }
-
+         if(currentData.length == 0) {
+             $('.status').text('No results found for term ' + term);
+        } else {
+             $('.status').text('Search results found for term ' + term + ' listed below');
         }
+
+    }
 
     /**
      * @memberOf LeafFormGrid
