@@ -58,7 +58,7 @@ class DB
             }
             $this->isConnected = false;
         }
-        $this->checkLastModified();
+        // $this->checkLastModified();
         unset($pass);
     }
 
