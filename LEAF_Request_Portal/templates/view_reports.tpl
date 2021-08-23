@@ -3,7 +3,7 @@
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
 </style>
 
-<div id="step_1" style="<!--{if $query !== '' && $indicators !== ''}-->display: none; <!--{/if}-->width: 600px; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
+<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: 600px; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
     <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 1: Develop search filter
     </div>
@@ -42,13 +42,13 @@ const CSRFToken = '<!--{$CSRFToken}-->';
 if (typeof Object.assign !== 'function') {
     Object.assign = function(target) {
         'use strict';
-        if (target === null) {
+        if (target == null) {
             throw new TypeError('Cannot convert undefined or null to object');
         }
         target = Object(target);
         for (let index = 1; index < arguments.length; index++) {
             let source = arguments[index];
-            if (source !== null) {
+            if (source != null) {
                 for (let key in source) {
                     if (Object.prototype.hasOwnProperty.call(source, key)) {
                         target[key] = source[key];
@@ -129,8 +129,8 @@ function addHeader(column) {
                 indicatorID: 'status',
                 editable: false,
                 callback: function(data, blob) {
-                     var status = blob[data.recordID].stepTitle === null ? blob[data.recordID].lastStatus : 'Pending ' + blob[data.recordID].stepTitle;
-                     status = status === 'null' ? 'Not Submitted' : status;
+                     var status = blob[data.recordID].stepTitle == null ? blob[data.recordID].lastStatus : 'Pending ' + blob[data.recordID].stepTitle;
+                     status = status == null ? 'Not Submitted' : status;
                      if(blob[data.recordID].deleted > 0) {
                          status += ', Cancelled';
                      }
@@ -155,7 +155,7 @@ function addHeader(column) {
             }});
             headers.push({
                 name: 'Cancelled By', indicatorID: 'cancelledBy', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].action_history !== undefined) {
+                if(blob[data.recordID].action_history != undefined) {
                     var cancelData = blob[data.recordID].action_history.pop();
                     if(cancelData.actionType === 'deleted') {
                         $('#'+data.cellContainerID).html(cancelData.approverName);
@@ -174,14 +174,14 @@ function addHeader(column) {
             leafSearch.getLeafFormQuery().join('recordResolutionData');
             headers.push({
                 name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].recordResolutionData !== undefined) {
+                if(blob[data.recordID].recordResolutionData != undefined) {
                     var date = new Date(blob[data.recordID].recordResolutionData.fulfillmentTime * 1000);
                     $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
                 }
             }});
             headers.push({
                 name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].recordResolutionData !== undefined) {
+                if(blob[data.recordID].recordResolutionData != undefined) {
                     $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
                 }
             }});
@@ -190,7 +190,7 @@ function addHeader(column) {
             leafSearch.getLeafFormQuery().join('recordResolutionBy');
             headers.push({
                 name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].recordResolutionBy !== undefined) {
+                if(blob[data.recordID].recordResolutionBy != undefined) {
                     $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
                 }
             }});
@@ -217,7 +217,7 @@ function addHeader(column) {
                      for(let i in blob[data.recordID].action_history) {
                          var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
                          var formattedDate = date.toLocaleDateString();
-                         if(blob[data.recordID].action_history[i]['comment'] !== '') {
+                         if(blob[data.recordID].action_history[i]['comment'] != '') {
                              buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
                                 + formattedDate + delim + '</td><td style="padding-left: 4px">' + blob[data.recordID].action_history[i]['comment'] + '.</td>'
                                 + delimLF + '</tr>';
@@ -240,7 +240,7 @@ function addHeader(column) {
                      for(let i in blob[data.recordID].action_history) {
                          var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
                          var formattedDate = date.toLocaleDateString();
-                         var actionDescription = blob[data.recordID].action_history[i]['description'] !== null ? blob[data.recordID].action_history[i]['description'] : '';
+                         var actionDescription = blob[data.recordID].action_history[i]['description'] != null ? blob[data.recordID].action_history[i]['description'] : '';
                          buffer += '<tr><td>'
                                + formattedDate + delim + '</td>'
                                + '<td>' + actionDescription + delim  + '</td>'
@@ -266,7 +266,7 @@ function addHeader(column) {
                 callback: function(data, blob) {
                     let daysSinceAction;
                     let recordBlob = blob[data.recordID];
-                    if(recordBlob.action_history !== undefined) {
+                    if(recordBlob.action_history != undefined) {
                         // Get Last Action no matter what (could change for non-comment)
                         let lastActionRecord = recordBlob.action_history.length - 1;
                         let lastAction = recordBlob.action_history[lastActionRecord];
@@ -279,8 +279,8 @@ function addHeader(column) {
                             //  2) Last action was a manual step move
                             //  3) No records in Step Fulfillment - Completed
                             if ( (lastActionRecord > 0)
-                                && (lastAction.stepID !== 0 && lastAction.dependencyID !== 0 && lastAction.actionType !== 'move')
-                                && (recordBlob.stepFulfillmentOnly !== undefined)
+                                && (lastAction.stepID != 0 && lastAction.dependencyID != 0 && lastAction.actionType !== 'move')
+                                && (recordBlob.stepFulfillmentOnly != undefined)
                             ) {
                                 // Newest addition to Step Fulfillment table is date we need
                                 let lastStep = recordBlob.stepFulfillmentOnly[0];
@@ -288,7 +288,7 @@ function addHeader(column) {
                             }
                         }
                         daysSinceAction = Math.round((today.getTime() - date.getTime()) / 86400000);
-                        if(recordBlob.submitted === 0) {
+                        if(recordBlob.submitted == 0) {
                             daysSinceAction = "Not Submitted";
                         }
                     }
@@ -310,12 +310,11 @@ function addHeader(column) {
                     editable: false,
                     callback: function(depID) {
 	            	return function(data, blob) {
-	                    if(blob[data.recordID].recordsDependencies !== undefined
-	                    	&& blob[data.recordID].recordsDependencies[depID] !== undefined) {
+	                    if(blob[data.recordID].recordsDependencies != undefined
+	                    	&& blob[data.recordID].recordsDependencies[depID] != undefined) {
 	                        var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
 	                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-
-	                        if(tDepHeader[depID] === 0) {
+	                        if(tDepHeader[depID] == 0) {
 	                        	headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
 	                            $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
 	                            $('#Vheader_' + column).html(blob[data.recordID].recordsDependencies[depID].description);
@@ -335,12 +334,12 @@ function addHeader(column) {
                     editable: false,
                     callback: function(stepID) {
                     return function(data, blob) {
-                        if(blob[data.recordID].stepFulfillment !== undefined
-                            && blob[data.recordID].stepFulfillment[stepID] !== undefined) {
+                        if(blob[data.recordID].stepFulfillment != undefined
+                            && blob[data.recordID].stepFulfillment[stepID] != undefined) {
                             var date = new Date(blob[data.recordID].stepFulfillment[stepID].time * 1000);
                             $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
 
-                            if(tStepHeader[stepID] === 0) {
+                            if(tStepHeader[stepID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
                                 $('#' + headerID).html(blob[data.recordID].stepFulfillment[stepID].step);
                                 $('#Vheader_' + column).html(blob[data.recordID].stepFulfillment[stepID].step);
@@ -357,7 +356,7 @@ function addHeader(column) {
 var resIndicatorList = { };
 var searchPrereqsLoaded = false;
 function loadSearchPrereqs() {
-	if(searchPrereqsLoaded === true) {
+	if(searchPrereqsLoaded == true) {
 		return;
 	}
 	searchPrereqsLoaded = true;
@@ -404,11 +403,11 @@ function loadSearchPrereqs() {
 
                 resIndicatorList[res[i].indicatorID] = temp;
 
-                if(groupList[res[i].categoryID] === undefined) {
+                if(groupList[res[i].categoryID] == undefined) {
                     groupList[res[i].categoryID] = [];
                 }
                 groupList[res[i].categoryID].push(res[i].indicatorID);
-                if(groupIDmap[res[i].categoryID] === undefined) {
+                if(groupIDmap[res[i].categoryID] == undefined) {
                     groupNames.push({categoryID: res[i].categoryID,
                                                     categoryName: res[i].categoryName});
                     groupIDmap[res[i].categoryID] = { };
@@ -436,17 +435,17 @@ function loadSearchPrereqs() {
             for(let k in groupNames) {
                 var i = groupNames[k].categoryID;
                 var associatedCategories = groupIDmap[i].categoryID;
-                if(groupIDmap[i].parentCategoryID !== '') {
+                if(groupIDmap[i].parentCategoryID != '') {
                     associatedCategories += ' ' + groupIDmap[i].parentCategoryID;
                 }
-                if(groupIDmap[i].parentStaples !== null) {
+                if(groupIDmap[i].parentStaples != null) {
                     for(var j in groupIDmap[i].parentStaples) {
                         associatedCategories += ' ' + groupIDmap[i].parentStaples[j];
                     }
                 }
 
                 var categoryLabel = groupNames[k].categoryName;
-                if(groupIDmap[i].parentCategoryID !== '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
+                if(groupIDmap[i].parentCategoryID != '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
                     categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
@@ -517,7 +516,7 @@ function loadSearchPrereqs() {
                             //$('#indicatorList').append(buffer);
 
                             // set user selections
-                            if(t_inIndicators !== undefined) {
+                            if(t_inIndicators != undefined) {
                                 for(let i in t_inIndicators) {
                                     $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
                                 }
@@ -586,8 +585,8 @@ function editLabels() {
 
 	if (Object.keys(indicatorSort).length !== 0) {
 		resSelectList.sort(function(a, b) {
-			var sortA = indicatorSort[a] === undefined ? 0 : indicatorSort[a];
-			var sortB = indicatorSort[b] === undefined ? 0 : indicatorSort[b];
+			var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
+			var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
 
 		    if(sortA < sortB) {
 		        return -1
@@ -600,7 +599,7 @@ function editLabels() {
 	}
 
 	for(let i in resSelectList) {
-		if(resIndicatorList[resSelectList[i]] !== undefined) {
+		if(resIndicatorList[resSelectList[i]] != undefined) {
 			buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
 			buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
 			buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
@@ -612,7 +611,7 @@ function editLabels() {
     dialog.show();
 
     resSelectList.map(function(checkedIndicator) {
-        if(resIndicatorList[checkedIndicator] !== undefined) {
+        if(resIndicatorList[checkedIndicator] != undefined) {
             let elInput = document.getElementById("colorPicker" + checkedIndicator);
             //update inputs and tempColors to the current colors if they have been set
             if (gridColorData.hasOwnProperty(checkedIndicator)){
@@ -634,7 +633,7 @@ function editLabels() {
         var tmp = document.createElement('div');
         var temp;
         for(let i in resSelectList) {
-            if(resIndicatorList[resSelectList[i]] !== undefined) {
+            if(resIndicatorList[resSelectList[i]] != undefined) {
                 temp = $('#id_' + resSelectList[i]).val();
                 tmp.innerHTML = temp;
                 temp = tmp.textContent || tmp.innerText || '';
@@ -649,7 +648,7 @@ function editLabels() {
             urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
             url = baseURL + '&v=' + version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&colors=' + encodeURIComponent(urlColorData);
             //add title last
-            if ($('#reportTitle').val() !== '') {
+            if ($('#reportTitle').val() != '') {
                 url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
             }
             window.history.pushState('', '', url);
@@ -677,8 +676,8 @@ function isSearchingDeleted(searchObj) {
 }
 
 function sortHeaders(a, b) {
-    a.sort = a.sort === undefined ? 0 : a.sort;
-    b.sort = b.sort === undefined ? 0 : b.sort;
+    a.sort = a.sort == undefined ? 0 : a.sort;
+    b.sort = b.sort == undefined ? 0 : b.sort;
     if(a.sort < b.sort) {
         return -1
     }
@@ -832,7 +831,7 @@ function showJSONendpoint() {
         	data: {title: $('#recordTitle').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
         	success: function(res) {
-        		if(res !== null) {
+        		if(res != null) {
                     $('#' + form_data.cellContainerID).fadeOut(400);
                     $('#' + form_data.cellContainerID).empty().html(res);
                     $('#' + form_data.cellContainerID).fadeIn(400);
@@ -960,7 +959,7 @@ $(function() {
         }
     });
 
-    <!--{if $query === '' || $indicators === ''}-->
+    <!--{if $query == '' || $indicators == ''}-->
     loadSearchPrereqs();
     isNewQuery = true;
     <!--{/if}-->
@@ -995,8 +994,8 @@ $(function() {
     		resSelectList.push(this.value);
     	});
     	resSelectList.sort(function(a, b) {
-            var sortA = indicatorSort[a] === undefined ? 0 : indicatorSort[a];
-            var sortB = indicatorSort[b] === undefined ? 0 : indicatorSort[b];
+            var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
+            var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
 
             if(sortA < sortB) {
                 return -1
@@ -1009,8 +1008,8 @@ $(function() {
     	for(let i in resSelectList) {
             var temp = { };
             temp.indicatorID = resSelectList[i];
-            temp.name = resIndicatorList[temp.indicatorID] !== undefined ? resIndicatorList[temp.indicatorID] : '';
-            temp.sort = indicatorSort[temp.indicatorID] === undefined ? 0 : indicatorSort[temp.indicatorID];
+            temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
+            temp.sort = indicatorSort[temp.indicatorID] == undefined ? 0 : indicatorSort[temp.indicatorID];
             var tmp = document.createElement('div');
             tmp.innerHTML = temp.name;
             temp.name = tmp.textContent || tmp.innerText || '';
@@ -1054,7 +1053,7 @@ $(function() {
             }
             let results = grid.getCurrentData();
             let filteredResults = results.filter(function(r) {
-                return r.categoryID !== undefined
+                return r.categoryID != undefined
             });
             if (filteredResults.length > 0) {
                 categoryID = filteredResults[0].categoryID;
@@ -1129,13 +1128,13 @@ $(function() {
     		url = window.location.href;
     	}
     	//reapply colors if user has moved away from reports view
-    	if(gridColorData !== { }){
+    	if(Object.keys(gridColorData).length !== 0){
             updateHeaderColors(gridColorData);
         }
     });
 
 
-    <!--{if $query !== '' && $indicators !== ''}-->
+    <!--{if $query != '' && $indicators != ''}-->
     function loadReport() {
         let inQuery;
         let inIndicators;
@@ -1219,7 +1218,7 @@ $(function() {
             success: function() {
                 window.atob = base64.decode;
                 window.btoa = base64.encode;
-                <!--{if $query !== '' && $indicators !== ''}-->
+                <!--{if $query != '' && $indicators != ''}-->
                 loadReport();
                 <!--{/if}-->
             }
