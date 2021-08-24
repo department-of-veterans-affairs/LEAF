@@ -1285,3 +1285,19 @@ div.sensitiveIndicator > .printResponse {
 .load-cancel .usa-button--outline:hover {
     background-color: red;
 }
+
+.input-required {
+    margin-left: 8px;
+    background-color: white;
+    color: red;
+    padding: 0;
+    font-weight: normal;
+}
+
+.input-required.input-required-error {
+    margin-left: 8px;
+    background-color: red;
+    color: white;
+    padding: 4px;
+    font-weight: bold;
+}
