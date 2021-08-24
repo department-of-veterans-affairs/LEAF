@@ -46,13 +46,14 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         $.ajax({
             type: 'GET',
             url: 'api/?a=form/'+recordID+'/workflow/indicator/assigned',
-            success: function(indicatorObjectArr) {
-                indicatorObjectArr = indicatorObjectArr || 0;
-                if (indicatorObjectArr !== 0) {
-                    for (let i = 0; i < indicatorObjectArr.length; i++) {
+            success: function(obj) {
+                //indicatorObject is global, obj is an array or null
+                indicatorObject = obj;
+                if (indicatorObject !== null) {
+                    for (let i = 0; i < indicatorObject.length; i++) {
                         $(document.createElement('option'))
-                            .attr('value', indicatorObjectArr[i].indicatorID)
-                            .html(indicatorObjectArr[i].name)
+                            .attr('value', indicatorObject[i].indicatorID)
+                            .html(indicatorObject[i].name)
                             .appendTo($("select#indicator_selector"));
                     }
                 }
