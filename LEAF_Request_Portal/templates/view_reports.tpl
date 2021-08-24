@@ -1113,12 +1113,20 @@ $(function() {
     		else {
     			baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
     		}
-
+            url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
+    		if (Object.keys(gridColorData).length !== 0){
+    		    //reapplies if the page is refreshed (otherwise it is reset to 'str')
+                urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
+                url += '&colors=' + encodeURIComponent(urlColorData);
+            }
+    		if($('#reportTitle').val() != '') {
+                url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+            }
             window.history.pushState('', '', url);
             $('#reportTitle').on('keyup', function() {
                 url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
                 if (urlColorData !== 'str'){
-                    url += '&colors=' + urlColorData;
+                    url += '&colors=' + encodeURIComponent(urlColorData);
                 }
                 url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
                 window.history.pushState('', '', url);
