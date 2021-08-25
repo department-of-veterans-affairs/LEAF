@@ -411,9 +411,8 @@ function loadSearchPrereqs() {
                     // sub checklist for case of grid indicator
                     if (groupIDmap[i].grid !== undefined) {
                         for (k in groupIDmap[i].grid) {
-                            // console.log(groupIDmap[i].grid[k]);
-                            buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="column_' + groupIDmap[i].grid[k].name + '" name="column[' + groupIDmap[i].grid[k].name + ']" value="' + groupIDmap[i].grid[k].isChecked + '" />';
-                            buffer += '<label class="checkable" style="width: 100px" for="column_'+ groupIDmap[i].grid[k].name +'" title="columnID: '+ groupIDmap[i].grid[k].name +'"> ' + groupIDmap[i].grid[k].name +'</label></div>';
+                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'.columns_' + groupIDmap[i].grid[k].name + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].grid[k].name + ']" value="' + groupList[i][j] + '-' + groupIDmap[i].grid[k].name + '" gridParent="' + groupList[i][j] + '" />';
+                            buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '.columns_'+ groupIDmap[i].grid[k].name +'" title="columnID: '+ groupIDmap[i].grid[k].name +'"> ' + groupIDmap[i].grid[k].name +'</label></div>';
                         }
                     }
                 }
@@ -429,6 +428,7 @@ function loadSearchPrereqs() {
             	$(this).children('.formLabel').removeClass('buttonNorm');
             	$(this).find('.formLabel>img').css('display', 'none');
             	$(this).css({width: '100%'});
+            	// $(this).children('div').css('display', 'block');block
             	$(this).children('div').css('display', 'block');
             	$(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
             		'font-weight': 'bold'});
@@ -888,9 +888,33 @@ $(function() {
 
     	selectedIndicators = [];
     	resSelectList = [];
+    	let gridParent, gridParentLoc;
     	$('.icheck:checked').each(function() {
-    		resSelectList.push(this.value);
+    	    // case checked box is selected grid column
+            if (this.attributes.gridparent !== undefined) {
+                gridParent = this.attributes.gridparent.value;
+                gridParentLoc = resSelectList.indexOf(gridParent);
+                console.log(gridParentLoc);
+                // if parent already exists
+                if (gridParentLoc == -1) {
+                    for (let i in resSelectList) {
+                        if (resSelectList[i][0] == gridParent) {
+                            gridParentLoc = i;
+                        }
+                    }
+                    console.log(gridParentLoc);
+                    // if first child
+                    if (typeof(resSelectList[gridParentLoc]) != 'array') {
+                        // create new list of children
+                        resSelectList[gridParentLoc] = [resSelectList[gridParentLoc]];
+                    }
+                    resSelectList[gridParentLoc].push(this.value);
+                }
+            } else {
+                resSelectList.push(this.value);
+            }
     	});
+    	console.log(resSelectList);
     	resSelectList.sort(function(a, b) {
             var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
             var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
@@ -903,6 +927,7 @@ $(function() {
             }
             return 0;
         });
+
     	for(var i in resSelectList) {
             var temp = {};
             temp.indicatorID = resSelectList[i];
@@ -921,6 +946,7 @@ $(function() {
             }
             selectedIndicators.push(temp);
     	}
+        // console.log(selectedIndicators);
 
     	headers.sort(sortHeaders);
     	selectedIndicators.sort(sortHeaders);

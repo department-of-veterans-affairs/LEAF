@@ -55,6 +55,8 @@ var LeafFormGrid = function(containerID, options) {
         var delimLF = "\r\n";
         var tDelim = '';
 
+        // console.log(values);
+
         //finds and displays column names
         for(var i = 0; i < columns; i++){
             tDelim = (i == columns-1) ? '' : delim;
@@ -74,7 +76,7 @@ var LeafFormGrid = function(containerID, options) {
 
             //for all values with matching column id, replaces cell with value
             for (var j = 0; j < values.columns.length; j++) {
-                tDelim = (j == values.columns.length-1) ? '' : delim;
+                tDelim = (j == values.columns.length - 1) ? '' : delim;
                 if(columnOrder.indexOf(values.columns[j]) !== -1) {
                     var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
                     rowBuffer.splice(columnOrder.indexOf(values.columns[j]), 1, '<td style="width:100px">' + value + tDelim + '</td>');
@@ -108,6 +110,7 @@ var LeafFormGrid = function(containerID, options) {
                     }
                     data = tData.substr(2);
                 }
+                // console.log(response[indicatorID]);
                 if(response[indicatorID].format == 'grid') {
                     data = printTableReportBuilder(data);
                 }
@@ -472,6 +475,7 @@ var LeafFormGrid = function(containerID, options) {
         var callbackBuffer = [];
 
         var colspan = showIndex ? headers.length + 1 : headers.length;
+        // console.log(currentData);
         if(currentData.length == 0) {
             $('#' + prefixID + 'tbody').append('<tr><td colspan="'+ colspan +'" style="text-align: center">No Results</td></tr>');
         }
@@ -521,6 +525,7 @@ var LeafFormGrid = function(containerID, options) {
                         }
                         else {
                             if(currentData[i].s1[data.data] !== undefined && data.data.search("gridInput")){
+                                // console.log(data);
                                 data.data = printTableReportBuilder(currentData[i].s1[data.data]);
                             }
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + data.data + '</td>';
