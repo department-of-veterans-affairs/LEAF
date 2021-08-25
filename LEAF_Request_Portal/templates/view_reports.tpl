@@ -645,13 +645,7 @@ function editLabels() {
         if(Object.keys(gridColorData).length !== 0) {
             updateHeaderColors();
             let baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
-            urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
-            url = baseURL + '&v=' + version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&colors=' + encodeURIComponent(urlColorData);
-            //add title last
-            if ($('#reportTitle').val() != '') {
-                url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
-            }
-            window.history.pushState('', '', url);
+            buildURLComponents(baseURL);
         }
         tempColorData = Object.assign({ }, gridColorData);
 
@@ -882,6 +876,7 @@ function createRequest(catID) {
     }
 }
 
+
 var url, urlQuery, urlIndicators;
 let urlColorData = 'str';
 var leafSearch;
@@ -900,6 +895,19 @@ var version = 3;
     * v2 - lz-string in base64
     * v3 - uses getData() from formQuery.js
 */
+
+function buildURLComponents(baseURL){
+    url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
+    if (Object.keys(gridColorData).length !== 0){
+        urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
+        url += '&colors=' + encodeURIComponent(urlColorData);
+    }
+    if($('#reportTitle').val() != '') {
+        url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+    }
+    window.history.pushState('', '', url);
+}
+
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
@@ -1027,7 +1035,6 @@ $(function() {
     	headers.sort(sortHeaders);
     	selectedIndicators.sort(sortHeaders);
 
-
     	grid.setHeaders(headers);
 
     	leafSearch.getLeafFormQuery().onSuccess(function(res) {
@@ -1113,15 +1120,10 @@ $(function() {
     		else {
     			baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
     		}
+            buildURLComponents(baseURL);
 
-            window.history.pushState('', '', url);
             $('#reportTitle').on('keyup', function() {
-                url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
-                if (urlColorData !== 'str'){
-                    url += '&colors=' + urlColorData;
-                }
-                url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
-                window.history.pushState('', '', url);
+                buildURLComponents(baseURL);
             });
     	}
     	else {
