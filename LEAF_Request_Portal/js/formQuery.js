@@ -149,9 +149,9 @@ var LeafFormQuery = function() {
      * @memberOf LeafFormQuery
      */
     function getData(indicatorID) {
-    	if(query.getData.indexOf(indicatorID) == -1) {
-        	query.getData.push(indicatorID);
-    	}
+		if (query.getData.indexOf(indicatorID) == -1) {
+			query.getData.push(indicatorID);
+		}
     }
 
     /**

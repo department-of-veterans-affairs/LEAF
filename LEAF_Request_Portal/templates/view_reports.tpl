@@ -888,33 +888,26 @@ $(function() {
 
     	selectedIndicators = [];
     	resSelectList = [];
-    	let gridParent, gridParentLoc;
     	$('.icheck:checked').each(function() {
-    	    // case checked box is selected grid column
-            if (this.attributes.gridparent !== undefined) {
-                gridParent = this.attributes.gridparent.value;
-                gridParentLoc = resSelectList.indexOf(gridParent);
-                console.log(gridParentLoc);
-                // if parent already exists
-                if (gridParentLoc == -1) {
+            let gridParent = this.attributes.gridparent?.value;
+            if (gridParent !== undefined) {
+                let dest = resSelectList.indexOf(gridParent);
+
+                if (dest !== -1) {
+                    resSelectList[dest] = [resSelectList[dest]];
+                } else {
                     for (let i in resSelectList) {
-                        if (resSelectList[i][0] == gridParent) {
-                            gridParentLoc = i;
+                        if (resSelectList[i][0] === gridParent) {
+                            dest = i;
                         }
                     }
-                    console.log(gridParentLoc);
-                    // if first child
-                    if (typeof(resSelectList[gridParentLoc]) != 'array') {
-                        // create new list of children
-                        resSelectList[gridParentLoc] = [resSelectList[gridParentLoc]];
-                    }
-                    resSelectList[gridParentLoc].push(this.value);
                 }
+                resSelectList[dest].push(this.value);
             } else {
                 resSelectList.push(this.value);
             }
     	});
-    	console.log(resSelectList);
+
     	resSelectList.sort(function(a, b) {
             var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
             var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
@@ -930,33 +923,39 @@ $(function() {
 
     	for(var i in resSelectList) {
             var temp = {};
-            temp.indicatorID = resSelectList[i];
+            if (Array.isArray(resSelectList[i])) {
+                temp.indicatorID = resSelectList[i][0];
+                let delimiter = temp.indicatorID + "-";
+                temp.cols = [];
+                for (var j = 1; j < resSelectList[i].length; j++) {
+                    temp.cols.push(resSelectList[i][j].replace(delimiter, ""));
+                }
+            } else {
+                temp.indicatorID = resSelectList[i];
+            }
             temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
             temp.sort = indicatorSort[temp.indicatorID] == undefined ? 0 : indicatorSort[temp.indicatorID];
             var tmp = document.createElement('div');
             tmp.innerHTML = temp.name;
             temp.name = tmp.textContent || tmp.innerText || '';
             temp.name = temp.name.replace(/[^\040-\176]/g, '');
-            if($.isNumeric(resSelectList[i])) {
-                headers.push(temp);
-                leafSearch.getLeafFormQuery().getData(temp.indicatorID);
+            if($.isNumeric(resSelectList[i][0]) || $.isNumeric(resSelectList[i])) {
+                    headers.push(temp);
+                    leafSearch.getLeafFormQuery().getData(temp.indicatorID);
             }
             else {
                 addHeader(temp.indicatorID);
             }
             selectedIndicators.push(temp);
     	}
-        // console.log(selectedIndicators);
-
+    	console.log('selectedIndicators', selectedIndicators);
     	headers.sort(sortHeaders);
     	selectedIndicators.sort(sortHeaders);
-
-
     	grid.setHeaders(headers);
 
     	leafSearch.getLeafFormQuery().onSuccess(function(res) {
             grid.setDataBlob(res);
-
+            // console.log(res);
             // this replaces grid.loadData()
             var tGridData = [];
             for(let i in res) {
@@ -965,7 +964,8 @@ $(function() {
 
             if(<!--{$version}--> >= 3) {
                 grid.setData(tGridData);
-                grid.sort('recordID', 'desc');
+                grid.sort('recordID', 'desc')
+                // console.log('selectedIndicators', selectedIndicators);
                 grid.renderBody();
             }
             else {
@@ -1104,8 +1104,8 @@ $(function() {
                 else {
                     addHeader(t_inIndicators[i].indicatorID);
                 }
+                console.log('inIndicators', inIndicators, 'selectedIndicators', selectedIndicators);
         	}
-
         	leafSearch.getLeafFormQuery().setQuery(inQuery);
         	if(!isSearchingDeleted(leafSearch)) {
                 inQuery.terms.pop();
