@@ -38,9 +38,30 @@
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
 
+//Object.assign for IE
+if (typeof Object.assign !== 'function') {
+    Object.assign = function(target) {
+        'use strict';
+        if (target == null) {
+            throw new TypeError('Cannot convert undefined or null to object');
+        }
+        target = Object(target);
+        for (let index = 1; index < arguments.length; index++) {
+            let source = arguments[index];
+            if (source != null) {
+                for (let key in source) {
+                    if (Object.prototype.hasOwnProperty.call(source, key)) {
+                        target[key] = source[key];
+                    }
+                }
+            }
+        }
+        return target;
+    };
+}
+
 function loadWorkflow(recordID, prefixID) {
     dialog_message.setTitle('Apply Action to #' + recordID);
-
     currRecordID = recordID;
     dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
     workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
@@ -64,81 +85,102 @@ var tStepHeader = [];
 let categoryID = 'strCatID';
 
 function addHeader(column) {
-    var today = new Date();
+    let today = new Date();
 	switch(column) {
 	    case 'title':
-	    	headers.push({name: 'Title', indicatorID: 'title', callback: function(data, blob) {
-                            $('#'+data.cellContainerID).html(blob[data.recordID].title);
-                            $('#'+data.cellContainerID).on('click', function(){
-                                    changeTitle(data, $('#'+data.cellContainerID).html());
-                            });
-                         }});
+	    	headers.push({
+                name: 'Title',
+                indicatorID: 'title',
+                callback: function(data, blob) {
+                    $('#'+data.cellContainerID).html(blob[data.recordID].title);
+                    $('#'+data.cellContainerID).on('click', function(){
+                        changeTitle(data, $('#'+data.cellContainerID).html());
+                });
+            }});
 		    break;
 	    case 'service':
-            headers.push({name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
-                             $('#'+data.cellContainerID).html(blob[data.recordID].service);
-                         }});
+            headers.push({
+                name: 'Service',
+                indicatorID: 'service',
+                editable: false,
+                callback: function(data, blob) {
+                $('#'+data.cellContainerID).html(blob[data.recordID].service);
+            }});
             break;
 	    case 'type':
 	    	leafSearch.getLeafFormQuery().join('categoryName');
-            headers.push({name: 'Type', indicatorID: 'type', editable: false, callback: function(data, blob) {
-                             var types = '';
-                             for(var i in blob[data.recordID].categoryNames) {
-                                 types += blob[data.recordID].categoryNames[i] + ' | ';
-                             }
-                             types = types.substr(0, types.length - 3);
-                             $('#'+data.cellContainerID).html(types);
-                         }});
+            headers.push({
+                name: 'Type',
+                indicatorID: 'type',
+                editable: false,
+                callback: function(data, blob) {
+                     let types = '';
+                     for(let i in blob[data.recordID].categoryNames) {
+                         types += blob[data.recordID].categoryNames[i] + ' | ';
+                     }
+                     types = types.substr(0, types.length - 3);
+                     $('#'+data.cellContainerID).html(types);
+            }});
             break;
 	    case 'status':
 	    	leafSearch.getLeafFormQuery().join('status');
-            headers.push({name: 'Current Status', indicatorID: 'status', editable: false, callback: function(data, blob) {
-                             var status = blob[data.recordID].stepTitle == null ? blob[data.recordID].lastStatus : 'Pending ' + blob[data.recordID].stepTitle;
-                             status = status == 'null' ? 'Not Submitted' : status;
-                             if(blob[data.recordID].deleted > 0) {
-                            	 status += ', Cancelled';
-                             }
-                             $('#'+data.cellContainerID).html(status);
-                         }});
+            headers.push({
+                name: 'Current Status',
+                indicatorID: 'status',
+                editable: false,
+                callback: function(data, blob) {
+                     var status = blob[data.recordID].stepTitle == null ? blob[data.recordID].lastStatus : 'Pending ' + blob[data.recordID].stepTitle;
+                     status = status == null ? 'Not Submitted' : status;
+                     if(blob[data.recordID].deleted > 0) {
+                         status += ', Cancelled';
+                     }
+                     $('#'+data.cellContainerID).html(status);
+            }});
             break;
         case 'initiator':
         	leafSearch.getLeafFormQuery().join('initiatorName');
-            headers.push({name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
+            headers.push({
+                name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
             	$('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
             }});
             break;
         case 'dateCancelled':
             leafSearch.getLeafFormQuery().join('action_history');
-            headers.push({name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
+            headers.push({
+                name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].deleted > 0) {
                     var date = new Date(blob[data.recordID].deleted * 1000);
                     $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
                 }
             }});
-            headers.push({name: 'Cancelled By', indicatorID: 'cancelledBy', editable: false, callback: function(data, blob) {
+            headers.push({
+                name: 'Cancelled By', indicatorID: 'cancelledBy', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].action_history != undefined) {
                     var cancelData = blob[data.recordID].action_history.pop();
-                    if(cancelData.actionType == 'deleted') {
+                    if(cancelData.actionType === 'deleted') {
                         $('#'+data.cellContainerID).html(cancelData.approverName);
                     }
                 }
             }});
             break;
         case 'dateInitiated':
-            headers.push({name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
+            headers.push({
+                name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
                 var date = new Date(blob[data.recordID].date * 1000);
                 $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
             }});
             break;
         case 'dateResolved':
             leafSearch.getLeafFormQuery().join('recordResolutionData');
-            headers.push({name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
+            headers.push({
+                name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionData != undefined) {
                     var date = new Date(blob[data.recordID].recordResolutionData.fulfillmentTime * 1000);
                     $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
                 }
             }});
-            headers.push({name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
+            headers.push({
+                name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionData != undefined) {
                     $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
                 }
@@ -146,14 +188,16 @@ function addHeader(column) {
             break;
         case 'resolvedBy':
             leafSearch.getLeafFormQuery().join('recordResolutionBy');
-            headers.push({name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
+            headers.push({
+                name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionBy != undefined) {
                     $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
                 }
             }});
             break;
         case 'actionButton':
-        	headers.unshift({name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
+        	headers.unshift({
+                name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
                 $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
                 $('#'+data.cellContainerID).on('click', function() {
                     loadWorkflow(data.recordID, grid.getPrefixID());
@@ -162,51 +206,59 @@ function addHeader(column) {
         	break;
         case 'action_history':
             leafSearch.getLeafFormQuery().join('action_history');
-            headers.push({name: 'Comment History', indicatorID: 'action_history', editable: false, callback: function(data, blob) {
-                             var buffer = '<table style="min-width: 300px">';
-                             var now = new Date();
+            headers.push({
+                name: 'Comment History',
+                indicatorID: 'action_history',
+                editable: false,
+                callback: function(data, blob) {
+                     var buffer = '<table style="min-width: 300px">';
+                     var now = new Date();
 
-                             for(var i in blob[data.recordID].action_history) {
-                            	 var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                                 var formattedDate = date.toLocaleDateString();
-                                 if(blob[data.recordID].action_history[i]['comment'] != '') {
-                                     buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
-                                        + formattedDate + delim + '</td><td style="padding-left: 4px">' + blob[data.recordID].action_history[i]['comment'] + '.</td>'
-                                        + delimLF + '</tr>';
-                                 }
-                             }
-                             buffer += '</table>';
-                             $('#'+data.cellContainerID).html(buffer);
-                         }});
+                     for(let i in blob[data.recordID].action_history) {
+                         var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
+                         var formattedDate = date.toLocaleDateString();
+                         if(blob[data.recordID].action_history[i]['comment'] != '') {
+                             buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
+                                + formattedDate + delim + '</td><td style="padding-left: 4px">' + blob[data.recordID].action_history[i]['comment'] + '.</td>'
+                                + delimLF + '</tr>';
+                         }
+                     }
+                     buffer += '</table>';
+                     $('#'+data.cellContainerID).html(buffer);
+            }});
             break;
         case 'approval_history':
             leafSearch.getLeafFormQuery().join('action_history');
-            headers.push({name: 'Approval History', indicatorID: 'approval_history', editable: false, callback: function(data, blob) {
-                             var buffer = '<table class="table" style="min-width: 300px">';
-                             var now = new Date();
+            headers.push({
+                name: 'Approval History',
+                indicatorID: 'approval_history',
+                editable: false,
+                callback: function(data, blob) {
+                     var buffer = '<table class="table" style="min-width: 300px">';
+                     var now = new Date();
 
-                             for(var i in blob[data.recordID].action_history) {
-                                 var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                                 var formattedDate = date.toLocaleDateString();
-                                 var actionDescription = blob[data.recordID].action_history[i]['description'] != null ? blob[data.recordID].action_history[i]['description'] : '';
-                                 buffer += '<tr><td>'
-                                       + formattedDate + delim + '</td>'
-                                       + '<td>' + actionDescription + delim  + '</td>'
-                                       + '<td>' + blob[data.recordID].action_history[i]['actionTextPasttense'] + delim + '</td>'
-                                       + '<td>' + blob[data.recordID].action_history[i]['approverName'] + '</td>'
-                                	   + delimLF + '</tr>';
-                             }
-                             buffer += '</table>';
-                             $('#'+data.cellContainerID).html(buffer);
-                         }});
+                     for(let i in blob[data.recordID].action_history) {
+                         var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
+                         var formattedDate = date.toLocaleDateString();
+                         var actionDescription = blob[data.recordID].action_history[i]['description'] != null ? blob[data.recordID].action_history[i]['description'] : '';
+                         buffer += '<tr><td>'
+                               + formattedDate + delim + '</td>'
+                               + '<td>' + actionDescription + delim  + '</td>'
+                               + '<td>' + blob[data.recordID].action_history[i]['actionTextPasttense'] + delim + '</td>'
+                               + '<td>' + blob[data.recordID].action_history[i]['approverName'] + '</td>'
+                               + delimLF + '</tr>';
+                     }
+                     buffer += '</table>';
+                     $('#'+data.cellContainerID).html(buffer);
+                 }});
             break;
         case 'days_since_last_action':
         case 'days_since_last_step_movement':
             leafSearch.getLeafFormQuery().join('action_history');
             leafSearch.getLeafFormQuery().join('stepFulfillmentOnly');
 
-            let headerName = (column == 'days_since_last_action') ? 'Days Since Last Action' : 'Days Since Last Workflow Change';
-            let indicatorIDName = (column == 'days_since_last_action') ? 'daysSinceLastAction' : 'daysSinceLastStepMovement';
+            let headerName = (column === 'days_since_last_action') ? 'Days Since Last Action' : 'Days Since Last Workflow Change';
+            let indicatorIDName = (column === 'days_since_last_action') ? 'daysSinceLastAction' : 'daysSinceLastStepMovement';
             headers.push({
                 name: headerName,
                 indicatorID: indicatorIDName,
@@ -221,13 +273,13 @@ function addHeader(column) {
                         let date = new Date(lastAction.time * 1000);
 
                         // We want to get date of last non-comment action so let's roll
-                        if (column == 'days_since_last_step_movement') {
+                        if (column === 'days_since_last_step_movement') {
                             // Already have date we need if
                             //  1) Only submit
                             //  2) Last action was a manual step move
                             //  3) No records in Step Fulfillment - Completed
                             if ( (lastActionRecord > 0)
-                                && (lastAction.stepID != 0 && lastAction.dependencyID != 0 && lastAction.actionType != 'move')
+                                && (lastAction.stepID != 0 && lastAction.dependencyID != 0 && lastAction.actionType !== 'move')
                                 && (recordBlob.stepFulfillmentOnly != undefined)
                             ) {
                                 // Newest addition to Step Fulfillment table is date we need
@@ -248,18 +300,20 @@ function addHeader(column) {
             });
             break;
 	    default:
-	    	if(column.substr(0, 6) == 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
+	    	if(column.substr(0, 6) === 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
 	    		depID = column.substr(6);
 	    		tDepHeader[depID] = 0;
 	    		leafSearch.getLeafFormQuery().join('recordsDependencies');
-
-	            headers.push({name: 'Checkpoint Date', indicatorID: column, editable: false, callback: function(depID) {
+	            headers.push({
+                    name: 'Checkpoint Date',
+                    indicatorID: column,
+                    editable: false,
+                    callback: function(depID) {
 	            	return function(data, blob) {
 	                    if(blob[data.recordID].recordsDependencies != undefined
 	                    	&& blob[data.recordID].recordsDependencies[depID] != undefined) {
 	                        var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
 	                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-
 	                        if(tDepHeader[depID] == 0) {
 	                        	headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
 	                            $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
@@ -270,12 +324,15 @@ function addHeader(column) {
 	            	}
                 }(depID)});
 	    	}
-            if(column.substr(0, 7) == 'stepID_') { // approval dates based on workflow steps
+            if(column.substr(0, 7) === 'stepID_') { // approval dates based on workflow steps
                 stepID = column.substr(7);
                 tStepHeader[stepID] = 0;
                 leafSearch.getLeafFormQuery().join('stepFulfillment');
-
-                headers.push({name: 'Checkpoint Date', indicatorID: column, editable: false, callback: function(stepID) {
+                headers.push({
+                    name: 'Checkpoint Date',
+                    indicatorID: column,
+                    editable: false,
+                    callback: function(stepID) {
                     return function(data, blob) {
                         if(blob[data.recordID].stepFulfillment != undefined
                             && blob[data.recordID].stepFulfillment[stepID] != undefined) {
@@ -296,7 +353,7 @@ function addHeader(column) {
 	}
 }
 
-var resIndicatorList = {};
+var resIndicatorList = { };
 var searchPrereqsLoaded = false;
 function loadSearchPrereqs() {
 	if(searchPrereqsLoaded == true) {
@@ -338,7 +395,7 @@ function loadSearchPrereqs() {
             var groupIDmap = {};
             var tmp = document.createElement('div');
             var temp;
-            for(var i in res) {
+            for(let i in res) {
                 temp = res[i].name;
                 tmp.innerHTML = temp;
                 temp = tmp.textContent || tmp.innerText || '';
@@ -353,7 +410,7 @@ function loadSearchPrereqs() {
                 if(groupIDmap[res[i].categoryID] == undefined) {
                     groupNames.push({categoryID: res[i].categoryID,
                                                     categoryName: res[i].categoryName});
-                    groupIDmap[res[i].categoryID] = {};
+                    groupIDmap[res[i].categoryID] = { };
                     groupIDmap[res[i].categoryID].categoryName = res[i].categoryName;
                     groupIDmap[res[i].categoryID].categoryID = res[i].categoryID;
                     groupIDmap[res[i].categoryID].parentCategoryID = res[i].parentCategoryID;
@@ -375,7 +432,7 @@ function loadSearchPrereqs() {
                 return 0;
             });
 
-            for(var k in groupNames) {
+            for(let k in groupNames) {
                 var i = groupNames[k].categoryID;
                 var associatedCategories = groupIDmap[i].categoryID;
                 if(groupIDmap[i].parentCategoryID != '') {
@@ -420,7 +477,7 @@ function loadSearchPrereqs() {
             	success: function(res) {
                     buffer = '';
                     buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
-                    for(var i in res) {
+                    for(let i in res) {
                         buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />';
                         buffer += '<label class="checkable" style="width: 100px" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'"> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
                     }
@@ -447,7 +504,7 @@ function loadSearchPrereqs() {
                             buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" />';
                             buffer2 += '<label class="checkable" style="width: 100px" for="indicators_resolvedBy" title="Resolved By"> Resolved By</label></div>';
 
-                            for(var i in res) {
+                            for(let i in res) {
                                 buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
                                 buffer2 += '<label class="checkable" style="width: 100px" for="indicators_depID_'+ res[i].dependencyID +'"> ' + res[i].description +'</label></div>';
                             }
@@ -460,7 +517,7 @@ function loadSearchPrereqs() {
 
                             // set user selections
                             if(t_inIndicators != undefined) {
-                                for(var i in t_inIndicators) {
+                                for(let i in t_inIndicators) {
                                     $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
                                 }
                             }
@@ -476,6 +533,38 @@ function loadSearchPrereqs() {
             });
         },
         cache: false
+    });
+}
+
+//loop through headers array, and if its ID exists as a key on
+//the gridColor data object, updates background and text color
+//called at Edit Label's 'save' and report page load
+function updateHeaderColors(){
+    headers.forEach(function(header) {
+        if (gridColorData.hasOwnProperty(header.indicatorID)) {
+            let bg_color = gridColorData[header.indicatorID];
+            //IE uses text inputs. Allows only #<6digithex>
+            if (!/^#[0-9a-f]{6}$/i.test(bg_color)){
+                gridColorData[header.indicatorID] = '#D1DFFF';
+                bg_color = '#D1DFFF';
+            }
+            let elHeader = document.getElementById(grid.getPrefixID() + "header_" + header.indicatorID);
+            let elVHeader = document.getElementById("Vheader_" + header.indicatorID);
+            let arrRGB = [];  //convert from hex to RGB
+            for (let i = 1; i < 7; i += 2) {
+                arrRGB.push(parseInt(bg_color.slice(i, i + 2), 16));
+            }
+            let maxVal = Math.max(arrRGB[0],arrRGB[1],arrRGB[2]); //IE dies with spread op
+            let sum = arrRGB.reduce(function(total, currentVal){
+                return total + currentVal;
+            });
+            //pick text color based on bgcolor, apply to headers
+            let textColor = maxVal < 128 || (sum < 350 && arrRGB[1] < 225) ? 'white' : 'black';
+            elHeader.style.setProperty('background-color', bg_color);
+            elVHeader.style.setProperty('background-color', bg_color);
+            elHeader.style.setProperty('color', textColor);
+            elVHeader.style.setProperty('color', textColor);
+        }
     });
 }
 
@@ -509,16 +598,32 @@ function editLabels() {
 		});
 	}
 
-	for(var i in resSelectList) {
+	for(let i in resSelectList) {
 		if(resIndicatorList[resSelectList[i]] != undefined) {
 			buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
 			buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
-			buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button></td></tr>';
+			buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
+            buffer += '<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 16px; margin: 0 2px;" /></td></tr>';
 		}
 	}
 	buffer += '</table>';
     dialog.setContent(buffer);
     dialog.show();
+
+    resSelectList.map(function(checkedIndicator) {
+        if(resIndicatorList[checkedIndicator] != undefined) {
+            let elInput = document.getElementById("colorPicker" + checkedIndicator);
+            //update inputs and tempColors to the current colors if they have been set
+            if (gridColorData.hasOwnProperty(checkedIndicator)){
+                elInput.value = gridColorData[checkedIndicator];
+                tempColorData[checkedIndicator] = gridColorData[checkedIndicator]; //primitive
+            }
+            //update temp color object on change
+            elInput.addEventListener('change', function () {
+                tempColorData[checkedIndicator] = elInput.value;
+            });
+        }
+    });
 
     dialog.setSaveHandler(function() {
     	$('#labelSorter tr').each(function(i) {
@@ -527,7 +632,7 @@ function editLabels() {
     	});
         var tmp = document.createElement('div');
         var temp;
-        for(var i in resSelectList) {
+        for(let i in resSelectList) {
             if(resIndicatorList[resSelectList[i]] != undefined) {
                 temp = $('#id_' + resSelectList[i]).val();
                 tmp.innerHTML = temp;
@@ -536,6 +641,14 @@ function editLabels() {
             	resIndicatorList[resSelectList[i]] = temp;
             }
         }
+        gridColorData = Object.assign({ }, tempColorData);
+        if(Object.keys(gridColorData).length !== 0) {
+            updateHeaderColors();
+            let baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
+            buildURLComponents(baseURL);
+        }
+        tempColorData = Object.assign({ }, gridColorData);
+
         $('#generateReport').click();
         dialog.hide();
     });
@@ -545,10 +658,10 @@ function isSearchingDeleted(searchObj) {
     // check if the user explicitly wants to find deleted requests
     var t = searchObj.getLeafFormQuery().getQuery();
     var searchDeleted = false;
-    for(var i in t.terms) {
-        if(t.terms[i].id == 'stepID'
-            && t.terms[i].match == 'deleted'
-            && t.terms[i].operator == '=') {
+    for(let i in t.terms) {
+        if(t.terms[i].id === 'stepID'
+            && t.terms[i].match === 'deleted'
+            && t.terms[i].operator === '=') {
 
             return true;
         }
@@ -571,6 +684,7 @@ function sortHeaders(a, b) {
 function openShareDialog() {
     var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
     var reportLink = document.URL.substr(document.URL.lastIndexOf('/') + 1);
+
 
     dialog_message.setTitle('Share Report');
     dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
@@ -631,7 +745,7 @@ function showJSONendpoint() {
     });
 
     function setExportFormat() {
-        if($('#shortenLink').css('display') == 'none') {
+        if($('#shortenLink').css('display') === 'none') {
             $('#exportFormat').html('?');
         }
         else {
@@ -762,7 +876,9 @@ function createRequest(catID) {
     }
 }
 
+
 var url, urlQuery, urlIndicators;
+let urlColorData = 'str';
 var leafSearch;
 var headers = [];
 var t_inIndicators;
@@ -770,6 +886,8 @@ var isNewQuery = false;
 var dialog, dialog_message;
 var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
+let gridColorData = {}; //object updated with id: color
+let tempColorData = {}; //object updated with id: color
 
 var version = 3;
 /* URL formats
@@ -777,6 +895,19 @@ var version = 3;
     * v2 - lz-string in base64
     * v3 - uses getData() from formQuery.js
 */
+
+function buildURLComponents(baseURL){
+    url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
+    if (Object.keys(gridColorData).length !== 0){
+        urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
+        url += '&colors=' + encodeURIComponent(urlColorData);
+    }
+    if($('#reportTitle').val() != '') {
+        url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
+    }
+    window.history.pushState('', '', url);
+}
+
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
@@ -805,22 +936,22 @@ $(function() {
     	var filteredCategories = [];
         var showOptionCancelled = false;
 
-    	for(var i in tTerms) {
-    		if(tTerms[i].id == 'categoryID'
-    			&& tTerms[i].operator == '=') {
+    	for(let i in tTerms) {
+    		if(tTerms[i].id === 'categoryID'
+    			&& tTerms[i].operator === '=') {
     			filteredCategories.push(tTerms[i].match);
     		}
 
             // hide dateCancelled option unless it's being searched for
-            if(tTerms[i].id == 'stepID'
-    			&& tTerms[i].operator == '='
-                && tTerms[i].match == 'deleted') {
+            if(tTerms[i].id === 'stepID'
+    			&& tTerms[i].operator === '='
+                && tTerms[i].match === 'deleted') {
     			showOptionCancelled = true;
     		}
     	}
     	if(filteredCategories.length > 0) {
     		$('.category').css('display', 'none');
-    		for(var i in filteredCategories) {
+    		for(let i in filteredCategories) {
     			$('.' + filteredCategories[i]).css('display', 'inline');
     		}
     	}
@@ -882,8 +1013,8 @@ $(function() {
             }
             return 0;
         });
-    	for(var i in resSelectList) {
-            var temp = {};
+    	for(let i in resSelectList) {
+            var temp = { };
             temp.indicatorID = resSelectList[i];
             temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
             temp.sort = indicatorSort[temp.indicatorID] == undefined ? 0 : indicatorSort[temp.indicatorID];
@@ -903,7 +1034,6 @@ $(function() {
 
     	headers.sort(sortHeaders);
     	selectedIndicators.sort(sortHeaders);
-
 
     	grid.setHeaders(headers);
 
@@ -930,7 +1060,7 @@ $(function() {
             }
             let results = grid.getCurrentData();
             let filteredResults = results.filter(function(r) {
-                return r.categoryID !== undefined
+                return r.categoryID != undefined
             });
             if (filteredResults.length > 0) {
                 categoryID = filteredResults[0].categoryID;
@@ -979,41 +1109,39 @@ $(function() {
     	else {
     		$('#editLabels').css('display', 'inline');
     	}
-
     	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
 
     	if(isNewQuery) {
     		baseURL = '';
-    		if(window.location.href.indexOf('&') == -1) {
+    		if(window.location.href.indexOf('&') === -1) {
     			baseURL = window.location.href;
     		}
     		else {
     			baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
     		}
-            url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
-            if($('#reportTitle').val() != '') {
-                url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
-            }
-            window.history.pushState('', '', url);
+            buildURLComponents(baseURL);
+
             $('#reportTitle').on('keyup', function() {
-                url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators) + '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
-                window.history.pushState('', '', url);
+                buildURLComponents(baseURL);
             });
     	}
     	else {
     		url = window.location.href;
+    	}
+    	//reapply colors if user has moved away from reports view
+    	if(Object.keys(gridColorData).length !== 0){
+            updateHeaderColors(gridColorData);
         }
     });
 
 
-
-
     <!--{if $query != '' && $indicators != ''}-->
     function loadReport() {
-        var inQuery;
-        var inIndicators;
-        var title = '';
+        let inQuery;
+        let inIndicators;
+        let title = '';
+
         title = atob('<!--{$title|escape:"html"}-->');
         title = title.replace(/[^\040-\176]/g, '');
         title = title.replace(/</g, '&lt;');
@@ -1033,19 +1161,26 @@ $(function() {
         });
         try {
         	if(<!--{$version}--> >= 2) {
-        	    var query = '<!--{$query|escape:"html"}-->';
-        	    var indicators = '<!--{$indicators|escape:"html"}-->';
+        	    let query = '<!--{$query|escape:"html"}-->';
+        	    let indicators = '<!--{$indicators|escape:"html"}-->';
+                let colors = '<!--{$colors|escape:"html"}-->';
                 query = query.replace(/ /g, '+');
                 indicators = indicators.replace(/ /g, '+');
+                colors = colors.replace(/ /g, '+');
                 inQuery = JSON.parse(LZString.decompressFromBase64(query));
                 t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
+                let queryColors = JSON.parse(LZString.decompressFromBase64(colors));
+                if (queryColors !== null) {
+                    gridColorData = queryColors;
+                    updateHeaderColors(gridColorData);
+                }
         	}
         	else {
                 inQuery = JSON.parse(atob('<!--{$query|escape:"html"}-->'));
                 t_inIndicators = JSON.parse(atob('<!--{$indicators|escape:"html"}-->'));
         	}
         	inIndicators = [];
-        	for(var i in t_inIndicators) {
+        	for(let i in t_inIndicators) {
         		var temp = {};
                 if($.isNumeric(t_inIndicators[i].indicatorID)) {
                     temp.indicatorID = parseInt(t_inIndicators[i].indicatorID);
@@ -1072,12 +1207,12 @@ $(function() {
         	alert('Invalid report');
         }
     }
-    if(typeof atob == 'function') {
+    if(typeof atob === 'function') {
         loadReport();
     }
     <!--{/if}-->
     // ie9 workaround
-    if(typeof atob != 'function') {
+    if(typeof atob !== 'function') {
         $.ajax({
             type: 'GET',
             url: 'js/base64.js',
@@ -1091,7 +1226,7 @@ $(function() {
             }
         });
     }
-    if(typeof window.history.pushState != 'function') {
+    if(typeof window.history.pushState !== 'function') {
     	window.history.pushState = function(a, b, c) {
 
     	}

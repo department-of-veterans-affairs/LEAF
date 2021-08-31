@@ -2138,7 +2138,7 @@ class Form
                             $parsedDate = strtotime($item['data']);
                             if ($parsedDate !== false)
                             {
-                                $item['data'] = date('n/j/Y', $parsedDate);
+                                $item['data'] = date('m/d/Y', $parsedDate);
                             }
                         }
                         break;
@@ -2812,7 +2812,7 @@ class Form
                     {
                         if ($operator == '!=' && $vars[':data' . $count] == '')
                         {
-                            $conditions .= "{$gate}(lj_data{$count}.data {$operator} :data{$count} OR lj_data{$count}.data IS NOT NULL)";
+                            $conditions .= "{$gate}(lj_data{$count}.data {$operator} :data{$count})";
                         }
                         else
                         {
