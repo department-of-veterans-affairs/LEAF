@@ -45,23 +45,30 @@ var LeafFormGrid = function(containerID, options) {
      * @param values (required) object of cells and names to generate grid
      * @memberOf LeafFormGrid
      */
-    function printTableReportBuilder(values) {
+    function printTableReportBuilder(values, columnValues) {
         var gridBodyBuffer = '';
         var gridHeadBuffer = '';
         var rows = values.cells === undefined ? 0 : values.cells.length;
         var columns = values.format.length;
+        var numOfColumns = columnValues.length;
         var columnOrder = [];
         var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help Excel users
         var delimLF = "\r\n";
         var tDelim = '';
 
-        // console.log(values);
+        // remove unused columns
+        values.format = values.format.filter(function(value) {
+            return columnValues.includes(value.id);
+        });
+
 
         //finds and displays column names
         for(var i = 0; i < columns; i++){
-            tDelim = (i == columns-1) ? '' : delim;
-            gridHeadBuffer +='<td style="width: 100px;">' + values.format[i].name + tDelim + '</td>';
-            columnOrder.push(values.format[i].id)
+            if (columnValues.includes(values.format[i].id)) {
+                tDelim = (i == columns-1) ? '' : delim;
+                gridHeadBuffer +='<td style="width: 100px;">' + values.format[i].name + tDelim + '</td>';
+                columnOrder.push(values.format[i].id)
+            }
         }
 
         //populates table
@@ -497,6 +504,8 @@ var LeafFormGrid = function(containerID, options) {
                 }
                 if(currentData[i] != undefined) {
                     var data = {};
+                    // console.log(currentData);
+                    // console.log(headers[j]);
                     data.recordID = currentData[i].recordID;
                     data.indicatorID = headers[j].indicatorID;
                     data.cellContainerID = prefixID+currentData[i].recordID+'_'+headers[j].indicatorID;
@@ -524,9 +533,9 @@ var LeafFormGrid = function(containerID, options) {
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + htmlPrint + '</td>';
                         }
                         else {
-                            if(currentData[i].s1[data.data] !== undefined && data.data.search("gridInput")){
+                            if(currentData[i].s1[data.data] !== undefined && data.data.search("gridInput") && headers[j].cols.length > 0){
                                 // console.log(data);
-                                data.data = printTableReportBuilder(currentData[i].s1[data.data]);
+                                data.data = printTableReportBuilder(currentData[i].s1[data.data], headers[j].cols);
                             }
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + data.data + '</td>';
                         }

@@ -310,6 +310,7 @@ function loadSearchPrereqs() {
         success: function(res) {
             var buffer = '';
 
+
             // special columns
             buffer += '<div class="col span_1_of_3">';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_title" name="indicators[title]" value="title" />';
@@ -367,7 +368,7 @@ function loadSearchPrereqs() {
                 if (groupIDmap[res[i].categoryID].format.indexOf('grid') !== -1) {
                     // convert grid values to object and insert visibility property
                     let grid = $.parseJSON(groupIDmap[res[i].categoryID].format.replace('grid\n', ''));
-
+                    console.log(grid);
                     groupIDmap[res[i].categoryID].grid = grid.map(function(col) {
                         col.isChecked = true;
                         return col;
@@ -387,6 +388,8 @@ function loadSearchPrereqs() {
                 }
                 return 0;
             });
+
+
             for(var k in groupNames) {
                 var i = groupNames[k].categoryID;
                 var associatedCategories = groupIDmap[i].categoryID;
@@ -403,15 +406,15 @@ function loadSearchPrereqs() {
                 if(groupIDmap[i].parentCategoryID != '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
                     categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
+
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(var j in groupList[i]) {
-                    buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
+                    buffer += '<div id="mainGrid" class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
                     buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
-
                     // sub checklist for case of grid indicator
                     if (groupIDmap[i].grid !== undefined) {
                         for (k in groupIDmap[i].grid) {
-                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'.columns_' + groupIDmap[i].grid[k].name + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].grid[k].name + ']" value="' + groupList[i][j] + '-' + groupIDmap[i].grid[k].name + '" gridParent="' + groupList[i][j] + '" />';
+                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'.columns_' + groupIDmap[i].grid[k].name + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].grid[k].name + ']" value="' + groupList[i][j] + '-' + groupIDmap[i].grid[k].id + '" gridParent="' + groupList[i][j] + '" />';
                             buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '.columns_'+ groupIDmap[i].grid[k].name +'" title="columnID: '+ groupIDmap[i].grid[k].name +'"> ' + groupIDmap[i].grid[k].name +'</label></div>';
                         }
                     }
@@ -424,8 +427,15 @@ function loadSearchPrereqs() {
             $('#indicatorList').html(buffer);
 
             $('#indicatorList').css('height', $(window).height() - 240);
+
+            $('.indicatorOption').on('change', function() {
+                console.log('function hit');
+                $(this).nextUntil().children('.subIndicatorOption').prop('checked', $(this).prop('checked'));
+            });
+
             $('.form').on('click', function() {
-            	$(this).children('.formLabel').removeClass('buttonNorm');
+                // console.log('here');
+                $(this).children('.formLabel').removeClass('buttonNorm');
             	$(this).find('.formLabel>img').css('display', 'none');
             	$(this).css({width: '100%'});
             	// $(this).children('div').css('display', 'block');block
@@ -948,14 +958,13 @@ $(function() {
             }
             selectedIndicators.push(temp);
     	}
-    	console.log('selectedIndicators', selectedIndicators);
+    	// console.log('selectedIndicators', selectedIndicators);
     	headers.sort(sortHeaders);
     	selectedIndicators.sort(sortHeaders);
     	grid.setHeaders(headers);
 
     	leafSearch.getLeafFormQuery().onSuccess(function(res) {
             grid.setDataBlob(res);
-            // console.log(res);
             // this replaces grid.loadData()
             var tGridData = [];
             for(let i in res) {
@@ -965,7 +974,6 @@ $(function() {
             if(<!--{$version}--> >= 3) {
                 grid.setData(tGridData);
                 grid.sort('recordID', 'desc')
-                // console.log('selectedIndicators', selectedIndicators);
                 grid.renderBody();
             }
             else {
@@ -991,6 +999,7 @@ $(function() {
                 $('#newRequestButton').css('display', 'none');
             }
         });
+    	// console.log(leafSearch.getLeafFormQuery().getQuery());
 
     	// get data
     	leafSearch.getLeafFormQuery().execute();
@@ -1028,6 +1037,7 @@ $(function() {
     	}
 
     	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
+    	// console.log('selectedIndicators', selectedIndicators);
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
 
     	if(isNewQuery) {
@@ -1095,6 +1105,10 @@ $(function() {
         	for(var i in t_inIndicators) {
         		var temp = {};
                 if($.isNumeric(t_inIndicators[i].indicatorID)) {
+                    // add selected columns to payload in case of grid indicator
+                    if (Array.isArray(t_inIndicators[i].cols)) {
+                        temp.cols = t_inIndicators[i].cols;
+                    }
                     temp.indicatorID = parseInt(t_inIndicators[i].indicatorID);
                     temp.name = t_inIndicators[i].name.replace(/[^\040-\176]/g, '');
                     temp.name = temp.name.replace(/</g, '&lt;');
@@ -1104,7 +1118,6 @@ $(function() {
                 else {
                     addHeader(t_inIndicators[i].indicatorID);
                 }
-                console.log('inIndicators', inIndicators, 'selectedIndicators', selectedIndicators);
         	}
         	leafSearch.getLeafFormQuery().setQuery(inQuery);
         	if(!isSearchingDeleted(leafSearch)) {
@@ -1112,6 +1125,7 @@ $(function() {
         	}
         	leafSearch.renderPreviousAdvancedSearch(inQuery.terms);
         	headers = headers.concat(inIndicators);
+        	// console.log('inIndicators', inIndicators);
         	$('#step_1').slideUp(700);
         	$('#generateReport').click();
         }
@@ -1125,6 +1139,7 @@ $(function() {
     <!--{/if}-->
     // ie9 workaround
     if(typeof atob != 'function') {
+        console.log('it is not a function');
         $.ajax({
             type: 'GET',
             url: 'js/base64.js',
@@ -1133,7 +1148,7 @@ $(function() {
                 window.atob = base64.decode;
                 window.btoa = base64.encode;
                 <!--{if $query != '' && $indicators != ''}-->
-                loadReport();
+                loadReport(JSON.parse(LZString.decompressFromBase64('<!--{$indicators|escape:"html"}-->')));
                 <!--{/if}-->
             }
         });
