@@ -21,6 +21,7 @@ $login = new Orgchart\Login($db, $db);
 
 if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
 {
+    // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //    $protocol = 'http://';
     $protocol = 'https://';
 //    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')

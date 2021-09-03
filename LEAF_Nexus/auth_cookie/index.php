@@ -19,6 +19,7 @@ $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName)
 
 $login = new Orgchart\Login($db, $db);
 
+// For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
 $protocol = 'https://';
 

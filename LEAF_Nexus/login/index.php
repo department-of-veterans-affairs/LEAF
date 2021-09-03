@@ -1,6 +1,7 @@
 <?php
 header('X-UA-Compatible: IE=edge');
 
+// For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //$https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
 $https = true;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
@@ -27,6 +28,7 @@ function getBaseDir()
     return str_replace('login', '', $dir);
 }
 
+// For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
 $protocol = 'https://';
 

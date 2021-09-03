@@ -225,6 +225,7 @@ switch ($action) {
         $t_form->assign('workflow', $formWorkflow->isActive());
 
         //url
+        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 //        $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
         $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
@@ -456,6 +457,7 @@ switch ($action) {
         break;
 
     case 'reports':
+        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 //        $powerQueryURL = "{$protocol}://" . AUTH_URL . "/report_auth.php?r=";
         $powerQueryURL = "https://" . AUTH_URL . "/report_auth.php?r=";

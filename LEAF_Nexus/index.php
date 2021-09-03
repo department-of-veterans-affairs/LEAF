@@ -91,6 +91,7 @@ switch ($action) {
         $t_form->assign('topPositionID', (int)$position->getTopSupervisorID(1));
         $t_form->assign('header', XSSHelpers::sanitizeHTML($_GET['header']));
 
+        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
         $HTTP_HOST = XSSHelpers::sanitizeHTML(HTTP_HOST);
@@ -124,6 +125,7 @@ switch ($action) {
 
         $t_form->assign('resolvedService', $position->getService($rootID));
 
+        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
         $scrubbedHost = XSSHelpers::sanitizeHTML(HTTP_HOST);

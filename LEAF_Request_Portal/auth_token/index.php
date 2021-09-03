@@ -23,6 +23,7 @@ $login = new Login($db_phonebook, $db);
 
 if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
 {
+    // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
     $protocol = 'https://';
 //    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
 //    {

@@ -22,6 +22,7 @@ class Shortener
         $this->db = $db;
         $this->login = $login;
 
+        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
         // todo: replace with config based URL

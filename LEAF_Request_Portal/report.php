@@ -99,6 +99,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         //url
+        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
         $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
@@ -141,6 +142,7 @@ switch ($action) {
             $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 
             //url
+            // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
             $protocol = 'https';
             $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];

@@ -116,6 +116,7 @@ class Login
             $cookie = session_get_cookie_params();
             $id = session_id();
 
+            // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //            $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
             $https = true;
             setcookie('PHPSESSID', $id, time() + 2592000, $cookie['path'], $cookie['domain'], $https, true);
@@ -279,6 +280,7 @@ class Login
             unset($_SESSION[$key]);
         }
         $cookie = session_get_cookie_params();
+        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
         $https = true;
         setcookie('PHPSESSID', '', time() - 3600, $cookie['path'], $cookie['domain'], $https, true);
