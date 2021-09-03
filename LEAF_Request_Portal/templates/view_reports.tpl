@@ -28,10 +28,7 @@
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
 </div>
 
-
 <div id="results" style="display: none">Loading...</div>
-
-
 
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -367,7 +364,7 @@ function loadSearchPrereqs() {
 
                 if (groupIDmap[res[i].categoryID].format.indexOf('grid') !== -1) {
                     // convert grid values to object and insert visibility property
-                    let grid = $.parseJSON(groupIDmap[res[i].categoryID].format.replace('grid\n', ''));
+                    let grid = $.parseJSON(groupIDmap[res[i].categoryID].format.replace('grid', ''));
                     console.log(grid);
                     groupIDmap[res[i].categoryID].grid = grid.map(function(col) {
                         col.isChecked = true;
@@ -409,15 +406,16 @@ function loadSearchPrereqs() {
 
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(var j in groupList[i]) {
-                    buffer += '<div id="mainGrid" class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
-                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
+                    buffer += '<div class="indicatorOption" id="indicatorOption" style="display: none"><input type="checkbox" class="icheck parent" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
+                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label>';
                     // sub checklist for case of grid indicator
                     if (groupIDmap[i].grid !== undefined) {
                         for (k in groupIDmap[i].grid) {
-                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'.columns_' + groupIDmap[i].grid[k].name + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].grid[k].name + ']" value="' + groupList[i][j] + '-' + groupIDmap[i].grid[k].id + '" gridParent="' + groupList[i][j] + '" />';
+                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'.columns_' + groupIDmap[i].grid[k].name + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].grid[k].name + ']" value="' + groupList[i][j] + '-' + groupIDmap[i].grid[k].id + '" gridParent="' + groupList[i][j] + '" />';
                             buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '.columns_'+ groupIDmap[i].grid[k].name +'" title="columnID: '+ groupIDmap[i].grid[k].name +'"> ' + groupIDmap[i].grid[k].name +'</label></div>';
                         }
                     }
+                    buffer += '</div>';
                 }
                 buffer += '</div>';
             }
@@ -428,18 +426,68 @@ function loadSearchPrereqs() {
 
             $('#indicatorList').css('height', $(window).height() - 240);
 
-            $('.indicatorOption').on('change', function() {
-                console.log('function hit');
-                $(this).nextUntil().children('.subIndicatorOption').prop('checked', $(this).prop('checked'));
+            // check all subindicators to be equal to parent indicator
+            $('.indicatorOption').children().not('.subIndicatorOption').on('click', function() {
+                // if indicator is not checked
+                if ($(this).parent().parent().children('.icheck-item').not('.subIndicatorOption').hasClass('checked')) {
+                    // $(this).parent().parent().children('.subIndicatorOption').children('.icheck-item').removeClass('checked');
+                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('uncheck');
+                    // $(this).parent().parent().children('.subIndicatorOption').children('.icheck-item').removeAttr('checked');
+                    // $(this).parent().parent().nextUntil().children('.subIndicatorOption').children('.icheck-item').children().prop('checked', false);
+                } else { // if indicator is checked
+                    // $(this).parent().parent().children('.subIndicatorOption').children('.icheck-item').addClass('checked');
+                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('check');
+                    // $(this).parent().parent().children('.subIndicatorOption').children('.icheck-item').attr('checked', 'checked');
+                    // $(this).parent().parent().nextUntil().children('.subIndicatorOption').children('.icheck-item').children().prop('checked', true);
+                }
             });
 
+            // check if other subindicators under same indicator are empty or all checked
+            $('.subIndicatorOption').children().on('click', function() {
+                // check if all siblings are checked
+                if(!$(this).attr('class').includes('checked') && !$(this).parent().parent().parent().children('.icheck-item').attr('class').includes('checked')) {
+                    $(this).parent().parent().parent().children('.icheck-item').addClass('checked');
+                }
+            });
+
+            $('#indicatorOption input:checkbox[class="parent"]').click(parentClicked());
+            $('#indicatorOption input:checkbox[class^="parent-indicators_"]').click(parentClicked());
+
+           function parentClicked() {
+               if ($(this).attr('checked')) {
+                   $('#customerServices input:checkbox[class="parent-indicators_' + $(this).attr('id') + '"]').attr('checked', 'checked');
+               } else {
+                   $('#customerServices input:checkbox[class="parent-indicators_' + $(this).attr('id') + '"]').removeAttr('checked');
+               }
+           }
+
+           function childClicked() {
+               var temp = $(this).attr('class').split('-indicators_');
+               var parentId = temp[1];
+               console.log(temp[1]);
+
+               if ($(this).attr('checked')) {
+                   $('#' + parentId).attr('checked', 'checked');
+               } else {
+                   var atLeastOneEnabled = false;
+                   $('#customerServices input:checkbox[class="' + $(this).attr('class') + '"]').each(function() {
+                       if ($(this).attr('checked')) {
+                           atLeastOneEnabled = true;
+                       }
+                   });
+                   if (!atLeastOneEnabled) {
+                       $('#' + parentId).removeAttr('checked');
+                   }
+               }
+           }
+
+
             $('.form').on('click', function() {
-                // console.log('here');
                 $(this).children('.formLabel').removeClass('buttonNorm');
             	$(this).find('.formLabel>img').css('display', 'none');
             	$(this).css({width: '100%'});
-            	// $(this).children('div').css('display', 'block');block
             	$(this).children('div').css('display', 'block');
+            	$(this).children('div').children('.subIndicatorOption').css('display', 'block');
             	$(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
             		'font-weight': 'bold'});
             });
