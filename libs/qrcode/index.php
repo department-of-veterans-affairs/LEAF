@@ -25,7 +25,8 @@ if(isset($_GET['encode'])) {
         $HTTP_HOST = XSSHelpers::xssafe(HTTP_HOST);
     }
 
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+//    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+    $protocol = 'https';
     if(strpos($input, "{$protocol}://{$HTTP_HOST}/") !== 0) {
         $encode = "Invalid Input.";
     }

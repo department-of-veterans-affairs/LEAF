@@ -1,7 +1,8 @@
 <?php
 header('X-UA-Compatible: IE=edge');
 
-$https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
+//$https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
+$https = true;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
 include '../db_mysql.php';
@@ -26,7 +27,8 @@ function getBaseDir()
     return str_replace('login', '', $dir);
 }
 
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+//$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+$protocol = 'https://';
 
 $authURL = $protocol . AUTH_URL . '/auth_token/index.php?r=' . base64_encode(getBaseDir());
 

@@ -22,7 +22,8 @@ $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phon
 
 $login = new Login($db_phonebook, $db);
 
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+//$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+$protocol = 'https://';
 
 if (isset($_COOKIE['REMOTE_USER']))
 {

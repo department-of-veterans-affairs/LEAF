@@ -124,7 +124,8 @@ class Login
             $cookie = session_get_cookie_params();
             $id = session_id();
 
-            $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
+//            $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
+            $https = true;
             setcookie('PHPSESSID', $id, time() + 2592000, $cookie['path'], $cookie['domain'], $https, true);
         }
     }
@@ -186,11 +187,12 @@ class Login
         {
             if (php_sapi_name() != 'cli')
             {
-                $protocol = 'http://';
-                if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-                {
-                    $protocol = 'https://';
-                }
+//                $protocol = 'http://';
+//                if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+//                {
+//                    $protocol = 'https://';
+//                }
+                $protocol = 'https://';
 
                 // try to browser detect, since SSO implementation varies
                 if (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
@@ -242,7 +244,8 @@ class Login
             unset($_SESSION[$key]);
         }
         $cookie = session_get_cookie_params();
-        $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
+//        $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
+        $https = true;
         setcookie('PHPSESSID', '', time() - 3600, $cookie['path'], $cookie['domain'], $https, true);
     }
 

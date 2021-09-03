@@ -19,7 +19,8 @@ $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName)
 
 $login = new Orgchart\Login($db, $db);
 
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+//$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+$protocol = 'https://';
 
 if (isset($_COOKIE['REMOTE_USER']))
 {

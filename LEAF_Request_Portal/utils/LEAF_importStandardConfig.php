@@ -12,7 +12,8 @@ $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_con
 
 $res = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
-$protocol = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+//$protocol = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+$protocol = 'https://';
 $siteRootURL = $protocol . HTTP_HOST;
 $relativePath = trim(str_replace($siteRootURL, '', $res['national_linkedPrimary']));
 $tempFolder = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'files/temp/';

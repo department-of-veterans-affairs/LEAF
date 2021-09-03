@@ -23,11 +23,11 @@ $login = new Login($db_phonebook, $db);
 
 if (isset($_SERVER['REMOTE_USER']))
 {
-    $protocol = 'http://';
-    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-    {
-        $protocol = 'https://';
-    }
+    $protocol = 'https://';
+//    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+//    {
+//        $protocol = 'https://';
+//    }
     $redirect = '';
     if (isset($_GET['r']))
     {
