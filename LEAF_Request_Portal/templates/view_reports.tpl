@@ -365,7 +365,6 @@ function loadSearchPrereqs() {
                 if (groupIDmap[res[i].categoryID].format.indexOf('grid') !== -1) {
                     // convert grid values to object and insert visibility property
                     let grid = $.parseJSON(groupIDmap[res[i].categoryID].format.replace('grid', ''));
-                    console.log(grid);
                     groupIDmap[res[i].categoryID].grid = grid.map(function(col) {
                         col.isChecked = true;
                         return col;
@@ -427,60 +426,63 @@ function loadSearchPrereqs() {
             $('#indicatorList').css('height', $(window).height() - 240);
 
             // check all subindicators to be equal to parent indicator
-            $('.indicatorOption').children().not('.subIndicatorOption').on('click', function() {
-                // if indicator is not checked
-                if ($(this).parent().parent().children('.icheck-item').not('.subIndicatorOption').hasClass('checked')) {
-                    // $(this).parent().parent().children('.subIndicatorOption').children('.icheck-item').removeClass('checked');
-                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('uncheck');
-                    // $(this).parent().parent().children('.subIndicatorOption').children('.icheck-item').removeAttr('checked');
-                    // $(this).parent().parent().nextUntil().children('.subIndicatorOption').children('.icheck-item').children().prop('checked', false);
-                } else { // if indicator is checked
-                    // $(this).parent().parent().children('.subIndicatorOption').children('.icheck-item').addClass('checked');
-                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('check');
-                    // $(this).parent().parent().children('.subIndicatorOption').children('.icheck-item').attr('checked', 'checked');
-                    // $(this).parent().parent().nextUntil().children('.subIndicatorOption').children('.icheck-item').children().prop('checked', true);
+            $('.indicatorOption').children().not('.subIndicatorOption').on('change', function() {
+                const newValue = $(this).icheck('update')[0].checked;
+
+                // update the children checkboxes to reflect the updated parent checkbox status
+                if (newValue === true) {
+                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('checked');
+                } else {
+                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('unchecked');
                 }
             });
 
-            // check if other subindicators under same indicator are empty or all checked
-            $('.subIndicatorOption').children().on('click', function() {
-                // check if all siblings are checked
-                if(!$(this).attr('class').includes('checked') && !$(this).parent().parent().parent().children('.icheck-item').attr('class').includes('checked')) {
-                    $(this).parent().parent().parent().children('.icheck-item').addClass('checked');
+            // check if sibling checkboxes are empty or all checked
+            $('.subIndicatorOption').children().on('change', function() {
+                const newValue = $(this).icheck('update')[0].checked;
+
+                let getSiblings = function (e) {
+                    let siblings = [];
+                    // if no parent, return no sibling
+                    if(!e.parent()) {
+                        return siblings;
+                    }
+                    // first child of the parent node
+                    let sibling  = e.parent().children()[1];
+
+                    // collecting siblings
+                    while (sibling) {
+                        if (sibling.nodeType === 1 && sibling !== e) {
+                            siblings.push(sibling);
+                        }
+                        sibling = sibling.nextSibling;
+                    }
+                    return siblings;
+                };
+
+                // if child is checked and parent is not checked
+                if(newValue && !$(this).parent().parent().parent().children('input').not('.subIndicatorOption').children('.icheck-item').hasClass('checked')) {
+                    // check the parent
+                    $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').icheck('checked');
+                } else {
+                    let siblings = getSiblings($(this).parent().parent());
+                    let atLeastOneChecked = false;
+                    let parentCheckbox = siblings.shift();
+
+                    // check if each sibling is checked
+                    $.each(siblings, function(key, value) {
+                        if ($(value).children('.icheck-item').children('input').icheck('update')[0].checked) {
+                            atLeastOneChecked = true;
+                        }
+                    });
+
+                    // if there are no checked children
+                    if (atLeastOneChecked === false) {
+                        // uncheck the parent
+                        $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').icheck('unchecked');
+                    }
                 }
             });
-
-            $('#indicatorOption input:checkbox[class="parent"]').click(parentClicked());
-            $('#indicatorOption input:checkbox[class^="parent-indicators_"]').click(parentClicked());
-
-           function parentClicked() {
-               if ($(this).attr('checked')) {
-                   $('#customerServices input:checkbox[class="parent-indicators_' + $(this).attr('id') + '"]').attr('checked', 'checked');
-               } else {
-                   $('#customerServices input:checkbox[class="parent-indicators_' + $(this).attr('id') + '"]').removeAttr('checked');
-               }
-           }
-
-           function childClicked() {
-               var temp = $(this).attr('class').split('-indicators_');
-               var parentId = temp[1];
-               console.log(temp[1]);
-
-               if ($(this).attr('checked')) {
-                   $('#' + parentId).attr('checked', 'checked');
-               } else {
-                   var atLeastOneEnabled = false;
-                   $('#customerServices input:checkbox[class="' + $(this).attr('class') + '"]').each(function() {
-                       if ($(this).attr('checked')) {
-                           atLeastOneEnabled = true;
-                       }
-                   });
-                   if (!atLeastOneEnabled) {
-                       $('#' + parentId).removeAttr('checked');
-                   }
-               }
-           }
-
 
             $('.form').on('click', function() {
                 $(this).children('.formLabel').removeClass('buttonNorm');
@@ -1006,7 +1008,6 @@ $(function() {
             }
             selectedIndicators.push(temp);
     	}
-    	// console.log('selectedIndicators', selectedIndicators);
     	headers.sort(sortHeaders);
     	selectedIndicators.sort(sortHeaders);
     	grid.setHeaders(headers);
@@ -1047,7 +1048,6 @@ $(function() {
                 $('#newRequestButton').css('display', 'none');
             }
         });
-    	// console.log(leafSearch.getLeafFormQuery().getQuery());
 
     	// get data
     	leafSearch.getLeafFormQuery().execute();
@@ -1085,7 +1085,6 @@ $(function() {
     	}
 
     	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
-    	// console.log('selectedIndicators', selectedIndicators);
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
 
     	if(isNewQuery) {
@@ -1173,7 +1172,6 @@ $(function() {
         	}
         	leafSearch.renderPreviousAdvancedSearch(inQuery.terms);
         	headers = headers.concat(inIndicators);
-        	// console.log('inIndicators', inIndicators);
         	$('#step_1').slideUp(700);
         	$('#generateReport').click();
         }
@@ -1187,7 +1185,6 @@ $(function() {
     <!--{/if}-->
     // ie9 workaround
     if(typeof atob != 'function') {
-        console.log('it is not a function');
         $.ajax({
             type: 'GET',
             url: 'js/base64.js',

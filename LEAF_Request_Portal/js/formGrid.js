@@ -117,7 +117,6 @@ var LeafFormGrid = function(containerID, options) {
                     }
                     data = tData.substr(2);
                 }
-                // console.log(response[indicatorID]);
                 if(response[indicatorID].format == 'grid') {
                     data = printTableReportBuilder(data);
                 }
@@ -482,7 +481,6 @@ var LeafFormGrid = function(containerID, options) {
         var callbackBuffer = [];
 
         var colspan = showIndex ? headers.length + 1 : headers.length;
-        // console.log(currentData);
         if(currentData.length == 0) {
             $('#' + prefixID + 'tbody').append('<tr><td colspan="'+ colspan +'" style="text-align: center">No Results</td></tr>');
         }
@@ -504,8 +502,6 @@ var LeafFormGrid = function(containerID, options) {
                 }
                 if(currentData[i] != undefined) {
                     var data = {};
-                    // console.log(currentData);
-                    // console.log(headers[j]);
                     data.recordID = currentData[i].recordID;
                     data.indicatorID = headers[j].indicatorID;
                     data.cellContainerID = prefixID+currentData[i].recordID+'_'+headers[j].indicatorID;
@@ -534,7 +530,6 @@ var LeafFormGrid = function(containerID, options) {
                         }
                         else {
                             if(currentData[i].s1[data.data] !== undefined && data.data.search("gridInput") && headers[j].cols.length > 0){
-                                // console.log(data);
                                 data.data = printTableReportBuilder(currentData[i].s1[data.data], headers[j].cols);
                             }
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + data.data + '</td>';
