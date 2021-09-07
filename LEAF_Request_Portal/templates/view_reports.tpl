@@ -1022,7 +1022,7 @@ $(function() {
 
             if(<!--{$version}--> >= 3) {
                 grid.setData(tGridData);
-                grid.sort('recordID', 'desc')
+                grid.sort('recordID', 'desc');
                 grid.renderBody();
             }
             else {
