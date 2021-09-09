@@ -140,6 +140,10 @@ class WorkflowController extends RESTfulResponse
             return $workflow->newWorkflow(XSSHelpers::xscrub($_POST['description']));
         });
 
+        $this->index['POST']->register('workflow/events', function ($args) use ($workflow) {
+            return $workflow->createEvent(XSSHelpers::xscrub($_POST['name']), XSSHelpers::xscrub($_POST['description']));
+        });
+
         $this->index['POST']->register('workflow/[digit]/editorPosition', function ($args) use ($workflow) {
             $workflow->setWorkflowID((int)$args[0]);
 

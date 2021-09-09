@@ -668,6 +668,45 @@ class Workflow
         return true;
     }
 
+    public function createEvent($name, $desc)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required.';
+        }
+
+        $vars = array(':eventID' => $name,
+                      ':description' => $desc,
+                      ':eventData' => '');
+
+        $strSQL = "INSERT INTO events (eventID, eventDescription, eventData) VALUES (:eventID, :description, :eventData)";
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        $vars = array(':description' => $desc,
+                      ':emailTo' => 'LEAF_' . $name . '_emailTo.tpl',
+                      ':emailCc' => 'LEAF_' . $name . '_emailCc.tpl',
+                      ':subject' => 'LEAF_' . $name . '_subject.tpl',
+                      ':body' => 'LEAF_' . $name . '_body.tpl');
+
+        $strSQL = 'INSERT INTO email_templates (label, emailTo, emailCc, subject, body) VALUES (:description, :emailTo, :emailCc, :subject, :body)';
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        $bodyTPL = file_get_contents("../templates/email/base_templates/LEAF_template_body.tpl");
+        $subjectTPL = file_get_contents("../templates/email/base_templates/LEAF_template_subject.tpl");
+
+        file_put_contents("../templates/email/LEAF_{$name}_body.tpl", $bodyTPL);
+        file_put_contents("../templates/email/LEAF_{$name}_subject.tpl", $subjectTPL);
+
+        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EVENTS, [
+            new LogItem("events", "eventDescription",  $desc),
+            new LogItem("events", "eventID",  $name)
+        ]);
+
+        return true;
+    }
+
     public function linkEvent($stepID, $actionType, $eventID)
     {
         if (!$this->login->checkGroup(1))

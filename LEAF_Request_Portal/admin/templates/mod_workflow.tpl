@@ -92,7 +92,10 @@ function unlinkEvent(workflowID, stepID, actionType, eventID) {
 function addEventDialog(workflowID, stepID, actionType) {
     $('.workflowStepInfo').css('display', 'none');
     dialog.setTitle('Add Event');
-    dialog.setContent('<div id="addEventDialog"></div><div id="eventData"></div>');
+    let addEventContent = '<div><button id="createEvent" class="usa-button leaf-btn-med">Create Event</button></div>' +
+                   '<div id="addEventDialog"></div>' +
+                   '<div id="eventData"></div>';
+    dialog.setContent(addEventContent);
     dialog.indicateBusy();
     dialog.show();
     $.ajax({
@@ -104,12 +107,50 @@ function addEventDialog(workflowID, stepID, actionType) {
             buffer = 'Add an event: ';
             buffer += '<br /><div><select id="eventID" name="eventID">';
 
-            for(var i in res) {
+            for(let i in res) {
                 buffer += '<option value="'+ res[i].eventID +'">'+ res[i].eventDescription +'</option>';
             }
 
             buffer += '</select></div>';
             $('#addEventDialog').html(buffer);
+            $('#createEvent').on('click', function() {
+                dialog.clear();
+                dialog.setTitle('Create Event');
+                let createEventContent = '<div><span>Event Name: </span><textarea id="eventName" class="eventTextBox" /><br/><br/>' +
+                                         '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox" />';
+                dialog.setContent(createEventContent);
+                $('#eventName').on('keyup', function() {
+                    $('#eventName').val($('#eventName').val().replace(/[^a-z0-9]/gi, '_'));
+                });
+                $('#eventName').attr('maxlength', 25);
+                dialog.setSaveHandler(function() {
+                    let eventName = 'CustomEvent_' + $('#eventName').val();
+                    let eventDesc = $('#eventDesc').val();
+                    let ajaxData = {name: eventName,
+                                    description: eventDesc,
+                                    CSRFToken: CSRFToken};
+                    let eventExists = false;
+                    for(let i in res) {
+                        if (res[i].eventID === eventName) {
+                            eventExists = true;
+                        }
+                    }
+                    if (eventExists === false) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '../api/?a=workflow/events',
+                            data: ajaxData,
+                            success: function () {
+                                alert('Event was successfully created.');
+                            }
+                        });
+                    } else {
+                        alert('Event name already exists.');
+                        dialog.hide();
+                    }
+                    dialog.hide();
+                });
+            });
             $('#eventID').chosen({disable_search_threshold: 5})
             .change(function(){
                 $('#eventData').html('');

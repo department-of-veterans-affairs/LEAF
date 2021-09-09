@@ -43,3 +43,14 @@
 .workflowStepInfo > h2 {
     margin: 0px;
 }
+
+#createEvent {
+    float: right;
+}
+
+.eventTextBox {
+    resize: none;
+    width: 50%;
+    height: 20px;
+    margin-bottom: -8px;
+}
