@@ -46,29 +46,25 @@ var LeafFormGrid = function(containerID, options) {
      * @memberOf LeafFormGrid
      */
     function printTableReportBuilder(values, columnValues) {
-        var gridBodyBuffer = '';
-        var gridHeadBuffer = '';
-        var rows = values.cells === undefined ? 0 : values.cells.length;
-        var columns = values.format.length;
-        var numOfColumns = columnValues.length;
-        var columnOrder = [];
-        var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help Excel users
-        var delimLF = "\r\n";
-        var tDelim = '';
-
         // remove unused columns
         values.format = values.format.filter(function(value) {
             return columnValues.includes(value.id);
         });
 
+        var gridBodyBuffer = '';
+        var gridHeadBuffer = '';
+        var rows = values.cells === undefined ? 0 : values.cells.length;
+        var columns = values.format.length;
+        var columnOrder = [];
+        var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help Excel users
+        var delimLF = "\r\n";
+        var tDelim = '';
 
         //finds and displays column names
-        for(var i = 0; i < columns; i++){
-            if (columnValues.includes(values.format[i].id)) {
-                tDelim = (i == columns-1) ? '' : delim;
-                gridHeadBuffer +='<td style="width: 100px;">' + values.format[i].name + tDelim + '</td>';
-                columnOrder.push(values.format[i].id)
-            }
+        for (let i = 0; i < columns; i++) {
+            tDelim = (i === columns - 1) ? '' : delim;
+            gridHeadBuffer += '<td style="width: 100px;">' + values.format[i].name + tDelim + '</td>';
+            columnOrder.push(values.format[i].id)
         }
 
         //populates table
