@@ -893,29 +893,33 @@ let isOneFormType = false;
 /**
  * Purpose: Check if only one type of form could logically be returned and,
  * if so, update global variables isOneFormType (bool) and categoryID (string).
- * @param searchQueryTerms - variable with result of leafSearch.getLeafFormQuery().getQuery().terms
+ * @param searchQueryTerms - variable with result of leafSearch.getLeafFormQuery().getQuery().terms (array)
  */
 function checkIfOneTypeSearchedAndUpdate(searchQueryTerms) {
+    searchQueryTerms = searchQueryTerms || 0;
     isOneFormType = false;   //global
     categoryID = 'strCatID'; //global
-    let boolGateCheck = false;
-    let categoriesSearched = searchQueryTerms.filter(function(term){
-        return term.id === "categoryID";
-    });
-    //search must be limited to one Type, and its operator must be "=", additionally search differs based on location:
-    //If Type is the first criteria, all gates must be AND. If not, only its own gate must be AND.
-    //example: 'type IS <form> OR title is <title>', VS 'title IS <title> OR <other search> AND type IS <form>'
-    if (categoriesSearched.length === 1 && categoriesSearched[0].operator === "=") {
-        if (searchQueryTerms[0].id === "categoryID") {  //if it's the first search criteria
-            boolGateCheck = searchQueryTerms.every(function(term) {
-                return term.gate === "AND";
-            });
-        } else {
-            boolGateCheck = (categoriesSearched[0].gate === "AND");
-        }
-        if (boolGateCheck) {
-            isOneFormType = true; //global
-            categoryID = categoriesSearched[0].match; //global
+    if (searchQueryTerms !== 0 && searchQueryTerms.length > 0) {
+        let boolGateCheck = false;
+        let categoriesSearched = searchQueryTerms.filter(function (term) {
+            return term.id === "categoryID";
+        });
+
+        //search must be limited to one Type, and its operator must be "=", additionally search differs based on location:
+        //If Type is the first criteria, all gates must be AND. If not, only its own gate must be AND.
+        //example: 'type IS <form> OR title is <title>', VS 'title IS <title> OR <other search> AND type IS <form>'
+        if (categoriesSearched.length === 1 && categoriesSearched[0].operator === "=") {
+            if (searchQueryTerms[0].id === "categoryID") {  //if it's the first search criteria
+                boolGateCheck = searchQueryTerms.every(function (term) {
+                    return term.gate === "AND";
+                });
+            } else {
+                boolGateCheck = (categoriesSearched[0].gate === "AND");
+            }
+            if (boolGateCheck) {
+                isOneFormType = true; //global
+                categoryID = categoriesSearched[0].match; //global
+            }
         }
     }
 }
