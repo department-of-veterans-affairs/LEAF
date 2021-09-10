@@ -867,6 +867,10 @@ class FormWorkflow
 
         foreach ($res as $event)
         {
+            $customEvent = null;
+            if (preg_match('/CustomEvent_/', $event['eventID'])) {
+                $customEvent = $event['eventID'];
+            }
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
                     require_once 'Email.php';
@@ -930,6 +934,43 @@ class FormWorkflow
 
                     $tmp = $dir->lookupLogin($approvers[0]['userID']);
                     $email->addRecipient($tmp[0]['Email']);
+
+                    $email->sendMail();
+
+                    break;
+                case $customEvent: // For all custom events
+                    require_once 'Email.php';
+                    $email = new Email();
+
+                    $vars = array(':recordID' => $this->recordID);
+                    $strSQL = "SELECT rec.title, rec.lastStatus, rec.userID, ser.service ".
+                        "FROM records AS rec ".
+                        "LEFT JOIN services AS ser USING (serviceID) ".
+                        "WHERE recordID=:recordID";
+                    $approvers = $this->db->prepared_query($strSQL, $vars);
+
+                    $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+
+                    $email->addSmartyVariables(array(
+                        "truncatedTitle" => $title,
+                        "fullTitle" => $approvers[0]['title'],
+                        "recordID" => $this->recordID,
+                        "service" => $approvers[0]['service'],
+                        "lastStatus" => $approvers[0]['lastStatus'],
+                        "comment" => $comment,
+                        "siteRoot" => $this->siteRoot
+                    ));
+
+                    $label = str_replace('CustomEvent_', '', $event['eventID']);
+                    $label = str_replace('_', ' ', $label);
+
+                    $email->setTemplateByLabel($label);
+
+                    require_once 'VAMC_Directory.php';
+                    $dir = new VAMC_Directory;
+
+                    $author = $dir->lookupLogin($this->login->getUserID());
+                    $email->setSender($author[0]['Email']);
 
                     $email->sendMail();
 
