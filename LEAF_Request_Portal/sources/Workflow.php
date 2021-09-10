@@ -756,9 +756,10 @@ class Workflow
 
         $vars = array(':eventID' => $name,
                       ':description' => $desc,
-                      ':eventData' => $type);
+                      ':eventType' => $type,
+                      ':eventData' => '');
 
-        $strSQL = "INSERT INTO events (eventID, eventDescription, eventData) VALUES (:eventID, :description, :eventData)";
+        $strSQL = "INSERT INTO events (eventID, eventDescription, eventType, eventData) VALUES (:eventID, :description, :eventType, :eventData)";
 
         $this->db->prepared_query($strSQL, $vars);
 
@@ -771,12 +772,6 @@ class Workflow
         $strSQL = 'INSERT INTO email_templates (label, emailTo, emailCc, subject, body) VALUES (:description, :emailTo, :emailCc, :subject, :body)';
 
         $this->db->prepared_query($strSQL, $vars);
-
-        $bodyTPL = file_get_contents("../templates/email/base_templates/LEAF_template_body.tpl");
-        $subjectTPL = file_get_contents("../templates/email/base_templates/LEAF_template_subject.tpl");
-
-        //file_put_contents("../templates/email/{$name}_body.tpl", $bodyTPL);
-        //file_put_contents("../templates/email/{$name}_subject.tpl", $subjectTPL);
 
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EVENTS, [
             new LogItem("events", "eventDescription",  $desc),

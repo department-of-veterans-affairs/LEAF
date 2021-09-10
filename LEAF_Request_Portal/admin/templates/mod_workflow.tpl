@@ -103,23 +103,23 @@ function listEvents() {
         url: '../api/?a=workflow/customEvents',
         success: function(res) {
             var buffer = '';
-            buffer += '<table id="events" class="table" border="1"><caption><h2>List of Events</h2></caption><thead><th scope="col">Event</th><th scope="col">Description</th><th scope="col">Type</th><th scope="col"></th></thead>';
+            buffer += '<table id="events" class="table" border="1"><caption><h2>List of Events</h2></caption><thead><th scope="col">Event</th><th scope="col">Description</th><th scope="col">Type</th><th scope="col">Action</th></thead>';
 
             if (res.length === 0) {
                 buffer += '<tr>';
-                buffer += '<td width="300px">No Custom Events Created</td>';
-                buffer += '<td width="300px"></td>';
+                buffer += '<td width="200px">No Custom Events Created</td>';
+                buffer += '<td width="200px"></td>';
                 buffer += '<td width="150px"></td>';
-                buffer += '<td width="150px"></td>';
+                buffer += '<td width="100px"></td>';
                 buffer += '</tr>';
             }
 
             for (let i in res) {
                 buffer += '<tr>';
-                buffer += '<td width="300px" id="' + res[i].eventID + '">' + res[i].eventID.replace('CustomEvent_', '').replace('_', ' ') + '</td>';
-                buffer += '<td width="300px" id="' + res[i].eventDescription + '">' + res[i].eventDescription + '</td>';
-                buffer += '<td width="150px" id="' + res[i].eventData + '">' + res[i].eventData + '</td>';
-                buffer += '<td width="150px" id="' + res[i].eventID + '"><button class="buttonNorm" onclick="editEvent(\'' + res[i].eventID + '\')" style="background: blue;color: #fff;">Edit</button> <button class="buttonNorm" onclick="deleteEvent(\'' + res[i].eventID + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
+                buffer += '<td width="200px" id="' + res[i].eventID + '">' + res[i].eventID.replace('CustomEvent_', '').replace('_', ' ') + '</td>';
+                buffer += '<td width="200px" id="' + res[i].eventDescription + '">' + res[i].eventDescription + '</td>';
+                buffer += '<td width="150px" id="' + res[i].eventType + '">' + res[i].eventType + '</td>';
+                buffer += '<td width="100px" id="' + res[i].eventID + '"><button class="buttonNorm" onclick="editEvent(\'' + res[i].eventID + '\')" style="background: blue;color: #fff;">Edit</button> <button class="buttonNorm" onclick="deleteEvent(\'' + res[i].eventID + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
                 buffer += '</tr>';
             }
 
@@ -160,6 +160,7 @@ function newEvent(events) {
         $('#eventName').val($('#eventName').val().replace(/[^a-z0-9]/gi, '_'));
     });
     $('#eventName').attr('maxlength', 25);
+    $('#eventDesc').attr('maxlength', 40);
     dialog.setSaveHandler(function() {
         let eventName = 'CustomEvent_' + $('#eventName').val();
         let eventDesc = $('#eventDesc').val();
@@ -216,7 +217,7 @@ function addEventDialog(workflowID, stepID, actionType) {
             buffer += '<br /><div><select id="eventID" name="eventID">';
 
             for(let i in res) {
-                buffer += '<option value="'+ res[i].eventID +'">'+ res[i].eventData +': '+ res[i].eventDescription +'</option>';
+                buffer += '<option value="'+ res[i].eventID +'">'+ res[i].eventType +' - '+ res[i].eventDescription +'</option>';
             }
 
             buffer += '</select></div>';
@@ -283,6 +284,7 @@ function editEvent(event) {
                 $('#eventName').val($('#eventName').val().replace(/[^a-z0-9]/gi, '_'));
             });
             $('#eventName').attr('maxlength', 25);
+            $('#eventDesc').attr('maxlength', 40);
             dialog.indicateIdle();
             dialog.setSaveHandler(function() {
                 let eventName = 'CustomEvent_' + $('#eventName').val();
@@ -927,10 +929,10 @@ function showActionInfo(params, evt) {
             output += '<br /><div>Triggers these events:<ul>';
             // the sendback action always notifies the requestor
             if(params.action == 'sendback') {
-            	output += '<li><b>Notify the requestor via email</b></li>';
+            	output += '<li><b>Emmail: Notify the requestor</b></li>';
             }
             for(var i in res) {
-                output += '<li><b title="'+ res[i].eventID +'">'+ res[i].eventDescription +'</b> <img src="../../libs/dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent('+ currentWorkflow +', '+ stepID +', \''+ params.action +'\', \''+ res[i].eventID +'\')" alt="Remove Action" title="Remove Action" /></li>';
+                output += '<li><b title="'+ res[i].eventID +'">'+ res[i].eventType +' - '+ res[i].eventDescription +'</b> <img src="../../libs/dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent('+ currentWorkflow +', '+ stepID +', \''+ params.action +'\', \''+ res[i].eventID +'\')" alt="Remove Action" title="Remove Action" /></li>';
             }
             output += '<li style="padding-top: 8px"><span class="buttonNorm" id="event_'+ currentWorkflow + '_' + stepID + '_'+ params.action +'">Add Event</span>';
             output += '</ul></div>';
