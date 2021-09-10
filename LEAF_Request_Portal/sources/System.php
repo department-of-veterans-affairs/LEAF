@@ -473,6 +473,8 @@ class System
                         $data[$dataType.'File'] = file_get_contents("../templates/email/custom_override/{$data[$dataType.'FileName']}");
                     else if (file_exists("../templates/email/{$data[$dataType.'FileName']}"))
                         $data[$dataType.'File'] = file_get_contents("../templates/email/{$data[$dataType.'FileName']}");
+                    else if (preg_match('/CustomEvent_/', $data[$dataType.'FileName']) && $dataType === 'subject')
+                        $data[$dataType.'File'] = file_get_contents("../templates/email/base_templates/LEAF_template_subject.tpl");
                     else
                         $data[$dataType.'File'] = '';
                 }
@@ -561,8 +563,14 @@ class System
             }
             else
             {
-                $data['modified'] = 0;
-                $data['file'] = file_get_contents("../templates/email/{$template}");
+                if (preg_match('/CustomEvent_/', $template)) {
+                    $data['modified'] = 0;
+                    $data['file'] = file_get_contents("../templates/email/base_templates/LEAF_template_body.tpl");
+                    //var_dump($data);
+                } else {
+                    $data['modified'] = 0;
+                    $data['file'] = file_get_contents("../templates/email/{$template}");
+                }
             }
 
             $res = $this->getEmailData($template, $getStandard);

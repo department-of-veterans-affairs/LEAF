@@ -323,6 +323,78 @@ class Workflow
         return $res;
     }
 
+    public function getCustomEvents()
+    {
+        $strSQL = "SELECT * FROM events WHERE eventID LIKE 'CustomEvent_%'";
+
+        $res = $this->db->query($strSQL);
+
+        return $res;
+    }
+
+    public function getEvent($event)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $vars = array(':eventID' => $event);
+
+        $res = $this->db->prepared_query('SELECT * FROM events WHERE eventID=:eventID', $vars);
+
+        return $res;
+    }
+
+    public function editEvent($name)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        $systemEvent = array('std_email_notify_completed','std_email_notify_next_approver','LeafSecure_DeveloperConsole','LeafSecure_Certified');
+
+        if (in_array($name, $systemEvent))
+        {
+            return 'System Events Cannot Be Modified.';
+        }
+
+        $vars = array(':eventID' => $name,
+                      ':eventDescription' => $_POST['description'],
+                      ':newEventID' => $_POST['newName']);
+
+        $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription WHERE eventID=:eventID';
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        $name = str_replace('CustomEvent_','', $name);
+        $name = str_replace('_',' ', $name);
+        $newName = str_replace('CustomEvent_', '', $_POST['newName']);
+        $newName = str_replace('_', ' ', $newName);
+
+
+        $vars = array(':eventID' => $name,
+                      ':emailTo' => "{$_POST['newName']}_emailTo.tpl",
+                      ':emailCc' => "{$_POST['newName']}_emailCc.tpl",
+                      ':subject' => "{$_POST['newName']}_subject.tpl",
+                      ':body' => "{$_POST['newName']}_body.tpl",
+                      ':newEventID' => $newName);
+
+        $strSQL = 'UPDATE email_templates SET label=:newEventID, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body WHERE label=:eventID';
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        //rename('../templates/')
+
+        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::EVENTS, [
+            new LogItem("events", "eventDescription",  $_POST['description']),
+            new LogItem("events", "eventID",  $name)
+        ]);
+
+        return 1;
+    }
+
     public function getActions()
     {
         $vars = array();
@@ -668,26 +740,33 @@ class Workflow
         return true;
     }
 
-    public function createEvent($name, $desc)
+    public function createEvent($name, $desc, $type)
     {
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required.';
         }
 
+        $systemEvent = array('std_email_notify_completed','std_email_notify_next_approver','LeafSecure_DeveloperConsole','LeafSecure_Certified');
+
+        if (in_array($name, $systemEvent))
+        {
+            return 'Event Already Exists.';
+        }
+
         $vars = array(':eventID' => $name,
                       ':description' => $desc,
-                      ':eventData' => '');
+                      ':eventData' => $type);
 
         $strSQL = "INSERT INTO events (eventID, eventDescription, eventData) VALUES (:eventID, :description, :eventData)";
 
         $this->db->prepared_query($strSQL, $vars);
 
         $vars = array(':description' => $desc,
-                      ':emailTo' => 'LEAF_' . $name . '_emailTo.tpl',
-                      ':emailCc' => 'LEAF_' . $name . '_emailCc.tpl',
-                      ':subject' => 'LEAF_' . $name . '_subject.tpl',
-                      ':body' => 'LEAF_' . $name . '_body.tpl');
+                      ':emailTo' => $name . '_emailTo.tpl',
+                      ':emailCc' => $name . '_emailCc.tpl',
+                      ':subject' => $name . '_subject.tpl',
+                      ':body' => $name . '_body.tpl');
 
         $strSQL = 'INSERT INTO email_templates (label, emailTo, emailCc, subject, body) VALUES (:description, :emailTo, :emailCc, :subject, :body)';
 
@@ -696,8 +775,8 @@ class Workflow
         $bodyTPL = file_get_contents("../templates/email/base_templates/LEAF_template_body.tpl");
         $subjectTPL = file_get_contents("../templates/email/base_templates/LEAF_template_subject.tpl");
 
-        file_put_contents("../templates/email/LEAF_{$name}_body.tpl", $bodyTPL);
-        file_put_contents("../templates/email/LEAF_{$name}_subject.tpl", $subjectTPL);
+        //file_put_contents("../templates/email/{$name}_body.tpl", $bodyTPL);
+        //file_put_contents("../templates/email/{$name}_subject.tpl", $subjectTPL);
 
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EVENTS, [
             new LogItem("events", "eventDescription",  $desc),
@@ -705,6 +784,55 @@ class Workflow
         ]);
 
         return true;
+    }
+
+    public function removeEvent($event)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $systemAction = array('std_email_notify_completed','std_email_notify_next_approver','LeafSecure_DeveloperConsole','LeafSecure_Certified');
+
+        if (in_array($event, $systemAction))
+        {
+            return 'System Events cannot be removed.';
+        }
+
+        // Delete Custom Emails
+        if (file_exists("../templates/email/custom_override/{$event}_body.tpl"))
+            unlink("../templates/email/custom_override/{$event}_body.tpl");
+        if (file_exists("../templates/email/custom_override/{$event}_subject.tpl"))
+            unlink("../templates/email/custom_override/{$event}_subject.tpl");
+        if (file_exists("../templates/email/custom_override/{$event}_emailTo.tpl"))
+            unlink("../templates/email/custom_override/{$event}_emailTo.tpl");
+        if (file_exists("../templates/email/custom_override/{$event}_emailCc.tpl"))
+            unlink("../templates/email/custom_override/{$event}_emailCc.tpl");
+
+        $vars = array(':eventID' => $event);
+
+        $strSQL = 'DELETE FROM route_events WHERE eventID=:eventID';
+
+        $this->db->prepared_query($strSQL, $vars); // Delete Event tied to Routes
+
+        $strSQL = 'DELETE FROM events WHERE eventID=:eventID';
+
+        $this->db->prepared_query($strSQL, $vars); // Delete Event
+
+        $event = str_replace('CustomEvent_', '', $event);
+        $event = str_replace('_', ' ', $event);
+
+        $vars = array(':eventID' => $event);
+
+        $strSQL = 'DELETE FROM email_templates WHERE label=:eventID';
+
+        $this->db->prepared_query($strSQL, $vars); // Delete Email Event
+
+        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EVENTS, [
+            new LogItem("events", "eventID",  $event)
+        ]);
+
+        return 1;
     }
 
     public function linkEvent($stepID, $actionType, $eventID)

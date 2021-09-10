@@ -22,11 +22,15 @@ class WorkflowFormatter {
         ],
         DataActions::ADD.'-'.LoggableTypes::EVENTS => [
             "message"=>"Event <strong>%s</strong> has been added",
-            "variables"=>"desc"
+            "variables"=>"eventDescription"
         ],
         DataActions::DELETE.'-'.LoggableTypes::EVENTS => [
             "message"=>"Event <strong>%s</strong> has been deleted",
-            "variables"=>"desc"
+            "variables"=>"eventID"
+        ],
+        DataActions::MODIFY.'-'.LoggableTypes::EVENTS => [
+            "message"=>"Event <strong>%s</strong> has been modified",
+            "variables"=>"eventDescription"
         ],
         DataActions::ADD.'-'.LoggableTypes::ROUTE_EVENTS => [
             "message"=>"Workflow <strong>%s</strong> Step <strong>%s</strong> <strong>%s</strong> action has been added",

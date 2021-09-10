@@ -97,6 +97,14 @@ class WorkflowController extends RESTfulResponse
             return $workflow->getAllEvents();
         });
 
+        $this->index['GET']->register('workflow/customEvents', function ($args) use ($workflow) {
+            return $workflow->getCustomEvents();
+        });
+
+        $this->index['GET']->register('workflow/event/[text]', function ($args) use ( $workflow) {
+            return $workflow->getEvent($args[0]);
+        });
+
         $this->index['GET']->register('workflow/steps', function ($args) use ($workflow) {
             return $workflow->getAllSteps();
         });
@@ -141,7 +149,9 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['POST']->register('workflow/events', function ($args) use ($workflow) {
-            return $workflow->createEvent(XSSHelpers::xscrub($_POST['name']), XSSHelpers::xscrub($_POST['description']));
+            return $workflow->createEvent(XSSHelpers::xscrub($_POST['name']),
+                                          XSSHelpers::xscrub($_POST['description']),
+                                          XSSHelpers::xscrub($_POST['type']));
         });
 
         $this->index['POST']->register('workflow/[digit]/editorPosition', function ($args) use ($workflow) {
@@ -217,6 +227,10 @@ class WorkflowController extends RESTfulResponse
             return $workflow->editAction($args[0]);
         });
 
+        $this->index['POST']->register('workflow/editEvent/[text]', function ($args) use ($workflow) {
+            return $workflow->editEvent($args[0]);
+        });
+
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
 
@@ -264,6 +278,10 @@ class WorkflowController extends RESTfulResponse
 
         $this->index['DELETE']->register('workflow/action/[text]', function ($args) use ($workflow) {
             return $workflow->removeAction($args[0]);
+        });
+
+        $this->index['DELETE']->register('workflow/event/[text]', function ($args) use ($workflow) {
+            return $workflow->removeEvent($args[0]);
         });
 
         return $this->index['DELETE']->runControl($act['key'], $act['args']);
