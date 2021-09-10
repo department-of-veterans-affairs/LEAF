@@ -346,6 +346,7 @@ class Workflow
         return $res;
     }
 
+    /*
     public function editEvent($name)
     {
         if (!$this->login->checkGroup(1))
@@ -361,31 +362,37 @@ class Workflow
         }
 
         $vars = array(':eventID' => $name,
-                      ':eventDescription' => $_POST['description'],
                       ':newEventID' => $_POST['newName']);
 
-        $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription WHERE eventID=:eventID';
+        $strSQL = 'UPDATE route_events SET eventID=:newEventID WHERE eventID=:eventID';
 
         $this->db->prepared_query($strSQL, $vars);
 
-        $name = str_replace('CustomEvent_','', $name);
-        $name = str_replace('_',' ', $name);
-        $newName = str_replace('CustomEvent_', '', $_POST['newName']);
-        $newName = str_replace('_', ' ', $newName);
-
-
         $vars = array(':eventID' => $name,
+                      ':eventDescription' => $_POST['description'],
+                      ':newEventID' => $_POST['newName'],
+                      ':eventType' => $_POST['type']);
+
+        $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType WHERE eventID=:eventID';
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        $label = str_replace('CustomEvent_','', $name);
+        $label = str_replace('_',' ', $label);
+        $newLabel = str_replace('CustomEvent_', '', $_POST['newName']);
+        $newLabel = str_replace('_', ' ', $newLabel);
+
+
+        $vars = array(':label' => $label,
                       ':emailTo' => "{$_POST['newName']}_emailTo.tpl",
                       ':emailCc' => "{$_POST['newName']}_emailCc.tpl",
                       ':subject' => "{$_POST['newName']}_subject.tpl",
                       ':body' => "{$_POST['newName']}_body.tpl",
-                      ':newEventID' => $newName);
+                      ':newLabel' => $newLabel);
 
-        $strSQL = 'UPDATE email_templates SET label=:newEventID, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body WHERE label=:eventID';
+        $strSQL = 'UPDATE email_templates SET label=:newLabel, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body WHERE label=:label';
 
         $this->db->prepared_query($strSQL, $vars);
-
-        //rename('../templates/')
 
         $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::EVENTS, [
             new LogItem("events", "eventDescription",  $_POST['description']),
@@ -394,6 +401,7 @@ class Workflow
 
         return 1;
     }
+    */
 
     public function getActions()
     {

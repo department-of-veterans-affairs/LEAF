@@ -566,7 +566,6 @@ class System
                 if (preg_match('/CustomEvent_/', $template)) {
                     $data['modified'] = 0;
                     $data['file'] = file_get_contents("../templates/email/base_templates/LEAF_template_body.tpl");
-                    //var_dump($data);
                 } else {
                     $data['modified'] = 0;
                     $data['file'] = file_get_contents("../templates/email/{$template}");

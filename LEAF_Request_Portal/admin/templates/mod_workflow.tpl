@@ -119,7 +119,7 @@ function listEvents() {
                 buffer += '<td width="200px" id="' + res[i].eventID + '">' + res[i].eventID.replace('CustomEvent_', '').replace('_', ' ') + '</td>';
                 buffer += '<td width="200px" id="' + res[i].eventDescription + '">' + res[i].eventDescription + '</td>';
                 buffer += '<td width="150px" id="' + res[i].eventType + '">' + res[i].eventType + '</td>';
-                buffer += '<td width="100px" id="' + res[i].eventID + '"><button class="buttonNorm" onclick="editEvent(\'' + res[i].eventID + '\')" style="background: blue;color: #fff;">Edit</button> <button class="buttonNorm" onclick="deleteEvent(\'' + res[i].eventID + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
+                buffer += '<td width="100px" id="' + res[i].eventID + '"><!--<button class="buttonNorm" onclick="editEvent(\'' + res[i].eventID + '\')" style="background: blue;color: #fff;">Edit</button>--> <button class="buttonNorm" onclick="deleteEvent(\'' + res[i].eventID + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
                 buffer += '</tr>';
             }
 
@@ -265,6 +265,7 @@ function addEventDialog(workflowID, stepID, actionType) {
  * Purpose: Edit already created event
  * @event - eventID being edited
  */
+/*
 function editEvent(event) {
     dialog.hide();
     $("#button_save").show();
@@ -319,12 +320,12 @@ function editEvent(event) {
                         }
                     }
                 });
-                dialog.hide();
             });
         },
         cache: false
     });
 }
+*/
 
 /**
  * Purpose: Delete an event
