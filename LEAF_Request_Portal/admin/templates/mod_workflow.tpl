@@ -216,7 +216,7 @@ function addEventDialog(workflowID, stepID, actionType) {
             buffer += '<br /><div><select id="eventID" name="eventID">';
 
             for(let i in res) {
-                buffer += '<option value="'+ res[i].eventID +'">'+ res[i].eventDescription +'</option>';
+                buffer += '<option value="'+ res[i].eventID +'">'+ res[i].eventData +': '+ res[i].eventDescription +'</option>';
             }
 
             buffer += '</select></div>';
