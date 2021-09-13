@@ -544,7 +544,6 @@ function loadSearchPrereqs() {
 
                                     if (t_inIndicators[i].cols !== undefined) {
                                         for (var j in t_inIndicators[i].cols) {
-                                            console.log('#indicators_' + t_inIndicators[i].indicatorID + '_columns_' + t_inIndicators[i].cols[j]);
                                             $('#indicators_' + t_inIndicators[i].indicatorID + '_columns_' + t_inIndicators[i].cols[j]).prop('checked', true);
                                         }
                                     }
