@@ -367,7 +367,7 @@ function loadSearchPrereqs() {
         success: function(res) {
             var buffer = '';
 
-            // special columns
+            // special columns -- beginning of column 1
             buffer += '<div class="col span_1_of_3">';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_title" name="indicators[title]" value="title" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_title"> Title of Request</label></div>';
@@ -389,7 +389,15 @@ function loadSearchPrereqs() {
             buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_action"> Days Since Last Action</label></div>';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_step_movement"> Days Since Last Step Movement</label></div>';
+
+            // Report Tools
+            buffer += '<br /><br /><div class="indicatorOption" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Report Tools</div></div>';
+            buffer += '<div style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm" onclick="callReportTools(\'gridSplitter\')"><img src="../libs/dynicons/?img=emblem-system.svg&w=32" alt="Icon to link to grid splitter script"/>Grid Splitter</div></div>';
+
+            // end of column 1
             buffer += '</div>';
+
+
             var groupList = {};
             var groupNames = [];
             var groupIDmap = {};
@@ -566,6 +574,14 @@ function updateHeaderColors(){
             elVHeader.style.setProperty('color', textColor);
         }
     });
+}
+
+function callReportTools(id) {
+    switch(id) {
+        case 'gridSplitter':
+            parent.open('https://localhost/LEAF_Request_Portal/report.php?a=LEAF_table_input_report');
+            break;
+    }
 }
 
 function editLabels_down(id) {
