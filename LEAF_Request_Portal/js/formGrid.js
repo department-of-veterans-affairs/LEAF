@@ -47,9 +47,11 @@ var LeafFormGrid = function(containerID, options) {
      */
     function printTableReportBuilder(values, columnValues) {
         // remove unused columns
-        values.format = values.format.filter(function(value) {
-            return columnValues.includes(value.id);
-        });
+        if (columnValues !== null) {
+            values.format = values.format.filter(function (value) {
+                return columnValues.includes(value.id);
+            });
+        }
 
         var gridBodyBuffer = '';
         var gridHeadBuffer = '';
@@ -525,8 +527,14 @@ var LeafFormGrid = function(containerID, options) {
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + htmlPrint + '</td>';
                         }
                         else {
-                            if(currentData[i].s1[data.data] !== undefined && data.data.search("gridInput") && headers[j].cols.length > 0){
-                                data.data = printTableReportBuilder(currentData[i].s1[data.data], headers[j].cols);
+                            if (headers[j].cols !== undefined) {
+                                if (currentData[i].s1[data.data] !== undefined && data.data.search("gridInput") && headers[j].cols.length > 0) {
+                                    data.data = printTableReportBuilder(currentData[i].s1[data.data], headers[j].cols);
+                                }
+                            } else {
+                                if (currentData[i].s1[data.data] !== undefined && data.data.search("gridInput")) {
+                                    data.data = printTableReportBuilder(currentData[i].s1[data.data], null);
+                                }
                             }
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + data.data + '</td>';
                         }
