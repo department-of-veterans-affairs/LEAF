@@ -401,7 +401,6 @@ function loadSearchPrereqs() {
                 if(groupIDmap[i].parentCategoryID != '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
                     categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
-
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(var j in groupList[i]) {
                     buffer += '<div class="indicatorOption" id="indicatorOption" style="display: none"><input type="checkbox" class="icheck parent" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
@@ -409,9 +408,8 @@ function loadSearchPrereqs() {
                     // sub checklist for case of grid indicator
                     if (groupIDmap[i].cols !== undefined) {
                         for (k in groupIDmap[i].cols) {
-                            // buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'.columns_' + groupIDmap[i].cols[k].name + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].cols[k].name + ']" value="' + groupList[i][j] + '-' + groupIDmap[i].cols[k].id + '" gridParent="' + groupList[i][j] + '" />';
-                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'.columns_' + groupIDmap[i].cols[k].name + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].cols[k].name + ']" value="' + groupIDmap[i].cols[k].id + '" gridParent="' + groupList[i][j] + '" />';
-                            buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '.columns_'+ groupIDmap[i].cols[k].name +'" title="columnID: '+ groupIDmap[i].cols[k].name +'"> ' + groupIDmap[i].cols[k].name +'</label></div>';
+                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'_columns_' + groupIDmap[i].cols[k].id + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].cols[k].name + ']" value="' + groupIDmap[i].cols[k].id + '" gridParent="' + groupList[i][j] + '" />';
+                            buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '_columns_'+ groupIDmap[i].cols[k].id +'" title="columnID: '+ groupIDmap[i].cols[k].id + '\n' + groupIDmap[i].cols[k].name +'"> ' + groupIDmap[i].cols[k].name +'</label></div>';
                         }
                     }
                     buffer += '</div>';
@@ -543,6 +541,13 @@ function loadSearchPrereqs() {
                             if(t_inIndicators != undefined) {
                                 for(var i in t_inIndicators) {
                                     $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
+
+                                    if (t_inIndicators[i].cols !== undefined) {
+                                        for (var j in t_inIndicators[i].cols) {
+                                            console.log('#indicators_' + t_inIndicators[i].indicatorID + '_columns_' + t_inIndicators[i].cols[j]);
+                                            $('#indicators_' + t_inIndicators[i].indicatorID + '_columns_' + t_inIndicators[i].cols[j]).prop('checked', true);
+                                        }
+                                    }
                                 }
                             }
                             else {
@@ -799,7 +804,6 @@ function showJSONendpoint() {
 
         		}
                 dialog.hide();
-
         	}
         });
     });
@@ -1144,7 +1148,6 @@ $(function() {
                 indicators = indicators.replace(/ /g, '+');
                 inQuery = JSON.parse(LZString.decompressFromBase64(query));
                 t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
-                console.log(t_inIndicators);
         	}
         	else {
                 inQuery = JSON.parse(atob('<!--{$query|escape:"html"}-->'));
