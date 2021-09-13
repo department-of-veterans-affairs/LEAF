@@ -363,10 +363,9 @@ function loadSearchPrereqs() {
                 // check if indicator type is grid
 
                 if (groupIDmap[res[i].categoryID].format.indexOf('grid') !== -1) {
-                    // convert grid values to object and insert visibility property
+                    // convert grid values to object
                     let grid = $.parseJSON(groupIDmap[res[i].categoryID].format.replace('grid', ''));
-                    groupIDmap[res[i].categoryID].grid = grid.map(function(col) {
-                        col.isChecked = true;
+                    groupIDmap[res[i].categoryID].cols = grid.map(function(col) {
                         return col;
                     });
                 }
@@ -408,10 +407,11 @@ function loadSearchPrereqs() {
                     buffer += '<div class="indicatorOption" id="indicatorOption" style="display: none"><input type="checkbox" class="icheck parent" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
                     buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label>';
                     // sub checklist for case of grid indicator
-                    if (groupIDmap[i].grid !== undefined) {
-                        for (k in groupIDmap[i].grid) {
-                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'.columns_' + groupIDmap[i].grid[k].name + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].grid[k].name + ']" value="' + groupList[i][j] + '-' + groupIDmap[i].grid[k].id + '" gridParent="' + groupList[i][j] + '" />';
-                            buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '.columns_'+ groupIDmap[i].grid[k].name +'" title="columnID: '+ groupIDmap[i].grid[k].name +'"> ' + groupIDmap[i].grid[k].name +'</label></div>';
+                    if (groupIDmap[i].cols !== undefined) {
+                        for (k in groupIDmap[i].cols) {
+                            // buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'.columns_' + groupIDmap[i].cols[k].name + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].cols[k].name + ']" value="' + groupList[i][j] + '-' + groupIDmap[i].cols[k].id + '" gridParent="' + groupList[i][j] + '" />';
+                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'.columns_' + groupIDmap[i].cols[k].name + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].cols[k].name + ']" value="' + groupIDmap[i].cols[k].id + '" gridParent="' + groupList[i][j] + '" />';
+                            buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '.columns_'+ groupIDmap[i].cols[k].name +'" title="columnID: '+ groupIDmap[i].cols[k].name +'"> ' + groupIDmap[i].cols[k].name +'</label></div>';
                         }
                     }
                     buffer += '</div>';
@@ -985,10 +985,11 @@ $(function() {
             var temp = {};
             if (Array.isArray(resSelectList[i])) {
                 temp.indicatorID = resSelectList[i][0];
-                let delimiter = temp.indicatorID + "-";
+                // let delimiter = temp.indicatorID + "-";
                 temp.cols = [];
                 for (var j = 1; j < resSelectList[i].length; j++) {
-                    temp.cols.push(resSelectList[i][j].replace(delimiter, ""));
+                    // temp.cols.push(resSelectList[i][j].replace(delimiter, ""));
+                    temp.cols.push(resSelectList[i][j]);
                 }
             } else {
                 temp.indicatorID = resSelectList[i];
@@ -1143,6 +1144,7 @@ $(function() {
                 indicators = indicators.replace(/ /g, '+');
                 inQuery = JSON.parse(LZString.decompressFromBase64(query));
                 t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
+                console.log(t_inIndicators);
         	}
         	else {
                 inQuery = JSON.parse(atob('<!--{$query|escape:"html"}-->'));
