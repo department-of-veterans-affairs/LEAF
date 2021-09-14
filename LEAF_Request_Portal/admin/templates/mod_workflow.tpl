@@ -930,7 +930,7 @@ function showActionInfo(params, evt) {
             output += '<br /><div>Triggers these events:<ul>';
             // the sendback action always notifies the requestor
             if(params.action == 'sendback') {
-            	output += '<li><b>Emmail: Notify the requestor</b></li>';
+            	output += '<li><b>Email - Notify the requestor</b></li>';
             }
             for(var i in res) {
                 output += '<li><b title="'+ res[i].eventID +'">'+ res[i].eventType +' - '+ res[i].eventDescription +'</b> <img src="../../libs/dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent('+ currentWorkflow +', '+ stepID +', \''+ params.action +'\', \''+ res[i].eventID +'\')" alt="Remove Action" title="Remove Action" /></li>';
