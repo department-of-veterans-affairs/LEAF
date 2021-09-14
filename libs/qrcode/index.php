@@ -25,7 +25,9 @@ if(isset($_GET['encode'])) {
         $HTTP_HOST = XSSHelpers::xssafe(HTTP_HOST);
     }
 
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+    // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
+//    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+    $protocol = 'https';
     if(strpos($input, "{$protocol}://{$HTTP_HOST}/") !== 0) {
         $encode = "Invalid Input.";
     }
