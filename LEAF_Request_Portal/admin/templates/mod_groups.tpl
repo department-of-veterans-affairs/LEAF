@@ -398,6 +398,7 @@ function getGroupList() {
                             url: '../api/group/' + groupID + '/members',
                             success: function(res) {
                                 dialog.clear();
+                                dialog.setTitle('Edit Group');
                                 let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
                                 dialog.setContent(
                                     '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+groupID+')">View History</button></div>' + button_deleteGroup + '</div>' +
@@ -506,14 +507,16 @@ function getGroupList() {
                     }(res[i].groupID, res[i].parentGroupID, res[i].name));
                 }
                 else { // if is admin
+                // TODO: expand search results for users to 10+ rows from 5
+                // TODO: update user select event to update immediately and show updated group members
                     function openAdminGroup(){
                          // reset dialog for regular content
                         $(".ui-dialog>div").css('width', 'auto');
                         $(".leaf-dialog-content").css('width', 'auto');
                         dialog.showButtons();
-                        dialog.setTitle('Editor');
+                        dialog.setTitle('Edit Group');
                         dialog.setContent(
-                            '<button class="usa-button leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
+                            '<button class="usa-button leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History </button>'+
                             '<h2 role="heading" tabindex="-1">System Administrators</h2><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Administrator</h3></div><div id="employeeSelector"></div></br><div id="adminSummary"></div><div class="leaf-marginTop-2rem">');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
@@ -768,6 +771,7 @@ function tagAndUpdate(groupID, callback) {
     });
 }
 
+// TODO: expand user search results to include 10+ records than 5
 function importGroup() {
     // reset dialog for regular content
     $(".ui-dialog>div").css('width', 'auto');
