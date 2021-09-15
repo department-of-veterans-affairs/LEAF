@@ -9,9 +9,11 @@
 test_logins.txt
 */auth_dev/*
 
-*/templates_c/*.tpl.php
-*/admin/templates_c/*.tpl.php
+*/templates_c/*.tpl.php 
+*/admin/templates_c/*.tpl.php 
 */admin/templates_c/
+!*/templates_c/*file.LEAF*.tpl.php
+!*/admin/templates_c/*file.LEAF*.tpl.php
 LEAF_Request_Portal/templates/email/custom_override/*
 LEAF_Request_Portal/templates_c/email/custom_override/*
 

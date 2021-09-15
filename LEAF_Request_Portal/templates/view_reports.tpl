@@ -397,7 +397,6 @@ function loadSearchPrereqs() {
             // end of column 1
             buffer += '</div>';
 
-
             var groupList = {};
             var groupNames = [];
             var groupIDmap = {};
