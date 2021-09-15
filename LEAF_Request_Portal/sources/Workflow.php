@@ -323,6 +323,10 @@ class Workflow
         return $res;
     }
 
+    /**
+     * Purpose: Populate list with all Custom Events
+     * @return array Custom Events list
+     */
     public function getCustomEvents()
     {
         $strSQL = "SELECT * FROM events WHERE eventID LIKE 'CustomEvent_%'";
@@ -332,67 +336,88 @@ class Workflow
         return $res;
     }
 
-    public function getEvent($event)
+    /**
+     * Purpose: Populate information on specific event
+     * @param string $event string EventID being passed through
+     * @return object|string Event information (Check for Admin Access and Event pass-through)
+     */
+    public function getEvent($event = null)
     {
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
+        }
+
+        if ($event === null)
+        {
+            return 'Event not found, please try again.';
         }
 
         $vars = array(':eventID' => $event);
 
-        $res = $this->db->prepared_query('SELECT * FROM events WHERE eventID=:eventID', $vars);
+        $strSQL = 'SELECT * FROM events WHERE eventID=:eventID';
+
+        $res = $this->db->prepared_query($strSQL, $vars);
 
         return $res;
     }
 
-    /*
-    public function editEvent($name)
+    /**
+     * Purpose: Edit event information
+     * @param string $name Name of event being passed through
+     * @param string $newName New Name of event being passed through
+     * @param string $desc New Description of the event being passed through
+     * @param string $type New Type of the event being passed through
+     * @return int|string Successful Edit = 1 (Check for Admin Access, System Event, and Name pass-through)
+     */
+    public function editEvent($name = null, $newName = null, $desc = '', $type = null)
     {
-        if (!$this->login->checkGroup(1))
-        {
+        if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
 
-        $systemEvent = array('std_email_notify_completed','std_email_notify_next_approver','LeafSecure_DeveloperConsole','LeafSecure_Certified');
+        $systemEvent = array('std_email_notify_completed', 'std_email_notify_next_approver', 'LeafSecure_DeveloperConsole', 'LeafSecure_Certified');
 
-        if (in_array($name, $systemEvent))
-        {
+        if (in_array($name, $systemEvent)) {
             return 'System Events Cannot Be Modified.';
         }
 
-        $vars = array(':eventID' => $name,
-                      ':newEventID' => $_POST['newName']);
-
-        $strSQL = 'UPDATE route_events SET eventID=:newEventID WHERE eventID=:eventID';
-
-        $this->db->prepared_query($strSQL, $vars);
+        if ($name === null || $newName === null || $type === null) {
+            return 'Event not found, please try again.';
+        }
 
         $vars = array(':eventID' => $name,
-                      ':eventDescription' => $_POST['description'],
-                      ':newEventID' => $_POST['newName'],
-                      ':eventType' => $_POST['type']);
+            ':eventDescription' => $desc,
+            ':newEventID' => $newName,
+            ':eventType' => $type);
 
         $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType WHERE eventID=:eventID';
 
         $this->db->prepared_query($strSQL, $vars);
 
-        $label = str_replace('CustomEvent_','', $name);
-        $label = str_replace('_',' ', $label);
-        $newLabel = str_replace('CustomEvent_', '', $_POST['newName']);
+        $label = str_replace('CustomEvent_', '', $name);
+        $label = str_replace('_', ' ', $label);
+        $newLabel = str_replace('CustomEvent_', '', $newName);
         $newLabel = str_replace('_', ' ', $newLabel);
 
 
         $vars = array(':label' => $label,
-                      ':emailTo' => "{$_POST['newName']}_emailTo.tpl",
-                      ':emailCc' => "{$_POST['newName']}_emailCc.tpl",
-                      ':subject' => "{$_POST['newName']}_subject.tpl",
-                      ':body' => "{$_POST['newName']}_body.tpl",
-                      ':newLabel' => $newLabel);
+            ':emailTo' => "{$newName}_emailTo.tpl",
+            ':emailCc' => "{$newName}_emailCc.tpl",
+            ':subject' => "{$newName}_subject.tpl",
+            ':body' => "{$newName}_body.tpl",
+            ':newLabel' => $newLabel);
 
         $strSQL = 'UPDATE email_templates SET label=:newLabel, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body WHERE label=:label';
 
         $this->db->prepared_query($strSQL, $vars);
+
+        if (file_exists("../templates/email/custom_override/{$name}_body.tpl")) {
+            rename("../templates/email/custom_override/{$name}_body.tpl", "../templates/email/custom_override/{$newName}_body.tpl");
+            rename("../templates/email/custom_override/{$name}_subject.tpl", "../templates/email/custom_override/{$newName}_subject.tpl");
+            rename("../templates/email/custom_override/{$name}_emailTo.tpl", "../templates/email/custom_override/{$newName}_emailTo.tpl");
+            rename("../templates/email/custom_override/{$name}_emailCc.tpl", "../templates/email/custom_override/{$newName}_emailCc.tpl");
+        }
 
         $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::EVENTS, [
             new LogItem("events", "eventDescription",  $_POST['description']),
@@ -401,7 +426,6 @@ class Workflow
 
         return 1;
     }
-    */
 
     public function getActions()
     {
@@ -748,7 +772,14 @@ class Workflow
         return true;
     }
 
-    public function createEvent($name, $desc, $type)
+    /**
+     * Purpose: Create a new Custom Event
+     * @param string $name Custom Event Name
+     * @param string $desc Custom Event Description
+     * @param string $type Custom Event Type (Email, Script, etc...)
+     * @return bool|string If the event was created successful true/false (Check for Admin Access, System Event, and Name pass-through)
+     */
+    public function createEvent($name = null, $desc = '', $type = null)
     {
         if (!$this->login->checkGroup(1))
         {
@@ -760,6 +791,10 @@ class Workflow
         if (in_array($name, $systemEvent))
         {
             return 'Event Already Exists.';
+        }
+
+        if ($name === null || $type === null) {
+            return 'Error creating event, please try again.';
         }
 
         $vars = array(':eventID' => $name,
@@ -789,15 +824,20 @@ class Workflow
         return true;
     }
 
+    /**
+     * Purpose: Delete a Custom Event
+     * @param string $event EventID that is being deleted
+     * @return int|string Successful Delete = 1 (Check for Admin Access, System Event, and Name pass-through)
+     */
     public function removeEvent($event)
     {
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
         }
-        $systemAction = array('std_email_notify_completed','std_email_notify_next_approver','LeafSecure_DeveloperConsole','LeafSecure_Certified');
+        $systemEvent = array('std_email_notify_completed','std_email_notify_next_approver','LeafSecure_DeveloperConsole','LeafSecure_Certified');
 
-        if (in_array($event, $systemAction))
+        if (in_array($event, $systemEvent))
         {
             return 'System Events cannot be removed.';
         }
@@ -813,10 +853,6 @@ class Workflow
             unlink("../templates/email/custom_override/{$event}_emailCc.tpl");
 
         $vars = array(':eventID' => $event);
-
-        $strSQL = 'DELETE FROM route_events WHERE eventID=:eventID';
-
-        $this->db->prepared_query($strSQL, $vars); // Delete Event tied to Routes
 
         $strSQL = 'DELETE FROM events WHERE eventID=:eventID';
 

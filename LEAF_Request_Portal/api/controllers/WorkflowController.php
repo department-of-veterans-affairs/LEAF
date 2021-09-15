@@ -228,7 +228,10 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['POST']->register('workflow/editEvent/[text]', function ($args) use ($workflow) {
-            return $workflow->editEvent($args[0]);
+            return $workflow->editEvent($args[0],
+                                        XSSHelpers::xscrub($_POST['newName']),
+                                        XSSHelpers::xscrub($_POST['description']),
+                                        XSSHelpers::xscrub($_POST['type']));
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

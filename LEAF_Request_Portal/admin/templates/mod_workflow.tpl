@@ -48,6 +48,7 @@ function newWorkflow() {
 }
 
 function deleteWorkflow() {
+    $('.workflowStepInfo').css('display', 'none');
     if(currentWorkflow == 0) {
         return;
     }
@@ -91,9 +92,43 @@ function unlinkEvent(workflowID, stepID, actionType, eventID) {
 }
 
 /**
+ * Purpose: Buffer content for listEvents
+ * @events Current Custom Events List
+ * @return HTML Content for listEvents
+ */
+function listEventsContent(events) {
+    let content = '';
+    content += '<table id="events" class="table" border="1"><caption><h2>List of Events</h2></caption><thead><th scope="col">Event</th><th scope="col">Description</th><th scope="col">Type</th><th scope="col">Action</th></thead>';
+
+    if (events.length === 0) {
+        content += '<tr>';
+        content += '<td width="200px">No Custom Events Created</td>';
+        content += '<td width="200px"></td>';
+        content += '<td width="150px"></td>';
+        content += '<td width="100px"></td>';
+        content += '</tr>';
+    }
+
+    for (let i in events) {
+        content += '<tr>';
+        content += '<td width="200px" id="' + events[i].eventID + '">' + events[i].eventID.replace('CustomEvent_', '').replace('_', ' ') + '</td>';
+        content += '<td width="200px" id="' + events[i].eventDescription + '">' + events[i].eventDescription + '</td>';
+        content += '<td width="150px" id="' + events[i].eventType + '">' + events[i].eventType + '</td>';
+        content += '<td width="100px" id="' + events[i].eventID + '"><button class="buttonNorm" onclick="editEvent(\'' + events[i].eventID + '\')" style="background: blue;color: #fff;">Edit</button><button class="buttonNorm" onclick="deleteEvent(\'' + events[i].eventID + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
+        content += '</tr>';
+    }
+
+    content += '</table><br /> <br />';
+    content += '<span class="buttonNorm" id="create-event" tabindex="0">Create a new Event</span>';
+
+    return content;
+}
+
+/**
  * Purpose: List all Custom Events
  */
 function listEvents() {
+    $('.workflowStepInfo').css('display', 'none');
     dialog.hide();
     $("#button_save").hide();
     dialog.setTitle('List of Events');
@@ -101,40 +136,17 @@ function listEvents() {
     $.ajax({
         type: 'GET',
         url: '../api/?a=workflow/customEvents',
-        success: function(res) {
-            var buffer = '';
-            buffer += '<table id="events" class="table" border="1"><caption><h2>List of Events</h2></caption><thead><th scope="col">Event</th><th scope="col">Description</th><th scope="col">Type</th><th scope="col">Action</th></thead>';
-
-            if (res.length === 0) {
-                buffer += '<tr>';
-                buffer += '<td width="200px">No Custom Events Created</td>';
-                buffer += '<td width="200px"></td>';
-                buffer += '<td width="150px"></td>';
-                buffer += '<td width="100px"></td>';
-                buffer += '</tr>';
-            }
-
-            for (let i in res) {
-                buffer += '<tr>';
-                buffer += '<td width="200px" id="' + res[i].eventID + '">' + res[i].eventID.replace('CustomEvent_', '').replace('_', ' ') + '</td>';
-                buffer += '<td width="200px" id="' + res[i].eventDescription + '">' + res[i].eventDescription + '</td>';
-                buffer += '<td width="150px" id="' + res[i].eventType + '">' + res[i].eventType + '</td>';
-                buffer += '<td width="100px" id="' + res[i].eventID + '"><!--<button class="buttonNorm" onclick="editEvent(\'' + res[i].eventID + '\')" style="background: blue;color: #fff;">Edit</button>--> <button class="buttonNorm" onclick="deleteEvent(\'' + res[i].eventID + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
-                buffer += '</tr>';
-            }
-
-            buffer += '</table><br /> <br />';
-            buffer += '<span class="buttonNorm" id="create-event" tabindex="0">Create a new Event</span>';
-
+        cache: false
+    }).done(function (res) {
             dialog.indicateIdle();
-            dialog.setContent(buffer);
+            dialog.setContent(listEventsContent(res));
 
             $("#create-event").click(function() {
                 $("#button_save").show();
                 newEvent(res);
             });
-        },
-        cache: false
+    }).fail(function (error) {
+        alert(error);
     });
     //shows the save button for other dialogs
     $('div#xhrDialog').on('dialogclose', function() {
@@ -145,9 +157,10 @@ function listEvents() {
 
 /**
  * Purpose: Create new custom event
- * @events - Custom Event List
+ * @events Custom Event List
  */
 function newEvent(events) {
+    $('.workflowStepInfo').css('display', 'none');
     dialog.clear();
     dialog.setTitle('Create Event');
     let createEventContent = '<div>Event Type: <select id="eventType">' +
@@ -180,10 +193,12 @@ function newEvent(events) {
                 type: 'POST',
                 url: '../api/?a=workflow/events',
                 data: ajaxData,
-                success: function () {
-                    alert('Event was successfully created.');
-                    listEvents();
-                }
+                cache: false
+            }).done(function () {
+                alert('Event was successfully created.');
+                listEvents();
+            }).fail(function (error) {
+                alert(error);
             });
         } else {
             alert('Event name already exists.');
@@ -193,80 +208,107 @@ function newEvent(events) {
 }
 
 /**
+ * Purpose: Buffer content for addEventDialog
+ * @events Current Events List
+ * @return HTML Content for addEventDialog
+ */
+function addEventContent(events) {
+    let content = '';
+    content = 'Add an event: ';
+    content += '<br /><div><select id="eventID" name="eventID">';
+
+    for (let i in events) {
+        content += '<option value="' + events[i].eventID + '">' + events[i].eventType + ' - ' + events[i].eventDescription + '</option>';
+    }
+
+    content += '</select></div>';
+
+    return content;
+}
+
+/**
  * Purpose: Dialog for adding events
- * @workdflowID - Current Workflow ID for email reminder
- * @stepID - Step ID holding the action for email reminder
- * @actionType - Action type for email reminder
+ * @workdflowID Current Workflow ID for email reminder
+ * @stepID Step ID holding the action for email reminder
+ * @actionType Action type for email reminder
  */
 function addEventDialog(workflowID, stepID, actionType) {
     $('.workflowStepInfo').css('display', 'none');
     dialog.setTitle('Add Event');
-    let addEventContent = '<div><button id="createEvent" class="usa-button leaf-btn-med">Create Event</button></div>' +
+    let eventDialogContent = '<div><button id="createEvent" class="usa-button leaf-btn-med">Create Event</button></div>' +
                    '<div id="addEventDialog"></div>' +
                    '<div id="eventData"></div>';
-    dialog.setContent(addEventContent);
+    dialog.setContent(eventDialogContent);
     dialog.indicateBusy();
     dialog.show();
     $.ajax({
-    	type: 'GET',
-    	url: '../api/?a=workflow/events',
-    	success: function(res) {
-    		dialog.indicateIdle();
-            var buffer = '';
-            buffer = 'Add an event: ';
-            buffer += '<br /><div><select id="eventID" name="eventID">';
-
-            for(let i in res) {
-                buffer += '<option value="'+ res[i].eventID +'">'+ res[i].eventType +' - '+ res[i].eventDescription +'</option>';
-            }
-
-            buffer += '</select></div>';
-            $('#addEventDialog').html(buffer);
-            $('#createEvent').on('click', function() {
-                newEvent(res);
-            });
-            $('#eventID').chosen({disable_search_threshold: 5})
-            .change(function(){
+        type: 'GET',
+        url: '../api/?a=workflow/events',
+        cache: false
+    }).done(function (res) {
+        dialog.indicateIdle();
+        $('#addEventDialog').html(addEventContent(res));
+        $('#createEvent').on('click', function () {
+            newEvent(res);
+        });
+        $('#eventID').chosen({disable_search_threshold: 5})
+            .change(function () {
                 $('#eventData').html('');
                 dialog.clearValidators();
-                if($( "#eventID" ).val() == 'automated_email_reminder')
-                { 
+                if ($("#eventID").val() == 'automated_email_reminder') {
                     setEmailReminderHTML(workflowID, stepID, actionType, dialog);
                 }
             })
             .trigger("change");
-            dialog.setSaveHandler(function() {
-                var ajaxData = {eventID: $('#eventID').val(),
-            			   CSRFToken: CSRFToken};
-                if($('#eventID').val() == 'automated_email_reminder'){
-                    var formObj = {};
-                    $.each($('#eventData :input').serializeArray(), function() {
-                        formObj[this.name] = this.value;
-                    });
-                    $.extend(ajaxData, formObj);
-                }
+        dialog.setSaveHandler(function () {
+            let ajaxData = {eventID: $('#eventID').val(),
+                            CSRFToken: CSRFToken};
+            if ($('#eventID').val() == 'automated_email_reminder') {
+                var formObj = {};
+                $.each($('#eventData :input').serializeArray(), function () {
+                    formObj[this.name] = this.value;
+                });
+                $.extend(ajaxData, formObj);
+            }
 
-            	$.ajax({
-            		type: 'POST',
-            		url: '../api/?a=workflow/'+ workflowID +'/step/'+ stepID +'/_'+ actionType +'/events',
-            		data: ajaxData,
-            		success: function() {
-            			loadWorkflow(workflowID);
-            		}
-            	});
-            	dialog.hide();
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=workflow/' + workflowID + '/step/' + stepID + '/_' + actionType + '/events',
+                data: ajaxData,
+                cache: false
+            }).done(function () {
+                loadWorkflow(workflowID);
+            }).fail(function (error) {
+                alert(error);
             });
-    	},
-    	cache: false
+            dialog.hide();
+        });
+    }).fail(function (error) {
+        alert(error);
     });
 }
 
 /**
- * Purpose: Edit already created event
- * @event - eventID being edited
+ * Purpose: Buffer content for editEvent
+ * @event Event being edited
+ * @return HTML Content for editEvent
  */
-/*
+function editEventContent(event) {
+    let content = '<div>Event Type: <select id="eventType">' +
+        '<option value="Email" selected>Email</option>' +
+        '</select><br/><br/>' +
+        '<span>Event Name: </span><textarea id="eventName" class="eventTextBox">' + event[0].eventID.replace('CustomEvent_', '') + '</textarea><br/><br/>' +
+        '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox">' + event[0].eventDescription + '</textarea>';
+
+    return content;
+}
+
+/**
+ * Purpose: Edit already created event
+ * @event eventID being edited
+ */
 function editEvent(event) {
+    $('.workflowStepInfo').css('display', 'none');
     dialog.hide();
     $("#button_save").show();
     dialog.setTitle('Edit Event ' + event.replace('CustomEvent_', '').replace('_', ' '));
@@ -274,73 +316,74 @@ function editEvent(event) {
     $.ajax({
         type: 'GET',
         url: '../api/?a=workflow/event/_' + event,
-        success: function(res) {
-            let editEventContent = '<div>Event Type: <select id="eventType">' +
-                '<option value="Email" selected>Email</option>' +
-                '</select><br/><br/>' +
-                '<span>Event Name: </span><textarea id="eventName" class="eventTextBox">'+ res[0].eventID.replace('CustomEvent_', '') +'</textarea><br/><br/>' +
-                '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox">'+ res[0].eventDescription +'</textarea>';
-            dialog.setContent(editEventContent);
-            $('#eventName').on('keyup', function() {
-                $('#eventName').val($('#eventName').val().replace(/[^a-z0-9]/gi, '_'));
-            });
-            $('#eventName').attr('maxlength', 25);
-            $('#eventDesc').attr('maxlength', 40);
-            dialog.indicateIdle();
-            dialog.setSaveHandler(function() {
-                let eventName = 'CustomEvent_' + $('#eventName').val();
-                let eventDesc = $('#eventDesc').val();
-                let eventType = $('#eventType').val();
-                let ajaxData = {newName: eventName,
-                                description: eventDesc,
-                                type: eventType,
-                                CSRFToken: CSRFToken};
-                let eventExists = false;
-                $.ajax({
-                    type: 'GET',
-                    url: '../api/?a=workflow/customEvents',
-                    success: function (res) {
-                        for (let i in res) {
-                            if (res[i].eventID === eventName) {
-                                eventExists = true;
-                            }
-                        }
-                        if (eventExists === false && $('#eventName').val() !== '') {
-                            $.ajax({
-                                type: 'POST',
-                                url: '../api/?a=workflow/editEvent/_' + event,
-                                data: ajaxData,
-                                success: function () {
-                                    listEvents();
-                                }
-                            });
-                        } else {
-                            alert('Event name already exists.');
-                            listEvents();
-                        }
-                    }
-                });
-            });
-        },
         cache: false
+    }).done(function (res) {
+        dialog.setContent(editEventContent(res));
+        $('#eventName').on('keyup', function () {
+            $('#eventName').val($('#eventName').val().replace(/[^a-z0-9]/gi, '_'));
+        });
+        $('#eventName').attr('maxlength', 25);
+        $('#eventDesc').attr('maxlength', 40);
+        dialog.indicateIdle();
+        dialog.setSaveHandler(function () {
+            let eventName = 'CustomEvent_' + $('#eventName').val();
+            let eventDesc = $('#eventDesc').val();
+            let eventType = $('#eventType').val();
+            let ajaxData = {newName: eventName,
+                            description: eventDesc,
+                            type: eventType,
+                            CSRFToken: CSRFToken};
+            let eventExists = false;
+            $.ajax({
+                type: 'GET',
+                url: '../api/?a=workflow/customEvents',
+                cache: false
+            }).done(function (res) {
+                for (let i in res) {
+                    if (res[i].eventID === eventName) {
+                        eventExists = true;
+                    }
+                }
+                if (eventExists === false && $('#eventName').val() !== '') {
+                    $.ajax({
+                        type: 'POST',
+                        url: '../api/?a=workflow/editEvent/_' + event,
+                        data: ajaxData,
+                        cache: false
+                    }).done(function () {
+                        listEvents();
+                    }).fail(function (error) {
+                        alert(error);
+                    });
+                } else {
+                    alert('Event name already exists.');
+                    listEvents();
+                }
+            }).fail(function (error) {
+                alert(error);
+            });
+        });
+    }).fail(function (error) {
+        alert(error);
     });
 }
-*/
 
 /**
  * Purpose: Delete an event
- * @event - eventID being deleted
+ * @event eventID being deleted
  */
 function deleteEvent(event) {
+    $('.workflowStepInfo').css('display', 'none');
     dialog_confirm.setTitle('Confirmation required');
     dialog_confirm.setContent('Are you sure you want to delete this event?');
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
             url: '../api/?a=workflow/event/_' + event + '&CSRFToken=' + CSRFToken,
-            success: function() {
-                listEvents();
-            }
+        }).done(function() {
+            listEvents();
+        }).fail(function (error) {
+            alert(error);
         });
         dialog_confirm.hide();
     });
@@ -637,6 +680,7 @@ function setInitialStep(stepID) {
 
 //list all action type to edit/delete
 function listActionType() {
+    $('.workflowStepInfo').css('display', 'none');
 	dialog.hide();
   $("#button_save").hide();
 	dialog.setTitle('List of Actions');
@@ -1513,6 +1557,7 @@ function loadWorkflowList(workflowID)
 }
 
 function viewHistory(){
+    $('.workflowStepInfo').css('display', 'none');
     dialog_simple.setContent('');
     dialog_simple.setTitle('Workflow History');
 	dialog_simple.indicateBusy();
@@ -1712,6 +1757,9 @@ this.portalAPI.setBaseURL('../api/?a=');
 this.portalAPI.setCSRFToken(CSRFToken);
 
 $(function() {
+    $('#workflow').on('click', function() {
+        $('.workflowStepInfo').css('display', 'none');
+    });
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
     dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
