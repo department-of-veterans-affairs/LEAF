@@ -353,6 +353,10 @@ function addHeader(column) {
 	}
 }
 
+/**
+ * Purpose: send user to correct link based on button pushed in Report Tools
+ * @param string id name of the tool being passed through
+ */
 function callReportTools(id) {
     switch(id) {
         case 'gridSplitter':
