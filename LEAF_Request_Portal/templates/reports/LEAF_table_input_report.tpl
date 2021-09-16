@@ -149,7 +149,7 @@ function addRecordData(recordID, indicatorID)
             recordID: recordID
         }
     }).done(function(data) {
-        var dataRows = data[indicatorID]['value']['cells'];
+        var dataRows = data[indicatorID]['value']['cells'] || null;
         if(dataRows !== null && dataRows !== undefined)
         {
             for(var i = 0; i < dataRows.length; i++)
