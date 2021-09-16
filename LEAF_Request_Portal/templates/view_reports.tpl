@@ -353,9 +353,6 @@ function addHeader(column) {
 	}
 }
 
-var resIndicatorList = { };
-var searchPrereqsLoaded = false;
-
 function callReportTools(id) {
     switch(id) {
         case 'gridSplitter':
@@ -364,6 +361,8 @@ function callReportTools(id) {
     }
 }
 
+var resIndicatorList = { };
+var searchPrereqsLoaded = false;
 function loadSearchPrereqs() {
 	if(searchPrereqsLoaded == true) {
 		return;
@@ -403,7 +402,7 @@ function loadSearchPrereqs() {
             buffer += '<br /><br /><div class="indicatorOption" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Report Tools</div></div>';
             // Grid Splitter Button
             buffer += '<div style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm" onclick="callReportTools(\'gridSplitter\')"><img src="../libs/dynicons/?img=emblem-system.svg&w=32" alt="Icon to link to grid splitter script"/>Grid Splitter</div></div>';
-            
+
             buffer += '</div>';
             var groupList = {};
             var groupNames = [];
