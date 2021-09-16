@@ -47,7 +47,7 @@ var LeafFormGrid = function(containerID, options) {
      */
     function printTableReportBuilder(values, columnValues) {
         // remove unused columns
-        if (columnValues !== null) {
+        if (columnValues !== null && columnValues !== undefined) {
             values.format = values.format.filter(function (value) {
                 return columnValues.includes(value.id);
             });
