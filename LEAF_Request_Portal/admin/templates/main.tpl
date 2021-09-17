@@ -21,7 +21,9 @@
     <style type="text/css" media="print">
         @import "css/printer.css";
     </style>
+    <script src="https://unpkg.com/vue@next"></script> {* DEV *}
     <script type="text/javascript" src="../../libs/js/jquery/jquery.min.js"></script>
+    {* <script type="text/javascript" src="../../libs/js/Vue/vue.global.prod.js"></script> prod *}
     {if $useUI == true}
         <script type="text/javascript" src="../../libs/js/jquery/jquery-ui.custom.min.js"></script>
         <script type="text/javascript" src="../js/dialogController.js"></script>
@@ -86,10 +88,26 @@
             {$body}
         </div>
     </div>
-
+    <div id="test-vue-app"></div>
     <footer class="usa-footer leaf-footer noprint" id="footer" {if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
         <a id="versionID" href="../?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>
     </footer>
+    <script>
+        const vue_app = Vue.createApp({
+            data(){
+                return {
+                    testprop: "test value",
+                    testStatement: 5 > 1,
+                    testVue: Vue.version
+                }
+            },
+            compilerOptions: {
+                delimiters: ["%%", "%%"]
+            },
+            template: "<p>%% testprop %%</p><p>%% testVue %%</p>"
+        });
+        vue_app.mount('#test-vue-app')
 
+    </script>
 </body>
 </html>{/strip}
