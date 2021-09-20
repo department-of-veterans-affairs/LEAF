@@ -136,6 +136,12 @@
             <span class="leaf-admin-btndesc">Edit portal Sitemap links</span>
         </a>
 
+        <a href="../report.php?a=LEAF_table_input_report" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
+            <i class="leaf-admin-btnicon fas fa-file-export text-orange-50 leaf-icn-narrow2" alt="Sitemap Editor" title="Sitemap Editor"></i>
+            <span class="leaf-admin-btntitle">Grid Splitter</span>
+            <span class="leaf-admin-btndesc">Export grid form data to Excel spreadsheet</span>
+        </a>
+        
 </div>
 
 <script type="text/javascript">
