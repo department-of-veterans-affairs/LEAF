@@ -358,9 +358,10 @@ function addHeader(column) {
  * @param string id name of the tool being passed through
  */
 function callReportTools(id) {
+
     switch(id) {
         case 'gridSplitter':
-            parent.open('https://localhost/LEAF_Request_Portal/report.php?a=LEAF_table_input_report');
+            parent.open('./report.php?a=LEAF_table_input_report');
             break;
     }
 }
