@@ -21,9 +21,9 @@
     <style type="text/css" media="print">
         @import "css/printer.css";
     </style>
-    <script src="https://unpkg.com/vue@next"></script> {* DEV *}
+
     <script type="text/javascript" src="../../libs/js/jquery/jquery.min.js"></script>
-    {* <script type="text/javascript" src="../../libs/js/Vue/vue.global.prod.js"></script> prod *}
+
     {if $useUI == true}
         <script type="text/javascript" src="../../libs/js/jquery/jquery-ui.custom.min.js"></script>
         <script type="text/javascript" src="../js/dialogController.js"></script>
@@ -42,43 +42,50 @@
     {section name=i loop=$javascripts}
         <script type="text/javascript" src="{$javascripts[i]}"></script>
     {/section}
+    <script src="https://unpkg.com/vue@next"></script>
+    <!--<script type="text/javascript" src="../../libs/js/Vue/vue.global.prod.js"></script>-->
+    <script type="text/javascript" src="./templates/vue_components/leaf_header/vue_leaf_header.js" defer></script>
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
 
 <body>
+    <div id="vue-leaf-header">
 
-    {if $leafSecure == 0}
-    <section class="usa-banner bg-orange-topbanner" aria-label="Official government website">
-        <header class="usa-banner__header">
-            <div class="grid-col-fill tablet:grid-col-auto">
-                <p class="usa-banner__header-text text-white">
-                    &nbsp;Do not enter PHI/PII
-                </p>
+        {*
+        {if $leafSecure == 0}
+        <section class="usa-banner bg-orange-topbanner" aria-label="Official government website">
+            <header class="usa-banner__header">
+                <div class="grid-col-fill tablet:grid-col-auto">
+                    <p class="usa-banner__header-text text-white">
+                        &nbsp;Do not enter PHI/PII
+                    </p>
+                </div>
+            </header>
+        </section>
+        {/if}
+
+        <header id="header" class="usa-header site-header">
+            <div class="usa-navbar site-header-navbar">
+                <div class="usa-logo site-logo" id="logo">
+                    <em class="usa-logo__text">
+                        <a onclick="window.location='./'" title="Home" aria-label="LEAF home" class="leaf-cursor-pointer">
+                            <span class="leaf-logo">{$logo}</span>
+                            <span class="leaf-site-title">{$city}</span>
+                            <span id="headerDescription" class="leaf-header-description">{$title}</span>
+                        </a>
+                    </em>
+                    {if $qrcodeURL != ''}
+                        <div><img class="print nodisplay" style="width: 72px" src="../../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
+                    {/if}
+                </div>
+                <div class="leaf-header-right">
+                    {$emergency}<!--{$login}-->
+                    <nav aria-label="main menu" id="nav">{$menu}</nav>
+                </div>
             </div>
         </header>
-    </section>
-    {/if}
-
-    <header id="header" class="usa-header site-header">
-        <div class="usa-navbar site-header-navbar">
-            <div class="usa-logo site-logo" id="logo">
-                <em class="usa-logo__text">
-                    <a onclick="window.location='./'" title="Home" aria-label="LEAF home" class="leaf-cursor-pointer">
-                        <span class="leaf-logo">{$logo}</span>
-                        <span class="leaf-site-title">{$city}</span>
-                        <span id="headerDescription" class="leaf-header-description">{$title}</span>
-                    </a>
-                </em>
-                {if $qrcodeURL != ''}
-                    <div><img class="print nodisplay" style="width: 72px" src="../../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
-                {/if}
-            </div>
-            <div class="leaf-header-right">
-                {$emergency}<!--{$login}-->
-                <nav aria-label="main menu" id="nav">{$menu}</nav>
-            </div>
-        </div>
-    </header>
+        *}
+    </div>
 
     <div id="body">
         {if $status != ''}
@@ -88,26 +95,8 @@
             {$body}
         </div>
     </div>
-    <div id="test-vue-app"></div>
     <footer class="usa-footer leaf-footer noprint" id="footer" {if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
         <a id="versionID" href="../?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>
     </footer>
-    <script>
-        const vue_app = Vue.createApp({
-            data(){
-                return {
-                    testprop: "test value",
-                    testStatement: 5 > 1,
-                    testVue: Vue.version
-                }
-            },
-            compilerOptions: {
-                delimiters: ["%%", "%%"]
-            },
-            template: "<p>%% testprop %%</p><p>%% testVue %%</p>"
-        });
-        vue_app.mount('#test-vue-app')
-
-    </script>
 </body>
 </html>{/strip}

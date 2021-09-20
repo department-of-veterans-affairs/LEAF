@@ -1,0 +1,203 @@
+#vue-leaf-header * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    --headerHeight: 90px;
+    --navRibonHeight: 30px;
+    --totalHeaderHeight: calc(var(--headerHeight) + var(--navRibonHeight));
+    --footerHeight: 25px;
+
+    --BG-DarkNavy: #162e51;
+    --BG-Charcoal: #252f3e;
+    --BG-VividOrange: #f56600;
+    --BG-LightGray: #dcdee0;
+    --USWDS-LtGray: #c9c9c9;
+    --mainColorOverlay: rgba(220, 222, 224,0.97); /* LtGray w alpha */
+    --USWDS-Cyan: #00bde3;
+    --BaseNavy: #005ea2;
+    --LtNavy: #1476bd; /* TODO: check*/
+    --siteTitleColor: white;
+
+    background-color: var(--BG-LightGray);
+    /*old card colors
+    user access: '#FAF3D1'
+    port admin: '#DAE9EE'
+    developer: '#DBEBDE'
+    toolbox: '#F2E4D4'
+    */
+}
+.test {
+    border: 1px solid red;
+}
+
+/* warning banner.  props: bg-color, text-color */
+#leaf-warning {
+    text-align: center;
+    font-size: 90%;
+    padding: 0.1em;
+    width: 100%;
+    position: fixed;
+}
+/* ------------------------------------- */
+
+/* header element wraps header-top and nav-ribon */
+#leaf-header {
+    display: flex;
+    flex-direction: column;
+    font-family: "PublicSans-Regular",sans-serif;
+}
+#header-top {
+    padding: 0.25em 0.5em;
+    height: var(--headerHeight);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background-color: var(--BG-Charcoal);
+}
+#logo {
+    width: 80px;
+    min-width: 80px;
+    margin-right: 0.5em;
+    height: 80px;
+    cursor: pointer;
+}
+#logo img {
+    height: 100%;
+    width: auto;
+}
+
+/* dark navy header nav ribbon */
+#nav-ribon {
+    height: var(--navRibonHeight);
+    background-color: var(--BG-DarkNavy);
+    box-shadow: 0 4px 6px 1px rgba(0,0,25,0.3);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+/* ------------------------------------- */
+
+
+/* nav, ul li and sub menues */
+nav#leaf-vue-nav {
+    display: flex;
+    width: fit-content;
+    justify-content:center;
+    align-items: center;
+    height: 100%;
+}
+nav#leaf-vue-nav li {
+    list-style-type: none;
+    display: inline-block;
+    white-space: nowrap;
+}
+nav#leaf-vue-nav > ul.primary {
+    display: flex;
+}
+nav#leaf-vue-nav > ul.primary > li {
+    position: relative;
+    margin-right: 0.75em;
+}
+
+nav#leaf-vue-nav > ul.primary > li > a{
+    border-radius: 2px;
+    text-align: center;
+}
+nav#leaf-vue-nav a {
+    padding: 0.25em 0.5em;
+    text-decoration: none;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    color: var(--USWDS-LtGray);
+}
+nav#leaf-vue-nav i {
+    color: var(--USWDS-Cyan);
+}
+#leaf-vue-nav .sublinks a {
+    color: var(--USWDS-LtGray);
+    padding: 0.75em 0.35em;
+}
+#leaf-vue-nav .inner-sublinks a {
+    color: var(--BG-Charcoal);
+}
+nav#leaf-vue-nav li a:active,
+nav#leaf-vue-nav li a:focus,
+nav#leaf-vue-nav li a:hover,
+nav#leaf-vue-nav li a.active {
+    color: #eef;
+    background-color: var(--BaseNavy);
+}
+nav#leaf-vue-nav .inner-sublinks a:active,
+nav#leaf-vue-nav .inner-sublinks a:focus,
+nav#leaf-vue-nav .inner-sublinks a:hover,
+nav#leaf-vue-nav .inner-sublinks a.active {
+    color: black;
+    font-weight: bolder;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+/* sublinks and inner-sublinks are the ul elements */
+#leaf-vue-nav .sublinks {
+    min-width: 140px;
+    position: absolute;
+    top: 100%;
+    left: calc(100% - 140px);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--BG-DarkNavy);
+    border-top: 2px solid var(--BG-DarkNavy);
+    box-shadow: 0 4px 10px 1px rgba(0,0,20,0.2);
+    font-size: 0.8rem;
+}
+#leaf-vue-nav .sublinks li {
+    position: relative;
+}
+#leaf-vue-nav .sublinks > li:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 25, 0.25);
+}
+#leaf-vue-nav .inner-sublinks li:not(:last-child) {
+    border-bottom: 1px solid rgb(175,175,200);
+}
+#leaf-vue-nav .inner-sublinks {
+    position: absolute;
+    top: -1px;
+    left: -100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--LtNavy);
+    z-index: 100;
+    min-width: 100%;
+    border-top: 1px solid white;
+    border-radius: 2px;
+    box-shadow: 0 -3px 15px 4px rgba(0,0,20,0.15);
+    font-size: 0.8rem;
+    transition: all 0.15s ease;
+    border-bottom: 1px solid var(--BG-Charcoal);
+}
+#user-info .sublinks {
+    width: 100%;
+    min-width: 100%;
+    left: 0;
+    margin: 0;
+    text-align: center;
+}
+
+@media (max-width: 800px) {
+    #leaf-vue-nav .inner-sublinks {
+        position: relative;
+        left: 0;
+        top: 100%;
+        border-bottom: none;
+        box-shadow: none;
+    }
+    #leaf-vue-nav .logo {
+        display: none;
+    }
+    nav#leaf-vue-nav {
+        font-size: 90%;
+    }
+}
