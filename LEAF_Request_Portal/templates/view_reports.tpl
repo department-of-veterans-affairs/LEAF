@@ -353,6 +353,18 @@ function addHeader(column) {
 	}
 }
 
+/**
+ * Purpose: send user to correct link based on button pushed in Report Tools
+ * @param string id name of the tool being passed through
+ */
+function callReportTools(id) {
+    switch(id) {
+        case 'gridSplitter':
+            parent.open('https://localhost/LEAF_Request_Portal/report.php?a=LEAF_table_input_report');
+            break;
+    }
+}
+
 var resIndicatorList = { };
 var searchPrereqsLoaded = false;
 function loadSearchPrereqs() {
@@ -389,6 +401,12 @@ function loadSearchPrereqs() {
             buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_action"> Days Since Last Action</label></div>';
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_step_movement"> Days Since Last Step Movement</label></div>';
+
+            // Report Tools
+            buffer += '<br /><br /><div class="indicatorOption" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Report Tools</div></div>';
+            // Grid Splitter Button
+            buffer += '<div style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm" onclick="callReportTools(\'gridSplitter\')"><img src="../libs/dynicons/?img=emblem-system.svg&w=32" alt="Icon to link to grid splitter script"/>Grid Splitter</div></div>';
+
             buffer += '</div>';
             var groupList = {};
             var groupNames = [];
