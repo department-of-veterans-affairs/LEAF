@@ -28,10 +28,7 @@
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
 </div>
 
-
 <div id="results" style="display: none">Loading...</div>
-
-
 
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -375,9 +372,10 @@ function loadSearchPrereqs() {
     $.ajax({
         type: 'GET',
         url: './api/?a=form/indicator/list',
-        dataType: 'json',
+        dataType: 'text json',
         success: function(res) {
             var buffer = '';
+
 
             // special columns
             buffer += '<div class="col span_1_of_3">';
@@ -413,6 +411,8 @@ function loadSearchPrereqs() {
             var groupIDmap = {};
             var tmp = document.createElement('div');
             var temp;
+            let grid = {};
+
             for(let i in res) {
                 temp = res[i].name;
                 tmp.innerHTML = temp;
@@ -433,9 +433,18 @@ function loadSearchPrereqs() {
                     groupIDmap[res[i].categoryID].categoryID = res[i].categoryID;
                     groupIDmap[res[i].categoryID].parentCategoryID = res[i].parentCategoryID;
                     groupIDmap[res[i].categoryID].parentStaples = res[i].parentStaples;
+                    groupIDmap[res[i].categoryID].format = res[i].format;
+                }
+                // check if indicator type is grid
+
+                if (groupIDmap[res[i].categoryID].format.indexOf('grid') !== -1) {
+                    // convert grid values to object
+                    let grid = $.parseJSON(groupIDmap[res[i].categoryID].format.replace('grid', ''));
+                    groupIDmap[res[i].categoryID].cols = grid.map(function(col) {
+                        return col;
+                    });
                 }
             }
-
             buffer += '<div class="col span_1_of_3">';
 
             groupNames.sort(function(a, b) {
@@ -468,8 +477,16 @@ function loadSearchPrereqs() {
                 }
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(var j in groupList[i]) {
-                    buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
-                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
+                    buffer += '<div class="indicatorOption" id="indicatorOption" style="display: none"><input type="checkbox" class="icheck parent" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
+                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label>';
+                    // sub checklist for case of grid indicator
+                    if (groupIDmap[i].cols !== undefined) {
+                        for (k in groupIDmap[i].cols) {
+                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'_columns_' + groupIDmap[i].cols[k].id + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].cols[k].name + ']" value="' + groupIDmap[i].cols[k].id + '" gridParent="' + groupList[i][j] + '" />';
+                            buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '_columns_'+ groupIDmap[i].cols[k].id +'" title="columnID: '+ groupIDmap[i].cols[k].id + '\n' + groupIDmap[i].cols[k].name +'"> ' + groupIDmap[i].cols[k].name +'</label></div>';
+                        }
+                    }
+                    buffer += '</div>';
                 }
                 buffer += '</div>';
             }
@@ -479,11 +496,72 @@ function loadSearchPrereqs() {
             $('#indicatorList').html(buffer);
 
             $('#indicatorList').css('height', $(window).height() - 240);
+
+            // check all subindicators to be equal to parent indicator
+            $('.indicatorOption').children().not('.subIndicatorOption').on('change', function() {
+                const newValue = $(this).icheck('update')[0].checked;
+
+                // update the children checkboxes to reflect the updated parent checkbox status
+                if (newValue === true) {
+                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('checked');
+                } else {
+                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('unchecked');
+                }
+            });
+
+            // check if sibling checkboxes are empty or all checked
+            $('.subIndicatorOption').children().on('change', function() {
+                const newValue = $(this).icheck('update')[0].checked;
+
+                let getSiblings = function (e) {
+                    let siblings = [];
+                    // if no parent, return no sibling
+                    if(!e.parent()) {
+                        return siblings;
+                    }
+                    // first child of the parent node
+                    let sibling  = e.parent().children()[1];
+
+                    // collecting siblings
+                    while (sibling) {
+                        if (sibling.nodeType === 1 && sibling !== e) {
+                            siblings.push(sibling);
+                        }
+                        sibling = sibling.nextSibling;
+                    }
+                    return siblings;
+                };
+
+                // if child is checked and parent is not checked
+                if(newValue && !$(this).parent().parent().parent().children('input').not('.subIndicatorOption').children('.icheck-item').hasClass('checked')) {
+                    // check the parent
+                    $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').icheck('checked');
+                } else {
+                    let siblings = getSiblings($(this).parent().parent());
+                    let atLeastOneChecked = false;
+                    let parentCheckbox = siblings.shift();
+
+                    // check if each sibling is checked
+                    $.each(siblings, function(key, value) {
+                        if ($(value).children('.icheck-item').children('input').icheck('update')[0].checked) {
+                            atLeastOneChecked = true;
+                        }
+                    });
+
+                    // if there are no checked children
+                    if (atLeastOneChecked === false) {
+                        // uncheck the parent
+                        $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').icheck('unchecked');
+                    }
+                }
+            });
+
             $('.form').on('click', function() {
-            	$(this).children('.formLabel').removeClass('buttonNorm');
+                $(this).children('.formLabel').removeClass('buttonNorm');
             	$(this).find('.formLabel>img').css('display', 'none');
             	$(this).css({width: '100%'});
             	$(this).children('div').css('display', 'block');
+            	$(this).children('div').children('.subIndicatorOption').css('display', 'block');
             	$(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
             		'font-weight': 'bold'});
             });
@@ -537,6 +615,12 @@ function loadSearchPrereqs() {
                             if(t_inIndicators != undefined) {
                                 for(let i in t_inIndicators) {
                                     $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
+
+                                    if (t_inIndicators[i].cols !== undefined) {
+                                        for (var j in t_inIndicators[i].cols) {
+                                            $('#indicators_' + t_inIndicators[i].indicatorID + '_columns_' + t_inIndicators[i].cols[j]).prop('checked', true);
+                                        }
+                                    }
                                 }
                             }
                             else {
@@ -850,7 +934,6 @@ function showJSONendpoint() {
 
         		}
                 dialog.hide();
-
         	}
         });
     });
@@ -1052,8 +1135,25 @@ $(function() {
     	selectedIndicators = [];
     	resSelectList = [];
     	$('.icheck:checked').each(function() {
-    		resSelectList.push(this.value);
+            let gridParent = this.attributes.gridparent?.value;
+            if (gridParent !== undefined) {
+                let dest = resSelectList.indexOf(gridParent);
+
+                if (dest !== -1) {
+                    resSelectList[dest] = [resSelectList[dest]];
+                } else {
+                    for (let i in resSelectList) {
+                        if (resSelectList[i][0] === gridParent) {
+                            dest = i;
+                        }
+                    }
+                }
+                resSelectList[dest].push(this.value);
+            } else {
+                resSelectList.push(this.value);
+            }
     	});
+
     	resSelectList.sort(function(a, b) {
             var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
             var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
@@ -1066,33 +1166,39 @@ $(function() {
             }
             return 0;
         });
+
     	for(let i in resSelectList) {
-            var temp = { };
-            temp.indicatorID = resSelectList[i];
+            let temp = {};
+            if (Array.isArray(resSelectList[i])) {
+                temp.indicatorID = resSelectList[i][0];
+                temp.cols = [];
+                for (let j = 1; j < resSelectList[i].length; j++) {
+                    temp.cols.push(resSelectList[i][j]);
+                }
+            } else {
+                temp.indicatorID = resSelectList[i];
+            }
             temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
             temp.sort = indicatorSort[temp.indicatorID] == undefined ? 0 : indicatorSort[temp.indicatorID];
             var tmp = document.createElement('div');
             tmp.innerHTML = temp.name;
             temp.name = tmp.textContent || tmp.innerText || '';
             temp.name = temp.name.replace(/[^\040-\176]/g, '');
-            if($.isNumeric(resSelectList[i])) {
-                headers.push(temp);
-                leafSearch.getLeafFormQuery().getData(temp.indicatorID);
+            if($.isNumeric(resSelectList[i][0]) || $.isNumeric(resSelectList[i])) {
+                    headers.push(temp);
+                    leafSearch.getLeafFormQuery().getData(temp.indicatorID);
             }
             else {
                 addHeader(temp.indicatorID);
             }
             selectedIndicators.push(temp);
     	}
-
     	headers.sort(sortHeaders);
     	selectedIndicators.sort(sortHeaders);
-
     	grid.setHeaders(headers);
 
     	leafSearch.getLeafFormQuery().onSuccess(function(res) {
             grid.setDataBlob(res);
-
             // this replaces grid.loadData()
             var tGridData = [];
             for(let i in res) {
@@ -1243,6 +1349,10 @@ $(function() {
         	for(let i in t_inIndicators) {
         		var temp = {};
                 if($.isNumeric(t_inIndicators[i].indicatorID)) {
+                    // add selected columns to payload in case of grid indicator
+                    if (Array.isArray(t_inIndicators[i].cols)) {
+                        temp.cols = t_inIndicators[i].cols;
+                    }
                     temp.indicatorID = parseInt(t_inIndicators[i].indicatorID);
                     temp.name = t_inIndicators[i].name.replace(/[^\040-\176]/g, '');
                     temp.name = temp.name.replace(/</g, '&lt;');
@@ -1253,7 +1363,6 @@ $(function() {
                     addHeader(t_inIndicators[i].indicatorID);
                 }
         	}
-
         	leafSearch.getLeafFormQuery().setQuery(inQuery);
         	if(!isSearchingDeleted(leafSearch)) {
                 inQuery.terms.pop();
@@ -1281,7 +1390,7 @@ $(function() {
                 window.atob = base64.decode;
                 window.btoa = base64.encode;
                 <!--{if $query != '' && $indicators != ''}-->
-                loadReport();
+                loadReport(JSON.parse(LZString.decompressFromBase64('<!--{$indicators|escape:"html"}-->')));
                 <!--{/if}-->
             }
         });
