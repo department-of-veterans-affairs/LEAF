@@ -906,6 +906,41 @@ var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
 let gridColorData = {}; //object updated with id: color
 let tempColorData = {}; //object updated with id: color
+let isOneFormType = false;
+
+/**
+ * Purpose: Check if only one type of form could logically be returned and,
+ * if so, update global variables isOneFormType (bool) and categoryID (string).
+ * @param searchQueryTerms - variable with result of leafSearch.getLeafFormQuery().getQuery().terms (array)
+ */
+function checkIfOneTypeSearchedAndUpdate(searchQueryTerms) {
+    searchQueryTerms = searchQueryTerms || 0;
+    isOneFormType = false;   //global
+    categoryID = 'strCatID'; //global
+    if (searchQueryTerms !== 0 && searchQueryTerms.length > 0) {
+        let boolGateCheck = false;
+        let categoriesSearched = searchQueryTerms.filter(function (term) {
+            return term.id === "categoryID";
+        });
+
+        //search must be limited to one Type, and its operator must be "=", additionally search differs based on location:
+        //If Type is the first criteria, all gates must be AND. If not, only its own gate must be AND.
+        //example: 'type IS <form> OR title is <title>', VS 'title IS <title> OR <other search> AND type IS <form>'
+        if (categoriesSearched.length === 1 && categoriesSearched[0].operator === "=") {
+            if (searchQueryTerms[0].id === "categoryID") {  //if it's the first search criteria
+                boolGateCheck = searchQueryTerms.every(function (term) {
+                    return term.gate === "AND";
+                });
+            } else {
+                boolGateCheck = (categoriesSearched[0].gate === "AND");
+            }
+            if (boolGateCheck) {
+                isOneFormType = true; //global
+                categoryID = categoriesSearched[0].match; //global
+            }
+        }
+    }
+}
 
 var version = 3;
 /* URL formats
@@ -1076,18 +1111,19 @@ $(function() {
                 }
             	grid.loadData(recordIDs);
             }
-            let results = grid.getCurrentData();
-            let filteredResults = results.filter(function(r) {
-                return r.categoryID != undefined
+            let gridResults = grid.getCurrentData();
+            let filteredGridResults = gridResults.filter(function(r) {
+                return r.categoryID != undefined;
             });
-            if (filteredResults.length > 0) {
-                categoryID = filteredResults[0].categoryID;
-                let isOneFormType = filteredResults.every(function(fr){ return fr.categoryID === categoryID});
-                if (isOneFormType){
-                    $('#newRequestButton').css('display', 'inline-block');
-                } else {
-                    $('#newRequestButton').css('display', 'none');
-                }
+            //if catID info is available for the results, it can be used to determine form type.
+            if (filteredGridResults.length > 0) {
+                categoryID = filteredGridResults[0].categoryID;
+                isOneFormType = filteredGridResults.every(function(fr) {
+                    return fr.categoryID === categoryID;
+                });
+            }
+            if (isOneFormType){
+                $('#newRequestButton').css('display', 'inline-block');
             } else {
                 $('#newRequestButton').css('display', 'none');
             }
@@ -1127,7 +1163,10 @@ $(function() {
     	else {
     		$('#editLabels').css('display', 'inline');
     	}
-    	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
+        let leafSearchQuery = leafSearch.getLeafFormQuery().getQuery();
+        checkIfOneTypeSearchedAndUpdate(leafSearchQuery.terms);
+
+        urlQuery = LZString.compressToBase64(JSON.stringify(leafSearchQuery));
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
 
     	if(isNewQuery) {
@@ -1186,6 +1225,9 @@ $(function() {
                 indicators = indicators.replace(/ /g, '+');
                 colors = colors.replace(/ /g, '+');
                 inQuery = JSON.parse(LZString.decompressFromBase64(query));
+                //if refreshed or not a new report
+                checkIfOneTypeSearchedAndUpdate(inQuery.terms);
+
                 t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
                 let queryColors = JSON.parse(LZString.decompressFromBase64(colors));
                 if (queryColors !== null) {
