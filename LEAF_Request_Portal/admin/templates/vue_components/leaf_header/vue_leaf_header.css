@@ -6,7 +6,7 @@
 
 body {
     --headerHeight: 90px;
-    --navRibonHeight: 30px;
+    --navRibonHeight: 36px;
     --totalHeaderHeight: calc(var(--headerHeight) + var(--navRibonHeight));
     --footerHeight: 25px;
 
@@ -29,17 +29,31 @@ body {
     toolbox: '#F2E4D4'
     */
 }
-.test {
-    border: 1px solid red;
-}
+
 
 /* warning banner.  props: bg-color, text-color */
-#leaf-warning {
+#scrolling-leaf-warning {
     text-align: center;
     font-size: 90%;
     padding: 0.1em;
     width: 100%;
     position: fixed;
+    z-index: 500;
+}
+#leaf-warning {
+    height: 100%;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    text-align: right;
+}
+#leaf-warning h3 {
+    color: var(--BG-VividOrange) !important;
+}
+#leaf-warning a, #leaf-warning a:hover, #leaf-warning a:focus, #leaf-warning a:visited  {
+    color: white;
+    text-decoration: underline;
+    line-height: 1.2;
 }
 /* ------------------------------------- */
 
@@ -47,7 +61,7 @@ body {
 #leaf-header {
     display: flex;
     flex-direction: column;
-    font-family: "PublicSans-Regular",sans-serif;
+    font-family: "PublicSans-Regular", sans-serif;
 }
 #header-top {
     padding: 0.25em 0.5em;
@@ -57,11 +71,15 @@ body {
     align-items: center;
     background-color: var(--BG-Charcoal);
 }
+#header-top h3 {
+    color: var(--USWDS-LtGray);
+}
 #logo {
     width: 80px;
     min-width: 80px;
     margin-right: 0.5em;
     height: 80px;
+    min-height: 80px;
     cursor: pointer;
 }
 #logo img {
@@ -78,18 +96,24 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    z-index: 999;
 }
 /* ------------------------------------- */
 
 
-/* nav, ul li and sub menues */
+/* nav, ul li and sub menus */
+#nav-navlinks > li {
+    margin-right: 0.4em
+}
+
 nav#leaf-vue-nav {
     display: flex;
-    width: fit-content;
-    justify-content:center;
+    width: 100%;
+    justify-content:space-between;
     align-items: center;
     height: 100%;
 }
+
 nav#leaf-vue-nav li {
     list-style-type: none;
     display: inline-block;
@@ -100,13 +124,13 @@ nav#leaf-vue-nav > ul.primary {
 }
 nav#leaf-vue-nav > ul.primary > li {
     position: relative;
-    margin-right: 0.75em;
 }
 
 nav#leaf-vue-nav > ul.primary > li > a{
-    border-radius: 2px;
     text-align: center;
+    border-radius: 3px;
 }
+
 nav#leaf-vue-nav a {
     padding: 0.25em 0.5em;
     text-decoration: none;
@@ -118,12 +142,21 @@ nav#leaf-vue-nav a {
 nav#leaf-vue-nav i {
     color: var(--USWDS-Cyan);
 }
+#nav-user-info #nav-user-icon {
+    color: white;
+    font-size: 20px;
+}
+#nav-user-info ul {
+    width: 100%;
+}
+
 #leaf-vue-nav .sublinks a {
     color: var(--USWDS-LtGray);
-    padding: 0.75em 0.35em;
+    padding: 0.75em 0.5em;
 }
 #leaf-vue-nav .inner-sublinks a {
-    color: var(--BG-Charcoal);
+    color: #eef;
+    background-color: var(--BaseNavy);
 }
 nav#leaf-vue-nav li a:active,
 nav#leaf-vue-nav li a:focus,
@@ -136,16 +169,14 @@ nav#leaf-vue-nav .inner-sublinks a:active,
 nav#leaf-vue-nav .inner-sublinks a:focus,
 nav#leaf-vue-nav .inner-sublinks a:hover,
 nav#leaf-vue-nav .inner-sublinks a.active {
-    color: black;
-    font-weight: bolder;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: var(--BG-DarkNavy);
 }
 /* sublinks and inner-sublinks are the ul elements */
 #leaf-vue-nav .sublinks {
     min-width: 140px;
     position: absolute;
     top: 100%;
-    left: calc(100% - 140px);
+    left: 0;
     display: flex;
     flex-direction: column;
     background-color: var(--BG-DarkNavy);
@@ -156,48 +187,38 @@ nav#leaf-vue-nav .inner-sublinks a.active {
 #leaf-vue-nav .sublinks li {
     position: relative;
 }
+#leaf-vue-nav .sublinks i {
+    float: right;
+}
 #leaf-vue-nav .sublinks > li:not(:last-child) {
     border-bottom: 1px solid rgba(0, 0, 25, 0.25);
 }
-#leaf-vue-nav .inner-sublinks li:not(:last-child) {
-    border-bottom: 1px solid rgb(175,175,200);
-}
+
 #leaf-vue-nav .inner-sublinks {
     position: absolute;
-    top: -1px;
-    left: -100%;
+    top: 0;
+    left: 100%;
     display: flex;
     flex-direction: column;
     background-color: var(--LtNavy);
     z-index: 100;
     min-width: 100%;
-    border-top: 1px solid white;
     border-radius: 2px;
     box-shadow: 0 -3px 15px 4px rgba(0,0,20,0.15);
     font-size: 0.8rem;
     transition: all 0.15s ease;
-    border-bottom: 1px solid var(--BG-Charcoal);
-}
-#user-info .sublinks {
-    width: 100%;
-    min-width: 100%;
-    left: 0;
-    margin: 0;
-    text-align: center;
 }
 
+
 @media (max-width: 800px) {
+    #nav {
+        font-size: 92%;
+    }
     #leaf-vue-nav .inner-sublinks {
         position: relative;
         left: 0;
         top: 100%;
         border-bottom: none;
         box-shadow: none;
-    }
-    #leaf-vue-nav .logo {
-        display: none;
-    }
-    nav#leaf-vue-nav {
-        font-size: 90%;
     }
 }

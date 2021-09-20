@@ -1159,6 +1159,7 @@ function drawRoutes(workflowID) {
 
 var currentWorkflow = 0;
 function loadWorkflow(workflowID) {
+    let distToClearHeader = 150;
     $('#btn_createStep').css('display', 'block');
     $('#btn_deleteWorkflow').css('display', 'block');
     $('#btn_listActionType').css('display', 'block');
@@ -1190,13 +1191,13 @@ function loadWorkflow(workflowID) {
 	$('#workflow').append('<div class="workflowStep" id="step_-1" tabindex="0">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>');
     $('#step_-1').css({
         'left': 180 + 40 + 'px',
-        'top': 80 + 40 + 'px',
+        'top': distToClearHeader + 'px',
         'background-color': '#e0e0e0'
     });
     $('#workflow').append('<div class="workflowStep" id="step_0" tabindex="0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>');
     $('#step_0').css({
         'left': 180 + 40 + 'px',
-        'top': 80 + 40 + 'px',
+        'top': distToClearHeader + 'px',
         'background-color': '#ff8181'
     });
 

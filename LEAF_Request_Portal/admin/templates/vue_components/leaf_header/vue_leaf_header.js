@@ -1,17 +1,17 @@
 const app = Vue.createApp({
     data(){
         return {
+            windowTop: 0,
             adminLinks: [
                 { title: 'Home', link: '../' },
                 { title: 'Report Builder', link: '../?a=reports' },
                 { title: 'Site Links', link: '#',
                     subLinks: [
-                        { title: 'Nexus: Org Charts', link: '../../LEAF_Nexus' }
+                        { title: 'Nexus: Org Charts', link: '../{$orgchartPath}' }
                     ],
                     subLinkOpen: false},
                 { title: 'Admin', link: '#',
                     subLinks: [
-                        { title: 'Admin Home', link: './' },
                         { title: 'User Access', link: '#',
                             subLinks: [
                                 { title: 'User Access Groups', link: '?a=mod_groups' },
@@ -19,17 +19,11 @@ const app = Vue.createApp({
                             ],
                             subLinkOpen: false,
                             backgroundColor: '#FAF3D1'},
-                        { title: 'Portal Admin', link: '#',
-                            subLinks: [
-                                { title: 'Workflow Editor', link: '?a=workflow' },
-                                { title: 'Form Editor', link: '?a=form' },
-                                { title: 'LEAF Library', link: '?a=formLibrary' },
-                                { title: 'Site Settings', link: '?a=mod_system' },
-                                { title: 'Report Builder', link: '../?a=reports' },
-                                { title: 'Timeline Explorer', link: '../report.php?a=LEAF_Timeline_Explorer' }
-                            ],
-                            subLinkOpen: false,
-                            backgroundColor: '#DAE9EE'},
+                        { title: 'Workflow Editor', link: '?a=workflow' },
+                        { title: 'Form Editor', link: '?a=form' },
+                        { title: 'LEAF Library', link: '?a=formLibrary' },
+                        { title: 'Site Settings', link: '?a=mod_system' },
+                        { title: 'Timeline Explorer', link: '../report.php?a=LEAF_Timeline_Explorer' },
                         { title: 'LEAF Developer', link: '#',
                             subLinks: [
                                 { title: 'Template Editor', link: '?a=mod_templates' },
@@ -57,12 +51,35 @@ const app = Vue.createApp({
             ],
         }
     },
+    mounted(){
+        document.addEventListener("scroll", this.onScroll);
+    },
+    beforeUnmount(){
+        document.removeEventListener("scroll", this.onScroll);
+    },
+    methods: {
+        onScroll(){
+            this.windowTop = window.top.scrollY;
+        }
+    }
 });
 
 
-//TODO: move separate comps to own file.
+//TODO: ideally in own files.
 //warning banner
 app.component('leaf-warning', {
+    template:
+        `<div id="leaf-warning">
+            <div>
+                <h3>Do not enter PHI/PII: this site is not yet secure</h3>
+                <p><a>Start certification process</a></p>
+            </div>
+            <div><i class="fas fa-exclamation" aria-hidden="true"></i></div>
+        </div>`
+});
+
+//scrolling warning banner
+app.component('scrolling-leaf-warning', {
     props: {
         bgColor: {
             type: String,
@@ -76,11 +93,11 @@ app.component('leaf-warning', {
         },
     },
     template:
-        `<p id="leaf-warning" :style="{backgroundColor: bgColor, color: textColor}"><slot></slot></p>`
+        `<p id="scrolling-leaf-warning" :style="{backgroundColor: bgColor, color: textColor}"><slot></slot></p>`
 });
 
 //nav (nav, ul, li, and sublists)
-app.component('leaf-nav', {
+app.component('admin-leaf-nav', {
     props: {
         navItems: {
             type: Array,
@@ -111,91 +128,98 @@ app.component('leaf-nav', {
                 item.subLinkOpen = false;
             }
         }
-    },//@click="toggleSubModal(item)"
+    },
     template:
-        `<nav id="leaf-vue-nav">
-        <ul class="primary"> 
-            <li :key="item.title" v-for="item in navItems">
-                <a :href="item.link" 
-                    @click="toggleSubModal(item)"
-                    :class="[ (item.subLinkOpen) ? 'active' : '' ]">{{ item.title }}
-                    <i v-if="item.subLinks" :style="{visibility: item.subLinks && !item.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
-                </a>
-                
-                <template v-if="item.subLinks && item.subLinkOpen">
-                    <ul class="sublinks active"> 
-                        <li :key="subLink.title" v-for="subLink in item.subLinks" @click="adjustIndex($event)">
-                            <a :href="subLink.link" 
-                                @click="toggleSubModal(subLink)"
-                                :class="[ (subLink.subLinkOpen) ? 'active' : '' ]">
-                                <i :style="{visibility: subLink.subLinks && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-left"></i>
-                                &nbsp;{{ subLink.title }}
-                            </a>
-                            
-                            <template v-if="subLink.subLinks && subLink.subLinkOpen">
-                                <ul class="inner-sublinks active"> 
-                                    <li :key="sub.title" v-for="sub in subLink.subLinks"
-                                    :style="{backgroundColor: subLink.backgroundColor}">
-                                    <a :href="sub.link">{{ sub.title }}</a>
-                                    </li>
-                                </ul>  
-                            </template>
-                        </li>
-                    </ul> 
-                </template>
-            </li> 
-        </ul><slot></slot> 
-    </nav>`, //^slot for user-info
+        `<li :key="item.title" v-for="item in navItems">
+            <a :href="item.link" 
+                @click="toggleSubModal(item)" @mouseenter="modalOn(item)"
+                :class="[ (item.subLinkOpen) ? 'active' : '' ]">{{ item.title }}&nbsp;
+                <i v-if="item.subLinks" :style="{visibility: item.subLinks && !item.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
+            </a>
+            
+            <template v-if="item.subLinks && item.subLinkOpen">
+                <ul class="sublinks active"> 
+                    <li :key="subLink.title" 
+                        v-for="subLink in item.subLinks" 
+                        @click="adjustIndex($event)"
+                        @mouseleave="modalOff(subLink)"
+                        @mouseenter="modalOn(subLink)">
+                        <a :href="subLink.link" 
+                            :class="[ (subLink.subLinkOpen) ? 'active' : '' ]">
+                            {{ subLink.title }} 
+                            <i :style="{visibility: subLink.subLinks && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-right"></i>
+                        </a>
+                        
+                        <template v-if="subLink.subLinks && subLink.subLinkOpen">
+                            <ul class="inner-sublinks active"> 
+                                <li :key="sub.title" v-for="sub in subLink.subLinks"
+                                :style="{backgroundColor: subLink.backgroundColor}">
+                                <a :href="sub.link">{{ sub.title }}</a>
+                                </li>
+                            </ul>  
+                        </template>
+                    </li>
+                </ul> 
+            </template>
+        </li>`
 });
 
-app.component('user-info', {
+//TODO:
+app.component('menu-toggle-button', {
+    emits:['toggleNav'],
+    template:
+        `<li @click="$emit('toggle-nav')" id="toggleMenu" role="button">
+            <span class="leaf-menu"><button>MENU</button></span><i class="fas fa-times"></i><span id="toggleMenu-text">Toggle Navigation</span>
+        </li>`
+});
+
+app.component('leaf-user-info', {
     data(){
         return {
-            userItems: [
-                { title: this.name, link: '#' },
-                { title: this.position, link: '#' },
-                { title: 'Log Out', link: '#' },
-            ],
+            userItems: {
+                user: '',
+                primaryAdmin: ''
+            },
             subLinkOpen: false
         }
     },
-    props: {
-        name: {
-            type: String,
-            required: true
-        },
-        position: {
-            type: String,
-            required: true
-
-        },
-        isLoggedIn: {
-            type: Boolean,
-            required: true
-        },
-    },
+    props: ['user-name'],
     methods: {
         toggleSubModal() {
             this.subLinkOpen = !this.subLinkOpen;
-        }
+        },
+    },
+    created(){
+        this.userItems.user = JSON.parse(this.$props.userName);
+        fetch('../api/system/primaryadmin', {
+            "method": "GET"
+        })
+        .then(res => res.json())
+        .then(data => {
+            let emailString = data['Email'] !== '' ? " - " + data['Email'] : '';
+            if(data["Fname"] !== undefined && data["Lname"] !== undefined){
+                this.userItems.primaryAdmin = data['Fname'] + " " + data['Lname'] + emailString;
+            }
+            else {
+                this.userItems.primaryAdmin = data["userName"] !== undefined ? data["userName"] : 'Not Set';
+            }
+        });
     },
     template:
-        `<ul id="user-info" class="primary">
-        <li>
-            <a href="#" @click="toggleSubModal()"
-                :class="[ (subLinkOpen) ? 'active' : '' ]">
-                user info
-                <i :style="{visibility: userItems && !subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
+        `<li>
+            <a href="#" @click="toggleSubModal">
+                <i id="nav-user-icon" class='fas fa-user-circle' alt='User Account Menu'></i>
+                 &nbsp;{{ this.userItems.user }}&nbsp; 
+                <i :style="{visibility: !subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i> 
             </a>
             <template v-if="subLinkOpen">
-                <ul class="sublinks">
-                    <li :key="item" v-for="item in userItems">
-                        <a :href="item.link">{{ item.title }}</a>
-                    </li>
+                <ul class="sublinks active">
+                    <li><a href="#">Your account profile<br/><span class="leaf-user-menu-name"></span></a></li>
+                    <li><a href="#">Primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name">{{userItems.primaryAdmin}}</span></a></li>
+                    <li><a href="../?a=logout">Sign Out</a></li>
                 </ul>
             </template>
-        </li>
-    </ul>`
+        </li>`
 });
-
+// class="leaf-usernavmenu"
 app.mount('#vue-leaf-header');

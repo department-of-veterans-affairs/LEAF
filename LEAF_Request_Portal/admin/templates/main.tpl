@@ -17,6 +17,7 @@
         @import "../../libs/js/jquery/icheck/skins/square/blue.css";
         @import "css/style.css";
         @import "../../libs/css/leaf.css";
+        @import "templates/vue_components/leaf_header/vue_leaf_header.css";
     </style>
     <style type="text/css" media="print">
         @import "css/printer.css";
@@ -50,7 +51,39 @@
 
 <body>
     <div id="vue-leaf-header">
+        {if $leafSecure == 0}
+            <scrolling-leaf-warning v-show="windowTop > 0">Do Not Enter PHI / PII</scrolling-leaf-warning>
+        {/if}
+        <header id="leaf-header">
+            <div id="header-top">
+                <a id="logo" href="./" title="Home">{$logo}</a>
+                <div>
+                    <em class="usa-logo__text">
+                        <h2><span class="leaf-site-title">{$city}</span></h2>
+                        <h3><span class="leaf-header-description">{$title}</span></h3>
+                    </em>
+                </div>
+                {if $leafSecure == 0}
+                    <leaf-warning></leaf-warning>
+                {/if}
 
+                {if $qrcodeURL != ''}
+                    <div><img class="print nodisplay" style="width: 72px" src="../../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
+                {/if}
+            </div>
+            <div id="nav-ribon">
+                {$emergency}<!--{$login}-->
+                <nav id="leaf-vue-nav">
+                    <ul id="nav-navlinks" class="primary">
+                        <admin-leaf-nav :nav-items="adminLinks"></admin-leaf-nav>
+                    </ul>
+                    <!-- <nav aria-label="main menu" id="nav">  menu smarty </nav> -->
+                    <ul id="nav-user-info" class="primary">
+                        <leaf-user-info user-name='{json_encode($name)}'></leaf-user-info>
+                    </ul>
+                </nav>
+            </div>
+        </header>
         {*
         {if $leafSecure == 0}
         <section class="usa-banner bg-orange-topbanner" aria-label="Official government website">
@@ -83,8 +116,8 @@
                     <nav aria-label="main menu" id="nav">{$menu}</nav>
                 </div>
             </div>
-        </header>
-        *}
+        </header> *}
+
     </div>
 
     <div id="body">
