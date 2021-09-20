@@ -368,9 +368,10 @@ class Workflow
      * @param string $newName New Name of event being passed through
      * @param string $desc New Description of the event being passed through
      * @param string $type New Type of the event being passed through
+     * @param array $data New Data being passed through
      * @return int|string Successful Edit = 1 (Check for Admin Access, System Event, and Name pass-through)
      */
-    public function editEvent($name = null, $newName = null, $desc = '', $type = null)
+    public function editEvent($name = null, $newName = null, $desc = '', $type = null, $data = array())
     {
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
@@ -389,9 +390,11 @@ class Workflow
         $vars = array(':eventID' => $name,
             ':eventDescription' => $desc,
             ':newEventID' => $newName,
-            ':eventType' => $type);
+            ':eventType' => $type,
+            ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
+                                              'NotifyNext' => $data['Notify Next'])));
 
-        $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType WHERE eventID=:eventID';
+        $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData WHERE eventID=:eventID';
 
         $this->db->prepared_query($strSQL, $vars);
 
@@ -777,9 +780,10 @@ class Workflow
      * @param string $name Custom Event Name
      * @param string $desc Custom Event Description
      * @param string $type Custom Event Type (Email, Script, etc...)
+     * @param array $data Custom Event Data
      * @return bool|string If the event was created successful true/false (Check for Admin Access, System Event, and Name pass-through)
      */
-    public function createEvent($name = null, $desc = '', $type = null)
+    public function createEvent($name = null, $desc = '', $type = null, $data = array())
     {
         if (!$this->login->checkGroup(1))
         {
@@ -800,7 +804,8 @@ class Workflow
         $vars = array(':eventID' => $name,
                       ':description' => $desc,
                       ':eventType' => $type,
-                      ':eventData' => '');
+                      ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
+                                                        'NotifyNext' => $data['Notify Next'])));
 
         $strSQL = "INSERT INTO events (eventID, eventDescription, eventType, eventData) VALUES (:eventID, :description, :eventType, :eventData)";
 

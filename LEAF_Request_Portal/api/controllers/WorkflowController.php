@@ -151,7 +151,8 @@ class WorkflowController extends RESTfulResponse
         $this->index['POST']->register('workflow/events', function ($args) use ($workflow) {
             return $workflow->createEvent(XSSHelpers::xscrub($_POST['name']),
                                           XSSHelpers::xscrub($_POST['description']),
-                                          XSSHelpers::xscrub($_POST['type']));
+                                          XSSHelpers::xscrub($_POST['type']),
+                                          $_POST['data']);
         });
 
         $this->index['POST']->register('workflow/[digit]/editorPosition', function ($args) use ($workflow) {
@@ -231,7 +232,8 @@ class WorkflowController extends RESTfulResponse
             return $workflow->editEvent($args[0],
                                         XSSHelpers::xscrub($_POST['newName']),
                                         XSSHelpers::xscrub($_POST['description']),
-                                        XSSHelpers::xscrub($_POST['type']));
+                                        XSSHelpers::xscrub($_POST['type']),
+                                        $_POST['data']);
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

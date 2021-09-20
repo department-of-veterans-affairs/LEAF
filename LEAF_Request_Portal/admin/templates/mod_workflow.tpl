@@ -118,8 +118,8 @@ function listEventsContent(events) {
         content += '</tr>';
     }
 
-    content += '</table><br /> <br />';
-    content += '<span class="buttonNorm" id="create-event" tabindex="0">Create a new Event</span>';
+    content += '</table><br /><br />';
+    content += '<span class="buttonNorm" id="create-event" tabindex="0">Create a new Event</span><br /><br />You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a>';
 
     return content;
 }
@@ -165,10 +165,21 @@ function newEvent(events) {
     dialog.setTitle('Create Event');
     let createEventContent = '<div>Event Type: <select id="eventType">' +
         '<option value="Email" selected>Email</option>' +
-        '</select><br/><br/>' +
-        '<span>Event Name: </span><textarea id="eventName" class="eventTextBox" /><br/><br/>' +
-        '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox" />';
+        '</select><br /><br />' +
+        '<span>Event Name: </span><textarea id="eventName" class="eventTextBox" /><br /><br />' +
+        '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox" /><br /><br />' +
+        '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a></div>';
     dialog.setContent(createEventContent);
+    if ($('#eventType').val() === 'Email') {
+        $('#eventEmailSettings').show();
+    }
+    $('#eventType').on('click', function() {
+        if ($('#eventType').val() === 'Email') {
+            $('#eventEmailSettings').show();
+        } else {
+            $('#eventEmailSettings').hide();
+        }
+    });
     $('#eventName').on('keyup', function() {
         $('#eventName').val($('#eventName').val().replace(/[^a-z0-9]/gi, '_'));
     });
@@ -178,9 +189,12 @@ function newEvent(events) {
         let eventName = 'CustomEvent_' + $('#eventName').val();
         let eventDesc = $('#eventDesc').val();
         let eventType = $('#eventType').val();
+        let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
+                         'Notify Next':$('#notifyNext').prop("checked")};
         let ajaxData = {name: eventName,
                         description: eventDesc,
                         type: eventType,
+                        data: eventData,
                         CSRFToken: CSRFToken};
         let eventExists = false;
         for(let i in events) {
@@ -296,9 +310,10 @@ function addEventDialog(workflowID, stepID, actionType) {
 function editEventContent(event) {
     let content = '<div>Event Type: <select id="eventType">' +
         '<option value="Email" selected>Email</option>' +
-        '</select><br/><br/>' +
-        '<span>Event Name: </span><textarea id="eventName" class="eventTextBox">' + event[0].eventID.replace('CustomEvent_', '') + '</textarea><br/><br/>' +
-        '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox">' + event[0].eventDescription + '</textarea>';
+        '</select><br /><br />' +
+        '<span>Event Name: </span><textarea id="eventName" class="eventTextBox">' + event[0].eventID.replace('CustomEvent_', '') + '</textarea><br /><br />' +
+        '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox">' + event[0].eventDescription + '</textarea><br /><br />' +
+        '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a></div>';
 
     return content;
 }
@@ -319,6 +334,29 @@ function editEvent(event) {
         cache: false
     }).done(function (res) {
         dialog.setContent(editEventContent(res));
+        if ($('#eventType').val() === 'Email') {
+            $('#eventEmailSettings').show();
+        }
+        let eventParse = JSON.parse(res[0].eventData);
+        let notifyRequestor = eventParse.NotifyRequestor;
+        let notifyNext = eventParse.NotifyNext;
+        if (notifyRequestor === 'true') {
+            $('#notifyRequestor').prop('checked', true);
+        } else {
+            $('#notifyRequestor').prop('checked', false);
+        }
+        if (notifyNext === 'true') {
+            $('#notifyNext').prop('checked', true);
+        } else {
+            $('#notifyNext').prop('checked', false);
+        }
+        $('#eventType').on('click', function() {
+            if ($('#eventType').val() === 'Email') {
+                $('#eventEmailSettings').show();
+            } else {
+                $('#eventEmailSettings').hide();
+            }
+        });
         $('#eventName').on('keyup', function () {
             $('#eventName').val($('#eventName').val().replace(/[^a-z0-9]/gi, '_'));
         });
@@ -329,22 +367,27 @@ function editEvent(event) {
             let eventName = 'CustomEvent_' + $('#eventName').val();
             let eventDesc = $('#eventDesc').val();
             let eventType = $('#eventType').val();
+            let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
+                             'Notify Next':$('#notifyNext').prop("checked")};
             let ajaxData = {newName: eventName,
                             description: eventDesc,
                             type: eventType,
+                            data: eventData,
                             CSRFToken: CSRFToken};
-            let eventExists = false;
+            let eventNameChange = false;
             $.ajax({
                 type: 'GET',
                 url: '../api/?a=workflow/customEvents',
                 cache: false
             }).done(function (res) {
                 for (let i in res) {
-                    if (res[i].eventID === eventName) {
-                        eventExists = true;
+                    if (event !== eventName) { // Check if name change
+                        if (res[i].eventID === eventName) {
+                            eventNameChange = true;
+                        }
                     }
                 }
-                if (eventExists === false && $('#eventName').val() !== '') {
+                if (eventNameChange === false && $('#eventName').val() !== '') {
                     $.ajax({
                         type: 'POST',
                         url: '../api/?a=workflow/editEvent/_' + event,

@@ -857,7 +857,7 @@ class FormWorkflow
         $varEvents = array(':workflowID' => $workflowID,
             ':stepID' => $stepID,
             ':actionType' => $actionType, );
-        $strSQL = "SELECT rt.eventID FROM route_events AS rt ".
+        $strSQL = "SELECT rt.eventID, eventData FROM route_events AS rt ".
             "LEFT JOIN events as et USING (eventID) ".
             "WHERE workflowID=:workflowID ".
             "AND stepID=:stepID ".
@@ -867,7 +867,7 @@ class FormWorkflow
 
         foreach ($res as $event)
         {
-            $customEvent = null;
+            $customEvent = '';
             if (preg_match('/CustomEvent_/', $event['eventID'])) {
                 $customEvent = $event['eventID'];
             }
@@ -964,7 +964,8 @@ class FormWorkflow
                     $label = str_replace('CustomEvent_', '', $event['eventID']);
                     $label = str_replace('_', ' ', $label);
 
-                    $email->setTemplateByLabel($label);
+                    $emailTemplateID = $email->getTemplateIDByLabel($label);
+                    $email->setTemplateByID($emailTemplateID);
 
                     require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
@@ -972,7 +973,30 @@ class FormWorkflow
                     $author = $dir->lookupLogin($this->login->getUserID());
                     $email->setSender($author[0]['Email']);
 
-                    $email->sendMail();
+                    $eventData = json_decode($event['eventData']);
+
+                    if ($eventData->NotifyRequestor === 'true') {
+                        // Get backups to requester so they can be notified as well
+                        $nexusDB = $this->login->getNexusDB();
+                        $vars = array(':empUID' => $author[0]['empUID']);
+                        $strSQL = "SELECT backupEmpUID FROM relation_employee_backup ".
+                                        "WHERE empUID = :empUID";
+                        $backupIds = $nexusDB->prepared_query($strSQL, $vars);
+
+                        // Add backups to email recepients
+                        foreach($backupIds as $backup) {
+                            $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
+                            $email->addRecipient($theirBackup[0]['Email']);
+                        }
+
+                        $tmp = $dir->lookupLogin($approvers[0]['userID']);
+                        $email->addRecipient($tmp[0]['Email']);
+                    }
+
+                    if ($eventData->NotifyNext === 'true')
+                        $email->attachApproversAndEmail($this->recordID, $emailTemplateID, $this->login);
+                    else
+                        $email->sendMail();
 
                     break;
                 default:
