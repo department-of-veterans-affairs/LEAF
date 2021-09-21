@@ -732,6 +732,8 @@ class Email
             $tmp = $dir->lookupLogin($recordInfo['userID']);
             $this->addRecipient($tmp[0]['Email']);
             $this->sendMail();
+        } elseif ($emailTemplateID > 1) {
+            $this->sendMail(); // Check for custom event to finalize email on Notify Next
         }
     }
 }

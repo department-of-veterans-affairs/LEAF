@@ -975,6 +975,10 @@ class FormWorkflow
 
                     $eventData = json_decode($event['eventData']);
 
+                    if ($eventData->NotifyGroup !== 'None') {
+                        $email->addGroupRecipient($eventData->NotifyGroup);
+                    }
+
                     if ($eventData->NotifyRequestor === 'true') {
                         // Get backups to requester so they can be notified as well
                         $nexusDB = $this->login->getNexusDB();

@@ -392,7 +392,8 @@ class Workflow
             ':newEventID' => $newName,
             ':eventType' => $type,
             ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
-                                              'NotifyNext' => $data['Notify Next'])));
+                                              'NotifyNext' => $data['Notify Next'],
+                                              'NotifyGroup' => $data['Notify Group'])));
 
         $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData WHERE eventID=:eventID';
 
@@ -805,7 +806,8 @@ class Workflow
                       ':description' => $desc,
                       ':eventType' => $type,
                       ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
-                                                        'NotifyNext' => $data['Notify Next'])));
+                                                        'NotifyNext' => $data['Notify Next'],
+                                                        'NotifyGroup' => $data['Notify Group'])));
 
         $strSQL = "INSERT INTO events (eventID, eventDescription, eventType, eventData) VALUES (:eventID, :description, :eventType, :eventData)";
 

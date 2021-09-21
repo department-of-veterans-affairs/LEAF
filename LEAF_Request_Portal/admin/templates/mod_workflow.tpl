@@ -156,6 +156,21 @@ function listEvents() {
 }
 
 /**
+ * Purpose: Content for group dropdown on newEvent
+ * @groups Group list pass-through
+ */
+function groupListContent(groups) {
+    let content = 'Notify Group: <select id="groupID">' +
+        '<option value="None">None</option>';
+    for (let i in groups) {
+        content += '<option value="' + groups[i].groupID + '">' + groups[i].name + '</option>';
+    }
+    content += '</select><br /><br />';
+
+    return content;
+}
+
+/**
  * Purpose: Create new custom event
  * @events Custom Event List
  */
@@ -163,12 +178,23 @@ function newEvent(events) {
     $('.workflowStepInfo').css('display', 'none');
     dialog.clear();
     dialog.setTitle('Create Event');
+    let groupList = {};
+    $.ajax({
+        type: 'GET',
+        url: '../api/?a=system/groups',
+        cache: false,
+        async: false
+    }).done(function (res) {
+        groupList = groupListContent(res);
+    }).fail(function (error) {
+        alert(error);
+    });
     let createEventContent = '<div>Event Type: <select id="eventType">' +
         '<option value="Email" selected>Email</option>' +
         '</select><br /><br />' +
         '<span>Event Name: </span><textarea id="eventName" class="eventTextBox" /><br /><br />' +
         '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox" /><br /><br />' +
-        '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a></div>';
+        '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />' + groupList + 'You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a></div>';
     dialog.setContent(createEventContent);
     if ($('#eventType').val() === 'Email') {
         $('#eventEmailSettings').show();
@@ -190,7 +216,8 @@ function newEvent(events) {
         let eventDesc = $('#eventDesc').val();
         let eventType = $('#eventType').val();
         let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
-                         'Notify Next':$('#notifyNext').prop("checked")};
+                         'Notify Next':$('#notifyNext').prop("checked"),
+                         'Notify Group':$('#groupID option:selected').val()};
         let ajaxData = {name: eventName,
                         description: eventDesc,
                         type: eventType,
@@ -230,11 +257,9 @@ function addEventContent(events) {
     let content = '';
     content = 'Add an event: ';
     content += '<br /><div><select id="eventID" name="eventID">';
-
     for (let i in events) {
         content += '<option value="' + events[i].eventID + '">' + events[i].eventType + ' - ' + events[i].eventDescription + '</option>';
     }
-
     content += '</select></div>';
 
     return content;
@@ -305,15 +330,24 @@ function addEventDialog(workflowID, stepID, actionType) {
 /**
  * Purpose: Buffer content for editEvent
  * @event Event being edited
+ * @groups Groups list for dropdown selection
  * @return HTML Content for editEvent
  */
-function editEventContent(event) {
+function editEventContent(event, groups) {
     let content = '<div>Event Type: <select id="eventType">' +
         '<option value="Email" selected>Email</option>' +
         '</select><br /><br />' +
         '<span>Event Name: </span><textarea id="eventName" class="eventTextBox">' + event[0].eventID.replace('CustomEvent_', '') + '</textarea><br /><br />' +
         '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox">' + event[0].eventDescription + '</textarea><br /><br />' +
-        '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a></div>';
+        '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />';
+
+    content += 'Notify Group: <select id="groupID">' +
+        '<option value="None">None</option>';
+    for (let i in groups) {
+        content += '<option value="' + groups[i].groupID + '">' + groups[i].name + '</option>';
+    }
+    content += '</select><br /><br />';
+    content += 'You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a></div>';
 
     return content;
 }
@@ -328,18 +362,31 @@ function editEvent(event) {
     $("#button_save").show();
     dialog.setTitle('Edit Event ' + event.replace('CustomEvent_', '').replace('_', ' '));
     dialog.show();
+    let groupList = {};
+    $.ajax({
+        type: 'GET',
+        url: '../api/?a=system/groups',
+        cache: false,
+        async: false
+    }).done(function (res) {
+        groupList = res;
+    }).fail(function (error) {
+        alert(error);
+    });
     $.ajax({
         type: 'GET',
         url: '../api/?a=workflow/event/_' + event,
         cache: false
     }).done(function (res) {
-        dialog.setContent(editEventContent(res));
+        dialog.setContent(editEventContent(res, groupList));
         if ($('#eventType').val() === 'Email') {
             $('#eventEmailSettings').show();
         }
         let eventParse = JSON.parse(res[0].eventData);
         let notifyRequestor = eventParse.NotifyRequestor;
         let notifyNext = eventParse.NotifyNext;
+        let notifyGroup = eventParse.NotifyGroup;
+        $('#groupID option[value='+notifyGroup+']').prop("selected", true);
         if (notifyRequestor === 'true') {
             $('#notifyRequestor').prop('checked', true);
         } else {
@@ -368,7 +415,8 @@ function editEvent(event) {
             let eventDesc = $('#eventDesc').val();
             let eventType = $('#eventType').val();
             let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
-                             'Notify Next':$('#notifyNext').prop("checked")};
+                             'Notify Next':$('#notifyNext').prop("checked"),
+                             'Notify Group':$('#groupID option:selected').val()};
             let ajaxData = {newName: eventName,
                             description: eventDesc,
                             type: eventType,
