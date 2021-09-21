@@ -3,8 +3,8 @@ const app = Vue.createApp({
         return {
             windowTop: 0,
             adminLinks: [
-                { title: 'Home', link: '../' },
-                { title: 'Report Builder', link: '../?a=reports' },
+                { title: 'Home', link: '../', renderCondition: true },
+                { title: 'Report Builder', link: '../?a=reports', renderCondition: true },
                 { title: 'Site Links', link: '#',
                     subLinks: [
                         { title: 'Nexus: Org Charts', link: '../{$orgchartPath}' }
@@ -17,8 +17,7 @@ const app = Vue.createApp({
                                 { title: 'User Access Groups', link: '?a=mod_groups' },
                                 { title: 'Service Chiefs', link: '?a=mod_svcChief' }
                             ],
-                            subLinkOpen: false,
-                            backgroundColor: '#FAF3D1'},
+                            subLinkOpen: false},
                         { title: 'Workflow Editor', link: '?a=workflow' },
                         { title: 'Form Editor', link: '?a=form' },
                         { title: 'LEAF Library', link: '?a=formLibrary' },
@@ -34,8 +33,7 @@ const app = Vue.createApp({
                                 { title: 'Sync Services', link: '?a=admin_sync_services' },
                                 { title: 'Update Database', link: '?a=admin_update_database' }
                             ],
-                            subLinkOpen: false,
-                            backgroundColor: '#DBEBDE'},
+                            subLinkOpen: false},
                         { title: 'Toolbox', link: '#',
                             subLinks: [
                                 { title: 'Import Spreadsheet', link: '../report.php?a=LEAF_import_data' },
@@ -43,11 +41,9 @@ const app = Vue.createApp({
                                 { title: 'Initiator New Account', link: '../report.php?a=LEAF_request_initiator_new_account' },
                                 { title: 'Sitemap Editor', link: '../report.php?a=LEAF_sitemaps_template' },
                             ],
-                            subLinkOpen: false,
-                            backgroundColor: '#F2E4D4'},
+                            subLinkOpen: false},
 
                     ], subLinkOpen: false },
-
             ],
         }
     },
@@ -74,7 +70,7 @@ app.component('leaf-warning', {
                 <h3>Do not enter PHI/PII: this site is not yet secure</h3>
                 <p><a>Start certification process</a></p>
             </div>
-            <div><i class="fas fa-exclamation" aria-hidden="true"></i></div>
+            <div> &nbsp; <i class="fas fa-exclamation-triangle fa-3x"></i></div>
         </div>`
 });
 
@@ -98,11 +94,30 @@ app.component('scrolling-leaf-warning', {
 
 //nav (nav, ul, li, and sublists)
 app.component('admin-leaf-nav', {
+    data(){
+        return {
+            orgPath: '',
+            site_Type: ''
+        }
+    },
     props: {
+        siteType: {
+            type: String,
+            required: true
+        },
+        orgchartPath: {
+            type: String,
+            required: true
+        },
         navItems: {
             type: Array,
             required: true
         }
+    },
+    created(){
+        this.site_Type = JSON.parse(this.$props.siteType);
+        this.orgPath = JSON.parse(this.$props.orgchartPath);
+        console.log("admin-nav created, data: ", this.site_Type, this.orgPath);
     },
     methods: {
         toggleSubModal(item) {
@@ -130,9 +145,12 @@ app.component('admin-leaf-nav', {
         }
     },
     template:
-        `<li :key="item.title" v-for="item in navItems">
+        `<li :key="item.title" 
+            v-for="item in navItems"
+            @click="toggleSubModal(item)" 
+            @mouseenter="modalOn(item)"
+            @mouseleave="modalOff(item)">
             <a :href="item.link" 
-                @click="toggleSubModal(item)" @mouseenter="modalOn(item)"
                 :class="[ (item.subLinkOpen) ? 'active' : '' ]">{{ item.title }}&nbsp;
                 <i v-if="item.subLinks" :style="{visibility: item.subLinks && !item.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
             </a>
@@ -187,7 +205,7 @@ app.component('leaf-user-info', {
     methods: {
         toggleSubModal() {
             this.subLinkOpen = !this.subLinkOpen;
-        },
+        }
     },
     created(){
         this.userItems.user = JSON.parse(this.$props.userName);
@@ -209,7 +227,7 @@ app.component('leaf-user-info', {
         `<li>
             <a href="#" @click="toggleSubModal">
                 <i id="nav-user-icon" class='fas fa-user-circle' alt='User Account Menu'></i>
-                 &nbsp;{{ this.userItems.user }}&nbsp; 
+                <span>&nbsp; {{ this.userItems.user }}&nbsp;</span> 
                 <i :style="{visibility: !subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i> 
             </a>
             <template v-if="subLinkOpen">
@@ -221,5 +239,5 @@ app.component('leaf-user-info', {
             </template>
         </li>`
 });
-// class="leaf-usernavmenu"
+
 app.mount('#vue-leaf-header');

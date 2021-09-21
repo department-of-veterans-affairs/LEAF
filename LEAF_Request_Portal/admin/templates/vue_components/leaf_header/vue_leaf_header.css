@@ -38,7 +38,7 @@ body {
     padding: 0.1em;
     width: 100%;
     position: fixed;
-    z-index: 500;
+    z-index: 1000;
 }
 #leaf-warning {
     height: 100%;
@@ -47,7 +47,7 @@ body {
     align-items: center;
     text-align: right;
 }
-#leaf-warning h3 {
+#leaf-warning, #leaf-warning h3 {
     color: var(--BG-VividOrange) !important;
 }
 #leaf-warning a, #leaf-warning a:hover, #leaf-warning a:focus, #leaf-warning a:visited  {
@@ -57,8 +57,12 @@ body {
 }
 /* ------------------------------------- */
 
+#vue-leaf-header {
+    margin-bottom: 0.5em;
+}
+
 /* header element wraps header-top and nav-ribon */
-#leaf-header {
+header#leaf-header {
     display: flex;
     flex-direction: column;
     font-family: "PublicSans-Regular", sans-serif;
@@ -102,6 +106,7 @@ body {
 
 
 /* nav, ul li and sub menus */
+/* nav links on left side */
 #nav-navlinks > li {
     margin-right: 0.4em
 }
@@ -126,7 +131,9 @@ nav#leaf-vue-nav > ul.primary > li {
     position: relative;
 }
 
-nav#leaf-vue-nav > ul.primary > li > a{
+nav#leaf-vue-nav > ul.primary > li > a {
+    display: flex;
+    align-items: center;
     text-align: center;
     border-radius: 3px;
 }
@@ -146,8 +153,11 @@ nav#leaf-vue-nav i {
     color: white;
     font-size: 20px;
 }
-#nav-user-info ul {
+ul#nav-user-info ul {
     width: 100%;
+}
+ul#nav-user-info span {
+    font-size: 90%;
 }
 
 #leaf-vue-nav .sublinks a {
@@ -211,8 +221,8 @@ nav#leaf-vue-nav .inner-sublinks a.active {
 
 
 @media (max-width: 800px) {
-    #nav {
-        font-size: 92%;
+    header#leaf-header {
+        font-size: 80%;
     }
     #leaf-vue-nav .inner-sublinks {
         position: relative;

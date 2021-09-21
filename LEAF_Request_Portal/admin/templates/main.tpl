@@ -75,9 +75,11 @@
                 {$emergency}<!--{$login}-->
                 <nav id="leaf-vue-nav">
                     <ul id="nav-navlinks" class="primary">
-                        <admin-leaf-nav :nav-items="adminLinks"></admin-leaf-nav>
+                        <admin-leaf-nav :nav-items="adminLinks"
+                                        orgchart-path='{json_encode($orgchartPath)}'
+                                        site-type='{json_encode($siteType)}'>
+                        </admin-leaf-nav>
                     </ul>
-                    <!-- <nav aria-label="main menu" id="nav">  menu smarty </nav> -->
                     <ul id="nav-user-info" class="primary">
                         <leaf-user-info user-name='{json_encode($name)}'></leaf-user-info>
                     </ul>
