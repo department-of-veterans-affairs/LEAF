@@ -17,11 +17,11 @@ const app = Vue.createApp({
     methods: {
         onScroll(){
             this.windowTop = window.top.scrollY;
-            console.log('scroll fire', this.windowTop);
+            //console.log('scroll fire', this.windowTop);
         },
         onResize(){
             this.windowInnerWidth = window.innerWidth;
-            console.log('resize fire', typeof this.windowInnerWidth);
+            //console.log('resize fire', typeof this.windowInnerWidth);
         }
     }
 });
@@ -106,7 +106,9 @@ app.component('admin-leaf-nav', {
                             ],
                             subLinkOpen: false},
 
-                    ], subLinkOpen: false },
+                    ],
+                    subLinkOpen: false,
+                    isClickedOn: false },
             ],
         }
     },
@@ -124,9 +126,6 @@ app.component('admin-leaf-nav', {
             required: true
         },
     },
-    created(){
-        console.log("admin-nav created, data: ", this.$props.siteType, this.$props.orgchartPath, this.navItems);
-    },
     computed: {
         isSmallScreen(){
             return this.$props.innerWidth < 600;
@@ -134,20 +133,29 @@ app.component('admin-leaf-nav', {
     },
     methods: {
         toggleSubModal(event, item) {
-            item.isClickedOn = !item.isClickedOn;
-            event.currentTarget.style.border = item.isClickedOn ? '1px outset #84c6ff' : '1px solid transparent';
-            this.adjustIndex(event);
+            if(item.subLinks) {
+                item.isClickedOn = !item.isClickedOn;
+                if (item.isClickedOn){
+                    this.modalOn(item);
+                    event.currentTarget.style.border = '1px outset #84c6ff';
+                } else {
+                    this.modalOff(item);
+                    event.currentTarget.style.border =  '1px solid transparent';
+                }
+                this.adjustIndex(event);
+                //Vue.nextTick();  WHY THO?
+            }
         },
         adjustIndex(event){
             //so that the newest submenu opened will be on top of any other open menus
-            const elLi = Array.from(document.querySelectorAll('.primary > li'));
+            const elLi = Array.from(document.querySelectorAll('.primary li'));
             elLi.forEach(ele => {
                 ele.style.zIndex = 100;
             });
-            event.currentTarget.style.zIndex = 200;
+            event.currentTarget.parentElement.style.zIndex = 200;
         },
         modalOn(item) {
-            if (item.subLinks && !item.isClickedOn) {
+            if (item.subLinks) {
                 item.subLinkOpen = true;
             }
         },
@@ -160,12 +168,12 @@ app.component('admin-leaf-nav', {
     template:
         `<li :key="item.title" 
             v-for="item in navItems"
-            :style="{display: item.renderCondition ? 'block' : 'none'}"
-            @click="toggleSubModal($event,item)" 
+            :style="{display: item.renderCondition ? 'block' : 'none'}" 
             
             @mouseenter="modalOn(item)"
             @mouseleave="modalOff(item)">
             <a  :href="item.link" 
+                @click="toggleSubModal($event,item)"
                 :class="[ (item.subLinkOpen) ? 'active' : '' ]">{{ item.title }}
                 <i v-if="item.subLinks" :style="{visibility: item.subLinks && !item.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
             </a>
@@ -175,9 +183,11 @@ app.component('admin-leaf-nav', {
                     <li :key="subLink.title" 
                         v-for="subLink in item.subLinks" 
                         :style="{display: subLink.renderCondition === true ? 'block' : 'none'}"
+                        
                         @mouseleave="modalOff(subLink)"
                         @mouseenter="modalOn(subLink)">
                         <a :href="subLink.link"  
+                            @click="toggleSubModal($event,subLink)"
                             :class="[ (subLink.subLinkOpen) ? 'active' : '' ]">
                             {{ subLink.title }} 
                             <i :style="{visibility: subLink.subLinks && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-right"></i>
