@@ -75,7 +75,7 @@
                 {$emergency}<!--{$login}-->
                 <nav id="leaf-vue-nav">
                     <ul id="nav-navlinks" class="primary">
-                        <admin-leaf-nav :nav-items="adminLinks"
+                        <admin-leaf-nav :inner-width="windowInnerWidth"
                                         orgchart-path='{json_encode($orgchartPath)}'
                                         site-type='{json_encode($siteType)}'>
                         </admin-leaf-nav>

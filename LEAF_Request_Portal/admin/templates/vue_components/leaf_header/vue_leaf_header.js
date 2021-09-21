@@ -2,60 +2,26 @@ const app = Vue.createApp({
     data(){
         return {
             windowTop: 0,
-            adminLinks: [
-                { title: 'Home', link: '../', renderCondition: true },
-                { title: 'Report Builder', link: '../?a=reports', renderCondition: true },
-                { title: 'Site Links', link: '#',
-                    subLinks: [
-                        { title: 'Nexus: Org Charts', link: '../{$orgchartPath}' }
-                    ],
-                    subLinkOpen: false},
-                { title: 'Admin', link: '#',
-                    subLinks: [
-                        { title: 'User Access', link: '#',
-                            subLinks: [
-                                { title: 'User Access Groups', link: '?a=mod_groups' },
-                                { title: 'Service Chiefs', link: '?a=mod_svcChief' }
-                            ],
-                            subLinkOpen: false},
-                        { title: 'Workflow Editor', link: '?a=workflow' },
-                        { title: 'Form Editor', link: '?a=form' },
-                        { title: 'LEAF Library', link: '?a=formLibrary' },
-                        { title: 'Site Settings', link: '?a=mod_system' },
-                        { title: 'Timeline Explorer', link: '../report.php?a=LEAF_Timeline_Explorer' },
-                        { title: 'LEAF Developer', link: '#',
-                            subLinks: [
-                                { title: 'Template Editor', link: '?a=mod_templates' },
-                                { title: 'Email Template Editor', link: '?a=mod_templates_email' },
-                                { title: 'LEAF Programmer', link: '?a=mod_templates_reports' },
-                                { title: 'File Manager', link: '?a=mod_file_manager' },
-                                { title: 'Search Database', link: '../?a=search' },
-                                { title: 'Sync Services', link: '?a=admin_sync_services' },
-                                { title: 'Update Database', link: '?a=admin_update_database' }
-                            ],
-                            subLinkOpen: false},
-                        { title: 'Toolbox', link: '#',
-                            subLinks: [
-                                { title: 'Import Spreadsheet', link: '../report.php?a=LEAF_import_data' },
-                                { title: 'Mass Action', link: '../report.php?a=LEAF_mass_action' },
-                                { title: 'Initiator New Account', link: '../report.php?a=LEAF_request_initiator_new_account' },
-                                { title: 'Sitemap Editor', link: '../report.php?a=LEAF_sitemaps_template' },
-                            ],
-                            subLinkOpen: false},
-
-                    ], subLinkOpen: false },
-            ],
+            windowInnerWidth: 800
         }
     },
     mounted(){
+        this.windowInnerWidth = window.innerWidth;
         document.addEventListener("scroll", this.onScroll);
+        window.addEventListener("resize", this.onResize);
     },
     beforeUnmount(){
         document.removeEventListener("scroll", this.onScroll);
+        window.removeEventListener("resize", this.onResize);
     },
     methods: {
         onScroll(){
             this.windowTop = window.top.scrollY;
+            console.log('scroll fire', this.windowTop);
+        },
+        onResize(){
+            this.windowInnerWidth = window.innerWidth;
+            console.log('resize fire', typeof this.windowInnerWidth);
         }
     }
 });
@@ -70,7 +36,7 @@ app.component('leaf-warning', {
                 <h3>Do not enter PHI/PII: this site is not yet secure</h3>
                 <p><a>Start certification process</a></p>
             </div>
-            <div> &nbsp; <i class="fas fa-exclamation-triangle fa-3x"></i></div>
+            <div><i class="fas fa-exclamation-triangle fa-3x"></i></div>
         </div>`
 });
 
@@ -96,8 +62,52 @@ app.component('scrolling-leaf-warning', {
 app.component('admin-leaf-nav', {
     data(){
         return {
-            orgPath: '',
-            site_Type: ''
+            navItems: [
+                { title: 'Home', link: '../', renderCondition: true },
+                { title: 'Report Builder', link: '../?a=reports', renderCondition: true },
+                { title: 'Site Links', link: '#', renderCondition: true,
+                    subLinks: [
+                        { title: 'Nexus: Org Charts', link: '../' + JSON.parse(this.$props.orgchartPath), renderCondition: true }
+                    ],
+                    subLinkOpen: false,
+                    isClickedOn: false },
+                { title: 'Admin', link: '#', renderCondition: true,
+                    subLinks: [
+                        { title: 'Admin Home', link: './', renderCondition: true },
+                        { title: 'User Access', link: '#', renderCondition: true,
+                            subLinks: [
+                                { title: 'User Access Groups', link: '?a=mod_groups', renderCondition: true },
+                                { title: 'Service Chiefs', link: '?a=mod_svcChief', renderCondition: true }
+                            ],
+                            subLinkOpen: false},
+                        { title: 'Workflow Editor', link: '?a=workflow', renderCondition: JSON.parse(this.$props.siteType) !== 'national_subordinate' },
+                        { title: 'Form Editor', link: '?a=form', renderCondition: JSON.parse(this.$props.siteType) !== 'national_subordinate' },
+                        { title: 'LEAF Library', link: '?a=formLibrary', renderCondition: JSON.parse(this.$props.siteType) !== 'national_subordinate' },
+                        { title: 'Site Settings', link: '?a=mod_system', renderCondition: true },
+                        { title: 'Site Distribution', link: '#', renderCondition: JSON.parse(this.$props.siteType) === 'national_primary' },
+                        { title: 'Timeline Explorer', link: '../report.php?a=LEAF_Timeline_Explorer', renderCondition: true },
+                        { title: 'LEAF Developer', link: '#', renderCondition: true,
+                            subLinks: [
+                                { title: 'Template Editor', link: '?a=mod_templates', renderCondition: true },
+                                { title: 'Email Template Editor', link: '?a=mod_templates_email', renderCondition: true },
+                                { title: 'LEAF Programmer', link: '?a=mod_templates_reports', renderCondition: true },
+                                { title: 'File Manager', link: '?a=mod_file_manager', renderCondition: true },
+                                { title: 'Search Database', link: '../?a=search', renderCondition: true },
+                                { title: 'Sync Services', link: '?a=admin_sync_services', renderCondition: true },
+                                { title: 'Update Database', link: '?a=admin_update_database', renderCondition: true }
+                            ],
+                            subLinkOpen: false},
+                        { title: 'Toolbox', link: '#', renderCondition: true,
+                            subLinks: [
+                                { title: 'Import Spreadsheet', link: '../report.php?a=LEAF_import_data', renderCondition: true },
+                                { title: 'Mass Action', link: '../report.php?a=LEAF_mass_action', renderCondition: true },
+                                { title: 'Initiator New Account', link: '../report.php?a=LEAF_request_initiator_new_account', renderCondition: true },
+                                { title: 'Sitemap Editor', link: '../report.php?a=LEAF_sitemaps_template', renderCondition: true },
+                            ],
+                            subLinkOpen: false},
+
+                    ], subLinkOpen: false },
+            ],
         }
     },
     props: {
@@ -109,37 +119,40 @@ app.component('admin-leaf-nav', {
             type: String,
             required: true
         },
-        navItems: {
-            type: Array,
+        innerWidth: {
+            type: Number,
             required: true
-        }
+        },
     },
     created(){
-        this.site_Type = JSON.parse(this.$props.siteType);
-        this.orgPath = JSON.parse(this.$props.orgchartPath);
-        console.log("admin-nav created, data: ", this.site_Type, this.orgPath);
+        console.log("admin-nav created, data: ", this.$props.siteType, this.$props.orgchartPath, this.navItems);
+    },
+    computed: {
+        isSmallScreen(){
+            return this.$props.innerWidth < 600;
+        }
     },
     methods: {
-        toggleSubModal(item) {
-            if (item.subLinks) {
-                item.subLinkOpen = !item.subLinkOpen;
-            }
+        toggleSubModal(event, item) {
+            item.isClickedOn = !item.isClickedOn;
+            event.currentTarget.style.border = item.isClickedOn ? '1px outset #84c6ff' : '1px solid transparent';
+            this.adjustIndex(event);
         },
         adjustIndex(event){
-            //so that the newest submenu opened will be on top of any other open menues
-            const elLi = Array.from(document.querySelectorAll('.sublinks > li'));
+            //so that the newest submenu opened will be on top of any other open menus
+            const elLi = Array.from(document.querySelectorAll('.primary > li'));
             elLi.forEach(ele => {
                 ele.style.zIndex = 100;
             });
             event.currentTarget.style.zIndex = 200;
         },
         modalOn(item) {
-            if (item.subLinks) {
+            if (item.subLinks && !item.isClickedOn) {
                 item.subLinkOpen = true;
             }
         },
         modalOff(item) {
-            if (item.subLinks) {
+            if (item.subLinks && !item.isClickedOn) {
                 item.subLinkOpen = false;
             }
         }
@@ -147,11 +160,13 @@ app.component('admin-leaf-nav', {
     template:
         `<li :key="item.title" 
             v-for="item in navItems"
-            @click="toggleSubModal(item)" 
+            :style="{display: item.renderCondition ? 'block' : 'none'}"
+            @click="toggleSubModal($event,item)" 
+            
             @mouseenter="modalOn(item)"
             @mouseleave="modalOff(item)">
-            <a :href="item.link" 
-                :class="[ (item.subLinkOpen) ? 'active' : '' ]">{{ item.title }}&nbsp;
+            <a  :href="item.link" 
+                :class="[ (item.subLinkOpen) ? 'active' : '' ]">{{ item.title }}
                 <i v-if="item.subLinks" :style="{visibility: item.subLinks && !item.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
             </a>
             
@@ -159,16 +174,16 @@ app.component('admin-leaf-nav', {
                 <ul class="sublinks active"> 
                     <li :key="subLink.title" 
                         v-for="subLink in item.subLinks" 
-                        @click="adjustIndex($event)"
+                        :style="{display: subLink.renderCondition === true ? 'block' : 'none'}"
                         @mouseleave="modalOff(subLink)"
                         @mouseenter="modalOn(subLink)">
-                        <a :href="subLink.link" 
+                        <a :href="subLink.link"  
                             :class="[ (subLink.subLinkOpen) ? 'active' : '' ]">
                             {{ subLink.title }} 
                             <i :style="{visibility: subLink.subLinks && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-right"></i>
                         </a>
                         
-                        <template v-if="subLink.subLinks && subLink.subLinkOpen">
+                        <template v-if="subLink.subLinks && (subLink.subLinkOpen || isSmallScreen)">
                             <ul class="inner-sublinks active"> 
                                 <li :key="sub.title" v-for="sub in subLink.subLinks"
                                 :style="{backgroundColor: subLink.backgroundColor}">
@@ -227,7 +242,7 @@ app.component('leaf-user-info', {
         `<li>
             <a href="#" @click="toggleSubModal">
                 <i id="nav-user-icon" class='fas fa-user-circle' alt='User Account Menu'></i>
-                <span>&nbsp; {{ this.userItems.user }}&nbsp;</span> 
+                <span>{{ this.userItems.user }}</span> 
                 <i :style="{visibility: !subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i> 
             </a>
             <template v-if="subLinkOpen">
