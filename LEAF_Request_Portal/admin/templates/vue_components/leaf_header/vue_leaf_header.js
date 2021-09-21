@@ -17,29 +17,26 @@ const app = Vue.createApp({
     methods: {
         onScroll(){
             this.windowTop = window.top.scrollY;
-            //console.log('scroll fire', this.windowTop);
         },
         onResize(){
             this.windowInnerWidth = window.innerWidth;
-            //console.log('resize fire', typeof this.windowInnerWidth);
         }
     }
 });
 
 
-//TODO: ideally in own files.
-//warning banner
+//TODO: ideally in own files. easier here for now.
+//warning section with triangle
 app.component('leaf-warning', {
     template:
         `<div id="leaf-warning">
             <div>
-                <h3>Do not enter PHI/PII: this site is not yet secure</h3>
+                <h4>Do not enter PHI/PII: this site is not yet secure</h4>
                 <p><a>Start certification process</a></p>
             </div>
-            <div><i class="fas fa-exclamation-triangle fa-3x"></i></div>
+            <div><i class="fas fa-exclamation-triangle fa-2x"></i></div>
         </div>`
 });
-
 //scrolling warning banner
 app.component('scrolling-leaf-warning', {
     props: {
@@ -58,7 +55,7 @@ app.component('scrolling-leaf-warning', {
         `<p id="scrolling-leaf-warning" :style="{backgroundColor: bgColor, color: textColor}"><slot></slot></p>`
 });
 
-//nav (nav, ul, li, and sublists)
+//admin view links
 app.component('admin-leaf-nav', {
     data(){
         return {
@@ -105,7 +102,6 @@ app.component('admin-leaf-nav', {
                                 { title: 'Sitemap Editor', link: '../report.php?a=LEAF_sitemaps_template', renderCondition: true },
                             ],
                             subLinkOpen: false},
-
                     ],
                     subLinkOpen: false,
                     isClickedOn: false },
@@ -137,13 +133,10 @@ app.component('admin-leaf-nav', {
                 item.isClickedOn = !item.isClickedOn;
                 if (item.isClickedOn){
                     this.modalOn(item);
-                    event.currentTarget.style.border = '1px outset #84c6ff';
                 } else {
                     this.modalOff(item);
-                    event.currentTarget.style.border =  '1px solid transparent';
                 }
                 this.adjustIndex(event);
-                //Vue.nextTick();  WHY THO?
             }
         },
         adjustIndex(event){
@@ -190,7 +183,8 @@ app.component('admin-leaf-nav', {
                             @click="toggleSubModal($event,subLink)"
                             :class="[ (subLink.subLinkOpen) ? 'active' : '' ]">
                             {{ subLink.title }} 
-                            <i :style="{visibility: subLink.subLinks && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-right"></i>
+                            <i v-if="subLink.subLinks" :style="{visibility: innerWidth >= 600 && subLink.subLinks && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-right"></i>
+                            <i v-if="subLink.subLinks" :style="{visibility: innerWidth < 600 && subLink.subLinks && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
                         </a>
                         
                         <template v-if="subLink.subLinks && (subLink.subLinkOpen || isSmallScreen)">
@@ -207,7 +201,7 @@ app.component('admin-leaf-nav', {
         </li>`
 });
 
-//TODO:
+//TODO: not sure if still needed
 app.component('menu-toggle-button', {
     emits:['toggleNav'],
     template:
@@ -216,6 +210,7 @@ app.component('menu-toggle-button', {
         </li>`
 });
 
+//user info section
 app.component('leaf-user-info', {
     data(){
         return {
@@ -252,17 +247,19 @@ app.component('leaf-user-info', {
         `<li>
             <a href="#" @click="toggleSubModal">
                 <i id="nav-user-icon" class='fas fa-user-circle' alt='User Account Menu'></i>
-                <span>{{ this.userItems.user }}</span> 
+                <span>&nbsp;{{ this.userItems.user }}</span> 
                 <i :style="{visibility: !subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i> 
             </a>
             <template v-if="subLinkOpen">
                 <ul class="sublinks active">
                     <li><a href="#">Your account profile<br/><span class="leaf-user-menu-name"></span></a></li>
-                    <li><a href="#">Primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name">{{userItems.primaryAdmin}}</span></a></li>
+                    <li><a href="#">Your primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name">{{userItems.primaryAdmin}}</span></a></li>
                     <li><a href="../?a=logout">Sign Out</a></li>
                 </ul>
             </template>
         </li>`
 });
+
+app.component('login-form', {});
 
 app.mount('#vue-leaf-header');

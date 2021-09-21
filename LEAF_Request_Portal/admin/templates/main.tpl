@@ -52,7 +52,9 @@
 <body>
     <div id="vue-leaf-header">
         {if $leafSecure == 0}
+            <transition name="warn">
             <scrolling-leaf-warning v-show="windowTop > 0">Do Not Enter PHI / PII</scrolling-leaf-warning>
+            </transition>
         {/if}
         <header id="leaf-header">
             <div id="header-top">
@@ -72,13 +74,12 @@
                 {/if}
             </div>
             <div id="nav-ribon">
-                {$emergency}<!--{$login}-->
+                {$emergency}<!--{$login}-->  <!-- CAN THIS GO AWAY? -->
                 <nav id="leaf-vue-nav">
                     <ul id="nav-navlinks" class="primary">
                         <admin-leaf-nav :inner-width="windowInnerWidth"
                                         orgchart-path='{json_encode($orgchartPath)}'
-                                        site-type='{json_encode($siteType)}'>
-                        </admin-leaf-nav>
+                                        site-type='{json_encode($siteType)}'></admin-leaf-nav>
                     </ul>
                     <ul id="nav-user-info" class="primary">
                         <leaf-user-info user-name='{json_encode($name)}'></leaf-user-info>
