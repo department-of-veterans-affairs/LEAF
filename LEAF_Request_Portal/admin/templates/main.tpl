@@ -51,30 +51,22 @@
 
 <body>
     <div id="vue-leaf-header">
-        {if $leafSecure == 0}
-            <transition name="warn">
-            <scrolling-leaf-warning v-show="windowTop > 0">Do Not Enter PHI / PII</scrolling-leaf-warning>
-            </transition>
-        {/if}
+        <transition name="warn">
+        <scrolling-leaf-warning v-show="windowTop > 0" prop-secure='{json_encode($leafSecure)}'>Do Not Enter PHI / PII</scrolling-leaf-warning>
+        </transition>
+
         <header id="leaf-header">
             <div id="header-top">
                 <a id="logo" href="./" title="Home">{$logo}</a>
-                <div>
-                    <em class="usa-logo__text">
-                        <h2><span class="leaf-site-title">{$city}</span></h2>
-                        <h3><span class="leaf-header-description">{$title}</span></h3>
-                    </em>
-                </div>
-                {if $leafSecure == 0}
-                    <leaf-warning></leaf-warning>
-                {/if}
+                <div><em><h2 id="site-info-title">{$title}</h2><h4 id="site-info-city">{$city}</h4></em></div>
+                <leaf-warning prop-secure='{json_encode($leafSecure)}'></leaf-warning>
 
                 {if $qrcodeURL != ''}
                     <div><img class="print nodisplay" style="width: 72px" src="../../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
                 {/if}
             </div>
             <div id="nav-ribon">
-                {$emergency}<!--{$login}-->  <!-- CAN THIS GO AWAY? -->
+                {$emergency}
                 <nav id="leaf-vue-nav">
                     <ul id="nav-navlinks" class="primary">
                         <admin-leaf-nav :inner-width="windowInnerWidth"

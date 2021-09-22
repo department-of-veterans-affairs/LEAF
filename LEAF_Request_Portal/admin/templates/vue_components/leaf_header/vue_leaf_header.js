@@ -28,18 +28,40 @@ const app = Vue.createApp({
 //TODO: ideally in own files. easier here for now.
 //warning section with triangle
 app.component('leaf-warning', {
+    data(){
+        return {
+            leafSecure: JSON.parse(this.$props.propSecure)
+        }
+    },
+    props: {
+        propSecure: {
+            type: String,
+            required: false,
+            default: 'rgb(250,75,50)'
+        },
+    },
     template:
-        `<div id="leaf-warning">
+        `<div v-if="leafSecure==='0'" id="leaf-warning">
             <div>
                 <h4>Do not enter PHI/PII: this site is not yet secure</h4>
-                <p><a>Start certification process</a></p>
+                <p><a href="../report.php?a=LEAF_start_leaf_secure_certification">Start certification process</a></p>
             </div>
             <div><i class="fas fa-exclamation-triangle fa-2x"></i></div>
         </div>`
 });
 //scrolling warning banner
 app.component('scrolling-leaf-warning', {
+    data(){
+        return {
+            leafSecure: JSON.parse(this.$props.propSecure)
+        }
+    },
     props: {
+        propSecure: {
+            type: String,
+            required: false,
+            default: 'rgb(250,75,50)'
+        },
         bgColor: {
             type: String,
             required: false,
@@ -49,10 +71,40 @@ app.component('scrolling-leaf-warning', {
             type: String,
             required: false,
             default: 'rgb(255,255,255)'
-        },
+        }
     },
     template:
-        `<p id="scrolling-leaf-warning" :style="{backgroundColor: bgColor, color: textColor}"><slot></slot></p>`
+        `<p v-if="leafSecure==='0'" id="scrolling-leaf-warning" :style="{backgroundColor: bgColor, color: textColor}"><slot></slot></p>`
+});
+
+//site info  ISSUE
+app.component('site-info', {
+    data(){
+        return {
+            logo: JSON.parse(this.$props.propLogo),
+            city: JSON.parse(this.$props.propCity),
+            title: JSON.parse(this.$props.propTitle)
+        }
+    },
+    props: {
+        propLogo: {
+            type: String,
+            required: true
+        },
+        propCity: {
+            type: String,
+            required: true
+        },
+        propTitle: {
+            type: String,
+            required: true
+        }
+    },
+    template:
+        `<template>      
+            <a id="logo" href="./" title="Home">{{logo}}</a>
+            <div><em><h2>{{title}}</h2><h3>{{city}}</h3></em></div>
+        </template>`
 });
 
 //admin view links
@@ -76,7 +128,8 @@ app.component('admin-leaf-nav', {
                                 { title: 'User Access Groups', link: '?a=mod_groups', renderCondition: true },
                                 { title: 'Service Chiefs', link: '?a=mod_svcChief', renderCondition: true }
                             ],
-                            subLinkOpen: false},
+                            subLinkOpen: false,
+                            isClickedOn: false },
                         { title: 'Workflow Editor', link: '?a=workflow', renderCondition: JSON.parse(this.$props.siteType) !== 'national_subordinate' },
                         { title: 'Form Editor', link: '?a=form', renderCondition: JSON.parse(this.$props.siteType) !== 'national_subordinate' },
                         { title: 'LEAF Library', link: '?a=formLibrary', renderCondition: JSON.parse(this.$props.siteType) !== 'national_subordinate' },
@@ -93,7 +146,8 @@ app.component('admin-leaf-nav', {
                                 { title: 'Sync Services', link: '?a=admin_sync_services', renderCondition: true },
                                 { title: 'Update Database', link: '?a=admin_update_database', renderCondition: true }
                             ],
-                            subLinkOpen: false},
+                            subLinkOpen: false,
+                            isClickedOn: false },
                         { title: 'Toolbox', link: '#', renderCondition: true,
                             subLinks: [
                                 { title: 'Import Spreadsheet', link: '../report.php?a=LEAF_import_data', renderCondition: true },
@@ -101,7 +155,8 @@ app.component('admin-leaf-nav', {
                                 { title: 'Initiator New Account', link: '../report.php?a=LEAF_request_initiator_new_account', renderCondition: true },
                                 { title: 'Sitemap Editor', link: '../report.php?a=LEAF_sitemaps_template', renderCondition: true },
                             ],
-                            subLinkOpen: false},
+                            subLinkOpen: false,
+                            isClickedOn: false },
                     ],
                     subLinkOpen: false,
                     isClickedOn: false },
@@ -140,7 +195,7 @@ app.component('admin-leaf-nav', {
             }
         },
         adjustIndex(event){
-            //so that the newest submenu opened will be on top of any other open menus
+            //so that the newest (main) submenu opened will be on top
             const elLi = Array.from(document.querySelectorAll('.primary li'));
             elLi.forEach(ele => {
                 ele.style.zIndex = 100;
@@ -161,14 +216,14 @@ app.component('admin-leaf-nav', {
     template:
         `<li :key="item.title" 
             v-for="item in navItems"
-            :style="{display: item.renderCondition ? 'block' : 'none'}" 
+            :style="{display: item.renderCondition ? 'flex' : 'none'}" 
             
             @mouseenter="modalOn(item)"
             @mouseleave="modalOff(item)">
             <a  :href="item.link" 
                 @click="toggleSubModal($event,item)"
-                :class="[ (item.subLinkOpen) ? 'active' : '' ]">{{ item.title }}
-                <i v-if="item.subLinks" :style="{visibility: item.subLinks && !item.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
+                :class="[ (item.subLinkOpen) ? 'active' : '', (item.subLinks) ? 'has-sublinks' : '' ]">{{ item.title }}
+                <i v-if="item.subLinks" :style="{visibility: !item.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
             </a>
             
             <template v-if="item.subLinks && item.subLinkOpen">
@@ -180,11 +235,10 @@ app.component('admin-leaf-nav', {
                         @mouseleave="modalOff(subLink)"
                         @mouseenter="modalOn(subLink)">
                         <a :href="subLink.link"  
-                            @click="toggleSubModal($event,subLink)"
-                            :class="[ (subLink.subLinkOpen) ? 'active' : '' ]">
+                            @click="toggleSubModal($event,subLink)" 
+                            :class="[ (subLink.subLinkOpen) ? 'active' : '', (subLink.subLinks) ? 'has-sublinks' : '' ]">
                             {{ subLink.title }} 
-                            <i v-if="subLink.subLinks" :style="{visibility: innerWidth >= 600 && subLink.subLinks && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-right"></i>
-                            <i v-if="subLink.subLinks" :style="{visibility: innerWidth < 600 && subLink.subLinks && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
+                            <i v-if="subLink.subLinks" :style="{visibility: innerWidth >= 600 && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-right"></i>
                         </a>
                         
                         <template v-if="subLink.subLinks && (subLink.subLinkOpen || isSmallScreen)">
@@ -210,12 +264,12 @@ app.component('menu-toggle-button', {
         </li>`
 });
 
-//user info section
+//user info section TODO mouseover/leave etc
 app.component('leaf-user-info', {
     data(){
         return {
             userItems: {
-                user: '',
+                user: JSON.parse(this.$props.userName),
                 primaryAdmin: ''
             },
             subLinkOpen: false
@@ -228,7 +282,6 @@ app.component('leaf-user-info', {
         }
     },
     created(){
-        this.userItems.user = JSON.parse(this.$props.userName);
         fetch('../api/system/primaryadmin', {
             "method": "GET"
         })
@@ -252,7 +305,6 @@ app.component('leaf-user-info', {
             </a>
             <template v-if="subLinkOpen">
                 <ul class="sublinks active">
-                    <li><a href="#">Your account profile<br/><span class="leaf-user-menu-name"></span></a></li>
                     <li><a href="#">Your primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name">{{userItems.primaryAdmin}}</span></a></li>
                     <li><a href="../?a=logout">Sign Out</a></li>
                 </ul>
@@ -260,6 +312,5 @@ app.component('leaf-user-info', {
         </li>`
 });
 
-app.component('login-form', {});
 
 app.mount('#vue-leaf-header');
