@@ -857,7 +857,7 @@ class FormWorkflow
         $varEvents = array(':workflowID' => $workflowID,
             ':stepID' => $stepID,
             ':actionType' => $actionType, );
-        $strSQL = "SELECT rt.eventID, eventData FROM route_events AS rt ".
+        $strSQL = "SELECT rt.eventID, eventData, eventDescription FROM route_events AS rt ".
             "LEFT JOIN events as et USING (eventID) ".
             "WHERE workflowID=:workflowID ".
             "AND stepID=:stepID ".
@@ -961,11 +961,7 @@ class FormWorkflow
                         "siteRoot" => $this->siteRoot
                     ));
 
-                    $label = str_replace('CustomEvent_', '', $event['eventID']);
-                    $label = str_replace('_', ' ', $label);
-
-                    $emailTemplateID = $email->getTemplateIDByLabel($label);
-                    $email->setTemplateByID($emailTemplateID);
+                    $email->setTemplateByID($email->getTemplateIDByLabel($event['eventDescription']));
 
                     require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;

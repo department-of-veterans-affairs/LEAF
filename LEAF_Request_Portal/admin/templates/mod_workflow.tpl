@@ -111,7 +111,7 @@ function listEventsContent(events) {
 
     for (let i in events) {
         content += '<tr>';
-        content += '<td width="200px" id="' + events[i].eventID + '">' + events[i].eventID.replace('CustomEvent_', '').replace('_', ' ') + '</td>';
+        content += '<td width="200px" id="' + events[i].eventID + '">' + events[i].eventID.replace('CustomEvent_', '').replaceAll('_', ' ') + '</td>';
         content += '<td width="200px" id="' + events[i].eventDescription + '">' + events[i].eventDescription + '</td>';
         content += '<td width="150px" id="' + events[i].eventType + '">' + events[i].eventType + '</td>';
         content += '<td width="100px" id="' + events[i].eventID + '"><button class="buttonNorm" onclick="editEvent(\'' + events[i].eventID + '\')" style="background: blue;color: #fff;">Edit</button><button class="buttonNorm" onclick="deleteEvent(\'' + events[i].eventID + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
@@ -360,7 +360,7 @@ function editEvent(event) {
     $('.workflowStepInfo').css('display', 'none');
     dialog.hide();
     $("#button_save").show();
-    dialog.setTitle('Edit Event ' + event.replace('CustomEvent_', '').replace('_', ' '));
+    dialog.setTitle('Edit Event ' + event.replace('CustomEvent_', '').replaceAll('_', ' '));
     dialog.show();
     let groupList = {};
     $.ajax({
