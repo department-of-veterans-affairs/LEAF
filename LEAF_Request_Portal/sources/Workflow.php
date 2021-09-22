@@ -387,6 +387,12 @@ class Workflow
             return 'Event not found, please try again.';
         }
 
+        $vars = array(':eventID' => $name);
+
+        $strSQL = 'SELECT eventDescription FROM events WHERE eventID=:eventID';
+
+        $oldLabel = $this->db->prepared_query($strSQL, $vars);
+
         $vars = array(':eventID' => $name,
             ':eventDescription' => $desc,
             ':newEventID' => $newName,
@@ -399,18 +405,12 @@ class Workflow
 
         $this->db->prepared_query($strSQL, $vars);
 
-        $label = str_replace('CustomEvent_', '', $name);
-        $label = str_replace('_', ' ', $label);
-        $newLabel = str_replace('CustomEvent_', '', $newName);
-        $newLabel = str_replace('_', ' ', $newLabel);
-
-
-        $vars = array(':label' => $label,
+        $vars = array(':label' => $oldLabel[0]['eventDescription'],
             ':emailTo' => "{$newName}_emailTo.tpl",
             ':emailCc' => "{$newName}_emailCc.tpl",
             ':subject' => "{$newName}_subject.tpl",
             ':body' => "{$newName}_body.tpl",
-            ':newLabel' => $newLabel);
+            ':newLabel' => $desc);
 
         $strSQL = 'UPDATE email_templates SET label=:newLabel, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body WHERE label=:label';
 
@@ -861,6 +861,10 @@ class Workflow
 
         $vars = array(':eventID' => $event);
 
+        $strSQL = 'SELECT eventDescription FROM events WHERE eventID=:eventID';
+
+        $label = $this->db->prepared_query($strSQL, $vars);
+
         $strSQL = 'DELETE FROM events WHERE eventID=:eventID';
 
         $this->db->prepared_query($strSQL, $vars); // Delete Event
@@ -868,9 +872,9 @@ class Workflow
         $event = str_replace('CustomEvent_', '', $event);
         $event = str_replace('_', ' ', $event);
 
-        $vars = array(':eventID' => $event);
+        $vars = array(':label' => $label[0]['eventDescription']);
 
-        $strSQL = 'DELETE FROM email_templates WHERE label=:eventID';
+        $strSQL = 'DELETE FROM email_templates WHERE label=:label';
 
         $this->db->prepared_query($strSQL, $vars); // Delete Email Event
 

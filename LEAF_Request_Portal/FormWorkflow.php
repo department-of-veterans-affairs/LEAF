@@ -961,7 +961,8 @@ class FormWorkflow
                         "siteRoot" => $this->siteRoot
                     ));
 
-                    $email->setTemplateByID($email->getTemplateIDByLabel($event['eventDescription']));
+                    $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
+                    $email->setTemplateByID($emailTemplateID);
 
                     require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
@@ -970,10 +971,6 @@ class FormWorkflow
                     $email->setSender($author[0]['Email']);
 
                     $eventData = json_decode($event['eventData']);
-
-                    if ($eventData->NotifyGroup !== 'None') {
-                        $email->addGroupRecipient($eventData->NotifyGroup);
-                    }
 
                     if ($eventData->NotifyRequestor === 'true') {
                         // Get backups to requester so they can be notified as well
@@ -991,6 +988,10 @@ class FormWorkflow
 
                         $tmp = $dir->lookupLogin($approvers[0]['userID']);
                         $email->addRecipient($tmp[0]['Email']);
+                    }
+
+                    if ($eventData->NotifyGroup !== 'None') {
+                        $email->addGroupRecipient($eventData->NotifyGroup);
                     }
 
                     if ($eventData->NotifyNext === 'true')
