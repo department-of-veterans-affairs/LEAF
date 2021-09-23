@@ -12,45 +12,26 @@ body {
 
     --BG-DarkNavy: #162e51;
     --BG-Charcoal: #252f3e;
-    --BG-VividOrange: #f56600;
+    --BG-VividOrange: #ff7800; /* changed from Figma #f56600 to meet accessibility contrast */
     --BG-LightGray: #dcdee0;
     --USWDS-LtGray: #c9c9c9;
     --USWDS-Cyan: #00bde3;
     --BaseNavy: #005ea2;
-    --LtNavy: #1476bd; /* TODO: check*/
-
-    background-color: var(--BG-LightGray);
-    --mainColorOverlay: rgba(220, 222, 224,0.97); /* LtGray w alpha */
-    /*old card colors
-    user access: '#FAF3D1'
-    port admin: '#DAE9EE'
-    developer: '#DBEBDE'
-    toolbox: '#F2E4D4'
-    */
+    --LtNavy: #1476bd;
 }
 
-/* div vue header app is mounted on */
-div#vue-leaf-header {
+/* the div that the vue header app is mounted on */
+#vue-leaf-header {
     margin-bottom: 0.5em;
+    width: 100%;
+    min-width: 500px;
+    box-shadow: 0 4px 5px 1px rgba(0,0,25,0.25);
 }
 
-/* header element wraps header-top and nav-ribon */
-header#leaf-header {
-    display: flex;
-    flex-direction: column;
-    font-family: "PublicSans-Regular", sans-serif;
-}
-header#leaf-header i {
-    margin-left: 0.25em;
-}
-header#leaf-header i#nav-user-icon {
-    margin: 0 0.25em 0 0;
-}
-
-/* scrolling warning banner.  props: bg-color, text-color */
+/* scrolling warning banner */
 #scrolling-leaf-warning {
     text-align: center;
-    font-size: 90%;
+    font-size: 0.9rem;
     padding: 0.1em;
     width: 100%;
     position: fixed;
@@ -65,6 +46,17 @@ header#leaf-header i#nav-user-icon {
 .warn-enter-active {
     transition: opacity 0.25s ease;
 }
+
+/* header element. wraps header-top and nav-ribon */
+header#leaf-header {
+    display: flex;
+    flex-direction: column;
+    font-family: "PublicSans-Regular", sans-serif;
+}
+header#leaf-header i {
+    margin-left: 0.25em;
+}
+
 
 /* container for site info and top warning */
 #header-top {
@@ -95,7 +87,7 @@ header#leaf-header i#nav-user-icon {
     line-height: 1.2;
 }
 
-/* warning in top of header */
+/* warning in top right of header */
 #leaf-warning {
     height: 100%;
     margin-left: auto;
@@ -112,89 +104,80 @@ header#leaf-header i#nav-user-icon {
     line-height: 1.2;
 }
 
-
-/* dark navy nav ribbon (header-bottom).  contains navlinks and user-info */
-#nav-ribon {
-    padding-left: 0.5em;
-    height: var(--navRibonHeight);
-    background-color: var(--BG-DarkNavy);
-    box-shadow: 0 4px 6px 1px rgba(0,0,25,0.3);
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    z-index: 999;
-}
-
-/* nav links on left side */
+/* bottom dark navy nav ribbon.  container for links and user info */
 nav#leaf-vue-nav {
     display: flex;
-    width: 100%;
     justify-content:space-between;
     align-items: center;
-    height: 100%;
+    width: 100%;
+    height: var(--navRibonHeight);
+    padding-left: 0.5em;
+    background-color: var(--BG-DarkNavy);
+    font-size: 0.95rem;
+    z-index: 999;
 }
-
+nav#leaf-vue-nav i {
+    color: var(--USWDS-Cyan);
+}
+nav#leaf-vue-nav > ul {
+    height: 75%;
+    display: flex;
+}
 nav#leaf-vue-nav li {
     list-style-type: none;
     display: inline-block;
     white-space: nowrap;
 }
-nav#leaf-vue-nav > ul.primary {
-    height: 75%;
-    display: flex;
-}
-nav#leaf-vue-nav > ul.primary > li {
-    padding: 0 0.4em;
+
+nav#leaf-vue-nav > ul > li {
+    padding: 0 0.25em;
     position: relative;
     border-radius: 2px;
     display: flex;
     align-items: center;
 }
 
-nav#leaf-vue-nav > ul.primary > li > a {
-    display: flex;
-    align-items: flex-end;
-    text-align: center;
-    border-radius: 2px;
-
-}
-
 nav#leaf-vue-nav a {
-    padding: 0.25em 0.5em;
     text-decoration: none;
     display: inline-block;
     width: 100%;
     height: 100%;
     color: var(--USWDS-LtGray);
-    border: 1px solid transparent;
+    border-left: 2px solid transparent;
+}
+nav#leaf-vue-nav a:hover,
+nav#leaf-vue-nav a:focus,
+nav#leaf-vue-nav a:active,
+nav#leaf-vue-nav a.active {
+    color: #eef;
+    background-color: var(--BaseNavy);
+}
+nav#leaf-vue-nav a:focus {
+    border-left: 2px solid #f0f0ff !important;
 }
 
-nav#leaf-vue-nav i {
-    color: var(--USWDS-Cyan);
+nav#leaf-vue-nav > ul > li > a {
+    padding: 0.2em 0.4em;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
 }
-
-#leaf-vue-nav .sublinks a {
+nav#leaf-vue-nav .sublinks a {
     color: var(--USWDS-LtGray);
-    padding: 0.75em 0.5em;
+    padding: 0.7em 0.4em;
 }
-#leaf-vue-nav .inner-sublinks a {
-    color: #eef;
-    background-color: var(--BaseNavy);
-}
-nav#leaf-vue-nav li a:active,
-nav#leaf-vue-nav li a:focus,
-nav#leaf-vue-nav li a:hover,
-nav#leaf-vue-nav li a.active {
-    color: #eef;
-    border: 1px solid rgba(200,200,255,0.5);
-    background-color: var(--BaseNavy);
+nav#leaf-vue-nav .sublinks a:hover,
+nav#leaf-vue-nav .sublinks a:focus,
+nav#leaf-vue-nav .sublinks a:active,
+nav#leaf-vue-nav .sublinks a.active {
+    color: #fff;
+    border-left: 2px solid var(--USWDS-Cyan);
 }
 
 
 /* sublinks and inner-sublinks are the ul elements */
-#leaf-vue-nav .sublinks {
-    padding: 0.4em;
+nav#leaf-vue-nav .sublinks {
+    padding: 0.25em;
     min-width: 150px;
     position: absolute;
     top: 100%;
@@ -206,16 +189,24 @@ nav#leaf-vue-nav li a.active {
     box-shadow: 0 4px 10px 1px rgba(0,0,20,0.2);
     font-size: 0.8rem;
 }
-#leaf-vue-nav .sublinks li {
+nav#leaf-vue-nav .inner-sublinks a {
+    color: #eef;
+    background-color: var(--BaseNavy);
+    border-bottom: 1px solid var(--LtNavy);
+}
+nav#leaf-vue-nav .inner-sublinks a:focus {
+    border-bottom: 1px solid var(--LtNavy)!important;
+}
+nav#leaf-vue-nav .sublinks li {
     position: relative;
 }
-#leaf-vue-nav .sublinks i {
+nav#leaf-vue-nav .sublinks i {
     float: right;
 }
-#leaf-vue-nav .inner-sublinks {
-    padding: 0.4em;
+nav#leaf-vue-nav .inner-sublinks {
+    padding: 0.25em;
     position: absolute;
-    top: -0.4em;
+    top: -0.25em;
     left: 100%;
     display: flex;
     flex-direction: column;
@@ -225,26 +216,31 @@ nav#leaf-vue-nav li a.active {
     font-size: 0.8rem;
     transition: all 0.1s ease;
 }
+
 /* user info section  */
 #nav-user-info #nav-user-icon {
     color: white;
     font-size: 18px;
+    margin: 0 0.25em 0 0;
 }
 ul#nav-user-info ul {
     width: 100%;
 }
 ul#nav-user-info span {
-    font-size: 90%;
+    font-size: 0.8rem;
 }
 
+/* for screen sizes specifically */
 @media (max-width: 768px) {
-    header#leaf-header {
-        font-size: 85%;
+    nav#leaf-vue-nav {
+        font-size: 82%;
+        padding-left: 0;
     }
 }
 @media (max-width: 600px) {
-    #leaf-vue-nav .inner-sublinks {
+    nav#leaf-vue-nav .inner-sublinks {
         position: relative;
         left: 0;
+        top: 0;
     }
 }

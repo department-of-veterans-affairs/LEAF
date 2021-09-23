@@ -54,10 +54,11 @@ if (!$login->checkGroup(1))
 }
 
 $main = new Smarty;
-$t_login = new Smarty;
-$t_menu = new Smarty;
-$o_login = '';
-$o_menu = '';
+//nav (menu) is handled with vue component.  login does not look like it is still used
+//$t_login = new Smarty;
+//$t_menu = new Smarty;
+//$o_login = '';
+//$o_menu = '';
 $tabText = '';
 
 $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
@@ -107,7 +108,7 @@ $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
 $main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo" />');
 
-$t_login->assign('name', $login->getName());
+//$t_login->assign('name', $login->getName());
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
@@ -457,7 +458,7 @@ switch ($action) {
 //        $main->assign('useDojo', false);
         if ($login->isLogin())
         {
-            $o_login = $t_login->fetch('login.tpl');
+            //$o_login = $t_login->fetch('login.tpl');
 
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
@@ -479,30 +480,29 @@ switch ($action) {
         }
         else
         {
-            $t_login->assign('name', '');
+            //$t_login->assign('name', '');
             $main->assign('status', 'Your login session has expired, You must log in again.');
         }
-        $o_login = $t_login->fetch('login.tpl');
+        //$o_login = $t_login->fetch('login.tpl');
 
         break;
 }
 
 $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
-$main->assign('login', $t_login->fetch('login.tpl'));
-$t_menu->assign('action', $action);
-$t_menu->assign('orgchartPath', Config::$orgchartPath);
-$t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
-$t_menu->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
+//$main->assign('login', $t_login->fetch('login.tpl'));
+//$t_menu->assign('action', $action);  //does not look like it is used
+//$t_menu->assign('orgchartPath', Config::$orgchartPath); //assigned to main
+//$t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName())); //assigned to main
+//$t_menu->assign('siteType', XSSHelpers::xscrub($settings['siteType'])); //assigned to main
 
 $main->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
 $main->assign('orgchartPath', Config::$orgchartPath);
 $main->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
 
-$o_menu = $t_menu->fetch('menu.tpl');
-$main->assign('menu', $o_menu);
+//$o_menu = $t_menu->fetch('menu.tpl');
+//$main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
-
 $main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
 $main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
 $main->assign('revision', XSSHelpers::xscrub($settings['version']));

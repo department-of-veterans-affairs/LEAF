@@ -222,29 +222,29 @@ app.component('admin-leaf-nav', {
             @mouseleave="modalOff(item)">
             <a  :href="item.link" 
                 @click="toggleSubModal($event,item)"
-                :class="[ (item.subLinkOpen) ? 'active' : '', (item.subLinks) ? 'has-sublinks' : '' ]">{{ item.title }}
+                :class="[ (item.isClickedOn) ? 'active' : '']">{{ item.title }}
                 <i v-if="item.subLinks" :style="{visibility: !item.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
             </a>
             
             <template v-if="item.subLinks && item.subLinkOpen">
-                <ul class="sublinks active"> 
+                <ul class="sublinks"> 
                     <li :key="subLink.title" 
                         v-for="subLink in item.subLinks" 
                         :style="{display: subLink.renderCondition === true ? 'block' : 'none'}"
                         
                         @mouseleave="modalOff(subLink)"
                         @mouseenter="modalOn(subLink)">
-                        <a :href="subLink.link"  
+                        <a :href="subLink.link"
+                            target="subLink.title==='Site Links' ? '_blank' : '_self'"  
                             @click="toggleSubModal($event,subLink)" 
-                            :class="[ (subLink.subLinkOpen) ? 'active' : '', (subLink.subLinks) ? 'has-sublinks' : '' ]">
+                            :class="[ (subLink.subLinkOpen || (subLink.subLinks && innerWidth < 600)) ? 'active' : '']">
                             {{ subLink.title }} 
                             <i v-if="subLink.subLinks" :style="{visibility: innerWidth >= 600 && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-right"></i>
                         </a>
                         
                         <template v-if="subLink.subLinks && (subLink.subLinkOpen || isSmallScreen)">
-                            <ul class="inner-sublinks active"> 
-                                <li :key="sub.title" v-for="sub in subLink.subLinks"
-                                :style="{backgroundColor: subLink.backgroundColor}">
+                            <ul class="inner-sublinks"> 
+                                <li :key="sub.title" v-for="sub in subLink.subLinks">
                                 <a :href="sub.link">{{ sub.title }}</a>
                                 </li>
                             </ul>  
@@ -304,7 +304,7 @@ app.component('leaf-user-info', {
                 <i :style="{visibility: !subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i> 
             </a>
             <template v-if="subLinkOpen">
-                <ul class="sublinks active">
+                <ul class="sublinks">
                     <li><a href="#">Your primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name">{{userItems.primaryAdmin}}</span></a></li>
                     <li><a href="../?a=logout">Sign Out</a></li>
                 </ul>

@@ -1,5 +1,5 @@
 {strip}<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {if $tabText != ''}
@@ -55,29 +55,27 @@
         <scrolling-leaf-warning v-show="windowTop > 0" prop-secure='{json_encode($leafSecure)}'>Do Not Enter PHI / PII</scrolling-leaf-warning>
         </transition>
 
-        <header id="leaf-header">
+        <header id="leaf-header" aria-label="Official government website">
             <div id="header-top">
-                <a id="logo" href="./" title="Home">{$logo}</a>
-                <div><em><h2 id="site-info-title">{$title}</h2><h4 id="site-info-city">{$city}</h4></em></div>
+                <a id="logo" href="./" title="Home" aria-label="LEAF home">{$logo}</a>
+                <div><em><h2 id="site-info-title">{$title}</h2><h3 id="site-info-city">{$city}</h3></em></div>
                 <leaf-warning prop-secure='{json_encode($leafSecure)}'></leaf-warning>
 
                 {if $qrcodeURL != ''}
                     <div><img class="print nodisplay" style="width: 72px" src="../../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
                 {/if}
             </div>
-            <div id="nav-ribon">
-                {$emergency}
-                <nav id="leaf-vue-nav">
-                    <ul id="nav-navlinks" class="primary">
-                        <admin-leaf-nav :inner-width="windowInnerWidth"
-                                        orgchart-path='{json_encode($orgchartPath)}'
-                                        site-type='{json_encode($siteType)}'></admin-leaf-nav>
-                    </ul>
-                    <ul id="nav-user-info" class="primary">
-                        <leaf-user-info user-name='{json_encode($name)}'></leaf-user-info>
-                    </ul>
-                </nav>
-            </div>
+            {$emergency}
+            <nav id="leaf-vue-nav" aria-label="main menu">
+                <ul id="nav-navlinks">
+                    <admin-leaf-nav :inner-width="windowInnerWidth"
+                                    orgchart-path='{json_encode($orgchartPath)}'
+                                    site-type='{json_encode($siteType)}'></admin-leaf-nav>
+                </ul>
+                <ul id="nav-user-info">
+                    <leaf-user-info user-name='{json_encode($name)}'></leaf-user-info>
+                </ul>
+            </nav>
         </header>
         {*
         {if $leafSecure == 0}
