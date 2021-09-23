@@ -196,7 +196,7 @@ app.component('admin-leaf-nav', {
         },
         adjustIndex(event){
             //so that the newest (main) submenu opened will be on top
-            const elLi = Array.from(document.querySelectorAll('.primary li'));
+            const elLi = Array.from(document.querySelectorAll('nav li'));
             elLi.forEach(ele => {
                 ele.style.zIndex = 100;
             });
@@ -222,7 +222,7 @@ app.component('admin-leaf-nav', {
             @mouseleave="modalOff(item)">
             <a  :href="item.link" 
                 @click="toggleSubModal($event,item)"
-                :class="[ (item.isClickedOn) ? 'active' : '']">{{ item.title }}
+                :class="{ 'active': item.isClickedOn }">{{ item.title }}
                 <i v-if="item.subLinks" :style="{visibility: !item.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
             </a>
             
@@ -235,9 +235,9 @@ app.component('admin-leaf-nav', {
                         @mouseleave="modalOff(subLink)"
                         @mouseenter="modalOn(subLink)">
                         <a :href="subLink.link"
-                             
+                            :target="subLink.title==='Nexus: Org Charts' ? '_blank' : '_self'"
                             @click="toggleSubModal($event,subLink)" 
-                            :class="[ (subLink.subLinkOpen || (subLink.subLinks && innerWidth < 600)) ? 'active' : '']">
+                            :class="{'active' : subLink.subLinkOpen || (subLink.subLinks && innerWidth < 600)}">
                             {{ subLink.title }} 
                             <i v-if="subLink.subLinks" :style="{visibility: innerWidth >= 600 && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-right"></i>
                         </a>
