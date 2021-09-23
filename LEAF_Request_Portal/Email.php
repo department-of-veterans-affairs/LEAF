@@ -541,7 +541,7 @@ class Email
 
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
-        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ser.serviceID, ser.service, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
+        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ser.serviceID, ser.service, ser.groupID AS quadrad, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
             "LEFT JOIN records AS rec USING (recordID) ".
             "LEFT JOIN step_dependencies AS sd USING (stepID) ".
             "LEFT JOIN dependency_privs USING (dependencyID) ".
@@ -592,7 +592,7 @@ class Email
 
                     // special case for quadrads
                     case 8:
-                        $vars = array(':groupID' => $approver['groupID']);
+                        $vars = array(':groupID' => $approver['quadrad']);
                         $strSQL = "SELECT userID FROM users WHERE groupID=:groupID AND active=1";
                         $quadrad = $this->portal_db->prepared_query($strSQL, $vars);
                         foreach ($quadrad as $member) {
