@@ -56,7 +56,7 @@
         </transition>
 
         <header id="leaf-header" aria-label="Official government website">
-            <div id="header-top">
+            <div id="header-top" v-if="!topIsRetracted">
                 <a id="logo" href="./" title="Home" aria-label="LEAF home">{$logo}</a>
                 <div><em><h2 id="site-info-title">{$title}</h2><h3 id="site-info-city">{$city}</h3></em></div>
                 <leaf-warning prop-secure='{json_encode($leafSecure)}'></leaf-warning>
@@ -68,6 +68,7 @@
             {$emergency}
             <nav id="leaf-vue-nav" aria-label="main menu">
                 <ul id="nav-navlinks">
+                    <minimize-button :is-retracted="topIsRetracted" @toggle-top-header="toggleHeader"></minimize-button>
                     <admin-leaf-nav :inner-width="windowInnerWidth"
                                     orgchart-path='{json_encode($orgchartPath)}'
                                     site-type='{json_encode($siteType)}'></admin-leaf-nav>

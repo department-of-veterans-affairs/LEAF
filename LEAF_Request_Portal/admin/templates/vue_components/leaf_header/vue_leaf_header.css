@@ -67,6 +67,20 @@ header#leaf-header i {
     align-items: center;
     background-color: var(--BG-Charcoal);
 }
+/* toggle full / minimized nav */
+#header-toggle-button {
+    width: 12px;
+    height: 100%;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+#leaf-header #header-toggle-button i {
+    display: inline-block;
+    margin: 0;
+}
 
 /* site info in top part of header */
 #logo {
@@ -111,7 +125,6 @@ nav#leaf-vue-nav {
     align-items: center;
     width: 100%;
     height: var(--navRibonHeight);
-    padding-left: 0.5em;
     background-color: var(--BG-DarkNavy);
     font-size: 0.95rem;
     z-index: 999;
@@ -226,8 +239,11 @@ nav#leaf-vue-nav .inner-sublinks {
 ul#nav-user-info ul {
     width: 100%;
 }
-ul#nav-user-info span {
+ul#nav-user-info {
     font-size: 0.8rem;
+}
+ul#nav-user-info p {
+    margin-top: 0.2em;
 }
 
 /* for screen sizes specifically */

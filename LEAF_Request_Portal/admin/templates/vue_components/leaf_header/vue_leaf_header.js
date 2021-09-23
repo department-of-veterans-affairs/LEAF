@@ -2,7 +2,8 @@ const app = Vue.createApp({
     data(){
         return {
             windowTop: 0,
-            windowInnerWidth: 800
+            windowInnerWidth: 800,
+            topIsRetracted: false
         }
     },
     mounted(){
@@ -20,10 +21,29 @@ const app = Vue.createApp({
         },
         onResize(){
             this.windowInnerWidth = window.innerWidth;
+        },
+        toggleHeader(){
+            this.topIsRetracted = !this.topIsRetracted;
         }
     }
 });
 
+app.component('minimize-button', {
+    props: {
+        isRetracted: {
+            type: Boolean,
+            required: true
+        }
+    },
+    computed: {
+        buttonTitle(){
+            return this.$props.isRetracted ? 'Display full header' : 'Minimize header';
+        }
+    },
+    template: `<div role="button" id="header-toggle-button" @click="$emit('toggle-top-header')" :title="buttonTitle">
+                <i :class="[isRetracted ? 'fas fa-angle-double-down': 'fas fa-angle-double-up']"></i>
+               </div>`
+});
 
 //TODO: ideally in own files. easier here for now.
 //warning section with triangle
@@ -78,6 +98,7 @@ app.component('scrolling-leaf-warning', {
 });
 
 //site info  ISSUE
+//  <site-info prop-logo='{}' prop-city='{}' prop-title='{}'></site-info>
 app.component('site-info', {
     data(){
         return {
@@ -195,7 +216,7 @@ app.component('admin-leaf-nav', {
             }
         },
         adjustIndex(event){
-            //so that the newest (main) submenu opened will be on top
+            //so that the newest submenu opened will be on top
             const elLi = Array.from(document.querySelectorAll('nav li'));
             elLi.forEach(ele => {
                 ele.style.zIndex = 100;
@@ -239,7 +260,7 @@ app.component('admin-leaf-nav', {
                             @click="toggleSubModal($event,subLink)" 
                             :class="{'active' : subLink.subLinkOpen || (subLink.subLinks && innerWidth < 600)}">
                             {{ subLink.title }} 
-                            <i v-if="subLink.subLinks" :style="{visibility: innerWidth >= 600 && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-right"></i>
+                            <i v-if="subLink.subLinks" :style="{visibility: innerWidth >= 600 && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-caret-right"></i>
                         </a>
                         
                         <template v-if="subLink.subLinks && (subLink.subLinkOpen || isSmallScreen)">
@@ -305,7 +326,7 @@ app.component('leaf-user-info', {
             </a>
             <template v-if="subLinkOpen">
                 <ul class="sublinks">
-                    <li><a href="#">Your primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name">{{userItems.primaryAdmin}}</span></a></li>
+                    <li><a href="#">Your primary Admin:<p id="primary-admin" class="leaf-user-menu-name">{{userItems.primaryAdmin}}</p></a></li>
                     <li><a href="../?a=logout">Sign Out</a></li>
                 </ul>
             </template>
