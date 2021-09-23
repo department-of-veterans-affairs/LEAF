@@ -235,7 +235,7 @@ app.component('admin-leaf-nav', {
                         @mouseleave="modalOff(subLink)"
                         @mouseenter="modalOn(subLink)">
                         <a :href="subLink.link"
-                            target="subLink.title==='Site Links' ? '_blank' : '_self'"  
+                             
                             @click="toggleSubModal($event,subLink)" 
                             :class="[ (subLink.subLinkOpen || (subLink.subLinks && innerWidth < 600)) ? 'active' : '']">
                             {{ subLink.title }} 
