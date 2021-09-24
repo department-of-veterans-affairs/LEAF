@@ -58,7 +58,7 @@
         <header id="leaf-header" aria-label="Official government website">
             <div id="header-top" v-if="!topIsRetracted">
                 <a id="logo" href="./" title="Home" aria-label="LEAF home">{$logo}</a>
-                <div><em><h2 id="site-info-title">{$title}</h2><h3 id="site-info-city">{$city}</h3></em></div>
+                <div><em><h1 id="site-info-title">{$title}</h1><h2 id="site-info-city">{$city}</h2></em></div>
                 <leaf-warning prop-secure='{json_encode($leafSecure)}'></leaf-warning>
 
                 {if $qrcodeURL != ''}
@@ -74,7 +74,7 @@
                                     site-type='{json_encode($siteType)}'></admin-leaf-nav>
                 </ul>
                 <ul id="nav-user-info">
-                    <leaf-user-info user-name='{json_encode($name)}'></leaf-user-info>
+                    <leaf-user-info :inner-width="windowInnerWidth" user-name='{json_encode($name)}'></leaf-user-info>
                 </ul>
             </nav>
         </header>

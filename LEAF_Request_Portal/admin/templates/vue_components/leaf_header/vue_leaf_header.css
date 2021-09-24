@@ -71,11 +71,12 @@ header#leaf-header i {
 #header-toggle-button {
     width: 12px;
     height: 100%;
-    background-color: black;
-    display: flex;
+    background-color: #112;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
+    font-size: 0.6rem;
+    cursor: pointer;
 }
 #leaf-header #header-toggle-button i {
     display: inline-block;
@@ -95,10 +96,16 @@ header#leaf-header i {
     height: 100%;
     width: auto;
 }
+h1#site-info-title {
+    font-size: 22px;
+}
+h2#site-info-city {
+    font-size: 16px;
+}
 #site-info-city, #site-info-title {
     color: white;
     font-style: normal;
-    line-height: 1.2;
+    line-height: 1.3;
 }
 
 /* warning in top right of header */
@@ -109,8 +116,9 @@ header#leaf-header i {
     align-items: center;
     text-align: right;
 }
-#leaf-warning, #leaf-warning h4 {
+#leaf-warning, #leaf-warning h3 {
     color: var(--BG-VividOrange) !important;
+    font-size: 16px;
 }
 #leaf-warning a, #leaf-warning a:hover, #leaf-warning a:focus, #leaf-warning a:visited  {
     color: white;
@@ -118,7 +126,7 @@ header#leaf-header i {
     line-height: 1.2;
 }
 
-/* bottom dark navy nav ribbon.  container for links and user info */
+/* bottom dark navy nav ribbon.  container for links ul and user info ul */
 nav#leaf-vue-nav {
     display: flex;
     justify-content:space-between;
@@ -126,14 +134,14 @@ nav#leaf-vue-nav {
     width: 100%;
     height: var(--navRibonHeight);
     background-color: var(--BG-DarkNavy);
-    font-size: 0.95rem;
     z-index: 999;
+    font-size: 90%;
 }
 nav#leaf-vue-nav i {
     color: var(--USWDS-Cyan);
 }
 nav#leaf-vue-nav > ul {
-    height: 75%;
+    height: 80%;
     display: flex;
 }
 nav#leaf-vue-nav li {
@@ -249,8 +257,14 @@ ul#nav-user-info p {
 /* for screen sizes specifically */
 @media (max-width: 768px) {
     nav#leaf-vue-nav {
-        font-size: 82%;
+        font-size: 80%;
         padding-left: 0;
+    }
+    #vue-leaf-header #header-top h1 {
+        font-size: 20px;
+    }
+    #vue-leaf-header #header-top h2 {
+        font-size: 14px;
     }
 }
 @media (max-width: 600px) {

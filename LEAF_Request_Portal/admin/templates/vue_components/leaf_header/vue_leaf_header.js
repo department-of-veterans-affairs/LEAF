@@ -40,9 +40,9 @@ app.component('minimize-button', {
             return this.$props.isRetracted ? 'Display full header' : 'Minimize header';
         }
     },
-    template: `<div role="button" id="header-toggle-button" @click="$emit('toggle-top-header')" :title="buttonTitle">
+    template: `<li role="button" id="header-toggle-button" @click="$emit('toggle-top-header')" :title="buttonTitle">
                 <i :class="[isRetracted ? 'fas fa-angle-double-down': 'fas fa-angle-double-up']"></i>
-               </div>`
+               </li>`
 });
 
 //TODO: ideally in own files. easier here for now.
@@ -63,7 +63,7 @@ app.component('leaf-warning', {
     template:
         `<div v-if="leafSecure==='0'" id="leaf-warning">
             <div>
-                <h4>Do not enter PHI/PII: this site is not yet secure</h4>
+                <h3>Do not enter PHI/PII: this site is not yet secure</h3>
                 <p><a href="../report.php?a=LEAF_start_leaf_secure_certification">Start certification process</a></p>
             </div>
             <div><i class="fas fa-exclamation-triangle fa-2x"></i></div>
@@ -97,7 +97,7 @@ app.component('scrolling-leaf-warning', {
         `<p v-if="leafSecure==='0'" id="scrolling-leaf-warning" :style="{backgroundColor: bgColor, color: textColor}"><slot></slot></p>`
 });
 
-//site info  ISSUE
+//site info  ISSUE not currently used
 //  <site-info prop-logo='{}' prop-city='{}' prop-title='{}'></site-info>
 app.component('site-info', {
     data(){
@@ -124,7 +124,7 @@ app.component('site-info', {
     template:
         `<template>      
             <a id="logo" href="./" title="Home">{{logo}}</a>
-            <div><em><h2>{{title}}</h2><h3>{{city}}</h3></em></div>
+            <div><em><h1>{{title}}</h1><h2>{{city}}</h2></em></div>
         </template>`
 });
 
@@ -157,6 +157,15 @@ app.component('admin-leaf-nav', {
                         { title: 'Site Settings', link: '?a=mod_system', renderCondition: true },
                         { title: 'Site Distribution', link: '#', renderCondition: JSON.parse(this.$props.siteType) === 'national_primary' },
                         { title: 'Timeline Explorer', link: '../report.php?a=LEAF_Timeline_Explorer', renderCondition: true },
+                        { title: 'Toolbox', link: '#', renderCondition: true,
+                            subLinks: [
+                                { title: 'Import Spreadsheet', link: '../report.php?a=LEAF_import_data', renderCondition: true },
+                                { title: 'Mass Action', link: '../report.php?a=LEAF_mass_action', renderCondition: true },
+                                { title: 'Initiator New Account', link: '../report.php?a=LEAF_request_initiator_new_account', renderCondition: true },
+                                { title: 'Sitemap Editor', link: '../report.php?a=LEAF_sitemaps_template', renderCondition: true },
+                            ],
+                            subLinkOpen: false,
+                            isClickedOn: false },
                         { title: 'LEAF Developer', link: '#', renderCondition: true,
                             subLinks: [
                                 { title: 'Template Editor', link: '?a=mod_templates', renderCondition: true },
@@ -166,15 +175,6 @@ app.component('admin-leaf-nav', {
                                 { title: 'Search Database', link: '../?a=search', renderCondition: true },
                                 { title: 'Sync Services', link: '?a=admin_sync_services', renderCondition: true },
                                 { title: 'Update Database', link: '?a=admin_update_database', renderCondition: true }
-                            ],
-                            subLinkOpen: false,
-                            isClickedOn: false },
-                        { title: 'Toolbox', link: '#', renderCondition: true,
-                            subLinks: [
-                                { title: 'Import Spreadsheet', link: '../report.php?a=LEAF_import_data', renderCondition: true },
-                                { title: 'Mass Action', link: '../report.php?a=LEAF_mass_action', renderCondition: true },
-                                { title: 'Initiator New Account', link: '../report.php?a=LEAF_request_initiator_new_account', renderCondition: true },
-                                { title: 'Sitemap Editor', link: '../report.php?a=LEAF_sitemaps_template', renderCondition: true },
                             ],
                             subLinkOpen: false,
                             isClickedOn: false },
@@ -244,7 +244,7 @@ app.component('admin-leaf-nav', {
             <a  :href="item.link" 
                 @click="toggleSubModal($event,item)"
                 :class="{ 'active': item.isClickedOn }">{{ item.title }}
-                <i v-if="item.subLinks" :style="{visibility: !item.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i>
+                <i v-if="item.subLinks" :style="{color: !item.subLinkOpen ? '' : 'white'}" class="fas fa-angle-down"></i>
             </a>
             
             <template v-if="item.subLinks && item.subLinkOpen">
@@ -260,7 +260,7 @@ app.component('admin-leaf-nav', {
                             @click="toggleSubModal($event,subLink)" 
                             :class="{'active' : subLink.subLinkOpen || (subLink.subLinks && innerWidth < 600)}">
                             {{ subLink.title }} 
-                            <i v-if="subLink.subLinks" :style="{visibility: innerWidth >= 600 && !subLink.subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-caret-right"></i>
+                            <i v-if="subLink.subLinks && innerWidth >= 600" :style="{color: !subLink.subLinkOpen ? '' : 'white'}" class="fas fa-caret-right"></i>
                         </a>
                         
                         <template v-if="subLink.subLinks && (subLink.subLinkOpen || isSmallScreen)">
@@ -293,13 +293,27 @@ app.component('leaf-user-info', {
                 user: JSON.parse(this.$props.userName),
                 primaryAdmin: ''
             },
-            subLinkOpen: false
+            subLinkOpen: false,
+            isClickedOn: false
         }
     },
-    props: ['user-name'],
+    props: ['user-name', 'inner-width'],
     methods: {
         toggleSubModal() {
-            this.subLinkOpen = !this.subLinkOpen;
+            this.isClickedOn = !this.isClickedOn;
+            if (this.isClickedOn){
+                this.modalOn();
+            } else {
+                this.modalOff();
+            }
+        },
+        modalOn() {
+            this.subLinkOpen = true;
+        },
+        modalOff() {
+            if (!this.isClickedOn) {
+                this.subLinkOpen = false;
+            }
         }
     },
     created(){
@@ -318,11 +332,11 @@ app.component('leaf-user-info', {
         });
     },
     template:
-        `<li>
+        `<li @mouseleave="modalOff" @mouseenter="modalOn">
             <a href="#" @click="toggleSubModal">
-                <i id="nav-user-icon" class='fas fa-user-circle' alt='User Account Menu'></i>
-                <span>&nbsp;{{ this.userItems.user }}</span> 
-                <i :style="{visibility: !subLinkOpen ? 'visible' : 'hidden'}" class="fas fa-angle-down"></i> 
+                <i v-show="innerWidth > 600" id="nav-user-icon" class='fas fa-user-circle' alt='User Account Menu'>&nbsp;</i>
+                <span>{{ this.userItems.user }}</span> 
+                <i :style="{color: !subLinkOpen ? '' : 'white'}" class="fas fa-angle-down"></i> 
             </a>
             <template v-if="subLinkOpen">
                 <ul class="sublinks">
