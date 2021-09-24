@@ -134,7 +134,7 @@ nav#leaf-vue-nav {
     width: 100%;
     height: var(--navRibonHeight);
     background-color: var(--BG-DarkNavy);
-    z-index: 999;
+    z-index: 50;
     font-size: 90%;
 }
 nav#leaf-vue-nav i {
