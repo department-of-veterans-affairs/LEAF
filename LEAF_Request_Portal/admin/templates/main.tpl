@@ -43,8 +43,8 @@
     {section name=i loop=$javascripts}
         <script type="text/javascript" src="{$javascripts[i]}"></script>
     {/section}
-    <script src="https://unpkg.com/vue@next"></script>
-    <!--<script type="text/javascript" src="../../libs/js/Vue/vue.global.prod.js"></script>-->
+
+    <script type="text/javascript" src="../../libs/js/Vue/vue.global.prod.js"></script>
     <script type="text/javascript" src="./templates/vue_components/leaf_header/vue_leaf_header.js" defer></script>
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
@@ -78,40 +78,6 @@
                 </ul>
             </nav>
         </header>
-        {*
-        {if $leafSecure == 0}
-        <section class="usa-banner bg-orange-topbanner" aria-label="Official government website">
-            <header class="usa-banner__header">
-                <div class="grid-col-fill tablet:grid-col-auto">
-                    <p class="usa-banner__header-text text-white">
-                        &nbsp;Do not enter PHI/PII
-                    </p>
-                </div>
-            </header>
-        </section>
-        {/if}
-
-        <header id="header" class="usa-header site-header">
-            <div class="usa-navbar site-header-navbar">
-                <div class="usa-logo site-logo" id="logo">
-                    <em class="usa-logo__text">
-                        <a onclick="window.location='./'" title="Home" aria-label="LEAF home" class="leaf-cursor-pointer">
-                            <span class="leaf-logo">{$logo}</span>
-                            <span class="leaf-site-title">{$city}</span>
-                            <span id="headerDescription" class="leaf-header-description">{$title}</span>
-                        </a>
-                    </em>
-                    {if $qrcodeURL != ''}
-                        <div><img class="print nodisplay" style="width: 72px" src="../../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
-                    {/if}
-                </div>
-                <div class="leaf-header-right">
-                    {$emergency}<!--{$login}-->
-                    <nav aria-label="main menu" id="nav">{$menu}</nav>
-                </div>
-            </div>
-        </header> *}
-
     </div>
 
     <div id="body">

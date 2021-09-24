@@ -54,11 +54,6 @@ if (!$login->checkGroup(1))
 }
 
 $main = new Smarty;
-//nav (menu) is handled with vue component.  login does not look like it is still used
-//$t_login = new Smarty;
-//$t_menu = new Smarty;
-//$o_login = '';
-//$o_menu = '';
 $tabText = '';
 
 $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
@@ -458,8 +453,6 @@ switch ($action) {
 //        $main->assign('useDojo', false);
         if ($login->isLogin())
         {
-            //$o_login = $t_login->fetch('login.tpl');
-
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
@@ -480,27 +473,15 @@ switch ($action) {
         }
         else
         {
-            //$t_login->assign('name', '');
             $main->assign('status', 'Your login session has expired, You must log in again.');
         }
-        //$o_login = $t_login->fetch('login.tpl');
-
         break;
 }
 
 $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
-//$main->assign('login', $t_login->fetch('login.tpl'));
-//$t_menu->assign('action', $action);  //does not look like it is used
-//$t_menu->assign('orgchartPath', Config::$orgchartPath); //assigned to main
-//$t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName())); //assigned to main
-//$t_menu->assign('siteType', XSSHelpers::xscrub($settings['siteType'])); //assigned to main
-
 $main->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
 $main->assign('orgchartPath', Config::$orgchartPath);
 $main->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
-
-//$o_menu = $t_menu->fetch('menu.tpl');
-//$main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 $main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));

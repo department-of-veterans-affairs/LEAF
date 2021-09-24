@@ -45,7 +45,6 @@ app.component('minimize-button', {
                </li>`
 });
 
-//TODO: ideally in own files. easier here for now.
 //warning section with triangle
 app.component('leaf-warning', {
     data(){
@@ -96,38 +95,6 @@ app.component('scrolling-leaf-warning', {
     template:
         `<p v-if="leafSecure==='0'" id="scrolling-leaf-warning" :style="{backgroundColor: bgColor, color: textColor}"><slot></slot></p>`
 });
-
-//site info  ISSUE not currently used
-//<site-info prop-logo='{}' prop-city='{}' prop-title='{}'></site-info>
-/*
-app.component('site-info', {
-    data(){
-        return {
-            logo: JSON.parse(this.$props.propLogo),
-            city: JSON.parse(this.$props.propCity),
-            title: JSON.parse(this.$props.propTitle)
-        }
-    },
-    props: {
-        propLogo: {
-            type: String,
-            required: true
-        },
-        propCity: {
-            type: String,
-            required: true
-        },
-        propTitle: {
-            type: String,
-            required: true
-        }
-    },
-    template:
-        `<template>      
-            <a id="logo" href="./" title="Home">{{logo}}</a>
-            <div><em><h1>{{title}}</h1><h2>{{city}}</h2></em></div>
-        </template>`
-});*/
 
 //admin view links
 app.component('admin-leaf-nav', {
@@ -240,7 +207,6 @@ app.component('admin-leaf-nav', {
         `<li :key="item.title" 
             v-for="item in navItems"
             :style="{display: item.renderCondition ? 'flex' : 'none'}" 
-            
             @mouseenter="modalOn(item)"
             @mouseleave="modalOff(item)">
             <a  :href="item.link" 
@@ -254,7 +220,6 @@ app.component('admin-leaf-nav', {
                     <li :key="subLink.title" 
                         v-for="subLink in item.subLinks" 
                         :style="{display: subLink.renderCondition === true ? 'block' : 'none'}"
-                        
                         @mouseleave="modalOff(subLink)"
                         @mouseenter="modalOn(subLink)">
                         <a :href="subLink.link"
@@ -275,15 +240,6 @@ app.component('admin-leaf-nav', {
                     </li>
                 </ul> 
             </template>
-        </li>`
-});
-
-//TODO: not sure if still needed
-app.component('menu-toggle-button', {
-    emits:['toggleNav'],
-    template:
-        `<li @click="$emit('toggle-nav')" id="toggleMenu" role="button">
-            <span class="leaf-menu"><button>MENU</button></span><i class="fas fa-times"></i><span id="toggleMenu-text">Toggle Navigation</span>
         </li>`
 });
 
@@ -349,6 +305,5 @@ app.component('leaf-user-info', {
             </template>
         </li>`
 });
-
 
 app.mount('#vue-leaf-header');
