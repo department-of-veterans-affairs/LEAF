@@ -474,19 +474,21 @@
             <script type="text/javascript">
             formValidator["id<!--{$indicator.indicatorID}-->"] = {
                 setValidator: function() {
+                    let isValidValue = false;
                     let value = $('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim();
+
                     if (value === ''){
-                        return true
-                    }
-                    value = value.replace(/,/ig, '');
-                    if (!/^(\d*)(\.\d+)?$/.test(value)){
-                        return false;
+                        isValidValue = true;
                     } else {
-                        let floatValue = parseFloat(value);
-                        let strRoundTwoDecimals = (Math.round(100 * floatValue) / 100).toFixed(2);
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val(strRoundTwoDecimals);
-                        return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()));
+                        value = value.replace(/,/ig, '');
+                        if (/^(\d*)(\.\d+)?$/.test(value)) {
+                            let floatValue = parseFloat(value);
+                            let strRoundTwoDecimals = (Math.round(100 * floatValue) / 100).toFixed(2);
+                            $('#<!--{$indicator.indicatorID|strip_tags}-->').val(strRoundTwoDecimals);
+                            isValidValue = ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()));
+                        }
                     }
+                    return isValidValue;
                 },
                 setSubmitValid: function() {
                     $([document.documentElement, document.body]).animate({
