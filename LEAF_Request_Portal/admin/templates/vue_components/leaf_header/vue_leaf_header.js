@@ -55,9 +55,8 @@ app.component('leaf-warning', {
     props: {
         propSecure: {
             type: String,
-            required: false,
-            default: 'rgb(250,75,50)'
-        },
+            required: true
+        }
     },
     template:
         `<div v-if="leafSecure==='0'" id="leaf-warning">
@@ -78,8 +77,7 @@ app.component('scrolling-leaf-warning', {
     props: {
         propSecure: {
             type: String,
-            required: false,
-            default: 'rgb(250,75,50)'
+            required: true,
         },
         bgColor: {
             type: String,
@@ -255,7 +253,15 @@ app.component('leaf-user-info', {
             isClickedOn: false
         }
     },
-    props: ['user-name', 'inner-width'],
+    props: {
+        userName: {
+            type: String
+        },
+        innerWidth: {
+            type: Number,
+            required: true
+        }
+    },
     methods: {
         toggleSubModal(event) {
             event.preventDefault();
