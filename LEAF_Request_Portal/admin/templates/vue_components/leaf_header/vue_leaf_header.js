@@ -98,7 +98,8 @@ app.component('scrolling-leaf-warning', {
 });
 
 //site info  ISSUE not currently used
-//  <site-info prop-logo='{}' prop-city='{}' prop-title='{}'></site-info>
+//<site-info prop-logo='{}' prop-city='{}' prop-title='{}'></site-info>
+/*
 app.component('site-info', {
     data(){
         return {
@@ -126,7 +127,7 @@ app.component('site-info', {
             <a id="logo" href="./" title="Home">{{logo}}</a>
             <div><em><h1>{{title}}</h1><h2>{{city}}</h2></em></div>
         </template>`
-});
+});*/
 
 //admin view links
 app.component('admin-leaf-nav', {
@@ -155,7 +156,7 @@ app.component('admin-leaf-nav', {
                         { title: 'Form Editor', link: '?a=form', renderCondition: JSON.parse(this.$props.siteType) !== 'national_subordinate' },
                         { title: 'LEAF Library', link: '?a=formLibrary', renderCondition: JSON.parse(this.$props.siteType) !== 'national_subordinate' },
                         { title: 'Site Settings', link: '?a=mod_system', renderCondition: true },
-                        { title: 'Site Distribution', link: '#', renderCondition: JSON.parse(this.$props.siteType) === 'national_primary' },
+                        { title: 'Site Distribution', link: '../report.php?a=LEAF_National_Distribution', renderCondition: JSON.parse(this.$props.siteType) === 'national_primary' },
                         { title: 'Timeline Explorer', link: '../report.php?a=LEAF_Timeline_Explorer', renderCondition: true },
                         { title: 'Toolbox', link: '#', renderCondition: true,
                             subLinks: [
@@ -206,6 +207,7 @@ app.component('admin-leaf-nav', {
     methods: {
         toggleSubModal(event, item) {
             if(item.subLinks) {
+                event.preventDefault();
                 item.isClickedOn = !item.isClickedOn;
                 if (item.isClickedOn){
                     this.modalOn(item);
@@ -258,9 +260,9 @@ app.component('admin-leaf-nav', {
                         <a :href="subLink.link"
                             :target="subLink.title==='Nexus: Org Charts' ? '_blank' : '_self'"
                             @click="toggleSubModal($event,subLink)" 
-                            :class="{'active' : subLink.subLinkOpen || (subLink.subLinks && innerWidth < 600)}">
+                            :class="{'active' : subLink.subLinkOpen || (subLink.subLinks && isSmallScreen)}">
                             {{ subLink.title }} 
-                            <i v-if="subLink.subLinks && innerWidth >= 600" :style="{color: !subLink.subLinkOpen ? '' : 'white'}" class="fas fa-caret-right"></i>
+                            <i v-if="subLink.subLinks && !isSmallScreen" :style="{color: !subLink.subLinkOpen ? '' : 'white'}" class="fas fa-caret-right"></i>
                         </a>
                         
                         <template v-if="subLink.subLinks && (subLink.subLinkOpen || isSmallScreen)">
@@ -285,7 +287,7 @@ app.component('menu-toggle-button', {
         </li>`
 });
 
-//user info section TODO mouseover/leave etc
+//user info section
 app.component('leaf-user-info', {
     data(){
         return {
@@ -299,7 +301,8 @@ app.component('leaf-user-info', {
     },
     props: ['user-name', 'inner-width'],
     methods: {
-        toggleSubModal() {
+        toggleSubModal(event) {
+            event.preventDefault();
             this.isClickedOn = !this.isClickedOn;
             if (this.isClickedOn){
                 this.modalOn();

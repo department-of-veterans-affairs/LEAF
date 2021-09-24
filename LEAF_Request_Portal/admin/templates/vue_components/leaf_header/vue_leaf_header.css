@@ -24,7 +24,7 @@ body {
 #vue-leaf-header {
     margin-bottom: 0.5em;
     width: 100%;
-    min-width: 500px;
+    min-width: 475px;
     box-shadow: 0 4px 5px 1px rgba(0,0,25,0.25);
 }
 
