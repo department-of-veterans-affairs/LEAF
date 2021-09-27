@@ -239,6 +239,10 @@ nav#leaf-vue-nav .inner-sublinks {
 }
 
 /* user info section  */
+ul#nav-user-info {
+    font-size: 0.8rem;
+    min-width: 150px;
+}
 #nav-user-info #nav-user-icon {
     color: white;
     font-size: 18px;
@@ -246,9 +250,6 @@ nav#leaf-vue-nav .inner-sublinks {
 }
 ul#nav-user-info ul {
     width: 100%;
-}
-ul#nav-user-info {
-    font-size: 0.8rem;
 }
 ul#nav-user-info p {
     margin-top: 0.2em;
