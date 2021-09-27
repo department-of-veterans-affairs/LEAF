@@ -1847,10 +1847,15 @@ this.portalAPI = LEAFRequestPortalAPI();
 this.portalAPI.setBaseURL('../api/?a=');
 this.portalAPI.setCSRFToken(CSRFToken);
 
+// Fix dialog boxes not going away when clicking outside of box
+$(document).mouseup(function(e) {
+    let container = $(".workflowStepInfo");
+    if (!container.is(e.target) && container.has(e.target).length === 0) {
+        container.hide();
+    }
+});
+
 $(function() {
-    $('#workflow').on('click', function() {
-        $('.workflowStepInfo').css('display', 'none');
-    });
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
     dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
