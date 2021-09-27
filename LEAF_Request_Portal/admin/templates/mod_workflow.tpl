@@ -194,7 +194,7 @@ function newEvent(events) {
         '</select><br /><br />' +
         '<span>Event Name: </span><textarea id="eventName" class="eventTextBox" /><br /><br />' +
         '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox" /><br /><br />' +
-        '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />' + groupList + 'You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a></div>';
+        '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />' + groupList + '</div>';
     dialog.setContent(createEventContent);
     if ($('#eventType').val() === 'Email') {
         $('#eventEmailSettings').show();
