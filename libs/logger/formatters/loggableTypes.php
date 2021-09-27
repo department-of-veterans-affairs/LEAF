@@ -15,6 +15,7 @@ class LoggableTypes {
     const STEP_DEPENDENCY = "step_dependency";
     const DEPENDENCY = "dependency";
     const DEPENDENCY_PRIVS = "dependency_privs";
+    const EVENTS = "events";
     const ROUTE_EVENTS = "route_events";
     const ACTIONS = "actions";
     const TAG = "tag";
