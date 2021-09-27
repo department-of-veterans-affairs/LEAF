@@ -1,7 +1,7 @@
 START TRANSACTION;
 
 ALTER TABLE `events` ADD COLUMN `eventType` varchar(40) NOT NULL AFTER `eventDescription`;
-ALTER TABLE `route_events` DROP CONSTRAINT `route_events_ibfk_2`;
+ALTER TABLE `route_events` DROP FOREIGN KEY `route_events_ibfk_2`;
 ALTER TABLE `route_events` ADD CONSTRAINT `route_events_ibfk_2` FOREIGN KEY (`eventID`) REFERENCES `events` (`eventID`)
     ON DELETE CASCADE
     ON UPDATE CASCADE;
@@ -18,8 +18,11 @@ COMMIT;
 
 START TRANSACTION;
 
+DELETE FROM `events` WHERE eventID LIKE "CustomEvent_%";
+DELETE FROM `email_templates` WHERE emailTemplateID > 1;
+
 ALTER TABLE `events` DROP COLUMN `eventType`;
-ALTER TABLE `route_events` DROP CONSTRAINT `route_events_ibfk_2`;
+ALTER TABLE `route_events` DROP FOREIGN KEY `route_events_ibfk_2`;
 ALTER TABLE `route_events` ADD CONSTRAINT `route_events_ibfk_2` FOREIGN KEY (`eventID`) REFERENCES `events` (`eventID`);
 
 UPDATE `events` SET eventDescription='Notify the requestor via email' WHERE eventID='std_email_notify_completed';
