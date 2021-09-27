@@ -1,7 +1,27 @@
 START TRANSACTION;
 
+DROP PROCEDURE IF EXISTS PROC_DROP_FOREIGN_KEY;
+    DELIMITER $$
+    CREATE PROCEDURE PROC_DROP_FOREIGN_KEY(IN tableName VARCHAR(64), IN constraintName VARCHAR(64))
+    BEGIN
+        IF EXISTS(
+            SELECT * FROM information_schema.table_constraints
+            WHERE 
+                table_schema    = DATABASE()     AND
+                table_name      = tableName      AND
+                constraint_name = constraintName AND
+                constraint_type = 'FOREIGN KEY')
+        THEN
+            SET @query = CONCAT('ALTER TABLE ', tableName, ' DROP FOREIGN KEY ', constraintName, ';');
+            PREPARE stmt FROM @query; 
+            EXECUTE stmt; 
+            DEALLOCATE PREPARE stmt; 
+        END IF; 
+    END$$
+    DELIMITER ;
+
 ALTER TABLE `events` ADD COLUMN `eventType` varchar(40) NOT NULL AFTER `eventDescription`;
-ALTER TABLE `route_events` DROP FOREIGN KEY `route_events_ibfk_2`;
+CALL PROC_DROP_FOREIGN_KEY('route_events', 'route_events_ibfk_2');
 ALTER TABLE `route_events` ADD CONSTRAINT `route_events_ibfk_2` FOREIGN KEY (`eventID`) REFERENCES `events` (`eventID`)
     ON DELETE CASCADE
     ON UPDATE CASCADE;
