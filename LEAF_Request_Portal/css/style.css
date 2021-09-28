@@ -244,7 +244,7 @@ span#headerTab {
 
 
 .mainform {
-
+    margin-top: 34px;
 }
 
 .formblock {
@@ -1332,9 +1332,8 @@ fieldset iframe {
     top: 0;
 }
 /* sticky top of dialog box */
-form [id^="LeafForm"][id$="_record"] > div {
-    position: relative;
-    padding-top: 30px;
+div [id^="LeafForm"][id$="_loadIndicator"] {
+    margin-top: 34px;
 }
 #form-xhr-cancel-save-menu {
     position: absolute;
