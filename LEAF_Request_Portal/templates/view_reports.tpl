@@ -420,7 +420,7 @@ function loadSearchPrereqs() {
                 }
                 // check if indicator type is grid
 
-                if (groupIDmap[res[i].categoryID].format.indexOf('grid') !== -1) {
+                if (groupIDmap[res[i].categoryID].format.indexOf('grid') === 0) {
                     // convert grid values to object
                     let grid = $.parseJSON(groupIDmap[res[i].categoryID].format.replace('grid', ''));
                     groupIDmap[res[i].categoryID].cols = grid.map(function(col) {
