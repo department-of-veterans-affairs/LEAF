@@ -286,7 +286,7 @@ ul.leaf-progress-bar {
 /* ################# LARGE SCREEN STYLES > 1024 PIXELS  ################# */
 /* ###################################################################### */
 
-@media (min-width: 64.1rem) {
+@media (min-width: 64.05rem) {
 
     /* ############### CONTENT CONTAINERS ################# */
     .leaf-admin-content {max-width: 68rem; margin: 1.0rem auto 1.0rem auto;}
@@ -347,16 +347,7 @@ ul.leaf-progress-bar {
     .ui-widget-header {border: 0; background-color: none; background: none;}
     .leaf-dialog-loader {visibility: hidden; text-align: center; display: none;}
     .leaf-dialog-content {min-height: 300px; padding: 0.5rem; max-width: 54rem; min-width: 27rem;}
-    
-    /* ############### LEAF HEADER ################# */
-    .site-header {background-color: #252f3e; height: 4.6rem; box-shadow: 0px 4px 6px #a9aeb1;}
-    .leaf-logo {float: left;}
-        .leaf-logo img {width: 56px; margin: 0.6rem 1.0rem 0 0.6rem;}
-    .leaf-site-title {color: #fff; display: inline-block; margin-top: 0.9rem; margin-bottom: 0.2rem;font-family: 'PublicSans-Bold'; font-size: 1.2rem; }
-    .leaf-header-description {font-family: 'PublicSans-Regular'; font-size: 1.0rem; display: block; white-space: nowrap; max-width: 21rem; font-weight: normal; }.leaf-header-right {float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
-    .leaf-header-right {float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
-    .lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'PublicSans-Medium';}
-    #nav {margin: 2.3rem 1.0rem 0 0;}
+
 
     /* ############### widths by rems ################# */
     .leaf-width-1rem {width: 1rem;}

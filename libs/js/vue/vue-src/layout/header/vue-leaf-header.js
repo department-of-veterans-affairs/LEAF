@@ -40,8 +40,8 @@ app.component('minimize-button', {
             return this.$props.isRetracted ? 'Display full header' : 'Minimize header';
         }
     },
-    template: `<li role="button" id="header-toggle-button" @click="$emit('toggle-top-header')" :title="buttonTitle">
-                <i :class="[isRetracted ? 'fas fa-angle-double-down': 'fas fa-angle-double-up']"></i>
+    template: `<li role="button" id="header-toggle-button" :title="buttonTitle">
+                <a href="#" @click.prevent="$emit('toggle-top-header')"><i :class="[isRetracted ? 'fas fa-angle-double-down': 'fas fa-angle-double-up']"></i></a>
                </li>`
 });
 
@@ -285,21 +285,21 @@ app.component('leaf-user-info', {
         fetch('../api/system/primaryadmin', {
             "method": "GET"
         })
-        .then(res => res.json())
-        .then(data => {
-            let emailString = data['Email'] !== '' ? " - " + data['Email'] : '';
-            if(data["Fname"] !== undefined && data["Lname"] !== undefined){
-                this.userItems.primaryAdmin = data['Fname'] + " " + data['Lname'] + emailString;
-            }
-            else {
-                this.userItems.primaryAdmin = data["userName"] !== undefined ? data["userName"] : 'Not Set';
-            }
-        });
+            .then(res => res.json())
+            .then(data => {
+                let emailString = data['Email'] !== '' ? " - " + data['Email'] : '';
+                if(data["Fname"] !== undefined && data["Lname"] !== undefined){
+                    this.userItems.primaryAdmin = data['Fname'] + " " + data['Lname'] + emailString;
+                }
+                else {
+                    this.userItems.primaryAdmin = data["userName"] !== undefined ? data["userName"] : 'Not Set';
+                }
+            });
     },
     template:
         `<li @mouseleave="modalOff" @mouseenter="modalOn">
             <a href="#" @click="toggleSubModal">
-                <i v-show="innerWidth > 600" id="nav-user-icon" class='fas fa-user-circle' alt='User Account Menu'>&nbsp;</i>
+                <i id="nav-user-icon" class='fas fa-user-circle' alt='User Account Menu'>&nbsp;</i>
                 <span>{{ this.userItems.user }}</span> 
                 <i :style="{color: !subLinkOpen ? '' : 'white'}" class="fas fa-angle-down"></i> 
             </a>

@@ -44,6 +44,10 @@ const CSS_DEST = "./libs/css";
 // font destination
 const FONT_DEST = "./libs/css/fonts";
 
+//vue comp src and dest
+const VUE_SRC = "./libs/js/vue/vue-src";
+const VUE_DEST = "./libs/vue-dest";
+
 /*
 ----------------------------------------
 TASKS
@@ -53,6 +57,32 @@ TASKS
 gulp.task("icons", () => {
   return gulp.src('node_modules/@fortawesome/fontawesome-free/webfonts/*')
   .pipe(gulp.dest(`${FONT_DEST}/fontawesome`));
+});
+//.js files in vue-src
+const babel = require("gulp-babel");
+const plumber = require("gulp-plumber");
+const uglify = require("gulp-uglify");
+gulp.task("build-vue", function(done) {
+    return (
+        gulp.src(`${VUE_SRC}/**/*.js`)
+            .pipe(plumber())
+            .pipe(concat("leaf-vue-main.js"))
+            .pipe(
+                babel({
+                    presets: [
+                        [
+                            "@babel/env",
+                            {
+                                modules: false
+                            }
+                        ]
+                    ]
+                })
+            )
+    )
+        .pipe(uglify())
+        .pipe(gulp.dest(`${VUE_DEST}`)
+        )
 });
 
 gulp.task("build-sass", function(done) {

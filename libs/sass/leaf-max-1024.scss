@@ -46,21 +46,6 @@
     h1, h2, h3, h4, h5, h6 {margin: 0; color: #3d4551;}
         h3 {margin: 0.8rem 0;}
 
-    /* ############### LEAF HEADER ################# */
-    .site-header {background-color: #252f3e; height: 3.8rem;}
-    .leaf-site-title {color: #fff; display: inline-block; font-size: 1.0rem; margin-top: 0.9rem; font-family: 'PublicSans-Bold'; }
-    .leaf-header-description {font-family: 'PublicSans-Thin'; font-size: 0.9rem; display: block; font-family: 'PublicSans-Regular';}
-    .leaf-logo {float: left;}
-        .leaf-logo img {width: 52px; margin: 0.2rem 0.5rem 0 0.2rem;}
-    .leaf-header-right {margin-top: 0.5rem; float: right; color: #fff; font-family: 'PublicSans-Regular'; text-align: right;}
-    .lf-alert {font-size: 0.8rem; background-color: #e41d3d; color: #f6f6f2; padding: 0.2rem; font-family: 'PublicSans-Medium';}
-    .usa-logo {
-        font-size: 1.2rem;
-        line-height: 1.1rem;
-        margin: 1.6rem 0 0 0.2rem;
-        white-space: nowrap;
-    }
-    #nav {margin: 1.4rem 2.4rem 0 0; font-size: 0.7rem;}
 
     /* ############### widths by rems ################# */
     .leaf-width-1rem {width: 1rem;}

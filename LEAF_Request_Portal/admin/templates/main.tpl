@@ -17,7 +17,6 @@
         @import "../../libs/js/jquery/icheck/skins/square/blue.css";
         @import "css/style.css";
         @import "../../libs/css/leaf.css";
-        @import "templates/vue_components/leaf_header/vue_leaf_header.css";
     </style>
     <style type="text/css" media="print">
         @import "css/printer.css";
@@ -44,8 +43,8 @@
         <script type="text/javascript" src="{$javascripts[i]}"></script>
     {/section}
 
-    <script type="text/javascript" src="../../libs/js/Vue/vue.global.prod.js"></script>
-    <script type="text/javascript" src="./templates/vue_components/leaf_header/vue_leaf_header.js" defer></script>
+    <script type="text/javascript" src="../../libs/js/vue/vue.global.prod.js"></script>
+    <script type="text/javascript" src="../../libs/vue-dest/leaf-vue-main.js" defer></script>
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
 
