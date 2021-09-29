@@ -1,4 +1,4 @@
-const app = Vue.createApp({
+const appHeader = Vue.createApp({
     data(){
         return {
             windowTop: 0,
@@ -28,7 +28,7 @@ const app = Vue.createApp({
     }
 });
 
-app.component('minimize-button', {
+appHeader.component('minimize-button', {
     props: {
         isRetracted: {
             type: Boolean,
@@ -46,10 +46,10 @@ app.component('minimize-button', {
 });
 
 //warning section with triangle
-app.component('leaf-warning', {
+appHeader.component('leaf-warning', {
     data(){
         return {
-            leafSecure: JSON.parse(this.$props.propSecure)
+            leafSecure: this.$props.propSecure
         }
     },
     props: {
@@ -68,10 +68,10 @@ app.component('leaf-warning', {
         </div>`
 });
 //scrolling warning banner
-app.component('scrolling-leaf-warning', {
+appHeader.component('scrolling-leaf-warning', {
     data(){
         return {
-            leafSecure: JSON.parse(this.$props.propSecure)
+            leafSecure: this.$props.propSecure
         }
     },
     props: {
@@ -95,52 +95,52 @@ app.component('scrolling-leaf-warning', {
 });
 
 //admin view links
-app.component('admin-leaf-nav', {
+appHeader.component('admin-leaf-nav', {
     data(){
         return {
             navItems: [
-                { title: 'Home', link: '../', renderCondition: true },
-                { title: 'Report Builder', link: '../?a=reports', renderCondition: true },
-                { title: 'Site Links', link: '#', renderCondition: true,
+                { title: 'Home', link: '../' },
+                { title: 'Report Builder', link: '../?a=reports' },
+                { title: 'Site Links', link: '#',
                     subLinks: [
-                        { title: 'Nexus: Org Charts', link: '../' + JSON.parse(this.$props.orgchartPath), renderCondition: true }
+                        { title: 'Nexus: Org Charts', link: '../' + this.$props.orgchartPath }
                     ],
                     subLinkOpen: false,
                     isClickedOn: false },
-                { title: 'Admin', link: '#', renderCondition: true,
+                { title: 'Admin', link: '#',
                     subLinks: [
-                        { title: 'Admin Home', link: './', renderCondition: true },
-                        { title: 'User Access', link: '#', renderCondition: true,
+                        { title: 'Admin Home', link: './' },
+                        { title: 'User Access', link: '#',
                             subLinks: [
-                                { title: 'User Access Groups', link: '?a=mod_groups', renderCondition: true },
-                                { title: 'Service Chiefs', link: '?a=mod_svcChief', renderCondition: true }
+                                { title: 'User Access Groups', link: '?a=mod_groups' },
+                                { title: 'Service Chiefs', link: '?a=mod_svcChief' }
                             ],
                             subLinkOpen: false,
                             isClickedOn: false },
-                        { title: 'Workflow Editor', link: '?a=workflow', renderCondition: JSON.parse(this.$props.siteType) !== 'national_subordinate' },
-                        { title: 'Form Editor', link: '?a=form', renderCondition: JSON.parse(this.$props.siteType) !== 'national_subordinate' },
-                        { title: 'LEAF Library', link: '?a=formLibrary', renderCondition: JSON.parse(this.$props.siteType) !== 'national_subordinate' },
-                        { title: 'Site Settings', link: '?a=mod_system', renderCondition: true },
-                        { title: 'Site Distribution', link: '../report.php?a=LEAF_National_Distribution', renderCondition: JSON.parse(this.$props.siteType) === 'national_primary' },
-                        { title: 'Timeline Explorer', link: '../report.php?a=LEAF_Timeline_Explorer', renderCondition: true },
-                        { title: 'Toolbox', link: '#', renderCondition: true,
+                        { title: 'Workflow Editor', link: '?a=workflow', renderCondition: this.$props.siteType !== 'national_subordinate' },
+                        { title: 'Form Editor', link: '?a=form', renderCondition: this.$props.siteType !== 'national_subordinate' },
+                        { title: 'LEAF Library', link: '?a=formLibrary', renderCondition: this.$props.siteType !== 'national_subordinate' },
+                        { title: 'Site Settings', link: '?a=mod_system' },
+                        { title: 'Site Distribution', link: '../report.php?a=LEAF_National_Distribution', renderCondition: this.$props.siteType === 'national_primary' },
+                        { title: 'Timeline Explorer', link: '../report.php?a=LEAF_Timeline_Explorer' },
+                        { title: 'Toolbox', link: '#',
                             subLinks: [
-                                { title: 'Import Spreadsheet', link: '../report.php?a=LEAF_import_data', renderCondition: true },
-                                { title: 'Mass Action', link: '../report.php?a=LEAF_mass_action', renderCondition: true },
-                                { title: 'Initiator New Account', link: '../report.php?a=LEAF_request_initiator_new_account', renderCondition: true },
-                                { title: 'Sitemap Editor', link: '../report.php?a=LEAF_sitemaps_template', renderCondition: true },
+                                { title: 'Import Spreadsheet', link: '../report.php?a=LEAF_import_data' },
+                                { title: 'Mass Action', link: '../report.php?a=LEAF_mass_action' },
+                                { title: 'Initiator New Account', link: '../report.php?a=LEAF_request_initiator_new_account' },
+                                { title: 'Sitemap Editor', link: '../report.php?a=LEAF_sitemaps_template' },
                             ],
                             subLinkOpen: false,
                             isClickedOn: false },
-                        { title: 'LEAF Developer', link: '#', renderCondition: true,
+                        { title: 'LEAF Developer', link: '#',
                             subLinks: [
-                                { title: 'Template Editor', link: '?a=mod_templates', renderCondition: true },
-                                { title: 'Email Template Editor', link: '?a=mod_templates_email', renderCondition: true },
-                                { title: 'LEAF Programmer', link: '?a=mod_templates_reports', renderCondition: true },
-                                { title: 'File Manager', link: '?a=mod_file_manager', renderCondition: true },
-                                { title: 'Search Database', link: '../?a=search', renderCondition: true },
-                                { title: 'Sync Services', link: '?a=admin_sync_services', renderCondition: true },
-                                { title: 'Update Database', link: '?a=admin_update_database', renderCondition: true }
+                                { title: 'Template Editor', link: '?a=mod_templates' },
+                                { title: 'Email Template Editor', link: '?a=mod_templates_email' },
+                                { title: 'LEAF Programmer', link: '?a=mod_templates_reports' },
+                                { title: 'File Manager', link: '?a=mod_file_manager' },
+                                { title: 'Search Database', link: '../?a=search' },
+                                { title: 'Sync Services', link: '?a=admin_sync_services' },
+                                { title: 'Update Database', link: '?a=admin_update_database' }
                             ],
                             subLinkOpen: false,
                             isClickedOn: false },
@@ -204,7 +204,7 @@ app.component('admin-leaf-nav', {
     template:
         `<li :key="item.title" 
             v-for="item in navItems"
-            :style="{display: item.renderCondition ? 'flex' : 'none'}" 
+            
             @mouseenter="modalOn(item)"
             @mouseleave="modalOff(item)">
             <a  :href="item.link" 
@@ -217,7 +217,7 @@ app.component('admin-leaf-nav', {
                 <ul class="sublinks"> 
                     <li :key="subLink.title" 
                         v-for="subLink in item.subLinks" 
-                        :style="{display: subLink.renderCondition === true ? 'block' : 'none'}"
+                        :style="{display: !subLink.hasOwnProperty('renderCondition') || subLink.renderCondition === true ? 'block' : 'none'}"
                         @mouseleave="modalOff(subLink)"
                         @mouseenter="modalOn(subLink)">
                         <a :href="subLink.link"
@@ -242,11 +242,11 @@ app.component('admin-leaf-nav', {
 });
 
 //user info section
-app.component('leaf-user-info', {
+appHeader.component('leaf-user-info', {
     data(){
         return {
             userItems: {
-                user: JSON.parse(this.$props.userName),
+                user: this.$props.userName,
                 primaryAdmin: ''
             },
             subLinkOpen: false,
@@ -312,4 +312,4 @@ app.component('leaf-user-info', {
         </li>`
 });
 
-app.mount('#vue-leaf-header');
+appHeader.mount('#vue-leaf-header');
