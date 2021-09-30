@@ -915,6 +915,7 @@
 
                             posSel.setSelectHandler(function() {
                                 $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection)
+                                $('#posSel_<!--{$indicator.indicatorID|strip_tags}--> input.positionSelectorInput').val('#'+posSel.selection);
                             });
                             posSel.setResultHandler(function() {
                                 $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection)
