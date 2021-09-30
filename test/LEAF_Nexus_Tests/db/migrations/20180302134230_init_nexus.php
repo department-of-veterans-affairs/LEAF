@@ -12,7 +12,7 @@ class InitNexus extends AbstractMigration
      */
     public function up()
     {
-        $migrationContents = file_get_contents('../../LEAF_Nexus/orgchart_boilerplate_empty.sql');
+        $migrationContents = file_get_contents('/var/www/db/boilerplate/orgchart_boilerplate_empty.sql');
         $this->execute($migrationContents);
     }
 
