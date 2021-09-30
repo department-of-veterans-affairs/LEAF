@@ -803,17 +803,6 @@
             };
             <!--{/if}-->
             $(function() {
-                let groupIndID = "<!--{$indicator.indicatorID}-->";
-                let groupSelectorDiv = document.getElementById('grpSel_' + groupIndID);
-                function updateEmployeeInfo(){
-                    let elGroup = document.querySelector('#grpSel_'+groupIndID+' tr[class=groupSelected] .groupSelectorTitle');
-                    let grpSelInput = document.querySelector('#grpSel_'+groupIndID+' input.groupSelectorInput');
-                    if (elGroup && grpSelInput){
-                        let group = elGroup.title.trim();
-                        grpSelInput.value = 'group#' + group;
-                    }
-                }
-                groupSelectorDiv.addEventListener('click', updateEmployeeInfo);
                 var grpSel;
                 if(typeof groupSelector == 'undefined') {
                     $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/groupSelector.css" />');
@@ -829,6 +818,7 @@
 
                         	grpSel.setSelectHandler(function() {
                                 $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
+                                $('#grpSel_<!--{$indicator.indicatorID|strip_tags}--> input.groupSelectorInput').val('group#'+grpSel.selection);
                             });
                         	grpSel.setResultHandler(function() {
                                 $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
@@ -847,6 +837,7 @@
 
                 	grpSel.setSelectHandler(function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
+                        $('#grpSel_<!--{$indicator.indicatorID|strip_tags}--> input.groupSelectorInput').val('group#'+grpSel.selection);
                     });
                 	grpSel.setResultHandler(function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
@@ -982,19 +973,6 @@
 
             <script>
             $(function() {
-                let employeeIndID = "<!--{$indicator.indicatorID}-->";
-                let employeeSelectorDiv = document.getElementById('empSel_' + employeeIndID);
-                function updateEmployeeInfo(){
-                    let elEmpUserName = document.querySelector('#empSel_'+employeeIndID+' tr[class=employeeSelected] .employeeSelectorName');
-                    let empSelInput = document.querySelector('#empSel_'+employeeIndID+' input.employeeSelectorInput');
-                    if (elEmpUserName && empSelInput){
-                        let sliceIndex = elEmpUserName.title.indexOf('-') + 1;
-                        let username = elEmpUserName.title.slice(sliceIndex).trim();
-                        empSelInput.value = 'userName:' + username;
-                    }
-                }
-                employeeSelectorDiv.addEventListener('click', updateEmployeeInfo);
-
                 if($('#<!--{$indicator.indicatorID|strip_tags}-->').val() != '') {
                     $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').css('display', 'inline');
                     $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').on('click', function() {
@@ -1011,7 +989,7 @@
                         if(empSel.selectionData[empSel.selection] != undefined) {
                             var selectedUser = empSel.selectionData[empSel.selection];
                             var selectedUserName = selectedUser.userName;
-
+                            $('#empSel_<!--{$indicator.indicatorID|strip_tags}--> input.employeeSelectorInput').val('userName:' + selectedUserName);
                             $.ajax({
                                 type: 'POST',
                                 url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
