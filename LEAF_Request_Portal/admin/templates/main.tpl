@@ -44,7 +44,7 @@
     {/section}
     <script src="https://unpkg.com/vue@next"></script>  <!-- DEV -->
     <!-- <script type="text/javascript" src="../../libs/js/vue/vue.global.prod.js"></script> -->
-    <script type="text/javascript" src="../../libs/vue-dest/leaf-vue-main.js" defer></script>
+    <script type="text/javascript" src="../../libs/js/vue/vue-dest/leaf-vue-main.js" defer></script>
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
 
@@ -88,13 +88,9 @@
         </div>
     </div>
 
-    <div id="leaf-vue-footer">
-        <vue-footer hide-footer='{json_encode($hideFooter)}'
-                    product-name='{$smarty.const.PRODUCT_NAME}'
-                    version='{$smarty.const.VERSION_NUMBER}'
-                    revision='{$revision}'>
-        </vue-footer>
-    </div>
+    <footer class="usa-footer leaf-footer noprint" id="footer" {if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
+        <a id="versionID" href="../?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>
+    </footer>
 
 </body>
 </html>{/strip}
