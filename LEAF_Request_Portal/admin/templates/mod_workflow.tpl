@@ -229,7 +229,7 @@ function newEvent(events) {
                 eventExists = true;
             }
         }
-        if (eventExists === false && $('#eventName').val() !== '') {
+        if (eventExists === false && $('#eventName').val() !== '' && $('#eventDesc').val() !== '') {
             $.ajax({
                 type: 'POST',
                 url: '../api/?a=workflow/events',
@@ -242,8 +242,13 @@ function newEvent(events) {
                 alert(error);
             });
         } else {
-            alert('Event name already exists.');
-            listEvents();
+            if ($('#eventDesc').val() === '') {
+                alert('Event description cannot be blank.');
+                listEvents();
+            } else {
+                alert('Event name already exists.');
+                listEvents();
+            }
         }
     });
 }
@@ -435,7 +440,7 @@ function editEvent(event) {
                         }
                     }
                 }
-                if (eventNameChange === false && $('#eventName').val() !== '') {
+                if (eventNameChange === false && $('#eventName').val() !== '' && $('#eventDesc').val() !== '') {
                     $.ajax({
                         type: 'POST',
                         url: '../api/?a=workflow/editEvent/_' + event,
@@ -447,8 +452,13 @@ function editEvent(event) {
                         alert(error);
                     });
                 } else {
-                    alert('Event name already exists.');
-                    listEvents();
+                    if ($('#eventDesc').val() === '') {
+                        alert('Event description cannot be blank.');
+                        listEvents();
+                    } else {
+                        alert('Event name already exists.');
+                        listEvents();
+                    }
                 }
             }).fail(function (error) {
                 alert(error);
