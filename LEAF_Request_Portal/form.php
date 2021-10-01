@@ -88,7 +88,7 @@ class Form
     public function getAllCategories()
     {
         $res = $this->db->prepared_query(
-            'SELECT categoryID, categoryName, categoryDescription FROM categories WHERE disabled = 0',
+            'SELECT categoryID, categoryName, categoryDescription FROM categories WHERE disabled = 0 ORDER BY categoryName',
             array()
         );
 
@@ -3230,14 +3230,14 @@ class Form
                 break;
         }
         $vars = array();
-        $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+        $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators ".
                     "LEFT JOIN categories USING (categoryID) ".
                     "WHERE indicators.disabled <= 1 ".
                         "AND format != '' ".
                         "AND name != '' ".
                         "AND categories.disabled = 0" . $orderBy;
         if($includeHeadings) {
-            $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+            $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators ".
                         "LEFT JOIN categories USING (categoryID) ".
                         "WHERE indicators.disabled <= 1 ".
                             "AND name != '' ".
@@ -3245,7 +3245,7 @@ class Form
         }
         $res = $this->db->prepared_query($strSQL, $vars);
 
-        $strSQL = "SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+        $strSQL = "SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators ".
                     "LEFT JOIN categories USING (categoryID) ".
 					"WHERE indicators.disabled <= 1 ".
 					    "AND categories.disabled = 0" . $orderBy;
@@ -3273,6 +3273,7 @@ class Form
             $temp['name'] = $item['name'];
             $temp['format'] = $item['format'];
             $temp['description'] = $item['description'];
+            $temp['isDisabled'] = (int)$item['isDisabled'];
             $temp['categoryName'] = $item['categoryName'];
             $temp['categoryID'] = $item['categoryID'];
             $temp['is_sensitive'] = $item['is_sensitive'];
@@ -3296,6 +3297,7 @@ class Form
                     $temp['name'] = $item['name'];
                     $temp['format'] = $item['format'];
                     $temp['description'] = $item['description'];
+                    $temp['isDisabled'] = (int)$item['isDisabled'];
                     $temp['categoryName'] = $item['categoryName'];
                     $temp['categoryID'] = $item['categoryID'];
                     $temp['is_sensitive'] = $item['is_sensitive'];
