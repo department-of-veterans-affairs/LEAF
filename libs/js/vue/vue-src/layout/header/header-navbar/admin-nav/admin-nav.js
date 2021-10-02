@@ -1,5 +1,5 @@
 //admin view links
-module.exports = {
+export default {
     data(){
         return {
             navItems: [

@@ -1,5 +1,5 @@
 //user info list in nav
-module.exports = {
+export default {
     data(){
         return {
             userItems: {
@@ -57,7 +57,7 @@ module.exports = {
             <a href="#" @click="toggleSubModal">
                 <i id="nav-user-icon" class='fas fa-user-circle' alt='User Account Menu'>&nbsp;</i>
                 <span>{{ this.userItems.user }}</span> 
-                <i :style="{color: !subLinkOpen ? '' : 'white'}" class="fas fa-angle-down"></i> 
+                <i :style="{color: !subLinkOpen ? '' : 'white'}" class="fas fa-angle-down"> </i> 
             </a>
             <template v-if="subLinkOpen">
                 <ul class="sublinks">

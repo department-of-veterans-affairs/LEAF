@@ -1,5 +1,5 @@
 //scrolling warning banner
-module.exports = {
+export default {
     data(){
         return {
             leafSecure: this.$props.propSecure

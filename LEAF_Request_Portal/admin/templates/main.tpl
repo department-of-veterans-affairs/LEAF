@@ -42,55 +42,40 @@
     {section name=i loop=$javascripts}
         <script type="text/javascript" src="{$javascripts[i]}"></script>
     {/section}
-    <script src="https://unpkg.com/vue@next"></script>  <!-- DEV -->
-    <!-- <script type="text/javascript" src="../../libs/js/vue/vue.global.prod.js"></script> -->
+    <!-- <script src="https://unpkg.com/vue@next"></script> --> <!-- DEV -->
+    <script type="text/javascript" src="../../libs/js/vue/vue.global.prod.js"></script>
     <script type="text/javascript" src="../../libs/js/vue/vue-dest/leaf-vue-main.js" defer></script>
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
 
 <body>
-    <div id="vue-leaf-header">
+    <div id="vue-app-mount">
         <transition name="warn">
         <scrolling-leaf-warning v-show="windowTop > 0" prop-secure='{$leafSecure}'>Do Not Enter PHI / PII</scrolling-leaf-warning>
         </transition>
 
-        <header id="leaf-header" aria-label="Official government website">
-            <div id="header-top" v-if="!topIsRetracted">
-                <a id="logo" href="./" title="Home" aria-label="LEAF home">{$logo}</a>
-                <div><em><h1 id="site-info-title">{$title}</h1><h2 id="site-info-city">{$city}</h2></em></div>
-                <leaf-warning prop-secure='{$leafSecure}'></leaf-warning>
-
-                {if $qrcodeURL != ''}
-                    <div><img class="print nodisplay" style="width: 72px" src="../../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
-                {/if}
-            </div>
+        <header id="vue-leaf-header" aria-label="Official government website">
+            <header-top v-if="!retracted.refBool" prop-secure='{$leafSecure}' qrcode-url='{$qrcodeURL}'
+                        title='{$title}' city='{$city}' logo='{$logo}'></header-top>
             {$emergency}
-            <nav id="leaf-vue-nav" aria-label="main menu">
-                <ul id="nav-navlinks">
-                    <minimize-button :is-retracted="topIsRetracted" @toggle-top-header="toggleHeader"></minimize-button>
-                    <admin-leaf-nav :inner-width="windowInnerWidth"
-                                    orgchart-path='{$orgchartPath}'
-                                    site-type='{$siteType}'></admin-leaf-nav>
-                </ul>
-                <ul id="nav-user-info">
-                    <leaf-user-info :inner-width="windowInnerWidth" user-name='{$name}'></leaf-user-info>
-                </ul>
-            </nav>
+            <header-nav orgchart-path='{$orgchartPath}' site-type='{$siteType}'
+                        name='{$name}' :inner-width="windowInnerWidth"></header-nav>
         </header>
     </div>
 
-    <div id="body">
-        {if $status != ''}
-            <div class="lf-alert">{$status}</div>
-        {/if}
-        <div id="bodyarea" class="default-container">
-            {$body}
+        <div id="body">
+            {if $status != ''}
+                <div class="lf-alert">{$status}</div>
+            {/if}
+            <div id="bodyarea" class="default-container">
+                {$body}
+            </div>
         </div>
-    </div>
 
-    <footer class="usa-footer leaf-footer noprint" id="footer" {if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
-        <a id="versionID" href="../?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>
-    </footer>
+        <footer class="usa-footer leaf-footer noprint" id="footer" {if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
+            <a id="versionID" href="../?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>
+        </footer>
+
 
 </body>
 </html>{/strip}

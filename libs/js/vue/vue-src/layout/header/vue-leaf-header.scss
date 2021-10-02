@@ -2,25 +2,33 @@ $headerHeight: 90px;
 $navRibbonHeight: 36px;
 $BG-DarkNavy: #162e51;
 $BG-Charcoal: #252f3e;
-$BG-VividOrange: #ff7800; /* changed from Figma #f56600 to meet accessibility contrast */
+$BG-VividOrange: #ff6800; /* changed from Figma #f56600 to meet accessibility contrast */
 $BG-LightGray: #dcdee0;
 $USWDS-LtGray: #c9c9c9;
 $USWDS-Cyan: #00bde3;
 $BaseNavy: #005ea2;
 $LtNavy: #1476bd;
 
+
+/* everything inside header element */
 #vue-leaf-header * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* the div that the vue header app is mounted on */
+/* header element. wraps header-top and nav-ribbon  */
 #vue-leaf-header {
   margin-bottom: 0.5em;
   width: 100%;
   min-width: 475px;
-  box-shadow: 0 4px 5px 1px rgba(0,0,25,0.25);
+  box-shadow: 0 3px 5px 1px rgba(0,0,25,0.2);
+  display: flex;
+  flex-direction: column;
+  font-family: "PublicSans-Regular", sans-serif;
+  i {
+    margin-left: 0.3em;
+  }
 }
 
 /* scrolling warning banner */
@@ -40,17 +48,6 @@ $LtNavy: #1476bd;
 }
 .warn-enter-active {
   transition: opacity 0.25s ease;
-}
-
-/* header element. wraps header-top and nav-ribon */
-header#leaf-header {
-  display: flex;
-  flex-direction: column;
-  font-family: "PublicSans-Regular", sans-serif;
-
-  i {
-    margin-left: 0.3em;
-  }
 }
 
 /* container for top part of header.  inc site info and top warning */
@@ -98,6 +95,7 @@ header#leaf-header {
 
     h3 {
       font-size: 16px;
+      margin-left: 10px;
       color: $BG-VividOrange !important;
     }
     a, a:hover, a:focus, a:visited {
@@ -108,7 +106,7 @@ header#leaf-header {
   }
 }
 
-/* bottom dark navy nav ribbon.  container for links, toggle, and user info */
+/* bottom dark navy nav ribbon.  container for toggle, links, and user info */
 nav#leaf-vue-nav {
   display: flex;
   justify-content:space-between;
@@ -277,6 +275,9 @@ nav#leaf-vue-nav {
   nav#leaf-vue-nav {
     font-size: 80%;
     padding-left: 0;
+  }
+  #leaf-warning {
+    font-size: 90%;
   }
   #vue-leaf-header #header-top h1 {
     font-size: 20px;
