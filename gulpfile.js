@@ -36,14 +36,13 @@ PATHS
 */
 
 // Project Sass source directory
-const PROJECT_SASS_SRC = "./libs/sass";
+const PROJECT_SASS_SRC = "./libs/leaf-ui-src/sass";
 
 // Compiled CSS destination
 const CSS_DEST = "./libs/css";
 
 // font destination
 const FONT_DEST = "./libs/css/fonts";
-
 
 /*
 ----------------------------------------

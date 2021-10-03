@@ -1,10 +1,16 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
-    entry: './libs/js/vue/vue-src',
+    entry: './libs/leaf-ui-src/vue-src',
     output: {
         filename: 'leaf-vue-main.js',
-        path: path.resolve(__dirname, './libs/js/vue/vue-dest')
+        path: path.resolve(__dirname, './libs/js/vue-dest')
+    },
+    resolve: {
+        alias: {
+            vue: 'vue/dist/vue.esm-bundler.js'
+        }
     },
     module: {
         rules: [
@@ -23,5 +29,14 @@ module.exports = {
                 ]
             }
         ]
-    }
+    },
+    plugins: [
+        new webpack.DefinePlugin({
+            "__VUE_OPTIONS_API__": true,
+            "__VUE_PROD_DEVTOOLS__": false,
+            options: {
+                runtimeCompiler: true,
+            }
+        })
+    ],
 }

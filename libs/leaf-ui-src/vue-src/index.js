@@ -1,9 +1,12 @@
+import { createApp } from 'vue';
+
 import headerTop from './layout/header/header-top/header-top';
 import scrollWarning from './layout/header/scroll-warning/scroll-warning';
 import headerNav from './layout/header/header-navbar/header-navbar';
 import './layout/header/vue-leaf-header.scss';
 
-export const app = Vue.createApp({
+
+export const app = createApp({
     data(){
         return {
             windowTop: 0,
@@ -39,10 +42,8 @@ export const app = Vue.createApp({
             this.windowInnerWidth = window.innerWidth;
         },
         toggleHeader(){
-            this.retracted.refBool = !this.retracted.refBool ;
+            this.retracted.refBool = !this.retracted.refBool;//test
         }
     }
-});
-
-app.mount('#vue-app-mount');
+}).mount('#vue-app-mount');
 
