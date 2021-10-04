@@ -83,6 +83,24 @@ class FormController extends RESTfulResponse
             return $form->query($_GET['q']);
         });
 
+        $this->index['GET']->register('form/queryIndicator', function ($args) use ($form) {
+            if (isset($_GET['debug']))
+            {
+                return $query = XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+            }
+
+            return $form->queryIndicator($_GET['q']);
+        });
+
+        $this->index['GET']->register('form/queryWorkflowState', function ($args) use ($form) {
+            if (isset($_GET['debug']))
+            {
+                return $query = XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+            }
+
+            return $form->queryWorkflowState($_GET['q']);
+        });
+
         $this->index['GET']->register('form/search/indicator/[digit]', function ($args) use ($form) {
             $query = '{"terms":[{"id":"data","indicatorID":"' . $args[0] . '","operator":"=","match":"' . $_GET['q'] . '"}]}';
 

@@ -3174,6 +3174,367 @@ class Form
         return $data;
     }
 
+    // queryHelper parses a JSON formatted query specifially for queryIndicator and queryWorkflowState
+    private function queryHelper($query, $type) {
+        $operator = '';
+        $vars = array();
+        $conditions = '';
+        $joins = '';
+        $searchAllData = false;
+
+        $count = 0;
+        foreach ($query['terms'] as $q)
+        {
+            // Logic for AND/OR Gate
+            if ($count === 0) {
+                $gate = '';
+                $conditions = '(';
+            } else {
+                switch ($q['gate']) {
+                    case 'OR':
+                        $gate = ' OR ';
+
+                        break;
+                    default:
+                        $gate = ') AND (';
+
+                        break;
+                }
+            }
+
+            $operator = '';
+            switch ($q['operator']) {
+                case '>':
+                case '>=':
+                case '=':
+                case '<=':
+                case '<':
+                case '!=':
+                    $operator = $q['operator'];
+                    $q['match'] = str_replace('*', '%', $q['match']);
+
+                    break;
+                case 'LIKE':
+                case 'NOT LIKE':
+                    $operator = $q['operator'];
+                    if (strpos($q['match'], '*') !== false)
+                    {
+                        $q['match'] = str_replace('*', '%', $q['match']);
+                    }
+                    else
+                    {
+                        $q['match'] = '%' . $q['match'] . '%';
+                    }
+
+                    break;
+                case 'RIGHT JOIN':
+                    break;
+                default:
+                    return 0;
+            }
+
+            $vars[':' . $q['id'] . $count] = $q['match'];
+            switch ($q['id']) {
+                case 'submitted':
+                    $conditions .= "{$gate}submitted {$operator} :submitted{$count}";
+
+                    break;
+                case 'deleted':
+                    $conditions .= "{$gate}deleted {$operator} :deleted{$count}";
+
+                    break;
+                case 'stepID':
+                    if ($q['operator'] == '=')
+                    {
+                        switch ($vars[':stepID' . $count]) {
+                            case 'submitted':
+                                $conditions .= "{$gate}submitted > 0";
+
+                                break;
+                            case 'notSubmitted': // backwards compat
+                                $conditions .= "{$gate}submitted = 0";
+
+                                break;
+                            case 'deleted':
+                                $conditions .= "{$gate}deleted > 0";
+
+                                break;
+                            case 'notDeleted': // backwards compat
+                                $conditions .= "{$gate}deleted = 0";
+
+                                break;
+                            case 'resolved':
+                                $conditions .= "{$gate}(records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)";
+                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+
+                                break;
+                            case 'notResolved': // backwards compat
+                                $conditions .= "{$gate}(records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0)";
+                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+
+                                break;
+                            default:
+                                if (is_numeric($vars[':stepID' . $count]))
+                                {
+                                    if($type == 'indicator') {
+                                        $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
+                                        WHERE stepID=:stepID{$count}) rj_stepID{$count}
+                                        USING (recordID) ";
+                                        // Backwards Compatibility
+                                        $conditions .= "{$gate}rj_stepID{$count}.stepID = :stepID{$count}";
+                                    }
+                                    else if($type == 'workflowState') {
+                                        $conditions .= "{$gate}stepID = :stepID{$count}";
+                                    }
+                                }
+                                else
+                                {
+                                    return 'Unsupported match in stepID';
+                                }
+
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        if ($q['operator'] == '!=')
+                        {
+                            switch ($vars[':stepID' . $count]) {
+                            case 'submitted':
+                                $conditions .= "{$gate}submitted = 0";
+
+                                break;
+                            case 'notSubmitted': // backwards compat
+                                $conditions .= "{$gate}submitted > 0";
+
+                                break;
+                            case 'deleted':
+                                $conditions .= "{$gate}deleted = 0";
+
+                                break;
+                            case 'notDeleted': // backwards compat
+                                $conditions .= "{$gate}deleted > 0";
+
+                                break;
+                            case 'resolved':
+                                $conditions .= "{$gate}(records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0)";
+                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+
+                                break;
+                            case 'notResolved': // backwards compat
+                                $conditions .= "{$gate}(records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)";
+                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+
+                                break;
+                            default:
+                                if (is_numeric($vars[':stepID' . $count]))
+                                {
+                                    if($type == 'indicator') {
+                                        $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
+                                        WHERE stepID != :stepID{$count}) rj_stepID{$count}
+                                        USING (recordID) ";
+                                        // Backwards Compatibility
+                                        $conditions .= "{$gate}rj_stepID{$count}.stepID != :stepID{$count}";
+                                    }
+                                    else if($type == 'workflowState') {
+                                        $conditions .= "{$gate}stepID = :stepID{$count}";
+                                    }
+                                }
+                                else
+                                {
+                                    return 'Unsupported match in stepID';
+                                }
+
+                                break;
+                        }
+                        }
+                        else
+                        {
+                            return 'Invalid operator for stepID';
+                        }
+                    }
+
+                    if (!is_numeric($vars[':stepID' . $count]))
+                    {
+                        unset($vars[':stepID' . $count]);
+                    }
+
+                    break;
+                case 'data':
+                    if (!isset($q['indicatorID']) || !is_numeric($q['indicatorID']))
+                    {
+                        return 0;
+                    }
+
+                    $tResTypeHint = array();
+                    if ($q['indicatorID'] > 0)
+                    {
+                        // check protected field mask, ignore query if masked
+                        if($this->isMasked($q['indicatorID'])) {
+                            return 'Access denied to Masked field';
+                        }
+
+                        // need data type hint and default data
+                        $tVarTypeHint = array(':indicatorID' => $q['indicatorID']);
+                        $tResTypeHint = $this->db->prepared_query('SELECT format, `default` FROM indicators
+                                                                    WHERE indicatorID=:indicatorID', $tVarTypeHint);
+
+                        $vars[':indicatorID' . $count] = $q['indicatorID'];
+                    }
+                    else
+                    {
+                        if ($q['indicatorID'] === '0')
+                        {
+                            $searchAllData = true;
+                        }
+                        else
+                        {
+                            if ($q['indicatorID'] == '0.0')
+                            { // to search all fields matching the orgchart_employee input format
+                                $searchAllData = true;
+                            }
+                        }
+                    }
+
+                    if ($operator == '!=' && $vars[':data' . $count] == '')
+                    {
+                        if($type == 'indicator') {
+                            $conditions .= "{$gate}(data {$operator} :data{$count})";
+                        }
+                        else if($type == 'workflowState') {
+                            $joins .= "LEFT JOIN (SELECT recordID, indicatorID, series, data FROM data
+                                        WHERE indicatorID=:indicatorID{$count}) lj_data{$count}
+                                        USING (recordID) ";
+                        }
+                    }
+                    else
+                    {
+                        $dataTerm = "data";
+
+                        $dataMatch = ":data{$count}";
+                        switch ($tResTypeHint[0]['format']) {
+                            case 'number':
+                            case 'currency':
+                                $dataTerm = "CAST({$dataTerm} as DECIMAL(21,5))";
+
+                                break;
+                            case 'date':
+                                $dataTerm = "STR_TO_DATE({$dataTerm}, '%m/%d/%Y')";
+                                $dataMatch = "STR_TO_DATE(:data{$count}, '%m/%d/%Y')";
+
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if($type == 'indicator') {
+                            $indicatorTerm = '';
+                            if (!$searchAllData)
+                            {
+                                $indicatorTerm .= "AND indicatorID {$operator} :indicatorID{$count}";
+                            }
+                            $conditions .= "{$gate}{$dataTerm} {$operator} {$dataMatch} {$indicatorTerm}";
+                        }
+                        else if($type == 'workflowState') {
+                            $joins .= "LEFT JOIN (SELECT recordID, indicatorID, series, data FROM data
+                                        WHERE indicatorID=:indicatorID{$count}) lj_data{$count}
+                                        USING (recordID) ";
+                            $dataTerm = "lj_data{$count}.data";
+                            $conditions .= "{$gate}{$dataTerm} {$operator} {$dataMatch}";
+                        }
+                    }
+
+                    break;
+                default:
+                    return 0;
+            }
+            $count++;
+        }
+
+        // End Check for Conditions Query
+        if ($count) {
+            $conditions .= ') ';
+        } else {
+            $conditions = '';
+        }
+
+        $output = [];
+        $output['joins'] = $joins;
+        $output['conditions'] = $conditions;
+        $output['vars'] = $vars;
+
+        return $output;
+    }
+
+    // queryIndicator is a lightweight version of query, prioritizing searching data related to specific indicators
+    // This will not match on default answers
+    public function queryIndicator($query) {
+        $query = json_decode(html_entity_decode(html_entity_decode($query)), true);
+        if ($query == null)
+        {
+            return 'Invalid query';
+        }
+
+        $params = $this->queryHelper($query, 'indicator');
+        $joins = $params['joins'];
+        $conditions = $params['conditions'];
+        $vars = $params['vars'];
+
+        $strSQL = "SELECT recordID, indicatorID, series, data, timestamp, data.userID FROM data ".
+                    "LEFT JOIN records USING (recordID) ".
+                    $joins .
+                    "WHERE ". $conditions;
+
+        $res = $this->db->prepared_query($strSQL, $vars);
+
+        $data = array();
+        foreach ($res as $item)
+        {
+            $data[$item['recordID']] = $item;
+        }
+
+        if ($this->isNeedToKnow())
+        {
+            $data = $this->checkReadAccess($data);
+        }
+
+        return $data;
+    }
+
+    // queryWorkflowState is a lightweight version of query, prioritizing searching the workflow state of requests.
+    public function queryWorkflowState($query) {
+        $query = json_decode(html_entity_decode(html_entity_decode($query)), true);
+        if ($query == null)
+        {
+            return 'Invalid query';
+        }
+
+        $params = $this->queryHelper($query, 'workflowState');
+        $joins = $params['joins'];
+        $conditions = $params['conditions'];
+        $vars = $params['vars'];
+
+        $strSQL = "SELECT recordID, stepID, blockingStepID FROM records_workflow_state ".
+                    "LEFT JOIN records USING (recordID) ".
+                    $joins .
+                    "WHERE ". $conditions;
+
+        $res = $this->db->prepared_query($strSQL, $vars);
+
+        $data = array();
+        foreach ($res as $item)
+        {
+            $data[$item['recordID']] = $item;
+        }
+
+        if ($this->isNeedToKnow())
+        {
+            $data = $this->checkReadAccess($data);
+        }
+
+        return $data;
+    }
+
     public function getDisabledIndicatorList(int $disabled)
     {
         $vars = array(':disabled' => (int)$disabled);
