@@ -1,9 +1,10 @@
 <style>
 /* 3 column grid */
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
+#searchContainer .chosen-container a.chosen-single span {min-width: 125px;  max-width: 250px}
 </style>
 
-<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: 600px; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
+<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: fit-content; width: -moz-fit-content; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
     <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 1: Develop search filter
     </div>

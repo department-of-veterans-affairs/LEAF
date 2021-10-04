@@ -336,6 +336,12 @@ var LeafFormSearch = function(containerID) {
 						if(empSel.selectionData[empSel.selection] != undefined) {
 							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
 							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
+							//update the search field so that dropdown shows only selected value.
+							let elSearchInput = document.querySelector('#'+ prefixID + 'widgetEmp_' + widgetID + ' input');
+							let empSelection = empSel.selectionData[empSel.selection];
+							if (elSearchInput !== null && empSelection.firstName !== undefined && empSelection.lastName !== undefined) {
+								elSearchInput.value = empSelection.firstName + ' ' + empSelection.lastName;
+							}
 						}
 					});
 					empSel.setResultHandler(function() {
@@ -387,6 +393,11 @@ var LeafFormSearch = function(containerID) {
 
 					posSel.setSelectHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
+						let elSearchInput = document.querySelector('#'+ prefixID + 'widgetPos_' + widgetID + ' input');
+						let posTitle = posSel.selectionData[posSel.selection].positionTitle;
+						if (elSearchInput !==null && posTitle !== undefined){
+							elSearchInput.value = posTitle;
+						}
 					});
 					posSel.setResultHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
@@ -427,6 +438,11 @@ var LeafFormSearch = function(containerID) {
 
 					grpSel.setSelectHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
+						let elSearchInput = document.querySelector('#'+ prefixID + 'widgetGrp_' + widgetID + ' input');
+						let grpID = grpSel.selectionData[grpSel.selection].groupID;
+						if (elSearchInput !==null && grpID !== undefined){
+							elSearchInput.value = 'group#'+grpID;
+						}
 					});
 					grpSel.setResultHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
