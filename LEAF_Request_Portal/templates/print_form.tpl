@@ -744,6 +744,14 @@ $(function() {
     updateProgress();
     <!--{/if}-->
 
+    //scroll event for dialog menu
+    let elParentForm = document.querySelector('[id^="LeafForm"][id$="_record"]');
+    let elFormMenu = document.getElementById('form-xhr-cancel-save-menu');
+    window.addEventListener('scroll', function(){
+        if (elParentForm && elFormMenu){
+            let parent_Y = elParentForm.getBoundingClientRect().y;
+            elFormMenu.style.top = parent_Y > 0 ? 0 : (-1 * parent_Y) + "px";
+        }
+    });
 });
-
 </script>
