@@ -3458,10 +3458,23 @@ class Form
             $conditions = '';
         }
 
+        $conditions = $conditions == '' ? '1=1' : $conditions;
+        $limit = '';
+        if (isset($query['limit']) && is_numeric($query['limit']))
+        {
+            $offset = '';
+            if (isset($query['limitOffset']) && is_numeric($query['limitOffset']))
+            {
+                $offset = "{$query['limitOffset']},";
+            }
+            $limit = ' LIMIT ' . $offset . $query['limit'];
+        }
+
         $output = [];
         $output['joins'] = $joins;
         $output['conditions'] = $conditions;
         $output['vars'] = $vars;
+        $output['limit'] = $limit;
 
         return $output;
     }
@@ -3479,11 +3492,12 @@ class Form
         $joins = $params['joins'];
         $conditions = $params['conditions'];
         $vars = $params['vars'];
+        $limit = $params['limit'];
 
         $strSQL = "SELECT recordID, indicatorID, series, data, timestamp, data.userID FROM data ".
                     "LEFT JOIN records USING (recordID) ".
                     $joins .
-                    "WHERE ". $conditions;
+                    "WHERE ". $conditions . $limit;
 
         $res = $this->db->prepared_query($strSQL, $vars);
 
@@ -3513,11 +3527,12 @@ class Form
         $joins = $params['joins'];
         $conditions = $params['conditions'];
         $vars = $params['vars'];
+        $limit = $params['limit'];
 
         $strSQL = "SELECT recordID, stepID, blockingStepID FROM records_workflow_state ".
                     "LEFT JOIN records USING (recordID) ".
                     $joins .
-                    "WHERE ". $conditions;
+                    "WHERE ". $conditions . $limit;
 
         $res = $this->db->prepared_query($strSQL, $vars);
 
