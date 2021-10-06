@@ -313,6 +313,29 @@ var LeafFormSearch = function(containerID) {
 		$('#' + prefixID + 'searchIconBusy').css("display", "none");
 	}
 
+	function updateEmployeeSearch(prefixID, widgetID){
+		let selector = '#' + prefixID + 'widgetEmp_' + widgetID + ' tr.employeeSelected > .employeeSelectorName';
+		let elSelectedVal = document.querySelector(selector).innerHTML;
+		let sliceInd = elSelectedVal.indexOf('&nbsp');
+		elSelectedVal = sliceInd === -1 ? elSelectedVal : elSelectedVal.slice(0,sliceInd);
+		let elInput = document.querySelector('#' + prefixID + 'widgetMatch_' + widgetID + ' input[class="employeeSelectorInput"]');
+		elInput.value = elSelectedVal;
+	}
+	function updatePositionSearch(prefixID, widgetID){
+		let selector = '#' + prefixID + 'widgetPos_' + widgetID + ' tr.positionSelected > .positionSelectorTitle';
+		let elSelectedVal = document.querySelector(selector).title;
+		let sliceInd = elSelectedVal.indexOf(' ') + 1;
+		let elInput = document.querySelector('#' + prefixID + 'widgetMatch_' + widgetID + ' input[class="positionSelectorInput"]');
+		elInput.value = '#'+elSelectedVal.slice(sliceInd);
+	}
+	function updateGroupSearch(prefixID, widgetID){
+		let selector = '#' + prefixID + 'widgetGrp_' + widgetID + ' tr.groupSelected > .groupSelectorTitle';
+		let elSelectedVal = document.querySelector(selector).title;
+		let elInput = document.querySelector('#' + prefixID + 'widgetMatch_' + widgetID + ' input[class="groupSelectorInput"]');
+		elInput.value = 'group#'+elSelectedVal;
+	}
+
+
 	/**
 	 * @memberOf LeafFormSearch
 	 */
@@ -335,13 +358,10 @@ var LeafFormSearch = function(containerID) {
 					empSel.setSelectHandler(function() {
 						if(empSel.selectionData[empSel.selection] != undefined) {
 							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+							//for query (not altered)
 							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-							//update the search field so that dropdown shows only selected value.
-							let elSearchInput = document.querySelector('#'+ prefixID + 'widgetEmp_' + widgetID + ' input');
-							let empSelection = empSel.selectionData[empSel.selection];
-							if (elSearchInput !== null && empSelection.firstName !== undefined && empSelection.lastName !== undefined) {
-								elSearchInput.value = empSelection.firstName + ' ' + empSelection.lastName;
-							}
+							//for search field update.
+							updateEmployeeSearch(prefixID, widgetID);
 						}
 					});
 					empSel.setResultHandler(function() {
@@ -363,7 +383,10 @@ var LeafFormSearch = function(containerID) {
 			empSel.setSelectHandler(function() {
 				if(empSel.selectionData[empSel.selection] != undefined) {
 					selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+					//for query (not altered)
 					$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
+					//for search field update
+					updateEmployeeSearch(prefixID, widgetID);
 				}
 			});
 			empSel.setResultHandler(function() {
@@ -392,12 +415,10 @@ var LeafFormSearch = function(containerID) {
 					posSel.rootPath = orgchartPath + '/';
 
 					posSel.setSelectHandler(function() {
+						//for query (not altered)
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-						let elSearchInput = document.querySelector('#'+ prefixID + 'widgetPos_' + widgetID + ' input');
-						let posTitle = posSel.selectionData[posSel.selection].positionTitle;
-						if (elSearchInput !==null && posTitle !== undefined){
-							elSearchInput.value = posTitle;
-						}
+						//for search field
+						updatePositionSearch(prefixID, widgetID);
 					});
 					posSel.setResultHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
@@ -412,7 +433,10 @@ var LeafFormSearch = function(containerID) {
 			posSel.rootPath = orgchartPath + '/';
 
 			posSel.setSelectHandler(function() {
+				//for query (not altered)
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
+				//for search field update
+				updatePositionSearch(prefixID, widgetID);
 			});
 			posSel.setResultHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
@@ -437,12 +461,10 @@ var LeafFormSearch = function(containerID) {
 					grpSel.rootPath = orgchartPath + '/';
 
 					grpSel.setSelectHandler(function() {
+						//for query (not altered)
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-						let elSearchInput = document.querySelector('#'+ prefixID + 'widgetGrp_' + widgetID + ' input');
-						let grpID = grpSel.selectionData[grpSel.selection].groupID;
-						if (elSearchInput !==null && grpID !== undefined){
-							elSearchInput.value = 'group#'+grpID;
-						}
+						//search update
+						updateGroupSearch(prefixID, widgetID)
 					});
 					grpSel.setResultHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
@@ -457,7 +479,10 @@ var LeafFormSearch = function(containerID) {
 			grpSel.rootPath = orgchartPath + '/';
 
 			grpSel.setSelectHandler(function() {
+				//for query (not altered)
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
+				//for search field update
+				updateGroupSearch(prefixID, widgetID)
 			});
 			grpSel.setResultHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
