@@ -313,26 +313,59 @@ var LeafFormSearch = function(containerID) {
 		$('#' + prefixID + 'searchIconBusy').css("display", "none");
 	}
 
+	//functions for update of search and query input fields
 	function updateEmployeeSearch(prefixID, widgetID){
-		let selector = '#' + prefixID + 'widgetEmp_' + widgetID + ' tr.employeeSelected > .employeeSelectorName';
-		let elSelectedVal = document.querySelector(selector).innerHTML;
-		let sliceInd = elSelectedVal.indexOf('&nbsp');
-		elSelectedVal = sliceInd === -1 ? elSelectedVal : elSelectedVal.slice(0,sliceInd);
+		//update search field
+		let selector = '#' + prefixID + 'widgetEmp_' + widgetID + ' tr.employeeSelected .employeeSelectorName';
+		let elSelected = document.querySelector(selector);
 		let elInput = document.querySelector('#' + prefixID + 'widgetMatch_' + widgetID + ' input[class="employeeSelectorInput"]');
-		elInput.value = elSelectedVal;
+		if (elSelected !== null && elInput !== null) {
+			let selectedValName = elSelected.innerHTML;
+			let nameSliceInd = selectedValName.indexOf('&nbsp'); //need to take out middle name for search field update
+			selectedValName = nameSliceInd === -1 ? selectedValName : selectedValName.slice(0, nameSliceInd);
+			elInput.value = selectedValName;
+		}
+		//update input for query
+		let elQueryInput = document.getElementById(prefixID + 'widgetMat_' + widgetID);
+		if (elSelected !== null && elQueryInput !== null) {
+			let selectedValUID = elSelected.title;
+			let uidSliceInd = selectedValUID.indexOf(' ');
+			selectedValUID = selectedValUID.slice(0, uidSliceInd);
+			elQueryInput.value = selectedValUID;
+		}
 	}
 	function updatePositionSearch(prefixID, widgetID){
-		let selector = '#' + prefixID + 'widgetPos_' + widgetID + ' tr.positionSelected > .positionSelectorTitle';
-		let elSelectedVal = document.querySelector(selector).title;
-		let sliceInd = elSelectedVal.indexOf(' ') + 1;
+		//update search field
+		let selector = '#' + prefixID + 'widgetPos_' + widgetID + ' tr.positionSelected .positionSelectorTitle';
+		let elSelected = document.querySelector(selector);
 		let elInput = document.querySelector('#' + prefixID + 'widgetMatch_' + widgetID + ' input[class="positionSelectorInput"]');
-		elInput.value = '#'+elSelectedVal.slice(sliceInd);
+		if (elSelected !== null && elInput !== null) {
+			let elSelectedVal = document.querySelector(selector).title;
+			let sliceInd = elSelectedVal.indexOf(' ') + 1;
+			elInput.value = '#' + elSelectedVal.slice(sliceInd); //search input is '# + posID'
+		}
+		//update input for query
+		let elQueryInput = document.getElementById(prefixID + 'widgetMat_' + widgetID);
+		if (elSelected !== null && elQueryInput !== null) {
+			let elSelectedVal = document.querySelector(selector).title;
+			let sliceInd = elSelectedVal.indexOf(' ') + 1;
+			elQueryInput.value = elSelectedVal.slice(sliceInd); //title is 'PositionID: id'.  query input is posID
+		}
 	}
 	function updateGroupSearch(prefixID, widgetID){
-		let selector = '#' + prefixID + 'widgetGrp_' + widgetID + ' tr.groupSelected > .groupSelectorTitle';
-		let elSelectedVal = document.querySelector(selector).title;
+		//update search field
+		let selector = '#' + prefixID + 'widgetGrp_' + widgetID + ' tr.groupSelected .groupSelectorTitle';
+		let elSelected = document.querySelector(selector);
 		let elInput = document.querySelector('#' + prefixID + 'widgetMatch_' + widgetID + ' input[class="groupSelectorInput"]');
-		elInput.value = 'group#'+elSelectedVal;
+		if (elSelected !== null && elInput !== null) {
+			let elSelectedVal = document.querySelector(selector).title;
+			elInput.value = 'group#' + elSelectedVal;//search input is 'group# + grpID'
+		}
+		//update input for query
+		let elQueryInput = document.getElementById(prefixID + 'widgetMat_' + widgetID);
+		if (elSelected !== null && elQueryInput !== null) {
+			elQueryInput.value = document.querySelector(selector).title; //title is just a number. query takes grpID
+		}
 	}
 
 
@@ -356,20 +389,19 @@ var LeafFormSearch = function(containerID) {
 					empSel.outputStyle = 'micro';
 
 					empSel.setSelectHandler(function() {
-						if(empSel.selectionData[empSel.selection] != undefined) {
-							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-							//for query (not altered)
-							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-							//for search field update.
+						////if(empSel.selectionData[empSel.selection] != undefined) {
+							////selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+							////$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
+							//for search field update, and query update test.
 							updateEmployeeSearch(prefixID, widgetID);
-						}
+						////}
 					});
-					empSel.setResultHandler(function() {
+					/*empSel.setResultHandler(function() {
 						if(empSel.selectionData[empSel.selection] != undefined) {
 							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
 							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
 						}
-					});
+					});*/
 					empSel.initialize();
 				}
 			});
@@ -381,20 +413,20 @@ var LeafFormSearch = function(containerID) {
 			empSel.outputStyle = 'micro';
 
 			empSel.setSelectHandler(function() {
-				if(empSel.selectionData[empSel.selection] != undefined) {
-					selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-					//for query (not altered)
-					$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
+				////if(empSel.selectionData[empSel.selection] != undefined) {
+					////selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+					////$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
 					//for search field update
 					updateEmployeeSearch(prefixID, widgetID);
-				}
+				//}
 			});
+			/*
 			empSel.setResultHandler(function() {
 				if(empSel.selectionData[empSel.selection] != undefined) {
 					selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
 					$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
 				}
-			});
+			});*/
 			empSel.initialize();
 		}
 	}
@@ -415,14 +447,13 @@ var LeafFormSearch = function(containerID) {
 					posSel.rootPath = orgchartPath + '/';
 
 					posSel.setSelectHandler(function() {
-						//for query (not altered)
-						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
+						/////$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
 						//for search field
 						updatePositionSearch(prefixID, widgetID);
 					});
-					posSel.setResultHandler(function() {
+					/*posSel.setResultHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-					});
+					});*/
 					posSel.initialize();
 				}
 			});
@@ -433,14 +464,13 @@ var LeafFormSearch = function(containerID) {
 			posSel.rootPath = orgchartPath + '/';
 
 			posSel.setSelectHandler(function() {
-				//for query (not altered)
-				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
+				//$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
 				//for search field update
 				updatePositionSearch(prefixID, widgetID);
 			});
-			posSel.setResultHandler(function() {
+			/*posSel.setResultHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-			});
+			});*/
 			posSel.initialize();
 		}
 	}
@@ -462,13 +492,13 @@ var LeafFormSearch = function(containerID) {
 
 					grpSel.setSelectHandler(function() {
 						//for query (not altered)
-						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
+						//$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
 						//search update
 						updateGroupSearch(prefixID, widgetID)
 					});
-					grpSel.setResultHandler(function() {
+					/*grpSel.setResultHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-					});
+					});*/
 					grpSel.initialize();
 				}
 			});
@@ -480,13 +510,13 @@ var LeafFormSearch = function(containerID) {
 
 			grpSel.setSelectHandler(function() {
 				//for query (not altered)
-				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
+				//$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
 				//for search field update
 				updateGroupSearch(prefixID, widgetID)
 			});
-			grpSel.setResultHandler(function() {
+			/*grpSel.setResultHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-			});
+			});*/
 			grpSel.initialize();
 		}
 	}
