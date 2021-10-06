@@ -389,19 +389,8 @@ var LeafFormSearch = function(containerID) {
 					empSel.outputStyle = 'micro';
 
 					empSel.setSelectHandler(function() {
-						////if(empSel.selectionData[empSel.selection] != undefined) {
-							////selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-							////$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-							//for search field update, and query update test.
-							updateEmployeeSearch(prefixID, widgetID);
-						////}
+						updateEmployeeSearch(prefixID, widgetID);
 					});
-					/*empSel.setResultHandler(function() {
-						if(empSel.selectionData[empSel.selection] != undefined) {
-							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-						}
-					});*/
 					empSel.initialize();
 				}
 			});
@@ -413,20 +402,8 @@ var LeafFormSearch = function(containerID) {
 			empSel.outputStyle = 'micro';
 
 			empSel.setSelectHandler(function() {
-				////if(empSel.selectionData[empSel.selection] != undefined) {
-					////selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-					////$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-					//for search field update
-					updateEmployeeSearch(prefixID, widgetID);
-				//}
+				updateEmployeeSearch(prefixID, widgetID);
 			});
-			/*
-			empSel.setResultHandler(function() {
-				if(empSel.selectionData[empSel.selection] != undefined) {
-					selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-					$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-				}
-			});*/
 			empSel.initialize();
 		}
 	}
@@ -447,13 +424,8 @@ var LeafFormSearch = function(containerID) {
 					posSel.rootPath = orgchartPath + '/';
 
 					posSel.setSelectHandler(function() {
-						/////$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-						//for search field
 						updatePositionSearch(prefixID, widgetID);
 					});
-					/*posSel.setResultHandler(function() {
-						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-					});*/
 					posSel.initialize();
 				}
 			});
@@ -464,13 +436,8 @@ var LeafFormSearch = function(containerID) {
 			posSel.rootPath = orgchartPath + '/';
 
 			posSel.setSelectHandler(function() {
-				//$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-				//for search field update
 				updatePositionSearch(prefixID, widgetID);
 			});
-			/*posSel.setResultHandler(function() {
-				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-			});*/
 			posSel.initialize();
 		}
 	}
@@ -491,14 +458,8 @@ var LeafFormSearch = function(containerID) {
 					grpSel.rootPath = orgchartPath + '/';
 
 					grpSel.setSelectHandler(function() {
-						//for query (not altered)
-						//$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-						//search update
 						updateGroupSearch(prefixID, widgetID)
 					});
-					/*grpSel.setResultHandler(function() {
-						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-					});*/
 					grpSel.initialize();
 				}
 			});
@@ -509,14 +470,8 @@ var LeafFormSearch = function(containerID) {
 			grpSel.rootPath = orgchartPath + '/';
 
 			grpSel.setSelectHandler(function() {
-				//for query (not altered)
-				//$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-				//for search field update
 				updateGroupSearch(prefixID, widgetID)
 			});
-			/*grpSel.setResultHandler(function() {
-				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-			});*/
 			grpSel.initialize();
 		}
 	}
