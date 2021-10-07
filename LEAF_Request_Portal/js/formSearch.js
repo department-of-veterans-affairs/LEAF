@@ -313,62 +313,6 @@ var LeafFormSearch = function(containerID) {
 		$('#' + prefixID + 'searchIconBusy').css("display", "none");
 	}
 
-	//functions for update of search and query input fields
-	function updateEmployeeSearch(prefixID, widgetID){
-		//update search field
-		let selector = '#' + prefixID + 'widgetEmp_' + widgetID + ' tr.employeeSelected .employeeSelectorName';
-		let elSelected = document.querySelector(selector);
-		let elInput = document.querySelector('#' + prefixID + 'widgetMatch_' + widgetID + ' input[class="employeeSelectorInput"]');
-		if (elSelected !== null && elInput !== null) {
-			let selectedValName = elSelected.innerHTML;
-			let nameSliceInd = selectedValName.indexOf('&nbsp'); //need to take out middle name for search field update
-			selectedValName = nameSliceInd === -1 ? selectedValName : selectedValName.slice(0, nameSliceInd);
-			elInput.value = selectedValName;
-		}
-		//update input for query
-		let elQueryInput = document.getElementById(prefixID + 'widgetMat_' + widgetID);
-		if (elSelected !== null && elQueryInput !== null) {
-			let selectedValUID = elSelected.title;
-			let uidSliceInd = selectedValUID.indexOf(' ');
-			selectedValUID = selectedValUID.slice(0, uidSliceInd);
-			elQueryInput.value = selectedValUID;
-		}
-	}
-	function updatePositionSearch(prefixID, widgetID){
-		//update search field
-		let selector = '#' + prefixID + 'widgetPos_' + widgetID + ' tr.positionSelected .positionSelectorTitle';
-		let elSelected = document.querySelector(selector);
-		let elInput = document.querySelector('#' + prefixID + 'widgetMatch_' + widgetID + ' input[class="positionSelectorInput"]');
-		if (elSelected !== null && elInput !== null) {
-			let elSelectedVal = document.querySelector(selector).title;
-			let sliceInd = elSelectedVal.indexOf(' ') + 1;
-			elInput.value = '#' + elSelectedVal.slice(sliceInd); //search input is '# + posID'
-		}
-		//update input for query
-		let elQueryInput = document.getElementById(prefixID + 'widgetMat_' + widgetID);
-		if (elSelected !== null && elQueryInput !== null) {
-			let elSelectedVal = document.querySelector(selector).title;
-			let sliceInd = elSelectedVal.indexOf(' ') + 1;
-			elQueryInput.value = elSelectedVal.slice(sliceInd); //title is 'PositionID: id'.  query input is posID
-		}
-	}
-	function updateGroupSearch(prefixID, widgetID){
-		//update search field
-		let selector = '#' + prefixID + 'widgetGrp_' + widgetID + ' tr.groupSelected .groupSelectorTitle';
-		let elSelected = document.querySelector(selector);
-		let elInput = document.querySelector('#' + prefixID + 'widgetMatch_' + widgetID + ' input[class="groupSelectorInput"]');
-		if (elSelected !== null && elInput !== null) {
-			let elSelectedVal = document.querySelector(selector).title;
-			elInput.value = 'group#' + elSelectedVal;//search input is 'group# + grpID'
-		}
-		//update input for query
-		let elQueryInput = document.getElementById(prefixID + 'widgetMat_' + widgetID);
-		if (elSelected !== null && elQueryInput !== null) {
-			elQueryInput.value = document.querySelector(selector).title; //title is just a number. query takes grpID
-		}
-	}
-
-
 	/**
 	 * @memberOf LeafFormSearch
 	 */
@@ -383,26 +327,48 @@ var LeafFormSearch = function(containerID) {
 				url: orgchartPath + "/js/employeeSelector.js",
 				dataType: 'script',
 				success: function() {
-					empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
+					var empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
 					empSel.apiPath = orgchartPath + '/api/';
 					empSel.rootPath = orgchartPath + '/';
 					empSel.outputStyle = 'micro';
 
 					empSel.setSelectHandler(function() {
-						updateEmployeeSearch(prefixID, widgetID);
+						if(empSel.selectionData[empSel.selection] != undefined) {
+							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
+							let selectedUserName = empSel.selectionData[empSel.selection].firstName + ' ' + empSel.selectionData[empSel.selection].lastName;
+							$('#' + empSel.prefixID + 'input.employeeSelectorInput').val(selectedUserName);
+						}
+					});
+					empSel.setResultHandler(function() {
+						if(empSel.selectionData[empSel.selection] != undefined) {
+							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
+						}
 					});
 					empSel.initialize();
 				}
 			});
 		}
 		else {
-			empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
+			var empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
 			empSel.apiPath = orgchartPath + '/api/';
 			empSel.rootPath = orgchartPath + '/';
 			empSel.outputStyle = 'micro';
 
 			empSel.setSelectHandler(function() {
-				updateEmployeeSearch(prefixID, widgetID);
+				if(empSel.selectionData[empSel.selection] != undefined) {
+					selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+					$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
+					let selectedUserName = empSel.selectionData[empSel.selection].firstName + ' ' + empSel.selectionData[empSel.selection].lastName;
+					$('#' + empSel.prefixID + 'input.employeeSelectorInput').val(selectedUserName);
+				}
+			});
+			empSel.setResultHandler(function() {
+				if(empSel.selectionData[empSel.selection] != undefined) {
+					selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
+					$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
+				}
 			});
 			empSel.initialize();
 		}
@@ -419,24 +385,32 @@ var LeafFormSearch = function(containerID) {
 				url: orgchartPath + "/js/positionSelector.js",
 				dataType: 'script',
 				success: function() {
-					posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
+					var posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
 					posSel.apiPath = orgchartPath + '/api/';
 					posSel.rootPath = orgchartPath + '/';
 
 					posSel.setSelectHandler(function() {
-						updatePositionSearch(prefixID, widgetID);
+						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
+						$('#' + posSel.prefixID + 'input.positionSelectorInput').val('#'+posSel.selection);
+					});
+					posSel.setResultHandler(function() {
+						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
 					});
 					posSel.initialize();
 				}
 			});
 		}
 		else {
-			posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
+			var posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
 			posSel.apiPath = orgchartPath + '/api/';
 			posSel.rootPath = orgchartPath + '/';
 
 			posSel.setSelectHandler(function() {
-				updatePositionSearch(prefixID, widgetID);
+				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
+				$('#' + posSel.prefixID + 'input.positionSelectorInput').val('#'+posSel.selection);
+			});
+			posSel.setResultHandler(function() {
+				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
 			});
 			posSel.initialize();
 		}
@@ -453,24 +427,32 @@ var LeafFormSearch = function(containerID) {
 				url: orgchartPath + "/js/groupSelector.js",
 				dataType: 'script',
 				success: function() {
-					grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
+					var grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
 					grpSel.apiPath = orgchartPath + '/api/';
 					grpSel.rootPath = orgchartPath + '/';
 
 					grpSel.setSelectHandler(function() {
-						updateGroupSearch(prefixID, widgetID)
+						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
+						$('#' + grpSel.prefixID + 'input.groupSelectorInput').val('group#'+grpSel.selection);
+					});
+					grpSel.setResultHandler(function() {
+						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
 					});
 					grpSel.initialize();
 				}
 			});
 		}
 		else {
-			grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
+			var grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
 			grpSel.apiPath = orgchartPath + '/api/';
 			grpSel.rootPath = orgchartPath + '/';
 
 			grpSel.setSelectHandler(function() {
-				updateGroupSearch(prefixID, widgetID)
+				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
+				$('#' + grpSel.prefixID + 'input.groupSelectorInput').val('group#'+grpSel.selection);
+			});
+			grpSel.setResultHandler(function() {
+				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
 			});
 			grpSel.initialize();
 		}
