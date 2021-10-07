@@ -327,7 +327,7 @@ var LeafFormSearch = function(containerID) {
 				url: orgchartPath + "/js/employeeSelector.js",
 				dataType: 'script',
 				success: function() {
-					var empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
+					let empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
 					empSel.apiPath = orgchartPath + '/api/';
 					empSel.rootPath = orgchartPath + '/';
 					empSel.outputStyle = 'micro';
@@ -351,7 +351,7 @@ var LeafFormSearch = function(containerID) {
 			});
 		}
 		else {
-			var empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
+			let empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
 			empSel.apiPath = orgchartPath + '/api/';
 			empSel.rootPath = orgchartPath + '/';
 			empSel.outputStyle = 'micro';
@@ -385,7 +385,7 @@ var LeafFormSearch = function(containerID) {
 				url: orgchartPath + "/js/positionSelector.js",
 				dataType: 'script',
 				success: function() {
-					var posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
+					let posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
 					posSel.apiPath = orgchartPath + '/api/';
 					posSel.rootPath = orgchartPath + '/';
 
@@ -401,7 +401,7 @@ var LeafFormSearch = function(containerID) {
 			});
 		}
 		else {
-			var posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
+			let posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
 			posSel.apiPath = orgchartPath + '/api/';
 			posSel.rootPath = orgchartPath + '/';
 
@@ -427,7 +427,7 @@ var LeafFormSearch = function(containerID) {
 				url: orgchartPath + "/js/groupSelector.js",
 				dataType: 'script',
 				success: function() {
-					var grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
+					let grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
 					grpSel.apiPath = orgchartPath + '/api/';
 					grpSel.rootPath = orgchartPath + '/';
 
@@ -443,7 +443,7 @@ var LeafFormSearch = function(containerID) {
 			});
 		}
 		else {
-			var grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
+			let grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
 			grpSel.apiPath = orgchartPath + '/api/';
 			grpSel.rootPath = orgchartPath + '/';
 
