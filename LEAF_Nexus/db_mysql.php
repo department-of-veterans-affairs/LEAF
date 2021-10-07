@@ -89,6 +89,8 @@ class DB
             echo '<hr />';
             echo "</pre><br />Time: {$this->time} sec<br />";
         }
+        $this->db->query('KILL CONNECTION_ID()');
+        $this->db = null;
     }
 
     // Log errors from the database
