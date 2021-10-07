@@ -52,7 +52,8 @@ class DB
         {
             trigger_error('DB conn: ' . $e->getMessage());
             if(!$abortOnError) {
-                echo '<div style="background-color: white; line-height: 200%; position: absolute; top: 50%; height: 200px; width: 750px; margin-top: -100px; left: 20%; font-size: 200%"><img src="../libs/dynicons/?img=edit-clear.svg&w=96" alt="Server Maintenance" style="float: left" /> Database connection error.<br />Please try again in 15 minutes.</div>';
+                echo '<script>var min=5,max=10,timeWait=Math.ceil(Math.random()*(max-min))+min;function tryAgain(){timeWait--;let t=document.querySelector("#tryAgain");t.innerHTML="Loading in "+timeWait+" seconds...",t.style.pointerEvents="none",setTimeout(function(){timeWait>1?tryAgain():location.reload()},1e3)}</script>';
+                echo '<div style="background-color: white; font-family: \'Source Sans Pro\', helvetica;line-height: 200%; position: absolute; top: 50%; height: 200px; width: 750px; margin-top: -100px; left: 20%; font-size: 200%">⛈️ We are experiencing heavy database traffic<p style="margin-left: 54px">Please come back at your next convenience</p><button id="tryAgain" onclick="tryAgain()" style="font-size: 14pt; padding: 8px; margin-left: 54px">Try again now</button></div>';
                 echo '<!-- Database Error: ' . $e->getMessage() . ' -->';
                 http_response_code(503);
                 exit();
@@ -89,6 +90,8 @@ class DB
             echo '<hr />';
             echo "</pre><br />Time: {$this->time} sec<br />";
         }
+        $this->db->query('KILL CONNECTION_ID()');
+        $this->db = null;
     }
 
     // Log errors from the database
