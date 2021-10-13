@@ -56,7 +56,7 @@
             <header-top v-if="!retracted.refBool" prop-secure='{$leafSecure}' qrcode-url='{$qrcodeURL}'
                         title='{$title}' city='{$city}' logo='{$logo}'></header-top>
             {$emergency}
-            <header-nav orgchart-path='{$orgchartPath}' site-type='{$siteType}'
+            <header-nav main-view='portalAdmin' orgchart-path='{$orgchartPath}' site-type='{$siteType}'
                         name='{$name}' :inner-width="windowInnerWidth"></header-nav>
         </header>
     </div>

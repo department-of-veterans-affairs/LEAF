@@ -1,5 +1,6 @@
-$headerHeight: 90px;
+$topHeaderHeight: 90px;
 $navRibbonHeight: 36px;
+$logoSize: 75px;
 $BG-DarkNavy: #162e51;
 $BG-Charcoal: #252f3e;
 $BG-VividOrange: #ff6800; /* changed from Figma #f56600 to meet accessibility contrast */
@@ -53,18 +54,18 @@ $LtNavy: #1476bd;
 /* container for top part of header.  inc site info and top warning */
 #header-top {
   padding: 0.25em 0.5em;
-  height: $headerHeight;
+  height: $topHeaderHeight;
   width: 100%;
   display: flex;
   align-items: center;
   background-color: $BG-Charcoal;
 
   #logo {
-    width: 75px;
-    min-width: 75px;
+    width: $logoSize;
+    min-width: $logoSize;
     margin-right: 0.5em;
-    height: 75px;
-    min-height: 75px;
+    height: $logoSize;
+    min-height: $logoSize;
     cursor: pointer;
 
     img {
@@ -256,6 +257,9 @@ nav#leaf-vue-nav {
       font-size: 18px;
       margin: 0 0.25em 0 0;
     }
+    i.fa-angle-down {
+      margin-left: auto;
+    }
     > li {
       min-width: 150px;
     }
@@ -269,6 +273,9 @@ nav#leaf-vue-nav {
   }
 }
 
+.loading-modal {
+  z-index: 51;
+}
 
 /* for screen sizes specifically */
 @media (max-width: 768px) {
