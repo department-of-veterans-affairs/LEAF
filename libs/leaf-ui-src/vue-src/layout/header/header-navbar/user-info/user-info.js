@@ -4,7 +4,8 @@ export default {
         return {
             userItems: {
                 user: this.$props.userName,
-                primaryAdmin: ''
+                primaryAdmin: '',
+                adminEmail: null
             },
             subLinkOpen: false,
             isClickedOn: false
@@ -43,9 +44,9 @@ export default {
     })
         .then(res => res.json())
         .then(data => {
-            let emailString = data['Email'] !== '' ? " - " + data['Email'] : '';
+                this.userItems.adminEmail = data['Email'] != '' ? data['Email'] : '';
             if(data["Fname"] !== undefined && data["Lname"] !== undefined){
-                this.userItems.primaryAdmin = data['Fname'] + " " + data['Lname'] + emailString;
+                this.userItems.primaryAdmin = data['Fname'] + " " + data['Lname'];
             }
             else {
                 this.userItems.primaryAdmin = data["userName"] !== undefined ? data["userName"] : 'Not Set';
@@ -61,8 +62,10 @@ export default {
             </a>
             <template v-if="subLinkOpen">
                 <ul class="sublinks">
-                    <li><a href="#">Your primary Admin:<p id="primary-admin" class="leaf-user-menu-name">{{userItems.primaryAdmin}}</p></a></li>
-                    <li><a href="../?a=logout">Sign Out</a></li>
+                  <li v-if="userItems.primaryAdmin!=='Not Set'"><a :href="'mailTo:'+userItems.adminEmail">Your primary Admin:
+                    <p id="primary-admin" class="leaf-user-menu-name">{{userItems.primaryAdmin}}</p></a></li>
+                  <li v-else><a href="#">Primary Admin not set</a></li>
+                  <li><a href="../?a=logout">Sign Out</a></li>
                 </ul>
             </template>
         </li>`

@@ -41,7 +41,7 @@ export default {
                         <standard-nav v-else :inner-width="innerWidth"
                                       :orgchart-path='orgchartPath'></standard-nav>
                     </ul>
-                    <ul id="nav-user-info">
+                    <ul v-if="mainView!=='nexus'" id="nav-user-info">
                         <leaf-user-info :inner-width="innerWidth" :user-name='name'></leaf-user-info>
                     </ul>
                </nav>`

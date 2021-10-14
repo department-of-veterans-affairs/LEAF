@@ -1,5 +1,5 @@
 $topHeaderHeight: 90px;
-$navRibbonHeight: 36px;
+$navRibbonHeight: 34px;
 $logoSize: 75px;
 $BG-DarkNavy: #162e51;
 $BG-Charcoal: #252f3e;
@@ -97,7 +97,7 @@ $LtNavy: #1476bd;
     h3 {
       font-size: 16px;
       margin-left: 10px;
-      color: $BG-VividOrange !important;
+      color: $BG-VividOrange;
     }
     a, a:hover, a:focus, a:visited {
       color: white;
