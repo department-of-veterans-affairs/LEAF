@@ -8,6 +8,7 @@
     <br />
     <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 120%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
     <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size: 120%; display: none" role="button" tabindex="0">Edit Actions</div><br />
+    <div id="btn_listEvents" class="buttonNorm" onclick="listEvents();" style="font-size: 120%; display: none" role="button" tabindex="0">Edit Events</div><br />
     <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size: 120%; display: none;" role="button" tabindex="0"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>
 </div>
 <div id="workflow" style="margin-left: 184px; background-color: #444444; margin-top: 16px; overflow-x: auto; overflow-y: auto; width: 72%;"></div>
@@ -47,6 +48,7 @@ function newWorkflow() {
 }
 
 function deleteWorkflow() {
+    $('.workflowStepInfo').css('display', 'none');
     if(currentWorkflow == 0) {
         return;
     }
@@ -89,61 +91,404 @@ function unlinkEvent(workflowID, stepID, actionType, eventID) {
     dialog_confirm.show();
 }
 
+/**
+ * Purpose: Buffer content for listEvents
+ * @events Current Custom Events List
+ * @return HTML Content for listEvents
+ */
+function listEventsContent(events) {
+    let content = '';
+    content += '<table id="events" class="table" border="1"><caption><h2>List of Events</h2></caption><thead><th scope="col">Event</th><th scope="col">Description</th><th scope="col">Type</th><th scope="col">Action</th></thead>';
+
+    if (events.length === 0) {
+        content += '<tr>';
+        content += '<td width="200px">No Custom Events Created</td>';
+        content += '<td width="200px"></td>';
+        content += '<td width="150px"></td>';
+        content += '<td width="100px"></td>';
+        content += '</tr>';
+    }
+
+    for (let i in events) {
+        content += '<tr>';
+        content += '<td width="200px" id="' + events[i].eventID + '">' + events[i].eventID.replace('CustomEvent_', '').replaceAll('_', ' ') + '</td>';
+        content += '<td width="200px" id="' + events[i].eventDescription + '">' + events[i].eventDescription + '</td>';
+        content += '<td width="150px" id="' + events[i].eventType + '">' + events[i].eventType + '</td>';
+        content += '<td width="100px" id="' + events[i].eventID + '"><button class="buttonNorm" onclick="editEvent(\'' + events[i].eventID + '\')" style="background: blue;color: #fff;">Edit</button><button class="buttonNorm" onclick="deleteEvent(\'' + events[i].eventID + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
+        content += '</tr>';
+    }
+
+    content += '</table><br /><br />';
+    content += '<span class="buttonNorm" id="create-event" tabindex="0">Create a new Event</span><br /><br />You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a>';
+
+    return content;
+}
+
+/**
+ * Purpose: List all Custom Events
+ */
+function listEvents() {
+    $('.workflowStepInfo').css('display', 'none');
+    dialog.hide();
+    $("#button_save").hide();
+    dialog.setTitle('List of Events');
+    dialog.show();
+    $.ajax({
+        type: 'GET',
+        url: '../api/?a=workflow/customEvents',
+        cache: false
+    }).done(function (res) {
+            dialog.indicateIdle();
+            dialog.setContent(listEventsContent(res));
+
+            $("#create-event").click(function() {
+                $("#button_save").show();
+                newEvent(res);
+            });
+    }).fail(function (error) {
+        alert(error);
+    });
+    //shows the save button for other dialogs
+    $('div#xhrDialog').on('dialogclose', function() {
+        $("#button_save").show();
+        $('div#xhrDialog').off();
+    });
+}
+
+/**
+ * Purpose: Content for group dropdown on newEvent
+ * @groups Group list pass-through
+ */
+function groupListContent(groups) {
+    let content = 'Notify Group: <select id="groupID">' +
+        '<option value="None">None</option>';
+    for (let i in groups) {
+        content += '<option value="' + groups[i].groupID + '">' + groups[i].name + '</option>';
+    }
+    content += '</select><br /><br />';
+
+    return content;
+}
+
+/**
+ * Purpose: Create new custom event
+ * @events Custom Event List
+ */
+function newEvent(events) {
+    $('.workflowStepInfo').css('display', 'none');
+    dialog.clear();
+    dialog.setTitle('Create Event');
+    let groupList = {};
+    $.ajax({
+        type: 'GET',
+        url: '../api/?a=system/groups',
+        cache: false,
+        async: false
+    }).done(function (res) {
+        groupList = groupListContent(res);
+    }).fail(function (error) {
+        alert(error);
+    });
+    let createEventContent = '<div>Event Type: <select id="eventType">' +
+        '<option value="Email" selected>Email</option>' +
+        '</select><br /><br />' +
+        '<span>Event Name: </span><textarea id="eventName" class="eventTextBox" /><br /><br />' +
+        '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox" /><br /><br />' +
+        '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />' + groupList + '</div>';
+    dialog.setContent(createEventContent);
+    if ($('#eventType').val() === 'Email') {
+        $('#eventEmailSettings').show();
+    }
+    $('#eventType').on('click', function() {
+        if ($('#eventType').val() === 'Email') {
+            $('#eventEmailSettings').show();
+        } else {
+            $('#eventEmailSettings').hide();
+        }
+    });
+    $('#eventName').on('keyup', function() {
+        $('#eventName').val($('#eventName').val().replace(/[^a-z0-9]/gi, '_'));
+    });
+    $('#eventName').attr('maxlength', 25);
+    $('#eventDesc').attr('maxlength', 40);
+    dialog.setSaveHandler(function() {
+        let eventName = 'CustomEvent_' + $('#eventName').val();
+        let eventDesc = $('#eventDesc').val();
+        let eventType = $('#eventType').val();
+        let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
+                         'Notify Next':$('#notifyNext').prop("checked"),
+                         'Notify Group':$('#groupID option:selected').val()};
+        let ajaxData = {name: eventName,
+                        description: eventDesc,
+                        type: eventType,
+                        data: eventData,
+                        CSRFToken: CSRFToken};
+        let eventExists = false;
+        for(let i in events) {
+            if (events[i].eventID === eventName) {
+                eventExists = true;
+            }
+        }
+        if (eventExists === false && $('#eventName').val() !== '' && $('#eventDesc').val() !== '') {
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=workflow/events',
+                data: ajaxData,
+                cache: false
+            }).done(function () {
+                alert('Event was successfully created.');
+                listEvents();
+            }).fail(function (error) {
+                alert(error);
+            });
+        } else {
+            if ($('#eventDesc').val() === '') {
+                alert('Event description cannot be blank.');
+                listEvents();
+            } else {
+                alert('Event name already exists.');
+                listEvents();
+            }
+        }
+    });
+}
+
+/**
+ * Purpose: Buffer content for addEventDialog
+ * @events Current Events List
+ * @return HTML Content for addEventDialog
+ */
+function addEventContent(events) {
+    let content = '';
+    content = 'Add an event: ';
+    content += '<br /><div><select id="eventID" name="eventID">';
+    for (let i in events) {
+        content += '<option value="' + events[i].eventID + '">' + events[i].eventType + ' - ' + events[i].eventDescription + '</option>';
+    }
+    content += '</select></div>';
+
+    return content;
+}
+
+/**
+ * Purpose: Dialog for adding events
+ * @workdflowID Current Workflow ID for email reminder
+ * @stepID Step ID holding the action for email reminder
+ * @actionType Action type for email reminder
+ */
 function addEventDialog(workflowID, stepID, actionType) {
     $('.workflowStepInfo').css('display', 'none');
     dialog.setTitle('Add Event');
-    dialog.setContent('<div id="addEventDialog"></div><div id="eventData"></div>');
+    let eventDialogContent = '<div><button id="createEvent" class="usa-button leaf-btn-med">Create Event</button></div>' +
+                   '<div id="addEventDialog"></div>' +
+                   '<div id="eventData"></div>';
+    dialog.setContent(eventDialogContent);
     dialog.indicateBusy();
     dialog.show();
     $.ajax({
-    	type: 'GET',
-    	url: '../api/?a=workflow/events',
-    	success: function(res) {
-    		dialog.indicateIdle();
-            var buffer = '';
-            buffer = 'Add an event: ';
-            buffer += '<br /><div><select id="eventID" name="eventID">';
-
-            for(var i in res) {
-                buffer += '<option value="'+ res[i].eventID +'">'+ res[i].eventDescription +'</option>';
-            }
-
-            buffer += '</select></div>';
-            $('#addEventDialog').html(buffer);
-            $('#eventID').chosen({disable_search_threshold: 5})
-            .change(function(){
+        type: 'GET',
+        url: '../api/?a=workflow/events',
+        cache: false
+    }).done(function (res) {
+        dialog.indicateIdle();
+        $('#addEventDialog').html(addEventContent(res));
+        $('#createEvent').on('click', function () {
+            newEvent(res);
+        });
+        $('#eventID').chosen({disable_search_threshold: 5})
+            .change(function () {
                 $('#eventData').html('');
                 dialog.clearValidators();
-                if($( "#eventID" ).val() == 'automated_email_reminder')
-                { 
+                if ($("#eventID").val() == 'automated_email_reminder') {
                     setEmailReminderHTML(workflowID, stepID, actionType, dialog);
                 }
             })
             .trigger("change");
-            dialog.setSaveHandler(function() {
-                var ajaxData = {eventID: $('#eventID').val(),
-            			   CSRFToken: CSRFToken};
-                if($('#eventID').val() == 'automated_email_reminder'){
-                    var formObj = {};
-                    $.each($('#eventData :input').serializeArray(), function() {
-                        formObj[this.name] = this.value;
-                    });
-                    $.extend(ajaxData, formObj);
-                }
+        dialog.setSaveHandler(function () {
+            let ajaxData = {eventID: $('#eventID').val(),
+                            CSRFToken: CSRFToken};
+            if ($('#eventID').val() == 'automated_email_reminder') {
+                var formObj = {};
+                $.each($('#eventData :input').serializeArray(), function () {
+                    formObj[this.name] = this.value;
+                });
+                $.extend(ajaxData, formObj);
+            }
 
-            	$.ajax({
-            		type: 'POST',
-            		url: '../api/?a=workflow/'+ workflowID +'/step/'+ stepID +'/_'+ actionType +'/events',
-            		data: ajaxData,
-            		success: function() {
-            			loadWorkflow(workflowID);
-            		}
-            	});
-            	dialog.hide();
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=workflow/' + workflowID + '/step/' + stepID + '/_' + actionType + '/events',
+                data: ajaxData,
+                cache: false
+            }).done(function () {
+                loadWorkflow(workflowID);
+            }).fail(function (error) {
+                alert(error);
             });
-    	},
-    	cache: false
+            dialog.hide();
+        });
+    }).fail(function (error) {
+        alert(error);
     });
+}
+
+/**
+ * Purpose: Buffer content for editEvent
+ * @event Event being edited
+ * @groups Groups list for dropdown selection
+ * @return HTML Content for editEvent
+ */
+function editEventContent(event, groups) {
+    let content = '<div>Event Type: <select id="eventType">' +
+        '<option value="Email" selected>Email</option>' +
+        '</select><br /><br />' +
+        '<span>Event Name: </span><textarea id="eventName" class="eventTextBox">' + event[0].eventID.replace('CustomEvent_', '') + '</textarea><br /><br />' +
+        '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox">' + event[0].eventDescription + '</textarea><br /><br />' +
+        '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />';
+
+    content += 'Notify Group: <select id="groupID">' +
+        '<option value="None">None</option>';
+    for (let i in groups) {
+        content += '<option value="' + groups[i].groupID + '">' + groups[i].name + '</option>';
+    }
+    content += '</select><br /><br />';
+    content += 'You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a></div>';
+
+    return content;
+}
+
+/**
+ * Purpose: Edit already created event
+ * @event eventID being edited
+ */
+function editEvent(event) {
+    $('.workflowStepInfo').css('display', 'none');
+    dialog.hide();
+    $("#button_save").show();
+    dialog.setTitle('Edit Event ' + event.replace('CustomEvent_', '').replaceAll('_', ' '));
+    dialog.show();
+    let groupList = {};
+    $.ajax({
+        type: 'GET',
+        url: '../api/?a=system/groups',
+        cache: false,
+        async: false
+    }).done(function (res) {
+        groupList = res;
+    }).fail(function (error) {
+        alert(error);
+    });
+    $.ajax({
+        type: 'GET',
+        url: '../api/?a=workflow/event/_' + event,
+        cache: false
+    }).done(function (res) {
+        dialog.setContent(editEventContent(res, groupList));
+        if ($('#eventType').val() === 'Email') {
+            $('#eventEmailSettings').show();
+        }
+        let eventParse = JSON.parse(res[0].eventData);
+        let notifyRequestor = eventParse.NotifyRequestor;
+        let notifyNext = eventParse.NotifyNext;
+        let notifyGroup = eventParse.NotifyGroup;
+        $('#groupID option[value='+notifyGroup+']').prop("selected", true);
+        if (notifyRequestor === 'true') {
+            $('#notifyRequestor').prop('checked', true);
+        } else {
+            $('#notifyRequestor').prop('checked', false);
+        }
+        if (notifyNext === 'true') {
+            $('#notifyNext').prop('checked', true);
+        } else {
+            $('#notifyNext').prop('checked', false);
+        }
+        $('#eventType').on('click', function() {
+            if ($('#eventType').val() === 'Email') {
+                $('#eventEmailSettings').show();
+            } else {
+                $('#eventEmailSettings').hide();
+            }
+        });
+        $('#eventName').on('keyup', function () {
+            $('#eventName').val($('#eventName').val().replace(/[^a-z0-9]/gi, '_'));
+        });
+        $('#eventName').attr('maxlength', 25);
+        $('#eventDesc').attr('maxlength', 40);
+        dialog.indicateIdle();
+        dialog.setSaveHandler(function () {
+            let eventName = 'CustomEvent_' + $('#eventName').val();
+            let eventDesc = $('#eventDesc').val();
+            let eventType = $('#eventType').val();
+            let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
+                             'Notify Next':$('#notifyNext').prop("checked"),
+                             'Notify Group':$('#groupID option:selected').val()};
+            let ajaxData = {newName: eventName,
+                            description: eventDesc,
+                            type: eventType,
+                            data: eventData,
+                            CSRFToken: CSRFToken};
+            let eventNameChange = false;
+            $.ajax({
+                type: 'GET',
+                url: '../api/?a=workflow/customEvents',
+                cache: false
+            }).done(function (res) {
+                for (let i in res) {
+                    if (event !== eventName) { // Check if name change
+                        if (res[i].eventID === eventName) {
+                            eventNameChange = true;
+                        }
+                    }
+                }
+                if (eventNameChange === false && $('#eventName').val() !== '' && $('#eventDesc').val() !== '') {
+                    $.ajax({
+                        type: 'POST',
+                        url: '../api/?a=workflow/editEvent/_' + event,
+                        data: ajaxData,
+                        cache: false
+                    }).done(function () {
+                        listEvents();
+                    }).fail(function (error) {
+                        alert(error);
+                    });
+                } else {
+                    if ($('#eventDesc').val() === '') {
+                        alert('Event description cannot be blank.');
+                        listEvents();
+                    } else {
+                        alert('Event name already exists.');
+                        listEvents();
+                    }
+                }
+            }).fail(function (error) {
+                alert(error);
+            });
+        });
+    }).fail(function (error) {
+        alert(error);
+    });
+}
+
+/**
+ * Purpose: Delete an event
+ * @event eventID being deleted
+ */
+function deleteEvent(event) {
+    $('.workflowStepInfo').css('display', 'none');
+    dialog_confirm.setTitle('Confirmation required');
+    dialog_confirm.setContent('Are you sure you want to delete this event?');
+    dialog_confirm.setSaveHandler(function() {
+        $.ajax({
+            type: 'DELETE',
+            url: '../api/?a=workflow/event/_' + event + '&CSRFToken=' + CSRFToken,
+        }).done(function() {
+            listEvents();
+        }).fail(function (error) {
+            alert(error);
+        });
+        dialog_confirm.hide();
+    });
+    dialog_confirm.show();
 }
 
 function removeStep(stepID) {
@@ -436,6 +781,7 @@ function setInitialStep(stepID) {
 
 //list all action type to edit/delete
 function listActionType() {
+    $('.workflowStepInfo').css('display', 'none');
 	dialog.hide();
   $("#button_save").hide();
 	dialog.setTitle('List of Actions');
@@ -545,7 +891,7 @@ function deleteActionType(actionType) {
         dialog_confirm.hide();
     });
     dialog_confirm.show();
-  }
+}
 
 
 // create a brand new action
@@ -725,14 +1071,14 @@ function showActionInfo(params, evt) {
         success: function(res) {
             var output = '';
             stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
-            output = '<h2>'+ stepTitle +' -> '+ params.action +'</h2>';
-            output += '<br /><div>Events:<ul>';
+            output = '<h2>Action: '+ stepTitle +' clicks '+ params.action +'</h2>';
+            output += '<br /><div>Triggers these events:<ul>';
             // the sendback action always notifies the requestor
             if(params.action == 'sendback') {
-            	output += '<li><b>Notify the requestor via email</b></li>';
+            	output += '<li><b>Email - Notify the requestor</b></li>';
             }
             for(var i in res) {
-                output += '<li><b title="'+ res[i].eventID +'">'+ res[i].eventDescription +'</b> <img src="../../libs/dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent('+ currentWorkflow +', '+ stepID +', \''+ params.action +'\', \''+ res[i].eventID +'\')" alt="Remove Action" title="Remove Action" /></li>';
+                output += '<li><b title="'+ res[i].eventID +'">'+ res[i].eventType +' - '+ res[i].eventDescription +'</b> <img src="../../libs/dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent('+ currentWorkflow +', '+ stepID +', \''+ params.action +'\', \''+ res[i].eventID +'\')" alt="Remove Action" title="Remove Action" /></li>';
             }
             output += '<li style="padding-top: 8px"><span class="buttonNorm" id="event_'+ currentWorkflow + '_' + stepID + '_'+ params.action +'">Add Event</span>';
             output += '</ul></div>';
@@ -1162,6 +1508,7 @@ function loadWorkflow(workflowID) {
     $('#btn_createStep').css('display', 'block');
     $('#btn_deleteWorkflow').css('display', 'block');
     $('#btn_listActionType').css('display', 'block');
+    $('#btn_listEvents').css('display', 'block');
     $('#btn_viewHistory').css('display', 'block');
 
     //508
@@ -1311,6 +1658,7 @@ function loadWorkflowList(workflowID)
 }
 
 function viewHistory(){
+    $('.workflowStepInfo').css('display', 'none');
     dialog_simple.setContent('');
     dialog_simple.setTitle('Workflow History');
 	dialog_simple.indicateBusy();
@@ -1508,6 +1856,14 @@ var endpointOptions = {
 this.portalAPI = LEAFRequestPortalAPI();
 this.portalAPI.setBaseURL('../api/?a=');
 this.portalAPI.setCSRFToken(CSRFToken);
+
+// Fix dialog boxes not going away when clicking outside of box
+$(document).mouseup(function(e) {
+    let container = $(".workflowStepInfo");
+    if (!container.is(e.target) && container.has(e.target).length === 0) {
+        container.hide();
+    }
+});
 
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
