@@ -997,10 +997,10 @@
                         if(empSel.selectionData[empSel.selection] != undefined) {
                             var selectedUser = empSel.selectionData[empSel.selection];
                             var selectedUserName = selectedUser.userName;
-                            $('#empSel_<!--{$indicator.indicatorID|strip_tags}--> input.employeeSelectorInput').val('userName:' + selectedUserName);
+                            $('#empSel_<!--{$indicator.indicatorID|strip_tags}--> input.employeeSelectorInput').val('#'+empSel.selection);
                             $.ajax({
                                 type: 'POST',
-                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                url: "<!--{$orgchartPath}-->/api/employee/import/_" + selectedUserName,
                                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                 success: function(res) {
                                     $('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
