@@ -1348,4 +1348,9 @@ div [id^="LeafForm"][id$="_loadIndicator"] {
 #form-xhr-cancel-save-menu button {
     margin: 0.25em 0.5em;
 }
-#searchContainer .chosen-container a.chosen-single span {min-width: 120px;  max-width: 175px}
+#searchContainer .chosen-container a.chosen-single span {
+    min-width: 120px;  max-width: 175px
+}
+#searchRequestsContainer .chosen-container a.chosen-single span {
+    min-width: 120px;  max-width: 175px
+}

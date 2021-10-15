@@ -336,8 +336,7 @@ var LeafFormSearch = function(containerID) {
 						if(empSel.selectionData[empSel.selection] != undefined) {
 							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
 							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-							let selectedUserName = empSel.selectionData[empSel.selection].firstName + ' ' + empSel.selectionData[empSel.selection].lastName;
-							$('#' + empSel.prefixID + 'input.employeeSelectorInput').val(selectedUserName);
+							$('#' + empSel.prefixID + 'input.employeeSelectorInput').val('#'+selection);
 						}
 					});
 					empSel.setResultHandler(function() {
@@ -360,8 +359,7 @@ var LeafFormSearch = function(containerID) {
 				if(empSel.selectionData[empSel.selection] != undefined) {
 					selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
 					$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-					let selectedUserName = empSel.selectionData[empSel.selection].firstName + ' ' + empSel.selectionData[empSel.selection].lastName;
-					$('#' + empSel.prefixID + 'input.employeeSelectorInput').val(selectedUserName);
+					$('#' + empSel.prefixID + 'input.employeeSelectorInput').val('#'+selection);
 				}
 			});
 			empSel.setResultHandler(function() {
