@@ -327,7 +327,7 @@ var LeafFormSearch = function(containerID) {
 				url: orgchartPath + "/js/employeeSelector.js",
 				dataType: 'script',
 				success: function() {
-					empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
+					let empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
 					empSel.apiPath = orgchartPath + '/api/';
 					empSel.rootPath = orgchartPath + '/';
 					empSel.outputStyle = 'micro';
@@ -336,6 +336,8 @@ var LeafFormSearch = function(containerID) {
 						if(empSel.selectionData[empSel.selection] != undefined) {
 							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
 							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
+							let selectedUserName = empSel.selectionData[empSel.selection].firstName + ' ' + empSel.selectionData[empSel.selection].lastName;
+							$('#' + empSel.prefixID + 'input.employeeSelectorInput').val(selectedUserName);
 						}
 					});
 					empSel.setResultHandler(function() {
@@ -349,7 +351,7 @@ var LeafFormSearch = function(containerID) {
 			});
 		}
 		else {
-			empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
+			let empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
 			empSel.apiPath = orgchartPath + '/api/';
 			empSel.rootPath = orgchartPath + '/';
 			empSel.outputStyle = 'micro';
@@ -358,6 +360,8 @@ var LeafFormSearch = function(containerID) {
 				if(empSel.selectionData[empSel.selection] != undefined) {
 					selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
 					$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
+					let selectedUserName = empSel.selectionData[empSel.selection].firstName + ' ' + empSel.selectionData[empSel.selection].lastName;
+					$('#' + empSel.prefixID + 'input.employeeSelectorInput').val(selectedUserName);
 				}
 			});
 			empSel.setResultHandler(function() {
@@ -381,12 +385,13 @@ var LeafFormSearch = function(containerID) {
 				url: orgchartPath + "/js/positionSelector.js",
 				dataType: 'script',
 				success: function() {
-					posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
+					let posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
 					posSel.apiPath = orgchartPath + '/api/';
 					posSel.rootPath = orgchartPath + '/';
 
 					posSel.setSelectHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
+						$('#' + posSel.prefixID + 'input.positionSelectorInput').val('#'+posSel.selection);
 					});
 					posSel.setResultHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
@@ -396,12 +401,13 @@ var LeafFormSearch = function(containerID) {
 			});
 		}
 		else {
-			posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
+			let posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
 			posSel.apiPath = orgchartPath + '/api/';
 			posSel.rootPath = orgchartPath + '/';
 
 			posSel.setSelectHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
+				$('#' + posSel.prefixID + 'input.positionSelectorInput').val('#'+posSel.selection);
 			});
 			posSel.setResultHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
@@ -421,12 +427,13 @@ var LeafFormSearch = function(containerID) {
 				url: orgchartPath + "/js/groupSelector.js",
 				dataType: 'script',
 				success: function() {
-					grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
+					let grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
 					grpSel.apiPath = orgchartPath + '/api/';
 					grpSel.rootPath = orgchartPath + '/';
 
 					grpSel.setSelectHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
+						$('#' + grpSel.prefixID + 'input.groupSelectorInput').val('group#'+grpSel.selection);
 					});
 					grpSel.setResultHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
@@ -436,12 +443,13 @@ var LeafFormSearch = function(containerID) {
 			});
 		}
 		else {
-			grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
+			let grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
 			grpSel.apiPath = orgchartPath + '/api/';
 			grpSel.rootPath = orgchartPath + '/';
 
 			grpSel.setSelectHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
+				$('#' + grpSel.prefixID + 'input.groupSelectorInput').val('group#'+grpSel.selection);
 			});
 			grpSel.setResultHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);

@@ -35,7 +35,7 @@ groupSelector.prototype.initialize = function() {
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ this.basePath +'../libs/dynicons/?img=search.svg&w=16" class="groupSelectorIcon" alt="search" />\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
 			<img id="'+this.prefixID+'iconBusy" src="'+ this.basePath +'images/indicator.gif" style="display: none" class="groupSelectorIcon" alt="search" /></div>\
-			<input id="'+this.prefixID+'input" type="search" class="groupSelectorInput" aria-label="search"></input></div>\
+			<input id="'+this.prefixID+'input" type="search" class="groupSelectorInput" aria-label="search" /></div>\
 			<div id="'+this.prefixID+'result"></div>');
 
 	$(this.inputID).on('keydown', function(e) {
