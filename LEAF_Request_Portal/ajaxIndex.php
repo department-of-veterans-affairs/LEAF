@@ -299,8 +299,13 @@ switch ($action) {
             }
             else
             {
-                $body .= 'File upload error: Please make sure the file you are uploading is either a PDF, Word Document or similar format.';
-                $main->assign('body', $body);
+                $recordID = (int)$_GET['recordID'];
+                $series = (int)$_POST['series'];
+                $indicatorID = (int)$_POST['indicatorID'];
+                $t_form->assign('recordID', $recordID);
+                $t_form->assign('series', $series);
+                $t_form->assign('indicatorID', $indicatorID);
+                $main->assign('body', $t_form->fetch('file_form_error.tpl'));
             }
         }
         else
