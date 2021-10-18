@@ -336,7 +336,8 @@ var LeafFormSearch = function(containerID) {
 						if(empSel.selectionData[empSel.selection] != undefined) {
 							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
 							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-							$('#' + empSel.prefixID + 'input.employeeSelectorInput').val('#'+selection);
+							//uses id.  report builder/search will not take userName:<username>
+							$("#"+ empSel.prefixID+"input").val('#' + empSel.selection)
 						}
 					});
 					empSel.setResultHandler(function() {
@@ -359,7 +360,7 @@ var LeafFormSearch = function(containerID) {
 				if(empSel.selectionData[empSel.selection] != undefined) {
 					selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
 					$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-					$('#' + empSel.prefixID + 'input.employeeSelectorInput').val('#'+selection);
+					$("#"+ empSel.prefixID+"input").val('#' + empSel.selection);
 				}
 			});
 			empSel.setResultHandler(function() {
@@ -389,7 +390,7 @@ var LeafFormSearch = function(containerID) {
 
 					posSel.setSelectHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-						$('#' + posSel.prefixID + 'input.positionSelectorInput').val('#'+posSel.selection);
+						$("#"+ posSel.prefixID+"input").val('#'+posSel.selection);
 					});
 					posSel.setResultHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
@@ -405,7 +406,7 @@ var LeafFormSearch = function(containerID) {
 
 			posSel.setSelectHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-				$('#' + posSel.prefixID + 'input.positionSelectorInput').val('#'+posSel.selection);
+				$("#"+ posSel.prefixID+"input").val('#'+posSel.selection);
 			});
 			posSel.setResultHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
@@ -431,7 +432,7 @@ var LeafFormSearch = function(containerID) {
 
 					grpSel.setSelectHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-						$('#' + grpSel.prefixID + 'input.groupSelectorInput').val('group#'+grpSel.selection);
+						$("#"+ grpSel.prefixID+"input").val('group#'+grpSel.selection);
 					});
 					grpSel.setResultHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
@@ -447,7 +448,7 @@ var LeafFormSearch = function(containerID) {
 
 			grpSel.setSelectHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-				$('#' + grpSel.prefixID + 'input.groupSelectorInput').val('group#'+grpSel.selection);
+				$("#"+ grpSel.prefixID+"input").val('group#'+grpSel.selection);
 			});
 			grpSel.setResultHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);

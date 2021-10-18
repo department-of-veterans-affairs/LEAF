@@ -997,7 +997,8 @@
                         if(empSel.selectionData[empSel.selection] != undefined) {
                             var selectedUser = empSel.selectionData[empSel.selection];
                             var selectedUserName = selectedUser.userName;
-                            $('#empSel_<!--{$indicator.indicatorID|strip_tags}--> input.employeeSelectorInput').val('#'+empSel.selection);
+                            //updates search field value when employee is selected.  Use double quotes to build username strings because some have apostrophes
+                            $("#"+ empSel.prefixID+"input").val("userName:" + selectedUserName);
                             $.ajax({
                                 type: 'POST',
                                 url: "<!--{$orgchartPath}-->/api/employee/import/_" + selectedUserName,
@@ -1036,8 +1037,9 @@
                             var middle = res.employee.middleName;
 
                             var formatted = last + ", " + first + " " + middle;
-                            var query = empSel.runSearchQuery('userName:' + res.employee.userName);
-                            $("#"+ empSel.prefixID+"input").val('userName:' + res.employee.userName);
+                            var query = empSel.runSearchQuery("userName:" + res.employee.userName);
+                            //here, updates search field value when modal is opened
+                            $("#"+ empSel.prefixID+"input").val("userName:" + res.employee.userName);
                             query.done(function() {
                                 empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
                             });
