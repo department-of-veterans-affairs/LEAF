@@ -30,7 +30,7 @@ echo "Current Database Version: $currentVersion" . BR . BR;
 
 clearstatcache();
 
-$folder = $currDir . '/../db_upgrade/';
+$folder = '/var/www/db/db_upgrade/orgchart/';
 
 $updates = scandir($folder);
 
