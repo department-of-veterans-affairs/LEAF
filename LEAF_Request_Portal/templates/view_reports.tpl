@@ -944,10 +944,13 @@ function createRequest(catID) {
                 if (recordID > 0) {
                     $('#generateReport').click();
                     dialog.hide();
+                    //styling to hilite row for short / simple queries
                     setTimeout(function () {
                         let el_ID = grid.getPrefixID() + "tbody_tr" + recordID;
                         let newRow = document.getElementById(el_ID);
-                        newRow.style.backgroundColor = 'rgb(254, 255, 209)';
+                        if (newRow !== null){ //null if query > .75s or if the query does not return the record created
+                            newRow.style.backgroundColor = 'rgb(254, 255, 209)';
+                        }
                     }, 750);
                 }
             },
