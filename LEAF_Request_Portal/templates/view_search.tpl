@@ -53,7 +53,7 @@ $(function() {
              var year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
              var formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
              $('#'+data.cellContainerID).html(formattedDate);
-             if(blob[data.recordID].userID == '<!--{$userID}-->') {
+             if(blob[data.recordID].userID == "<!--{$userID|unescape|escape:'quotes'}-->") {
                  $('#'+data.cellContainerID).css('background-color', '#feffd1');
              }
          }},
@@ -84,7 +84,7 @@ $(function() {
          }},
          {name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
              $('#'+data.cellContainerID).html(blob[data.recordID].service);
-             if(blob[data.recordID].userID == '<!--{$userID}-->') {
+             if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
                  $('#'+data.cellContainerID).css('background-color', '#feffd1');
              }
          }},
@@ -110,7 +110,7 @@ $(function() {
              }
 
              $('#'+data.cellContainerID).html(status);
-             if(blob[data.recordID].userID == '<!--{$userID}-->') {
+             if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
                  $('#'+data.cellContainerID).css('background-color', '#feffd1');
              }
          }}
@@ -120,7 +120,7 @@ $(function() {
             for(var i in data) {
                 <!--{if !$is_admin}-->
                 if(data[i].submitted == '0'
-                    && data[i].userID == '<!--{$userID}-->') {
+                    && data[i].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
                     data2.push(data[i]);
                 }
                 else if(data[i].submitted != '0') {
