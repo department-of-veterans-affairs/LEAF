@@ -8,8 +8,6 @@
     Date Created: March 3, 2016
 
 */
-// For testing purposes
-error_reporting(E_ALL);
 
 $currDir = __DIR__;
 
