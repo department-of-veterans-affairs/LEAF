@@ -2902,7 +2902,7 @@ class Form
 
                         break;
                     case 'status':
-                        $joins .= 'LEFT JOIN (SELECT * FROM records_workflow_state GROUP BY recordID) lj_status USING (recordID)
+                        $joins .= 'LEFT JOIN (SELECT * FROM records_workflow_state) lj_status USING (recordID)
 							   LEFT JOIN (SELECT stepID, stepTitle FROM workflow_steps) lj_steps ON (lj_status.stepID = lj_steps.stepID) ';
 
                         break;
