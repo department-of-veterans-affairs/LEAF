@@ -34,6 +34,16 @@ function dialogController(
         height: "auto",
         width: "auto",
         minWidth: minWidth,
+        open: function (event, ui) {
+            $(".ui-dialog-titlebar-close")
+                .removeClass("ui-dialog-titlebar-close")
+                .addClass("usa-button usa-button--outline leaf-btn-med")
+                .html('<span style="float:right;">CLOSE</span>');
+
+            $("ui-button-icon ui-icon ui-icon-closethick").removeClass(
+                "ui-button-icon ui-icon ui-icon-closethick"
+            );
+        },
     });
     this.clearDialog();
     var t = this;

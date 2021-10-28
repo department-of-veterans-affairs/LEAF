@@ -777,7 +777,7 @@ function importGroup() {
     $(".ui-dialog>div").css('width', 'auto');
     $(".leaf-dialog-content").css('width', 'auto');
     dialog.setTitle('Import Group');
-    dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
+    dialog.setContent('<p role="heading" tabindex="-1">Lookup a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
     dialog.showButtons();
     let groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -817,7 +817,7 @@ function importGroup() {
 
 function createGroup() {
     dialog.setTitle('Create a new group');
-    dialog.setContent('<div><label role="heading">Group Title</label><div class="leaf-marginTop-halfRem"><input aria-label="Enter group name" id="groupNameInput" class="usa-input" size="36"></input></div></div>');
+    dialog.setContent('<div><label role="heading">Group Title</label><div class="leaf-marginTop-halfRem"><input aria-label="Enter group name" id="groupNameInput" class="usa-input" size="36"></input></div></div><br />If the group already exists you can import it instead.<br /><br /><hr /><br />');
     dialog.showButtons();
     dialog.setSaveHandler(function() {
     	dialog.indicateBusy();
