@@ -3014,7 +3014,14 @@ class Form
             $vars = array_map(fn($val):string => is_numeric($val) ? $val : '"'.$val.'"', $vars);
             header('X-LEAF-Query: '. str_replace(array_keys($vars), $vars, $debugQuery));
             
-            return XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+            if($this->login->checkGroup(1)) {
+                return $res = $this->db->prepared_query('EXPLAIN SELECT * FROM records
+                                                        ' . $joins . '
+                                                        WHERE ' . $conditions . $sort . $limit, $vars);
+            }
+            else {
+                return XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+            }
         }
         $res = $this->db->prepared_query('SELECT * FROM records
     										' . $joins . '
