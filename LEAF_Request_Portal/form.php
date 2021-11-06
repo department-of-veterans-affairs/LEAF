@@ -3009,6 +3009,13 @@ class Form
             $joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
         }
 
+        if(isset($_GET['debugQuery'])) {
+            $debugQuery = str_replace(["\r", "\n"], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
+            $vars = array_map(fn($val):string => is_numeric($val) ? $val : '"'.$val.'"', $vars);
+            header('X-LEAF-Query: '. str_replace(array_keys($vars), $vars, $debugQuery));
+            
+            return XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+        }
         $res = $this->db->prepared_query('SELECT * FROM records
     										' . $joins . '
                                             WHERE ' . $conditions . $sort . $limit, $vars);
