@@ -3011,8 +3011,8 @@ class Form
 
         if(isset($_GET['debugQuery'])) {
             $debugQuery = str_replace(["\r", "\n"], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
-            $vars = array_map(fn($val):string => is_numeric($val) ? $val : '"'.$val.'"', $vars);
-            header('X-LEAF-Query: '. str_replace(array_keys($vars), $vars, $debugQuery));
+            $debugVars = array_map(fn($val):string => is_numeric($val) ? $val : '"'.$val.'"', $vars);
+            header('X-LEAF-Query: '. str_replace(array_keys($debugVars), $debugVars, $debugQuery));
             
             if($this->login->checkGroup(1)) {
                 return $res = $this->db->prepared_query('EXPLAIN SELECT * FROM records
