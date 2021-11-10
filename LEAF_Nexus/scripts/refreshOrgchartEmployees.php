@@ -58,7 +58,7 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
 */
 function updateUserInfo($userName, $empUID){
 	global $db, $phonedb;
-
+    //echo $userName;  //tester3
 	$vars = array(':userName' => $userName);
 	$sql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
 			FROM employee
@@ -81,8 +81,10 @@ function updateUserInfo($userName, $empUID){
         WHERE userName=:userName";
 
 	$res = $phonedb->prepared_query($sql, $vars);
-
+    //echo count($res);  //1 if record, 0 otherwise (in testing dbs)
 	if (count($res) == 0){
+	    //echo 'called';  call ok
+        echo $userName;  //tester3 name ok, test'er name test&#039;er
 	    $vars = array(
 	        ':userName' => $userName,
             ':deleted' => time()
@@ -91,6 +93,7 @@ function updateUserInfo($userName, $empUID){
     }
 
 	if (count($res) > 0) {
+	    echo $res[0]['userName'];
 		$vars = array(
 				':userName' => $res[0]['userName'],
 				':lastName' => $res[0]['lastName'],
