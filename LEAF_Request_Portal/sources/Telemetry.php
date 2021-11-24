@@ -146,7 +146,7 @@ class Telemetry
      * Purpose: Get total size of all uploads in user upload directory
      * @return string
      */
-    public function getRequestUploadStorage():String
+    public function getRequestUploadStorage():string
     {
         $size = 0;
         foreach(new DirectoryIterator(Config::$uploadDir) as $file){
