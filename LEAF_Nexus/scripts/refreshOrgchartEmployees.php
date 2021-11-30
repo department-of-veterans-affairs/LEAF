@@ -58,8 +58,9 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
 */
 function updateUserInfo($userName, $empUID){
 	global $db, $phonedb;
-    //echo $userName;  //tester3
-	$vars = array(':userName' => $userName);
+
+	$vars = array(':userName' => $userName); //is getting '&#039;' if quote
+
 	$sql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
 			FROM employee
 			WHERE userName=:userName";
@@ -73,18 +74,17 @@ function updateUserInfo($userName, $empUID){
 		domain=:domain,
 		deleted=:deleted,
 		lastUpdated=:lastUpdated
-		WHERE userName=:userName";
+		WHERE userName=:userName";  //:username in vars from nat ('), but local could have 039
 
 	#used to disable if not found in national
     $sql3 = "UPDATE employee
-        SET deleted=:deleted,
+        SET deleted=:deleted
         WHERE userName=:userName";
 
 	$res = $phonedb->prepared_query($sql, $vars);
-    //echo count($res);  //1 if record, 0 otherwise (in testing dbs)
-	if (count($res) == 0){
-	    //echo 'called';  call ok
-        echo $userName;  //tester3 name ok, test'er name test&#039;er
+
+	if (count($res) == 0 && !stristr($userName, '&#039;')){
+	    //if there is no record in nat, disable the account.  excludes possible apos enc w &#039
 	    $vars = array(
 	        ':userName' => $userName,
             ':deleted' => time()
@@ -93,9 +93,8 @@ function updateUserInfo($userName, $empUID){
     }
 
 	if (count($res) > 0) {
-	    echo $res[0]['userName'];
 		$vars = array(
-				':userName' => $res[0]['userName'],
+				':userName' => $res[0]['userName'],   //name from nat, w ', possible &#039; in local
 				':lastName' => $res[0]['lastName'],
 				':firstName' => $res[0]['firstName'],
 				':midInit' => $res[0]['middleName'],
@@ -146,7 +145,7 @@ function updateLocalOrgchart()
 
     #used to disable if not found in national
     $sql3 = "UPDATE employee
-        SET deleted=:deleted,
+        SET deleted=:deleted
         WHERE userName=:userName";
 
     // update each employee entry
@@ -156,7 +155,7 @@ function updateLocalOrgchart()
         // gets national data
         $res = $phonedb->prepared_query($sql, $userNameArr);
 
-        if (count($res) == 0){
+        if (count($res) == 0 && !stristr( $userNameArr,'&#039;')){
             $vars = array(
                 ':userName' => $userNameArr,
                 ':deleted' => time()

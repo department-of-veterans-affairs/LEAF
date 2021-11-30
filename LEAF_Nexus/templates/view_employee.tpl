@@ -78,14 +78,12 @@
 
 
 function refreshEmp(userName, empUID) {
-    console.log('view_emp', userName, empUID);
     $.ajax({
         url: "./scripts/refreshOrgchartEmployees.php?userName=" + userName + "&empUID=" + empUID,
         dataType: "text",
         success: function(response, args) {
-            console.log(response, args);  //1,
-            //alert("Employee Refreshed");
-            //location.reload();
+            alert("Employee Refreshed");
+            location.reload();
         },
         cache: false
     });
