@@ -59,7 +59,7 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
 function updateUserInfo($userName, $empUID){
 	global $db, $phonedb;
 
-	$vars = array(':userName' => $userName); //is getting '&#039;' if quote
+	$vars = array(':userName' => $userName); //userName has '&#039;' if quote exists
 
 	$sql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
 			FROM employee

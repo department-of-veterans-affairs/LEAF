@@ -1,7 +1,9 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
     <!--{if $is_admin == true}-->
-        <div onclick='refreshEmp("<!--{$summary.employee.userName}-->", "<!--{$empUID}-->");'><img src="../libs/dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="Refresh Employee" title="Refresh Employee" /> Refresh Employee</div>
+        <input id="emp-name-input" value="<!--{$summary.employee.userName}-->" style="display: none;" />
+        <!-- using hidden input to get userName, then grabbing value in function call, because potential ' break below call if userName is a param -->
+        <div onclick="refreshEmp('<!--{$empUID}-->');"><img src="../libs/dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="Refresh Employee" title="Refresh Employee" /> Refresh Employee</div>
         <br />
       <!--{/if}-->
         <div onclick="assignBackup();"><img src="../libs/dynicons/?img=gnome-system-users.svg&amp;w=32" style="vertical-align: middle" alt="Set Backup" title="Set Backup" /> Assign Backup</div>
@@ -77,16 +79,21 @@
 <!--{include file="site_elements/genericJS_toolbarAlignment.tpl"}-->
 
 
-function refreshEmp(userName, empUID) {
-    $.ajax({
-        url: "./scripts/refreshOrgchartEmployees.php?userName=" + userName + "&empUID=" + empUID,
-        dataType: "text",
-        success: function(response, args) {
-            alert("Employee Refreshed");
-            location.reload();
-        },
-        cache: false
-    });
+function refreshEmp(empUID) {
+    let userName = document.getElementById("emp-name-input").value;
+    let isAdmin = '<!--{$is_admin}-->';
+
+    if (isAdmin == 1 && userName) {
+        $.ajax({
+            url: "./scripts/refreshOrgchartEmployees.php?userName=" + userName + "&empUID=" + empUID,
+            dataType: "text",
+            success: function (response, args) {
+                alert("Employee Refreshed");
+                location.reload();
+            },
+            cache: false
+        });
+    }
 }
 
 function getBackupInfo() {
