@@ -59,7 +59,7 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
 function updateUserInfo($userName, $empUID){
 	global $db, $phonedb;
 
-	$vars = array(':userName' => $userName); //userName has '&#039;' if quote exists
+	$vars = array(':userName' => htmlspecialchars_decode($userName, ENT_QUOTES)); //userName has '&#039;' if quote exists
 
 	$sql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
 			FROM employee
@@ -74,7 +74,7 @@ function updateUserInfo($userName, $empUID){
 		domain=:domain,
 		deleted=:deleted,
 		lastUpdated=:lastUpdated
-		WHERE userName=:userName";  //:username in vars from nat ('), but local could have 039
+		WHERE userName=:userName";
 
 	#used to disable if not found in national
     $sql3 = "UPDATE employee
@@ -83,10 +83,10 @@ function updateUserInfo($userName, $empUID){
 
 	$res = $phonedb->prepared_query($sql, $vars);
 
-	if (count($res) == 0 && !stristr($userName, '&#039;')){
-	    //if there is no record in nat, disable the account.  excludes possible apos enc w &#039
+	if (count($res) == 0){
+	    //if there is no record in nat, disable the account.
 	    $vars = array(
-	        ':userName' => $userName,
+	        ':userName' => htmlspecialchars_decode($userName, ENT_QUOTES),
             ':deleted' => time()
         );
 	    $db->prepared_query($sql3, $vars);
@@ -94,7 +94,7 @@ function updateUserInfo($userName, $empUID){
 
 	if (count($res) > 0) {
 		$vars = array(
-				':userName' => $res[0]['userName'],   //name from nat, w ', possible &#039; in local
+				':userName' => $res[0]['userName'],
 				':lastName' => $res[0]['lastName'],
 				':firstName' => $res[0]['firstName'],
 				':midInit' => $res[0]['middleName'],
@@ -150,21 +150,20 @@ function updateLocalOrgchart()
 
     // update each employee entry
     foreach ($userKeys as $key) {
-        $userNameArr = array('userName' => $localEmployees[$key]['userName']);
+        $userNameArr = array('userName' => htmlspecialchars_decode($localEmployees[$key]['userName'],ENT_QUOTES));
 
         // gets national data
         $res = $phonedb->prepared_query($sql, $userNameArr);
 
-        if (count($res) == 0 && !stristr( $userNameArr,'&#039;')){
+        if (count($res) == 0){
             $vars = array(
-                ':userName' => $userNameArr,
+                ':userName' => $userNameArr['userName'],
                 ':deleted' => time()
             );
             $db->prepared_query($sql3, $vars);
         }
 
         if (count($res) > 0) {
-            // echo 'Updating: ' . $res[0]['lastName'] . ', ' . $res[0]['firstName'] . "\n"; // name debugging
             $vars = array(
                 ':userName' => $res[0]['userName'],
                 ':lastName' => $res[0]['lastName'],
