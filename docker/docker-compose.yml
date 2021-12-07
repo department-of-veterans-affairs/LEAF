@@ -17,6 +17,7 @@ services:
         - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
         - ../libs:/var/www/html/libs
         - ../test:/var/www/html/test
+        - ./mysql/db:/var/www/db
       networks:
         code-network:
           aliases:
