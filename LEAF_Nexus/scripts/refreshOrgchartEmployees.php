@@ -143,25 +143,12 @@ function updateLocalOrgchart()
 			lastUpdated=:lastUpdated
 			WHERE userName=:userName";
 
-    #used to disable if not found in national
-    $sql3 = "UPDATE employee
-        SET deleted=:deleted
-        WHERE userName=:userName";
-
     // update each employee entry
     foreach ($userKeys as $key) {
         $userNameArr = array('userName' => htmlspecialchars_decode($localEmployees[$key]['userName'],ENT_QUOTES));
 
         // gets national data
         $res = $phonedb->prepared_query($sql, $userNameArr);
-
-        if (count($res) == 0){
-            $vars = array(
-                ':userName' => $userNameArr['userName'],
-                ':deleted' => time()
-            );
-            $db->prepared_query($sql3, $vars);
-        }
 
         if (count($res) > 0) {
             $vars = array(
