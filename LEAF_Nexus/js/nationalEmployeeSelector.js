@@ -109,7 +109,7 @@ nationalEmployeeSelector.prototype.showBusy = function() {
 
 nationalEmployeeSelector.prototype.select = function(id) {
 	this.selection = id;
-	if(typeof event.key !== 'undefined' && event.key !== "Enter") return; //for keypress events
+	if(typeof event.key !== 'undefined' && event.key.toLowerCase() !== 'enter') return; //for keypress events
 	$.each($('#'+ this.containerID +' .employeeSelected'), function(key, item) {
 		$('#' + item.id).removeClass('employeeSelected');
 		$('#' + item.id).addClass('employeeSelector');

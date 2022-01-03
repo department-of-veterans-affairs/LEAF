@@ -66,7 +66,7 @@ positionSelector.prototype.showBusy = function() {
 
 positionSelector.prototype.select = function(id) {
 	this.selection = id;
-	if(typeof event.key !== 'undefined' && event.key !== 'Enter') return;
+	if(typeof event.key !== 'undefined' && event.key.toLowerCase() !== 'enter') return;
 	$.each($('#'+ this.containerID +' .positionSelected'), function(key, item) {
 		$('#' + item.id).removeClass('positionSelected');
 		$('#' + item.id).addClass('positionSelector');
