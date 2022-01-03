@@ -111,6 +111,7 @@ class Inbox
                 $resPersonDesignatedRecords[$indicatorID] = $this->db->prepared_query("SELECT * FROM data
                                                                     LEFT JOIN indicators USING (indicatorID)
                                                                     WHERE recordID IN ({$recordIDs})
+                                                                        AND data.data REGEXP '^[0-9]+$' = 1
                                                                         AND indicatorID=:indicatorID
                                                                         AND series=1", $vars);
             }
