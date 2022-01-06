@@ -693,6 +693,10 @@ var LeafFormGrid = function(containerID, options) {
             }
             var output = [];
             var headers = [];
+            //removes triangle symbols so that ascii chars are not present in exported headers.
+            $('#' + prefixID + 'thead>tr>th>span').each(function(idx, val) {
+                $(val).html('');
+            });
             $('#' + prefixID + 'thead>tr>th').each(function(idx, val) {
                 headers.push($(val).text().trim());
             });
