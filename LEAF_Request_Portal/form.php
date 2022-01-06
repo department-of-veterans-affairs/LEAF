@@ -3077,7 +3077,7 @@ class Form
                                                 ORDER BY time', array());
             foreach ($res2 as $item)
             {
-                $user = $dir->lookupLogin($item['userID']);
+                $user = $dir->lookupLogin($item['userID'], true);
                 $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
                 $item['approverName'] = $name;
 
@@ -3122,7 +3122,7 @@ class Form
             $res2 = $this->db->prepared_query($strSQL, array());
 
             foreach ($res2 as $item) {
-                $user = $dir->lookupLogin($item['resolvedBy']);
+                $user = $dir->lookupLogin($item['resolvedBy'], true);
                 $nameResolved = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']} " : $item['resolvedBy'];
                 $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
             }
