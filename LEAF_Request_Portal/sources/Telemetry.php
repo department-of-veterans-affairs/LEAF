@@ -8,6 +8,7 @@
     Date Created: March 3, 2016
 
 */
+
 $currDir = __DIR__;
 
 include_once $currDir . '/../globals.php';
@@ -142,23 +143,15 @@ class Telemetry
     }
 
     /**
-     * Purpose: Get total size of all uploads in portal folder
-     * @param $visn
-     * @param $facility
-     * @param $name
+     * Purpose: Get total size of all uploads in user upload directory
      * @return string
      */
-    public function getRequestUploadStorage() {
-
-        $command = 'du -sb ' . Config::$uploadDir;
-        $output = shell_exec($command);
-        if ($output) {
-            $sizeOutput = explode("\t", $output);
-            return $sizeOutput[0];
-
-        } else {
-            return '';
+    public function getRequestUploadStorage():string
+    {
+        $size = 0;
+        foreach(new DirectoryIterator(Config::$uploadDir) as $file){
+            $size += $file->getSize();
         }
+        return (String)$size;
     }
-
 }
