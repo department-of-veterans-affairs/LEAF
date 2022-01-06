@@ -7,20 +7,6 @@
 		.groupSelectorAddToList > button, .employeeSelectorAddToList > button {
 			cursor: pointer;
 		}
-		.employeeSelectorBorder {
-			border: 1px solid black;
-			background-color: white;
-			padding: 4px;
-			margin-bottom: 8px;
-			width: 99%;
-		}
-		.employeeSelectorInput {
-			position: relative;
-			border: 0px;
-			font-size: 140%;
-			padding: 0px 0px 0px 4px;
-			width: 90% !important;
-		}
 		.employeeSelectorIcon {
 			float: left;
 		}
