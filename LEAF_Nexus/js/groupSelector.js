@@ -71,7 +71,7 @@ groupSelector.prototype.showBusy = function() {
 
 groupSelector.prototype.select = function(id) {
 	this.selection = id;
-
+	if(typeof event.key !== 'undefined' && event.key.toLowerCase() !== 'enter') return;
 	nodes = $('#'+ this.containerID +' .groupSelected');
 	for(var i in nodes) {
 		if(nodes[i].id != undefined) {
@@ -184,21 +184,23 @@ groupSelector.prototype.search = function() {
                         }
 
 			t.selectionData = new Object();
-	                $.each(response, function(key, item) {
+			$.each(response, function(key, item) {
 				t.selectionData[item.groupID] = item;
-		                	
 
 	                	linkText = item.groupTitle;
 	                	if(t.selectLink != null) {
 	                		linkText = '<a href="'+ t.selectLink +'&groupID='+ item.groupID +'">' + linkText + '</a>';
 	                	}
 
-	                	$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'grp' + item.groupID +'"><td class="groupSelectorTitle" title="' + item.groupID + '">' + linkText + '</td></tr>');
+	                	$('#' + t.prefixID + 'result_table').append('<tr tabindex="0" id="'+ t.prefixID + 'grp' + item.groupID +'"><td class="groupSelectorTitle" title="' + item.groupID + '">' + linkText + '</td></tr>');
 	                	$('#' + t.prefixID + 'grp' + item.groupID).addClass('groupSelector');
 
 	                	$('#' + t.prefixID + 'grp' + item.groupID).on('click', function() {
 	                		t.select(item.groupID);
 	                	});
+						$('#' + t.prefixID + 'grp' + item.groupID).on('keypress', function() {
+							t.select(item.groupID);
+						});
                         $('#'+t.prefixID+'status').append(' ' + linkText + ',');
 	                	t.numResults++;
 	                });

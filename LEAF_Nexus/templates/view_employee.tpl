@@ -78,7 +78,6 @@
 
 
 function refreshEmp(userName, empUID) {
-
     $.ajax({
         url: "./scripts/refreshOrgchartEmployees.php?userName=" + userName + "&empUID=" + empUID,
         dataType: "text",
