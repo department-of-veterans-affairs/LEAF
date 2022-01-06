@@ -929,36 +929,44 @@ function showJSONendpoint() {
  * @return - Creates new request inline on grid
  */
 function createRequest(catID) {
-    catID = catID || 'strCatID';
-    const portalAPI = LEAFRequestPortalAPI();
-    portalAPI.setBaseURL('./api/?a=');
-    portalAPI.setCSRFToken(CSRFToken);
+    if (!clicked) {
+        $('#newRecordWarning').css('display', 'none');
+        catID = catID || 'strCatID';
+        const portalAPI = LEAFRequestPortalAPI();
+        portalAPI.setBaseURL('./api/?a=');
+        portalAPI.setCSRFToken(CSRFToken);
 
-    if (catID !== 'strCatID') {
-        portalAPI.Forms.newRequest(
-            catID,
-            {title: 'untitled'},
-            function (recordID) {
-                recordID = recordID || 0;
-                //Type number. Sent back on success (UID column of report builder)
-                if (recordID > 0) {
-                    $('#generateReport').click();
-                    dialog.hide();
-                    setTimeout(function () {
-                        let el_ID = grid.getPrefixID() + "tbody_tr" + recordID;
-                        let newRow = document.getElementById(el_ID);
-                        newRow.style.backgroundColor = 'rgb(254, 255, 209)';
-                    }, 750);
+        if (catID !== 'strCatID') {
+            portalAPI.Forms.newRequest(
+                catID,
+                    {title: 'untitled'},
+                function (recordID) {
+                    recordID = recordID || 0;
+                    //Type number. Sent back on success (UID column of report builder)
+                    if (recordID > 0) {
+                        newRecordID = recordID;  //global
+                        $('#generateReport').click();
+                        dialog.hide();
+                        //styling to hilite row for short / simple queries
+                        setTimeout(function () {
+                            let el_ID = grid.getPrefixID() + "tbody_tr" + recordID;
+                            let newRow = document.getElementById(el_ID);
+                            if (newRow !== null) { //null if query > .75s or if the query does not return the record created
+                                newRow.style.backgroundColor = 'rgb(254, 255, 209)';
+                            }
+                        }, 750);
+                    }
+                },
+                function (error) {
+                    if (error) {
+                        alert('New Request could not be processed');
+                        dialog.hide();
+                    }
                 }
-            },
-            function (error) {
-                if (error) {
-                    alert('New Request could not be processed');
-                    dialog.hide();
-                }
-            }
-        );
+            );
+        }
     }
+    clicked = true;
 }
 
 
@@ -1028,6 +1036,8 @@ function buildURLComponents(baseURL){
     window.history.pushState('', '', url);
 }
 
+var clicked = false;
+var newRecordID = 0;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
@@ -1102,7 +1112,7 @@ $(function() {
         $('#results').fadeIn(700);
         $('#saveLinkContainer').fadeIn(700);
         $('#step_2').slideUp(700);
-
+        $('#newRecordWarning').css('display', 'none');
         if(isNewQuery) {
             leafSearch.generateQuery();
 
@@ -1217,6 +1227,13 @@ $(function() {
             } else {
                 $('#newRequestButton').css('display', 'none');
             }
+            let reportHasNewRecord = gridResults.some(function(obj){
+                return obj.recordID === newRecordID;
+            })
+            if (newRecordID !== 0 && clicked === true && !reportHasNewRecord){
+                $('#newRecordWarning').css('display', 'block');
+            }
+            clicked = false; //global to reduce dblclicks
         });
 
     	// get data
@@ -1230,7 +1247,7 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=16" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button>');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
             extendedToolbar = true;
 
 
