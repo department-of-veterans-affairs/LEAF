@@ -32,15 +32,15 @@ function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCan
 										width: 'auto',
 										resizable: false,
 										minWidth: minWidth});
-	// Changing save button to green
-	$('#' + this.btnSaveID).addClass("usa-button leaf-btn-green leaf-btn-med");
+	// Changing save button to green. Not needed yet.
+	// $('#' + this.btnSaveID).addClass("usa-button leaf-btn-green leaf-btn-med");
 
-	// Changing close button to outline button and signifying it closes the dialog.
-	$('.ui-dialog-titlebar-close').html('CLOSE');
-	$('.ui-dialog-titlebar-close span').removeClass('ui-button-icon ui-icon ui-icon-closethick');
-	$('.ui-dialog-titlebar-close').addClass('usa-button usa-button--outline leaf-btn-small');
-	$('.ui-dialog-titlebar-close').css({'float': 'right', 'margin-top': '-1rem'});
-	$('.ui-dialog-titlebar-close').removeClass('ui-widget ui-button-icon-only ui-dialog-titlebar-close');
+	// Changing close button to outline button and signifying it closes the dialog. Not needed yet.
+	// $('.ui-dialog-titlebar-close').html('CLOSE');
+	// $('.ui-dialog-titlebar-close span').removeClass('ui-button-icon ui-icon ui-icon-closethick');
+	// $('.ui-dialog-titlebar-close').addClass('usa-button usa-button--outline leaf-btn-small');
+	// $('.ui-dialog-titlebar-close').css({'float': 'right', 'margin-top': '-1rem'});
+	// $('.ui-dialog-titlebar-close').removeClass('ui-widget ui-button-icon-only ui-dialog-titlebar-close');
 
 	this.clearDialog();
     let t = this;
