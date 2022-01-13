@@ -932,6 +932,7 @@ function importGroup() {
             });
         }
     });
+    $(`.groupSelectorIcon`).css(`display`, `none`);
     dialog.show();
 }
 
@@ -973,6 +974,7 @@ function createGroup() {
             cache: false
         });
     });
+    $(`#groupNameInput`).removeClass(`usa-input`);
     dialog.show();
     $('input:visible:first, select:visible:first').focus();
 }
