@@ -114,8 +114,6 @@ class Inbox
                                                                         AND data.data REGEXP '^[0-9]+$'
                                                                         AND indicatorID=:indicatorID
                                                                         AND series=1", $vars);
-                //var_dump($resPersonDesignatedRecords);
-                //die();
             }
             foreach ($groupDesignatedRecords as $indicatorID => $recordIDList)
             {
