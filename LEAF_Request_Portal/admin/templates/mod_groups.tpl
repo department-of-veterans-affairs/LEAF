@@ -492,6 +492,7 @@ function getGroupList() {
                                             });
                                         }
                                         empSel.selection = '';
+                                        empSel.clearSearch();
                                     }
                                 };
                                 empSel.initialize();
@@ -607,6 +608,7 @@ function getGroupList() {
                                     });
                                 }
                                 empSel.selection = '';
+                                empSel.clearSearch();
                             }
                         };
                         empSel.initialize();
@@ -717,6 +719,7 @@ function getGroupList() {
                                     cache: false
                                 });
                                 empSel.selection = '';
+                                empSel.clearSearch();
                             }
                         };
 
