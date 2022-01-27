@@ -347,7 +347,7 @@ class NationalEmployee extends NationalData
 
                 break;
             // Format: First Last
-            case ($idx = strpos($input, ' ')) > 0:
+            case ($idx = strpos($input, ' ')) > 0 && strpos(strtolower($input), 'username:') === false:
                 if ($this->debug)
                 {
                     $this->log[] = 'Format Detected: First Last';
