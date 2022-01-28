@@ -1236,12 +1236,12 @@ function buildWorkflowIndicatorDropdown(stepID, steps) {
                     if((associatedCategories[i].categoryID == indicatorList[j].categoryID
                         || associatedCategories[i].categoryID == indicatorList[j].parentCategoryID)
                         && indicatorList[j].parentIndicatorID == null) {
-                        $('#workflowIndicator').append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
+                        $('#workflowIndicator_' + stepID).append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
                     }
                     else if(indicatorList[j].parentStaples != null) {
                         for(var k in indicatorList[j].parentStaples) {
                             if(indicatorList[j].parentStaples[k] == associatedCategories[i].categoryID) {
-                                $('#workflowIndicator').append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
+                                $('#workflowIndicator_' + stepID).append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
                             }
                         }
                     }
@@ -1251,24 +1251,24 @@ function buildWorkflowIndicatorDropdown(stepID, steps) {
                 for(var i in steps[stepID].stepModules) {
                     if(steps[stepID].stepModules[i].moduleName == 'LEAF_workflow_indicator') {
                         var config = JSON.parse(steps[stepID].stepModules[i].moduleConfig);
-                        $('#workflowIndicator').val(config.indicatorID);
+                        $('#workflowIndicator_' + stepID).val(config.indicatorID);
                     }
                 }
             }
         });
     });
 
-    $('#workflowIndicator').on('change', function() {
+    $('#workflowIndicator_' + stepID).on('change', function() {
         for(var i in steps[stepID].stepModules) {
             if(steps[stepID].stepModules[i].moduleName == 'LEAF_workflow_indicator') {
-                steps[stepID].stepModules[i].moduleConfig = JSON.stringify({indicatorID: $('#workflowIndicator').val()});
+                steps[stepID].stepModules[i].moduleConfig = JSON.stringify({indicatorID: $('#workflowIndicator_' + stepID).val()});
             }
         }
         $.ajax({
             type: 'POST',
             url: '../api/workflow/step/'+ stepID +'/inlineIndicator',
             data: {
-                indicatorID: $('#workflowIndicator').val(),
+                indicatorID: $('#workflowIndicator_' + stepID).val(),
                 CSRFToken: CSRFToken
             }
         });
@@ -1342,7 +1342,7 @@ function showStepInfo(stepID) {
 
                     // TODO: This will eventually be moved to some sort of Workflow extension plugin
                     output += '<fieldset><legend>Options</legend><ul>';
-                    output += '<li>Form Field: <select id="workflowIndicator" style="width: 240px"><option value="">None</option></select></li>';
+                    output += '<li>Form Field: <select id="workflowIndicator_'+stepID+'" style="width: 240px"><option value="">None</option></select></li>';
                     output += '</ul></fieldset>';
 
                     // button options for steps

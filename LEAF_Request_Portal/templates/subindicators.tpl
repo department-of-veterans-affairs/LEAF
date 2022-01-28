@@ -824,6 +824,7 @@
 
                         	grpSel.setSelectHandler(function() {
                                 $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
+                                $('#grpSel_<!--{$indicator.indicatorID|strip_tags}--> input.groupSelectorInput').val('group#'+grpSel.selection);
                             });
                         	grpSel.setResultHandler(function() {
                                 $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
@@ -842,6 +843,7 @@
 
                 	grpSel.setSelectHandler(function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
+                        $('#grpSel_<!--{$indicator.indicatorID|strip_tags}--> input.groupSelectorInput').val('group#'+grpSel.selection);
                     });
                 	grpSel.setResultHandler(function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
@@ -919,6 +921,7 @@
 
                             posSel.setSelectHandler(function() {
                                 $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection)
+                                $('#posSel_<!--{$indicator.indicatorID|strip_tags}--> input.positionSelectorInput').val('#'+posSel.selection);
                             });
                             posSel.setResultHandler(function() {
                                 $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection)
@@ -938,6 +941,7 @@
 
                     posSel.setSelectHandler(function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection);
+                        $('#posSel_<!--{$indicator.indicatorID|strip_tags}--> input.positionSelectorInput').val('#'+posSel.selection);
                     });
                     posSel.setResultHandler(function() {
                         $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection);
@@ -993,10 +997,11 @@
                         if(empSel.selectionData[empSel.selection] != undefined) {
                             var selectedUser = empSel.selectionData[empSel.selection];
                             var selectedUserName = selectedUser.userName;
-
+                            //updates search field value when employee is selected.  Use double quotes to build username strings because some have apostrophes
+                            $("#"+ empSel.prefixID+"input").val("userName:" + selectedUserName);
                             $.ajax({
                                 type: 'POST',
-                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                url: "<!--{$orgchartPath}-->/api/employee/import/_" + selectedUserName,
                                 data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                 success: function(res) {
                                     $('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
@@ -1032,8 +1037,9 @@
                             var middle = res.employee.middleName;
 
                             var formatted = last + ", " + first + " " + middle;
-                            var query = empSel.runSearchQuery('userName:' + res.employee.userName);
-                            $("#"+ empSel.prefixID+"input").val('userName:' + res.employee.userName);
+                            var query = empSel.runSearchQuery("userName:" + res.employee.userName);
+                            //here, updates search field value when modal is opened
+                            $("#"+ empSel.prefixID+"input").val("userName:" + res.employee.userName);
                             query.done(function() {
                                 empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
                             });

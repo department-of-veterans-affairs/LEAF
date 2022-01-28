@@ -3012,6 +3012,30 @@ class Form
             $joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
         }
 
+        if(isset($_GET['debugQuery'])) {
+            if($this->login->checkGroup(1)) {
+                $debugQuery = str_replace(["\r", "\n"], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
+                $debugVars = [];
+                foreach($vars as $key => $value) {
+                    if(strpos($key, ':data') !== false
+                        || !is_numeric($value)) {
+                        $debugVars[$key] = '"'.$value.'"';
+                    }
+                    else {
+                        $debugVars[$key] = $value;
+                    }
+                }
+
+                header('X-LEAF-Query: '. str_replace(array_keys($debugVars), $debugVars, $debugQuery));
+
+                return $res = $this->db->prepared_query('EXPLAIN SELECT * FROM records
+                                                        ' . $joins . '
+                                                        WHERE ' . $conditions . $sort . $limit, $vars);
+            }
+            else {
+                return XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+            }
+        }
         $res = $this->db->prepared_query('SELECT * FROM records
     										' . $joins . '
                                             WHERE ' . $conditions . $sort . $limit, $vars);
@@ -3077,7 +3101,7 @@ class Form
                                                 ORDER BY time', array());
             foreach ($res2 as $item)
             {
-                $user = $dir->lookupLogin($item['userID']);
+                $user = $dir->lookupLogin($item['userID'], true);
                 $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
                 $item['approverName'] = $name;
 
@@ -3122,7 +3146,7 @@ class Form
             $res2 = $this->db->prepared_query($strSQL, array());
 
             foreach ($res2 as $item) {
-                $user = $dir->lookupLogin($item['resolvedBy']);
+                $user = $dir->lookupLogin($item['resolvedBy'], true);
                 $nameResolved = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']} " : $item['resolvedBy'];
                 $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
             }
