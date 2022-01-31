@@ -399,6 +399,8 @@ function getGroupList() {
                             url: '../api/group/' + groupID + '/members',
                             success: function(res) {
                                 dialog.clear();
+                                $(".ui-dialog>div").css('width', 'auto');
+                                $(".leaf-dialog-content").css('width', 'auto');
                                 dialog.setTitle('Edit Group');
                                 let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
                                 dialog.setContent(
@@ -412,7 +414,7 @@ function getGroupList() {
                                     // Check for active members to list
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
-                                            $(`#employee_table`).append(`<button id="removeMember_${counter}" class="usa-button leaf-btn-small">${toTitleCase(res[i].Fname)} ${toTitleCase(res[i].Lname)}</button>`);
+                                            $(`#employee_table`).append(`<button id="removeMember_${counter}" class="usa-button leaf-btn-small margin-bottom=".5rem">${toTitleCase(res[i].Fname)} ${toTitleCase(res[i].Lname)}</button>`);
                                             $(`#removeMember_${counter}`).one(`click`, function(userID) {
                                                 return function() {
                                                     removeMember(groupID, userID);
@@ -475,7 +477,7 @@ function getGroupList() {
                                                 success: function(res) {
                                                     if(!isNaN(res)) {
                                                         addMember(groupID, selectedUserName);
-                                                        $(`#employee_table`).append(`<button id="removeMember_${counter}" class="usa-button leaf-btn-small">${toTitleCase(selectedUser.firstName)} ${toTitleCase(selectedUser.lastName)}</button>`);
+                                                        $(`#employee_table`).append(`<button id="removeMember_${counter}" class="usa-button leaf-btn-small margin-bottom=".5rem">${toTitleCase(selectedUser.firstName)} ${toTitleCase(selectedUser.lastName)}</button>`);
                                                         $(`#removeMember_${counter}`).one(`click`, function(userID) {
                                                             return function() {
                                                                 removeMember(groupID, userID);
@@ -588,7 +590,7 @@ function getGroupList() {
                                         success: function(res) {
                                             if(!isNaN(res)) {
                                                 addAdmin(selectedUserName);
-                                                $(`#adminSummary`).append(`<button id="removeAdmin_${counter}" class="usa-button leaf-btn-small">${toTitleCase(selectedUser.firstName)} ${toTitleCase(selectedUser.lastName)}</button>`);
+                                                $(`#adminSummary`).append(`<button id="removeAdmin_${counter}" class="usa-button leaf-btn-small" style="margin-bottom: .5rem">${toTitleCase(selectedUser.firstName)} ${toTitleCase(selectedUser.lastName)}</button>`);
                                                 $(`#removeAdmin_${counter}`).one(`click`, function(userID) {
                                                     return function() {
                                                         removeAdmin(userID);
@@ -641,7 +643,7 @@ function getGroupList() {
                             success: function(res) {
                                 $('#adminSummary').html('');
                                 for(let i in res) {
-                                    $(`#adminSummary`).append(`<button id="removeAdmin_${counter}" class="usa-button leaf-btn-small">${toTitleCase(res[i].Fname)} ${toTitleCase(res[i].Lname)}</button>`);
+                                    $(`#adminSummary`).append(`<button id="removeAdmin_${counter}" class="usa-button leaf-btn-small" style="margin: .5rem">${toTitleCase(res[i].Fname)} ${toTitleCase(res[i].Lname)}</button>`);
                                     $(`#removeAdmin_${counter}`).one(`click`, function(userID) {
                                         return function() {
                                             removeAdmin(userID);
@@ -714,7 +716,7 @@ function getGroupList() {
                                         }
                                     },
                                     fail: function(err) {
-                                        console.log(err);
+                                        // console.log(err);
                                     },
                                     cache: false
                                 });
