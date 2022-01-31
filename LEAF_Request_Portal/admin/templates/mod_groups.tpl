@@ -281,6 +281,7 @@ function populateMembers(groupID, members) {
             $('#members' + groupID).append('<div class="groupUser">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + '</div>');
         }
     }
+    $(`#button_save`).css(`disabled`, `false`);
 }
 
 function removeMember(groupID, userID) {
@@ -398,29 +399,27 @@ function getGroupList() {
                             url: '../api/group/' + groupID + '/members',
                             success: function(res) {
                                 dialog.clear();
+                                $(".ui-dialog>div").css('width', 'auto');
+                                $(".leaf-dialog-content").css('width', 'auto');
+                                dialog.setTitle('Edit Group');
                                 let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
                                 dialog.setContent(
-                                    '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+groupID+')">View History</button></div>' + button_deleteGroup + '</div>' +
-                                    '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
-                                $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
+                                    '<div class="leaf-float-right">'
+                                    // <div><button class="usa-button leaf-btn-small" onclick="viewHistory('+groupID+')">View History</button></div>'
+                                    + button_deleteGroup + '</div>' +
+                                    '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><p>Add user to this group</p><div id="employeeSelector"></div></br><div id="employees"></div>');
+                                $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div><div><p>Tap the tags to remove users from this group</p></div>');
                                 let counter = 0;
                                 for(let i in res) {
                                     // Check for active members to list
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
-                                            let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem leaf-remove-button" id="removeMember_' + counter + '">REMOVE</a>';
-                                            $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Lname) + ', ' + toTitleCase(res[i].Fname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
-                                            // Check for Backups
-                                            for (let j in res) {
-                                                if (res[i].userName == res[j].backupID) {
-                                                    $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
-                                                }
-                                            }
-                                            $('#removeMember_' + counter).on('click', function (userID) {
-                                                return function () {
+                                            $(`#employee_table`).append(`<button id="removeMember_${counter}" class="usa-button leaf-btn-small" style="margin-bottom: .5rem">${toTitleCase(res[i].Fname)} ${toTitleCase(res[i].Lname)}</button>`);
+                                            $(`#removeMember_${counter}`).one(`click`, function(userID) {
+                                                return function() {
                                                     removeMember(groupID, userID);
-                                                    dialog.hide();
-                                                };
+                                                    $(this).remove();
+                                                }
                                             }(res[i].userName));
                                             counter++;
                                         }
@@ -455,6 +454,49 @@ function getGroupList() {
                                 empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                                 empSel.rootPath = '<!--{$orgchartPath}-->/';
                                 empSel.outputStyle = 'micro';
+                                empSel.selectHandler = () => {
+                                    if(empSel.selection != '') {
+
+                                        let selectedUser = empSel.selectionData[empSel.selection];
+                                        let selectedUserName = selectedUser.userName;
+
+                                        // get current list of selected employees
+                                        let ids = $(`[id^="removeMember_"]`);
+                                        let idExists = false;
+                                        for (let id of ids) {
+                                            if (id.textContent == toTitleCase(selectedUser.firstName + ' ' + selectedUser.lastName)) {
+                                                idExists = true;
+                                            }
+                                        }
+
+                                        if (!idExists) {
+                                            $.ajax({
+                                                type: 'POST',
+                                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                                data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                                                success: function(res) {
+                                                    if(!isNaN(res)) {
+                                                        addMember(groupID, selectedUserName);
+                                                        $(`#employee_table`).append(`<button id="removeMember_${counter}" class="usa-button leaf-btn-small" style="margin-bottom: .5rem">${toTitleCase(selectedUser.firstName)} ${toTitleCase(selectedUser.lastName)}</button>`);
+                                                        $(`#removeMember_${counter}`).one(`click`, function(userID) {
+                                                            return function() {
+                                                                removeMember(groupID, userID);
+                                                                $(this).remove();
+                                                            }
+                                                        }(selectedUser.userName));
+                                                        counter++;
+                                                    }
+                                                    else {
+                                                        alert(res);
+                                                    }
+                                                },
+                                                cache: false
+                                            });
+                                        }
+                                        empSel.selection = '';
+                                        empSel.clearSearch();
+                                    }
+                                };
                                 empSel.initialize();
                                 // Update on any action
                                 dialog.setCancelHandler(function() {
@@ -480,6 +522,8 @@ function getGroupList() {
                                     }
                                     dialog.hide();
                                 });
+                                // remove the search icon for new UI
+                                $(`.employeeSelectorIcon`).css(`display`, `none`);
                                 //508 fix
                                 setTimeout(function () {
                                     $("#simplebutton_cancelchange").remove();
@@ -506,20 +550,69 @@ function getGroupList() {
                     }(res[i].groupID, res[i].parentGroupID, res[i].name));
                 }
                 else { // if is admin
+                // TODO: expand search results for users to 10+ rows from 5
+                // TODO: update user select event to update immediately and show updated group members
                     function openAdminGroup(){
-                         // reset dialog for regular content
+                        let counter = 0;
+                        // reset dialog for regular content
                         $(".ui-dialog>div").css('width', 'auto');
                         $(".leaf-dialog-content").css('width', 'auto');
                         dialog.showButtons();
-                        dialog.setTitle('Editor');
+                        dialog.setTitle('Edit Group');
                         dialog.setContent(
-                            '<button class="usa-button leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History</button>'+
-                            '<h2 role="heading" tabindex="-1">System Administrators</h2><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Administrator</h3></div><div id="employeeSelector"></div></br><div id="adminSummary"></div><div class="leaf-marginTop-2rem">');
+                            '<button class="usa-button leaf-btn-small leaf-float-right" onclick="viewHistory(1)">View History </button>'+
+                            '<h2 role="heading" tabindex="-1">System Administrators</h2><p>Add Administrator</p></div><div id="employeeSelector"></div><br/><br/><div id="adminSummary"></div><div class="leaf-marginTop-2rem"><div><p>Tap the tags to remove users from this group</p></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
+                        empSel.selectHandler = () => {
+                            if(empSel.selection != '') {
+
+                                let selectedUser = empSel.selectionData[empSel.selection];
+                                let selectedUserName = selectedUser.userName;
+
+                                // get current list of selected employees
+                                let ids = $(`[id^="removeAdmin_"]`);
+                                let idExists = false;
+                                for (let id of ids) {
+                                    if (id.textContent === toTitleCase(selectedUser.firstName + ' ' + selectedUser.lastName)) {
+                                        idExists = true;
+                                    }
+                                }
+
+                                if (!idExists) {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                        data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                                        success: function(res) {
+                                            if(!isNaN(res)) {
+                                                addAdmin(selectedUserName);
+                                                $(`#adminSummary`).append(`<button id="removeAdmin_${counter}" class="usa-button leaf-btn-small" style="margin-bottom: .5rem">${toTitleCase(selectedUser.firstName)} ${toTitleCase(selectedUser.lastName)}</button>`);
+                                                $(`#removeAdmin_${counter}`).one(`click`, function(userID) {
+                                                    return function() {
+                                                        removeAdmin(userID);
+                                                        $(this).remove();
+                                                    }
+                                                }(selectedUser.userName));
+                                                counter++;
+                                            }
+                                            else {
+                                                alert(res);
+                                            }
+                                        },
+                                        fail: function(err) {
+                                            // console.log(err);
+                                        },
+                                        cache: false
+                                    });
+                                }
+                                empSel.selection = '';
+                                empSel.clearSearch();
+                            }
+                        };
                         empSel.initialize();
                         dialog.setCancelHandler(function() {
                             updateAndGetMembers(1);
@@ -549,20 +642,21 @@ function getGroupList() {
                             dataType: "json",
                             success: function(res) {
                                 $('#adminSummary').html('');
-                                let counter = 0;
                                 for(let i in res) {
-                                    $('#adminSummary').append('<a class="leaf-user-link" href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-qtrRem leaf-marginLeft-qtrRem"><span class="leaf-bold leaf-font0-8rem">'+ toTitleCase(res[i].Lname) +', '+toTitleCase(res[i].Fname)+'</span></a> - <a tabindex="0" aria-label="REMOVE ' + toTitleCase(res[i].Lname)+', '+ toTitleCase(res[i].Fname)  +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="removeAdmin_'+ counter +'">REMOVE</a></div>');
-                                    $('#removeAdmin_' + counter).on('click', function(userID) {
+                                    $(`#adminSummary`).append(`<button id="removeAdmin_${counter}" class="usa-button leaf-btn-small" style="margin: .5rem">${toTitleCase(res[i].Fname)} ${toTitleCase(res[i].Lname)}</button>`);
+                                    $(`#removeAdmin_${counter}`).one(`click`, function(userID) {
                                         return function() {
                                             removeAdmin(userID);
-                                            dialog.hide();
-                                        };
+                                            $(this).remove();
+                                        }
                                     }(res[i].userName));
                                     counter++;
                                 }
                             },
                             cache: false
                         });
+                        // remove the search icon for new UI
+                        $(`.employeeSelectorIcon`).css(`display`, `none`);
                         setTimeout(function () {
                             dialog.show();
                         }, 0);
@@ -590,17 +684,53 @@ function getGroupList() {
 
                     function openPrimaryAdminGroup(){
                       dialog.setContent('<button class="usa-button leaf-btn-small leaf-float-right" onclick="viewHistory()">View History</button>'+
-                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Set Primary Administrator</h3><div id="employeeSelector"></div></br></br><div id="primaryAdminSummary"></div>');
+                            '<h2 role="heading" tabindex="-1">Primary Administrator</h2><p>Set Primary Administrator</p><div id="employeeSelector"></div></br></br><div id="primaryAdminSummary"></div><br/><div><p>Tap the tags to remove users from this group</p></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
+                        empSel.selectHandler = () => {
+                            if(empSel.selection != '') {
+                                let selectedUser = empSel.selectionData[empSel.selection];
+                                let selectedUserName = selectedUser.userName;
+
+                                $.ajax({
+                                    url: 'ajaxJSON.php?a=mod_groups_getMembers&groupID=1',
+                                    dataType: "json",
+                                    data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                                    success: function(res) {
+                                        let selectedUserIsAdmin = false;
+                                        for (let i in res) {
+                                            selectedUserIsAdmin = res[i].userName == selectedUserName;
+                                            if (selectedUserIsAdmin) {
+                                                break;
+                                            }
+                                        }
+
+                                        if (selectedUserIsAdmin) {
+                                            setPrimaryAdmin(selectedUserName);
+                                            $(`#primaryAdminSummary`).html(`<button class="usa-button leaf-btn-small">${toTitleCase(selectedUser.firstName)} ${toTitleCase(selectedUser.lastName)}</button>`);
+                                        } else {
+                                            alert('Primary Admin must be a member of the Sysadmin group');
+                                        }
+                                    },
+                                    fail: function(err) {
+                                        // console.log(err);
+                                    },
+                                    cache: false
+                                });
+                                empSel.selection = '';
+                                empSel.clearSearch();
+                            }
+                        };
+
                         empSel.initialize();
                         dialog.showButtons();
                          // reset dialog for regular content
                         $(".ui-dialog>div").css('width', 'auto');
                         $(".leaf-dialog-content").css('width', 'auto');
+
                         dialog.setSaveHandler(function() {
                             if(empSel.selection != '') {
                                 let selectedUserName = empSel.selectionData[empSel.selection].userName;
@@ -639,11 +769,7 @@ function getGroupList() {
                                     if(res[i].primary_admin == 1)
                                     {
                                         foundPrimary = true;
-                                        $('#primaryAdminSummary').append('<a class="leaf-user-link" href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div><span class="leaf-bold leaf-font0-9rem">'+ toTitleCase(res[i].Lname) +', '+ toTitleCase(res[i].Fname) +'</span></a> - <a tabindex="0" aria-label="Unset '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="unsetPrimaryAdmin">UNSET</a></div>');
-                                        $('#unsetPrimaryAdmin').on('click', function() {
-                                                unsetPrimaryAdmin();
-                                                dialog.hide();
-                                        });
+                                        $(`#primaryAdminSummary`).append(`<button class="usa-button leaf-btn-small">${toTitleCase(res[i].Fname)} ${toTitleCase(res[i].Lname)}</button>`);
                                     }
                                 }
                                 if(!foundPrimary)
@@ -654,6 +780,8 @@ function getGroupList() {
                             },
                             cache: false
                         });
+                        // remove the search icon for new UI
+                        $(`.employeeSelectorIcon`).css(`display`, `none`);
                         setTimeout(function () {
                             dialog.show();
                         }, 0);
@@ -768,12 +896,13 @@ function tagAndUpdate(groupID, callback) {
     });
 }
 
+// TODO: expand user search results to include 10+ records than 5
 function importGroup() {
     // reset dialog for regular content
     $(".ui-dialog>div").css('width', 'auto');
     $(".leaf-dialog-content").css('width', 'auto');
     dialog.setTitle('Import Group');
-    dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
+    dialog.setContent('<p role="heading" tabindex="-1">Lookup a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
     dialog.showButtons();
     let groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
@@ -808,12 +937,13 @@ function importGroup() {
             });
         }
     });
+    $(`.groupSelectorIcon`).css(`display`, `none`);
     dialog.show();
 }
 
 function createGroup() {
     dialog.setTitle('Create a new group');
-    dialog.setContent('<div><label role="heading">Group Title</label><div class="leaf-marginTop-halfRem"><input aria-label="Enter group name" id="groupNameInput" class="usa-input" size="36"></input></div></div>');
+    dialog.setContent('<div><label role="heading">Group Title</label><div class="leaf-marginTop-halfRem"><input aria-label="Enter group name" id="groupNameInput" class="usa-input" size="36"></input></div></div><br />If the group already exists you can import it instead.<br /><br /><hr /><br />');
     dialog.showButtons();
     dialog.setSaveHandler(function() {
     	dialog.indicateBusy();
@@ -849,6 +979,7 @@ function createGroup() {
             cache: false
         });
     });
+    $(`#groupNameInput`).removeClass(`usa-input`);
     dialog.show();
     $('input:visible:first, select:visible:first').focus();
 }
