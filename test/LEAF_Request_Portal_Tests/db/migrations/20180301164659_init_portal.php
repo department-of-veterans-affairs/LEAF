@@ -12,7 +12,7 @@ class InitPortal extends AbstractMigration
      */
     public function up()
     {
-        $migrationContents = file_get_contents('../../LEAF_Request_Portal/resource_database_boilerplate.sql');
+        $migrationContents = file_get_contents('/var/www/db/boilerplate/resource_database_boilerplate.sql');
         $this->execute($migrationContents);
     }
 

@@ -42,7 +42,14 @@ var LeafFormGrid = function(containerID, options) {
      * @param values (required) object of cells and names to generate grid
      * @memberOf LeafFormGrid
      */
-    function printTableReportBuilder(values) {
+    function printTableReportBuilder(values, columnValues) {
+        // remove unused columns
+        if (columnValues !== null && columnValues !== undefined) {
+            values.format = values.format.filter(function (value) {
+                return columnValues.includes(value.id);
+            });
+        }
+
         var gridBodyBuffer = '';
         var gridHeadBuffer = '';
         var rows = values.cells === undefined ? 0 : values.cells.length;
@@ -53,9 +60,9 @@ var LeafFormGrid = function(containerID, options) {
         var tDelim = '';
 
         //finds and displays column names
-        for(var i = 0; i < columns; i++){
-            tDelim = (i == columns-1) ? '' : delim;
-            gridHeadBuffer +='<td style="width: 100px;">' + values.format[i].name + tDelim + '</td>';
+        for (let i = 0; i < columns; i++) {
+            tDelim = (i === columns - 1) ? '' : delim;
+            gridHeadBuffer += '<td style="width: 100px;">' + values.format[i].name + tDelim + '</td>';
             columnOrder.push(values.format[i].id)
         }
 
@@ -71,7 +78,7 @@ var LeafFormGrid = function(containerID, options) {
 
             //for all values with matching column id, replaces cell with value
             for (var j = 0; j < values.columns.length; j++) {
-                tDelim = (j == values.columns.length-1) ? '' : delim;
+                tDelim = (j == values.columns.length - 1) ? '' : delim;
                 if(columnOrder.indexOf(values.columns[j]) !== -1) {
                     var value = values.cells[i] === undefined || values.cells[i][j] === undefined ? '' : values.cells[i][j];
                     rowBuffer.splice(columnOrder.indexOf(values.columns[j]), 1, '<td style="width:100px">' + value + tDelim + '</td>');
@@ -499,8 +506,14 @@ var LeafFormGrid = function(containerID, options) {
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + htmlPrint + '</td>';
                         }
                         else {
-                            if(currentData[i].s1[data.data] !== undefined && data.data.search("gridInput")){
-                                data.data = printTableReportBuilder(currentData[i].s1[data.data]);
+                            if (headers[j].cols !== undefined) {
+                                if (currentData[i].s1[data.data] !== undefined && data.data.search("gridInput") && headers[j].cols.length > 0) {
+                                    data.data = printTableReportBuilder(currentData[i].s1[data.data], headers[j].cols);
+                                }
+                            } else {
+                                if (currentData[i].s1[data.data] !== undefined && data.data.search("gridInput")) {
+                                    data.data = printTableReportBuilder(currentData[i].s1[data.data], null);
+                                }
                             }
                             buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + data.data + '</td>';
                         }
@@ -680,6 +693,10 @@ var LeafFormGrid = function(containerID, options) {
             }
             var output = [];
             var headers = [];
+            //removes triangle symbols so that ascii chars are not present in exported headers.
+            $('#' + prefixID + 'thead>tr>th>span').each(function(idx, val) {
+                $(val).html('');
+            });
             $('#' + prefixID + 'thead>tr>th').each(function(idx, val) {
                 headers.push($(val).text().trim());
             });

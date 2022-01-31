@@ -360,7 +360,9 @@ function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
 		    currentEmailCcContent = res.emailCcFile;
 		    $('#codeContainer').fadeIn();
 			codeEditor.setValue(currentFileContent);
-			subjectEditor.setValue(currentSubjectContent);
+			if (currentSubjectContent !== null) {
+                subjectEditor.setValue(currentSubjectContent);
+            }
 			$("#emailToCode").val(currentEmailToContent);
 			$("#emailCcCode").val(currentEmailCcContent);
 

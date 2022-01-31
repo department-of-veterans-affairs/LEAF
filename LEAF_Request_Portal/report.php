@@ -99,7 +99,9 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         //url
-        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
+//        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+        $protocol = 'https';
         $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
         $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
@@ -118,6 +120,9 @@ switch ($action) {
                 'js/formGrid.js',
                 'js/formQuery.js',
                 'js/formSearch.js',
+                'js/gridInput.js',
+                'js/lz-string/lz-string.min.js',
+                '../libs/js/LEAF/XSSHelpers.js',
                 '../libs/jsapi/nexus/LEAFNexusAPI.js',
                 '../libs/jsapi/portal/LEAFPortalAPI.js',
                 '../libs/jsapi/portal/model/FormQuery.js',
@@ -140,7 +145,9 @@ switch ($action) {
             $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 
             //url
-            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+            // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
+//            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+            $protocol = 'https';
             $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
             $main->assign('qrcodeURL', urlencode($qrcodeURL));
 

@@ -1,14 +1,14 @@
 .groupSelectorBorder {
-    height: 28px;
-    padding: 4px;
-    margin-bottom: 8px;
+    background-color: white;
+    padding: 1px;
 }
 
 .groupSelectorInput {
     border: 1px solid #bbb;
     border-right: 1px solid #bbb!important;
     padding: 4px;
-    width: 100%;
+    height: 28px;
+    width: 90%;
 }
 
 .groupSelectorIcon {
@@ -43,7 +43,7 @@ table.groupSelectorTable {
     width: 100%;
     border: 1px solid #bbb;
     border-collapse: collapse;
-    margin-top: 25px;
+    margin: 10px 0;
 }
 
 .groupSelectorTable th {

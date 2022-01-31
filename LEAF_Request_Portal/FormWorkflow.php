@@ -32,7 +32,9 @@ class FormWorkflow
         $this->login = $login;
         $this->recordID = is_numeric($recordID) ? $recordID : 0;
 
-        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
+//        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+        $protocol = 'https';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $apiEntry = strpos($this->siteRoot, '/api/');
         if ($apiEntry !== false)
@@ -857,7 +859,7 @@ class FormWorkflow
         $varEvents = array(':workflowID' => $workflowID,
             ':stepID' => $stepID,
             ':actionType' => $actionType, );
-        $strSQL = "SELECT rt.eventID FROM route_events AS rt ".
+        $strSQL = "SELECT rt.eventID, eventData, eventDescription FROM route_events AS rt ".
             "LEFT JOIN events as et USING (eventID) ".
             "WHERE workflowID=:workflowID ".
             "AND stepID=:stepID ".
@@ -867,6 +869,10 @@ class FormWorkflow
 
         foreach ($res as $event)
         {
+            $customEvent = '';
+            if (preg_match('/CustomEvent_/', $event['eventID'])) {
+                $customEvent = $event['eventID'];
+            }
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
                     require_once 'Email.php';
@@ -932,6 +938,68 @@ class FormWorkflow
                     $email->addRecipient($tmp[0]['Email']);
 
                     $email->sendMail();
+
+                    break;
+                case $customEvent: // For all custom events
+                    require_once 'Email.php';
+                    $email = new Email();
+
+                    $vars = array(':recordID' => $this->recordID);
+                    $strSQL = "SELECT rec.title, rec.lastStatus, rec.userID, ser.service ".
+                        "FROM records AS rec ".
+                        "LEFT JOIN services AS ser USING (serviceID) ".
+                        "WHERE recordID=:recordID";
+                    $approvers = $this->db->prepared_query($strSQL, $vars);
+
+                    $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+
+                    $email->addSmartyVariables(array(
+                        "truncatedTitle" => $title,
+                        "fullTitle" => $approvers[0]['title'],
+                        "recordID" => $this->recordID,
+                        "service" => $approvers[0]['service'],
+                        "lastStatus" => $approvers[0]['lastStatus'],
+                        "comment" => $comment,
+                        "siteRoot" => $this->siteRoot
+                    ));
+
+                    $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
+                    $email->setTemplateByID($emailTemplateID);
+
+                    require_once 'VAMC_Directory.php';
+                    $dir = new VAMC_Directory;
+
+                    $author = $dir->lookupLogin($this->login->getUserID());
+                    $email->setSender($author[0]['Email']);
+
+                    $eventData = json_decode($event['eventData']);
+
+                    if ($eventData->NotifyRequestor === 'true') {
+                        // Get backups to requester so they can be notified as well
+                        $nexusDB = $this->login->getNexusDB();
+                        $vars = array(':empUID' => $author[0]['empUID']);
+                        $strSQL = "SELECT backupEmpUID FROM relation_employee_backup ".
+                                        "WHERE empUID = :empUID";
+                        $backupIds = $nexusDB->prepared_query($strSQL, $vars);
+
+                        // Add backups to email recepients
+                        foreach($backupIds as $backup) {
+                            $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
+                            $email->addRecipient($theirBackup[0]['Email']);
+                        }
+
+                        $tmp = $dir->lookupLogin($approvers[0]['userID']);
+                        $email->addRecipient($tmp[0]['Email']);
+                    }
+
+                    if ($eventData->NotifyGroup !== 'None') {
+                        $email->addGroupRecipient($eventData->NotifyGroup);
+                    }
+
+                    if ($eventData->NotifyNext === 'true')
+                        $email->attachApproversAndEmail($this->recordID, $emailTemplateID, $this->login);
+                    else
+                        $email->sendMail();
 
                     break;
                 default:

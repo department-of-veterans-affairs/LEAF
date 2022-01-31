@@ -1,9 +1,10 @@
 <style>
 /* 3 column grid */
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
+
 </style>
 
-<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: 600px; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
+<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: fit-content; width: -moz-fit-content; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
     <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 1: Develop search filter
     </div>
@@ -28,10 +29,7 @@
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
 </div>
 
-
 <div id="results" style="display: none">Loading...</div>
-
-
 
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -363,9 +361,10 @@ function loadSearchPrereqs() {
     $.ajax({
         type: 'GET',
         url: './api/?a=form/indicator/list',
-        dataType: 'json',
+        dataType: 'text json',
         success: function(res) {
             var buffer = '';
+
 
             // special columns
             buffer += '<div class="col span_1_of_3">';
@@ -390,11 +389,14 @@ function loadSearchPrereqs() {
             buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_step_movement"> Days Since Last Step Movement</label></div>';
             buffer += '</div>';
+            
             var groupList = {};
             var groupNames = [];
             var groupIDmap = {};
             var tmp = document.createElement('div');
             var temp;
+            let grid = {};
+
             for(let i in res) {
                 temp = res[i].name;
                 tmp.innerHTML = temp;
@@ -415,9 +417,18 @@ function loadSearchPrereqs() {
                     groupIDmap[res[i].categoryID].categoryID = res[i].categoryID;
                     groupIDmap[res[i].categoryID].parentCategoryID = res[i].parentCategoryID;
                     groupIDmap[res[i].categoryID].parentStaples = res[i].parentStaples;
+                    groupIDmap[res[i].categoryID].format = res[i].format;
+                }
+                // check if indicator type is grid
+
+                if (groupIDmap[res[i].categoryID].format.indexOf('grid') === 0) {
+                    // convert grid values to object
+                    let grid = $.parseJSON(groupIDmap[res[i].categoryID].format.replace('grid', ''));
+                    groupIDmap[res[i].categoryID].cols = grid.map(function(col) {
+                        return col;
+                    });
                 }
             }
-
             buffer += '<div class="col span_1_of_3">';
 
             groupNames.sort(function(a, b) {
@@ -450,8 +461,16 @@ function loadSearchPrereqs() {
                 }
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(var j in groupList[i]) {
-                    buffer += '<div class="indicatorOption" style="display: none"><input type="checkbox" class="icheck" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
-                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label></div>';
+                    buffer += '<div class="indicatorOption" id="indicatorOption" style="display: none"><input type="checkbox" class="icheck parent" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
+                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label>';
+                    // sub checklist for case of grid indicator
+                    if (groupIDmap[i].cols !== undefined) {
+                        for (k in groupIDmap[i].cols) {
+                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'_columns_' + groupIDmap[i].cols[k].id + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].cols[k].name + ']" value="' + groupIDmap[i].cols[k].id + '" gridParent="' + groupList[i][j] + '" />';
+                            buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '_columns_'+ groupIDmap[i].cols[k].id +'" title="columnID: '+ groupIDmap[i].cols[k].id + '\n' + groupIDmap[i].cols[k].name +'"> ' + groupIDmap[i].cols[k].name +'</label></div>';
+                        }
+                    }
+                    buffer += '</div>';
                 }
                 buffer += '</div>';
             }
@@ -461,11 +480,72 @@ function loadSearchPrereqs() {
             $('#indicatorList').html(buffer);
 
             $('#indicatorList').css('height', $(window).height() - 240);
+
+            // check all subindicators to be equal to parent indicator
+            $('.indicatorOption').children().not('.subIndicatorOption').on('change', function() {
+                const newValue = $(this).icheck('update')[0].checked;
+
+                // update the children checkboxes to reflect the updated parent checkbox status
+                if (newValue === true) {
+                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('checked');
+                } else {
+                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('unchecked');
+                }
+            });
+
+            // check if sibling checkboxes are empty or all checked
+            $('.subIndicatorOption').children().on('change', function() {
+                const newValue = $(this).icheck('update')[0].checked;
+
+                let getSiblings = function (e) {
+                    let siblings = [];
+                    // if no parent, return no sibling
+                    if(!e.parent()) {
+                        return siblings;
+                    }
+                    // first child of the parent node
+                    let sibling  = e.parent().children()[1];
+
+                    // collecting siblings
+                    while (sibling) {
+                        if (sibling.nodeType === 1 && sibling !== e) {
+                            siblings.push(sibling);
+                        }
+                        sibling = sibling.nextSibling;
+                    }
+                    return siblings;
+                };
+
+                // if child is checked and parent is not checked
+                if(newValue && !$(this).parent().parent().parent().children('input').not('.subIndicatorOption').children('.icheck-item').hasClass('checked')) {
+                    // check the parent
+                    $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').icheck('checked');
+                } else {
+                    let siblings = getSiblings($(this).parent().parent());
+                    let atLeastOneChecked = false;
+                    let parentCheckbox = siblings.shift();
+
+                    // check if each sibling is checked
+                    $.each(siblings, function(key, value) {
+                        if ($(value).children('.icheck-item').children('input').icheck('update')[0].checked) {
+                            atLeastOneChecked = true;
+                        }
+                    });
+
+                    // if there are no checked children
+                    if (atLeastOneChecked === false) {
+                        // uncheck the parent
+                        $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').icheck('unchecked');
+                    }
+                }
+            });
+
             $('.form').on('click', function() {
-            	$(this).children('.formLabel').removeClass('buttonNorm');
+                $(this).children('.formLabel').removeClass('buttonNorm');
             	$(this).find('.formLabel>img').css('display', 'none');
             	$(this).css({width: '100%'});
             	$(this).children('div').css('display', 'block');
+            	$(this).children('div').children('.subIndicatorOption').css('display', 'block');
             	$(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
             		'font-weight': 'bold'});
             });
@@ -519,6 +599,12 @@ function loadSearchPrereqs() {
                             if(t_inIndicators != undefined) {
                                 for(let i in t_inIndicators) {
                                     $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
+
+                                    if (t_inIndicators[i].cols !== undefined) {
+                                        for (var j in t_inIndicators[i].cols) {
+                                            $('#indicators_' + t_inIndicators[i].indicatorID + '_columns_' + t_inIndicators[i].cols[j]).prop('checked', true);
+                                        }
+                                    }
                                 }
                             }
                             else {
@@ -832,7 +918,6 @@ function showJSONendpoint() {
 
         		}
                 dialog.hide();
-
         	}
         });
     });
@@ -844,36 +929,44 @@ function showJSONendpoint() {
  * @return - Creates new request inline on grid
  */
 function createRequest(catID) {
-    catID = catID || 'strCatID';
-    const portalAPI = LEAFRequestPortalAPI();
-    portalAPI.setBaseURL('./api/?a=');
-    portalAPI.setCSRFToken(CSRFToken);
+    if (!clicked) {
+        $('#newRecordWarning').css('display', 'none');
+        catID = catID || 'strCatID';
+        const portalAPI = LEAFRequestPortalAPI();
+        portalAPI.setBaseURL('./api/?a=');
+        portalAPI.setCSRFToken(CSRFToken);
 
-    if (catID !== 'strCatID') {
-        portalAPI.Forms.newRequest(
-            catID,
-            {title: 'untitled'},
-            function (recordID) {
-                recordID = recordID || 0;
-                //Type number. Sent back on success (UID column of report builder)
-                if (recordID > 0) {
-                    $('#generateReport').click();
-                    dialog.hide();
-                    setTimeout(function () {
-                        let el_ID = grid.getPrefixID() + "tbody_tr" + recordID;
-                        let newRow = document.getElementById(el_ID);
-                        newRow.style.backgroundColor = 'rgb(254, 255, 209)';
-                    }, 750);
+        if (catID !== 'strCatID') {
+            portalAPI.Forms.newRequest(
+                catID,
+                    {title: 'untitled'},
+                function (recordID) {
+                    recordID = recordID || 0;
+                    //Type number. Sent back on success (UID column of report builder)
+                    if (recordID > 0) {
+                        newRecordID = recordID;  //global
+                        $('#generateReport').click();
+                        dialog.hide();
+                        //styling to hilite row for short / simple queries
+                        setTimeout(function () {
+                            let el_ID = grid.getPrefixID() + "tbody_tr" + recordID;
+                            let newRow = document.getElementById(el_ID);
+                            if (newRow !== null) { //null if query > .75s or if the query does not return the record created
+                                newRow.style.backgroundColor = 'rgb(254, 255, 209)';
+                            }
+                        }, 750);
+                    }
+                },
+                function (error) {
+                    if (error) {
+                        alert('New Request could not be processed');
+                        dialog.hide();
+                    }
                 }
-            },
-            function (error) {
-                if (error) {
-                    alert('New Request could not be processed');
-                    dialog.hide();
-                }
-            }
-        );
+            );
+        }
     }
+    clicked = true;
 }
 
 
@@ -888,6 +981,41 @@ var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
 let gridColorData = {}; //object updated with id: color
 let tempColorData = {}; //object updated with id: color
+let isOneFormType = false;
+
+/**
+ * Purpose: Check if only one type of form could logically be returned and,
+ * if so, update global variables isOneFormType (bool) and categoryID (string).
+ * @param searchQueryTerms - variable with result of leafSearch.getLeafFormQuery().getQuery().terms (array)
+ */
+function checkIfOneTypeSearchedAndUpdate(searchQueryTerms) {
+    searchQueryTerms = searchQueryTerms || 0;
+    isOneFormType = false;   //global
+    categoryID = 'strCatID'; //global
+    if (searchQueryTerms !== 0 && searchQueryTerms.length > 0) {
+        let boolGateCheck = false;
+        let categoriesSearched = searchQueryTerms.filter(function (term) {
+            return term.id === "categoryID";
+        });
+
+        //search must be limited to one Type, and its operator must be "=", additionally search differs based on location:
+        //If Type is the first criteria, all gates must be AND. If not, only its own gate must be AND.
+        //example: 'type IS <form> OR title is <title>', VS 'title IS <title> OR <other search> AND type IS <form>'
+        if (categoriesSearched.length === 1 && categoriesSearched[0].operator === "=") {
+            if (searchQueryTerms[0].id === "categoryID") {  //if it's the first search criteria
+                boolGateCheck = searchQueryTerms.every(function (term) {
+                    return term.gate === "AND";
+                });
+            } else {
+                boolGateCheck = (categoriesSearched[0].gate === "AND");
+            }
+            if (boolGateCheck) {
+                isOneFormType = true; //global
+                categoryID = categoriesSearched[0].match; //global
+            }
+        }
+    }
+}
 
 var version = 3;
 /* URL formats
@@ -908,6 +1036,8 @@ function buildURLComponents(baseURL){
     window.history.pushState('', '', url);
 }
 
+var clicked = false;
+var newRecordID = 0;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
@@ -982,7 +1112,7 @@ $(function() {
         $('#results').fadeIn(700);
         $('#saveLinkContainer').fadeIn(700);
         $('#step_2').slideUp(700);
-
+        $('#newRecordWarning').css('display', 'none');
         if(isNewQuery) {
             leafSearch.generateQuery();
 
@@ -999,8 +1129,25 @@ $(function() {
     	selectedIndicators = [];
     	resSelectList = [];
     	$('.icheck:checked').each(function() {
-    		resSelectList.push(this.value);
+            let gridParent = this.attributes.gridparent?.value;
+            if (gridParent !== undefined) {
+                let dest = resSelectList.indexOf(gridParent);
+
+                if (dest !== -1) {
+                    resSelectList[dest] = [resSelectList[dest]];
+                } else {
+                    for (let i in resSelectList) {
+                        if (resSelectList[i][0] === gridParent) {
+                            dest = i;
+                        }
+                    }
+                }
+                resSelectList[dest].push(this.value);
+            } else {
+                resSelectList.push(this.value);
+            }
     	});
+
     	resSelectList.sort(function(a, b) {
             var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
             var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
@@ -1013,33 +1160,39 @@ $(function() {
             }
             return 0;
         });
+
     	for(let i in resSelectList) {
-            var temp = { };
-            temp.indicatorID = resSelectList[i];
+            let temp = {};
+            if (Array.isArray(resSelectList[i])) {
+                temp.indicatorID = resSelectList[i][0];
+                temp.cols = [];
+                for (let j = 1; j < resSelectList[i].length; j++) {
+                    temp.cols.push(resSelectList[i][j]);
+                }
+            } else {
+                temp.indicatorID = resSelectList[i];
+            }
             temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
             temp.sort = indicatorSort[temp.indicatorID] == undefined ? 0 : indicatorSort[temp.indicatorID];
             var tmp = document.createElement('div');
             tmp.innerHTML = temp.name;
             temp.name = tmp.textContent || tmp.innerText || '';
             temp.name = temp.name.replace(/[^\040-\176]/g, '');
-            if($.isNumeric(resSelectList[i])) {
-                headers.push(temp);
-                leafSearch.getLeafFormQuery().getData(temp.indicatorID);
+            if($.isNumeric(resSelectList[i][0]) || $.isNumeric(resSelectList[i])) {
+                    headers.push(temp);
+                    leafSearch.getLeafFormQuery().getData(temp.indicatorID);
             }
             else {
                 addHeader(temp.indicatorID);
             }
             selectedIndicators.push(temp);
     	}
-
     	headers.sort(sortHeaders);
     	selectedIndicators.sort(sortHeaders);
-
     	grid.setHeaders(headers);
 
     	leafSearch.getLeafFormQuery().onSuccess(function(res) {
             grid.setDataBlob(res);
-
             // this replaces grid.loadData()
             var tGridData = [];
             for(let i in res) {
@@ -1058,21 +1211,29 @@ $(function() {
                 }
             	grid.loadData(recordIDs);
             }
-            let results = grid.getCurrentData();
-            let filteredResults = results.filter(function(r) {
-                return r.categoryID != undefined
+            let gridResults = grid.getCurrentData();
+            let filteredGridResults = gridResults.filter(function(r) {
+                return r.categoryID != undefined;
             });
-            if (filteredResults.length > 0) {
-                categoryID = filteredResults[0].categoryID;
-                let isOneFormType = filteredResults.every(function(fr){ return fr.categoryID === categoryID});
-                if (isOneFormType){
-                    $('#newRequestButton').css('display', 'inline-block');
-                } else {
-                    $('#newRequestButton').css('display', 'none');
-                }
+            //if catID info is available for the results, it can be used to determine form type.
+            if (filteredGridResults.length > 0) {
+                categoryID = filteredGridResults[0].categoryID;
+                isOneFormType = filteredGridResults.every(function(fr) {
+                    return fr.categoryID === categoryID;
+                });
+            }
+            if (isOneFormType){
+                $('#newRequestButton').css('display', 'inline-block');
             } else {
                 $('#newRequestButton').css('display', 'none');
             }
+            let reportHasNewRecord = gridResults.some(function(obj){
+                return obj.recordID === newRecordID;
+            })
+            if (newRecordID !== 0 && clicked === true && !reportHasNewRecord){
+                $('#newRecordWarning').css('display', 'block');
+            }
+            clicked = false; //global to reduce dblclicks
         });
 
     	// get data
@@ -1086,7 +1247,7 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=16" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button>');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
             extendedToolbar = true;
 
 
@@ -1109,7 +1270,10 @@ $(function() {
     	else {
     		$('#editLabels').css('display', 'inline');
     	}
-    	urlQuery = LZString.compressToBase64(JSON.stringify(leafSearch.getLeafFormQuery().getQuery()));
+        let leafSearchQuery = leafSearch.getLeafFormQuery().getQuery();
+        checkIfOneTypeSearchedAndUpdate(leafSearchQuery.terms);
+
+        urlQuery = LZString.compressToBase64(JSON.stringify(leafSearchQuery));
     	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
 
     	if(isNewQuery) {
@@ -1168,6 +1332,9 @@ $(function() {
                 indicators = indicators.replace(/ /g, '+');
                 colors = colors.replace(/ /g, '+');
                 inQuery = JSON.parse(LZString.decompressFromBase64(query));
+                //if refreshed or not a new report
+                checkIfOneTypeSearchedAndUpdate(inQuery.terms);
+
                 t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
                 let queryColors = JSON.parse(LZString.decompressFromBase64(colors));
                 if (queryColors !== null) {
@@ -1183,6 +1350,10 @@ $(function() {
         	for(let i in t_inIndicators) {
         		var temp = {};
                 if($.isNumeric(t_inIndicators[i].indicatorID)) {
+                    // add selected columns to payload in case of grid indicator
+                    if (Array.isArray(t_inIndicators[i].cols)) {
+                        temp.cols = t_inIndicators[i].cols;
+                    }
                     temp.indicatorID = parseInt(t_inIndicators[i].indicatorID);
                     temp.name = t_inIndicators[i].name.replace(/[^\040-\176]/g, '');
                     temp.name = temp.name.replace(/</g, '&lt;');
@@ -1193,7 +1364,6 @@ $(function() {
                     addHeader(t_inIndicators[i].indicatorID);
                 }
         	}
-
         	leafSearch.getLeafFormQuery().setQuery(inQuery);
         	if(!isSearchingDeleted(leafSearch)) {
                 inQuery.terms.pop();
@@ -1221,7 +1391,7 @@ $(function() {
                 window.atob = base64.decode;
                 window.btoa = base64.encode;
                 <!--{if $query != '' && $indicators != ''}-->
-                loadReport();
+                loadReport(JSON.parse(LZString.decompressFromBase64('<!--{$indicators|escape:"html"}-->')));
                 <!--{/if}-->
             }
         });

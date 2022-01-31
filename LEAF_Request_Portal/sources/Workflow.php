@@ -37,7 +37,9 @@ class Workflow
         $this->login = $login;
         $this->setWorkflowID($workflowID);
 
-        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
+//        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+        $protocol = 'https';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
@@ -321,6 +323,114 @@ class Workflow
                                             WHERE eventID NOT LIKE "LeafSecure_%"', $vars);
 
         return $res;
+    }
+
+    /**
+     * Purpose: Populate list with all Custom Events
+     * @return array Custom Events list
+     */
+    public function getCustomEvents()
+    {
+        $strSQL = "SELECT * FROM events WHERE eventID LIKE 'CustomEvent_%'";
+
+        $res = $this->db->query($strSQL);
+
+        return $res;
+    }
+
+    /**
+     * Purpose: Populate information on specific event
+     * @param string $event string EventID being passed through
+     * @return object|string Event information (Check for Admin Access and Event pass-through)
+     */
+    public function getEvent($event = null)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+
+        if ($event === null)
+        {
+            return 'Event not found, please try again.';
+        }
+
+        $vars = array(':eventID' => $event);
+
+        $strSQL = 'SELECT * FROM events WHERE eventID=:eventID';
+
+        $res = $this->db->prepared_query($strSQL, $vars);
+
+        return $res;
+    }
+
+    /**
+     * Purpose: Edit event information
+     * @param string $name Name of event being passed through
+     * @param string $newName New Name of event being passed through
+     * @param string $desc New Description of the event being passed through
+     * @param string $type New Type of the event being passed through
+     * @param array $data New Data being passed through
+     * @return int|string Successful Edit = 1 (Check for Admin Access, System Event, and Name pass-through)
+     */
+    public function editEvent($name = null, $newName = null, $desc = '', $type = null, $data = array())
+    {
+        if (!$this->login->checkGroup(1)) {
+            return 'Admin access required';
+        }
+
+        $systemEvent = array('std_email_notify_completed', 'std_email_notify_next_approver', 'LeafSecure_DeveloperConsole', 'LeafSecure_Certified');
+
+        if (in_array($name, $systemEvent)) {
+            return 'System Events Cannot Be Modified.';
+        }
+
+        if ($name === null || $newName === null || $type === null) {
+            return 'Event not found, please try again.';
+        }
+
+        $vars = array(':eventID' => $name);
+
+        $strSQL = 'SELECT eventDescription FROM events WHERE eventID=:eventID';
+
+        $oldLabel = $this->db->prepared_query($strSQL, $vars);
+
+        $vars = array(':eventID' => $name,
+            ':eventDescription' => $desc,
+            ':newEventID' => $newName,
+            ':eventType' => $type,
+            ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
+                                              'NotifyNext' => $data['Notify Next'],
+                                              'NotifyGroup' => $data['Notify Group'])));
+
+        $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData WHERE eventID=:eventID';
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        $vars = array(':label' => $oldLabel[0]['eventDescription'],
+            ':emailTo' => "{$newName}_emailTo.tpl",
+            ':emailCc' => "{$newName}_emailCc.tpl",
+            ':subject' => "{$newName}_subject.tpl",
+            ':body' => "{$newName}_body.tpl",
+            ':newLabel' => $desc);
+
+        $strSQL = 'UPDATE email_templates SET label=:newLabel, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body WHERE label=:label';
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        if (file_exists("../templates/email/custom_override/{$name}_body.tpl")) {
+            rename("../templates/email/custom_override/{$name}_body.tpl", "../templates/email/custom_override/{$newName}_body.tpl");
+            rename("../templates/email/custom_override/{$name}_subject.tpl", "../templates/email/custom_override/{$newName}_subject.tpl");
+            rename("../templates/email/custom_override/{$name}_emailTo.tpl", "../templates/email/custom_override/{$newName}_emailTo.tpl");
+            rename("../templates/email/custom_override/{$name}_emailCc.tpl", "../templates/email/custom_override/{$newName}_emailCc.tpl");
+        }
+
+        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::EVENTS, [
+            new LogItem("events", "eventDescription",  $_POST['description']),
+            new LogItem("events", "eventID",  $name)
+        ]);
+
+        return 1;
     }
 
     public function getActions()
@@ -666,6 +776,115 @@ class Workflow
         ]); 
         
         return true;
+    }
+
+    /**
+     * Purpose: Create a new Custom Event
+     * @param string $name Custom Event Name
+     * @param string $desc Custom Event Description
+     * @param string $type Custom Event Type (Email, Script, etc...)
+     * @param array $data Custom Event Data
+     * @return bool|string If the event was created successful true/false (Check for Admin Access, System Event, and Name pass-through)
+     */
+    public function createEvent($name = null, $desc = '', $type = null, $data = array())
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required.';
+        }
+
+        $systemEvent = array('std_email_notify_completed','std_email_notify_next_approver','LeafSecure_DeveloperConsole','LeafSecure_Certified');
+
+        if (in_array($name, $systemEvent))
+        {
+            return 'Event Already Exists.';
+        }
+
+        if ($name === null || $type === null) {
+            return 'Error creating event, please try again.';
+        }
+
+        $vars = array(':eventID' => $name,
+                      ':description' => $desc,
+                      ':eventType' => $type,
+                      ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
+                                                        'NotifyNext' => $data['Notify Next'],
+                                                        'NotifyGroup' => $data['Notify Group'])));
+
+        $strSQL = "INSERT INTO events (eventID, eventDescription, eventType, eventData) VALUES (:eventID, :description, :eventType, :eventData)";
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        $vars = array(':description' => $desc,
+                      ':emailTo' => $name . '_emailTo.tpl',
+                      ':emailCc' => $name . '_emailCc.tpl',
+                      ':subject' => $name . '_subject.tpl',
+                      ':body' => $name . '_body.tpl');
+
+        $strSQL = 'INSERT INTO email_templates (label, emailTo, emailCc, subject, body) VALUES (:description, :emailTo, :emailCc, :subject, :body)';
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EVENTS, [
+            new LogItem("events", "eventDescription",  $desc),
+            new LogItem("events", "eventID",  $name)
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Purpose: Delete a Custom Event
+     * @param string $event EventID that is being deleted
+     * @return int|string Successful Delete = 1 (Check for Admin Access, System Event, and Name pass-through)
+     */
+    public function removeEvent($event)
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $systemEvent = array('std_email_notify_completed','std_email_notify_next_approver','LeafSecure_DeveloperConsole','LeafSecure_Certified');
+
+        if (in_array($event, $systemEvent))
+        {
+            return 'System Events cannot be removed.';
+        }
+
+        // Delete Custom Emails
+        if (file_exists("../templates/email/custom_override/{$event}_body.tpl"))
+            unlink("../templates/email/custom_override/{$event}_body.tpl");
+        if (file_exists("../templates/email/custom_override/{$event}_subject.tpl"))
+            unlink("../templates/email/custom_override/{$event}_subject.tpl");
+        if (file_exists("../templates/email/custom_override/{$event}_emailTo.tpl"))
+            unlink("../templates/email/custom_override/{$event}_emailTo.tpl");
+        if (file_exists("../templates/email/custom_override/{$event}_emailCc.tpl"))
+            unlink("../templates/email/custom_override/{$event}_emailCc.tpl");
+
+        $vars = array(':eventID' => $event);
+
+        $strSQL = 'SELECT eventDescription FROM events WHERE eventID=:eventID';
+
+        $label = $this->db->prepared_query($strSQL, $vars);
+
+        $strSQL = 'DELETE FROM events WHERE eventID=:eventID';
+
+        $this->db->prepared_query($strSQL, $vars); // Delete Event
+
+        $event = str_replace('CustomEvent_', '', $event);
+        $event = str_replace('_', ' ', $event);
+
+        $vars = array(':label' => $label[0]['eventDescription']);
+
+        $strSQL = 'DELETE FROM email_templates WHERE label=:label';
+
+        $this->db->prepared_query($strSQL, $vars); // Delete Email Event
+
+        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EVENTS, [
+            new LogItem("events", "eventID",  $event)
+        ]);
+
+        return 1;
     }
 
     public function linkEvent($stepID, $actionType, $eventID)

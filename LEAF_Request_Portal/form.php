@@ -88,7 +88,7 @@ class Form
     public function getAllCategories()
     {
         $res = $this->db->prepared_query(
-            'SELECT categoryID, categoryName, categoryDescription FROM categories WHERE disabled = 0',
+            'SELECT categoryID, categoryName, categoryDescription FROM categories WHERE disabled = 0 ORDER BY categoryName',
             array()
         );
 
@@ -495,6 +495,7 @@ class Form
         $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
         $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
         $form[$idx]['sort'] = $data[0]['sort'];
+        $form[$idx]['has_code'] = trim($data[0]['html']) != '' || trim($data[0]['htmlPrint']) != '';
 
         // handle file upload
         if (isset($data[0]['data'])
@@ -2542,6 +2543,9 @@ class Form
                     return 0;
             }
 
+	    if ($q['id'] === 'userID') {
+            	$q['match'] = htmlspecialchars_decode($q['match'], ENT_QUOTES);
+            }
             $vars[':' . $q['id'] . $count] = $q['match'];
             switch ($q['id']) {
                 case 'recordID':
@@ -2899,7 +2903,7 @@ class Form
 
                         break;
                     case 'status':
-                        $joins .= 'LEFT JOIN (SELECT * FROM records_workflow_state GROUP BY recordID) lj_status USING (recordID)
+                        $joins .= 'LEFT JOIN (SELECT * FROM records_workflow_state) lj_status USING (recordID)
 							   LEFT JOIN (SELECT stepID, stepTitle FROM workflow_steps) lj_steps ON (lj_status.stepID = lj_steps.stepID) ';
 
                         break;
@@ -3009,6 +3013,30 @@ class Form
             $joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
         }
 
+        if(isset($_GET['debugQuery'])) {
+            if($this->login->checkGroup(1)) {
+                $debugQuery = str_replace(["\r", "\n"], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
+                $debugVars = [];
+                foreach($vars as $key => $value) {
+                    if(strpos($key, ':data') !== false
+                        || !is_numeric($value)) {
+                        $debugVars[$key] = '"'.$value.'"';
+                    }
+                    else {
+                        $debugVars[$key] = $value;
+                    }
+                }
+
+                header('X-LEAF-Query: '. str_replace(array_keys($debugVars), $debugVars, $debugQuery));
+
+                return $res = $this->db->prepared_query('EXPLAIN SELECT * FROM records
+                                                        ' . $joins . '
+                                                        WHERE ' . $conditions . $sort . $limit, $vars);
+            }
+            else {
+                return XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+            }
+        }
         $res = $this->db->prepared_query('SELECT * FROM records
     										' . $joins . '
                                             WHERE ' . $conditions . $sort . $limit, $vars);
@@ -3074,7 +3102,7 @@ class Form
                                                 ORDER BY time', array());
             foreach ($res2 as $item)
             {
-                $user = $dir->lookupLogin($item['userID']);
+                $user = $dir->lookupLogin($item['userID'], true);
                 $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
                 $item['approverName'] = $name;
 
@@ -3119,7 +3147,7 @@ class Form
             $res2 = $this->db->prepared_query($strSQL, array());
 
             foreach ($res2 as $item) {
-                $user = $dir->lookupLogin($item['resolvedBy']);
+                $user = $dir->lookupLogin($item['resolvedBy'], true);
                 $nameResolved = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']} " : $item['resolvedBy'];
                 $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
             }
@@ -3230,14 +3258,14 @@ class Form
                 break;
         }
         $vars = array();
-        $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+        $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators ".
                     "LEFT JOIN categories USING (categoryID) ".
                     "WHERE indicators.disabled <= 1 ".
                         "AND format != '' ".
                         "AND name != '' ".
                         "AND categories.disabled = 0" . $orderBy;
         if($includeHeadings) {
-            $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+            $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators ".
                         "LEFT JOIN categories USING (categoryID) ".
                         "WHERE indicators.disabled <= 1 ".
                             "AND name != '' ".
@@ -3245,7 +3273,7 @@ class Form
         }
         $res = $this->db->prepared_query($strSQL, $vars);
 
-        $strSQL = "SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive FROM indicators ".
+        $strSQL = "SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators ".
                     "LEFT JOIN categories USING (categoryID) ".
 					"WHERE indicators.disabled <= 1 ".
 					    "AND categories.disabled = 0" . $orderBy;
@@ -3273,6 +3301,7 @@ class Form
             $temp['name'] = $item['name'];
             $temp['format'] = $item['format'];
             $temp['description'] = $item['description'];
+            $temp['isDisabled'] = (int)$item['isDisabled'];
             $temp['categoryName'] = $item['categoryName'];
             $temp['categoryID'] = $item['categoryID'];
             $temp['is_sensitive'] = $item['is_sensitive'];
@@ -3296,6 +3325,7 @@ class Form
                     $temp['name'] = $item['name'];
                     $temp['format'] = $item['format'];
                     $temp['description'] = $item['description'];
+                    $temp['isDisabled'] = (int)$item['isDisabled'];
                     $temp['categoryName'] = $item['categoryName'];
                     $temp['categoryID'] = $item['categoryID'];
                     $temp['is_sensitive'] = $item['is_sensitive'];
@@ -3508,6 +3538,7 @@ class Form
                 $child[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $field['categoryID']);
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
                 $child[$idx]['sort'] = $field['sort'];
+                $child[$idx]['has_code'] = trim($field['html']) != '' || trim($field['htmlPrint']) != '';
 
                 $inputType = explode("\n", $field['format']);
                 $numOptions = count($inputType) > 1 ? count($inputType) : 0;

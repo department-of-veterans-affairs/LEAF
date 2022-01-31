@@ -66,11 +66,34 @@ class Email
     /**
      * Checks for custom templates and returns the filepath if so. Otherwise returns the regular filepath.
      * @param string $tpl the filename of the template
+     * @param string $type the type of template
      * @return string The filepath of the template passed
      */
-    function getFilepath($tpl)
+    function getFilepath($tpl, $type = '')
     {
-        return file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}") ? "custom_override/{$tpl}" : "{$tpl}";
+        if ($type === 'body') {
+            if (file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}")) {
+                return "custom_override/{$tpl}";
+            } else if (preg_match('/CustomEvent_/', $tpl)) {
+                return "base_templates/LEAF_template_body.tpl";
+            } else {
+                return "{$tpl}";
+            }
+        } else if ($type === 'subject') {
+            if (file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}")) {
+                return "custom_override/{$tpl}";
+            } else if (preg_match('/CustomEvent_/', $tpl)) {
+                return "base_templates/LEAF_template_subject.tpl";
+            } else {
+                return "{$tpl}";
+            }
+        } else {
+            if (file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}")) {
+                return "custom_override/{$tpl}";
+            } else {
+                return "{$tpl}";
+            }
+        }
     }
 
     /**
@@ -413,6 +436,21 @@ class Email
     }
 
     /**
+     * Gets templated ID by label name
+     * @param string $emailTemplateLabel email template name
+     * @return int Email template ID number
+     */
+    function getTemplateIDByLabel($emailTemplateLabel)
+    {
+        $vars = array(':emailTemplateLabel' => $emailTemplateLabel);
+        $strSQL = "SELECT `emailTemplateID` FROM `email_templates` ".
+            "WHERE label = :emailTemplateLabel;";
+        $res = $this->portal_db->prepared_query($strSQL, $vars);
+
+        return $res[0]['emailTemplateID'];
+    }
+
+    /**
      * Gets template filenames from the db based on emailTemplateID and sets the properties
      * @param int $emailTemplateID emailTemplateID from email_templates table
      * @return void
@@ -481,7 +519,7 @@ class Email
      */
     function setSubjectWithTemplate($subjectTemplate)
     {
-        $htmlOutput = $this->setContent($this->getFilepath($subjectTemplate));
+        $htmlOutput = $this->setContent($this->getFilepath($subjectTemplate, 'subject'));
         $this->setSubject($htmlOutput);
     }
 
@@ -511,7 +549,7 @@ class Email
      */
     function setBodyWithTemplate($bodyTemplate)
     {
-        $htmlOutput = $this->setContent($this->getFilepath($bodyTemplate));
+        $htmlOutput = $this->setContent($this->getFilepath($bodyTemplate, 'body'));
         $this->emailBody = $this->setContent(
             'LEAF_main_email_template.tpl',
             'emailBody',
@@ -541,7 +579,7 @@ class Email
 
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
-        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ser.serviceID, ser.service, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
+        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ser.serviceID, ser.service, ser.groupID AS quadrad, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
             "LEFT JOIN records AS rec USING (recordID) ".
             "LEFT JOIN step_dependencies AS sd USING (stepID) ".
             "LEFT JOIN dependency_privs USING (dependencyID) ".
@@ -563,7 +601,8 @@ class Email
                 "siteRoot" => $this->siteRoot
             ));
 
-            $this->setTemplateByID($emailTemplateID);
+            if ($emailTemplateID < 2)
+                $this->setTemplateByID($emailTemplateID);
 
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
@@ -592,7 +631,7 @@ class Email
 
                     // special case for quadrads
                     case 8:
-                        $vars = array(':groupID' => $approver['groupID']);
+                        $vars = array(':groupID' => $approver['quadrad']);
                         $strSQL = "SELECT userID FROM users WHERE groupID=:groupID AND active=1";
                         $quadrad = $this->portal_db->prepared_query($strSQL, $vars);
                         foreach ($quadrad as $member) {
@@ -693,6 +732,8 @@ class Email
             $tmp = $dir->lookupLogin($recordInfo['userID']);
             $this->addRecipient($tmp[0]['Email']);
             $this->sendMail();
+        } elseif ($emailTemplateID > 1) {
+            $this->sendMail(); // Check for custom event to finalize email on Notify Next
         }
     }
 }

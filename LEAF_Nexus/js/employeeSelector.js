@@ -35,7 +35,7 @@ employeeSelector.prototype.initialize = function() {
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" /></div>\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
-			<input id="'+this.prefixID+'input" type="search" class="employeeSelectorInput" aria-label="search input"></input></div>\
+			<input id="'+this.prefixID+'input" type="search" class="employeeSelectorInput" aria-label="search input"/></div>\
 			<div id="'+this.prefixID+'result" aria-label="search results"></div>');
 
 	$('#' + this.prefixID+ 'input').on('keydown', function(e) {
@@ -67,7 +67,7 @@ employeeSelector.prototype.showBusy = function() {
 
 employeeSelector.prototype.select = function(id) {
 	this.selection = id;
-
+	if(typeof event.key !== 'undefined' && event.key.toLowerCase() !== 'enter') return;
 	$.each($('#'+ this.containerID +' .employeeSelected'), function(key, item) {
 		$('#' + item.id).removeClass('employeeSelected');
 		$('#' + item.id).addClass('employeeSelector');
@@ -221,13 +221,13 @@ employeeSelector.prototype.search = function() {
 		                	}
 
 		                	if(t.outputStyle == 'micro') {
-			                	$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
+			                	$('#' + t.prefixID + 'result_table').append('<tr tabindex="0" id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
 			                			<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
 			                			<td class="employeeSelectorContact">'+ email + phone +'</td>\
 			                			</tr>');
 		                	}
 		                	else {
-			                	$('#' + t.prefixID + 'result_table').append('<tr id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
+			                	$('#' + t.prefixID + 'result_table').append('<tr tabindex="0" id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
 			                			<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
 		                    			<td class="employeeSelectorService">'+ groupTitle + '<span>' +  room + '</span></td>\
 		                    			<td class="employeeSelectorContact">'+ email + phone +'</td>\
@@ -237,6 +237,7 @@ employeeSelector.prototype.search = function() {
 		                	$('#' + t.prefixID + 'emp' + response[i].empUID).addClass('employeeSelector');
 
 		                	$('#' + t.prefixID + 'emp' + response[i].empUID).on('click', t.getSelectorFunction(response[i].empUID));
+							$('#' + t.prefixID + 'emp' + response[i].empUID).on('keypress', t.getSelectorFunction(response[i].empUID));
 		                	t.numResults++;
 		            	}
 
