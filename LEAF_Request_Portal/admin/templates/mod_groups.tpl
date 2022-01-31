@@ -414,7 +414,7 @@ function getGroupList() {
                                     // Check for active members to list
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
-                                            $(`#employee_table`).append(`<button id="removeMember_${counter}" class="usa-button leaf-btn-small margin-bottom=".5rem">${toTitleCase(res[i].Fname)} ${toTitleCase(res[i].Lname)}</button>`);
+                                            $(`#employee_table`).append(`<button id="removeMember_${counter}" class="usa-button leaf-btn-small" style="margin-bottom: .5rem">${toTitleCase(res[i].Fname)} ${toTitleCase(res[i].Lname)}</button>`);
                                             $(`#removeMember_${counter}`).one(`click`, function(userID) {
                                                 return function() {
                                                     removeMember(groupID, userID);
@@ -477,7 +477,7 @@ function getGroupList() {
                                                 success: function(res) {
                                                     if(!isNaN(res)) {
                                                         addMember(groupID, selectedUserName);
-                                                        $(`#employee_table`).append(`<button id="removeMember_${counter}" class="usa-button leaf-btn-small margin-bottom=".5rem">${toTitleCase(selectedUser.firstName)} ${toTitleCase(selectedUser.lastName)}</button>`);
+                                                        $(`#employee_table`).append(`<button id="removeMember_${counter}" class="usa-button leaf-btn-small" style="margin-bottom: .5rem">${toTitleCase(selectedUser.firstName)} ${toTitleCase(selectedUser.lastName)}</button>`);
                                                         $(`#removeMember_${counter}`).one(`click`, function(userID) {
                                                             return function() {
                                                                 removeMember(groupID, userID);
