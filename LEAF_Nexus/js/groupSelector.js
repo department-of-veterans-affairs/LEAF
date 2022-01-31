@@ -198,8 +198,6 @@ groupSelector.prototype.search = function () {
                     t.numResults = 0;
                     t.jsonResponse = response;
 
-                    console.log(response);
-
                     $("#" + t.prefixID + "result").html("");
                     var buffer =
                         '<table class="groupSelectorTable"><tr><th>Group Title</th></tr><tbody id="' +
