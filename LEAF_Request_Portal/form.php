@@ -495,6 +495,7 @@ class Form
         $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
         $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
         $form[$idx]['sort'] = $data[0]['sort'];
+        $form[$idx]['has_code'] = trim($data[0]['html']) != '' || trim($data[0]['htmlPrint']) != '';
 
         // handle file upload
         if (isset($data[0]['data'])
@@ -3537,6 +3538,7 @@ class Form
                 $child[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $field['categoryID']);
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
                 $child[$idx]['sort'] = $field['sort'];
+                $child[$idx]['has_code'] = trim($field['html']) != '' || trim($field['htmlPrint']) != '';
 
                 $inputType = explode("\n", $field['format']);
                 $numOptions = count($inputType) > 1 ? count($inputType) : 0;
