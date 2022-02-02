@@ -698,7 +698,7 @@ class Employee extends Data
 
                 break;
             // Format: First Last
-            case ($idx = strpos($input, ' ')) > 0:
+            case ($idx = strpos($input, ' ')) > 0 && strpos(strtolower($input), 'username:') === false:
                 if ($this->debug)
                 {
                     $this->log[] = 'Format Detected: First Last';
@@ -732,7 +732,7 @@ class Employee extends Data
             // Format: Loginname
             case strpos(strtolower($input), 'vha') !== false:
             case strpos(strtolower($input), 'vaco') !== false:
-            case strpos(strtolower($input), 'userName:') !== false:
+            case strpos(strtolower($input), 'username:') !== false:
                    if ($this->debug)
                    {
                        $this->log[] = 'Format Detected: Loginname';
