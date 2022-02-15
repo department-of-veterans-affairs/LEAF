@@ -42,8 +42,12 @@
                 [ blank ]
             <!--{/if}-->
                 </span>
-            &nbsp;<img src="../../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" tabindex="0" onkeypress="keyPressGetForm(event, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" alt="Edit this field" title="Edit this field" style="cursor: pointer" />&nbsp;
-            &nbsp;<img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=16" tabindex="0" onkeypress="keyPressEditIndicatorPrivileges(event, <!--{$indicator.indicatorID}-->)" onclick="editIndicatorPrivileges(<!--{$indicator.indicatorID}-->);" alt="Edit indicator privileges" title="Edit indicator privileges" style="cursor: pointer" />&nbsp;
+
+            &nbsp;<img src="../../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" tabindex="0" onkeypress="keyPressGetForm(event, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" alt="Edit this field" title="Edit this field" style="cursor: pointer" />
+            &nbsp;<img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=16" tabindex="0" onkeypress="keyPressEditIndicatorPrivileges(event, <!--{$indicator.indicatorID}-->)" onclick="editIndicatorPrivileges(<!--{$indicator.indicatorID}-->);" alt="Edit indicator privileges" title="Edit indicator privileges" style="cursor: pointer" />
+            <!--{if $indicator.has_code}-->
+                &nbsp;<img src="../../libs/dynicons/?img=document-properties.svg&amp;w=16" tabindex="0" alt="Advanced Options present" title="Advanced Options present" style="cursor: pointer" />
+            <!--{/if}-->
             </span>
         <!--{else}-->
       <div class="printsubblock" id="subIndicator_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
@@ -64,8 +68,12 @@
                         [ blank ]
                     <!--{/if}-->
                     </span>
-                    &nbsp;<img src="../../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" tabindex="0" onkeypress="keyPressGetForm(event, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" alt="Edit this field" title="Edit this field" style="cursor: pointer" />&nbsp;
-                    &nbsp;<img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=16" tabindex="0" onkeypress="keyPressEditIndicatorPrivileges(event, <!--{$indicator.indicatorID}-->)" onclick="editIndicatorPrivileges(<!--{$indicator.indicatorID}-->);" alt="Edit indicator privileges" title="Edit indicator privileges" style="cursor: pointer" />&nbsp;
+
+                    &nbsp;<img src="../../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" tabindex="0" onkeypress="keyPressGetForm(event, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" alt="Edit this field" title="Edit this field" style="cursor: pointer" />
+                    &nbsp;<img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=16" tabindex="0" onkeypress="keyPressEditIndicatorPrivileges(event, <!--{$indicator.indicatorID}-->)" onclick="editIndicatorPrivileges(<!--{$indicator.indicatorID}-->);" alt="Edit indicator privileges" title="Edit indicator privileges" style="cursor: pointer" />
+                    <!--{if $indicator.has_code}-->
+                        &nbsp;<img src="../../libs/dynicons/?img=document-properties.svg&amp;w=16" tabindex="0" alt="Advanced Options present" title="Advanced Options present" style="cursor: pointer" />
+                    <!--{/if}-->
                 <br /><br /><span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Add Sub-question" title="Add Sub-question"/> Add Sub-question</span>
                 </span>
         <!--{/if}-->

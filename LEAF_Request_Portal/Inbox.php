@@ -111,6 +111,7 @@ class Inbox
                 $resPersonDesignatedRecords[$indicatorID] = $this->db->prepared_query("SELECT * FROM data
                                                                     LEFT JOIN indicators USING (indicatorID)
                                                                     WHERE recordID IN ({$recordIDs})
+                                                                        AND data.data REGEXP '^[0-9]+$'
                                                                         AND indicatorID=:indicatorID
                                                                         AND series=1", $vars);
             }
@@ -258,10 +259,9 @@ class Inbox
                                 require_once 'VAMC_Directory.php';
                                 $this->dir = new VAMC_Directory;
                             }
-
                             $user = $this->dir->lookupEmpUID($empUID);
 
-                            $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
+                            $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "Unknown User";
                             $out[$res[$i]['dependencyID']]['approverName'] = $approverName;
                         }
                     }
@@ -290,7 +290,7 @@ class Inbox
     
                                 $user = $this->dir->lookupEmpUID($empUID);
     
-                                $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "unknown user";
+                                $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "Unknown User";
                                 
                                 $out[$res[$i]['dependencyID']]['approverName'] = 'Backup for '.$approverName;
                             }
