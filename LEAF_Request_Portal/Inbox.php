@@ -35,7 +35,7 @@ class Inbox
      * @param int Optional dependencyID to filter inbox based on the dependencyID
      * @return array database result
      */
-    public function getInbox($dependencyID = 0, $nonAdmin = false)
+    public function getInbox($dependencyID = 0)
     {
         $vars = array();
         $tmpQuery = '';
@@ -141,13 +141,9 @@ class Inbox
                         $res[$i]['categoryNames'] = trim($res[$i]['categoryNames'], ' | ');
                     }
 
-                    // Initialize to no access to everything by default,
-                    $res[$i]['hasAccess'] = false;
+                    // Initialize to no access to everything by default, unless the user is an admin
+                    $res[$i]['hasAccess'] = $this->login->checkGroup(1);
 
-                    // Unless function is passed variable to tell it not to do so
-                    if (!$nonAdmin) {
-                        $res[$i]['hasAccess'] = $this->login->checkGroup(1);
-                    }
                     // check permissions
                     $res2 = null;
                     if (isset($this->cache["dependency_privs_{$res[$i]['dependencyID']}"]))
