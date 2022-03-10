@@ -141,7 +141,9 @@ class Inbox
                         $res[$i]['categoryNames'] = trim($res[$i]['categoryNames'], ' | ');
                     }
 
-                    // Initialize to full access to everything by default,
+                    // Initialize to no access to everything by default,
+                    $res[$i]['hasAccess'] = false;
+
                     // Unless function is passed variable to tell it not to do so
                     if (!$nonAdmin) {
                         $res[$i]['hasAccess'] = $this->login->checkGroup(1);
