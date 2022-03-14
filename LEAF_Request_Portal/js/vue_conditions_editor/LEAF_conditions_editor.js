@@ -1,37 +1,56 @@
 const ConditionsEditor = Vue.createApp({
     data() {
         return {
-            test: 'test main app data property'
+            forms: [],
+            selectedFormCatID: ''
         }
     },
+    methods: {
+    },
     beforeMount(){
-        //ajax test. TODO: get conditions for form 
+        //get forms for dropdown
         let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("test_ajax").innerHTML = this.responseText;
+        xhttp.onreadystatechange = () => {
+            if (xhttp.readyState == 4 && xhttp.status == 200) {
+                const list = JSON.parse(xhttp.responseText);
+                const filteredList = list.filter(ele => ele.categoryID.includes('form_'));
+                this.forms = filteredList.sort((a,b) => a.categoryName - b.categoryName).slice();
             }
         };
-        xhttp.open("GET", "../api/form/indicator/list/disabled", true);
+        xhttp.open("GET", "../api/form/categories", true);
         xhttp.send();
-        
     },
     template: `<div>
         <div id="condition_editor_content">
-            <editor-nav></editor-nav>
+            <editor-nav :forms="forms"></editor-nav>
             <editor-main></editor-main>
             <editor-actions></editor-actions>
-        </div>
-        <div style="margin: 1.2em; font-size: 12px"><!-- TEST: -->
-            <p>test ajax call to ../api/form/indicator/list/disabled</p>
-            <div id="test_ajax"></div>
         </div>
     </div>`
 });
 
+
 ConditionsEditor.component('editor-nav', {
+    data() {
+        return {
+            selectedCategoryID: ''
+        }
+    },
+    props: {
+        forms: Array
+    },
+    methods: {
+        selectForm(){
+            //TODO:
+        }
+    },
     template: `<div id="condition_editor_nav">
         <h3>Conditions List</h3>
+        <!-- TODO: emit to parent for other components -->
+        <select title="select a form" name="form-selector" v-model="selectedCategoryID"> 
+            <option v-for="f in forms" :title="f.categoryName" :value="f.categoryID">{{f.categoryName}}</option>
+        </select>
+        <p>selected catID: {{ selectedCategoryID }}</p>
         <ul>
             <li>temp</li>
             <li>list</li>
@@ -40,11 +59,15 @@ ConditionsEditor.component('editor-nav', {
     </div>`
 });
 
+
+
 ConditionsEditor.component('editor-main', {
     template: `<div id="condition_editor_main">
         <h3>Conditions Editor</h3>
     </div>`
 });
+
+
 
 ConditionsEditor.component('editor-actions', {
     template: `<div id="condition_editor_actions">
@@ -54,11 +77,6 @@ ConditionsEditor.component('editor-actions', {
                 <li><button id="btn_form_editor" @click="toFormEditor">Back to Form Editor</button></li>
             </ul>
         </div>`,
-    data() {
-        return {
-            compTest: 'comp data',
-        }
-    },
     methods: {
         addCondition(){
             console.log('called addCondition')

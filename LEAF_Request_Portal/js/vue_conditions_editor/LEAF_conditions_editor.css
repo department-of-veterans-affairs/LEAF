@@ -1,7 +1,9 @@
 #condition_editor_content {
-    display: flex;
-    justify-content: space-between;
-    margin: 1em;
+    margin: 20px;
+    display: grid;
+    grid-gap: 20px;
+    grid-template-columns: repeat(24, 1fr);
+    min-width: fit-content;
 }
 #condition_editor_content > div {
     padding: 0.75em;
@@ -20,23 +22,30 @@
     align-items: center;
     width: 100%;
     margin: 0;
-    cursor: pointer;
 }
 
-
+#condition_editor_nav {
+    grid-column: 1 / span 5; 
+}
 #condition_editor_main {
-    min-width: 350px;
-    width: 60%;
-    margin: 0 1em;
+    grid-column: 7 / span 12;
 }
-#condition_editor_actions, #condition_editor_nav {
+#condition_editor_actions {
+    grid-column: 20 / span 5; 
+}
+#condition_editor_actions, #condition_editor_nav, #condition_editor_main {
     background-color: white;
-    min-width: 175px;
-    max-width: 225px;
-    width: 25%;
     height: fit-content;
+    min-width: 175px;
 }
 
+/* option tags cannot be styled easily.s  */
+#condition_editor_nav select {
+    font-size: 85%;
+    margin-bottom: 1em;
+    text-overflow: ellipsis;
+    width: 100%;
+}
 
 #condition_editor_nav li {
     height: 30px;
@@ -53,29 +62,42 @@
     padding: 0.2em 0.4em;
     width: 100%;
     border-radius: 3px;
+    cursor: pointer;
 }
-#btn_add_condition {
+
+#btn_add_condition, #btn_add_condition:active, #btn_add_condition:focus {
     background-color: #00A91C;
-    border: 1px solid #00A91C;
+    border: 1px solid #00A91C !important; /*NOTE: avoids some leaf styling */
     color: white;
     margin-bottom: 1em;
 }
-#btn_form_editor {
+#btn_form_editor, #btn_form_editor:active, #btn_form_editor:focus {
     background-color: white;
     color: #005EA2;
-    border: 1px solid #005EA2;
+    border: 1px solid #005EA2 !important;
 }
 
-
-@media only screen and (max-width: 768px) {
+@media only screen and (min-width: 1440px) {
     #condition_editor_content {
-        flex-direction: column;
-        justify-content: center;
-        margin: 0;
+        max-width: 1440px;
+        margin: 20px auto;
     }
-    #condition_editor_content > div {
-        width: 100%;
-        margin: 1em 0 0;
-        max-width: none;
+}
+
+@media only screen and (max-width: 1024px) {
+    #condition_editor_nav {
+        grid-column: 1 / span 5; 
+    }
+    #condition_editor_main {
+        grid-column: 6 / span 14;
+    }
+    #condition_editor_actions {
+        grid-column: 20 / span 5; 
+    }
+}
+
+@media only screen and (max-width: 587px) {
+    #condition_editor_actions, #condition_editor_nav, #condition_editor_main {
+        grid-column: 1 / span 24; 
     }
 }
