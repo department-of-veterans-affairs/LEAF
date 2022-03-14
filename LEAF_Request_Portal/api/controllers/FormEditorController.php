@@ -152,6 +152,11 @@ class FormEditorController extends RESTfulResponse
             return $formEditor->setHtmlPrint((int)$args[0], $_POST['htmlPrint']);
         });
 
+        // Set Conditional Formatting for Indicator
+        $this->index['POST']->register('formEditor/[digit]/condition', function ($args) use ($formEditor) {
+            return $formEditor->setCondition((int)$args[0], $_POST['condition']);
+        });
+
         $this->index['POST']->register('formEditor/new', function ($args) use ($formEditor) {
             return $formEditor->createForm(
                 XSSHelpers::sanitizeHTML($_POST['name']),

@@ -345,6 +345,25 @@ class FormEditor
         return $result;
     }
 
+    public function setCondition($indicatorID, $input)
+    {
+        $vars = array(
+            ':indicatorID' => $indicatorID,
+            ':input' => $input
+        );
+
+        $result =  $this->db->prepared_query('INSERT INTO indicator_conditions '.
+    								'SET indicatorID=:indicatorID, condition=:input '.
+                                    'ON DUPLICATE KEY UPDATE condition=:input', $vars);
+        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "condition", $input)
+        ]);
+
+        return $result;
+    }
+
     /**
      * @param string $name
      * @param string $description
