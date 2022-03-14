@@ -1,0 +1,81 @@
+#condition_editor_content {
+    display: flex;
+    justify-content: space-between;
+    margin: 1em;
+}
+#condition_editor_content > div {
+    padding: 0.75em;
+    border-radius: 4px;
+}
+#condition_editor_content h3 {
+    margin: 0 0 0.75em;
+}
+#condition_editor_content ul {
+    padding: 0;
+    margin: 0;
+}
+#condition_editor_content li {
+    list-style-type: none;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    cursor: pointer;
+}
+
+
+#condition_editor_main {
+    min-width: 350px;
+    width: 60%;
+    margin: 0 1em;
+}
+#condition_editor_actions, #condition_editor_nav {
+    background-color: white;
+    min-width: 175px;
+    max-width: 225px;
+    width: 25%;
+    height: fit-content;
+}
+
+
+#condition_editor_nav li {
+    height: 30px;
+    border-bottom: 1px solid #A9AEB1;
+    border-left: 3px solid transparent;
+    padding: 0.2em 0.4em;
+}
+#condition_editor_nav li:focus, #condition_editor_nav li:hover, #condition_editor_nav li:active {
+    border-left: 3px solid #005EA2;
+}
+
+
+#condition_editor_actions button {
+    padding: 0.2em 0.4em;
+    width: 100%;
+    border-radius: 3px;
+}
+#btn_add_condition {
+    background-color: #00A91C;
+    border: 1px solid #00A91C;
+    color: white;
+    margin-bottom: 1em;
+}
+#btn_form_editor {
+    background-color: white;
+    color: #005EA2;
+    border: 1px solid #005EA2;
+}
+
+
+@media only screen and (max-width: 768px) {
+    #condition_editor_content {
+        flex-direction: column;
+        justify-content: center;
+        margin: 0;
+    }
+    #condition_editor_content > div {
+        width: 100%;
+        margin: 1em 0 0;
+        max-width: none;
+    }
+}
