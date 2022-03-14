@@ -1,12 +1,6 @@
 START TRANSACTION;
 
-CREATE TABLE `indicator_conditions`
-(
-    `indicatorID` smallint(5) NOT NULL,
-    `condition` text NULL,
-    CONSTRAINT `indicator_conditions_pk`
-        PRIMARY KEY (`indicatorID`)
-);
+ALTER TABLE `indicators` ADD COLUMN `condition` text NULL AFTER `htmlPrint`;
 
 UPDATE `settings` SET `data` = '2022031400' WHERE `settings`.`setting` = 'dbversion';
 
@@ -16,7 +10,7 @@ COMMIT;
 
 START TRANSACTION;
 
-DROP TABLE `indicator_conditions`;
+ALTER TABLE `indicators` DROP COLUMN `condition`;
 
 UPDATE `settings` SET `data` = '2021101400' WHERE `settings`.`setting` = 'dbversion';
 
