@@ -1,3 +1,7 @@
+.TEST {
+    color: red;
+}
+
 #condition_editor_content {
     margin: 20px;
     display: grid;
@@ -24,7 +28,7 @@
     margin: 0;
 }
 
-#condition_editor_nav {
+#condition_editor_list {
     grid-column: 1 / span 5; 
 }
 #condition_editor_main {
@@ -33,27 +37,26 @@
 #condition_editor_actions {
     grid-column: 20 / span 5; 
 }
-#condition_editor_actions, #condition_editor_nav, #condition_editor_main {
+#condition_editor_actions, #condition_editor_list, #condition_editor_main {
     background-color: white;
     height: fit-content;
     min-width: 175px;
 }
 
 /* option tags cannot be styled easily.s  */
-#condition_editor_nav select {
+#condition_editor_list select {
     font-size: 85%;
     margin-bottom: 1em;
     text-overflow: ellipsis;
     width: 100%;
 }
 
-#condition_editor_nav li {
-    height: 30px;
+#condition_editor_list li {
     border-bottom: 1px solid #A9AEB1;
     border-left: 3px solid transparent;
     padding: 0.2em 0.4em;
 }
-#condition_editor_nav li:focus, #condition_editor_nav li:hover, #condition_editor_nav li:active {
+#condition_editor_list li:focus, #condition_editor_list li:hover, #condition_editor_list li:active {
     border-left: 3px solid #005EA2;
 }
 
@@ -85,19 +88,19 @@
 }
 
 @media only screen and (max-width: 1024px) {
-    #condition_editor_nav {
-        grid-column: 1 / span 5; 
+    #condition_editor_list {
+        grid-column: 1 / span 6; 
     }
     #condition_editor_main {
-        grid-column: 6 / span 14;
+        grid-column: 7 / span 12;
     }
     #condition_editor_actions {
-        grid-column: 20 / span 5; 
+        grid-column: 19 / span 6; 
     }
 }
 
-@media only screen and (max-width: 587px) {
-    #condition_editor_actions, #condition_editor_nav, #condition_editor_main {
+@media only screen and (max-width: 769px) {
+    #condition_editor_actions, #condition_editor_list, #condition_editor_main {
         grid-column: 1 / span 24; 
     }
 }
