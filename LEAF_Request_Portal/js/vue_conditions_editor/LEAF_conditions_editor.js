@@ -20,10 +20,9 @@ const ConditionsEditor = Vue.createApp({
             xhttp.onreadystatechange = () => {
                 if (xhttp.readyState == 4 && xhttp.status == 200) {
                     const indicatorList = JSON.parse(xhttp.responseText);
-                    //
                     const filteredList = indicatorList.filter(form => form.categoryID === catID || form.parentCategoryID === catID);
                     this.selectedFormIndicators = filteredList;
-                    console.log(filteredList);
+                    
                     //object that better represents form structure
                     filteredList.forEach(indicator => {
                         //internal forms
@@ -98,6 +97,9 @@ ConditionsEditor.component('editor-list', {
     methods: {
         selectForm(){
             this.$emit('update-selected-form', this.selectedCategoryID);
+        },
+        selectIndicator(indID){
+            console.log('called select indicator', indID);
         }
     },
     template: `<div id="condition_editor_list">
@@ -108,7 +110,9 @@ ConditionsEditor.component('editor-list', {
         <i class="TEST"><p>selected catID: {{ selectedCategoryID }}</p>
         <p>indicator info (placeholder)</p></i>
         <ul>
-            <li v-for="i in selectedIndicators">{{ i.name }} (indicator {{ i.indicatorID }})</li>
+            <li v-for="i in selectedIndicators">
+                <button @click="selectIndicator(i.indicatorID)">{{ i.name }} (indicator {{ i.indicatorID }})</button>
+            </li>
         </ul>
     </div>`
 });

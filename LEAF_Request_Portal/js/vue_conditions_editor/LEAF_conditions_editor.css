@@ -51,13 +51,21 @@
     width: 100%;
 }
 
-#condition_editor_list li {
-    border-bottom: 1px solid #A9AEB1;
+#condition_editor_list button {
+    border: 0;
+    border-bottom: 1px solid #A9AEB1 !important;
     border-left: 3px solid transparent;
-    padding: 0.2em 0.4em;
+    padding: 0.2em;
+    width: 100%;
+    background-color: transparent;
+    text-align: left;
+    cursor: pointer;
 }
-#condition_editor_list li:focus, #condition_editor_list li:hover, #condition_editor_list li:active {
-    border-left: 3px solid #005EA2;
+#condition_editor_list button:focus, 
+#condition_editor_list button:hover, 
+#condition_editor_list button:active {
+    border-left: 3px solid #005EA2 !important;
+    background-color: #00b0ff80;
 }
 
 
@@ -67,6 +75,7 @@
     border-radius: 3px;
     cursor: pointer;
 }
+
 
 #btn_add_condition, #btn_add_condition:active, #btn_add_condition:focus {
     background-color: #00A91C;
