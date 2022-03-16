@@ -7,10 +7,13 @@ const ConditionsEditor = Vue.createApp({
             selectedFormIndicators: [],
             selectedFormConditions: [],
             selectedParentOperators: [],
+            selectedOperator: '',
+            selectedParentValue: '',
             selectedFormat: '',
             selectedValueOptions: [], //for radio, dropdown
             childIndicator: {},
             childIndicatorOptions: [],  //selectedform inds - selected ind
+            selectedChildOutcome: '',
             formStructure: {} //TEST, TODO:
         }
     },
@@ -20,6 +23,9 @@ const ConditionsEditor = Vue.createApp({
             this.selectedParentOperators = [];
             this.selectedValueOptions = [];
             this.childIndicator = {};
+            this.selectedOperator = '';
+            this.selectedParentValue = '';
+            this.selectedChildOutcome = '';
             this.childIndicatorOptions = this.selectedFormIndicators.filter(i => i.indicatorID !== indicator.indicatorID);
 
             this.format = indicator.format.indexOf("\n") === -1 ?
@@ -77,8 +83,11 @@ const ConditionsEditor = Vue.createApp({
             this.selectedFormCatID = catID;
             this.selectedIndicator = {};
             this.selectedParentOperators = [];
+            this.selectedOperator = '';
             this.selectedValueOptions = [];  //values for radio, multiselect, dropdown formats
             this.childIndicatorOptions = []; //which child indicators can be selected
+            this.selectedChildOutcome = '';
+            this.selectedParentValue = '';
  
             let formStructure = { //TEST, TODO: better list menu 
                 categoryID: catID,
@@ -116,6 +125,15 @@ const ConditionsEditor = Vue.createApp({
             };
             xhttp.open("GET", `../api/form/indicator/list`, true);
             xhttp.send(); //*/
+        },
+        updateSelectedOutcome(outcome){
+            this.selectedChildOutcome = outcome;
+        },
+        updateSelectedOperator(operator){
+            this.selectedOperator = operator;
+        },
+        updateSelectedParentValue(value){
+            this.selectedParentValue = value;
         }
     },
     beforeMount(){
@@ -153,12 +171,18 @@ const ConditionsEditor = Vue.createApp({
                 @update-selected-form="getCategoryIndicators">
             </editor-list>
             <editor-main
-                :selectedValueOptions="selectedValueOptions" 
+                :selectedFormCatIDProp="selectedFormCatID"
+                :selectedValueOptions="selectedValueOptions"
                 :selectedIndicators="selectedFormIndicators"
                 :selectedIndicatorProp="selectedIndicator"
                 :selectedParentOperators="selectedParentOperators"
                 :childIndicatorOptions="childIndicatorOptions"
-                @update-selected-indicator="updateSelectedIndicator">
+                :selectedChildOutcome="selectedChildOutcome"
+                :selectedParentValue="selectedParentValue"
+                @update-selected-indicator="updateSelectedIndicator"
+                @update-selected-operator="updateSelectedOperator"
+                @update-selected-parent-value="updateSelectedParentValue"
+                @update-selected-outcome="updateSelectedOutcome">
             </editor-main>
             <editor-actions></editor-actions>
         </div>
@@ -168,6 +192,9 @@ const ConditionsEditor = Vue.createApp({
             <p><b>selected indID:</b> {{ selectedIndicator }}</p>
             <p><b>indicator info for selected form:</b> {{ selectedFormIndicators }}</p>
             <p><b>indicators that have conditions:</b> {{ selectedFormConditions }}</p>
+            <p><b>selected operator:</b> {{ selectedOperator }}</p>
+            <p><b>selected parent value:</b> {{ selectedParentValue }}</p>
+            <p><b>selected outcome:</b> {{ selectedChildOutcome }}</p>
         </div>
     </div>`
 });
@@ -209,31 +236,62 @@ ConditionsEditor.component('editor-main', {
     data() {
         return {
             selectedIndicator: {},
-            selectedChildIndicator: {}
+            selectedChildIndicator: {},
+            selectedOperator: '',
+            selectedParentValue: '',
+            //selectedChildValue: '', TODO
+            selectedOutcome: ''
         }
     },
     props: {
+        selectedFormCatIDProp: String,
         selectedIndicators: Array,      //all available inds for currently selected form
         selectedIndicatorProp: Object,  //info for the currently selected indicator
         selectedParentOperators: Array,       //available operators for the format of above ind
         selectedValueOptions: Array,    //values for dropdown formats
         childIndicator: Object,
         childIndicatorOptions: Array, //which indicators can be chosen for children
+        selectedChildOutcome: String
+    },
+    watch: {
+        selectedFormCatIDProp(){
+            this.selectedIndicator = '';
+            this.selectedOperator = '';
+            this.selectedParentValue = '';
+            this.selectedChildIndicator = {};
+            this.selectedOutcome = '';
+            this.selectedChildValue = '';
+        }
     },
     methods: {
         selectIndicator() {
             this.$emit('update-selected-indicator', this.selectedIndicator);
+            this.selectedOperator = '';
+            this.selectedParentValue = '';
+            this.selectedChildIndicator = {};
+            this.selectedOutcome = '';
+            this.selectedChildValue = '';
         },
         selectChildIndicator() {
             this.$emit('update-selected-child', this.selectedChildIndicator);
+            this.selectedOutcome = '';
         },
-        validateCurrency(event){
+        validateCurrency(event) {
             const currencyRegex = /^(\d*)(\.\d{0,2})?$/;
             const val = event.target.value;
             if (!currencyRegex.test(val)) { //TODO: userfeedback
                 document.getElementById('currency-format-input').value = '';
             }
         },
+        selectChildOutcome() {
+            this.$emit('update-selected-outcome', this.selectedOutcome);
+        },
+        selectOperator() {
+            this.$emit('update-selected-operator', this.selectedOperator);
+        },
+        selectParentValue() {
+            this.$emit('update-selected-parent-value', this.selectedParentValue);
+        }
     },
     template: `<div id="condition_editor_main">
         <h3>Conditions Editor</h3>
@@ -246,7 +304,9 @@ ConditionsEditor.component('editor-main', {
                     @change="selectIndicator">    
                 <option v-for="i in selectedIndicators" :title="i.name" :value="i">{{i.name }} (indicator {{i.indicatorID}})</option>
             </select>
-            <select v-if="selectedParentOperators.length > 0">
+            <select v-if="selectedParentOperators.length > 0"
+                    v-model="selectedOperator"
+                    @change="selectOperator">
                 <option v-for="o in selectedParentOperators" :value="o.val">{{ o.text }}</option>
             </select>
             <input v-if="selectedIndicatorProp.format==='date'" type="date"/>
@@ -255,7 +315,9 @@ ConditionsEditor.component('editor-main', {
                 id="currency-format-input" 
                 type="number" step="0.01" @change="validateCurrency"/>
             <select v-if="typeof selectedIndicatorProp.format === 'string' 
-                && selectedIndicatorProp.format.includes('dropdown')">
+                && selectedIndicatorProp.format.includes('dropdown')"
+                    v-model="selectedParentValue"
+                    @change="selectParentValue">
                 <option v-for="val in selectedValueOptions"> {{ val }} </option>
             </select>
             <select v-if="typeof selectedIndicatorProp.format === 'string' 
@@ -269,6 +331,14 @@ ConditionsEditor.component('editor-main', {
                     v-model="selectedChildIndicator" 
                     @change="selectChildIndicator">    
                 <option v-for="c in childIndicatorOptions" :title="c.name" :value="c">{{c.name }} (indicator {{c.indicatorID}})</option>
+            </select>
+            <select v-if="selectedChildIndicator.indicatorID > 0" title="select outcome"
+                    name="child-outcome-selector"
+                    v-model="selectedOutcome"
+                    @change="selectChildOutcome">
+                    <option value="Show Question">Show Question</option>
+                    <option value="Hide Question">Hide Question</option>
+                    <option value="Pre-fill Question">Pre-fill Question</option>
             </select>
         </div>
     </div>`
