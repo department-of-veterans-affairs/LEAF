@@ -87,6 +87,7 @@ class FormEditorController extends RESTfulResponse
             $package['categoryID'] = XSSHelpers::xscrub($_POST['categoryID']);
             $package['html'] = $_POST['html'];
             $package['htmlPrint'] = $_POST['htmlPrint'];
+            $package['condition'] = $_POST['condition'];
             $package['required'] = (int)$_POST['required'];
             $package['is_sensitive'] = $_POST['is_sensitive'];
             $package['sort'] = (int)$_POST['sort'];
