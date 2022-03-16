@@ -102,7 +102,7 @@ const ConditionsEditor = Vue.createApp({
                     //all indicators associated with this form, for dropdown selection to add conditions
                     const formIndicators = indicatorList.filter(indi => !indi.format.includes('orgchart') && (indi.categoryID === catID || indi.parentCategoryID === catID));
                     //indicators that already have conditions, for list display / edit
-                    const formConditions = formIndicators.filter(indi => indi.condition !== null && indi.condition !== '');
+                    const formConditions = formIndicators.filter(indi => indi.conditions !== null && indi.conditions !== '');
                     this.selectedFormIndicators = formIndicators;
                     this.selectedFormConditions = formConditions;
                     
@@ -138,7 +138,6 @@ const ConditionsEditor = Vue.createApp({
     },
     beforeMount(){
         //get forms for dropdown
-        //* NOTE: xml
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = () => {
             if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -148,20 +147,7 @@ const ConditionsEditor = Vue.createApp({
             }
         };
         xhttp.open("GET", "../api/form/categories", true);
-        xhttp.send(); //*/
-        /* //NOTE: fetch API, not sure which might be better here
-        fetch("../api/form/categories").then(response => { 
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new TypeError("returned content-type not JSON");
-                }
-                if (response.status !== 200) {
-                    console.log('status:', response.status, response.statusText);
-                } else return response.json();
-            }).then(data => {
-                const filteredData = data.filter(ele => ele.categoryID.includes('form_'));
-                this.forms = filteredData.sort((a,b) => a.categoryName - b.categoryName).slice();
-            }).catch(err => console.log(err));*/
+        xhttp.send(); 
     },
     template: `<div>
         <div id="condition_editor_content">
@@ -189,12 +175,12 @@ const ConditionsEditor = Vue.createApp({
 
         <div class="TEST">
             <p><b>selected catID:</b> {{ selectedFormCatID }}</p>
-            <p><b>selected indID:</b> {{ selectedIndicator }}</p>
-            <p><b>indicator info for selected form:</b> {{ selectedFormIndicators }}</p>
+            <p><b>selected parent indID:</b> {{ selectedIndicator }}</p>
             <p><b>indicators that have conditions:</b> {{ selectedFormConditions }}</p>
             <p><b>selected operator:</b> {{ selectedOperator }}</p>
             <p><b>selected parent value:</b> {{ selectedParentValue }}</p>
             <p><b>selected outcome:</b> {{ selectedChildOutcome }}</p>
+            <p><b>indicator info for selected form:</b> {{ selectedFormIndicators }}</p>
         </div>
     </div>`
 });
@@ -255,7 +241,14 @@ ConditionsEditor.component('editor-main', {
     },
     watch: {
         selectedFormCatIDProp(){
-            this.selectedIndicator = '';
+            this.selectedIndicator = {};
+            this.selectedChildIndicator = {};
+            this.selectedOperator = '';
+            this.selectedParentValue = '';
+            //this.selectedChildValue = '';
+            this.selectedOutcome = '';
+        },
+        selectedIndicatorProp(){
             this.selectedOperator = '';
             this.selectedParentValue = '';
             this.selectedChildIndicator = {};
@@ -266,11 +259,6 @@ ConditionsEditor.component('editor-main', {
     methods: {
         selectIndicator() {
             this.$emit('update-selected-indicator', this.selectedIndicator);
-            this.selectedOperator = '';
-            this.selectedParentValue = '';
-            this.selectedChildIndicator = {};
-            this.selectedOutcome = '';
-            //this.selectedChildValue = '';
         },
         selectChildIndicator() {
             this.$emit('update-selected-child', this.selectedChildIndicator);
@@ -304,6 +292,7 @@ ConditionsEditor.component('editor-main', {
                     @change="selectIndicator">    
                 <option v-for="i in selectedIndicators" :title="i.name" :value="i">{{i.name }} (indicator {{i.indicatorID}})</option>
             </select>
+            <span v-if="selectedParentOperators.length > 0">Select a comparison</span>
             <select v-if="selectedParentOperators.length > 0"
                     v-model="selectedOperator"
                     @change="selectOperator">
