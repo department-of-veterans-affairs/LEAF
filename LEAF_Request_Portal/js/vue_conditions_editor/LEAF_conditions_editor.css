@@ -1,9 +1,14 @@
 .TEST {
-    color: red;
+    margin: 15px;
+    color: #b00;
+    font-style: italic;
+    font-size: 80%;
+    background-color: white;
+    padding: 0.75em;
 }
 
 #condition_editor_content {
-    margin: 20px;
+    margin: 15px;
     display: grid;
     grid-gap: 20px;
     grid-template-columns: repeat(24, 1fr);
@@ -44,30 +49,12 @@
 }
 
 /* option tags cannot be styled easily.s  */
-#condition_editor_list select {
+#condition_editor_content select {
     font-size: 85%;
     margin-bottom: 1em;
     text-overflow: ellipsis;
     width: 100%;
 }
-
-#condition_editor_list button {
-    border: 0;
-    border-bottom: 1px solid #A9AEB1 !important;
-    border-left: 3px solid transparent;
-    padding: 0.2em;
-    width: 100%;
-    background-color: transparent;
-    text-align: left;
-    cursor: pointer;
-}
-#condition_editor_list button:focus, 
-#condition_editor_list button:hover, 
-#condition_editor_list button:active {
-    border-left: 3px solid #005EA2 !important;
-    background-color: #00b0ff80;
-}
-
 
 #condition_editor_actions button {
     padding: 0.2em 0.4em;
