@@ -1,6 +1,6 @@
 START TRANSACTION;
 
-ALTER TABLE `indicators` ADD COLUMN `condition` text NULL AFTER `htmlPrint`;
+ALTER TABLE `indicators` ADD COLUMN `conditions` text NULL AFTER `htmlPrint`;
 
 UPDATE `settings` SET `data` = '2022031400' WHERE `settings`.`setting` = 'dbversion';
 
