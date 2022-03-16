@@ -3300,7 +3300,7 @@ class Form
             $temp['indicatorID'] = $item['indicatorID'];
             $temp['name'] = $item['name'];
             $temp['format'] = $item['format'];
-            $temp['condition'] = $item['condition'];
+            $temp['conditions'] = $item['conditions'];
             $temp['description'] = $item['description'];
             $temp['isDisabled'] = (int)$item['isDisabled'];
             $temp['categoryName'] = $item['categoryName'];
@@ -3325,7 +3325,7 @@ class Form
                     $temp['indicatorID'] = $item['indicatorID'];
                     $temp['name'] = $item['name'];
                     $temp['format'] = $item['format'];
-                    $temp['condition'] = $item['condition'];
+                    $temp['conditions'] = $item['conditions'];
                     $temp['description'] = $item['description'];
                     $temp['isDisabled'] = (int)$item['isDisabled'];
                     $temp['categoryName'] = $item['categoryName'];

@@ -59,13 +59,13 @@ class FormEditor
     	        ':categoryID' => $package['categoryID'],
     	        ':html' => $package['html'],
     	        ':htmlPrint' => $package['htmlPrint'],
-                ':condition' => $package['condition'],
+                ':conditions' => $package['conditions'],
     	        ':required' => $package['required'],
                 ':is_sensitive' => $package['is_sensitive'] ?? 0,
     	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, condition, required, is_sensitive, sort, timeAdded, disabled)
-                                            VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :condition, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)', $vars);
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, conditions, required, is_sensitive, sort, timeAdded, disabled)
+                                            VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :conditions, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)', $vars);
     	}
         else 
         {
@@ -78,14 +78,14 @@ class FormEditor
     	        ':categoryID' => $package['categoryID'],
     	        ':html' => $package['html'],
     	        ':htmlPrint' => $package['htmlPrint'],
-                ':condition' => $package['condition'],
+                ':conditions' => $package['conditions'],
     	        ':required' => $package['required'],
     	        ':is_sensitive' => $package['is_sensitive'] ?? 0,
     	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, condition, required, is_sensitive, sort, timeAdded, disabled)
-            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :condition, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)
-                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, condition=:condition, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, conditions, required, is_sensitive, sort, timeAdded, disabled)
+            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :conditions, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)
+                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, conditions=:conditions, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
         }
         
         $newIndicatorID = $this->db->getLastInsertID();
@@ -355,12 +355,12 @@ class FormEditor
         );
 
         $result =  $this->db->prepared_query('UPDATE indicators
-    								SET condition=:input
+    								SET conditions=:input
                                     WHERE indicatorID=:indicatorID', $vars);
         $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
             new LogItem("indicators", "indicatorID", $indicatorID),
             new LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "condition", $input)
+            new LogItem("indicators", "conditions", $input)
         ]);
 
         return $result;

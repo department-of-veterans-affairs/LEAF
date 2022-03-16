@@ -87,7 +87,7 @@ class FormEditorController extends RESTfulResponse
             $package['categoryID'] = XSSHelpers::xscrub($_POST['categoryID']);
             $package['html'] = $_POST['html'];
             $package['htmlPrint'] = $_POST['htmlPrint'];
-            $package['condition'] = $_POST['condition'];
+            $package['conditions'] = $_POST['conditions'];
             $package['required'] = (int)$_POST['required'];
             $package['is_sensitive'] = $_POST['is_sensitive'];
             $package['sort'] = (int)$_POST['sort'];
@@ -154,8 +154,8 @@ class FormEditorController extends RESTfulResponse
         });
 
         // Set Conditional Formatting for Indicator
-        $this->index['POST']->register('formEditor/[digit]/condition', function ($args) use ($formEditor) {
-            return $formEditor->setCondition((int)$args[0], $_POST['condition']);
+        $this->index['POST']->register('formEditor/[digit]/conditions', function ($args) use ($formEditor) {
+            return $formEditor->setCondition((int)$args[0], $_POST['conditions']);
         });
 
         $this->index['POST']->register('formEditor/new', function ($args) use ($formEditor) {

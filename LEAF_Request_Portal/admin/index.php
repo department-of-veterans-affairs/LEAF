@@ -436,6 +436,7 @@ switch ($action) {
         $main->assign('useUI', true);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('body', $t_form->fetch(customTemplate('mod_conditions_editor.tpl')));
+
         break;
     case 'import_data':
 
