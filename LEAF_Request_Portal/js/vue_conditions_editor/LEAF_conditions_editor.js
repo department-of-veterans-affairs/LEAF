@@ -260,7 +260,7 @@ ConditionsEditor.component('editor-main', {
             this.selectedParentValue = '';
             this.selectedChildIndicator = {};
             this.selectedOutcome = '';
-            this.selectedChildValue = '';
+            //this.selectedChildValue = '';
         }
     },
     methods: {
@@ -270,7 +270,7 @@ ConditionsEditor.component('editor-main', {
             this.selectedParentValue = '';
             this.selectedChildIndicator = {};
             this.selectedOutcome = '';
-            this.selectedChildValue = '';
+            //this.selectedChildValue = '';
         },
         selectChildIndicator() {
             this.$emit('update-selected-child', this.selectedChildIndicator);
