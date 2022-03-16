@@ -85,7 +85,7 @@ class FormEditor
 
     	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, condition, required, is_sensitive, sort, timeAdded, disabled)
             								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :condition, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)
-                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, condition=:condition,  required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
+                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, condition=:condition, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
         }
         
         $newIndicatorID = $this->db->getLastInsertID();
