@@ -190,23 +190,13 @@ const ConditionsEditor = Vue.createApp({
 //Allows form selection and shows indicators with conditions for selected form
 //TODO: tab indicators with conditions to view details and/or edit
 ConditionsEditor.component('editor-list', {
-    data() {
-        return {
-            selectedCategoryID: ''
-        }
-    },
     props: {
         forms: Array,
         selectedConditions: Array
     },
-    methods: {
-        selectForm(){
-            this.$emit('update-selected-form', this.selectedCategoryID);
-        }
-    },
     template: `<div id="condition_editor_list">
         <h3>Conditions List</h3>
-        <select title="select a form" name="form-selector" v-model="selectedCategoryID" @change="selectForm"> 
+        <select title="select a form" name="form-selector" v-model="selectedCategoryID" @change="$emit('update-selected-form', $event.target.value)"> 
             <option v-for="f in forms" :title="f.categoryName" :value="f.categoryID">{{f.categoryName}}</option>
         </select>
         <ul>
