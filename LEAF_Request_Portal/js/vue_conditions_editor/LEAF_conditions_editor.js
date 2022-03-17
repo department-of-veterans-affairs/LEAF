@@ -269,6 +269,8 @@ ConditionsEditor.component('editor-main', {
             const val = event.target.value;
             if (!currencyRegex.test(val)) { //TODO: userfeedback
                 document.getElementById('currency-format-input').value = '';
+            } else {
+                this.$emit('update-selected-parent-value', event.target.value);
             }
         },
     },
@@ -296,8 +298,7 @@ ConditionsEditor.component('editor-main', {
                 @change="$emit('update-selected-parent-value', $event.target.value)"/>
             <input v-else-if="selectedIndicatorProp.format==='currency'"
                 id="currency-format-input" 
-                type="number" step="0.01" @change="validateCurrency"
-                @change="$emit('update-selected-parent-value', $event.target.value)"/>
+                type="number" step="0.01" @change="validateCurrency"/>
             <select v-else-if="typeof selectedIndicatorProp.format === 'string' 
                 && selectedIndicatorProp.format.includes('dropdown')"
                 @change="$emit('update-selected-parent-value', $event.target.value)">
