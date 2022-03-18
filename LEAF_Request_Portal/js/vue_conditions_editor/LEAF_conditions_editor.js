@@ -33,7 +33,7 @@ const ConditionsEditor = Vue.createApp({
     },
     methods: {
         clearSelections(){
-            //these are cleared when either the form or parent indicator changes
+            //cleared when either the form or parent indicator changes
             this.selectedIndicator = {};
             this.selectedParentOperators = [];
             this.selectedOperator = '';
@@ -43,10 +43,11 @@ const ConditionsEditor = Vue.createApp({
             this.childIndicator = {};
             this.selectedChildOutcome = '';
         },
-        updateSelectedIndicator(indicator){
+        updateSelectedIndicator(indicatorID){
             this.clearSelections();
-            console.log(indicator); //TEST
-            this.selectedIndicator = indicator;
+            let indicator = this.selectedFormIndicators.find(i => i.indicatorID === indicatorID);
+            this.selectedIndicator = {...indicator};
+            console.log('parent', indicatorID, indicator); //TEST
             this.childIndicatorOptions = this.selectedFormIndicators.filter(i => i.indicatorID !== indicator.indicatorID);
             this.selectedValueOptions = indicator.format.indexOf("\n") === -1 ?
                                         [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
@@ -147,8 +148,11 @@ const ConditionsEditor = Vue.createApp({
         updateSelectedParentValue(value){
             this.selectedParentValue = value;
         },
-        updateSelectedChildIndicator(indicator){
+        updateSelectedChildIndicator(indicatorID){
+            let indicator = this.selectedFormIndicators.find(i => i.indicatorID === indicatorID);
             this.childIndicator = indicator;
+            console.log('child', indicator); //TEST
+            this.selectedChildOutcome = '';
         },
         updateConditionInputObject(){
             const childIndID  = this.childIndicator.indicatorID;
@@ -170,7 +174,6 @@ const ConditionsEditor = Vue.createApp({
                 @update-selected-form="getCategoryIndicators">
             </editor-list>
             <editor-main
-                :selectedFormCatIDProp="selectedFormCatID"
                 :selectedValueOptions="selectedValueOptions"
                 :selectedParentValue="selectedParentValue"
                 :selectedIndicators="selectedFormIndicators"
@@ -178,6 +181,7 @@ const ConditionsEditor = Vue.createApp({
                 :selectedParentOperators="selectedParentOperators"
                 :selectedOperator="selectedOperator"
                 :childIndicatorOptions="childIndicatorOptions"
+                :childIndicatorProp="childIndicator"
                 :selectedChildOutcome="selectedChildOutcome"
                 @update-selected-indicator="updateSelectedIndicator"
                 @update-selected-child="updateSelectedChildIndicator"
@@ -187,7 +191,6 @@ const ConditionsEditor = Vue.createApp({
             </editor-main>
             <editor-actions @add-condition="updateConditionInputObject"></editor-actions>
         </div>
-
         <div class="TEST">
             <p><b>selected catID:</b> {{ selectedFormCatID }}</p>
             <p><b>selected parent indID:</b> {{ selectedIndicator }}</p>
@@ -226,19 +229,11 @@ ConditionsEditor.component('editor-list', {
 });
 
 
-
-//MAIN EDITOR WIDGET
+//CENTER EDITOR WIDGET
 ConditionsEditor.component('editor-main', {
-    data() {
-        return {
-            selectedIndicator: {},
-            selectedChildIndicator: {}
-        }
-    },
     props: {
-        selectedFormCatIDProp: String,  //for watcher, to update objects
         selectedIndicatorProp: Object,  //info for the currently selected indicator
-        childIndicator: Object,
+        childIndicatorProp: Object,
         selectedIndicators: Array,      //all available inds for currently selected form
         childIndicatorOptions: Array,   //which indicators can be chosen for children
         selectedParentOperators: Array, //available operators, based on format of above ind
@@ -247,23 +242,7 @@ ConditionsEditor.component('editor-main', {
         selectedParentValue: String,
         selectedChildOutcome: String
     },
-    watch: {
-        selectedFormCatIDProp(){
-            this.selectedIndicator = {};
-            this.selectedChildIndicator = {};
-        },
-        selectedIndicatorProp(){
-            this.selectedChildIndicator = {};
-        }
-    },
     methods: {
-        selectIndicator() {
-            this.$emit('update-selected-indicator', this.selectedIndicator);
-        },
-        selectChildIndicator() {
-            this.$emit('update-selected-child', this.selectedChildIndicator);
-            this.selectedOutcome = '';
-        },
         validateCurrency(event) {
             const currencyRegex = /^(\d*)(\.\d{0,2})?$/;
             const val = event.target.value;
@@ -281,9 +260,9 @@ ConditionsEditor.component('editor-main', {
             <span>Parent Question Indicator</span>
             <select title="select an indicator" 
                     name="indicator-selector" 
-                    v-model="selectedIndicator" 
-                    @change="selectIndicator">    
-                <option v-for="i in selectedIndicators" :title="i.name" :value="i">{{i.name }} (indicator {{i.indicatorID}})</option>
+                    @change="$emit('update-selected-indicator', $event.target.value)">
+                <option v-if="!selectedIndicatorProp?.indicatorID" value="" selected>Select an Indicator</option>        
+                <option v-for="i in selectedIndicators" :title="i.name" :value="i.indicatorID">{{i.name }} (indicator {{i.indicatorID}})</option>
             </select>
 
             <select v-if="selectedParentOperators.length > 0"
@@ -317,12 +296,12 @@ ConditionsEditor.component('editor-main', {
             <span>Child Question Indicator</span>
             <select title="select an indicator" 
                     name="child-indicator-selector" 
-                    v-model="selectedChildIndicator" 
-                    @change="selectChildIndicator">    
-                <option v-for="c in childIndicatorOptions" :title="c.name" :value="c">{{c.name }} (indicator {{c.indicatorID}})</option>
+                    @change="$emit('update-selected-child', $event.target.value)">
+                <option v-if="!childIndicatorProp?.indicatorID" value="" selected>Select an Indicator</option>        
+                <option v-for="c in childIndicatorOptions" :title="c.name" :value="c.indicatorID">{{c.name }} (indicator {{c.indicatorID}})</option>
             </select>
             
-            <select v-if="selectedChildIndicator.indicatorID > 0" title="select outcome"
+            <select v-if="childIndicatorProp?.indicatorID" title="select outcome"
                     name="child-outcome-selector"
                     @change="$emit('update-selected-outcome', $event.target.value)">
                     <option v-if="selectedChildOutcome===''" value="" selected>Select an outcome</option> 
