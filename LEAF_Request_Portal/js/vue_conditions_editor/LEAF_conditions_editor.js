@@ -307,9 +307,11 @@ ConditionsEditor.component('editor-main', {
                     <option v-if="selectedChildOutcome===''" value="" selected>Select an outcome</option> 
                     <option value="Show Question">Show Question</option>
                     <option value="Hide Question">Hide Question</option>
-                    <option v-if="typeof selectedIndicatorProp.format === 'string' 
-                        && selectedIndicatorProp.format.includes('dropdown')" 
-                        value="Pre-fill Question">Pre-fill Question</option>
+                    <option value="Pre-fill Question">Pre-fill Question</option>
+            </select>
+            <span v-if="selectedChildOutcome==='Pre-fill Question'">Enter a pre-fill value</span>
+            <select v-if="selectedChildOutcome==='Pre-fill Question'">
+                <option>in progress. input areas based on child question format</option>
             </select>
         </div>
         <div v-else>No options available for the indicators on this form</div>
