@@ -17,8 +17,6 @@ const ConditionsEditor = Vue.createApp({
             selectedChildValueOptions: [],
             selectedChildValue: '',
             formStructure: {}, //TODO:
-            //conditionInputObject: {},  //NOTE: moved to computed
-            //conditionComplete: false
         }
     },
     beforeMount(){
@@ -45,7 +43,6 @@ const ConditionsEditor = Vue.createApp({
             this.childIndicatorOptions = []; 
             this.childIndicator = {};
             this.selectedChildOutcome = '';
-            this.conditionInputObject = {};
             this.selectedChildValueOptions = [];
             this.selectedChildValue = '';
         },
@@ -169,21 +166,34 @@ const ConditionsEditor = Vue.createApp({
         },
         postCondition(){
             if (this.conditionComplete) {
-                const { childIndID }  = this.conditionInputObject;
-                const conditionJSON = JSON.stringify(this.conditionInputObject);
-                
-                console.log(childIndID, conditionJSON); //TEST
+                const childIndID  = parseInt(this.conditionInputObject.childIndID);
+                console.log(childIndID, this.conditionInputObject, window.CSRFToken); //TEST
+
+                fetch(`../api/formEditor/${childIndID}/conditions`, {
+                    method: 'POST', 
+                    credentials: 'include',
+                    headers: {'X-CSRFToken': window.CSRFToken},
+                    body: JSON.stringify(this.conditionInputObject)
+                })
+                .then(res => res.json())
+                .then(data => console.log(data))
+                .catch(err => console.log(err));
+                  
+                /*
                 const xhttp = new XMLHttpRequest();
-                
+                xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
+                xhttp.withCredentials = true;
+                xhttp.setRequestHeader('x-csrf-token', window.CSRFToken);
+                xhttp.setRequestHeader("Accept", "application/json");
+                xhttp.setRequestHeader('Content-type', 'application/json; charset=utf-8"');
+                xhttp.send(conditionJSON); 
+
                 xhttp.onreadystatechange = () => {
                     if (xhttp.readyState == 4 && xhttp.status == 200) {
                         const res = JSON.parse(xhttp.responseText);
                         console.log(res);
                     }
-                };
-                xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
-                xhttp.setRequestHeader('Content-type', 'application/json');
-                xhttp.send(conditionJSON); 
+                };*/
             } else {
                 console.log('condition object not complete');
             }
@@ -249,7 +259,7 @@ const ConditionsEditor = Vue.createApp({
             <p><b>conditions input object:</b> {{ conditionInputObject }}</p>
             <p><b>indicator info for selected form (orgchart values excluded):</b> {{ selectedFormIndicators }}</p>
         </div>
-    </div>`
+    </div>` 
 });
 
 
@@ -388,4 +398,4 @@ ConditionsEditor.component('editor-actions', {
     </div>`,
 });
 
-ConditionsEditor.mount('#LEAF_conditions_editor')
+//ConditionsEditor.mount('#LEAF_conditions_editor')

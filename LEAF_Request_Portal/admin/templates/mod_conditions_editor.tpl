@@ -5,7 +5,8 @@
 <link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
 
 <script>
-    $(function() {
-        console.log('page is ready');
-    });
+    var CSRFToken = '<!--{$CSRFToken}-->';
+    document.addEventListener('DOMContentLoaded', function () {
+        ConditionsEditor.mount('#LEAF_conditions_editor');
+    }, false);
 </script>
