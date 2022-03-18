@@ -17,7 +17,8 @@ const ConditionsEditor = Vue.createApp({
             selectedChildValueOptions: [],
             selectedChildValue: '',
             formStructure: {}, //TODO:
-            conditionInputObject: {}
+            //conditionInputObject: {},  //NOTE: moved to computed
+            //conditionComplete: false
         }
     },
     beforeMount(){
@@ -56,7 +57,7 @@ const ConditionsEditor = Vue.createApp({
             this.childIndicatorOptions = this.selectedFormIndicators.filter(i => i.indicatorID !== indicator.indicatorID);
             this.selectedValueOptions = indicator.format.indexOf("\n") === -1 ?
                                         [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
-
+    
             const format = indicator.format.indexOf("\n") === -1 ?
                         indicator.format : indicator.format.substr(0, indicator.format.indexOf("\n")).trim();
 
@@ -146,6 +147,7 @@ const ConditionsEditor = Vue.createApp({
         },
         updateSelectedOutcome(outcome){
             this.selectedChildOutcome = outcome;
+            this.selectedChildValue = '';
         },
         updateSelectedOperator(operator){
             this.selectedOperator = operator;
@@ -161,11 +163,34 @@ const ConditionsEditor = Vue.createApp({
             this.childIndicator = indicator;
             console.log('child', indicator); //TEST
             this.selectedChildOutcome = '';
+            this.selectedChildValue = '';
             this.selectedChildValueOptions = indicator.format.indexOf("\n") === -1 ?
                             [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
-
         },
-        updateConditionInputObject(){
+        postCondition(){
+            if (this.conditionComplete) {
+                const { childIndID }  = this.conditionInputObject;
+                const conditionJSON = JSON.stringify(this.conditionInputObject);
+                
+                console.log(childIndID, conditionJSON); //TEST
+                const xhttp = new XMLHttpRequest();
+                
+                xhttp.onreadystatechange = () => {
+                    if (xhttp.readyState == 4 && xhttp.status == 200) {
+                        const res = JSON.parse(xhttp.responseText);
+                        console.log(res);
+                    }
+                };
+                xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
+                xhttp.setRequestHeader('Content-type', 'application/json');
+                xhttp.send(conditionJSON); 
+            } else {
+                console.log('condition object not complete');
+            }
+        }
+    },
+    computed: {
+        conditionInputObject(){
             const childIndID  = this.childIndicator.indicatorID;
             const parentIndID = this.selectedIndicator.indicatorID;            
             const selectedOp = this.selectedOperator;
@@ -173,10 +198,16 @@ const ConditionsEditor = Vue.createApp({
             const selectedOutcome = this.selectedChildOutcome;
             const selectedChildValue = this.selectedChildValue;
 
-            this.conditionInputObject = {
+            return {
                 childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome
-            }
-
+            }    
+        },
+        conditionComplete(){
+            const {childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome} = this.conditionInputObject;
+            
+            return (childIndID && parentIndID && selectedOp //&& selectedParentValue NOTE: blank vals ??
+                && (selectedOutcome && selectedOutcome !== "Pre-fill Question" || 
+                   (selectedOutcome==="Pre-fill Question" && selectedChildValue)));
         }
     },
     template: `<div>
@@ -205,9 +236,10 @@ const ConditionsEditor = Vue.createApp({
                 @update-selected-outcome="updateSelectedOutcome"
                 @update-selected-child-value="updateSelectedChildValue">
             </editor-main>
-            <editor-actions @add-condition="updateConditionInputObject"></editor-actions>
+            <editor-actions @add-condition="postCondition"></editor-actions>
         </div>
         <div class="TEST">
+            <p>{{ conditionComplete ? 'true' : 'false' }}</p>
             <p><b>selected catID:</b> {{ selectedFormCatID }}</p>
             <p><b>selected parent indID:</b> {{ selectedIndicator }}</p>
             <p><b>indicators that have conditions:</b> {{ selectedFormConditions }}</p>
