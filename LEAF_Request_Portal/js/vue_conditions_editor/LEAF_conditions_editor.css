@@ -8,18 +8,21 @@
 }
 
 #condition_editor_content {
-    margin: 15px;
+    margin: 20px;
     display: grid;
-    grid-gap: 20px;
+    grid-gap: 10px 20px;
     grid-template-columns: repeat(24, 1fr);
     min-width: fit-content;
-}
-#condition_editor_content > div {
-    padding: 0.75em;
-    border-radius: 4px;
+    max-width: 1440px;
 }
 #condition_editor_content h3 {
     margin: 0 0 0.75em;
+}
+#condition_editor_content h4 {
+    margin: 0.75em 0;
+}
+#condition_editor_content hr {
+    margin: 1em auto;
 }
 #condition_editor_content ul {
     padding: 0;
@@ -34,69 +37,75 @@
 }
 
 #condition_editor_list {
-    grid-column: 1 / span 5; 
+    grid-column: 1 / span 6; 
 }
-#condition_editor_main {
-    grid-column: 7 / span 12;
+#condition_editor_main_panel {
+    grid-column: 8 / span 12; 
 }
-#condition_editor_actions {
-    grid-column: 20 / span 5; 
-}
-#condition_editor_actions, #condition_editor_list, #condition_editor_main {
+
+#condition_editor_actions, #condition_editor_list, 
+#condition_editor_inputs {
     background-color: white;
     height: fit-content;
     min-width: 175px;
+    padding: 0.75em;
+    margin: 0.75em 0;
+    border-radius: 4px;
 }
 
-/* option tags cannot be styled easily.s  */
+/* option tags cannot be styled easily  */
 #condition_editor_content select {
     font-size: 85%;
     margin-bottom: 1em;
     text-overflow: ellipsis;
     width: 100%;
 }
+#condition_editor_list select {
+    margin: 0;
+}
 
-#condition_editor_actions button {
+#condition_editor_content button {
     padding: 0.2em 0.4em;
     width: 100%;
-    border-radius: 3px;
     cursor: pointer;
 }
 
+#btn_add_condition, #btn_form_editor, #btn_cancel {
+    border-radius: 3px;
+}
 
-#btn_add_condition, #btn_add_condition:active, #btn_add_condition:focus {
+#btn_add_condition {
     background-color: #00A91C;
     border: 1px solid #00A91C !important; /*NOTE: avoids some leaf styling */
     color: white;
-    margin-bottom: 1em;
 }
-#btn_form_editor, #btn_form_editor:active, #btn_form_editor:focus {
+#btn_form_editor, #btn_cancel {
     background-color: white;
     color: #005EA2;
     border: 1px solid #005EA2 !important;
 }
-
-@media only screen and (min-width: 1440px) {
-    #condition_editor_content {
-        max-width: 1440px;
-        margin: 20px auto;
-    }
+#btn_add_condition:hover, #btn_add_condition:active, #btn_add_condition:focus,
+#btn_form_editor:hover, #btn_form_editor:active #btn_form_editor:focus {
+    border: 1px solid #000 !important; /*NOTE: avoids some leaf styling */
+    background-color: #005EA2;
+    color: white;
+}
+.edit-form-name {
+    color: #005EA2;
+    font-weight: bold;
 }
 
-@media only screen and (max-width: 1024px) {
+@media only screen and (max-width: 1200px) {
     #condition_editor_list {
-        grid-column: 1 / span 6; 
+        grid-column: 1 / span 8; 
     }
-    #condition_editor_main {
-        grid-column: 7 / span 12;
-    }
-    #condition_editor_actions {
-        grid-column: 19 / span 6; 
+    #condition_editor_main_panel {
+        grid-column: 9 / span 16;
     }
 }
 
 @media only screen and (max-width: 769px) {
-    #condition_editor_actions, #condition_editor_list, #condition_editor_main {
+    #condition_editor_list, #condition_editor_main_panel {
         grid-column: 1 / span 24; 
     }
 }
