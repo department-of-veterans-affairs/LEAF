@@ -69,6 +69,19 @@
     width: 100%;
     cursor: pointer;
 }
+.btn-condition-select {
+    text-align: left;
+    line-height: 1.6;
+    border: 0;
+    background-color: white;
+    border-left:3px solid transparent;
+    border-bottom: 1px solid rgb(172, 181, 185);
+}
+.btn-condition-select:hover, .btn-condition-select:active, .btn-condition-select:focus {
+    border-left:3px solid #005EA2 !important; 
+    border-bottom: 1px solid rgb(172, 181, 185) !important;  
+    background-color: rgb(180, 231, 255); 
+}
 
 #btn_add_condition, #btn_form_editor, #btn_cancel {
     border-radius: 3px;
