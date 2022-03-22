@@ -121,7 +121,7 @@ const ConditionsEditor = Vue.createApp({
                 this.selectedFormIndicators = [];
                 this.selectedFormConditions = [];  
             } else {
-                this.selectedFormIndicators = this.indicators.filter(i => !i.format.includes('orgchart') && (i.categoryID === catID || i.parentCategoryID === catID));
+                this.selectedFormIndicators = this.indicators.filter(i => !i.format.includes('orgchart') && i.categoryID === catID); // (|| i.parentCategoryID === catID) NOTE: same forms for now
                 this.selectedFormConditions = this.selectedFormIndicators.filter(i => i.conditions !== null && i.conditions !== '');
             }
             /*let formStructure = { //TEST, TODO: better list menu 
@@ -183,6 +183,8 @@ const ConditionsEditor = Vue.createApp({
                         //FIX: update conditions list with new condition
                         //TODO: return better indication of success, currently just empty array
                         if (res !== 'Invalid Token.') { 
+                            let indToUpdate = this.indicators.find(i => i.indicatorID === this.conditionInputObject.childIndID);
+                            indToUpdate.conditions = pkg;
                             this.getCategoryIndicators(this.selectedFormCatID);
                         }
                     }
@@ -200,15 +202,15 @@ const ConditionsEditor = Vue.createApp({
                 console.log('condition object not complete');
             }
         },
-        selectConditionFromList(listCondition){
+        selectConditionFromList(listConditionJSON){
             //already have selectedFormCatID and selectedFormIndicators. update par and chi ind, other values
-            const conditionObj = JSON.parse(listCondition);
+            const conditionObj = JSON.parse(listConditionJSON);
             this.updateSelectedIndicator(conditionObj.parentIndID);
             this.updateSelectedChildIndicator(conditionObj.childIndID);
             this.selectedOperator = conditionObj.selectedOp;
             this.selectedChildOutcome = conditionObj.selectedOutcome;
-            this.selectedParentValue = conditionObj.selectedParentValue;
-            this.selectedChildValue = conditionObj.selectedChildValue;
+            this.selectedParentValue = conditionObj?.selectedParentValue;
+            this.selectedChildValue = conditionObj?.selectedChildValue;
         }
     },
     computed: {
@@ -231,7 +233,7 @@ const ConditionsEditor = Vue.createApp({
         conditionComplete(){
             const {childIndID, parentIndID, selectedOp, selectedParentValue, 
                 selectedChildValue, selectedOutcome} = this.conditionInputObject;
-            //return true; //NOTE: uncomment to check styling
+
             return (childIndID && parentIndID && selectedOp //&& selectedParentValue NOTE: blank vals ??
                 && (selectedOutcome && selectedOutcome !== "Pre-fill Question" || 
                    (selectedOutcome==="Pre-fill Question" && selectedChildValue !== '')));
@@ -246,7 +248,7 @@ const ConditionsEditor = Vue.createApp({
                 @select-from-list-conditions="selectConditionFromList"
                 @update-selected-form="getCategoryIndicators">
             </editor-list>
-            <div id="condition_editor_main_panel">
+            <div id="condition_editor_center_panel">
                 <editor-main
                     :formName="formName"
                     :selectedValueOptions="selectedValueOptions"
@@ -260,7 +262,7 @@ const ConditionsEditor = Vue.createApp({
                     :selectedChildOutcome="selectedChildOutcome"
                     :selectedChildValueOptions="selectedChildValueOptions"
                     :selectedChildValue="selectedChildValue"
-                    :conditionInputObject="conditionInputObject"
+                    :conditions="conditionInputObject"
                     @update-selected-indicator="updateSelectedIndicator"
                     @update-selected-child="updateSelectedChildIndicator"
                     @update-selected-operator="updateSelectedOperator"
@@ -278,8 +280,8 @@ const ConditionsEditor = Vue.createApp({
                 </editor-actions>
             </div>
         </div>
-        <div class="TEST">
-            <p>{{ conditionComplete ? 'true' : 'false' }}</p>
+        <!--<div class="TEST">
+            <p><b>condition complete:</b> {{ conditionComplete ? 'true' : 'false' }}</p>
             <p><b>selected catID:</b> {{ selectedFormCatID }}</p>
             <p><b>selected parent indID:</b> {{ selectedIndicator }}</p>
             <span><b>child indicators that have conditions:</b></span><br/>
@@ -290,7 +292,7 @@ const ConditionsEditor = Vue.createApp({
             <p><b>selected outcome:</b> {{ selectedChildOutcome }}</p>
             <p><b>conditions input object:</b> {{ conditionInputObject }}</p>
             <p><b>indicator info for selected form (orgchart values excluded):</b> {{ selectedFormIndicators }}</p>
-        </div>
+        </div>-->
     </div>` 
 });
 
@@ -301,18 +303,19 @@ const ConditionsEditor = Vue.createApp({
 ConditionsEditor.component('editor-list', {
     props: {
         forms: Array,
-        selectedConditions: Array,
+        selectedConditions: Array,  //indicators with .conditions value
         selectedFormCatID: String
     },
     methods: {
         toFormEditor(){
             window.location.assign('./?a=form#');
-        }
+        },
+        getParentController(conditionJSON){
+            return(JSON.parse(conditionJSON).parentIndID);
+        },
     },
     template: `<div id="condition_editor_list">
-        <button id="btn_form_editor" @click="toFormEditor">Back to Form Editor</button>
-        <hr/>
-        <p>Select a form to begin adding a condition</p>
+        <p>Select a form to begin adding a new condition</p>
         <select title="select a form" name="form-selector" @change="$emit('update-selected-form', $event.target.value)">
             <option v-if="selectedFormCatID===''" value="" selected>Select a Form</option>
             <option v-for="f in forms" 
@@ -322,20 +325,22 @@ ConditionsEditor.component('editor-list', {
         </select>
         <hr/>
         <h3>Conditions List</h3>
-        
         <p v-if="selectedConditions.length===0">No conditions have been added to this form</p>
         <div v-else>
             <p>Conditions have been added to the child indicators listed below</p>
             <ul>
-                <li v-for="child in selectedConditions" key="child.parentIndID+child.childIndID">
+                <li v-for="child in selectedConditions" key="child.conditions">
                     <button class="btn-condition-select"
-                        :value="child.conditions" 
-                        @click="$emit('select-from-list-conditions', $event.target.value)">
-                        {{ child.name }} (indicator {{ child.indicatorID }})
+                        @click="$emit('select-from-list-conditions', child.conditions)">
+                        <b>{{ child.name }}</b> ({{ child.indicatorID }})<br/>
+                        <span class="ind-controller-info">
+                        controlled by indicator {{ getParentController(child.conditions) }}</span>
                     </button>
                 </li>
             </ul>
         </div>
+        <hr/>
+        <button id="btn_form_editor" @click="toFormEditor">Back to Form Editor</button>
     </div>`
 });
 
@@ -348,13 +353,13 @@ ConditionsEditor.component('editor-main', {
         selectedIndicators: Array,      //all available inds for currently selected form
         childIndicatorOptions: Array,   //which indicators can be chosen for children
         selectedParentOperators: Array, //available operators, based on format of above ind
-        selectedOperator: String,       //selectedOp, value and outcome used to update selectors if empty
+        selectedOperator: String,       //NOTE:  on inputObj selectedOp, value and outcome used to update selectors if empty
         selectedValueOptions: Array,    //values for dropdown formats
-        selectedParentValue: String,
-        selectedChildOutcome: String,
+        selectedParentValue: String,    //NOTE:  on inputObj
+        selectedChildOutcome: String,   //NOTE:  on inputObj
         selectedChildValueOptions: Array,
-        selectedChildValue: String,
-        conditionInputObject: Object,
+        selectedChildValue: String,     //NOTE:  on inputObj
+        conditions: Object,
         formName: String
     },
     methods: {
@@ -369,9 +374,11 @@ ConditionsEditor.component('editor-main', {
         }
     },
     template: `<div id="condition_editor_inputs">
-        <h3>Conditions Editor</h3>
         <div v-if="formName">
-            <p>Adding condition to form: <span class="edit-form-name"> {{formName}}</span></p>
+            <h3>Form <span class="form_name">
+                &nbsp;<i class="fas fa-caret-right"></i>&nbsp;
+                {{ formName }}
+            </span></h3>
             <hr/>
         </div>
         <p v-else>Please select a form to begin</p>
@@ -382,11 +389,11 @@ ConditionsEditor.component('editor-main', {
             <select title="select an indicator" 
                     name="indicator-selector" 
                     @change="$emit('update-selected-indicator', $event.target.value)">
-                <option v-if="!selectedIndicatorProp?.indicatorID" value="" selected>Select an Indicator</option>        
+                <option v-if="!conditions.parentIndID" value="" selected>Select an Indicator</option>        
                 <option v-for="i in selectedIndicators" 
                 :title="i.name" 
                 :value="i.indicatorID"
-                :selected="conditionInputObject.parentIndID===i.indicatorID"
+                :selected="conditions.parentIndID===i.indicatorID"
                 key="i.indicatorID">
                 {{i.name }} (indicator {{i.indicatorID}})
                 </option>
@@ -397,23 +404,29 @@ ConditionsEditor.component('editor-main', {
                 <option v-if="selectedOperator===''" value="" selected>Select a condition</option>
                 <option v-for="o in selectedParentOperators" 
                 :value="o.val"
-                :selected="conditionInputObject.selectedOp===o.val">
+                :selected="conditions.selectedOp===o.val">
                 {{ o.text }}
                 </option>
             </select>
 
             <input v-if="selectedIndicatorProp.format==='date'" type="date"
+                :value="conditions.selectedParentValue"
                 @change="$emit('update-selected-parent-value', $event.target.value)"/>
             <input v-else-if="selectedIndicatorProp.format==='number'" type="number"
+                :value="conditions.selectedParentValue"
                 @change="$emit('update-selected-parent-value', $event.target.value)"/>
             <input v-else-if="selectedIndicatorProp.format==='currency'"
                 id="currency-format-input" 
-                type="number" step="0.01" @change="validateCurrency"/>
+                type="number" step="0.01"
+                :value="conditions.selectedParentValue" 
+                @change="validateCurrency"/>
             <select v-else-if="typeof selectedIndicatorProp.format === 'string' 
                 && selectedIndicatorProp.format.includes('dropdown')"
                 @change="$emit('update-selected-parent-value', $event.target.value)">
                 <option v-if="selectedParentValue===''" value="" selected>Select a value</option>    
-                <option v-for="val in selectedValueOptions"> {{ val }} </option>
+                <option v-for="val in selectedValueOptions"
+                    :selected="conditions.selectedParentValue===val"> {{ val }}
+                </option>
             </select>
             <select v-else-if="typeof selectedIndicatorProp.format === 'string' 
                 && selectedIndicatorProp.format.includes('radio')"
@@ -428,11 +441,11 @@ ConditionsEditor.component('editor-main', {
             <select title="select an indicator" 
                     name="child-indicator-selector" 
                     @change="$emit('update-selected-child', $event.target.value)">
-                <option v-if="!childIndicatorProp?.indicatorID" value="" selected>Select an Indicator</option>        
+                <option v-if="!conditions.childIndID" value="" selected>Select an Indicator</option>        
                 <option v-for="c in childIndicatorOptions" 
                 :title="c.name" 
                 :value="c.indicatorID"
-                :selected="conditionInputObject.childIndID===c.indicatorID"
+                :selected="conditions.childIndID===c.indicatorID"
                 key="c.indicatorID">
                 {{c.name }} (indicator {{c.indicatorID}})
                 </option>
@@ -442,9 +455,9 @@ ConditionsEditor.component('editor-main', {
                     name="child-outcome-selector"
                     @change="$emit('update-selected-outcome', $event.target.value)">
                     <option v-if="selectedChildOutcome===''" value="" selected>Select an outcome</option> 
-                    <option value="Show Question" :selected="conditionInputObject.selectedOutcome==='Show Question'">Show Question</option>
-                    <option value="Hide Question" :selected="conditionInputObject.selectedOutcome==='Hide Question'">Hide Question</option>
-                    <option value="Pre-fill Question" :selected="conditionInputObject.selectedOutcome==='Pre-fill Question'">Pre-fill Question</option>
+                    <option value="Show Question" :selected="conditions.selectedOutcome==='Show Question'">Show Question</option>
+                    <option value="Hide Question" :selected="conditions.selectedOutcome==='Hide Question'">Hide Question</option>
+                    <option value="Pre-fill Question" :selected="conditions.selectedOutcome==='Pre-fill Question'">Pre-fill Question</option>
             </select>
             <span v-if="selectedChildOutcome==='Pre-fill Question'">Enter a pre-fill value</span>
             <!-- TODO: other formats - only testing dropdown for now -->
@@ -453,13 +466,13 @@ ConditionsEditor.component('editor-main', {
                 <option v-if="selectedChildValue===''" value="" selected>Select a value</option>    
                 <option v-for="val in selectedChildValueOptions" 
                 :value="val"
-                :selected="conditionInputObject.selectedChildValue===val"> 
+                :selected="conditions.selectedChildValue===val"> 
                 {{ val }} 
                 </option>
             </select>
         </div>
         <div v-if="selectedIndicators.length === 1">This form only has one indicator</div>
-        <div v-if="formName && !selectedIndicators.length">No options available for the indicators on this form</div>
+        <div v-if="formName && !selectedIndicators.length">No options are currently available for the indicators on this form</div>
     </div>`
 });
 
@@ -485,18 +498,21 @@ ConditionsEditor.component('editor-actions', {
                 case '!=':
                     return 'not equal to';
                 case '>':
-                    return 'greater or later than';
+                    return 'greater than';
                 case '<':
-                    return 'less or earlier than';    
+                    return 'less than';    
                 default: return op;
             }
         }
     },
     template: `<div v-if="conditionInputComplete" id="condition_editor_actions">
     <p>Click save to store the condition, or cancel to start over</p>
-    <div class="condition-card">
-        <p><b>IF</b> parent question {{parentIndicator.name}} is 
-            {{operatorText}} {{conditions.selectedParentValue}}, <b>THEN</b> child question {{childIndicator.name}} 
+    <div class="condition-card"><!-- TODO: -->
+        <p><b>IF</b> parent question '{{parentIndicator.name}}' is 
+            <span style="color: #00A91C; font-weight: bold;">
+            {{operatorText}} {{conditions.selectedParentValue}}
+            </span><br/> 
+            <b>THEN</b> child question '{{childIndicator.name}}'  
             <span v-if="conditions.selectedOutcome==='Pre-fill Question'">will have the value {{conditions.selectedChildValue}}</span>
             <span v-else>will be {{conditions.selectedOutcome==="Show Question" ? 'shown' : 'hidden'}}</span>
         </p>
