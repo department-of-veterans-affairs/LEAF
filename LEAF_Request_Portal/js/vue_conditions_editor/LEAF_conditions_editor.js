@@ -375,7 +375,7 @@ ConditionsEditor.component('editor-main', {
     },
     template: `<div id="condition_editor_inputs">
         <div v-if="formName">
-            <h3>Form <span class="form_name">
+            <h3>Conditions Editor<span class="form-name">
                 &nbsp;<i class="fas fa-caret-right"></i>&nbsp;
                 {{ formName }}
             </span></h3>
@@ -385,7 +385,7 @@ ConditionsEditor.component('editor-main', {
         
         <div v-if="selectedIndicators.length > 1">
             <h4>IF</h4>
-            <span>Parent Question Indicator</span>
+            <span class="input-info">Parent question</span>
             <select title="select an indicator" 
                     name="indicator-selector" 
                     @change="$emit('update-selected-indicator', $event.target.value)">
@@ -398,46 +398,48 @@ ConditionsEditor.component('editor-main', {
                 {{i.name }} (indicator {{i.indicatorID}})
                 </option>
             </select>
-            
-            <select v-if="selectedParentOperators.length > 0"
-                @change="$emit('update-selected-operator', $event.target.value)">
-                <option v-if="selectedOperator===''" value="" selected>Select a condition</option>
-                <option v-for="o in selectedParentOperators" 
-                :value="o.val"
-                :selected="conditions.selectedOp===o.val">
-                {{ o.text }}
-                </option>
-            </select>
-
-            <input v-if="selectedIndicatorProp.format==='date'" type="date"
-                :value="conditions.selectedParentValue"
-                @change="$emit('update-selected-parent-value', $event.target.value)"/>
-            <input v-else-if="selectedIndicatorProp.format==='number'" type="number"
-                :value="conditions.selectedParentValue"
-                @change="$emit('update-selected-parent-value', $event.target.value)"/>
-            <input v-else-if="selectedIndicatorProp.format==='currency'"
-                id="currency-format-input" 
-                type="number" step="0.01"
-                :value="conditions.selectedParentValue" 
-                @change="validateCurrency"/>
-            <select v-else-if="typeof selectedIndicatorProp.format === 'string' 
-                && selectedIndicatorProp.format.includes('dropdown')"
-                @change="$emit('update-selected-parent-value', $event.target.value)">
-                <option v-if="selectedParentValue===''" value="" selected>Select a value</option>    
-                <option v-for="val in selectedValueOptions"
-                    :selected="conditions.selectedParentValue===val"> {{ val }}
-                </option>
-            </select>
-            <select v-else-if="typeof selectedIndicatorProp.format === 'string' 
-                && selectedIndicatorProp.format.includes('radio')"
-                @change="$emit('update-selected-parent-value', $event.target.value)">
-                <option v-if="selectedParentValue===''" value="" selected>Select a value</option> 
-                <option v-for="val in selectedValueOptions"> {{ val }} </option>
-            </select>
-            <p v-else class="TEST">value selection still in progress for some formats</p>
+            <div v-if="selectedParentOperators.length > 0">
+                <span class="input-info">Choose a comparison</span>
+                <select
+                    @change="$emit('update-selected-operator', $event.target.value)">
+                    <option v-if="selectedOperator===''" value="" selected>Select a condition</option>
+                    <option v-for="o in selectedParentOperators" 
+                    :value="o.val"
+                    :selected="conditions.selectedOp===o.val">
+                    {{ o.text }}
+                    </option>
+                </select>
+                <span class="input-info">Choose a value</span>
+                <input v-if="selectedIndicatorProp.format==='date'" type="date"
+                    :value="conditions.selectedParentValue"
+                    @change="$emit('update-selected-parent-value', $event.target.value)"/>
+                <input v-else-if="selectedIndicatorProp.format==='number'" type="number"
+                    :value="conditions.selectedParentValue"
+                    @change="$emit('update-selected-parent-value', $event.target.value)"/>
+                <input v-else-if="selectedIndicatorProp.format==='currency'"
+                    id="currency-format-input" 
+                    type="number" step="0.01"
+                    :value="conditions.selectedParentValue" 
+                    @change="validateCurrency"/>
+                <select v-else-if="typeof selectedIndicatorProp.format === 'string' 
+                    && selectedIndicatorProp.format.includes('dropdown')"
+                    @change="$emit('update-selected-parent-value', $event.target.value)">
+                    <option v-if="selectedParentValue===''" value="" selected>Select a value</option>    
+                    <option v-for="val in selectedValueOptions"
+                        :selected="conditions.selectedParentValue===val"> {{ val }}
+                    </option>
+                </select>
+                <select v-else-if="typeof selectedIndicatorProp.format === 'string' 
+                    && selectedIndicatorProp.format.includes('radio')"
+                    @change="$emit('update-selected-parent-value', $event.target.value)">
+                    <option v-if="selectedParentValue===''" value="" selected>Select a value</option> 
+                    <option v-for="val in selectedValueOptions"> {{ val }} </option>
+                </select>
+                <p v-else class="TEST">value selection still in progress for some formats</p>
+            </div>
             <hr/>
             <h4>THEN</h4>
-            <span>Child Question Indicator</span>
+            <span class="input-info">Child question</span>
             <select title="select an indicator" 
                     name="child-indicator-selector" 
                     @change="$emit('update-selected-child', $event.target.value)">
@@ -451,7 +453,8 @@ ConditionsEditor.component('editor-main', {
                 </option>
             </select>
             <!-- childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome-->
-            <select v-if="childIndicatorProp?.indicatorID" title="select outcome"
+            <span v-if="conditions.childIndID" class="input-info">Select an outcome</span>
+            <select v-if="conditions.childIndID" title="select outcome"
                     name="child-outcome-selector"
                     @change="$emit('update-selected-outcome', $event.target.value)">
                     <option v-if="selectedChildOutcome===''" value="" selected>Select an outcome</option> 
@@ -494,9 +497,9 @@ ConditionsEditor.component('editor-actions', {
             const op = this.conditions.selectedOp;
             switch(op){
                 case '==':
-                    return 'equal to';
+                    return '';
                 case '!=':
-                    return 'not equal to';
+                    return 'not';
                 case '>':
                     return 'greater than';
                 case '<':
@@ -506,20 +509,30 @@ ConditionsEditor.component('editor-actions', {
         }
     },
     template: `<div v-if="conditionInputComplete" id="condition_editor_actions">
-    <p>Click save to store the condition, or cancel to start over</p>
-    <div class="condition-card"><!-- TODO: -->
-        <p><b>IF</b> parent question '{{parentIndicator.name}}' is 
-            <span style="color: #00A91C; font-weight: bold;">
-            {{operatorText}} {{conditions.selectedParentValue}}
-            </span><br/> 
-            <b>THEN</b> child question '{{childIndicator.name}}'  
-            <span v-if="conditions.selectedOutcome==='Pre-fill Question'">will have the value {{conditions.selectedChildValue}}</span>
-            <span v-else>will be {{conditions.selectedOutcome==="Show Question" ? 'shown' : 'hidden'}}</span>
-        </p>
-    </div>
-    <ul style="display: flex; justify-content: space-between">
-        <li style="width: 30%;"><button id="btn_add_condition" @click="$emit('save-condition')">Save Condition</button></li>
-        <li style="width: 30%;"><button id="btn_cancel" @click="$emit('cancel-entry','')">Cancel</button></li>
-    </ul>
+        <div class="actions-header">Click save to store this condition, or cancel to start over</div>
+        <div class="actions-base">
+            <div><b>IF</b> parent question '{{parentIndicator.name}}' is 
+                <span style="color: #00A91C; font-weight: bold;">
+                {{operatorText}} {{conditions.selectedParentValue}}
+                </span>
+            </div>
+            <br/>
+            <div> 
+                <b>THEN</b> child question '{{childIndicator.name}}'  
+                <span v-if="conditions.selectedOutcome==='Pre-fill Question'">will 
+                    <span style="color: #00A91C; font-weight: bold;"> have the value '{{conditions.selectedChildValue}}'</span>
+                </span>
+                <span v-else>will 
+                    <span style="color: #00A91C; font-weight: bold;">
+                     be {{conditions.selectedOutcome==="Show Question" ? 'shown' : 'hidden'}}
+                    </span>
+                </span>
+            </div>
+            <hr/>
+        </div>
+        <ul style="display: flex; justify-content: space-between">
+            <li style="width: 30%;"><button id="btn_add_condition" @click="$emit('save-condition')">Save Condition</button></li>
+            <li style="width: 30%;"><button id="btn_cancel" @click="$emit('cancel-entry','')">Cancel</button></li>
+        </ul>
     </div>`
 });
