@@ -81,7 +81,7 @@ body {
 }
 
 /* option tags cannot be styled easily  */
-#condition_editor_content select {
+#condition_editor_content select, #condition_editor_content input {
     font-size: 85%;
     padding: 0.15em;
     margin-bottom: 1em;

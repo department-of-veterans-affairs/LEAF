@@ -409,7 +409,7 @@ ConditionsEditor.component('editor-main', {
                     {{ o.text }}
                     </option>
                 </select>
-                <span class="input-info">Choose a value</span>
+                <span class="input-info">Enter a value</span>
                 <input v-if="selectedIndicatorProp.format==='date'" type="date"
                     :value="conditions.selectedParentValue"
                     @change="$emit('update-selected-parent-value', $event.target.value)"/>
