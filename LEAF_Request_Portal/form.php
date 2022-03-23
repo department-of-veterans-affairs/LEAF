@@ -485,6 +485,7 @@ class Form
         $form[$idx]['parentID'] = $data[0]['parentID'];
         $form[$idx]['html'] = $data[0]['html'];
         $form[$idx]['htmlPrint'] = $data[0]['htmlPrint'];
+        $form[$idx]['conditions'] = $data[0]['conditions'];
         $form[$idx]['required'] = $data[0]['required'];
         $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
         $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
@@ -3531,6 +3532,7 @@ class Form
                 $child[$idx]['description'] = $field['description'];
                 $child[$idx]['html'] = $field['html'];
                 $child[$idx]['htmlPrint'] = $field['htmlPrint'];
+                $child[$idx]['conditions'] = $field['conditions'];
                 $child[$idx]['required'] = $field['required'];
                 $child[$idx]['is_sensitive'] = $field['is_sensitive'];
                 $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;

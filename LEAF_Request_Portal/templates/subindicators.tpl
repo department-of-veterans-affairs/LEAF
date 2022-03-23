@@ -295,6 +295,93 @@
                 <script>
                 $(function() {
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '80%'});
+                    let conditions = '<!--{$indicator.conditions}-->';
+                    if (conditions !== '') {
+                        conditions = JSON.parse(conditions);
+                        console.log(conditions);
+                        switch (conditions.selectedOutcome) {
+                            case 'Hide Question':
+                                $('#' + conditions.parentIndID).chosen().on('change', function () {
+                                    switch (conditions.selectedOp) {
+                                        case '==':
+                                            if ($('#' + conditions.parentIndID).val() === conditions.selectedParentValue) {
+                                                $('.blockIndicator_' + conditions.childIndID).hide();
+                                            } else {
+                                                $('.blockIndicator_' + conditions.childIndID).show();
+                                            }
+                                            break;
+                                        case '!=':
+                                            if ($('#' + conditions.parentIndID).val() !== conditions.selectedParentValue) {
+                                                $('.blockIndicator_' + conditions.childIndID).hide();
+                                            } else {
+                                                $('.blockIndicator_' + conditions.childIndID).show();
+                                            }
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                });
+                                $('#' + conditions.parentIndID).chosen().trigger('change');
+                                break;
+                            case 'Show Question':
+                                $('#' + conditions.parentIndID).chosen().on('change', function () {
+                                    switch (conditions.selectedOp) {
+                                        case '==':
+                                            if ($('#' + conditions.parentIndID).val() === conditions.selectedParentValue) {
+                                                $('.blockIndicator_' + conditions.childIndID).show();
+                                            } else {
+                                                $('.blockIndicator_' + conditions.childIndID).hide();
+                                            }
+                                            break;
+                                        case '!=':
+                                            if ($('#' + conditions.parentIndID).val() !== conditions.selectedParentValue) {
+                                                $('.blockIndicator_' + conditions.childIndID).show();
+                                            } else {
+                                                $('.blockIndicator_' + conditions.childIndID).hide();
+                                            }
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                });
+                                $('#' + conditions.parentIndID).chosen().trigger('change');
+                                break;
+                            case 'Pre-fill Question':
+                                $('#' + conditions.parentIndID).chosen().on('change', function () {
+                                    switch (conditions.selectedOp) {
+                                        case '==':
+                                            if ($('#' + conditions.parentIndID).val() === conditions.selectedParentValue) {
+                                                $('#' + conditions.childIndID).attr('disabled', 'disabled');
+                                                $('#' + conditions.childIndID).chosen().val(conditions.selectedChildValue);
+                                                $('#' + conditions.childIndID).trigger('chosen:updated');
+                                            } else {
+                                                $('#' + conditions.childIndID).removeAttr('disabled');
+                                                $('#' + conditions.childIndID).chosen().val('');
+                                                $('#' + conditions.childIndID).trigger('chosen:updated');
+                                            }
+                                            break;
+                                        case '!=':
+                                            if ($('#' + conditions.parentIndID).val() !== conditions.selectedParentValue) {
+                                                $('#' + conditions.childIndID).attr('disabled', 'disabled');
+                                                $('#' + conditions.childIndID).chosen().val(conditions.selectedChildValue);
+                                                $('#' + conditions.childIndID).trigger('chosen:updated');
+                                            } else {
+                                                $('#' + conditions.childIndID).removeAttr('disabled');
+                                                $('#' + conditions.childIndID).chosen().val('');
+                                                $('#' + conditions.childIndID).trigger('chosen:updated');
+                                            }
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                });
+                                $('#' + conditions.parentIndID).chosen().trigger('change');
+                                break;
+                            default:
+                                console.log(conditions.selectedOutcome);
+                                break;
+                        }
+                    }
                 });
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
