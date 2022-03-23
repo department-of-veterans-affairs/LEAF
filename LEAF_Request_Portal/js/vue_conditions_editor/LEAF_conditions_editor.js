@@ -51,21 +51,22 @@ const ConditionsEditor = Vue.createApp({
             this.selectedIndicator = {};
             this.selectedParentOperators = [];
             this.selectedOperator = '';
-            this.selectedValueOptions = [];
+            this.selectedValueOptions = [];  //parent values
             this.selectedParentValue = '';
             this.childIndicatorOptions = []; 
-            this.childIndicator = {};  //TODO:  more than one.  easy to make array, but other logic will need more work
+            this.childIndicator = {};
             this.selectedChildOutcome = '';
             this.selectedChildValueOptions = [];
             this.selectedChildValue = '';
         },
         updateSelectedIndicator(indicatorID){
             this.clearSelections();
-            let indicator = this.selectedFormIndicators.find(i => i.indicatorID === indicatorID);
+            const indicator = this.selectedFormIndicators.find(i => i.indicatorID === indicatorID);
+            const valueOptions = indicator.format.indexOf("\n") === -1 ? [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
+           
             this.selectedIndicator = {...indicator};
             this.childIndicatorOptions = this.selectedFormIndicators.filter(i => i.indicatorID !== indicator.indicatorID);
-            this.selectedValueOptions = indicator.format.indexOf("\n") === -1 ?
-                                        [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
+            this.selectedValueOptions = valueOptions.filter(vo => vo !== '');
     
             const format = indicator.format.indexOf("\n") === -1 ?
                         indicator.format : indicator.format.substr(0, indicator.format.indexOf("\n")).trim();
@@ -158,12 +159,13 @@ const ConditionsEditor = Vue.createApp({
             this.selectedChildValue = value;
         },
         updateSelectedChildIndicator(indicatorID){
-            let indicator = this.selectedFormIndicators.find(i => i.indicatorID === indicatorID);
-            this.childIndicator = indicator;
+            const indicator = this.selectedFormIndicators.find(i => i.indicatorID === indicatorID);
+            const childValueOptions = indicator.format.indexOf("\n") === -1 ? [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
+            
+            this.childIndicator = {...indicator};
             this.selectedChildOutcome = '';
             this.selectedChildValue = '';
-            this.selectedChildValueOptions = indicator.format.indexOf("\n") === -1 ?
-                            [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
+            this.selectedChildValueOptions = childValueOptions.filter(cvo => cvo !== '');
         },
         postCondition(){
             const { childIndID }  = this.conditionInputObject;
@@ -180,7 +182,6 @@ const ConditionsEditor = Vue.createApp({
                 xhttp.onreadystatechange = () => {
                     if (xhttp.readyState == 4 && xhttp.status == 200) {
                         const res = JSON.parse(xhttp.responseText);
-                        //FIX: update conditions list with new condition
                         //TODO: return better indication of success, currently just empty array
                         if (res !== 'Invalid Token.') { 
                             let indToUpdate = this.indicators.find(i => i.indicatorID === this.conditionInputObject.childIndID);
@@ -234,9 +235,11 @@ const ConditionsEditor = Vue.createApp({
             const {childIndID, parentIndID, selectedOp, selectedParentValue, 
                 selectedChildValue, selectedOutcome} = this.conditionInputObject;
 
-            return (childIndID && parentIndID && selectedOp //&& selectedParentValue NOTE: blank vals ??
-                && (selectedOutcome && selectedOutcome !== "Pre-fill Question" || 
-                   (selectedOutcome==="Pre-fill Question" && selectedChildValue !== '')));
+            return (
+                    childIndID && parentIndID && selectedOp && selectedParentValue &&
+                    (selectedOutcome && selectedOutcome !== "Pre-fill Question" || 
+                    (selectedOutcome==="Pre-fill Question" && selectedChildValue !== ''))
+                );
         }
     },
     template: `<div>
@@ -252,16 +255,12 @@ const ConditionsEditor = Vue.createApp({
                 <editor-main
                     :formName="formName"
                     :selectedValueOptions="selectedValueOptions"
-                    :selectedParentValue="selectedParentValue"
                     :selectedIndicators="selectedFormIndicators"
                     :selectedIndicatorProp="selectedIndicator"
                     :selectedParentOperators="selectedParentOperators"
-                    :selectedOperator="selectedOperator"
                     :childIndicatorOptions="childIndicatorOptions"
                     :childIndicatorProp="childIndicator"
-                    :selectedChildOutcome="selectedChildOutcome"
                     :selectedChildValueOptions="selectedChildValueOptions"
-                    :selectedChildValue="selectedChildValue"
                     :conditions="conditionInputObject"
                     @update-selected-indicator="updateSelectedIndicator"
                     @update-selected-child="updateSelectedChildIndicator"
@@ -353,12 +352,8 @@ ConditionsEditor.component('editor-main', {
         selectedIndicators: Array,      //all available inds for currently selected form
         childIndicatorOptions: Array,   //which indicators can be chosen for children
         selectedParentOperators: Array, //available operators, based on format of above ind
-        selectedOperator: String,       //NOTE:  on inputObj selectedOp, value and outcome used to update selectors if empty
         selectedValueOptions: Array,    //values for dropdown formats
-        selectedParentValue: String,    //NOTE:  on inputObj
-        selectedChildOutcome: String,   //NOTE:  on inputObj
         selectedChildValueOptions: Array,
-        selectedChildValue: String,     //NOTE:  on inputObj
         conditions: Object,
         formName: String
     },
@@ -402,7 +397,7 @@ ConditionsEditor.component('editor-main', {
                 <span class="input-info">Choose a comparison</span>
                 <select
                     @change="$emit('update-selected-operator', $event.target.value)">
-                    <option v-if="selectedOperator===''" value="" selected>Select a condition</option>
+                    <option v-if="conditions.selectedOp===''" value="" selected>Select a condition</option>
                     <option v-for="o in selectedParentOperators" 
                     :value="o.val"
                     :selected="conditions.selectedOp===o.val">
@@ -424,7 +419,7 @@ ConditionsEditor.component('editor-main', {
                 <select v-else-if="typeof selectedIndicatorProp.format === 'string' 
                     && selectedIndicatorProp.format.includes('dropdown')"
                     @change="$emit('update-selected-parent-value', $event.target.value)">
-                    <option v-if="selectedParentValue===''" value="" selected>Select a value</option>    
+                    <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
                     <option v-for="val in selectedValueOptions"
                         :selected="conditions.selectedParentValue===val"> {{ val }}
                     </option>
@@ -432,7 +427,7 @@ ConditionsEditor.component('editor-main', {
                 <select v-else-if="typeof selectedIndicatorProp.format === 'string' 
                     && selectedIndicatorProp.format.includes('radio')"
                     @change="$emit('update-selected-parent-value', $event.target.value)">
-                    <option v-if="selectedParentValue===''" value="" selected>Select a value</option> 
+                    <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option> 
                     <option v-for="val in selectedValueOptions"> {{ val }} </option>
                 </select>
                 <p v-else class="TEST">value selection still in progress for some formats</p>
@@ -457,16 +452,16 @@ ConditionsEditor.component('editor-main', {
             <select v-if="conditions.childIndID" title="select outcome"
                     name="child-outcome-selector"
                     @change="$emit('update-selected-outcome', $event.target.value)">
-                    <option v-if="selectedChildOutcome===''" value="" selected>Select an outcome</option> 
+                    <option v-if="conditions.selectedOutcome===''" value="" selected>Select an outcome</option> 
                     <option value="Show Question" :selected="conditions.selectedOutcome==='Show Question'">Show Question</option>
                     <option value="Hide Question" :selected="conditions.selectedOutcome==='Hide Question'">Hide Question</option>
                     <option value="Pre-fill Question" :selected="conditions.selectedOutcome==='Pre-fill Question'">Pre-fill Question</option>
             </select>
-            <span v-if="selectedChildOutcome==='Pre-fill Question'">Enter a pre-fill value</span>
-            <!-- TODO: other formats - only testing dropdown for now -->
-            <select v-if="selectedChildOutcome==='Pre-fill Question'"
+            <span v-if="conditions.selectedOutcome==='Pre-fill Question'" class="input-info">Enter a pre-fill value</span>
+            <!-- TODO: FIX: other formats - only testing dropdown for now -->
+            <select v-if="conditions.selectedOutcome==='Pre-fill Question'"
                 @change="$emit('update-selected-child-value', $event.target.value)">
-                <option v-if="selectedChildValue===''" value="" selected>Select a value</option>    
+                <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
                 <option v-for="val in selectedChildValueOptions" 
                 :value="val"
                 :selected="conditions.selectedChildValue===val"> 
