@@ -10,7 +10,6 @@ const ConditionsEditor = Vue.createApp({
             selectedParentOperators: [],
             selectedOperator: '',
             selectedParentValue: '',
-            selectedFormat: '',
             selectedValueOptions: [],   //for radio, dropdown
             childIndicator: {},
             childIndicatorOptions: [],  //selectedform inds - selected parent ind
@@ -50,7 +49,6 @@ const ConditionsEditor = Vue.createApp({
             this.selectedIndicator = {};
             this.selectedParentOperators = [];
             this.selectedOperator = '';
-            this.selectedParentFormat = '';
             this.selectedValueOptions = [];  //parent values if radio, dropdown, etc
             this.selectedParentValue = '';
             this.childIndicatorOptions = []; 
@@ -453,7 +451,7 @@ ConditionsEditor.component('editor-main', {
             </select>
             <span v-if="conditions.selectedOutcome==='Pre-fill Question'" class="input-info">Enter a pre-fill value</span>
             <!-- TODO: FIX: other formats - only testing dropdown for now -->
-            <select v-if="conditions.selectedOutcome==='Pre-fill Question'"
+            <select v-if="conditions.selectedOutcome==='Pre-fill Question' && childFormat==='dropdown'"
                 @change="$emit('update-selected-child-value', $event.target.value)">
                 <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
                 <option v-for="val in selectedChildValueOptions" 
