@@ -299,88 +299,52 @@
                     if (conditions !== '') {
                         conditions = JSON.parse(conditions);
                         console.log(conditions);
+
+                        let comparison = false;
+                        $('#' + conditions.parentIndID).chosen().on('change', function () {
+                            switch (conditions.selectedOp) {
+                                case '==':
+                                    comparison =  $('#' + conditions.parentIndID).val() === conditions.selectedParentValue;
+                                    break;
+                                case '!=':
+                                    comparison = $('#' + conditions.parentIndID).val() !== conditions.selectedParentValue;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+
                         switch (conditions.selectedOutcome) {
                             case 'Hide Question':
                                 $('#' + conditions.parentIndID).chosen().on('change', function () {
-                                    switch (conditions.selectedOp) {
-                                        case '==':
-                                            if ($('#' + conditions.parentIndID).val() === conditions.selectedParentValue) {
-                                                $('.blockIndicator_' + conditions.childIndID).hide();
-                                            } else {
-                                                $('.blockIndicator_' + conditions.childIndID).show();
-                                            }
-                                            break;
-                                        case '!=':
-                                            if ($('#' + conditions.parentIndID).val() !== conditions.selectedParentValue) {
-                                                $('.blockIndicator_' + conditions.childIndID).hide();
-                                            } else {
-                                                $('.blockIndicator_' + conditions.childIndID).show();
-                                            }
-                                            break;
-                                        default:
-                                            break;
-                                    }
+                                    comparison ? $('.blockIndicator_' + conditions.childIndID).hide() 
+                                               : $('.blockIndicator_' + conditions.childIndID).show();
                                 });
-                                $('#' + conditions.parentIndID).chosen().trigger('change');
                                 break;
                             case 'Show Question':
                                 $('#' + conditions.parentIndID).chosen().on('change', function () {
-                                    switch (conditions.selectedOp) {
-                                        case '==':
-                                            if ($('#' + conditions.parentIndID).val() === conditions.selectedParentValue) {
-                                                $('.blockIndicator_' + conditions.childIndID).show();
-                                            } else {
-                                                $('.blockIndicator_' + conditions.childIndID).hide();
-                                            }
-                                            break;
-                                        case '!=':
-                                            if ($('#' + conditions.parentIndID).val() !== conditions.selectedParentValue) {
-                                                $('.blockIndicator_' + conditions.childIndID).show();
-                                            } else {
-                                                $('.blockIndicator_' + conditions.childIndID).hide();
-                                            }
-                                            break;
-                                        default:
-                                            break;
-                                    }
+                                    comparison ? $('.blockIndicator_' + conditions.childIndID).show() 
+                                               : $('.blockIndicator_' + conditions.childIndID).hide();
                                 });
-                                $('#' + conditions.parentIndID).chosen().trigger('change');
                                 break;
                             case 'Pre-fill Question':
                                 $('#' + conditions.parentIndID).chosen().on('change', function () {
-                                    switch (conditions.selectedOp) {
-                                        case '==':
-                                            if ($('#' + conditions.parentIndID).val() === conditions.selectedParentValue) {
-                                                $('#' + conditions.childIndID).attr('disabled', 'disabled');
-                                                $('#' + conditions.childIndID).chosen().val(conditions.selectedChildValue);
-                                                $('#' + conditions.childIndID).trigger('chosen:updated');
-                                            } else {
-                                                $('#' + conditions.childIndID).removeAttr('disabled');
-                                                $('#' + conditions.childIndID).chosen().val('');
-                                                $('#' + conditions.childIndID).trigger('chosen:updated');
-                                            }
-                                            break;
-                                        case '!=':
-                                            if ($('#' + conditions.parentIndID).val() !== conditions.selectedParentValue) {
-                                                $('#' + conditions.childIndID).attr('disabled', 'disabled');
-                                                $('#' + conditions.childIndID).chosen().val(conditions.selectedChildValue);
-                                                $('#' + conditions.childIndID).trigger('chosen:updated');
-                                            } else {
-                                                $('#' + conditions.childIndID).removeAttr('disabled');
-                                                $('#' + conditions.childIndID).chosen().val('');
-                                                $('#' + conditions.childIndID).trigger('chosen:updated');
-                                            }
-                                            break;
-                                        default:
-                                            break;
+                                    if(comparison) {
+                                        $('#' + conditions.childIndID).attr('disabled', 'disabled');
+                                        $('#' + conditions.childIndID).chosen().val(conditions.selectedChildValue);
+                                        $('#' + conditions.childIndID).trigger('chosen:updated');
+                                    } else {
+                                        $('#' + conditions.childIndID).removeAttr('disabled');
+                                        $('#' + conditions.childIndID).chosen().val('');
+                                        $('#' + conditions.childIndID).trigger('chosen:updated');
                                     }
                                 });
-                                $('#' + conditions.parentIndID).chosen().trigger('change');
                                 break;
                             default:
                                 console.log(conditions.selectedOutcome);
                                 break;
                         }
+                        $('#' + conditions.parentIndID).chosen().trigger('change');
                     }
                 });
                 <!--{if $indicator.required == 1}-->
