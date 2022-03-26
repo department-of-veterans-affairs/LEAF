@@ -33,6 +33,98 @@ var LeafForm = function(containerID) {
 		postModifyCallback = func;
 	}
 
+	function handleConditionalIndicators(formConditions){
+		const conditions = formConditions.conditions;
+		const format = formConditions.format;
+		const elParentInd = document.getElementById(conditions.parentIndID);
+		const elChildInd = document.getElementById(conditions.childIndID);
+		//console.log(conditions, format);
+
+		if(format==='dropdown'){
+		//*NOTE: need format for various plugins (icheck, chosen, etc)
+
+			let currChildVal = elChildInd.value;
+			$('#' + conditions.childIndID).chosen().on('change', function () {
+				currChildVal = elChildInd.value;
+			});	
+			//*
+			let comparison = false;
+			$('#' + conditions.parentIndID).chosen().on('change', function () {
+				const val = elParentInd.value;
+				const compVal = conditions.selectedParentValue;
+				//TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
+				switch (conditions.selectedOp) { 
+					case '==':
+						comparison = val === compVal;
+						break;
+					case '!=':
+						comparison = val !== compVal;
+						break;
+					case '>':
+						comparison = val > compVal;
+						break;
+					case '<':
+						comparison = val < compVal;
+						break;	
+					default:
+						console.log(conditions.selectedOp);
+						break;
+				}
+				console.log(val, conditions.selectedOp, compVal,comparison);
+			});
+			
+			switch (conditions.selectedOutcome) {
+				case 'Hide Question':
+					$('#' + conditions.parentIndID).chosen().on('change', function () {
+						if(comparison) {
+							$('#' + conditions.childIndID).chosen().val('');
+							$('#' + conditions.childIndID).trigger('chosen:updated');
+							$('.blockIndicator_' + conditions.childIndID).hide();
+						} else {
+							$('.blockIndicator_' + conditions.childIndID).show();
+							if (currChildVal) { //updates with prev selection if there had been one
+								$('#' + conditions.childIndID).chosen().val(currChildVal);
+								$('#' + conditions.childIndID).trigger('chosen:updated');
+							} 
+						}
+					});
+					break;
+				case 'Show Question':
+					$('#' + conditions.parentIndID).chosen().on('change', function () { 
+						if(comparison) {
+							$('.blockIndicator_' + conditions.childIndID).show();
+							if (currChildVal) {
+								$('#' + conditions.childIndID).chosen().val(currChildVal);
+								$('#' + conditions.childIndID).trigger('chosen:updated');
+							} 
+						} else {
+							$('#' + conditions.childIndID).chosen().val('');
+							$('#' + conditions.childIndID).trigger('chosen:updated');
+							$('.blockIndicator_' + conditions.childIndID).hide();
+						}
+					});
+					break;
+				case 'Pre-fill Question':
+					$('#' + conditions.parentIndID).chosen().on('change', function () {
+						if(comparison) {
+							$('#' + conditions.childIndID).attr('disabled', 'disabled');
+							$('#' + conditions.childIndID).chosen().val(conditions.selectedChildValue);
+							$('#' + conditions.childIndID).trigger('chosen:updated');
+						} else {
+							$('#' + conditions.childIndID).removeAttr('disabled');
+							$('#' + conditions.childIndID).chosen().val('');
+							$('#' + conditions.childIndID).trigger('chosen:updated');
+						}
+					});
+					break;
+				default:
+				console.log(conditions.selectedOutcome);
+				break;
+			}
+			$('#' + conditions.parentIndID).chosen().trigger('change');//*/
+		}
+	}
+
 	function doModify() {
 		if(recordID == 0) {
 			console.log('recordID not set');
@@ -118,6 +210,7 @@ var LeafForm = function(containerID) {
 
 	    formValidator = new Object();
 	    formRequired = new Object();
+		formConditions = new Object();
 	    $.ajax({
 	        type: 'GET',
 	        url: "ajaxIndex.php?a=getindicator&recordID=" + recordID + "&indicatorID=" + indicatorID + "&series=" + series,
@@ -143,6 +236,11 @@ var LeafForm = function(containerID) {
 	            }
 
 	            dialog.enableLiveValidation();
+
+				for (let c in formConditions) {
+					handleConditionalIndicators(formConditions[c]);
+				}
+				
 	        },
 	        error: function(response) {
 	        	dialog.setContent("Error: " + response);

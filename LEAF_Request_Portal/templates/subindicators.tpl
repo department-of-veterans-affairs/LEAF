@@ -295,57 +295,6 @@
                 <script>
                 $(function() {
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '80%'});
-                    let conditions = '<!--{$indicator.conditions}-->';
-                    if (conditions !== '') {
-                        conditions = JSON.parse(conditions);
-                        console.log(conditions);
-
-                        let comparison = false;
-                        $('#' + conditions.parentIndID).chosen().on('change', function () {
-                            switch (conditions.selectedOp) {
-                                case '==':
-                                    comparison =  $('#' + conditions.parentIndID).val() === conditions.selectedParentValue;
-                                    break;
-                                case '!=':
-                                    comparison = $('#' + conditions.parentIndID).val() !== conditions.selectedParentValue;
-                                    break;
-                                default:
-                                    break;
-                            }
-                        });
-
-                        switch (conditions.selectedOutcome) {
-                            case 'Hide Question':
-                                $('#' + conditions.parentIndID).chosen().on('change', function () {
-                                    comparison ? $('.blockIndicator_' + conditions.childIndID).hide() 
-                                               : $('.blockIndicator_' + conditions.childIndID).show();
-                                });
-                                break;
-                            case 'Show Question':
-                                $('#' + conditions.parentIndID).chosen().on('change', function () {
-                                    comparison ? $('.blockIndicator_' + conditions.childIndID).show() 
-                                               : $('.blockIndicator_' + conditions.childIndID).hide();
-                                });
-                                break;
-                            case 'Pre-fill Question':
-                                $('#' + conditions.parentIndID).chosen().on('change', function () {
-                                    if(comparison) {
-                                        $('#' + conditions.childIndID).attr('disabled', 'disabled');
-                                        $('#' + conditions.childIndID).chosen().val(conditions.selectedChildValue);
-                                        $('#' + conditions.childIndID).trigger('chosen:updated');
-                                    } else {
-                                        $('#' + conditions.childIndID).removeAttr('disabled');
-                                        $('#' + conditions.childIndID).chosen().val('');
-                                        $('#' + conditions.childIndID).trigger('chosen:updated');
-                                    }
-                                });
-                                break;
-                            default:
-                                console.log(conditions.selectedOutcome);
-                                break;
-                        }
-                        $('#' + conditions.parentIndID).chosen().trigger('change');
-                    }
                 });
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
@@ -1140,7 +1089,14 @@
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{include file=$subindicatorsTemplate form=$indicator.child depth=$depth+4 recordID=$recordID}-->
-
+        <!--{if $indicator.conditions != ''}-->
+            <script type="text/javascript">
+                formConditions["id<!--{$indicator.indicatorID}-->"] = {
+                    conditions:<!--{$indicator.conditions|strip_tags}-->,  //no quotes. send as object
+                    format:'<!--{$indicator.format}-->'
+                };
+            </script>   
+        <!--{/if}-->
         </div>
     <!--{/foreach}-->
     </div>
