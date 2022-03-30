@@ -9,29 +9,34 @@
 }
 
 body {
+    position: relative;
     --charcoal: #252F3E;
     --dark-navy: #162E51;
     --base-navy: #005EA2;
     --cyan: #4BDFFD;
     --lt-cyan: #E0F4FA;
 }
-
+#LEAF_conditions_editor {
+    position: absolute;
+    background-color: rgba(0,0,30,0.4);
+    top: 0;
+    left: 0;
+    height: 100%;
+}
 #condition_editor_content {
-    margin: 0 auto;
-    padding: 20px;
-    display: grid;
-    grid-gap: 20px;
-    grid-template-columns: repeat(24, 1fr);
-    max-width: 1200px;
+    padding: 40px 10px;
+    margin: auto;
+    width: 100vw;
+    min-height: 100vh;
 }
 #condition_editor_content h3 {
     margin: 0;
 }
 #condition_editor_content h4 {
-    margin: 0.75em 0;
+    margin: 0 0 0.5em;
 }
 #condition_editor_content hr {
-    margin: 1.25em auto;
+    margin: 1em auto;
 }
 #condition_editor_content ul {
     padding: 0;
@@ -45,30 +50,23 @@ body {
     margin: 0;
 }
 
-#condition_editor_list {
-    grid-column: 1 / span 8;
-}
-#condition_editor_center_panel {
-    grid-column: 9 / span 16;
-}
 
-#condition_editor_actions, #condition_editor_list, 
-#condition_editor_inputs {
+#condition_editor_center_panel {
+    width: 50%;
+    min-width: 450px;
+    max-width: 800px;
+    margin: auto;
     background-color: white;
-    height: fit-content;
     border-radius: 4px;
     border-left: 10px solid #252f3e;
     border-right: 10px solid #252f3e;
     box-shadow: 1px 1px 4px rgba(0,0,30,0.2);
 }
 
-#condition_editor_list > div,
 #condition_editor_inputs > div, 
 #condition_editor_actions > div {
-    padding: 1em;
-}
-#condition_editor_actions {
-    margin-top: 20px;
+    padding: 0.75em;
+    border-bottom: 2px solid var(--lt-cyan, #E0F4FA);
 }
 #condition_editor_content .editor-card-header {
     background-color: var(--lt-cyan, #E0F4FA);
@@ -79,9 +77,12 @@ body {
 #condition_editor_content select, #condition_editor_content input {
     font-size: 85%;
     padding: 0.15em;
-    margin-bottom: 1em;
     text-overflow: ellipsis;
     width: 100%;
+}
+#condition_editor_content select:not(:last-child), 
+#condition_editor_content input:not(:last-child) {
+    margin-bottom: 1em;
 }
 .ind-controller-info {
     color: rgb(68, 71, 73);
@@ -143,27 +144,13 @@ button.btn-condition-select {
     color: var(--navy, #005EA2);
 }
 
-@media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 768px) {
     #condition_editor_content {
-        padding: 20px 10px;
+        padding: 0;
     }
-    #condition_editor_list{
-        grid-column: 1 / span 10;
-    } 
-    #condition_editor_center_panel{
-        grid-column: 11 / span 14;
-    }
-}
-
-@media only screen and (max-width: 700px) {
-    #condition_editor_list, #condition_editor_center_panel {
-        grid-column: 1 / span 24;
-    }
-    #condition_editor_actions, #condition_editor_list, 
-    #condition_editor_inputs {
-        border-radius: 0;
-    }
-    #condition_editor_content {
-        padding: 20px 0;
+    #condition_editor_center_panel {
+        width: 100%;
+        min-width: 350px;
+        border: 0;
     }
 }

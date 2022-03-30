@@ -3,6 +3,19 @@
     <div id="menu" style="float: left; width: 180px"></div>
     <div id="formEditor_content" style="margin-left: 184px; padding-left: 8px"></div>
 </div>
+<div id="LEAF_conditions_editor"></div><!-- vue mount -->
+
+<script>
+var CSRFToken = '<!--{$CSRFToken}-->';
+const vueData = {
+    formID: 0,
+    formTitle: '',
+    indicatorID: 0
+}
+</script>                                  
+<script src="https://unpkg.com/vue@3"></script>
+<script src="../js/vue_conditions_editor/LEAF_conditions_editor.js"></script>
+<link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
@@ -249,6 +262,12 @@ function openContent(url) {
 	let isSubForm = categories[currCategoryID].parentID == '' ? false : true;
 	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 	let workflow = '';
+
+    vueData.formID = currCategoryID;
+    vueData.formTitle = formTitle;
+    vueData.indicatorID = 0;
+    document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"))
+
 	if(categories[currCategoryID].workflowID != 0) {
 		workflow = categories[currCategoryID].description + ' (ID #' + categories[currCategoryID].workflowID + ')';
 	}
@@ -2306,6 +2325,7 @@ $(function() {
         .animate({'background-color': 'yellow'}, 1000);
     };
     <!--{/if}-->
+    var CSRFToken = '<!--{$CSRFToken}-->';
 });
 
 
