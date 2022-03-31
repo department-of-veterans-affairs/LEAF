@@ -147,6 +147,7 @@ button.btn-condition-select {
 @media only screen and (max-width: 768px) {
     #condition_editor_content {
         padding: 0;
+        margin-top:90px;
     }
     #condition_editor_center_panel {
         width: 100%;

@@ -410,15 +410,16 @@ ConditionsEditor.component('editor-actions', {
         }
     },
     template: `<div id="condition_editor_actions">
-        <div v-if="conditionInputComplete===true" class="editor-card-header">Click save to store this condition, or cancel to start over</div>
-            <div>
-                <div v-if="conditionInputComplete"><b>IF</b> parent question '{{parentIndicator.name}}' is 
+            <div v-if="conditionInputComplete===true" class="editor-card-header">Click save to store this condition, or cancel to start over
+            </div>
+            <div v-if="conditionInputComplete">
+                <div><b>IF</b> parent question '{{parentIndicator.name}}' is 
                     <span style="color: #00A91C; font-weight: bold;">
                     {{operatorText}} {{conditions.selectedParentValue}}
                     </span>
                     <br/>
                 </div>
-                <div v-if="conditionInputComplete"> 
+                <div> 
                     <b>THEN</b> child question '{{childIndicator.name}}'  
                     <span v-if="conditions.selectedOutcome==='Pre-fill Question'">will 
                         <span style="color: #00A91C; font-weight: bold;"> have the value '{{conditions.selectedChildValue}}'</span>
