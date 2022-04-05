@@ -10,7 +10,8 @@ var CSRFToken = '<!--{$CSRFToken}-->';
 const vueData = {
     formID: 0,
     formTitle: '',
-    indicatorID: 0
+    indicatorID: 0,
+    icons: []
 }
 </script>                                  
 <script src="https://unpkg.com/vue@3"></script>
@@ -263,11 +264,6 @@ function openContent(url) {
 	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 	let workflow = '';
 
-    vueData.formID = currCategoryID;
-    vueData.formTitle = formTitle;
-    vueData.indicatorID = 0;
-    document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"))
-
 	if(categories[currCategoryID].workflowID != 0) {
 		workflow = categories[currCategoryID].description + ' (ID #' + categories[currCategoryID].workflowID + ')';
 	}
@@ -301,6 +297,13 @@ function openContent(url) {
         dataType: 'text',  // IE9 issue
         success: function(res) {
             $('#formEditor_form').empty().html(res);
+            const icons = Array.from(document.querySelectorAll('img[id^="edit_conditions"]'));
+            
+            vueData.formID = currCategoryID;
+            vueData.formTitle = formTitle;
+            vueData.indicatorID = 0;
+            vueData.icons = icons.map(ele => ele.id.replaceAll('edit_conditions_', ''));
+            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         },
         error: function(res) {
             $('#formEditor_form').empty().html(res);

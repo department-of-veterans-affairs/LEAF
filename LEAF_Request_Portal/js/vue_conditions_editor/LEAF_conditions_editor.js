@@ -1,8 +1,8 @@
 const ConditionsEditor = Vue.createApp({
     data() {
         return {
-            vueData: vueData,  //obj w formID, indID (child)
-            //forms: [],
+            vueData: vueData,  //obj w formID, indID (child), formName, icon ids
+            indicatorOrg: {},
             indicators: [],
             selectedParentIndicator: {},
             selectedFormConditions: [],
@@ -17,11 +17,18 @@ const ConditionsEditor = Vue.createApp({
             selectedChildValue: '',
         }
     },
-    updated(){
-        //console.log(this.$data, vueData);
+    updated(){/*
+        this.indicators.map(i => {
+            let isParent = this.vueData.icons.includes(i.parentIndicatorID);
+            if (isParent) {
+                console.log('isParent', i.parentIndicatorID);
+                let img = document.getElementById('edit_conditions_' + i.parentIndicatorID);
+                img.style.display = 'none';
+            }
+        });*/
     },
     beforeMount(){
-        //get all enabled indicators
+        //get all enabled indicators + headings
         const xhttpInds = new XMLHttpRequest();
         xhttpInds.onreadystatechange = () => {
             if (xhttpInds.readyState == 4 && xhttpInds.status == 200) {
@@ -29,9 +36,21 @@ const ConditionsEditor = Vue.createApp({
                 const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && ele.isDisabled===0);
                 this.indicators = filteredList;
                 console.log(this.indicators);
+
+                this.indicators.forEach(i => {  //make object for organization according to header
+                    if (i.parentIndicatorID === null){
+                        this.indicatorOrg[i.indicatorID] = {header: i, indicators:{}};
+                    }
+                });
+                this.indicators.forEach(i => { 
+                    if (i.parentIndicatorID !== null) { //no need to check headers again
+                        this.crawlParents(i,i);
+                    }    
+                });
+                console.log(this.indicatorOrg)
             }
         };
-        xhttpInds.open("GET", `../api/form/indicator/list`, true);
+        xhttpInds.open("GET", `../api/form/indicator/list&includeHeadings=true`, true);
         xhttpInds.send();
     },
     methods: {
@@ -124,12 +143,28 @@ const ConditionsEditor = Vue.createApp({
                 const childValueOptions = indicator.format.indexOf("\n") === -1 ? [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
                 
                 this.childIndicator = {...indicator};
-                this.selectableParents = this.indicators.filter(i => parseInt(i.indicatorID) !== this.vueData.indicatorID && i.categoryID===this.vueData.formID);
                 this.selectedChildValueOptions = childValueOptions.filter(cvo => cvo !== '');
 
+                const parentIndicatorID = parseInt(indicator.parentIndicatorID);
+                
+                this.selectableParents = this.indicators.filter(i => parseInt(i.indicatorID) === parentIndicatorID && i.format !== '');
+                //this.selectableParents = this.indicators.filter(i => parseInt(i.indicatorID) !== this.vueData.indicatorID && i.categoryID===this.vueData.formID);
+                //this.updateSelectedParentIndicator(parentIndicatorID);
+                
                 if(indicator.conditions !== null && indicator.conditions !== ''){
                     this.selectConditionFromList(indicator.conditions);    
-                }
+                } 
+            }
+        },
+        crawlParents(indicator, initialIndicator) {
+            
+            const parentIndicatorID = indicator.parentIndicatorID;
+            const parent = this.indicators.find(i => i.indicatorID === parentIndicatorID);
+            console.log('this is still running help');
+            if (parent.parentIndicatorID === null) {
+                this.indicatorOrg[parentIndicatorID].indicators[initialIndicator.indicatorID] = initialIndicator;
+            } else {
+                this.crawlParents(parent, initialIndicator);
             }
         },
         postCondition(){
@@ -140,7 +175,6 @@ const ConditionsEditor = Vue.createApp({
                 form.append('CSRFToken', CSRFToken);
                 form.append('conditions', pkg);
 
-                //* NOTE: xml version  DONE:
                 const xhttp = new XMLHttpRequest();
                 xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
                 xhttp.send(form); 
@@ -154,16 +188,7 @@ const ConditionsEditor = Vue.createApp({
                             //this.vueData.indicatorID = 0;
                         }
                     }
-                };//*/
-                /* NOTE: fetch API version  //DONE: working now
-                fetch(`../api/formEditor/${childIndID}/conditions`, {
-                    method: 'POST', 
-                    body: form
-                })
-                .then(res => res.json())
-                .then(data => console.log(data))
-                .catch(err => console.log(err));
-                  //*/
+                };
             } else {
                 console.log('condition object not complete');
             }
@@ -178,12 +203,7 @@ const ConditionsEditor = Vue.createApp({
             this.selectedChildValue = conditionObj?.selectedChildValue;
         }
     },
-    computed: {/*
-        formName(){
-            if (this.selectedFormCatID !== '') {
-                return this.forms.find(f => f.categoryID === this.selectedFormCatID).categoryName;
-            } else return '';
-        },*/
+    computed: {
         parentFormat(){
             if(this.selectedParentIndicator?.format){
                 const f = this.selectedParentIndicator.format
@@ -233,7 +253,7 @@ const ConditionsEditor = Vue.createApp({
                 :childFormat="childFormat"
                 :selectedChildValueOptions="selectedChildValueOptions"
                 :conditions="conditionInputObject"
-                @update-selected-indicator="updateSelectedParentIndicator"
+                @update-selected-parent="updateSelectedParentIndicator"
                 @update-selected-child="updateSelectedChildIndicator"
                 @update-selected-operator="updateSelectedOperator"
                 @update-selected-parent-value="updateSelectedParentValue"
@@ -297,12 +317,12 @@ ConditionsEditor.component('editor-main', {
                 {{ vueData.formTitle }}
             </span></h3>
         </div>
-        <div v-if="selectableParents.length > 1">
+        <div v-if="selectableParents.length > 0">
             <h4>IF</h4>
             <span class="input-info">Parent question</span>
             <select title="select an indicator" 
                     name="indicator-selector" 
-                    @change="$emit('update-selected-indicator', $event.target.value)">
+                    @change="$emit('update-selected-parent', $event.target.value)">
                 <option v-if="!conditions.parentIndID" value="" selected>Select an Indicator</option>        
                 <option v-for="i in selectableParents" 
                 :title="i.name" 
@@ -376,7 +396,7 @@ ConditionsEditor.component('editor-main', {
                 </option>
             </select>
         </div>
-        <div v-if="selectableParents.length <= 1">No options are currently available for the indicators on this form</div>
+        <div v-if="selectableParents.length < 1">No options are currently available for the indicators on this form</div>
     </div>`
 });
 

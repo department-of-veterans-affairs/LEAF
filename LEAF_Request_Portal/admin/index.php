@@ -428,16 +428,6 @@ switch ($action) {
         $tabText = 'Recover disabled fields';
 
         break;
-    case 'mod_conditions_editor':
-        $t_form = new Smarty;
-        $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter = '}-->';
-    
-        $main->assign('useUI', true); //NOTE: does not seem needed?
-        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $main->assign('body', $t_form->fetch(customTemplate('mod_conditions_editor.tpl')));
-
-        break;
     case 'import_data':
 
         $t_form = new Smarty;
