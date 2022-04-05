@@ -2,7 +2,7 @@ const ConditionsEditor = Vue.createApp({
     data() {
         return {
             vueData: vueData,  //obj w formID, indID (child), formName, icon ids
-            indicatorOrg: {},
+            //indicatorOrg: {},  debug
             indicators: [],
             selectedParentIndicator: {},
             selectedFormConditions: [],
@@ -17,16 +17,6 @@ const ConditionsEditor = Vue.createApp({
             selectedChildValue: '',
         }
     },
-    updated(){/*
-        this.indicators.map(i => {
-            let isParent = this.vueData.icons.includes(i.parentIndicatorID);
-            if (isParent) {
-                console.log('isParent', i.parentIndicatorID);
-                let img = document.getElementById('edit_conditions_' + i.parentIndicatorID);
-                img.style.display = 'none';
-            }
-        });*/
-    },
     beforeMount(){
         //get all enabled indicators + headings
         const xhttpInds = new XMLHttpRequest();
@@ -35,21 +25,21 @@ const ConditionsEditor = Vue.createApp({
                 const list = JSON.parse(xhttpInds.responseText);
                 const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && ele.isDisabled===0);
                 this.indicators = filteredList;
-                console.log(this.indicators);
-
-                this.indicators.forEach(i => {  //make object for organization according to header
+                
+                /* this.indicators.forEach(i => {  //debug, make object for organization according to header
                     if (i.parentIndicatorID === null){
                         this.indicatorOrg[i.indicatorID] = {header: i, indicators:{}};
                     }
-                });
+                });*/
                 this.indicators.forEach(i => { 
-                    if (i.parentIndicatorID !== null) { //no need to check headers again
+                    if (i.parentIndicatorID !== null) { //no need to check headers themselves
                         this.crawlParents(i,i);
                     }    
                 });
-                console.log(this.indicatorOrg)
+                console.log(this.indicators);
             }
         };
+        //get the headers too, need to figure out what they are for each child
         xhttpInds.open("GET", `../api/form/indicator/list&includeHeadings=true`, true);
         xhttpInds.send();
     },
@@ -145,11 +135,8 @@ const ConditionsEditor = Vue.createApp({
                 this.childIndicator = {...indicator};
                 this.selectedChildValueOptions = childValueOptions.filter(cvo => cvo !== '');
 
-                const parentIndicatorID = parseInt(indicator.parentIndicatorID);
-                
-                this.selectableParents = this.indicators.filter(i => parseInt(i.indicatorID) === parentIndicatorID && i.format !== '');
-                //this.selectableParents = this.indicators.filter(i => parseInt(i.indicatorID) !== this.vueData.indicatorID && i.categoryID===this.vueData.formID);
-                //this.updateSelectedParentIndicator(parentIndicatorID);
+                const headerIndicatorID = parseInt(indicator.headerIndicatorID);
+                this.selectableParents = this.indicators.filter(i => parseInt(i.headerIndicatorID) === headerIndicatorID && i.indicatorID !== this.childIndicator.indicatorID);
                 
                 if(indicator.conditions !== null && indicator.conditions !== ''){
                     this.selectConditionFromList(indicator.conditions);    
@@ -157,12 +144,14 @@ const ConditionsEditor = Vue.createApp({
             }
         },
         crawlParents(indicator, initialIndicator) {
-            
             const parentIndicatorID = indicator.parentIndicatorID;
             const parent = this.indicators.find(i => i.indicatorID === parentIndicatorID);
-            console.log('this is still running help');
+            
             if (parent.parentIndicatorID === null) {
-                this.indicatorOrg[parentIndicatorID].indicators[initialIndicator.indicatorID] = initialIndicator;
+                //debug this.indicatorOrg[parentIndicatorID].indicators[initialIndicator.indicatorID] = {...initialIndicator, headerIndicatorID: parentIndicatorID};
+                //add information about the headerIndicatorID to the indicators
+                let indToUpdate = this.indicators.find(i => i.indicatorID===initialIndicator.indicatorID);
+                indToUpdate.headerIndicatorID = parentIndicatorID;
             } else {
                 this.crawlParents(parent, initialIndicator);
             }
