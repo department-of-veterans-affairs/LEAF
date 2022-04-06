@@ -843,7 +843,7 @@ function setupChart() {
     let minDate = new Date(dimRequestsTime.bottom(1)[0].timestamp);
     minDate.setDate(minDate.getDate() - 1);
     let lastMonth = new Date(today).setMonth(today.getMonth() - 1);
-    let maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + dynUnit.maxDate);
+    let maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
     chart_workload_timescale
         .useViewBoxResizing(true)
