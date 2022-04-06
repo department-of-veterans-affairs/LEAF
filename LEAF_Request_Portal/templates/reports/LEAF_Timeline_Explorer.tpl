@@ -840,10 +840,12 @@ function setupChart() {
         .formatNumber(d3.format(',.0f'));
 
 //  let minDate = new Date(today.getFullYear(), today.getMonth() - 4);
+
     let minDate = new Date(dimRequestsTime.bottom(1)[0].timestamp);
     minDate.setDate(minDate.getDate() - 1);
     let lastMonth = new Date(today).setMonth(today.getMonth() - 1);
-    let maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    let maxDate = new Date(dimRequestsTime.top(1)[0].timestamp);
+    minDate.setDate(minDate.getDate() + 1);
 
     chart_workload_timescale
         .useViewBoxResizing(true)
@@ -936,6 +938,8 @@ function setupChart() {
             });
         });
 
+    chart_row_steps.xAxis().ticks(5);
+
     chart_pie_steps_total
         .useViewBoxResizing(true)
         .dimension(dimSteps)
@@ -974,6 +978,8 @@ function setupChart() {
                 return '#ccc';
             });
         });
+
+    chart_row_steps_total.xAxis().ticks(4);
 
     chart_facilities
         .height((avgTimeSpentByService.all().length * 18) + 60)
