@@ -1090,6 +1090,7 @@ function setupChart() {
 
     chart_form_type
         .useViewBoxResizing(true)
+    	.height((groupDataClassificationType.all().length * 18) + 60)
         .dimension(dimDataClassificationType)
         .group(groupDataClassificationType)
         .valueAccessor(function(d) { return d.value.count; })
