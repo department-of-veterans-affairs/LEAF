@@ -863,7 +863,7 @@ function setupChart() {
             return count > 0 ? totalTime / count : 0;
         })
         .yAxisLabel('Days to resolve')
-    	.gap(30)
+    	.gap(4)
         .x(d3.scaleTime().domain([minDate, maxDate]))
         .xUnits(dynUnit.chart)
         .elasticY(true);
@@ -894,7 +894,7 @@ function setupChart() {
         .group(groupUniqueRequestsByTime)
     	.valueAccessor(function(d) { return d.value.count; })
         .yAxisLabel('Resolved Requests')
-    	.gap(30)
+    	.gap(4)
         .x(d3.scaleTime().domain([minDate, maxDate]))
         .xUnits(dynUnit.chart)
         .elasticY(true);
