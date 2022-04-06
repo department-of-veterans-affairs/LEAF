@@ -36,7 +36,6 @@ const ConditionsEditor = Vue.createApp({
                         this.crawlParents(i,i);
                     }    
                 });
-                console.log(this.indicators);
             }
         };
         //get the headers too, need to figure out what they are for each child
@@ -142,6 +141,25 @@ const ConditionsEditor = Vue.createApp({
                     this.selectConditionFromList(indicator.conditions);    
                 } 
             }
+            const xhttpForm = new XMLHttpRequest();
+            xhttpForm.onreadystatechange = () => {
+                if (xhttpForm.readyState == 4 && xhttpForm.status == 200) {
+                    const form = JSON.parse(xhttpForm.responseText);
+                    console.log('form', form);
+                    form.forEach((formheader, index) => {
+                        console.log(formheader.indicatorID, index);
+                        this.indicators.forEach(ind => {
+                            if (ind.headerIndicatorID===formheader.indicatorID){
+                                console.log(index);
+                                ind.formPage=index;
+                            }
+                        })
+                    });
+                    console.log('app indicators', this.indicators);
+                }
+            };
+            xhttpForm.open("GET", `../api/form/_${this.vueData.formID}`, false);
+            xhttpForm.send();
         },
         crawlParents(indicator, initialIndicator) {
             const parentIndicatorID = indicator.parentIndicatorID;
