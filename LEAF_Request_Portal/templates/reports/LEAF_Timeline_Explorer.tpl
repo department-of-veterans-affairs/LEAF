@@ -1,5 +1,5 @@
 <script src="js/lz-string/lz-string.min.js"></script>
-<script src="https://leaf.va.gov/launchpad/files/intervalQueue.js"></script>
+<script src="../libs/js/LEAF/intervalQueue.js"></script>
 <link rel="stylesheet" type="text/css" href="../libs/js/jquery/layout-grid/css/layout-grid.min.css" />
 <script src="../libs/js/jquery/layout-grid/js/layout-grid.min.js"></script>
 
