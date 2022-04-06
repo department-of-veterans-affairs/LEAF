@@ -626,7 +626,6 @@ function setupChart() {
     let dimSteps = facts.dimension(function(d) { return d.label.replace("&amp;", "&").replace("&apos;", "'"); }); // Clean up output
     let dimRequests = facts.dimension(function(d) { return d.recordID; });
     let dimRequestsTime = facts.dimension(function(d) { return dynUnit.convert(d.timestamp); });
-    let dimRequestsTime2 = facts.dimension(function(d) { return dynUnit.convert(d.timestamp); });
     let dimDataClassificationType = facts.dimension(function(d) { return d.categoryID; });
 
     let groupDataClassificationType = dimDataClassificationType.group().reduce(
@@ -658,7 +657,7 @@ function setupChart() {
         }
     );
 
-    let groupTimeToResolve = dimRequestsTime2.group().reduce(
+    let groupTimeToResolve = dimRequestsTime.group().reduce(
         function(p, v) {
             let key = v.site + v.recordID;
             p.records[key] = p.records[key] + v.days || v.days;
