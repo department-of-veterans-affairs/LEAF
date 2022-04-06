@@ -556,6 +556,7 @@ var LeafFormGrid = function(containerID, options) {
         $('#' + prefixID + 'tbody').append(buffer);
         $('#' + prefixID + 'tbody td[data-editable=true]').addClass('table_editable');
         $('#' + prefixID + 'tbody td[data-clickable=true]').addClass('table_editable');
+        $('#' + prefixID + 'tbody').unbind('click'); //prevents multiple firing on same report builder element, which causes subsequent problems with icheck
         $('#' + prefixID + 'tbody').on('click', 'td[data-editable=true]', function(e) {
             form.setRecordID($(this).data('record-id'));
             var indicatorID = $(this).data('indicator-id');

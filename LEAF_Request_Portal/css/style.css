@@ -1328,7 +1328,7 @@ fieldset iframe {
 }
 #progressArea {
     position: sticky;
-    z-index: 100;
+    z-index: 50;
     top: 0;
 }
 /* sticky top of dialog box */
