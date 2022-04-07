@@ -617,6 +617,10 @@ class System
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailToFileName'], $_POST['emailToFile']);
             if (htmlentities($_POST['emailCcFileName'], ENT_QUOTES) != '')
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailCcFileName'], $_POST['emailCcFile']);
+            
+            $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::EMAIL_TEMPLATE, [
+                new LogItem("email_templates", "body", $template)
+            ]);
         }
     }
 
@@ -667,6 +671,10 @@ class System
             {
                 unlink("../templates/email/custom_override/{$emailCcFileName}");
             }
+            
+            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMAIL_TEMPLATE, [
+                new LogItem("email_templates", "body", $template)
+            ]);
         }
     }
 
