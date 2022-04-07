@@ -1282,11 +1282,15 @@ $(function() {
     });
     
     $('#filterStart, #filterEnd').on('change', function() {
+        let startVal = $('#filterStart').val();
+        let endVal = $('#filterEnd').val();
         let filterStart = new Date($('#filterStart').val());
         let filterEnd = new Date($('#filterEnd').val());
         if(filterStart < filterEnd) {
             chart_workload_timescale.filter(dc.filters.RangedFilter(filterStart, filterEnd));
         }
+        $('#filterStart').val(startVal)
+        $('#filterEnd').val(endVal)
     });
     
     
