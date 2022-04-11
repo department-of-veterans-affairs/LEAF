@@ -448,6 +448,17 @@ function viewHistory() {
     dialog_message.setTitle('Access Template History');
     dialog_message.show();
     dialog_message.indicateBusy();
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&itemID='+currentFile,
+        dataType: 'text',
+        success: function(res) {
+            dialog_message.setContent(res);
+            dialog_message.indicateIdle();
+        },
+        cache: false
+    });
 }
 
 /**
