@@ -279,7 +279,7 @@
     <div class="main-content-noRight">
 
         <h1>
-            <a href="/LEAF_Request_Portal/admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i> Sitemap Editor
+            <a href="./admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i> Sitemap Editor
             <span id="sitemap-alert" class="leaf-sitemap-alert"><i class="fas fa-check"></i> Sitemap updated</span>
         </h1>
         <div id="sortable" class="leaf-displayFlexRow">
