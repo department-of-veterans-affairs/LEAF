@@ -39,7 +39,7 @@ const ConditionsEditor = Vue.createApp({
             }
         };
         //get the headers too, need to figure out what they are for each child
-        xhttpInds.open("GET", `../api/form/indicator/list&includeHeadings=true`, true);
+        xhttpInds.open("GET", `../api/form/indicator/list/unabridged`, true);
         xhttpInds.send();
     },
     methods: {
@@ -164,7 +164,7 @@ const ConditionsEditor = Vue.createApp({
         crawlParents(indicator, initialIndicator) {
             const parentIndicatorID = indicator.parentIndicatorID;
             const parent = this.indicators.find(i => i.indicatorID === parentIndicatorID);
-            
+
             if (parent.parentIndicatorID === null) {
                 //debug this.indicatorOrg[parentIndicatorID].indicators[initialIndicator.indicatorID] = {...initialIndicator, headerIndicatorID: parentIndicatorID};
                 //add information about the headerIndicatorID to the indicators

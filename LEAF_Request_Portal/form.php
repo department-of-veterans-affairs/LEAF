@@ -3238,9 +3238,10 @@ class Form
      * @param string $sort
      * @param boolean $includeHeadings
      * @param string $formsFilter - csv list of forms to search for
+     * @param boolean $unabridged
      * @return array list of indicators
      */
-    public function getIndicatorList($sort = 'name', $includeHeadings = false, $formsFilter = '')
+    public function getIndicatorList($sort = 'name', $includeHeadings = false, $formsFilter = '', $unabridged = false)
     {
         $forms = [];
         if($formsFilter != '') {
@@ -3271,6 +3272,12 @@ class Form
                         "WHERE indicators.disabled <= 1 ".
                             "AND name != '' ".
                             "AND categories.disabled = 0" . $orderBy;
+        }
+        if($unabridged) {
+            $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators ".
+                "LEFT JOIN categories USING (categoryID) ".
+                "WHERE indicators.disabled <= 1 ".
+                "AND categories.disabled = 0" . $orderBy;
         }
         $res = $this->db->prepared_query($strSQL, $vars);
 
