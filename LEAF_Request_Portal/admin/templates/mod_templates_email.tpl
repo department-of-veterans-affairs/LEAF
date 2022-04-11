@@ -151,7 +151,9 @@
 
 </div>
 
+<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script>
 
@@ -441,6 +443,13 @@ function initEditor () {
     updateEditorSize();
 }
 
+function viewHistory() {
+    dialog_message.setContent('');
+    dialog_message.setTitle('Access Template History');
+    dialog_message.show();
+    dialog_message.indicateBusy();
+}
+
 /**
  * Actual start of page execution
  */
@@ -487,5 +496,6 @@ $(function() {
         el.CodeMirror.refresh();
     });
 
+    dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
 });
 </script>
