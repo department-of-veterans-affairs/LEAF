@@ -27,9 +27,6 @@ $(function() {
     $('#service').chosen();
     <!--{/if}-->
     $('#priority').chosen({disable_search_threshold: 5});
-    <!--{foreach from=$categories item=category}-->
-    $('#num<!--{$category.categoryID|strip_tags|escape}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
-    <!--{/foreach}-->
 
     $('#record').on('submit', function() {
         if(checkForm() == true) {
@@ -41,9 +38,10 @@ $(function() {
     });
 
     // comment out to allow more than one form to be submitted simultaneously
+    //NOTE: investigate functionality
     $('.ischecked').on('change', function() {
-        $('.ischecked').icheck('unchecked');
-        $(this).icheck('checked');
+        $('.ischecked').prop('checked', false);
+        $(this).prop('checked', true);
     });
 });
 

@@ -368,25 +368,25 @@ function loadSearchPrereqs() {
 
             // special columns
             buffer += '<div class="col span_1_of_3">';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_title" name="indicators[title]" value="title" />';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_title" name="indicators[title]" value="title" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_title"> Title of Request</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_service" name="indicators[service]" value="service" />';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_service" name="indicators[service]" value="service" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_service"> Service</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_type" name="indicators[type]" value="type" />';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_type" name="indicators[type]" value="type" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_type"> Type of Request</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_status" name="indicators[status]" value="status" />';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_status" name="indicators[status]" value="status" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_status"> Current Status</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_initiator" name="indicators[initiator]" value="initiator" />';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_initiator" name="indicators[initiator]" value="initiator" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_initiator"> Initiator</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_actionButton" name="indicators[actionButton]" value="actionButton" />';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_actionButton" name="indicators[actionButton]" value="actionButton" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_actionButton"> Action Button</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_action_history" name="indicators[action_history]" value="action_history" />';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_action_history" name="indicators[action_history]" value="action_history" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_action_history"> Comment History</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" />';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_approval_history"> Approval History</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" />';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_action"> Days Since Last Action</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" />';
+            buffer += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" />';
             buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_step_movement"> Days Since Last Step Movement</label></div>';
             buffer += '</div>';
             
@@ -461,12 +461,12 @@ function loadSearchPrereqs() {
                 }
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(var j in groupList[i]) {
-                    buffer += '<div class="indicatorOption" id="indicatorOption" style="display: none"><input type="checkbox" class="icheck parent" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
+                    buffer += '<div class="indicatorOption" id="indicatorOption" style="display: none"><input type="checkbox" class="leaf_check parent" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
                     buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label>';
                     // sub checklist for case of grid indicator
                     if (groupIDmap[i].cols !== undefined) {
                         for (k in groupIDmap[i].cols) {
-                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'_columns_' + groupIDmap[i].cols[k].id + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].cols[k].name + ']" value="' + groupIDmap[i].cols[k].id + '" gridParent="' + groupList[i][j] + '" />';
+                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="leaf_check parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'_columns_' + groupIDmap[i].cols[k].id + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].cols[k].name + ']" value="' + groupIDmap[i].cols[k].id + '" gridParent="' + groupList[i][j] + '" />';
                             buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '_columns_'+ groupIDmap[i].cols[k].id +'" title="columnID: '+ groupIDmap[i].cols[k].id + '\n' + groupIDmap[i].cols[k].name +'"> ' + groupIDmap[i].cols[k].name +'</label></div>';
                         }
                     }
@@ -483,20 +483,14 @@ function loadSearchPrereqs() {
 
             // check all subindicators to be equal to parent indicator
             $('.indicatorOption').children().not('.subIndicatorOption').on('change', function() {
-                const newValue = $(this).icheck('update')[0].checked;
-
+                const indicatorCheckbox = this;
+                const indicatorIsChecked = this.checked;
                 // update the children checkboxes to reflect the updated parent checkbox status
-                if (newValue === true) {
-                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('checked');
-                } else {
-                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('unchecked');
-                }
+                $(indicatorCheckbox).parent().children('.subIndicatorOption').children().prop('checked', indicatorIsChecked);
             });
 
             // check if sibling checkboxes are empty or all checked
             $('.subIndicatorOption').children().on('change', function() {
-                const newValue = $(this).icheck('update')[0].checked;
-
                 let getSiblings = function (e) {
                     let siblings = [];
                     // if no parent, return no sibling
@@ -517,17 +511,18 @@ function loadSearchPrereqs() {
                 };
 
                 // if child is checked and parent is not checked
-                if(newValue && !$(this).parent().parent().parent().children('input').not('.subIndicatorOption').children('.icheck-item').hasClass('checked')) {
+                if(this.checked && !$(this).parent().parent().children('.leaf_check.parent').is(':checked')) {
                     // check the parent
-                    $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').icheck('checked');
+                    $(this).parent().parent().children('.leaf_check.parent').prop('checked', true);
                 } else {
                     let siblings = getSiblings($(this).parent().parent());
+                    console.log('sibs', siblings);
                     let atLeastOneChecked = false;
                     let parentCheckbox = siblings.shift();
 
                     // check if each sibling is checked
                     $.each(siblings, function(key, value) {
-                        if ($(value).children('.icheck-item').children('input').icheck('update')[0].checked) {
+                        if ($(value).children('.leaf_check').children('input').is(':checked')) { 
                             atLeastOneChecked = true;
                         }
                     });
@@ -535,7 +530,7 @@ function loadSearchPrereqs() {
                     // if there are no checked children
                     if (atLeastOneChecked === false) {
                         // uncheck the parent
-                        $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').icheck('unchecked');
+                        $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').prop('checked', false); 
                     }
                 }
             });
@@ -558,7 +553,7 @@ function loadSearchPrereqs() {
                     buffer = '';
                     buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
                     for(let i in res) {
-                        buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />';
+                        buffer += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />';
                         buffer += '<label class="checkable" style="width: 100px" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'"> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
                     }
                     buffer += '<div id="legacyDependencies"></div>'; // backwards compat
@@ -575,17 +570,17 @@ function loadSearchPrereqs() {
                             buffer2 += '<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>';
 
                             // Option to retrieve Date Request Initiated / Resolved
-                            buffer2 += '<div id="option_dateCancelled" class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" />';
+                            buffer2 += '<div id="option_dateCancelled" class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" />';
                             buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateCancelled" title="Date request Cancelled"> Date Request Cancelled</label></div>';
-                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" />';
+                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" />';
                             buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Date Request Initiated</label></div>';
-                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" />';
+                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" />';
                             buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateResolved" title="Date request resolved"> Date Request Resolved</label></div>';
-                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" />';
+                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" />';
                             buffer2 += '<label class="checkable" style="width: 100px" for="indicators_resolvedBy" title="Resolved By"> Resolved By</label></div>';
 
                             for(let i in res) {
-                                buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
+                                buffer2 += '<div class="indicatorOption"><input type="checkbox" class="leaf_check id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
                                 buffer2 += '<label class="checkable" style="width: 100px" for="indicators_depID_'+ res[i].dependencyID +'"> ' + res[i].description +'</label></div>';
                             }
                             buffer2 += '</div>';
@@ -612,7 +607,6 @@ function loadSearchPrereqs() {
                                 $('#indicators_title').prop('checked', true);
                             }
 
-                            $('.icheck').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
                         }
                     });
             	}
@@ -1128,7 +1122,7 @@ $(function() {
 
     	selectedIndicators = [];
     	resSelectList = [];
-    	$('.icheck:checked').each(function() {
+    	$('.leaf_check:checked').each(function() {
             let gridParent = this.attributes.gridparent?.value;
             if (gridParent !== undefined) {
                 let dest = resSelectList.indexOf(gridParent);

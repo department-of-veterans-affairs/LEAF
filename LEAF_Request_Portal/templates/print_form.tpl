@@ -572,7 +572,6 @@ function admin_changeForm() {
                 categories += '<label class="checkable" for="category_'+ res[i].categoryID +'">'+ res[i].categoryName +'</label><br />';
             }
             $('#changeForm').html(categories);
-            $('.admin_changeForm').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
             dialog.indicateIdle();
             dialog.setSaveHandler(function() {
             	var data = {'categories[]' : [], CSRFToken: CSRFToken};
@@ -606,7 +605,6 @@ function admin_changeForm() {
                             }
                 		}
                 	});
-                	$('.admin_changeForm').icheck('updated');
                 },
                 cache: false
             });

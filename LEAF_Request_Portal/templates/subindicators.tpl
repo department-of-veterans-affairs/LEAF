@@ -181,30 +181,27 @@
                 <!--{if is_array($option)}-->
                     <!--{assign var='option' value=$option[0]}-->
                     <!--{if $option|escape == $indicator.value}-->
-                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
+                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
                         <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->"><!--{$option|sanitize}--></label><br />
                     <!--{else}-->
-                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" />
+                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" />
                         <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->"><!--{$option|sanitize}--></label><br />
                     <!--{/if}-->
                 <!--{elseif $option|escape == $indicator.value}-->
-                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
+                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
                     <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->"><!--{$option|sanitize}--></label><br />
                 <!--{else}-->
-                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" />
+                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" />
                     <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->"><!--{$option|sanitize}--></label><br />
                 <!--{/if}-->
                 <!--{counter print=false}-->
             <!--{/foreach}-->
                 </span>
                 <script>
-                $(function() {
-                    $('.icheck<!--{$indicator.indicatorID|strip_tags}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
-                });
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {
-                        return ($('.icheck<!--{$indicator.indicatorID|strip_tags}-->').is(':checked') == false);
+                        return ($('.leaf_check<!--{$indicator.indicatorID|strip_tags}-->').is(':checked') == false);
                     },
                     setSubmitError: function() {
                         $([document.documentElement, document.body]).animate({
@@ -530,21 +527,19 @@
                     <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags}-->" value="no" />
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{if $option|escape == $indicator.value}-->
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
+                    <input type="checkbox" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
                     <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->"><!--{$option|sanitize}--></label><br />
                 <!--{else}-->
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|strip_tags}-->" />
+                    <input type="checkbox" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|strip_tags}-->" />
                     <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->"><!--{$option|sanitize}--></label><br />
                 <!--{/if}-->
             <!--{/foreach}-->
                 </span>
                 <script>
-                $(function() {
-                	$('.icheck<!--{$indicator.indicatorID|strip_tags}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
-                });
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {
+                        console.log('checked', $('#<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->'), 'NOTchecked:',$('#<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->').prop('checked') == false);
                         return ($('#<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->').prop('checked') == false);
                     },
                     setSubmitError: function() {
@@ -569,10 +564,10 @@
             <!--{foreach from=$indicator.options item=option}-->
                     <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="no" />
                     <!--{if $option == $indicator.value[$idx]}-->
-                        <br /><input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" checked="checked" />
+                        <br /><input type="checkbox" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" checked="checked" />
                         <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->"><!--{$option|sanitize}--></label>
                     <!--{else}-->
-                        <br /><input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" />
+                        <br /><input type="checkbox" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" />
                         <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->"><!--{$option|sanitize}--></label>
                     <!--{/if}-->
                     <!--{assign var='idx' value=$idx+1}-->
@@ -582,8 +577,7 @@
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {
-                        
-                        var checkboxes = $('#parentID_<!--{$indicator.parentID|strip_tags}-->_indicatorID_<!--{$indicator.indicatorID|strip_tags}--> .icheck-input');
+                        var checkboxes = $('#parentID_<!--{$indicator.parentID|strip_tags}-->_indicatorID_<!--{$indicator.indicatorID|strip_tags}--> .leaf_check<!--{$indicator.indicatorID|strip_tags}-->');
                         var selectionMade = false;
                         for(var i=0; i <checkboxes.length; i++){
                             if($(checkboxes[i]).prop('checked')){
@@ -605,9 +599,6 @@
                     }
                 };
                 <!--{/if}-->
-                $(function() {
-                	$('.icheck<!--{$indicator.indicatorID|strip_tags}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
-                });
                 </script>
                 <!--{$indicator.html}-->
                 
