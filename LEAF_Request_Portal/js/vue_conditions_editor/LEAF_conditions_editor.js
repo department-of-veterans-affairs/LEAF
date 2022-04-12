@@ -5,7 +5,6 @@ const ConditionsEditor = Vue.createApp({
             //indicatorOrg: {},  debug
             indicators: [],
             selectedParentIndicator: {},
-            selectedFormConditions: [],
             selectedParentOperators: [],
             selectedOperator: '',
             selectedParentValue: '',
@@ -41,6 +40,7 @@ const ConditionsEditor = Vue.createApp({
                         }    
                     });
                     this.vueData.updateIndicatorList = false;
+                    console.log('indicators have been updated: ', this.indicators);
                 }
             };
             //get the headers too, need to figure out what they are for each child
@@ -53,6 +53,7 @@ const ConditionsEditor = Vue.createApp({
                 this.vueData.indicatorID = 0;
             }
             this.selectedParentIndicator = {};
+            this.parentFound = true;
             this.selectedParentOperators = [];
             this.selectedOperator = '';
             this.selectedParentValueOptions = [];  //parent values if radio, dropdown, etc
@@ -65,6 +66,13 @@ const ConditionsEditor = Vue.createApp({
         },
         updateSelectedParentIndicator(indicatorID){
             const indicator = this.indicators.find(i => i.indicatorID === indicatorID);
+            //handle scenario if a parent is archived/deleted
+            if(indicator===undefined) {
+                console.log(`parent ${indicatorID} not found`)
+                this.parentFound = false;
+                return;
+            } else this.parentFound = true;
+
             const valueOptions = indicator.format.indexOf("\n") === -1 ? [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
            
             this.selectedParentIndicator = {...indicator};
@@ -156,7 +164,6 @@ const ConditionsEditor = Vue.createApp({
                             }
                         })
                     });
-                    console.log('app indicators', this.indicators);
                 }
             };
             xhttpForm.open("GET", `../api/form/_${this.vueData.formID}`, false);
@@ -205,9 +212,11 @@ const ConditionsEditor = Vue.createApp({
             //update par and chi ind, other values
             const conditionObj = JSON.parse(listConditionJSON);
             this.updateSelectedParentIndicator(conditionObj.parentIndID);
-            this.selectedOperator = conditionObj.selectedOp;
-            this.selectedChildOutcome = conditionObj.selectedOutcome;
-            this.selectedParentValue = conditionObj?.selectedParentValue;
+            if(this.parentFound) {
+                this.selectedOperator = conditionObj?.selectedOp;
+                this.selectedParentValue = conditionObj?.selectedParentValue;
+            }
+            this.selectedChildOutcome = conditionObj?.selectedOutcome;
             this.selectedChildValue = conditionObj?.selectedChildValue;
         }
     },
@@ -250,6 +259,7 @@ const ConditionsEditor = Vue.createApp({
     },
     template: `<div id="condition_editor_content" :style="{display: vueData.indicatorID===0 ? 'none' : 'block'}">
         <div id="condition_editor_center_panel">
+            <p>TEST {{ conditionInputObject }} </p>
             <editor-main
                 :vueData="vueData"
                 :indicators="indicators"

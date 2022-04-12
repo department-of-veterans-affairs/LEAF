@@ -1592,6 +1592,7 @@ function getForm(indicatorID, series) {
                     type: 'POST',
                     url: '../api/?a=formEditor/' + indicatorID + '/default',
                     data: {default: $('#default').val(),
+                        conditions: null,
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 })
             );
