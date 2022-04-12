@@ -7,16 +7,16 @@ class EmailTemplateFormatter{
     
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::EMAIL_TEMPLATE => [
-            "message"=>"<strong>%s</strong> email template was created by <strong>%s</strong>",
-            "variables"=>"name,userID"
+            "message"=>"<strong>%s</strong> email template was created",
+            "variables"=>"body"
         ],
         DataActions::DELETE.'-'.LoggableTypes::EMAIL_TEMPLATE => [
-            "message"=>"<strong>%s</strong> email template was deleted by <strong>%s</strong>",
-            "variables"=>"name,userID"
+            "message"=>"<strong>%s</strong> email template was deleted",
+            "variables"=>"body"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE => [
-            "message" => "<strong>%s</strong> was edited by <strong>%s</strong>",
-            "variables" => "name,userID"
+            "message" => "<strong>%s</strong> email template was edited",
+            "variables" => "body"
         ]
     ];
 
