@@ -451,11 +451,16 @@ function viewHistory() {
 
     $.ajax({
         type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&itemID='+currentFile,
+        url: 'ajaxIndex.php?a=gethistory&type=emailTemplate&id=' + currentFile,
         dataType: 'text',
         success: function(res) {
             dialog_message.setContent(res);
             dialog_message.indicateIdle();
+            dialog_message.show();
+        },
+        fail: function() {
+            dialog_message.setContent('Loading failed.');
+            dialog_message.show();
         },
         cache: false
     });
