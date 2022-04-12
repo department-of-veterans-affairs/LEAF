@@ -1,7 +1,7 @@
 const ConditionsEditor = Vue.createApp({
     data() {
         return {
-            vueData: vueData,  //obj w formID, indID (child), formName, icon ids
+            vueData: vueData,  //obj w formID: 0,formTitle: '',indicatorID: 0,icons: [], updateIndicatorList: false
             //indicatorOrg: {},  debug
             indicators: [],
             selectedParentIndicator: {},
@@ -18,31 +18,35 @@ const ConditionsEditor = Vue.createApp({
         }
     },
     beforeMount(){
-        //get all enabled indicators + headings
-        const xhttpInds = new XMLHttpRequest();
-        xhttpInds.onreadystatechange = () => {
-            if (xhttpInds.readyState == 4 && xhttpInds.status == 200) {
-                const list = JSON.parse(xhttpInds.responseText);
-                const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && ele.isDisabled===0);
-                this.indicators = filteredList;
-                
-                /* this.indicators.forEach(i => {  //debug, make object for organization according to header
-                    if (i.parentIndicatorID === null){
-                        this.indicatorOrg[i.indicatorID] = {header: i, indicators:{}};
-                    }
-                });*/
-                this.indicators.forEach(i => { 
-                    if (i.parentIndicatorID !== null) { //no need to check headers themselves
-                        this.crawlParents(i,i);
-                    }    
-                });
-            }
-        };
-        //get the headers too, need to figure out what they are for each child
-        xhttpInds.open("GET", `../api/form/indicator/list/unabridged`, true);
-        xhttpInds.send();
+        this.getAllIndicators();
     },
     methods: {
+        getAllIndicators(){
+            //get all enabled indicators + headings
+            const xhttpInds = new XMLHttpRequest();
+            xhttpInds.onreadystatechange = () => {
+                if (xhttpInds.readyState == 4 && xhttpInds.status == 200) {
+                    const list = JSON.parse(xhttpInds.responseText);
+                    const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && ele.isDisabled===0);
+                    this.indicators = filteredList;
+                    
+                    /* this.indicators.forEach(i => {  //debug, make object for organization according to header
+                        if (i.parentIndicatorID === null){
+                            this.indicatorOrg[i.indicatorID] = {header: i, indicators:{}};
+                        }
+                    });*/
+                    this.indicators.forEach(i => { 
+                        if (i.parentIndicatorID !== null) { //no need to check headers themselves
+                            this.crawlParents(i,i);
+                        }    
+                    });
+                    this.vueData.updateIndicatorList = false;
+                }
+            };
+            //get the headers too, need to figure out what they are for each child
+            xhttpInds.open("GET", `../api/form/indicator/list/unabridged`, true);
+            xhttpInds.send();
+        },
         clearSelections(resetAll = false){
             //cleared when either the form or child indicator changes
             if(resetAll){
@@ -145,12 +149,9 @@ const ConditionsEditor = Vue.createApp({
             xhttpForm.onreadystatechange = () => {
                 if (xhttpForm.readyState == 4 && xhttpForm.status == 200) {
                     const form = JSON.parse(xhttpForm.responseText);
-                    console.log('form', form);
                     form.forEach((formheader, index) => {
-                        console.log(formheader.indicatorID, index);
                         this.indicators.forEach(ind => {
                             if (ind.headerIndicatorID===formheader.indicatorID){
-                                console.log(index);
                                 ind.formPage=index;
                             }
                         })
@@ -260,6 +261,7 @@ const ConditionsEditor = Vue.createApp({
                 :childFormat="childFormat"
                 :selectedChildValueOptions="selectedChildValueOptions"
                 :conditions="conditionInputObject"
+                @update-indicator-list="getAllIndicators"
                 @update-selected-parent="updateSelectedParentIndicator"
                 @update-selected-child="updateSelectedChildIndicator"
                 @update-selected-operator="updateSelectedOperator"
@@ -313,7 +315,11 @@ ConditionsEditor.component('editor-main', {
         },
         forceUpdate(){
             this.$forceUpdate();
-            this.$emit('update-selected-child');
+            if(this.vueData.updateIndicatorList===true){ //set to T in mod_form if new ind or ind edited, then to F after new fetch
+                this.$emit('update-indicator-list');
+            } else {
+                this.$emit('update-selected-child');
+            }
         }
     },
     template: `<div id="condition_editor_inputs">

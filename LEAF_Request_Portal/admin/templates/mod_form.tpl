@@ -11,7 +11,8 @@ const vueData = {
     formID: 0,
     formTitle: '',
     indicatorID: 0,
-    icons: []
+    icons: [],
+    updateIndicatorList: false
 }
 </script>                                  
 <script src="https://unpkg.com/vue@3"></script>
@@ -792,6 +793,8 @@ function newQuestion(parentIndicatorID) {
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
                 if(res != null) {
+                    vueData.updateIndicatorList = true; 
+                    document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
                     if($('#sort').val() != '') {
                         $.ajax({
                             type: 'POST',
@@ -1633,7 +1636,7 @@ function getForm(indicatorID, series) {
                 }));
         }
 
-            if(parentIDChanged){
+        if(parentIDChanged){
             calls.push(
                 $.ajax({
                     type: 'POST',
@@ -1680,6 +1683,8 @@ function getForm(indicatorID, series) {
         }
 
     	$.when.apply(undefined, calls).then(function() {
+            vueData.updateIndicatorList = true; 
+            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
    	    	openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
    	    	dialog.hide();
    	     });
