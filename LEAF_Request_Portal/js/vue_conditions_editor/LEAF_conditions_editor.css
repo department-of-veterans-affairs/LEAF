@@ -64,7 +64,7 @@ body {
 
 #condition_editor_inputs > div, 
 #condition_editor_actions > div {
-    padding: 0.75em;
+    padding: 1em;
     border-bottom: 2px solid var(--lt-cyan, #E0F4FA);
 }
 #condition_editor_content .editor-card-header {

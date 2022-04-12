@@ -1571,6 +1571,14 @@ function getForm(indicatorID, series) {
                     url: '../api/?a=formEditor/' + indicatorID + '/format',
                     data: {format: $('#format').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
+                }),
+                $.ajax({
+                    type: 'POST',
+                    url: `../api/formEditor/${indicatorID}/conditions`,
+                    data: {
+                        conditions: "",
+                        CSRFToken: '<!--{$CSRFToken}-->'
+                    }
                 })
             );
         }
