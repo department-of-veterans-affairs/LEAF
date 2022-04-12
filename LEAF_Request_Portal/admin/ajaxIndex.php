@@ -295,7 +295,7 @@ switch ($action) {
                 $t_form->assign('titleOverride', "Primary Admin History");
                 break;
             case 'emailTemplate':
-                include 'EmailTemplate.php';
+                include '../sources/EmailTemplate.php';
                 $type = new \EmailTemplate($db, $login);
                 break;
         }
