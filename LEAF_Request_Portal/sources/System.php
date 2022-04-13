@@ -612,7 +612,7 @@ class System
 
         if ($validTemplate)
         {
-
+            // if the body has changed
             if ($currentTemplate['file'] !== $_POST['file']) {
                 file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
 
@@ -623,7 +623,9 @@ class System
                 );
             }
 
-            if (htmlentities($_POST['subjectFileName'], ENT_QUOTES) != '') {
+            // if the subject is nonempty and has changed
+            if (htmlentities($_POST['subjectFileName'], ENT_QUOTES) != ''
+                && $currentTemplate['subjectFile'] !== $_POST['subjectFile']) {
                 file_put_contents("../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
                 
                 $this->dataActionLogger->logAction(
@@ -633,7 +635,9 @@ class System
                 );
             }
 
-            if (htmlentities($_POST['emailToFileName'], ENT_QUOTES) != '') {
+            // if emailTo is nonempty and has changed
+            if (htmlentities($_POST['emailToFileName'], ENT_QUOTES) != ''
+                && $currentTemplate['emailToFile'] !== $_POST['emailToFile']) {
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailToFileName'], $_POST['emailToFile']);
                 
                 $this->dataActionLogger->logAction(
@@ -643,7 +647,9 @@ class System
                 );
             }
 
-            if (htmlentities($_POST['emailCcFileName'], ENT_QUOTES) != '') {
+            // if emailCc is nonempty and has changed
+            if (htmlentities($_POST['emailCcFileName'], ENT_QUOTES) != ''
+                && $currentTemplate['emailCcFile'] !== $_POST['emailCcFile']) {
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailCcFileName'], $_POST['emailCcFile']);
                 
                 $this->dataActionLogger->logAction(
