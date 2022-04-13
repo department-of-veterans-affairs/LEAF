@@ -6,16 +6,20 @@ require_once 'dataActions.php';
 class EmailTemplateFormatter{
     
     const TEMPLATES = [
-        DataActions::ADD.'-'.LoggableTypes::EMAIL_TEMPLATE => [
-            "message"=>"<strong>%s</strong> email template was created",
-            "variables"=>"body"
+        DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE_TO => [
+            "message" => "'Email To' field of <strong>%s</strong> was edited",
+            "variables" => "emailTo"
         ],
-        DataActions::DELETE.'-'.LoggableTypes::EMAIL_TEMPLATE => [
-            "message"=>"<strong>%s</strong> email template was deleted",
-            "variables"=>"body"
+        DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE_CC => [
+            "message" => "'Email CC' field of <strong>%s</strong> was edited",
+            "variables" => "emailCc"
         ],
-        DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE => [
-            "message" => "<strong>%s</strong> email template was edited",
+        DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE_SUBJECT => [
+            "message" => "Subject of <strong>%s</strong> was edited",
+            "variables" => "emailSubject"
+        ],
+        DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE_BODY => [
+            "message" => "Body of <strong>%s</strong> was edited",
             "variables" => "body"
         ]
     ];
