@@ -108,32 +108,40 @@ button.btn-condition-select {
     background-color: var(--lt-cyan, #E0F4FA);
 }
 
-#btn_add_condition, #btn_form_editor, #btn_cancel {
+#btn_add_condition, #btn_form_editor, #btn_cancel, #btn_remove_condition {
     border-radius: 3px;
     font-weight: bolder;
 }
 
 #btn_add_condition {
-    background-color: #00A91C;
-    border: 1px solid #00A91C !important; /*NOTE: avoids some leaf styling */
+    background-color: #10A020;
+    border: 1px solid #10A020;
     color: white;
 }
-#btn_form_editor, #btn_cancel {
+#btn_cancel {
     background-color: white;
     color: var(--dark-navy, #162E51);
-    border: 1px solid #005EA2 !important;
+    border: 1px solid #005EA2;
 }
-
-#btn_form_editor:hover, #btn_form_editor:active #btn_form_editor:focus,
-#btn_cancel:hover, #btn_cancel:active #btn_cancel:focus {
-    border: 1px solid #000 !important; /*NOTE: avoids some leaf styling */
+#btn_cancel:hover, #btn_cancel:active, #btn_cancel:focus {
+    border: 1px solid #000 !important;
     background-color: #005EA2;
     color: white;
 }
 #btn_add_condition:hover, #btn_add_condition:active, #btn_add_condition:focus {
-    border: 1px solid #005f10 !important; /*NOTE: avoids some leaf styling */
-    background-color: #005f10;  
+    border: 1px solid black !important;
+    background-color: #005f20;  
 }
+#btn_remove_condition {
+    background-color: #922;
+    border: 1px solid #922;
+    color: white;
+}
+#btn_remove_condition:hover, #btn_remove_condition:active, #btn_remove_condition:focus {
+    border: 1px solid black !important;
+    background-color: #600;
+}
+
 .form-name {
     color: var(--dark-navy, #162E51);
 }
@@ -141,6 +149,14 @@ button.btn-condition-select {
     padding: 0.4em 0;
     font-weight: bolder;
     color: var(--navy, #005EA2);
+}
+
+#remove-condition-modal {
+    position: absolute;
+    width: 400px;
+    height: 250px;
+    background-color: white;
+    box-shadow: 1px 1px 6px 2px rgba(0,0,25,0.5);
 }
 
 @media only screen and (max-width: 768px) {

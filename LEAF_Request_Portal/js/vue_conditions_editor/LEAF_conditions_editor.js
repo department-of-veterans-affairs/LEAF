@@ -14,6 +14,7 @@ const ConditionsEditor = Vue.createApp({
             selectedChildOutcome: '',
             selectedChildValueOptions: [],
             selectedChildValue: '',
+            showRemoveConditionModal: false
         }
     },
     beforeMount(){
@@ -65,7 +66,7 @@ const ConditionsEditor = Vue.createApp({
             this.selectedChildValue = '';
         },
         updateSelectedParentIndicator(indicatorID){
-            const indicator = this.indicators.find(i => i.indicatorID === indicatorID);
+            const indicator = this.indicators.find(i => indicatorID !== null && i.indicatorID === indicatorID);
             //handle scenario if a parent is archived/deleted
             if(indicator===undefined) {
                 console.log(`parent ${indicatorID} not found`)
@@ -147,8 +148,11 @@ const ConditionsEditor = Vue.createApp({
                 this.selectedChildValueOptions = childValueOptions.filter(cvo => cvo !== '');
 
                 const headerIndicatorID = parseInt(indicator.headerIndicatorID);
-                this.selectableParents = this.indicators.filter(i => parseInt(i.headerIndicatorID) === headerIndicatorID && i.indicatorID !== this.childIndicator.indicatorID);
-                
+                this.selectableParents = this.indicators.filter(i => {
+                    return parseInt(i.headerIndicatorID) === headerIndicatorID && 
+                        i.indicatorID !== this.childIndicator.indicatorID &&
+                        i.format.indexOf('dropdown') === 0;  //TEST  Dropdowns only, for testing
+                });
                 if(indicator.conditions !== null && indicator.conditions !== ''){
                     this.selectConditionFromList(indicator.conditions);    
                 } 
@@ -208,34 +212,40 @@ const ConditionsEditor = Vue.createApp({
                 console.log('condition object not complete');
             }
         },
-        removeCondition(){
-            const { childIndID }  = this.conditionInputObject;
-            if (childIndID !== undefined) {
-                let form = new FormData();
-                form.append('CSRFToken', CSRFToken);
-                form.append('conditions', '');
+        removeCondition(confirmDelete=false){
+            if(confirmDelete){
+                const { childIndID }  = this.conditionInputObject;
+                if (childIndID !== undefined) {
+                    let form = new FormData();
+                    form.append('CSRFToken', CSRFToken);
+                    form.append('conditions', '');
 
-                const xhttp = new XMLHttpRequest();
-                xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
-                xhttp.send(form); 
-                xhttp.onreadystatechange = () => {
-                    if (xhttp.readyState == 4 && xhttp.status == 200) {
-                        const res = JSON.parse(xhttp.responseText);
-                        //TODO: return better indication of success, currently just empty array
-                        if (res !== 'Invalid Token.') { 
-                            console.log('running del')
-                            let indToUpdate = this.indicators.find(i => i.indicatorID === this.conditionInputObject.childIndID);
-                            indToUpdate.conditions = ''; //update the indicator in the indicators list
-                            //this.vueData.indicatorID = 0;
+                    const xhttp = new XMLHttpRequest();
+                    xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
+                    xhttp.send(form); 
+                    xhttp.onreadystatechange = () => {
+                        if (xhttp.readyState == 4 && xhttp.status == 200) {
+                            const res = JSON.parse(xhttp.responseText);
+                            //TODO: return better indication of success, currently just empty array
+                            if (res !== 'Invalid Token.') { 
+                                console.log('running del')
+                                let indToUpdate = this.indicators.find(i => i.indicatorID === childIndID);
+                                indToUpdate.conditions = ''; //update the indicator in the indicators list
+                                //this.vueData.indicatorID = 0;
+                            }
                         }
-                    }
-                };
+                    };
+                }
+                this.showRemoveConditionModal = false;
+                this.clearSelections(true);
+            } else {
+                this.showRemoveConditionModal = true;
             }
         },
         selectConditionFromList(listConditionJSON){
             //update par and chi ind, other values
             const conditionObj = JSON.parse(listConditionJSON);
-            this.updateSelectedParentIndicator(conditionObj.parentIndID);
+            this.updateSelectedParentIndicator(conditionObj?.parentIndID);
             if(this.parentFound) {
                 this.selectedOperator = conditionObj?.selectedOp;
                 this.selectedParentValue = conditionObj?.selectedParentValue;
@@ -303,20 +313,16 @@ const ConditionsEditor = Vue.createApp({
                 @update-selected-child-value="updateSelectedChildValue">
             </editor-main>
             <editor-actions
+                :showRemoveConditionModal="showRemoveConditionModal"
                 :conditionInputComplete="conditionComplete"
                 :parentIndicator="selectedParentIndicator"
                 :childIndicator="childIndicator"
                 :conditions="conditionInputObject"
                 @save-condition="postCondition"
                 @remove-condition="removeCondition"
+                @cancel-delete="showRemoveConditionModal=false"
                 @cancel-entry="clearSelections(true)">
             </editor-actions>
-            <!--<div class="TEST">
-                <p><b>condition complete:</b> {{ conditionComplete ? 'true' : 'false' }}</p>
-                <p><b>selected parent format:</b> {{ parentFormat }}</p>
-                <p><b>selected child format:</b> {{ childFormat }}</p>
-                <p><b>conditions input object:</b> {{ conditionInputObject }}</p>
-            </div>-->
         </div>
     </div>` 
 });
@@ -452,7 +458,8 @@ ConditionsEditor.component('editor-actions', {
         conditionInputComplete: Boolean,
         parentIndicator: Object,
         childIndicator: Object,
-        conditions: Object    
+        conditions: Object,
+        showRemoveConditionModal: Boolean
     },
     methods: {
         toFormEditor(){
@@ -497,16 +504,27 @@ ConditionsEditor.component('editor-actions', {
                     </span>
                 </div>
             </div>
-            <div>
+            <div v-if="!showRemoveConditionModal">
                 <ul style="display: flex; justify-content: space-between;">
                     <li style="width: 30%;">
                         <button v-if="conditionInputComplete" id="btn_add_condition" @click="$emit('save-condition')">Save</button>
                     </li>
                     <li style="width: 30%;">
-                        <button v-if="conditionInputComplete" id="btn_remove" @click="$emit('remove-condition')">Remove</button>
+                        <button v-if="conditionInputComplete" id="btn_remove_condition" @click="$emit('remove-condition')">Remove</button>
                     </li>
                     <li style="width: 30%;">
                         <button id="btn_cancel" @click="$emit('cancel-entry','')">Cancel</button>
+                    </li>
+                </ul>
+            </div>
+            <div v-else>
+                <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
+                <ul style="display: flex; justify-content: space-between; margin-top: 1em">
+                    <li style="width: 30%;">
+                        <button id="btn_remove_condition" @click="$emit('remove-condition', true)">Delete</button>
+                    </li>
+                    <li style="width: 30%;">
+                        <button id="btn_cancel" @click="$emit('cancel-delete')">Cancel</button>
                     </li>
                 </ul>
             </div>
