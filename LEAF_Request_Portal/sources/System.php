@@ -605,22 +605,53 @@ class System
         {
             return 'Admin access required';
         }
+
         $list = $this->getEmailAndSubjectTemplateList();
         $validTemplate = $this->isEmailTemplateValid($template, $list);
+        $currentTemplate = $this->getEmailTemplate($template);
+
         if ($validTemplate)
         {
-            file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
-        
-            if (htmlentities($_POST['subjectFileName'], ENT_QUOTES) != '')
+
+            if ($currentTemplate['file'] !== $_POST['file']) {
+                file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
+
+                $this->dataActionLogger->logAction(
+                    \DataActions::MODIFY,
+                    \LoggableTypes::EMAIL_TEMPLATE_BODY,
+                    [new LogItem("email_templates", "body", $template)]
+                );
+            }
+
+            if (htmlentities($_POST['subjectFileName'], ENT_QUOTES) != '') {
                 file_put_contents("../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
-            if (htmlentities($_POST['emailToFileName'], ENT_QUOTES) != '')
+                
+                $this->dataActionLogger->logAction(
+                    \DataActions::MODIFY,
+                    \LoggableTypes::EMAIL_TEMPLATE_SUBJECT,
+                    [new LogItem("email_templates", "subject", $template)]
+                );
+            }
+
+            if (htmlentities($_POST['emailToFileName'], ENT_QUOTES) != '') {
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailToFileName'], $_POST['emailToFile']);
-            if (htmlentities($_POST['emailCcFileName'], ENT_QUOTES) != '')
+                
+                $this->dataActionLogger->logAction(
+                    \DataActions::MODIFY,
+                    \LoggableTypes::EMAIL_TEMPLATE_TO,
+                    [new LogItem("email_templates", "emailTo", $template)]
+                );
+            }
+
+            if (htmlentities($_POST['emailCcFileName'], ENT_QUOTES) != '') {
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailCcFileName'], $_POST['emailCcFile']);
-            
-            $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::EMAIL_TEMPLATE, [
-                new LogItem("email_templates", "body", $template)
-            ]);
+                
+                $this->dataActionLogger->logAction(
+                    \DataActions::MODIFY,
+                    \LoggableTypes::EMAIL_TEMPLATE_CC,
+                    [new LogItem("email_templates", "emailCc", $template)]
+                );
+            }
         }
     }
 
@@ -671,10 +702,6 @@ class System
             {
                 unlink("../templates/email/custom_override/{$emailCcFileName}");
             }
-            
-            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMAIL_TEMPLATE, [
-                new LogItem("email_templates", "body", $template)
-            ]);
         }
     }
 
