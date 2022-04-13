@@ -246,7 +246,7 @@ const ConditionsEditor = Vue.createApp({
             //update par and chi ind, other values
             const conditionObj = JSON.parse(listConditionJSON);
             this.updateSelectedParentIndicator(conditionObj?.parentIndID);
-            if(this.parentFound) {
+            if(this.parentFound && this.parentFormat === 'dropdown') {
                 this.selectedOperator = conditionObj?.selectedOp;
                 this.selectedParentValue = conditionObj?.selectedParentValue;
             }
@@ -275,8 +275,11 @@ const ConditionsEditor = Vue.createApp({
             const selectedParentValue = this.selectedParentValue;
             const selectedOutcome = this.selectedChildOutcome;
             const selectedChildValue = this.selectedChildValue;
+            const childFormat = this.childFormat;
+            const parentFormat = this.parentFormat;
             return {
-                childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome
+                childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome,
+                childFormat, parentFormat
             }    
         },
         conditionComplete(){

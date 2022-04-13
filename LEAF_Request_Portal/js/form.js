@@ -38,9 +38,8 @@ var LeafForm = function(containerID) {
 		const format = formConditions.format;
 		const elParentInd = document.getElementById(conditions.parentIndID);
 		const elChildInd = document.getElementById(conditions.childIndID);
-		//console.log(conditions, format);
 
-		if(format==='dropdown'){
+		if(format === 'dropdown' && elParentInd !== null && elParentInd.nodeName === 'SELECT'){
 		//*NOTE: need format for various plugins (icheck, chosen, etc)
 
 			let currChildVal = elChildInd.value;
