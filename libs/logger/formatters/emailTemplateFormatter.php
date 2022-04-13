@@ -16,7 +16,7 @@ class EmailTemplateFormatter{
         ],
         DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE_SUBJECT => [
             "message" => "Subject of <strong>%s</strong> was edited",
-            "variables" => "emailSubject"
+            "variables" => "subject"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE_BODY => [
             "message" => "Body of <strong>%s</strong> was edited",
