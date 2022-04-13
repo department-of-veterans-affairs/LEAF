@@ -481,34 +481,19 @@ function loadSearchPrereqs() {
 
             $('#indicatorList').css('height', $(window).height() - 240);
 
-            // check all subindicators to be equal to parent indicator
-            $('.indicatorOption').children().not('.subIndicatorOption').on('change', function() {
-                const indicatorCheckbox = this;
+            //toggle all subcheckboxes with parent indicator checkbox
+            $('.indicatorOption > input').on('change', function() {
                 const indicatorIsChecked = this.checked;
-                // update the children checkboxes to reflect the updated parent checkbox status
-                $(indicatorCheckbox).parent().children('.subIndicatorOption').children().prop('checked', indicatorIsChecked);
+                $(`input[id^="indicators_${this.value}_columns"`).prop('checked', indicatorIsChecked);
             });
-
-            // check if sibling checkboxes are empty or all checked
-            $('.subIndicatorOption').children('input').on('change', function() {
-                const indicatorID = this.id.slice(11, this.id.indexOf('_columns_')); //slice based on 'indicator_#_columns_
-                let getSiblings = function (indicatorOptionJQ) {
-                    // if no parent(NOTE: ?), return no sibling, otherwise return siblings
-                    console.log('io par', indicatorOptionJQ.parent());
-                    return !indicatorOptionJQ.parent() ? [] : Array.from(indicatorOptionJQ.children('.subIndicatorOption').children('input'));
-                };
-                // if child is checked and parent is not checked
-                if(this.checked && !$(this).parent().parent().children('.leaf_check.parent').is(':checked')) {
-                    // check the parent
+            //check parent if any subcheckbox is checked, uncheck if none are checked
+            $('.subIndicatorOption > input').on('change', function() {
+                const indicatorID = this.getAttribute('gridparent');
+                const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"`));
+                const atLeastOneChecked = siblings.some(sib => sib.checked === true);
+                if(atLeastOneChecked) {
                     $(`#indicators_${indicatorID}`).prop('checked', true);
-                } else {
-                    const siblings = getSiblings($(`#indicatorOption_${indicatorID}`));
-                    const atLeastOneChecked = siblings.some(sib => sib.checked === true);
-                    // if there are no checked children uncheck the parent
-                    if (atLeastOneChecked === false) {
-                        $(`#indicators_${indicatorID}`).prop('checked', false); 
-                    }
-                }
+                } else $(`#indicators_${indicatorID}`).prop('checked', false);
             });
 
             $('.form').on('click', function() {
