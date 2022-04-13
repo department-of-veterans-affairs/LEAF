@@ -27,8 +27,36 @@ class EmailTemplate
         $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
 
+    public function getLabel($emailTemplateID)
+    {
+        $vars = [":emailTemplateID" => $emailTemplateID];
+        $res = $this->db->prepared_query('SELECT * FROM `email_templates` WHERE emailTemplateID = :emailTemplateID', $vars);
+        if($res[0] != null){
+            return $res[0]["label"];
+        }
+        return;
+    }
+
     public function getHistory($filterByName)
     {
-        return $this->dataActionLogger->getHistory($filterByName, "body", \LoggableTypes::EMAIL_TEMPLATE);
+        $history = [];
+        
+        $fields = [
+            'body' => \LoggableTypes::EMAIL_TEMPLATE_BODY,
+            'emailTo' => \LoggableTypes::EMAIL_TEMPLATE_TO,
+            'emailCc' => \LoggableTypes::EMAIL_TEMPLATE_CC,
+            'subject' => \LoggableTypes::EMAIL_TEMPLATE_SUBJECT
+        ];
+
+        foreach ($fields as $field => $type) {
+            $fieldHistory = $this->dataActionLogger->getHistory($filterByName, $field, $type);
+            $history = array_merge($history, $fieldHistory);
+        }
+
+        usort($history, function($a, $b) {
+            return $a['timestamp'] <=> $b['timestamp'];
+        });
+
+        return $history;
     }
 }
