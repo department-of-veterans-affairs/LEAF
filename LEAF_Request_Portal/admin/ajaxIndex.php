@@ -297,6 +297,7 @@ switch ($action) {
             case 'emailTemplate':
                 include '../sources/EmailTemplate.php';
                 $type = new \EmailTemplate($db, $login);
+                $t_form->assign('titleOverride', ' ');
                 break;
         }
 
