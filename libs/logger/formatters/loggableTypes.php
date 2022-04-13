@@ -20,5 +20,8 @@ class LoggableTypes {
     const ACTIONS = "actions";
     const TAG = "tag";
     const PRIMARY_ADMIN = "primary_admin";
-    const EMAIL_TEMPLATE = "email_template";
+    const EMAIL_TEMPLATE_TO = "email_template_to";
+    const EMAIL_TEMPLATE_CC = "email_template_cc";
+    const EMAIL_TEMPLATE_SUBJECT = "email_template_subject";
+    const EMAIL_TEMPLATE_BODY = "email_template_body";
 }
