@@ -1,7 +1,7 @@
 <style>
-/* 3 column grid */
+/* 3 column grid
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
-
+*/
 </style>
 
 <div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: fit-content; width: -moz-fit-content; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
@@ -461,7 +461,7 @@ function loadSearchPrereqs() {
                 }
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(var j in groupList[i]) {
-                    buffer += '<div class="indicatorOption" id="indicatorOption" style="display: none"><input type="checkbox" class="leaf_check parent" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
+                    buffer += '<div class="indicatorOption" id="indicatorOption_' + groupList[i][j] + '" style="display: none"><input type="checkbox" class="leaf_check parent" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
                     buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label>';
                     // sub checklist for case of grid indicator
                     if (groupIDmap[i].cols !== undefined) {
@@ -490,47 +490,23 @@ function loadSearchPrereqs() {
             });
 
             // check if sibling checkboxes are empty or all checked
-            $('.subIndicatorOption').children().on('change', function() {
-                let getSiblings = function (e) {
-                    let siblings = [];
-                    // if no parent, return no sibling
-                    if(!e.parent()) {
-                        return siblings;
-                    }
-                    // first child of the parent node
-                    let sibling  = e.parent().children()[1];
-
-                    // collecting siblings
-                    while (sibling) {
-                        if (sibling.nodeType === 1 && sibling !== e) {
-                            siblings.push(sibling);
-                        }
-                        sibling = sibling.nextSibling;
-                    }
-                    return siblings;
+            $('.subIndicatorOption').children('input').on('change', function() {
+                const indicatorID = this.id.slice(11, this.id.indexOf('_columns_')); //slice based on 'indicator_#_columns_
+                let getSiblings = function (indicatorOptionJQ) {
+                    // if no parent(NOTE: ?), return no sibling, otherwise return siblings
+                    console.log('io par', indicatorOptionJQ.parent());
+                    return !indicatorOptionJQ.parent() ? [] : Array.from(indicatorOptionJQ.children('.subIndicatorOption').children('input'));
                 };
-
                 // if child is checked and parent is not checked
                 if(this.checked && !$(this).parent().parent().children('.leaf_check.parent').is(':checked')) {
                     // check the parent
-                    $(this).parent().parent().children('.leaf_check.parent').prop('checked', true);
+                    $(`#indicators_${indicatorID}`).prop('checked', true);
                 } else {
-                    let siblings = getSiblings($(this).parent().parent());
-                    console.log('sibs', siblings);
-                    let atLeastOneChecked = false;
-                    let parentCheckbox = siblings.shift();
-
-                    // check if each sibling is checked
-                    $.each(siblings, function(key, value) {
-                        if ($(value).children('.leaf_check').children('input').is(':checked')) { 
-                            atLeastOneChecked = true;
-                        }
-                    });
-
-                    // if there are no checked children
+                    const siblings = getSiblings($(`#indicatorOption_${indicatorID}`));
+                    const atLeastOneChecked = siblings.some(sib => sib.checked === true);
+                    // if there are no checked children uncheck the parent
                     if (atLeastOneChecked === false) {
-                        // uncheck the parent
-                        $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').prop('checked', false); 
+                        $(`#indicators_${indicatorID}`).prop('checked', false); 
                     }
                 }
             });
