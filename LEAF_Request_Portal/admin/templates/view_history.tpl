@@ -1,14 +1,5 @@
 <div>
 <!-- main content -->
-
-    <span id="historyName">
-        <!--{if $titleOverride != null}-->
-            <!--{$titleOverride}-->
-        <!--{else}-->
-            <!--{$dataType}--> Name: <!--{$dataName|sanitize}-->
-        <!--{/if}-->
-    </span>
-
     <!--{if !is_null($dataID) }-->
         History of <!--{$dataType}--> ID : <!--{$dataID|sanitize}-->
     <!--{/if}-->
