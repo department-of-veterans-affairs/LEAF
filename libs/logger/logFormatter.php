@@ -20,7 +20,10 @@ class LogFormatter{
         LoggableTypes::PORTAL_GROUP => PortalGroupFormatter::TEMPLATES,
         LoggableTypes::WORKFLOW => WorkflowFormatter::TEMPLATES,
         LoggableTypes::PRIMARY_ADMIN => PrimaryAdminFormatter::TEMPLATES,
-        LoggableTypes::EMAIL_TEMPLATE => EmailTemplateFormatter::TEMPLATES
+        LoggableTypes::EMAIL_TEMPLATE_TO => EmailTemplateFormatter::TEMPLATES,
+        LoggableTypes::EMAIL_TEMPLATE_CC => EmailTemplateFormatter::TEMPLATES,
+        LoggableTypes::EMAIL_TEMPLATE_SUBJECT => EmailTemplateFormatter::TEMPLATES,
+        LoggableTypes::EMAIL_TEMPLATE_BODY => EmailTemplateFormatter::TEMPLATES,
     );
 
     public static function getFormattedString($logData, $logType){
