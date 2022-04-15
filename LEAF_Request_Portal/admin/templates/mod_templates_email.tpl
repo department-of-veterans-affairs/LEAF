@@ -141,7 +141,7 @@
                     Compare to Original
                 </button>
 
-                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-desplay-block leaf-btn-med leaf-width-14rem" id="btn_history" onclick="viewHistory()">
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" id="btn_history" onclick="viewHistory()">
                     View History
                 </button>
 
