@@ -539,7 +539,6 @@
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {
-                        console.log('checked', $('#<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->'), 'NOTchecked:',$('#<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->').prop('checked') == false);
                         return ($('#<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->').prop('checked') == false);
                     },
                     setSubmitError: function() {

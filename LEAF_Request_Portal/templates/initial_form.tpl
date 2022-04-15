@@ -38,7 +38,6 @@ $(function() {
     });
 
     // comment out to allow more than one form to be submitted simultaneously
-    //NOTE: investigate functionality
     $('.ischecked').on('change', function() {
         $('.ischecked').prop('checked', false);
         $(this).prop('checked', true);
