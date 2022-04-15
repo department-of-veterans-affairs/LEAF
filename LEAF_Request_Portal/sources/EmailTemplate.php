@@ -37,10 +37,6 @@ class EmailTemplate
         return $validTemplate;
     }
 
-    public function getID($bodyFilename) {
-        $vars = [":"];
-    }
-
     public function getEmailData($template, $getStandard = false)
     {
         if (!$this->login->checkGroup(1))
@@ -139,13 +135,14 @@ class EmailTemplate
         return $out;
     }
 
-    public function getLabel($emailTemplateID)
+    public function getLabelFromFileName($fileName)
     {
-        $vars = [":emailTemplateID" => $emailTemplateID];
-        $res = $this->db->prepared_query('SELECT * FROM `email_templates` WHERE emailTemplateID = :emailTemplateID', $vars);
-        if($res[0] != null){
+        $vars = [":body" => $fileName];
+        $res = $this->db->prepared_query('SELECT label FROM email_templates WHERE body = :body', $vars);
+        if ($res[0] != null) {
             return $res[0]["label"];
         }
+
         return;
     }
 
@@ -179,14 +176,14 @@ class EmailTemplate
             return 'Admin access required';
         }
 
-        var_dump($_POST);die;
-
         $list = $this->getEmailAndSubjectTemplateList();
         $validTemplate = $this->isEmailTemplateValid($template, $list);
-        $currentTemplate = $this->getEmailTemplate($template);
 
         if ($validTemplate)
         {
+            $currentTemplate = $this->getEmailTemplate($template);
+            $label = $this->getLabelFromFileName($template);
+
             // if the body has changed
             if ($currentTemplate['file'] !== $_POST['file']) {
                 file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
@@ -194,7 +191,7 @@ class EmailTemplate
                 $this->dataActionLogger->logAction(
                     \DataActions::MODIFY,
                     \LoggableTypes::EMAIL_TEMPLATE_BODY,
-                    [new LogItem("email_templates", "body", $template)]
+                    [new LogItem("email_templates", "body", $template, $label)]
                 );
             }
 
@@ -206,7 +203,7 @@ class EmailTemplate
                 $this->dataActionLogger->logAction(
                     \DataActions::MODIFY,
                     \LoggableTypes::EMAIL_TEMPLATE_SUBJECT,
-                    [new LogItem("email_templates", "subject", $template)]
+                    [new LogItem("email_templates", "subject", $template, $label)]
                 );
             }
 
@@ -218,7 +215,7 @@ class EmailTemplate
                 $this->dataActionLogger->logAction(
                     \DataActions::MODIFY,
                     \LoggableTypes::EMAIL_TEMPLATE_TO,
-                    [new LogItem("email_templates", "emailTo", $template)]
+                    [new LogItem("email_templates", "emailTo", $template, $label)]
                 );
             }
 
@@ -230,7 +227,7 @@ class EmailTemplate
                 $this->dataActionLogger->logAction(
                     \DataActions::MODIFY,
                     \LoggableTypes::EMAIL_TEMPLATE_CC,
-                    [new LogItem("email_templates", "emailCc", $template)]
+                    [new LogItem("email_templates", "emailCc", $template, $label)]
                 );
             }
         }
