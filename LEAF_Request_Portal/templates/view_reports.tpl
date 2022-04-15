@@ -1,7 +1,6 @@
 <style>
-/* 3 column grid
+/* 3 column grid */
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
-*/
 </style>
 
 <div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: fit-content; width: -moz-fit-content; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
@@ -410,23 +409,15 @@ function loadSearchPrereqs() {
                 }
                 groupList[res[i].categoryID].push(res[i].indicatorID);
                 if(groupIDmap[res[i].categoryID] == undefined) {
-                    groupNames.push({categoryID: res[i].categoryID,
-                                                    categoryName: res[i].categoryName});
+                    groupNames.push({
+                        categoryID: res[i].categoryID, 
+                        categoryName: res[i].categoryName
+                    });
                     groupIDmap[res[i].categoryID] = { };
                     groupIDmap[res[i].categoryID].categoryName = res[i].categoryName;
                     groupIDmap[res[i].categoryID].categoryID = res[i].categoryID;
                     groupIDmap[res[i].categoryID].parentCategoryID = res[i].parentCategoryID;
                     groupIDmap[res[i].categoryID].parentStaples = res[i].parentStaples;
-                    groupIDmap[res[i].categoryID].format = res[i].format;
-                }
-                // check if indicator type is grid
-
-                if (groupIDmap[res[i].categoryID].format.indexOf('grid') === 0) {
-                    // convert grid values to object
-                    let grid = $.parseJSON(groupIDmap[res[i].categoryID].format.replace('grid', ''));
-                    groupIDmap[res[i].categoryID].cols = grid.map(function(col) {
-                        return col;
-                    });
                 }
             }
             buffer += '<div class="col span_1_of_3">';
@@ -460,21 +451,24 @@ function loadSearchPrereqs() {
                     categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
-                for(var j in groupList[i]) {
-                    buffer += '<div class="indicatorOption" id="indicatorOption_' + groupList[i][j] + '" style="display: none"><input type="checkbox" class="leaf_check parent" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
-                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label>';
+                for(let j in groupList[i]) {
+                    const indID = groupList[i][j];
+                    buffer += '<div class="indicatorOption" id="indicatorOption_' + indID + '" style="display: none"><input type="checkbox" class="leaf_check parent" id="indicators_'+ indID +'" name="indicators['+ indID +']" value="'+ indID +'" />';
+                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ indID +'" title="indicatorID: '+ indID +'\n'+ resIndicatorList[indID] +'" alt="indicatorID: '+ indID +'"> ' + resIndicatorList[indID] +'</label>';
                     // sub checklist for case of grid indicator
-                    if (groupIDmap[i].cols !== undefined) {
-                        for (k in groupIDmap[i].cols) {
-                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="leaf_check parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'_columns_' + groupIDmap[i].cols[k].id + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].cols[k].name + ']" value="' + groupIDmap[i].cols[k].id + '" gridParent="' + groupList[i][j] + '" />';
-                            buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '_columns_'+ groupIDmap[i].cols[k].id +'" title="columnID: '+ groupIDmap[i].cols[k].id + '\n' + groupIDmap[i].cols[k].name +'"> ' + groupIDmap[i].cols[k].name +'</label></div>';
+                    const format = res.find(i => i.indicatorID === indID)?.format;
+                    if (format && format.indexOf('grid')===0) {
+                        const cols = JSON.parse(format.slice(format.indexOf('\n')));
+                        for (let c in cols) {
+                            const col = cols[c];
+                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="leaf_check parent-indicators_' + indID + '" id="indicators_'+ indID +'_columns_' + col.id + '" name="indicators['+ indID +'].columns[' + col.name + ']" value="' + col.id + '" gridParent="' + indID + '" />';
+                            buffer += '<label class="checkable" style="width: 100px" for="indicators_' + indID + '_columns_'+ col.id +'" title="columnID: '+ col.id + '\n' + col.name +'"> ' + col.name +'</label></div>';
                         }
                     }
                     buffer += '</div>';
                 }
                 buffer += '</div>';
             }
-
             buffer += '</div>';
 
             $('#indicatorList').html(buffer);
