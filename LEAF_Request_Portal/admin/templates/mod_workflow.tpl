@@ -1789,7 +1789,7 @@ function setEmailReminderHTML(workflowID, stepID, actionType){
 function getEmailTemplates(){
 	return new Promise(function(resolve,reject){
 		$.ajax({
-            url: '../api/system/emailtemplates/',
+            url: '../api/emailTemplates/',
             type: 'GET',
             success: function (res) {
                 resolve(res);
