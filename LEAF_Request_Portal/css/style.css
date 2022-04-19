@@ -34,6 +34,51 @@ input {
     border: 1px solid gray;
     padding: 4px;
 }
+input[class^="leaf_check"] {
+    opacity: 0;
+    margin-right: 0.2em;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+span.leaf_check {
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    left: 4px;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border: 1px solid rgb(151, 150, 149);
+}
+span.leaf_check:hover, span.leaf_check:focus, span.leaf_check:active {
+    border: 2px solid #47e;
+}
+input[type="radio"][class^="leaf_check"] ~ span.leaf_check {
+    border-radius: 50%;
+}
+span.leaf_check::after {
+    content: "";
+    position: absolute;
+    top: 10%;
+    left: 30%;
+    width: 25%;
+    height: 50%;
+    background-color: transparent;
+    border: 1px solid #FFF;
+    border-width: 0px 3px 3px 0px;
+    border-radius: 2px;
+    transform: rotate(40deg);
+    display: none;
+}
+input[class^="leaf_check"]:checked ~ span.leaf_check {
+    background-color: #47e;
+    border: 1px solid #47e;
+    opacity: 1;
+}
+input[class^="leaf_check"]:checked ~ span.leaf_check::after {
+    display: block;
+}
 
 textarea {
     border: 1px solid gray;
@@ -1055,6 +1100,7 @@ button.buttonNorm {
 
 .checkable {
     cursor: pointer;
+    position: relative;
 }
 
 .ui-datepicker {
