@@ -105,15 +105,15 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
         }
         else
         {
-            header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
+            header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/index.php');
 
-            echo 'Unable to log in: SSL_CLIENT_S_DN_UID not found in database.  Redirecting back to PIV login screen.';
+            echo 'Unable to log in: SSL_CLIENT_S_DN_UID not found in database.  Redirecting back to login screen.';
         }
     }
 }
 else
 {
-    header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
+    header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/index.php');
 
-    echo 'Unable to log in: Client Verification issue.  Redirecting back to PIV login screen.';
+    echo 'Unable to log in: Client Verification issue.  Redirecting back to login screen.';
 }
