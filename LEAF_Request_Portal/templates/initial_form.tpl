@@ -15,7 +15,7 @@ function checkForm() {
         alert('Title must not be blank in Step 1.');
         return false;
     }
-    if($(".ischecked").is(':checked') == false) {
+    if($(".leaf_check").is(':checked') == false) {
         alert('You must select at least one type of resource in Step 2.');
         return false;
     }
@@ -38,8 +38,8 @@ $(function() {
     });
 
     // comment out to allow more than one form to be submitted simultaneously
-    $('.ischecked').on('change', function() {
-        $('.ischecked').prop('checked', false);
+    $('.leaf_check').on('change', function() {
+        $('.leaf_check').prop('checked', false);
         $(this).prop('checked', true);
     });
 });
@@ -109,13 +109,13 @@ $(function() {
         <div style="text-align: left; padding: 8px"><span>
           <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
     <!--{foreach from=$categories item=category}-->
-        <input name="num<!--{$category.categoryID|strip_tags|escape}-->" type="checkbox" class="ischecked" id="num<!--{$category.categoryID|strip_tags}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}-->style="font-family: Courier; font-size: 24px; font-weight: bold; margin: 4px" />
-        <label class="checkable" style="float: none" for="num<!--{$category.categoryID|strip_tags}-->"> <!--{$category.categoryName|sanitize}-->
+        <label class="checkable" style="float: none" for="num<!--{$category.categoryID|strip_tags}-->">
+        <input name="num<!--{$category.categoryID|strip_tags|escape}-->" type="checkbox" class="leaf_check" id="num<!--{$category.categoryID|strip_tags}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}--> />
+        <span class="leaf_check"> </span><!--{$category.categoryName|sanitize}-->
             <!--{if $category.categoryDescription != ''}-->
             &nbsp;(<!--{$category.categoryDescription|sanitize}-->)
             <!--{/if}-->
         </label>
-        <br />
     <!--{/foreach}-->
     <!--{if count($categories) == 0}-->
         <span style="color: red">Your forms must have an associated workflow before they can be selected here.<br /><br />Open the Form Editor, select your form, and click on "Edit Properties" to set a workflow.</span>

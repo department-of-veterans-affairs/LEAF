@@ -39,7 +39,9 @@ input[class^="leaf_check"] {
     margin-right: 0.2em;
     cursor: pointer;
     width: 20px;
+    flex: 0 0 20px;
     height: 20px;
+    margin-right: 8px;
 }
 span.leaf_check {
     position: absolute;
@@ -1101,6 +1103,8 @@ button.buttonNorm {
 .checkable {
     cursor: pointer;
     position: relative;
+    display:flex;
+    align-items: center;
 }
 
 .ui-datepicker {
