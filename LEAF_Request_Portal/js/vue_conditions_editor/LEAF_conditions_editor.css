@@ -52,6 +52,10 @@ body {
 
 
 #condition_editor_center_panel {
+    position: fixed;
+    top: 10%;
+    left: 0;
+    right: 0;
     width: 50%;
     min-width: 450px;
     max-width: 800px;
