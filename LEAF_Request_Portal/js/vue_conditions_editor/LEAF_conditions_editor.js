@@ -227,11 +227,14 @@ const ConditionsEditor = Vue.createApp({
         },
         removeCondition(confirmDelete=false){
             if(confirmDelete){
-                const { childIndID }  = this.conditionInputObject;
+                const { childIndID, selectedOutcome }  = this.conditionInputObject;
                 if (childIndID !== undefined) {
+                    const currConditions = JSON.parse(this.indicators.find(i => i.indicatorID === childIndID).conditions) || [];
+                    let newConditions = currConditions.filter(c => c.selectedOutcome !== selectedOutcome);
+                    
                     let form = new FormData();
                     form.append('CSRFToken', CSRFToken);
-                    form.append('conditions', '');
+                    form.append('conditions', JSON.stringify(newConditions));
 
                     const xhttp = new XMLHttpRequest();
                     xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
@@ -243,7 +246,7 @@ const ConditionsEditor = Vue.createApp({
                             if (res !== 'Invalid Token.') { 
                                 console.log('running del')
                                 let indToUpdate = this.indicators.find(i => i.indicatorID === childIndID);
-                                indToUpdate.conditions = ''; //update the indicator in the indicators list
+                                indToUpdate.conditions = JSON.stringify(newConditions); //update the indicator in the indicators list
                                 //this.vueData.indicatorID = 0;
                             }
                         }
