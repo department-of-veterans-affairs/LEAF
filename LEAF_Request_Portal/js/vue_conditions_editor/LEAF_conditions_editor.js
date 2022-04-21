@@ -154,7 +154,10 @@ const ConditionsEditor = Vue.createApp({
                         i.format.indexOf('dropdown') === 0;  //TEST  Dropdowns only, for testing
                 });
                 if(indicator.conditions !== null && indicator.conditions !== ''){
-                    this.selectConditionFromList(indicator.conditions);    
+                    const conditionObj = JSON.parse(indicator.conditions);
+                    if(conditionObj.length===1){
+                        this.selectConditionFromList(conditionObj[0]);    
+                    }
                 } 
             }
             const xhttpForm = new XMLHttpRequest();
@@ -252,9 +255,9 @@ const ConditionsEditor = Vue.createApp({
                 this.showRemoveConditionModal = true;
             }
         },
-        selectConditionFromList(listConditionJSON){
+        selectConditionFromList(conditionObj){
+            console.log('called', conditionObj, conditionObj?.parentIndID);
             //update par and chi ind, other values
-            const conditionObj = JSON.parse(listConditionJSON);
             this.updateSelectedParentIndicator(conditionObj?.parentIndID);
             if(this.parentFound && this.parentFormat === 'dropdown') {
                 this.selectedOperator = conditionObj?.selectedOp;
@@ -323,6 +326,7 @@ const ConditionsEditor = Vue.createApp({
                 @update-selected-operator="updateSelectedOperator"
                 @update-selected-parent-value="updateSelectedParentValue"
                 @update-selected-outcome="updateSelectedOutcome"
+                @set-condition="selectConditionFromList"
                 @update-selected-child-value="updateSelectedChildValue">
             </editor-main>
             <editor-actions
@@ -375,6 +379,12 @@ ConditionsEditor.component('editor-main', {
             }
         }
     },
+    computed: {
+        savedConditions(){
+            return this.selectedChild.conditions ? JSON.parse(this.selectedChild.conditions)
+                    : [];
+        }
+    },
     template: `<div id="condition_editor_inputs">
         <button id="btn-vue-update-trigger" @click="forceUpdate" style="display:none;"></button>
         <div v-if="vueData.formID!==0" class="editor-card-header">
@@ -384,6 +394,18 @@ ConditionsEditor.component('editor-main', {
             </span></h3>
         </div>
         <div>
+            
+            <div v-if="savedConditions && savedConditions.length > 1">
+                <div v-for="c in savedConditions"
+                key="c" 
+                @click="$emit('set-condition', c)"
+                style="cursor:pointer; border: 1px outset blue; margin: 0.5em 0;">
+                <p>{{c.selectedOutcome}}</p>
+                <p>WHEN</p>
+                <p>indicator ({{c.parentIndID}}) {{c.selectedOp}} {{c.selectedParentValue}}</p>
+                </div>
+            </div>
+            
             <span class="input-info">Controlled Question</span>
             <i><p style="color: #900; font-weight:bold">{{selectedChild.name }} (indicator {{selectedChild.indicatorID}})</p></i>      
             <!-- childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome-->
