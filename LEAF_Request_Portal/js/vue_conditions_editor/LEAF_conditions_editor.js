@@ -189,20 +189,30 @@ const ConditionsEditor = Vue.createApp({
         postCondition(){
             const { childIndID }  = this.conditionInputObject;
             if (this.conditionComplete) {
-                const pkg = JSON.stringify(this.conditionInputObject);
+                let indToUpdate = this.indicators.find(i => i.indicatorID === this.conditionInputObject.childIndID);
+                let updatedConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null)
+                    ? [] : JSON.parse(indToUpdate.conditions);
+                if (!updatedConditions.some(condition => condition.selectedOutcome === this.conditionInputObject.selectedOutcome)) {
+                    updatedConditions.push(this.conditionInputObject);
+                } else {
+                    let remainingConditions = updatedConditions.filter(condition => condition.selectedOutcome !== this.conditionInputObject.selectedOutcome);
+                    remainingConditions.push(this.conditionInputObject);
+                    updatedConditions = remainingConditions;
+                }
+
+                const pkg = JSON.stringify(updatedConditions);
                 let form = new FormData();
                 form.append('CSRFToken', CSRFToken);
                 form.append('conditions', pkg);
 
                 const xhttp = new XMLHttpRequest();
                 xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
-                xhttp.send(form); 
+                xhttp.send(form);
                 xhttp.onreadystatechange = () => {
                     if (xhttp.readyState == 4 && xhttp.status == 200) {
                         const res = JSON.parse(xhttp.responseText);
                         //TODO: return better indication of success, currently just empty array
-                        if (res !== 'Invalid Token.') { 
-                            let indToUpdate = this.indicators.find(i => i.indicatorID === this.conditionInputObject.childIndID);
+                        if (res !== 'Invalid Token.') {
                             indToUpdate.conditions = pkg; //update the indicator in the indicators list
                             this.clearSelections(true);
                         }
