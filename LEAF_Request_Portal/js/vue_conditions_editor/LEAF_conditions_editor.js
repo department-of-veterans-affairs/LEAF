@@ -29,8 +29,8 @@ const ConditionsEditor = Vue.createApp({
     },
     methods: {
         onScroll(){
+            if (this.vueData.indicatorID !== 0) return;
             this.windowTop = window.top.scrollY;
-            console.log(this.windowTop);
         },
         getAllIndicators(){
             //get all enabled indicators + headings
@@ -355,7 +355,7 @@ const ConditionsEditor = Vue.createApp({
         }
     },
     template: `<div id="condition_editor_content" :style="{display: vueData.indicatorID===0 ? 'none' : 'block'}">
-        <div id="condition_editor_center_panel" :style="{top: windowTop > 0 ? windowTop+'px' : 0}">
+        <div id="condition_editor_center_panel" :style="{top: windowTop > 0 ? 10+windowTop+'px' : '10px'}">
             <editor-main
                 :vueData="vueData"
                 :indicators="indicators"
