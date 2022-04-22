@@ -2,6 +2,7 @@ const ConditionsEditor = Vue.createApp({
     data() {
         return {
             vueData: vueData,  //obj w formID: 0,formTitle: '',indicatorID: 0,icons: [], updateIndicatorList: false
+            windowTop: 0,
             //indicatorOrg: {},  debug
             indicators: [],
             selectedParentIndicator: {},
@@ -21,9 +22,16 @@ const ConditionsEditor = Vue.createApp({
         this.getAllIndicators();
     },
     mounted(){
-
+        document.addEventListener('scroll', this.onScroll);
+    },
+    beforeUnount(){
+        document.removeEventListener('scroll', this.onScroll);
     },
     methods: {
+        onScroll(){
+            this.windowTop = window.top.scrollY;
+            console.log(this.windowTop);
+        },
         getAllIndicators(){
             //get all enabled indicators + headings
             const xhttpInds = new XMLHttpRequest();
@@ -347,7 +355,7 @@ const ConditionsEditor = Vue.createApp({
         }
     },
     template: `<div id="condition_editor_content" :style="{display: vueData.indicatorID===0 ? 'none' : 'block'}">
-        <div id="condition_editor_center_panel">
+        <div id="condition_editor_center_panel" :style="{top: windowTop > 0 ? windowTop+'px' : 0}">
             <editor-main
                 :vueData="vueData"
                 :indicators="indicators"
