@@ -20,6 +20,9 @@ const ConditionsEditor = Vue.createApp({
     beforeMount(){
         this.getAllIndicators();
     },
+    mounted(){
+
+    },
     methods: {
         getAllIndicators(){
             //get all enabled indicators + headings
@@ -141,6 +144,7 @@ const ConditionsEditor = Vue.createApp({
             this.selectedChildValue = '';
 
             if(this.vueData.indicatorID !== 0) {
+                this.dragElement(document.getElementById("condition_editor_center_panel"));
                 const indicator = this.indicators.find(i => parseInt(i.indicatorID) === this.vueData.indicatorID);
                 const childValueOptions = indicator.format.indexOf("\n") === -1 ? [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
                 
@@ -268,6 +272,38 @@ const ConditionsEditor = Vue.createApp({
             }
             this.selectedChildOutcome = conditionObj?.selectedOutcome;
             this.selectedChildValue = conditionObj?.selectedChildValue;
+        },
+        dragElement(el) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+            if (document.getElementById(el.id + "_header")) {
+                document.getElementById(el.id + "_header").onmousedown = dragMouseDown;
+            }
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                el.style.top = (el.offsetTop - pos2) + "px";
+                el.style.left = (el.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
         }
     },
     computed: {
@@ -380,6 +416,9 @@ ConditionsEditor.component('editor-main', {
             } else {
                 this.$emit('update-selected-child');
             }
+        },
+        getIndicatorName(id){
+            return this.indicators.find(indicator => indicator.indicatorID === id)?.name;
         }
     },
     computed: {
@@ -390,27 +429,26 @@ ConditionsEditor.component('editor-main', {
     },
     template: `<div id="condition_editor_inputs">
         <button id="btn-vue-update-trigger" @click="forceUpdate" style="display:none;"></button>
-        <div v-if="vueData.formID!==0" class="editor-card-header">
+        <div v-if="vueData.formID!==0" id="condition_editor_center_panel_header" class="editor-card-header">
             <h3 style="color:black;">Conditions Editor<span class="form-name">
                 &nbsp;<i class="fas fa-caret-right"></i>&nbsp;
                 {{ vueData.formTitle }}
             </span></h3>
         </div>
         <div>
-            
-            <div v-if="savedConditions && savedConditions.length > 1">
+            <span class="input-info">Controlled Question</span>
+            <i><p style="color: #900; font-weight:bold">{{selectedChild.name }} (indicator {{selectedChild.indicatorID}})</p></i>     
+            <div v-if="savedConditions && savedConditions.length > 0">
                 <div v-for="c in savedConditions"
                 key="c" 
                 @click="$emit('set-condition', c)"
                 style="cursor:pointer; border: 1px outset blue; margin: 0.5em 0;">
-                <p>{{c.selectedOutcome}}</p>
-                <p>WHEN</p>
-                <p>indicator ({{c.parentIndID}}) {{c.selectedOp}} {{c.selectedParentValue}}</p>
+                <p>{{c.selectedOutcome}} IF {{getIndicatorName(c.parentIndID)}} 
+                {{c.selectedOp}} {{c.selectedParentValue}}</p>
                 </div>
             </div>
-            
-            <span class="input-info">Controlled Question</span>
-            <i><p style="color: #900; font-weight:bold">{{selectedChild.name }} (indicator {{selectedChild.indicatorID}})</p></i>      
+        </div>
+        <div>
             <!-- childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome-->
             <span v-if="conditions.childIndID" class="input-info">Select an outcome</span>
             <select v-if="conditions.childIndID" title="select outcome"
