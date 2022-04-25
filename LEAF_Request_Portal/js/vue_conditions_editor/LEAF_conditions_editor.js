@@ -24,7 +24,7 @@ const ConditionsEditor = Vue.createApp({
     mounted(){
         document.addEventListener('scroll', this.onScroll);
     },
-    beforeUnount(){
+    beforeUnmount(){
         document.removeEventListener('scroll', this.onScroll);
     },
     methods: {
@@ -134,6 +134,9 @@ const ConditionsEditor = Vue.createApp({
             }
         },
         updateSelectedOutcome(outcome){
+            let parentEl;
+            parentEl = document.getElementById('parent-editor');
+            parentEl.style.display = 'block';
             this.selectedChildOutcome = outcome;
             this.selectedChildValue = '';  //reset possible prefill
         },
@@ -165,12 +168,12 @@ const ConditionsEditor = Vue.createApp({
                         i.indicatorID !== this.childIndicator.indicatorID &&
                         i.format.indexOf('dropdown') === 0;  //TEST  Dropdowns only, for testing
                 });
-                if(indicator.conditions !== null && indicator.conditions !== ''){
+                /*if(indicator.conditions !== null && indicator.conditions !== ''){
                     const conditionObj = JSON.parse(indicator.conditions);
                     if(conditionObj.length===1){
                         this.selectConditionFromList(conditionObj[0]);    
                     }
-                } 
+                }*/
             }
             const xhttpForm = new XMLHttpRequest();
             xhttpForm.onreadystatechange = () => {
@@ -271,7 +274,10 @@ const ConditionsEditor = Vue.createApp({
             }
         },
         selectConditionFromList(conditionObj){
-            console.log('called', conditionObj, conditionObj?.parentIndID);
+            let parentEl;
+            parentEl = document.getElementById('parent-editor');
+            parentEl.style.display = 'block';
+            //console.log('called', conditionObj, conditionObj?.parentIndID);
             //update par and chi ind, other values
             this.updateSelectedParentIndicator(conditionObj?.parentIndID);
             if(this.parentFound && this.parentFormat === 'dropdown') {
@@ -309,6 +315,12 @@ const ConditionsEditor = Vue.createApp({
             }
 
             function closeDragElement() {
+                if ((el.offsetTop - window.top.scrollY) < 0) {
+                    el.style.top = (window.top.scrollY + 15) + "px";
+                }
+                if (el.offsetLeft < 320) {
+                    el.style.left = '320px';
+                }
                 document.onmouseup = null;
                 document.onmousemove = null;
             }
@@ -355,7 +367,7 @@ const ConditionsEditor = Vue.createApp({
         }
     },
     template: `<div id="condition_editor_content" :style="{display: vueData.indicatorID===0 ? 'none' : 'block'}">
-        <div id="condition_editor_center_panel" :style="{top: windowTop > 0 ? 10+windowTop+'px' : '10px'}">
+        <div id="condition_editor_center_panel" :style="{top: windowTop > 0 ? 15+windowTop+'px' : '15px'}">
             <editor-main
                 :vueData="vueData"
                 :indicators="indicators"
@@ -426,7 +438,10 @@ ConditionsEditor.component('editor-main', {
             }
         },
         getIndicatorName(id){
-            return this.indicators.find(indicator => indicator.indicatorID === id)?.name;
+            let indicatorName = '';
+            indicatorName = this.indicators.find(indicator => indicator.indicatorID === id)?.name;
+            indicatorName = indicatorName.slice(0,50);
+            return indicatorName;
         }
     },
     computed: {
@@ -449,14 +464,14 @@ ConditionsEditor.component('editor-main', {
             <div v-if="savedConditions && savedConditions.length > 0">
                 <div v-for="c in savedConditions"
                 key="c" 
-                @click="$emit('set-condition', c)"
-                style="cursor:pointer; border: 1px outset blue; margin: 0.5em 0;">
-                <p>{{c.selectedOutcome}} IF {{getIndicatorName(c.parentIndID)}} 
-                {{c.selectedOp}} {{c.selectedParentValue}}</p>
+                @click="$emit('set-condition', c)">
+                <button class="savedConditionsCard"><u>{{c.selectedOutcome}}</u> <strong>IF</strong> 
+                '{{getIndicatorName(c.parentIndID)}}...' 
+                {{c.selectedOp}} <strong>{{c.selectedParentValue}}</strong></button>
                 </div>
             </div>
         </div>
-        <div>
+        <div id="outcome-editor">
             <!-- childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome-->
             <span v-if="conditions.childIndID" class="input-info">Select an outcome</span>
             <select v-if="conditions.childIndID" title="select outcome"
@@ -479,7 +494,7 @@ ConditionsEditor.component('editor-main', {
                 </option>
             </select>
         </div>
-        <div v-if="selectableParents.length > 0">
+        <div v-if="selectableParents.length > 0" id="parent-editor">
             <h4>WHEN</h4>
             <span class="input-info">Parent question</span>
             <select title="select an indicator" 

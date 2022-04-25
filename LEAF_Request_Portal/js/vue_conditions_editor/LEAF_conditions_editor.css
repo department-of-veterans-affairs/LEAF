@@ -89,6 +89,32 @@ body {
 #condition_editor_content input:not(:last-child) {
     margin-bottom: 1em;
 }
+
+#parent-editor {
+    display: none;
+}
+
+button.savedConditionsCard {
+    text-align: left;
+    background-color: white;
+    padding: 0.4em !important;
+    border: 2px solid var(--base-navy);
+    border-radius: 3px;
+    margin: 0.3em 0;
+}
+button.savedConditionsCard:hover, button.savedConditionsCard:focus, button.savedConditionsCard:active {
+    border: 2px solid var(--base-navy) !important;
+    background-color: var(--base-navy);
+    color: white;
+}
+
+.conditionEllipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 25ch;
+    white-space: nowrap;
+}
+
 .ind-controller-info {
     color: rgb(68, 71, 73);
     font-size: 90%;
@@ -154,7 +180,7 @@ button.btn-condition-select {
 .input-info {
     padding: 0.4em 0;
     font-weight: bolder;
-    color: var(--navy, #005EA2);
+    color: var(--base-navy, #005EA2);
 }
 
 #remove-condition-modal {
