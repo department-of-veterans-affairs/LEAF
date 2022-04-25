@@ -134,9 +134,6 @@ const ConditionsEditor = Vue.createApp({
             }
         },
         updateSelectedOutcome(outcome){
-            let parentEl;
-            parentEl = document.getElementById('parent-editor');
-            parentEl.style.display = 'block';
             this.selectedChildOutcome = outcome;
             this.selectedChildValue = '';  //reset possible prefill
         },
@@ -240,12 +237,18 @@ const ConditionsEditor = Vue.createApp({
                 console.log('condition object not complete');
             }
         },
-        removeCondition(confirmDelete=false){
-            if(confirmDelete){
-                const { childIndID, selectedOutcome }  = this.conditionInputObject;
+        removeCondition(data){
+            //updates conditionInputObject
+            this.selectConditionFromList(data.condition);
+            //confirm delete btn on the confirm modal
+            if(data.confirmDelete===true){
+                const { childIndID } = this.conditionInputObject;
+                
                 if (childIndID !== undefined) {
+                    const conditionsJSON = JSON.stringify(this.conditionInputObject);
                     const currConditions = JSON.parse(this.indicators.find(i => i.indicatorID === childIndID).conditions) || [];
-                    let newConditions = currConditions.filter(c => c.selectedOutcome !== selectedOutcome);
+                    const newConditions = currConditions.filter(c => JSON.stringify(c) !== conditionsJSON);
+                    console.log('delete confirmed ', 'method data', data, 'initial', currConditions, 'remaining', newConditions);
                     
                     let form = new FormData();
                     form.append('CSRFToken', CSRFToken);
@@ -265,19 +268,17 @@ const ConditionsEditor = Vue.createApp({
                                 //this.vueData.indicatorID = 0;
                             }
                         }
-                    };
+                    }; 
                 }
                 this.showRemoveConditionModal = false;
                 this.clearSelections(true);
+            //X buttons that open the confirm delete modal   
             } else {
+                console.log('else ', data);
                 this.showRemoveConditionModal = true;
             }
         },
         selectConditionFromList(conditionObj){
-            let parentEl;
-            parentEl = document.getElementById('parent-editor');
-            parentEl.style.display = 'block';
-            //console.log('called', conditionObj, conditionObj?.parentIndID);
             //update par and chi ind, other values
             this.updateSelectedParentIndicator(conditionObj?.parentIndID);
             if(this.parentFound && this.parentFormat === 'dropdown') {
@@ -379,6 +380,7 @@ const ConditionsEditor = Vue.createApp({
                 :childFormat="childFormat"
                 :selectedChildValueOptions="selectedChildValueOptions"
                 :conditions="conditionInputObject"
+                :showRemoveConditionModal="showRemoveConditionModal"
                 @update-indicator-list="getAllIndicators"
                 @update-selected-parent="updateSelectedParentIndicator"
                 @update-selected-child="updateSelectedChildIndicator"
@@ -386,17 +388,17 @@ const ConditionsEditor = Vue.createApp({
                 @update-selected-parent-value="updateSelectedParentValue"
                 @update-selected-outcome="updateSelectedOutcome"
                 @set-condition="selectConditionFromList"
+                @remove-condition="removeCondition"
+                @cancel-delete="showRemoveConditionModal=false"
                 @update-selected-child-value="updateSelectedChildValue">
             </editor-main>
             <editor-actions
-                :showRemoveConditionModal="showRemoveConditionModal"
                 :conditionInputComplete="conditionComplete"
                 :parentIndicator="selectedParentIndicator"
                 :childIndicator="childIndicator"
                 :conditions="conditionInputObject"
+                :showRemoveConditionModal="showRemoveConditionModal"
                 @save-condition="postCondition"
-                @remove-condition="removeCondition"
-                @cancel-delete="showRemoveConditionModal=false"
                 @cancel-entry="clearSelections(true)">
             </editor-actions>
         </div>
@@ -417,7 +419,8 @@ ConditionsEditor.component('editor-main', {
         selectedChildValueOptions: Array,
         parentFormat: String,
         childFormat: String,
-        conditions: Object
+        conditions: Object,
+        showRemoveConditionModal: Boolean
     },
     methods: {
         validateCurrency(event) {
@@ -440,8 +443,21 @@ ConditionsEditor.component('editor-main', {
         getIndicatorName(id){
             let indicatorName = '';
             indicatorName = this.indicators.find(indicator => indicator.indicatorID === id)?.name;
-            indicatorName = indicatorName.slice(0,50);
+            indicatorName = indicatorName.length > 50 ? indicatorName.slice(0,50) + '... ' : indicatorName;
             return indicatorName;
+        },
+        getOperatorText(op){
+            switch(op){
+                case '==':
+                    return 'is';
+                case '!=':
+                    return 'is not';
+                case '>':
+                    return 'is greater than';
+                case '<':
+                    return 'is less than';    
+                default: return op;
+            }
         }
     },
     computed: {
@@ -461,26 +477,42 @@ ConditionsEditor.component('editor-main', {
         <div>
             <span class="input-info">Controlled Question</span>
             <i><p style="color: #900; font-weight:bold">{{selectedChild.name }} (indicator {{selectedChild.indicatorID}})</p></i>     
-            <div v-if="savedConditions && savedConditions.length > 0">
+            <div v-if="savedConditions && savedConditions.length > 0 && !showRemoveConditionModal">
                 <div v-for="c in savedConditions"
-                key="c" 
-                @click="$emit('set-condition', c)">
-                <button class="savedConditionsCard"><u>{{c.selectedOutcome}}</u> <strong>IF</strong> 
-                '{{getIndicatorName(c.parentIndID)}}...' 
-                {{c.selectedOp}} <strong>{{c.selectedParentValue}}</strong></button>
+                class="savedConditionsCard"
+                key="c">
+                    <button @click="$emit('set-condition', c)" class="btnSavedConditions"><u>{{c.selectedOutcome}}</u> <strong>IF</strong> 
+                    '{{getIndicatorName(c.parentIndID)}}' 
+                    {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong>
+                    </button>
+                    <button style="width: 1.5em;"
+                    class="btn_remove_condition"
+                    @click="$emit('remove-condition', {confirmDelete: false, condition: c})">X
+                    </button>
                 </div>
             </div>
+            <div v-else>
+                <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
+                <ul style="display: flex; justify-content: space-between; margin-top: 1em">
+                    <li style="width: 30%;">
+                        <button class="btn_remove_condition" @click="$emit('remove-condition', {confirmDelete: true, condition: conditions} )">Delete</button>
+                    </li>
+                    <li style="width: 30%;">
+                        <button id="btn_cancel" @click="$emit('cancel-delete')">Cancel</button>
+                    </li>
+                </ul>
+            </div>
         </div>
-        <div id="outcome-editor">
+        <div v-if="!showRemoveConditionModal" id="outcome-editor">
             <!-- childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome-->
             <span v-if="conditions.childIndID" class="input-info">Select an outcome</span>
             <select v-if="conditions.childIndID" title="select outcome"
                     name="child-outcome-selector"
                     @change="$emit('update-selected-outcome', $event.target.value)">
                     <option v-if="conditions.selectedOutcome===''" value="" selected>Select an outcome</option> 
-                    <option value="Show Question" :selected="conditions.selectedOutcome==='Show Question'">Show Question</option>
-                    <option value="Hide Question" :selected="conditions.selectedOutcome==='Hide Question'">Hide Question</option>
-                    <option value="Pre-fill Question" :selected="conditions.selectedOutcome==='Pre-fill Question'">Pre-fill Question</option>
+                    <option value="Show Question" :selected="conditions.selectedOutcome==='Show Question'">Show this Question</option>
+                    <option value="Hide Question" :selected="conditions.selectedOutcome==='Hide Question'">Hide this Question</option>
+                    <option value="Pre-fill Question" :selected="conditions.selectedOutcome==='Pre-fill Question'">Pre-fill this Question</option>
             </select>
             <span v-if="conditions.selectedOutcome==='Pre-fill Question'" class="input-info">Enter a pre-fill value</span>
             <!-- TODO: FIX: other formats - only testing dropdown for now -->
@@ -494,7 +526,7 @@ ConditionsEditor.component('editor-main', {
                 </option>
             </select>
         </div>
-        <div v-if="selectableParents.length > 0" id="parent-editor">
+        <div v-if="!showRemoveConditionModal && selectableParents.length > 0">
             <h4>WHEN</h4>
             <span class="input-info">Parent question</span>
             <select title="select an indicator" 
@@ -570,29 +602,29 @@ ConditionsEditor.component('editor-actions', {
             const op = this.conditions.selectedOp;
             switch(op){
                 case '==':
-                    return '';
+                    return 'is';
                 case '!=':
-                    return 'not';
+                    return 'is not';
                 case '>':
-                    return 'greater than';
+                    return 'is greater than';
                 case '<':
-                    return 'less than';    
+                    return 'is less than';    
                 default: return op;
             }
         }
     },
-    template: `<div id="condition_editor_actions">
+    template: `<div v-if="!showRemoveConditionModal" id="condition_editor_actions">
             <div v-if="conditionInputComplete===true" class="editor-card-header">Click save to store this condition, or cancel to start over
             </div>
             <div v-if="conditionInputComplete">
-                <div><b>IF</b> parent question '{{parentIndicator.name}}' is 
+                <div><b>IF</b> '{{parentIndicator.name}}'  
                     <span style="color: #00A91C; font-weight: bold;">
                     {{operatorText}} {{conditions.selectedParentValue}}
                     </span>
                     <br/>
                 </div>
                 <div> 
-                    <b>THEN</b> controlled question '{{childIndicator.name}}'  
+                    <b>THEN</b> '{{childIndicator.name}}'  
                     <span v-if="conditions.selectedOutcome==='Pre-fill Question'">will 
                         <span style="color: #00A91C; font-weight: bold;"> have the value '{{conditions.selectedChildValue}}'</span>
                     </span>
@@ -603,20 +635,20 @@ ConditionsEditor.component('editor-actions', {
                     </span>
                 </div>
             </div>
-            <div v-if="!showRemoveConditionModal">
+            <div>
                 <ul style="display: flex; justify-content: space-between;">
                     <li style="width: 30%;">
                         <button v-if="conditionInputComplete" id="btn_add_condition" @click="$emit('save-condition')">Save</button>
                     </li>
-                    <li style="width: 30%;">
+                    <!--<li style="width: 30%;">
                         <button v-if="conditionInputComplete" id="btn_remove_condition" @click="$emit('remove-condition')">Remove</button>
-                    </li>
+                    </li>-->
                     <li style="width: 30%;">
                         <button id="btn_cancel" @click="$emit('cancel-entry','')">Cancel</button>
                     </li>
                 </ul>
             </div>
-            <div v-else>
+            <!--<div v-else>
                 <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
                 <ul style="display: flex; justify-content: space-between; margin-top: 1em">
                     <li style="width: 30%;">
@@ -626,7 +658,7 @@ ConditionsEditor.component('editor-actions', {
                         <button id="btn_cancel" @click="$emit('cancel-delete')">Cancel</button>
                     </li>
                 </ul>
-            </div>
+            </div>-->
         </div>`
 });
 ConditionsEditor.mount('#LEAF_conditions_editor');

@@ -90,21 +90,25 @@ body {
     margin-bottom: 1em;
 }
 
-#parent-editor {
-    display: none;
-}
-
-button.savedConditionsCard {
-    text-align: left;
-    background-color: white;
-    padding: 0.4em !important;
-    border: 2px solid var(--base-navy);
-    border-radius: 3px;
+.savedConditionsCard {
+    display: flex;
+    align-items: center;
     margin: 0.3em 0;
 }
-button.savedConditionsCard:hover, button.savedConditionsCard:focus, button.savedConditionsCard:active {
-    border: 2px solid var(--base-navy) !important;
+button.btnSavedConditions {
+    text-align: left;
+    background-color: white;
+    background-image: linear-gradient(180deg, var(--lt-cyan, #E0F4FA), white);
+    padding: 0.4em !important;
+    border: 1px outset var(--base-navy);
+    box-shadow: 1px 1px 4px rgba(0, 0, 30, 0.2);
+    border-radius: 3px;
+    margin-right: 1em;
+}
+button.btnSavedConditions:hover, button.btnSavedConditions:focus, button.btnSavedConditions:active {
+    border: 1px outset var(--base-navy) !important;
     background-color: var(--base-navy);
+    background-image: linear-gradient(180deg, var(--base-navy, #005EA2), var(--dark-navy, #162E51));
     color: white;
 }
 
@@ -140,7 +144,7 @@ button.btn-condition-select {
     background-color: var(--lt-cyan, #E0F4FA);
 }
 
-#btn_add_condition, #btn_form_editor, #btn_cancel, #btn_remove_condition {
+#btn_add_condition, #btn_form_editor, #btn_cancel, .btn_remove_condition {
     border-radius: 3px;
     font-weight: bolder;
 }
@@ -164,12 +168,12 @@ button.btn-condition-select {
     border: 1px solid black !important;
     background-color: #005f20;  
 }
-#btn_remove_condition {
+.btn_remove_condition {
     background-color: #922;
     border: 1px solid #922;
     color: white;
 }
-#btn_remove_condition:hover, #btn_remove_condition:active, #btn_remove_condition:focus {
+.btn_remove_condition:hover, .btn_remove_condition:active, .btn_remove_condition:focus {
     border: 1px solid black !important;
     background-color: #600;
 }
