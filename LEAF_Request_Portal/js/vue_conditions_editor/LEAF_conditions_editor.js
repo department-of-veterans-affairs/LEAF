@@ -477,21 +477,27 @@ ConditionsEditor.component('editor-main', {
         <div>
             <span class="input-info">Controlled Question</span>
             <i><p style="color: #900; font-weight:bold">{{selectedChild.name }} (indicator {{selectedChild.indicatorID}})</p></i>     
-            <div v-if="savedConditions && savedConditions.length > 0 && !showRemoveConditionModal">
-                <div v-for="c in savedConditions"
+            <ul v-if="savedConditions && savedConditions.length > 0 && !showRemoveConditionModal" 
+                id="savedConditionsList">
+                <p>The following controllers are attached to this question.&nbsp;  Select from this list to edit 
+                or remove an existing condition, or enter a new condition in the area below.&nbsp; If multiple controllers
+                are added, the outcome must be the same for all.  You will be able to specify whether any or all of these
+                conditions must be met in order for the outcome to occur</p>
+                <p><b>{{savedConditions[0].selectedOutcome}} IF</b></p>
+                <li v-for="c in savedConditions"
                 class="savedConditionsCard"
                 key="c">
-                    <button @click="$emit('set-condition', c)" class="btnSavedConditions"><u>{{c.selectedOutcome}}</u> <strong>IF</strong> 
+                    <button @click="$emit('set-condition', c)" class="btnSavedConditions">
                     '{{getIndicatorName(c.parentIndID)}}' 
                     {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong>
                     </button>
-                    <button style="width: 1.5em;"
+                    <button style="width: 1.75em;"
                     class="btn_remove_condition"
                     @click="$emit('remove-condition', {confirmDelete: false, condition: c})">X
                     </button>
-                </div>
-            </div>
-            <div v-else>
+                </li>
+            </ul>
+            <div v-if="showRemoveConditionModal">
                 <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
                 <ul style="display: flex; justify-content: space-between; margin-top: 1em">
                     <li style="width: 30%;">
@@ -528,7 +534,7 @@ ConditionsEditor.component('editor-main', {
         </div>
         <div v-if="!showRemoveConditionModal && selectableParents.length > 0">
             <h4>WHEN</h4>
-            <span class="input-info">Parent question</span>
+            <span class="input-info">Select a question to control the outcome</span>
             <select title="select an indicator" 
                     name="indicator-selector" 
                     @change="$emit('update-selected-parent', $event.target.value)">
@@ -538,7 +544,7 @@ ConditionsEditor.component('editor-main', {
                 :value="i.indicatorID"
                 :selected="conditions.parentIndID===i.indicatorID"
                 key="i.indicatorID">
-                {{i.name }} (indicator {{i.indicatorID}})
+                {{getIndicatorName(i.indicatorID) }} (indicator {{i.indicatorID}})
                 </option>
             </select>
             <div v-if="selectedParentOperators.length > 0">
@@ -614,7 +620,7 @@ ConditionsEditor.component('editor-actions', {
         }
     },
     template: `<div v-if="!showRemoveConditionModal" id="condition_editor_actions">
-            <div v-if="conditionInputComplete===true" class="editor-card-header">Click save to store this condition, or cancel to start over
+            <div v-if="conditionInputComplete===true" class="editor-card-header">Click save to store this condition, or cancel to close
             </div>
             <div v-if="conditionInputComplete">
                 <div><b>IF</b> '{{parentIndicator.name}}'  
@@ -648,17 +654,6 @@ ConditionsEditor.component('editor-actions', {
                     </li>
                 </ul>
             </div>
-            <!--<div v-else>
-                <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
-                <ul style="display: flex; justify-content: space-between; margin-top: 1em">
-                    <li style="width: 30%;">
-                        <button id="btn_remove_condition" @click="$emit('remove-condition', true)">Delete</button>
-                    </li>
-                    <li style="width: 30%;">
-                        <button id="btn_cancel" @click="$emit('cancel-delete')">Cancel</button>
-                    </li>
-                </ul>
-            </div>-->
         </div>`
 });
 ConditionsEditor.mount('#LEAF_conditions_editor');
