@@ -15,7 +15,7 @@
         @import "css/style.css";
         @import "../../libs/js/jquery/chosen/chosen.min.css";
         @import "../../libs/js/jquery/trumbowyg/ui/trumbowyg.min.css";
-        @import "../../libs/js/jquery/icheck/skins/square/blue.css"
+        @import "../../libs/js/jquery/icheck/skins/square/blue.css";
     </style>
     <style type="text/css" media="print">
         @import "css/printer.css";
