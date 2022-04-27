@@ -90,40 +90,72 @@ body {
 #condition_editor_content input:not(:last-child) {
     margin-bottom: 1em;
 }
-ul#savedConditionsList {
-    padding: 0.5em 0;
-    overflow: show;
+
+button {
+    cursor: pointer;
 }
-.savedConditionsCard {
+.btnNewCondition {
     display: flex;
     align-items: center;
     margin: 0.3em 0;
 }
+button.btnNewCondition {
+    width: fit-content;
+    color: white;
+    background-color: var(--base-navy);
+    padding: 0.4em 0.92em;
+    box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.5);
+    border: 1px solid var(--base-navy);
+    border-radius: 3px;
+    margin-right: 1em;
+    transition: box-shadow 0.1s ease;
+}
+button.btnNewCondition:hover, button.btnNewCondition:focus, button.btnNewCondition:active {
+    color: white;
+    background-color: var(--dark-navy);
+    border: 1px solid var(--dark-navy) !important;
+    box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
+}
+
+ul#savedConditionsList {
+    padding-bottom: 0.5em;
+}
+#condition_editor_content li.savedConditionsCard {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.4em;
+}
 button.btnSavedConditions {
     text-align: left;
     background-color: white;
-    background-image: linear-gradient(180deg, white, var(--lt-cyan, #E0F4FA));
-    padding: 0.4em !important;
-    border: 1px outset var(--lt-cyan, #E0F4FA);
+    padding: 0.4em;
+    border: 1px outset var(--base-navy, #E0F4FA);
     box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.5);
     border-radius: 3px;
     margin-right: 1em;
     transition: box-shadow 0.1s ease;
 }
 button.btnSavedConditions:hover, button.btnSavedConditions:focus, button.btnSavedConditions:active {
-    border: 1px outset var(--lt-cyan, #E0F4FA) !important;
+    color: white;
+    border: 1px outset var(--base-navy, #E0F4FA) !important;
+    background-color: var(--base-navy);
+    box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
+}
+button.selectedConditionEdit {
+    color: white;
+    border: 1px outset var(--base-navy, #E0F4FA) !important;
     background-color: var(--base-navy);
     box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
 }
 
-#condition_editor_content button {
+#condition_editor_content li button {
     padding: 0.3em;
     width: 100%;
     cursor: pointer;
 }
 button.btn-condition-select {
-    margin: 0 !important;
-    padding: 0.4em !important;
+    margin: 0;
+    padding: 0.4em;
     border: 0;
     text-align: left;
     background-color: white;
@@ -132,8 +164,8 @@ button.btn-condition-select {
     border-bottom: 1px solid rgb(203, 213, 218);
 }
 .btn-condition-select:hover, .btn-condition-select:active, .btn-condition-select:focus {
-    border-left:3px solid #005EA2 !important; 
-    border-bottom: 1px solid rgb(172, 181, 185) !important;  
+    border-left:3px solid #005EA2 !important;
+    border-bottom: 1px solid rgb(172, 181, 185) !important;
     background-color: var(--lt-cyan, #E0F4FA);
 }
 

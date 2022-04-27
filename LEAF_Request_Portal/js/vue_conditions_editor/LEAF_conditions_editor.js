@@ -214,24 +214,19 @@ const ConditionsEditor = Vue.createApp({
             this.selectedParentValueOptions = [];
             this.selectedChildOutcome = '';
             this.selectedChildValue = '';
-            console.log(this.conditionInputObject);
+            if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         },
         postCondition(){
             const { childIndID }  = this.conditionInputObject;
             if (this.conditionComplete) {
                 const conditionsJSON = JSON.stringify(this.conditionInputObject);
                 let indToUpdate = this.indicators.find(i => i.indicatorID === childIndID);
-                // [c1,c2,c3]
-                let currConditions = JSON.parse(this.indicators.find(i => i.indicatorID === childIndID).conditions) || [];
-                
+                let currConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null)
+                    ? [] : JSON.parse(indToUpdate.conditions);
                 let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.editingCondition);
-                
-
                 const isUnique = newConditions.every(c => JSON.stringify(c) !== conditionsJSON);
-                console.log('test: ', currConditions, newConditions, this.editingCondition, conditionsJSON, isUnique);
                 
                 if (isUnique){
-
                     newConditions.push(this.conditionInputObject);
                     
                     const pkg = JSON.stringify(newConditions);
@@ -308,7 +303,6 @@ const ConditionsEditor = Vue.createApp({
             //update par and chi ind, other values
             this.editingCondition = JSON.stringify(conditionObj);
             this.showConditionEditor = true;
-            console.log(this.editingCondition);
             this.updateSelectedParentIndicator(conditionObj?.parentIndID);
             if(this.parentFound && this.parentFormat === 'dropdown') {
                 this.selectedOperator = conditionObj?.selectedOp;
@@ -391,8 +385,8 @@ const ConditionsEditor = Vue.createApp({
             return (
                     childIndID !== 0 && parentIndID !== 0 && 
                     selectedOp !== '' && selectedParentValue !== '' &&
-                    (selectedOutcome && selectedOutcome !== "Pre-fill Question" || 
-                    (selectedOutcome==="Pre-fill Question" && selectedChildValue !== ''))
+                    (selectedOutcome && selectedOutcome !== "Pre-fill" ||
+                    (selectedOutcome==="Pre-fill" && selectedChildValue !== ''))
                 );
         }
     },
@@ -411,6 +405,7 @@ const ConditionsEditor = Vue.createApp({
                 :conditions="conditionInputObject"
                 :showConditionEditor="showConditionEditor"
                 :showRemoveConditionModal="showRemoveConditionModal"
+                :editingCondition="editingCondition"
                 @new-condition="newCondition"
                 @update-indicator-list="getAllIndicators"
                 @update-selected-parent="updateSelectedParentIndicator"
@@ -452,7 +447,8 @@ ConditionsEditor.component('editor-main', {
         childFormat: String,
         conditions: Object,
         showConditionEditor: Boolean,
-        showRemoveConditionModal: Boolean
+        showRemoveConditionModal: Boolean,
+        editingCondition: String
     },
     methods: {
         validateCurrency(event) {
@@ -496,6 +492,13 @@ ConditionsEditor.component('editor-main', {
         savedConditions(){
             return this.selectedChild.conditions ? JSON.parse(this.selectedChild.conditions)
                     : [];
+        },
+        conditionTypes(){
+            const show = this.savedConditions.filter(i => i.selectedOutcome === 'Show');
+            const hide = this.savedConditions.filter(i => i.selectedOutcome === 'Hide');
+            const prefill = this.savedConditions.filter(i => i.selectedOutcome === 'Pre-fill');
+
+            return {show,hide,prefill};
         }
     },
     template: `<div id="condition_editor_inputs">
@@ -509,26 +512,59 @@ ConditionsEditor.component('editor-main', {
         <div>
             <span class="input-info">Controlled Question</span>
             <i><p style="color: #900; font-weight:bold">{{selectedChild.name }} (indicator {{selectedChild.indicatorID}})</p></i>
-            <button @click="$emit('new-condition')">New Condition</button>   
+            <button v-if="!showRemoveConditionModal" @click="$emit('new-condition')" 
+                class="btnNewCondition">+ New Condition</button>
             <ul v-if="savedConditions && savedConditions.length > 0 && !showRemoveConditionModal" 
                 id="savedConditionsList">
                 <!--<p>The following controllers are attached to this question.&nbsp;  Select from this list to edit 
                 or remove an existing condition, or enter a new condition in the area below.&nbsp; If multiple controllers
                 are added, the outcome must be the same for all.  You will be able to specify whether any or all of these
                 conditions must be met in order for the outcome to occur</p>-->
-                <p><b>{{savedConditions[0].selectedOutcome}} IF</b></p>
-                <li v-for="c in savedConditions"
-                class="savedConditionsCard"
-                key="c">
-                    <button @click="$emit('set-condition', c)" class="btnSavedConditions">
-                    '{{getIndicatorName(c.parentIndID)}}' 
-                    {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong>
-                    </button>
-                    <button style="width: 1.75em;"
-                    class="btn_remove_condition"
-                    @click="$emit('remove-condition', {confirmDelete: false, condition: c})">X
-                    </button>
-                </li>
+                <div v-if="conditionTypes.show.length > 0">
+                    <p style="margin-top: 1em"><b>Show under these Conditions:</b></p>
+                    <li v-for="c in conditionTypes.show" key="c" class="savedConditionsCard">
+                        <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
+                        :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
+                        If '{{getIndicatorName(c.parentIndID)}}' 
+                        {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong> 
+                        then show this question.
+                        </button>
+                        <button style="width: 1.75em;"
+                        class="btn_remove_condition"
+                        @click="$emit('remove-condition', {confirmDelete: false, condition: c})">X
+                        </button>
+                    </li>
+                </div>
+                <div v-if="conditionTypes.hide.length > 0">
+                    <p style="margin-top: 1em"><b>Hide under these Conditions:</b></p>
+                    <li v-for="c in conditionTypes.hide" key="c" class="savedConditionsCard">
+                        <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
+                        :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
+                        If '{{getIndicatorName(c.parentIndID)}}' 
+                        {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong> 
+                        then hide this question.
+                        </button>
+                        <button style="width: 1.75em;"
+                        class="btn_remove_condition"
+                        @click="$emit('remove-condition', {confirmDelete: false, condition: c})">X
+                        </button>
+                    </li>
+                </div>
+                <div v-if="conditionTypes.prefill.length > 0">
+                    <p style="margin-top: 1em"><b>Pre-fill under these Conditions:</b></p>
+                    <li v-for="c in conditionTypes.prefill" key="c" class="savedConditionsCard">
+                        <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
+                        :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
+                        If '{{getIndicatorName(c.parentIndID)}}' 
+                        {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong> 
+                        then this question will be <strong>{{c.selectedChildValue}}</strong>
+                        </button>
+                        <button style="width: 1.75em;"
+                        class="btn_remove_condition"
+                        @click="$emit('remove-condition', {confirmDelete: false, condition: c})">X
+                        </button>
+                    </li>
+                </div>
             </ul>
             <div v-if="showRemoveConditionModal">
                 <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
@@ -549,13 +585,13 @@ ConditionsEditor.component('editor-main', {
                     name="child-outcome-selector"
                     @change="$emit('update-selected-outcome', $event.target.value)">
                     <option v-if="conditions.selectedOutcome===''" value="" selected>Select an outcome</option> 
-                    <option value="Show Question" :selected="conditions.selectedOutcome==='Show Question'">Show this Question</option>
-                    <option value="Hide Question" :selected="conditions.selectedOutcome==='Hide Question'">Hide this Question</option>
-                    <option value="Pre-fill Question" :selected="conditions.selectedOutcome==='Pre-fill Question'">Pre-fill this Question</option>
+                    <option value="Show" :selected="conditions.selectedOutcome==='Show'">Show this Question</option>
+                    <option value="Hide" :selected="conditions.selectedOutcome==='Hide'">Hide this Question</option>
+                    <option value="Pre-fill" :selected="conditions.selectedOutcome==='Pre-fill'">Pre-fill this Question</option>
             </select>
-            <span v-if="conditions.selectedOutcome==='Pre-fill Question'" class="input-info">Enter a pre-fill value</span>
+            <span v-if="conditions.selectedOutcome==='Pre-fill'" class="input-info">Enter a pre-fill value</span>
             <!-- TODO: FIX: other formats - only testing dropdown for now -->
-            <select v-if="conditions.selectedOutcome==='Pre-fill Question' && childFormat==='dropdown'"
+            <select v-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='dropdown'"
                 @change="$emit('update-selected-child-value', $event.target.value)">
                 <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
                 <option v-for="val in selectedChildValueOptions" 
@@ -664,12 +700,12 @@ ConditionsEditor.component('editor-actions', {
                 </div>
                 <div> 
                     <b>THEN</b> '{{childIndicator.name}}'  
-                    <span v-if="conditions.selectedOutcome==='Pre-fill Question'">will 
+                    <span v-if="conditions.selectedOutcome==='Pre-fill'">will 
                         <span style="color: #00A91C; font-weight: bold;"> have the value '{{conditions.selectedChildValue}}'</span>
                     </span>
                     <span v-else>will 
                         <span style="color: #00A91C; font-weight: bold;">
-                        be {{conditions.selectedOutcome==="Show Question" ? 'shown' : 'hidden'}}
+                        be {{conditions.selectedOutcome==="Show" ? 'shown' : 'hidden'}}
                         </span>
                     </span>
                 </div>
