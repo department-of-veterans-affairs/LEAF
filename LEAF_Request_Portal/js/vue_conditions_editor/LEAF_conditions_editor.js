@@ -15,7 +15,9 @@ const ConditionsEditor = Vue.createApp({
             selectedChildOutcome: '',
             selectedChildValueOptions: [],
             selectedChildValue: '',
-            showRemoveConditionModal: false
+            showRemoveConditionModal: false,
+            showConditionEditor: false,
+            editingCondition: ''
         }
     },
     beforeMount(){
@@ -63,6 +65,7 @@ const ConditionsEditor = Vue.createApp({
             //cleared when either the form or child indicator changes
             if(resetAll){
                 this.vueData.indicatorID = 0;
+                this.showConditionEditor = false;
             }
             this.selectedParentIndicator = {};
             this.parentFound = true;
@@ -201,38 +204,61 @@ const ConditionsEditor = Vue.createApp({
                 this.crawlParents(parent, initialIndicator);
             }
         },
+        newCondition(){
+            this.editingCondition = '';
+            this.showConditionEditor = true;
+            this.selectedParentIndicator = {};
+            this.selectedParentOperators = [];
+            this.selectedOperator = '';
+            this.selectedParentValue = '';
+            this.selectedParentValueOptions = [];
+            this.selectedChildOutcome = '';
+            this.selectedChildValue = '';
+            console.log(this.conditionInputObject);
+        },
         postCondition(){
             const { childIndID }  = this.conditionInputObject;
             if (this.conditionComplete) {
-                let indToUpdate = this.indicators.find(i => i.indicatorID === this.conditionInputObject.childIndID);
-                let updatedConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null)
-                    ? [] : JSON.parse(indToUpdate.conditions);
-                if (!updatedConditions.some(condition => condition.selectedOutcome === this.conditionInputObject.selectedOutcome)) {
-                    updatedConditions.push(this.conditionInputObject);
+                const conditionsJSON = JSON.stringify(this.conditionInputObject);
+                let indToUpdate = this.indicators.find(i => i.indicatorID === childIndID);
+                // [c1,c2,c3]
+                let currConditions = JSON.parse(this.indicators.find(i => i.indicatorID === childIndID).conditions) || [];
+                
+                let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.editingCondition);
+                
+
+                const isUnique = newConditions.every(c => JSON.stringify(c) !== conditionsJSON);
+                console.log('test: ', currConditions, newConditions, this.editingCondition, conditionsJSON, isUnique);
+                
+                if (isUnique){
+
+                    newConditions.push(this.conditionInputObject);
+                    
+                    const pkg = JSON.stringify(newConditions);
+                    let form = new FormData();
+                    form.append('CSRFToken', CSRFToken);
+                    form.append('conditions', pkg);
+
+                    const xhttp = new XMLHttpRequest();
+                    xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
+                    xhttp.send(form);
+                    xhttp.onreadystatechange = () => {
+                        if (xhttp.readyState == 4 && xhttp.status == 200) {
+                            const res = JSON.parse(xhttp.responseText);
+                            //TODO: return better indication of success, currently just empty array
+                            if (res !== 'Invalid Token.') {
+                                indToUpdate.conditions = pkg; //update the indicator in the indicators list
+                                this.clearSelections(true);
+                            }
+                        }
+                    };
+
                 } else {
-                    let remainingConditions = updatedConditions.filter(condition => condition.selectedOutcome !== this.conditionInputObject.selectedOutcome);
-                    remainingConditions.push(this.conditionInputObject);
-                    updatedConditions = remainingConditions;
+                    console.log('new condition not unique');
+                    this.clearSelections(true);
                 }
 
-                const pkg = JSON.stringify(updatedConditions);
-                let form = new FormData();
-                form.append('CSRFToken', CSRFToken);
-                form.append('conditions', pkg);
-
-                const xhttp = new XMLHttpRequest();
-                xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
-                xhttp.send(form);
-                xhttp.onreadystatechange = () => {
-                    if (xhttp.readyState == 4 && xhttp.status == 200) {
-                        const res = JSON.parse(xhttp.responseText);
-                        //TODO: return better indication of success, currently just empty array
-                        if (res !== 'Invalid Token.') {
-                            indToUpdate.conditions = pkg; //update the indicator in the indicators list
-                            this.clearSelections(true);
-                        }
-                    }
-                };
+                
             } else {
                 console.log('condition object not complete');
             }
@@ -280,6 +306,9 @@ const ConditionsEditor = Vue.createApp({
         },
         selectConditionFromList(conditionObj){
             //update par and chi ind, other values
+            this.editingCondition = JSON.stringify(conditionObj);
+            this.showConditionEditor = true;
+            console.log(this.editingCondition);
             this.updateSelectedParentIndicator(conditionObj?.parentIndID);
             if(this.parentFound && this.parentFormat === 'dropdown') {
                 this.selectedOperator = conditionObj?.selectedOp;
@@ -380,7 +409,9 @@ const ConditionsEditor = Vue.createApp({
                 :childFormat="childFormat"
                 :selectedChildValueOptions="selectedChildValueOptions"
                 :conditions="conditionInputObject"
+                :showConditionEditor="showConditionEditor"
                 :showRemoveConditionModal="showRemoveConditionModal"
+                @new-condition="newCondition"
                 @update-indicator-list="getAllIndicators"
                 @update-selected-parent="updateSelectedParentIndicator"
                 @update-selected-child="updateSelectedChildIndicator"
@@ -420,6 +451,7 @@ ConditionsEditor.component('editor-main', {
         parentFormat: String,
         childFormat: String,
         conditions: Object,
+        showConditionEditor: Boolean,
         showRemoveConditionModal: Boolean
     },
     methods: {
@@ -476,13 +508,14 @@ ConditionsEditor.component('editor-main', {
         </div>
         <div>
             <span class="input-info">Controlled Question</span>
-            <i><p style="color: #900; font-weight:bold">{{selectedChild.name }} (indicator {{selectedChild.indicatorID}})</p></i>     
+            <i><p style="color: #900; font-weight:bold">{{selectedChild.name }} (indicator {{selectedChild.indicatorID}})</p></i>
+            <button @click="$emit('new-condition')">New Condition</button>   
             <ul v-if="savedConditions && savedConditions.length > 0 && !showRemoveConditionModal" 
                 id="savedConditionsList">
-                <p>The following controllers are attached to this question.&nbsp;  Select from this list to edit 
+                <!--<p>The following controllers are attached to this question.&nbsp;  Select from this list to edit 
                 or remove an existing condition, or enter a new condition in the area below.&nbsp; If multiple controllers
                 are added, the outcome must be the same for all.  You will be able to specify whether any or all of these
-                conditions must be met in order for the outcome to occur</p>
+                conditions must be met in order for the outcome to occur</p>-->
                 <p><b>{{savedConditions[0].selectedOutcome}} IF</b></p>
                 <li v-for="c in savedConditions"
                 class="savedConditionsCard"
@@ -509,7 +542,7 @@ ConditionsEditor.component('editor-main', {
                 </ul>
             </div>
         </div>
-        <div v-if="!showRemoveConditionModal" id="outcome-editor">
+        <div v-if="!showRemoveConditionModal && showConditionEditor" id="outcome-editor"> <!--TODO: conditional / new condition -->
             <!-- childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome-->
             <span v-if="conditions.childIndID" class="input-info">Select an outcome</span>
             <select v-if="conditions.childIndID" title="select outcome"
@@ -532,7 +565,7 @@ ConditionsEditor.component('editor-main', {
                 </option>
             </select>
         </div>
-        <div v-if="!showRemoveConditionModal && selectableParents.length > 0">
+        <div v-if="!showRemoveConditionModal && showConditionEditor && selectableParents.length > 0">
             <h4>WHEN</h4>
             <span class="input-info">Select a question to control the outcome</span>
             <select title="select an indicator" 
