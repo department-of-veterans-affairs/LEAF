@@ -1542,17 +1542,16 @@ function getForm(indicatorID, series) {
         }
 
         let calls = [];
-        let f = $('#format').val();
-        let nameChanged = (indicatorEditing.name || "") !== $('#name').val();
-        let formatChanged = (indicatorEditing.format || "") !== ((f.indexOf("\n") === -1) ? f : f.substr(0, f.indexOf("\n")).trim());
-        let descriptionChanged = (indicatorEditing.description || "") !== $('#description').val();
-        let defaultChanged = (indicatorEditing.default || "") !== $('#default').val();
-        let requiredChanged = (indicatorEditing.required || "") !== requiredIndicator.toString();
-        let sensitiveChanged = (indicatorEditing.is_sensitive || "") !== sensitiveIndicator.toString();
-        let parentIDChanged = (indicatorEditing.parentID || "") !== $("#parentID").val();
-        let sortChanged = (indicatorEditing.sort || "") !== $("#sort").val();
-        let htmlChanged = (indicatorEditing.html || "") !== codeEditorHtml.getValue();
-        let htmlPrintChanged =  (indicatorEditing.htmlPrint || "") !== codeEditorHtmlPrint.getValue();
+        let nameChanged = (indicatorEditing.name || "") != $('#name').val();
+        let formatChanged = (indicatorEditing.format || "") != $('#format').val();
+        let descriptionChanged = (indicatorEditing.description || "") != $('#description').val();
+        let defaultChanged = (indicatorEditing.default || "") != $('#default').val();
+        let requiredChanged = (indicatorEditing.required || "") != requiredIndicator;
+        let sensitiveChanged = (indicatorEditing.is_sensitive || "") != sensitiveIndicator;
+        let parentIDChanged = (indicatorEditing.parentID || "") != $("#parentID").val();
+        let sortChanged = (indicatorEditing.sort || "") != $("#sort").val();
+        let htmlChanged = (indicatorEditing.html || "") != codeEditorHtml.getValue();
+        let htmlPrintChanged =  (indicatorEditing.htmlPrint || "") != codeEditorHtmlPrint.getValue();
         
         if(nameChanged){
             calls.push(
