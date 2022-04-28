@@ -3,6 +3,8 @@
 */
 var form;
 var formValidator = {};
+var formRequired = {};
+var formConditions = {};
 var LeafForm = function(containerID) {
 	var containerID = containerID;
 	var prefixID = 'LeafForm' + Math.floor(Math.random()*1000) + '_';
@@ -36,91 +38,95 @@ var LeafForm = function(containerID) {
 	function handleConditionalIndicators(formConditions){
 		const conditions = formConditions.conditions;
 		const format = formConditions.format;
-		const elParentInd = document.getElementById(conditions.parentIndID);
-		const elChildInd = document.getElementById(conditions.childIndID);
+		for (let i in conditions) {
+			const elParentInd = document.getElementById(conditions[i].parentIndID);
+			const elChildInd = document.getElementById(conditions[i].childIndID);
+			const elJQParentID = $('#' + conditions[i].parentIndID);
+			const elJQChildID = $('#' + conditions[i].childIndID);
 
-		if(format === 'dropdown' && elParentInd !== null && elParentInd.nodeName === 'SELECT'){
-		//*NOTE: need format for various plugins (icheck, chosen, etc)
+			if (format === 'dropdown' && elParentInd !== null && elParentInd.nodeName === 'SELECT') {
+				//*NOTE: need format for various plugins (icheck, chosen, etc)
 
-			let currChildVal = elChildInd.value;
-			$('#' + conditions.childIndID).chosen().on('change', function () {
-				currChildVal = elChildInd.value;
-			});	
-			//*
-			let comparison = false;
-			$('#' + conditions.parentIndID).chosen().on('change', function () {
-				const val = elParentInd.value;
-				const compVal = conditions.selectedParentValue;
-				//TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
-				switch (conditions.selectedOp) { 
-					case '==':
-						comparison = val === compVal;
+				let currChildVal = elChildInd.value;
+				elJQChildID.chosen().on('change', function () {
+					currChildVal = elChildInd.value;
+				});
+				//*
+				let comparison = false;
+				elJQParentID.chosen().on('change', function () {
+					const val = elParentInd.value;
+					const compVal = conditions[i].selectedParentValue;
+					//TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
+					switch (conditions[i].selectedOp) {
+						case '==':
+							comparison = val === compVal;
+							break;
+						case '!=':
+							comparison = val !== compVal;
+							break;
+						case '>':
+							comparison = val > compVal;
+							break;
+						case '<':
+							comparison = val < compVal;
+							break;
+						default:
+							console.log(conditions[i].selectedOp);
+							break;
+					}
+					console.log(val, conditions[i].selectedOp, compVal, comparison);
+				});
+				
+				switch (conditions[i].selectedOutcome) {
+					case 'Hide':
+						elJQParentID.chosen().on('change', function () {
+							if (comparison) {
+								elJQChildID.chosen().val('');
+								elJQChildID.trigger('chosen:updated');
+								$('.blockIndicator_' + conditions[i].childIndID).hide();
+							} else {
+								$('.blockIndicator_' + conditions[i].childIndID).show();
+								if (currChildVal) { //updates with prev selection if there had been one
+									elJQChildID.chosen().val(currChildVal);
+									elJQChildID.trigger('chosen:updated');
+								}
+							}
+						});
 						break;
-					case '!=':
-						comparison = val !== compVal;
+					case 'Show':
+						elJQParentID.chosen().on('change', function () {
+							if (comparison) {
+								$('.blockIndicator_' + conditions[i].childIndID).show();
+								if (currChildVal) {
+									elJQChildID.chosen().val(currChildVal);
+									elJQChildID.trigger('chosen:updated');
+								}
+							} else {
+								elJQChildID.chosen().val('');
+								elJQChildID.trigger('chosen:updated');
+								$('.blockIndicator_' + conditions[i].childIndID).hide();
+							}
+						});
 						break;
-					case '>':
-						comparison = val > compVal;
+					case 'Pre-fill':
+						elJQParentID.chosen().on('change', function () {
+							if (comparison) {
+								elJQChildID.attr('disabled', 'disabled');
+								elJQChildID.chosen().val(conditions[i].selectedChildValue);
+								elJQChildID.trigger('chosen:updated');
+							} else {
+								elJQChildID.removeAttr('disabled');
+								elJQChildID.chosen().val('');
+								elJQChildID.trigger('chosen:updated');
+							}
+						});
 						break;
-					case '<':
-						comparison = val < compVal;
-						break;	
 					default:
-						console.log(conditions.selectedOp);
+						console.log(conditions[i].selectedOutcome);
 						break;
 				}
-				console.log(val, conditions.selectedOp, compVal,comparison);
-			});
-			
-			switch (conditions.selectedOutcome) {
-				case 'Hide Question':
-					$('#' + conditions.parentIndID).chosen().on('change', function () {
-						if(comparison) {
-							$('#' + conditions.childIndID).chosen().val('');
-							$('#' + conditions.childIndID).trigger('chosen:updated');
-							$('.blockIndicator_' + conditions.childIndID).hide();
-						} else {
-							$('.blockIndicator_' + conditions.childIndID).show();
-							if (currChildVal) { //updates with prev selection if there had been one
-								$('#' + conditions.childIndID).chosen().val(currChildVal);
-								$('#' + conditions.childIndID).trigger('chosen:updated');
-							} 
-						}
-					});
-					break;
-				case 'Show Question':
-					$('#' + conditions.parentIndID).chosen().on('change', function () { 
-						if(comparison) {
-							$('.blockIndicator_' + conditions.childIndID).show();
-							if (currChildVal) {
-								$('#' + conditions.childIndID).chosen().val(currChildVal);
-								$('#' + conditions.childIndID).trigger('chosen:updated');
-							} 
-						} else {
-							$('#' + conditions.childIndID).chosen().val('');
-							$('#' + conditions.childIndID).trigger('chosen:updated');
-							$('.blockIndicator_' + conditions.childIndID).hide();
-						}
-					});
-					break;
-				case 'Pre-fill Question':
-					$('#' + conditions.parentIndID).chosen().on('change', function () {
-						if(comparison) {
-							$('#' + conditions.childIndID).attr('disabled', 'disabled');
-							$('#' + conditions.childIndID).chosen().val(conditions.selectedChildValue);
-							$('#' + conditions.childIndID).trigger('chosen:updated');
-						} else {
-							$('#' + conditions.childIndID).removeAttr('disabled');
-							$('#' + conditions.childIndID).chosen().val('');
-							$('#' + conditions.childIndID).trigger('chosen:updated');
-						}
-					});
-					break;
-				default:
-				console.log(conditions.selectedOutcome);
-				break;
+				elJQParentID.chosen().trigger('change');
 			}
-			$('#' + conditions.parentIndID).chosen().trigger('change');//*/
 		}
 	}
 

@@ -1095,7 +1095,7 @@
                     conditions:<!--{$indicator.conditions|strip_tags}-->,  //no quotes. send as object
                     format:'<!--{$indicator.format}-->'
                 };
-            </script>   
+            </script>
         <!--{/if}-->
         </div>
     <!--{/foreach}-->
