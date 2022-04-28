@@ -47,11 +47,14 @@ var LeafForm = function(containerID) {
 			if (format === 'dropdown' && elParentInd !== null && elParentInd.nodeName === 'SELECT') {
 				//*NOTE: need format for various plugins (icheck, chosen, etc)
 
+				//can get validator, but doesn't seem like backend progress check can be done here
+				//let currChildValidator = form.dialog().requirements[conditions[i].childIndID];
+
 				let currChildVal = elChildInd.value;
 				elJQChildID.chosen().on('change', function () {
 					currChildVal = elChildInd.value;
 				});
-				//*
+
 				let comparison = false;
 				elJQParentID.chosen().on('change', function () {
 					const val = elParentInd.value;
@@ -84,8 +87,16 @@ var LeafForm = function(containerID) {
 								elJQChildID.chosen().val('');
 								elJQChildID.trigger('chosen:updated');
 								$('.blockIndicator_' + conditions[i].childIndID).hide();
+								/*
+								if (currChildValidator !== undefined){
+									form.dialog().requirements[conditions[i].childIndID] = function(){return false};
+								}*/
 							} else {
 								$('.blockIndicator_' + conditions[i].childIndID).show();
+								/*
+								if (currChildValidator !== undefined){
+									form.dialog().requirements[conditions[i].childIndID] = currChildValidator;
+								}*/
 								if (currChildVal) { //updates with prev selection if there had been one
 									elJQChildID.chosen().val(currChildVal);
 									elJQChildID.trigger('chosen:updated');
@@ -101,10 +112,18 @@ var LeafForm = function(containerID) {
 									elJQChildID.chosen().val(currChildVal);
 									elJQChildID.trigger('chosen:updated');
 								}
+								/*
+								if (currChildValidator !== undefined){
+									form.dialog().requirements[conditions[i].childIndID] = currChildValidator;
+								}*/
 							} else {
 								elJQChildID.chosen().val('');
 								elJQChildID.trigger('chosen:updated');
 								$('.blockIndicator_' + conditions[i].childIndID).hide();
+								/*
+								if (currChildValidator !== undefined){
+									form.dialog().requirements[conditions[i].childIndID] = function(){return false};
+								}*/
 							}
 						});
 						break;
