@@ -22,7 +22,8 @@ public class AppVariables {
 
  
 	//Change this variable to to true to run in headless mode with correct parameters, resolution,
-	public final static boolean headless = false;	
+	public final static boolean headless = false;
+	//public final static boolean headless = true;
 
 		//Local environment
 

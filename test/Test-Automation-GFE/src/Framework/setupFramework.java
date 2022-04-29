@@ -97,7 +97,8 @@ public class setupFramework {
 		try {
 			setDriver(browser, env);
 		} catch (Exception e) {  //Over
-			System.out.println("Error in initializingTestBaseSetup(): " + e.getStackTrace());
+			//System.out.println("Error in initializingTestBaseSetup(): " + e.getStackTrace().toString());
+			e.printStackTrace();
 		}
 
 	}
