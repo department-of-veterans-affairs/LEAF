@@ -1517,16 +1517,18 @@ function getForm(indicatorID, series) {
         }
 
         let calls = [];
-        let nameChanged = (indicatorEditing.name || "") != $('#name').val();
-        let formatChanged = (indicatorEditing.format || "") != $('#format').val();
-        let descriptionChanged = (indicatorEditing.description || "") != $('#description').val();
-        let defaultChanged = (indicatorEditing.default || "") != $('#default').val();
-        let requiredChanged = (indicatorEditing.required || "") != requiredIndicator;
-        let sensitiveChanged = (indicatorEditing.is_sensitive || "") != sensitiveIndicator;
-        let parentIDChanged = (indicatorEditing.parentID || "") != $("#parentID").val();
-        let sortChanged = (indicatorEditing.sort || "") != $("#sort").val();
-        let htmlChanged = (indicatorEditing.html || "") != codeEditorHtml.getValue();
-        let htmlPrintChanged =  (indicatorEditing.htmlPrint || "") != codeEditorHtmlPrint.getValue();
+        let nameChanged = (indicatorEditing.name || "") !== $('#name').val();
+        let options = '';
+        if (indicatorEditing?.options) indicatorEditing.options.forEach(o => options += `\n${o}`);
+        let formatChanged = (indicatorEditing.format + options || "") !== $('#format').val();
+        let descriptionChanged = (indicatorEditing.description || "") !== $('#description').val();
+        let defaultChanged = (indicatorEditing.default || "") !== $('#default').val();
+        let requiredChanged = (indicatorEditing.required || "") !== requiredIndicator.toString();
+        let sensitiveChanged = (indicatorEditing.is_sensitive || "") !== sensitiveIndicator.toString();
+        let parentIDChanged = (indicatorEditing.parentID || "") !== $("#parentID").val();
+        let sortChanged = (indicatorEditing.sort || "") !== $("#sort").val();
+        let htmlChanged = (indicatorEditing.html || "") !== codeEditorHtml.getValue();
+        let htmlPrintChanged =  (indicatorEditing.htmlPrint || "") !== codeEditorHtmlPrint.getValue();
         
         if(nameChanged){
             calls.push(
@@ -1544,8 +1546,10 @@ function getForm(indicatorID, series) {
                 $.ajax({
                     type: 'POST',
                     url: '../api/?a=formEditor/' + indicatorID + '/format',
-                    data: {format: $('#format').val(),
-                        CSRFToken: '<!--{$CSRFToken}-->'}
+                    data: {
+                        format: $('#format').val(),
+                        CSRFToken: '<!--{$CSRFToken}-->'
+                    }
                 })
             );
         }
