@@ -11,6 +11,7 @@ const vueData = {
     formID: 0,
     formTitle: '',
     indicatorID: 0,
+    required: 0,
     icons: [],
     updateIndicatorList: false
 }
@@ -299,10 +300,11 @@ function openContent(url) {
         success: function(res) {
             $('#formEditor_form').empty().html(res);
             const icons = Array.from(document.querySelectorAll('img[id^="edit_conditions"]'));
-            
+
             vueData.formID = currCategoryID;
             vueData.formTitle = formTitle;
             vueData.indicatorID = 0;
+            vueData.required = 0;
             vueData.icons = icons.map(ele => ele.id.replaceAll('edit_conditions_', ''));
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         },
@@ -1552,6 +1554,7 @@ function getForm(indicatorID, series) {
         let sortChanged = (indicatorEditing.sort || "") != $("#sort").val();
         let htmlChanged = (indicatorEditing.html || "") != codeEditorHtml.getValue();
         let htmlPrintChanged =  (indicatorEditing.htmlPrint || "") != codeEditorHtmlPrint.getValue();
+        let hasCondition = indicatorEditing.conditions || "";
         
         if(nameChanged){
             calls.push(
@@ -1607,13 +1610,18 @@ function getForm(indicatorID, series) {
         }
 
         if(requiredChanged){
-            calls.push(   	        
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/required',
-                    data: {required: requiredIndicator,
+            /*if (hasCondition && requiredIndicator === 1 && indicatorEditing.format === 'dropdown') {
+                alert('This question has Conditions on it, currently questions with conditions are not supported for required questions. ' +
+                    'Please remove your conditions and set the question to required again.');
+            } else { */
+                calls.push(
+                    $.ajax({
+                        type: 'POST',
+                        url: '../api/?a=formEditor/' + indicatorID + '/required',
+                        data: {required: requiredIndicator,
                         CSRFToken: '<!--{$CSRFToken}-->'}
-                }));
+                    }));
+            /*}*/
         }
 
         if(sensitiveChanged){
@@ -1692,7 +1700,7 @@ function getForm(indicatorID, series) {
         }
 
     	$.when.apply(undefined, calls).then(function() {
-            vueData.updateIndicatorList = true; 
+            vueData.updateIndicatorList = true;
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
    	    	openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
    	    	dialog.hide();

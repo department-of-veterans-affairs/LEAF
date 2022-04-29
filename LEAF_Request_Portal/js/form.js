@@ -48,7 +48,7 @@ var LeafForm = function(containerID) {
 				//*NOTE: need format for various plugins (icheck, chosen, etc)
 
 				//can get validator, but doesn't seem like backend progress check can be done here
-				//let currChildValidator = form.dialog().requirements[conditions[i].childIndID];
+				let currChildValidator = form.dialog().requirements[conditions[i].childIndID];
 
 				let currChildVal = elChildInd.value;
 				elJQChildID.chosen().on('change', function () {
@@ -77,7 +77,6 @@ var LeafForm = function(containerID) {
 							console.log(conditions[i].selectedOp);
 							break;
 					}
-					console.log(val, conditions[i].selectedOp, compVal, comparison);
 				});
 				
 				switch (conditions[i].selectedOutcome) {
@@ -87,16 +86,16 @@ var LeafForm = function(containerID) {
 								elJQChildID.chosen().val('');
 								elJQChildID.trigger('chosen:updated');
 								$('.blockIndicator_' + conditions[i].childIndID).hide();
-								/*
+
 								if (currChildValidator !== undefined){
 									form.dialog().requirements[conditions[i].childIndID] = function(){return false};
-								}*/
+								}
 							} else {
 								$('.blockIndicator_' + conditions[i].childIndID).show();
-								/*
+
 								if (currChildValidator !== undefined){
 									form.dialog().requirements[conditions[i].childIndID] = currChildValidator;
-								}*/
+								}
 								if (currChildVal) { //updates with prev selection if there had been one
 									elJQChildID.chosen().val(currChildVal);
 									elJQChildID.trigger('chosen:updated');
@@ -112,18 +111,18 @@ var LeafForm = function(containerID) {
 									elJQChildID.chosen().val(currChildVal);
 									elJQChildID.trigger('chosen:updated');
 								}
-								/*
+
 								if (currChildValidator !== undefined){
 									form.dialog().requirements[conditions[i].childIndID] = currChildValidator;
-								}*/
+								}
 							} else {
 								elJQChildID.chosen().val('');
 								elJQChildID.trigger('chosen:updated');
 								$('.blockIndicator_' + conditions[i].childIndID).hide();
-								/*
+
 								if (currChildValidator !== undefined){
 									form.dialog().requirements[conditions[i].childIndID] = function(){return false};
-								}*/
+								}
 							}
 						});
 						break;
@@ -234,7 +233,7 @@ var LeafForm = function(containerID) {
 
 	    formValidator = new Object();
 	    formRequired = new Object();
-		formConditions = new Object();
+	    formConditions = new Object();
 	    $.ajax({
 	        type: 'GET',
 	        url: "ajaxIndex.php?a=getindicator&recordID=" + recordID + "&indicatorID=" + indicatorID + "&series=" + series,

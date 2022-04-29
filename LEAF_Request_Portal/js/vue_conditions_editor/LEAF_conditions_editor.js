@@ -1,7 +1,7 @@
 const ConditionsEditor = Vue.createApp({
     data() {
         return {
-            vueData: vueData,  //obj w formID: 0,formTitle: '',indicatorID: 0,icons: [], updateIndicatorList: false
+            vueData: vueData,  //obj w formID: 0, formTitle: '', indicatorID: 0, required: 0, icons: [], updateIndicatorList: false
             windowTop: 0,
             //indicatorOrg: {},  debug
             indicators: [],
@@ -54,7 +54,6 @@ const ConditionsEditor = Vue.createApp({
                         }    
                     });
                     this.vueData.updateIndicatorList = false;
-                    console.log('indicators have been updated: ', this.indicators);
                 }
             };
             //get the headers too, need to figure out what they are for each child
@@ -78,12 +77,12 @@ const ConditionsEditor = Vue.createApp({
             this.selectedChildOutcome = '';
             this.selectedChildValueOptions = [];
             this.selectedChildValue = '';
+            this.editingCondition = '';
         },
         updateSelectedParentIndicator(indicatorID){
             const indicator = this.indicators.find(i => indicatorID !== null && i.indicatorID === indicatorID);
             //handle scenario if a parent is archived/deleted
             if(indicator===undefined) {
-                console.log(`parent ${indicatorID} not found`)
                 this.parentFound = false;
                 return;
             } else this.parentFound = true;
@@ -247,15 +246,9 @@ const ConditionsEditor = Vue.createApp({
                             }
                         }
                     };
-
                 } else {
-                    console.log('new condition not unique');
                     this.clearSelections(true);
                 }
-
-                
-            } else {
-                console.log('condition object not complete');
             }
         },
         removeCondition(data){
@@ -268,12 +261,12 @@ const ConditionsEditor = Vue.createApp({
                 if (childIndID !== undefined) {
                     const conditionsJSON = JSON.stringify(this.conditionInputObject);
                     const currConditions = JSON.parse(this.indicators.find(i => i.indicatorID === childIndID).conditions) || [];
-                    const newConditions = currConditions.filter(c => JSON.stringify(c) !== conditionsJSON);
-                    console.log('delete confirmed ', 'method data', data, 'initial', currConditions, 'remaining', newConditions);
+                    let newConditions = currConditions.filter(c => JSON.stringify(c) !== conditionsJSON);
+                    if (newConditions.length === 0) newConditions = null;
                     
                     let form = new FormData();
                     form.append('CSRFToken', CSRFToken);
-                    form.append('conditions', JSON.stringify(newConditions));
+                    form.append('conditions', (newConditions !== null) ? JSON.stringify(newConditions) : '');
 
                     const xhttp = new XMLHttpRequest();
                     xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
@@ -282,11 +275,10 @@ const ConditionsEditor = Vue.createApp({
                         if (xhttp.readyState == 4 && xhttp.status == 200) {
                             const res = JSON.parse(xhttp.responseText);
                             //TODO: return better indication of success, currently just empty array
-                            if (res !== 'Invalid Token.') { 
-                                console.log('running del')
+                            if (res !== 'Invalid Token.') {
                                 let indToUpdate = this.indicators.find(i => i.indicatorID === childIndID);
-                                indToUpdate.conditions = JSON.stringify(newConditions); //update the indicator in the indicators list
-                                //this.vueData.indicatorID = 0;
+                                //update the indicator in the indicators list
+                                indToUpdate.conditions = (typeof newConditions === 'object') ? JSON.stringify(newConditions) : newConditions;
                             }
                         }
                     }; 
@@ -295,7 +287,6 @@ const ConditionsEditor = Vue.createApp({
                 this.clearSelections(true);
             //X buttons that open the confirm delete modal   
             } else {
-                console.log('else ', data);
                 this.showRemoveConditionModal = true;
             }
         },
@@ -462,10 +453,17 @@ ConditionsEditor.component('editor-main', {
         },
         forceUpdate(){
             this.$forceUpdate();
-            if(this.vueData.updateIndicatorList===true){ //set to T in mod_form if new ind or ind edited, then to F after new fetch
+            if(this.vueData.updateIndicatorList === true){ //set to T in mod_form if new ind or ind edited, then to F after new fetch
                 this.$emit('update-indicator-list');
             } else {
                 this.$emit('update-selected-child');
+                /*if (this.vueData.required === 0) {
+                    this.$emit('update-selected-child');
+                } else {
+                    alert('This question is Required, currently questions that are required are not supported with conditions. ' +
+                        'Please remove the required status and try again.');
+                    this.vueData.indicatorID = 0;
+                }*/
             }
         },
         getIndicatorName(id){
@@ -578,7 +576,7 @@ ConditionsEditor.component('editor-main', {
                 </ul>
             </div>
         </div>
-        <div v-if="!showRemoveConditionModal && showConditionEditor" id="outcome-editor"> <!--TODO: conditional / new condition -->
+        <div v-if="!showRemoveConditionModal && showConditionEditor" id="outcome-editor">
             <!-- childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome-->
             <span v-if="conditions.childIndID" class="input-info">Select an outcome</span>
             <select v-if="conditions.childIndID" title="select outcome"
