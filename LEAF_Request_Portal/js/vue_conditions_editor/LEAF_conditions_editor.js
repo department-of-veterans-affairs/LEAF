@@ -278,7 +278,7 @@ const ConditionsEditor = Vue.createApp({
                             if (res !== 'Invalid Token.') {
                                 let indToUpdate = this.indicators.find(i => i.indicatorID === childIndID);
                                 //update the indicator in the indicators list
-                                indToUpdate.conditions = (typeof newConditions === 'object') ? JSON.stringify(newConditions) : newConditions;
+                                indToUpdate.conditions = (newConditions !== null) ? JSON.stringify(newConditions) : '';
                             }
                         }
                     }; 
