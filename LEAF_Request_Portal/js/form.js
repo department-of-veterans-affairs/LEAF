@@ -51,12 +51,12 @@ var LeafForm = function(containerID) {
 				let currChildValidator = form.dialog().requirements[conditions[i].childIndID];
 
 				let currChildVal = elChildInd.value;
-				elJQChildID.chosen().on('change', function () {
+				elJQChildID.chosen({width: '80%'}).on('change', function () {
 					currChildVal = elChildInd.value;
 				});
 
 				let comparison = false;
-				elJQParentID.chosen().on('change', function () {
+				elJQParentID.chosen({width: '80%'}).on('change', function () {
 					const val = elParentInd.value;
 					const compVal = conditions[i].selectedParentValue;
 					//TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
