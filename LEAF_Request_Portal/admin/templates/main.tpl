@@ -44,7 +44,9 @@
 </head>
 
 <body>
-
+    {if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}
+        <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">PREPROD TESTING {$orgchartPath}</div>
+    {/if}
     {if $leafSecure == 0}
     <section class="usa-banner bg-orange-topbanner" aria-label="Official government website">
         <header class="usa-banner__header">
