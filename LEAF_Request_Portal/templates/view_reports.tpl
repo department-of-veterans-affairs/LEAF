@@ -1,7 +1,6 @@
 <style>
 /* 3 column grid */
 .group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
-
 </style>
 
 <div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: fit-content; width: -moz-fit-content; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
@@ -72,7 +71,7 @@ function loadWorkflow(recordID, prefixID) {
 }
 
 function prepareEmail(link) {
-	mailtoHref = 'mailto:?subject=Report%20for&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
+    mailtoHref = 'mailto:?subject=Report%20for&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
     $('body').append($('<iframe id="ie9workaround" style="display:none;" src="' + mailtoHref + '"/>'));
 }
 
@@ -84,9 +83,9 @@ let categoryID = 'strCatID';
 
 function addHeader(column) {
     let today = new Date();
-	switch(column) {
-	    case 'title':
-	    	headers.push({
+    switch(column) {
+        case 'title':
+            headers.push({
                 name: 'Title',
                 indicatorID: 'title',
                 callback: function(data, blob) {
@@ -95,8 +94,8 @@ function addHeader(column) {
                         changeTitle(data, $('#'+data.cellContainerID).html());
                 });
             }});
-		    break;
-	    case 'service':
+            break;
+        case 'service':
             headers.push({
                 name: 'Service',
                 indicatorID: 'service',
@@ -105,8 +104,8 @@ function addHeader(column) {
                 $('#'+data.cellContainerID).html(blob[data.recordID].service);
             }});
             break;
-	    case 'type':
-	    	leafSearch.getLeafFormQuery().join('categoryName');
+        case 'type':
+            leafSearch.getLeafFormQuery().join('categoryName');
             headers.push({
                 name: 'Type',
                 indicatorID: 'type',
@@ -120,8 +119,8 @@ function addHeader(column) {
                      $('#'+data.cellContainerID).html(types);
             }});
             break;
-	    case 'status':
-	    	leafSearch.getLeafFormQuery().join('status');
+        case 'status':
+            leafSearch.getLeafFormQuery().join('status');
             headers.push({
                 name: 'Current Status',
                 indicatorID: 'status',
@@ -136,10 +135,10 @@ function addHeader(column) {
             }});
             break;
         case 'initiator':
-        	leafSearch.getLeafFormQuery().join('initiatorName');
+            leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
-            	$('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
+                $('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
             }});
             break;
         case 'dateCancelled':
@@ -194,14 +193,14 @@ function addHeader(column) {
             }});
             break;
         case 'actionButton':
-        	headers.unshift({
+            headers.unshift({
                 name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
                 $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
                 $('#'+data.cellContainerID).on('click', function() {
                     loadWorkflow(data.recordID, grid.getPrefixID());
                 });
-        	}});
-        	break;
+            }});
+            break;
         case 'action_history':
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({
@@ -297,31 +296,31 @@ function addHeader(column) {
                 }
             });
             break;
-	    default:
-	    	if(column.substr(0, 6) === 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
-	    		depID = column.substr(6);
-	    		tDepHeader[depID] = 0;
-	    		leafSearch.getLeafFormQuery().join('recordsDependencies');
-	            headers.push({
+        default:
+            if(column.substr(0, 6) === 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
+                depID = column.substr(6);
+                tDepHeader[depID] = 0;
+                leafSearch.getLeafFormQuery().join('recordsDependencies');
+                headers.push({
                     name: 'Checkpoint Date',
                     indicatorID: column,
                     editable: false,
                     callback: function(depID) {
-	            	return function(data, blob) {
-	                    if(blob[data.recordID].recordsDependencies != undefined
-	                    	&& blob[data.recordID].recordsDependencies[depID] != undefined) {
-	                        var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
-	                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-	                        if(tDepHeader[depID] == 0) {
-	                        	headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
-	                            $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
-	                            $('#Vheader_' + column).html(blob[data.recordID].recordsDependencies[depID].description);
-	                        	tDepHeader[depID] = 1;
-	                        }
-	                    }
-	            	}
+                    return function(data, blob) {
+                        if(blob[data.recordID].recordsDependencies != undefined
+                            && blob[data.recordID].recordsDependencies[depID] != undefined) {
+                            var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
+                            $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                            if(tDepHeader[depID] == 0) {
+                                headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
+                                $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
+                                $('#Vheader_' + column).html(blob[data.recordID].recordsDependencies[depID].description);
+                                tDepHeader[depID] = 1;
+                            }
+                        }
+                    }
                 }(depID)});
-	    	}
+            }
             if(column.substr(0, 7) === 'stepID_') { // approval dates based on workflow steps
                 stepID = column.substr(7);
                 tStepHeader[stepID] = 0;
@@ -347,17 +346,17 @@ function addHeader(column) {
                     }
                 }(stepID)});
             }
-	    	break;
-	}
+            break;
+    }
 }
 
 var resIndicatorList = { };
 var searchPrereqsLoaded = false;
 function loadSearchPrereqs() {
-	if(searchPrereqsLoaded == true) {
-		return;
-	}
-	searchPrereqsLoaded = true;
+    if(searchPrereqsLoaded == true) {
+        return;
+    }
+    searchPrereqsLoaded = true;
     $.ajax({
         type: 'GET',
         url: './api/?a=form/indicator/list',
@@ -368,26 +367,26 @@ function loadSearchPrereqs() {
 
             // special columns
             buffer += '<div class="col span_1_of_3">';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_title" name="indicators[title]" value="title" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_title"> Title of Request</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_service" name="indicators[service]" value="service" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_service"> Service</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_type" name="indicators[type]" value="type" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_type"> Type of Request</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_status" name="indicators[status]" value="status" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_status"> Current Status</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_initiator" name="indicators[initiator]" value="initiator" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_initiator"> Initiator</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_actionButton" name="indicators[actionButton]" value="actionButton" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_actionButton"> Action Button</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_action_history" name="indicators[action_history]" value="action_history" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_action_history"> Comment History</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_approval_history"> Approval History</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_action"> Days Since Last Action</label></div>';
-            buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" />';
-            buffer += '<label class="checkable" style="width: 100px" for="indicators_days_since_last_step_movement"> Days Since Last Step Movement</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_title">';
+            buffer += '<input type="checkbox" class="leaf_check" id="indicators_title" name="indicators[title]" value="title" /><span class="leaf_check"></span> Title of Request</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_service">';
+            buffer += '<input type="checkbox" class="leaf_check" id="indicators_service" name="indicators[service]" value="service" /><span class="leaf_check"></span> Service</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_type">';
+            buffer += '<input type="checkbox" class="leaf_check" id="indicators_type" name="indicators[type]" value="type" /><span class="leaf_check"></span> Type of Request</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_status">';
+            buffer += '<input type="checkbox" class="leaf_check" id="indicators_status" name="indicators[status]" value="status" /><span class="leaf_check"></span> Current Status</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_initiator">';
+            buffer += '<input type="checkbox" class="leaf_check" id="indicators_initiator" name="indicators[initiator]" value="initiator" /><span class="leaf_check"></span> Initiator</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_actionButton">';
+            buffer += '<input type="checkbox" class="leaf_check" id="indicators_actionButton" name="indicators[actionButton]" value="actionButton" /><span class="leaf_check"></span> Action Button</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_action_history">';
+            buffer += '<input type="checkbox" class="leaf_check" id="indicators_action_history" name="indicators[action_history]" value="action_history" /><span class="leaf_check"></span> Comment History</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_approval_history">';
+            buffer += '<input type="checkbox" class="leaf_check" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" /><span class="leaf_check"></span> Approval History</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_days_since_last_action">';
+            buffer += '<input type="checkbox" class="leaf_check" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" /><span class="leaf_check"></span> Days Since Last Action</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_days_since_last_step_movement">';
+            buffer += '<input type="checkbox" class="leaf_check" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" /><span class="leaf_check"></span> Days Since Last Step Movement</label></div>';
             buffer += '</div>';
             
             var groupList = {};
@@ -410,23 +409,15 @@ function loadSearchPrereqs() {
                 }
                 groupList[res[i].categoryID].push(res[i].indicatorID);
                 if(groupIDmap[res[i].categoryID] == undefined) {
-                    groupNames.push({categoryID: res[i].categoryID,
-                                                    categoryName: res[i].categoryName});
+                    groupNames.push({
+                        categoryID: res[i].categoryID, 
+                        categoryName: res[i].categoryName
+                    });
                     groupIDmap[res[i].categoryID] = { };
                     groupIDmap[res[i].categoryID].categoryName = res[i].categoryName;
                     groupIDmap[res[i].categoryID].categoryID = res[i].categoryID;
                     groupIDmap[res[i].categoryID].parentCategoryID = res[i].parentCategoryID;
                     groupIDmap[res[i].categoryID].parentStaples = res[i].parentStaples;
-                    groupIDmap[res[i].categoryID].format = res[i].format;
-                }
-                // check if indicator type is grid
-
-                if (groupIDmap[res[i].categoryID].format.indexOf('grid') === 0) {
-                    // convert grid values to object
-                    let grid = $.parseJSON(groupIDmap[res[i].categoryID].format.replace('grid', ''));
-                    groupIDmap[res[i].categoryID].cols = grid.map(function(col) {
-                        return col;
-                    });
                 }
             }
             buffer += '<div class="col span_1_of_3">';
@@ -460,106 +451,68 @@ function loadSearchPrereqs() {
                     categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
-                for(var j in groupList[i]) {
-                    buffer += '<div class="indicatorOption" id="indicatorOption" style="display: none"><input type="checkbox" class="icheck parent" id="indicators_'+ groupList[i][j] +'" name="indicators['+ groupList[i][j] +']" value="'+ groupList[i][j] +'" />';
-                    buffer += '<label class="checkable" style="width: 100px" for="indicators_'+ groupList[i][j] +'" title="indicatorID: '+ groupList[i][j] +'\n'+ resIndicatorList[groupList[i][j]] +'" alt="indicatorID: '+ groupList[i][j] +'"> ' + resIndicatorList[groupList[i][j]] +'</label>';
+                for(let j in groupList[i]) {
+                    const indID = groupList[i][j];
+                    buffer += `<div class="indicatorOption" id="indicatorOption_${indID}" style="display: none"><label class="checkable" for="indicators_${indID}" title="indicatorID: ${indID}\n${resIndicatorList[indID]}" alt="indicatorID: ${indID}">`;
+                    buffer += `<input type="checkbox" class="leaf_check parent" id="indicators_${indID}" name="indicators[${indID}]" value="${indID}" />`
+                    buffer += `<span class="leaf_check"></span> ${resIndicatorList[indID]}</label>`;
                     // sub checklist for case of grid indicator
-                    if (groupIDmap[i].cols !== undefined) {
-                        for (k in groupIDmap[i].cols) {
-                            buffer += '<div class="subIndicatorOption" style="display: none"><input type="checkbox" class="icheck parent-indicators_' + groupList[i][j] + '" id="indicators_'+ groupList[i][j] +'_columns_' + groupIDmap[i].cols[k].id + '" name="indicators['+ groupList[i][j] +'].columns[' + groupIDmap[i].cols[k].name + ']" value="' + groupIDmap[i].cols[k].id + '" gridParent="' + groupList[i][j] + '" />';
-                            buffer += '<label class="checkable" style="width: 100px" for="indicators_' + groupList[i][j] + '_columns_'+ groupIDmap[i].cols[k].id +'" title="columnID: '+ groupIDmap[i].cols[k].id + '\n' + groupIDmap[i].cols[k].name +'"> ' + groupIDmap[i].cols[k].name +'</label></div>';
+                    const format = res.find(i => i.indicatorID === indID)?.format;
+                    if (format && format.indexOf('grid')===0) {
+                        const cols = JSON.parse(format.slice(format.indexOf('\n')));
+                        for (let c in cols) {
+                            const col = cols[c];
+                            buffer += `<div class="subIndicatorOption" style="display: none"><label class="checkable" for="indicators_${indID}_columns_${col.id}" title="columnID: ${col.id}\n${col.name}">`;
+                            buffer += `<input type="checkbox" class="leaf_check parent-indicators_${indID}" id="indicators_${indID}_columns_${col.id}" name="indicators[${indID}].columns[${col.name}]" value="${col.id}" gridParent="${indID}" />`;
+                            buffer += `<span class="leaf_check"></span> ${col.name}</label></div>`;
                         }
                     }
                     buffer += '</div>';
                 }
                 buffer += '</div>';
             }
-
             buffer += '</div>';
 
             $('#indicatorList').html(buffer);
 
             $('#indicatorList').css('height', $(window).height() - 240);
 
-            // check all subindicators to be equal to parent indicator
-            $('.indicatorOption').children().not('.subIndicatorOption').on('change', function() {
-                const newValue = $(this).icheck('update')[0].checked;
-
-                // update the children checkboxes to reflect the updated parent checkbox status
-                if (newValue === true) {
-                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('checked');
-                } else {
-                    $(this).parent().parent().children('.subIndicatorOption').children().icheck('unchecked');
-                }
+            //toggle all subcheckboxes with parent indicator checkbox
+            $('.indicatorOption > label > input').on('change', function() {
+                const indicatorIsChecked = this.checked;
+                $(`input[id^="indicators_${this.value}_columns"`).prop('checked', indicatorIsChecked);
             });
-
-            // check if sibling checkboxes are empty or all checked
-            $('.subIndicatorOption').children().on('change', function() {
-                const newValue = $(this).icheck('update')[0].checked;
-
-                let getSiblings = function (e) {
-                    let siblings = [];
-                    // if no parent, return no sibling
-                    if(!e.parent()) {
-                        return siblings;
-                    }
-                    // first child of the parent node
-                    let sibling  = e.parent().children()[1];
-
-                    // collecting siblings
-                    while (sibling) {
-                        if (sibling.nodeType === 1 && sibling !== e) {
-                            siblings.push(sibling);
-                        }
-                        sibling = sibling.nextSibling;
-                    }
-                    return siblings;
-                };
-
-                // if child is checked and parent is not checked
-                if(newValue && !$(this).parent().parent().parent().children('input').not('.subIndicatorOption').children('.icheck-item').hasClass('checked')) {
-                    // check the parent
-                    $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').icheck('checked');
-                } else {
-                    let siblings = getSiblings($(this).parent().parent());
-                    let atLeastOneChecked = false;
-                    let parentCheckbox = siblings.shift();
-
-                    // check if each sibling is checked
-                    $.each(siblings, function(key, value) {
-                        if ($(value).children('.icheck-item').children('input').icheck('update')[0].checked) {
-                            atLeastOneChecked = true;
-                        }
-                    });
-
-                    // if there are no checked children
-                    if (atLeastOneChecked === false) {
-                        // uncheck the parent
-                        $(this).parent().parent().parent().children('.icheck-item').not('.subIndicatorOption').icheck('unchecked');
-                    }
-                }
+            //check parent if any subcheckbox is checked, uncheck if none are checked
+            $('.subIndicatorOption > label > input').on('change', function() {
+                const indicatorID = this.getAttribute('gridparent');
+                const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"`));
+                const atLeastOneChecked = siblings.some(sib => sib.checked === true);
+                if(atLeastOneChecked) {
+                    $(`#indicators_${indicatorID}`).prop('checked', true);
+                } else $(`#indicators_${indicatorID}`).prop('checked', false);
             });
 
             $('.form').on('click', function() {
                 $(this).children('.formLabel').removeClass('buttonNorm');
-            	$(this).find('.formLabel>img').css('display', 'none');
-            	$(this).css({width: '100%'});
-            	$(this).children('div').css('display', 'block');
-            	$(this).children('div').children('.subIndicatorOption').css('display', 'block');
-            	$(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
-            		'font-weight': 'bold'});
+                $(this).find('.formLabel>img').css('display', 'none');
+                $(this).css({width: '100%'});
+                $(this).children('div').css('display', 'block');
+                $(this).children('div').children('.subIndicatorOption').css('display', 'block');
+                $(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
+                    'font-weight': 'bold'});
             });
 
             $.ajax({
-            	type: 'GET',
-            	url: './api/workflow/steps',
-            	dataType: 'json',
-            	success: function(res) {
+                type: 'GET',
+                url: './api/workflow/steps',
+                dataType: 'json',
+                success: function(res) {
                     buffer = '';
                     buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
                     for(let i in res) {
-                        buffer += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />';
-                        buffer += '<label class="checkable" style="width: 100px" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'"> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
+                        buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'">';
+                        buffer += '<input type="checkbox" class="leaf_check" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />'
+                        buffer += '<span class="leaf_check"></span> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
                     }
                     buffer += '<div id="legacyDependencies"></div>'; // backwards compat
                     buffer += '</div>';
@@ -575,18 +528,18 @@ function loadSearchPrereqs() {
                             buffer2 += '<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>';
 
                             // Option to retrieve Date Request Initiated / Resolved
-                            buffer2 += '<div id="option_dateCancelled" class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" />';
-                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateCancelled" title="Date request Cancelled"> Date Request Cancelled</label></div>';
-                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" />';
-                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateInitiated" title="Date request initiated"> Date Request Initiated</label></div>';
-                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" />';
-                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_dateResolved" title="Date request resolved"> Date Request Resolved</label></div>';
-                            buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" />';
-                            buffer2 += '<label class="checkable" style="width: 100px" for="indicators_resolvedBy" title="Resolved By"> Resolved By</label></div>';
+                            buffer2 += '<div id="option_dateCancelled" class="indicatorOption"><label class="checkable" for="indicators_dateCancelled" title="Date request Cancelled">';
+                            buffer2 += '<input type="checkbox" class="leaf_check" id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" /><span class="leaf_check"></span> Date Request Cancelled</label></div>';
+                            buffer2 += '<div class="indicatorOption"><label class="checkable" for="indicators_dateInitiated" title="Date request initiated">';
+                            buffer2 += '<input type="checkbox" class="leaf_check" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" /><span class="leaf_check"></span> Date Request Initiated</label></div>';
+                            buffer2 += '<div class="indicatorOption"><label class="checkable" for="indicators_dateResolved" title="Date request resolved">';
+                            buffer2 += '<input type="checkbox" class="leaf_check" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" /><span class="leaf_check"></span> Date Request Resolved</label></div>';
+                            buffer2 += '<div class="indicatorOption"><label class="checkable" for="indicators_resolvedBy" title="Resolved By">';
+                            buffer2 += '<input type="checkbox" class="leaf_check" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" /><span class="leaf_check"></span> Resolved By</label></div>';
 
                             for(let i in res) {
-                                buffer2 += '<div class="indicatorOption"><input type="checkbox" class="icheck" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" />';
-                                buffer2 += '<label class="checkable" style="width: 100px" for="indicators_depID_'+ res[i].dependencyID +'"> ' + res[i].description +'</label></div>';
+                                buffer2 += '<div class="indicatorOption"><label class="checkable" for="indicators_depID_'+ res[i].dependencyID +'">';
+                                buffer2 += '<input type="checkbox" class="leaf_check" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" /><span class="leaf_check"></span> ' + res[i].description +'</label></div>';
                             }
                             buffer2 += '</div>';
 
@@ -612,10 +565,9 @@ function loadSearchPrereqs() {
                                 $('#indicators_title').prop('checked', true);
                             }
 
-                            $('.icheck').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
                         }
                     });
-            	}
+                }
             });
         },
         cache: false
@@ -665,34 +617,34 @@ function editLabels_up(id) {
 }
 
 function editLabels() {
-	dialog.setTitle('Edit Labels');
+    dialog.setTitle('Edit Labels');
 
-	var buffer = '<table id="labelSorter">';
+    var buffer = '<table id="labelSorter">';
 
-	if (Object.keys(indicatorSort).length !== 0) {
-		resSelectList.sort(function(a, b) {
-			var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
-			var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
+    if (Object.keys(indicatorSort).length !== 0) {
+        resSelectList.sort(function(a, b) {
+            var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
+            var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
 
-		    if(sortA < sortB) {
-		        return -1
-		    }
-		    if(sortB < sortA) {
-		        return 1;
-		    }
-		    return 0;
-		});
-	}
+            if(sortA < sortB) {
+                return -1
+            }
+            if(sortB < sortA) {
+                return 1;
+            }
+            return 0;
+        });
+    }
 
-	for(let i in resSelectList) {
-		if(resIndicatorList[resSelectList[i]] != undefined) {
-			buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
-			buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
-			buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
+    for(let i in resSelectList) {
+        if(resIndicatorList[resSelectList[i]] != undefined) {
+            buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
+            buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
+            buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
             buffer += '<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 16px; margin: 0 2px;" /></td></tr>';
-		}
-	}
-	buffer += '</table>';
+        }
+    }
+    buffer += '</table>';
     dialog.setContent(buffer);
     dialog.show();
 
@@ -712,10 +664,10 @@ function editLabels() {
     });
 
     dialog.setSaveHandler(function() {
-    	$('#labelSorter tr').each(function(i) {
-    		var curID = this.id.substr(7);
-    		indicatorSort[curID] = i + 1;
-    	});
+        $('#labelSorter tr').each(function(i) {
+            var curID = this.id.substr(7);
+            indicatorSort[curID] = i + 1;
+        });
         var tmp = document.createElement('div');
         var temp;
         for(let i in resSelectList) {
@@ -724,7 +676,7 @@ function editLabels() {
                 tmp.innerHTML = temp;
                 temp = tmp.textContent || tmp.innerText || '';
                 temp = temp.replace(/[^\040-\176]/g, '');
-            	resIndicatorList[resSelectList[i]] = temp;
+                resIndicatorList[resSelectList[i]] = temp;
             }
         }
         gridColorData = Object.assign({ }, tempColorData);
@@ -803,7 +755,7 @@ function showJSONendpoint() {
     var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
     var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
-	dialog_message.setTitle('Data Endpoints');
+    dialog_message.setTitle('Data Endpoints');
     dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
                            + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
                            + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
@@ -818,7 +770,7 @@ function showJSONendpoint() {
                            + '</select>'
                            + '<span id="formatStatus" style="background-color:green; padding:5px 5px; color:white; display:none;"></span>'
                            + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
-			               + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
+                           + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
                            + '<br /><br />'
                            + '<fieldset>'
                            + '<legend>Options</legend>'
@@ -866,8 +818,8 @@ function showJSONendpoint() {
     $('#shortenLink').on('click', function() {
         $('#shortenLink').css('display', 'none');
         $('#exportPath').on('focus', function() {
-		    document.execCommand("selectAll", false, null);
-	    });
+            document.execCommand("selectAll", false, null);
+        });
         $.ajax({
             type: 'POST',
             url: './api/open/form/query',
@@ -891,7 +843,7 @@ function showJSONendpoint() {
     if (navigator.msSaveOrOpenBlob) {
         $('#msCompatMode').click();
     }
-	dialog_message.show();
+    dialog_message.show();
 }
 
 /**
@@ -899,26 +851,26 @@ function showJSONendpoint() {
 */
 
  function changeTitle(form_data, current_title) {
-	dialog.setContent('<label for="recordTitle"><b>Report Title</b></label><br/><input type="text" id="recordTitle" style="width: 250px" name="recordTitle" value="' + current_title + '" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
+    dialog.setContent('<label for="recordTitle"><b>Report Title</b></label><br/><input type="text" id="recordTitle" style="width: 250px" name="recordTitle" value="' + current_title + '" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
   //ie11 fix
   setTimeout(function () {
     dialog.show();
   }, 0);
     dialog.setSaveHandler(function() {
         $.ajax({
-        	type: 'POST',
-        	url: 'api/?a=form/' + form_data.recordID + '/title',
-        	data: {title: $('#recordTitle').val(),
+            type: 'POST',
+            url: 'api/?a=form/' + form_data.recordID + '/title',
+            data: {title: $('#recordTitle').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
-        	success: function(res) {
-        		if(res != null) {
+            success: function(res) {
+                if(res != null) {
                     $('#' + form_data.cellContainerID).fadeOut(400);
                     $('#' + form_data.cellContainerID).empty().html(res);
                     $('#' + form_data.cellContainerID).fadeIn(400);
 
-        		}
+                }
                 dialog.hide();
-        	}
+            }
         });
     });
 }
@@ -1039,8 +991,8 @@ function buildURLComponents(baseURL){
 var clicked = false;
 var newRecordID = 0;
 $(function() {
-	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
-	dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
+    dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
+    dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
     leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.renderUI();
@@ -1057,37 +1009,37 @@ $(function() {
 
     // Step 1
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').on('click', function() {
-    	$('#step_2').fadeIn(400);
-    	$('#step_1').slideUp(400);
+        $('#step_2').fadeIn(400);
+        $('#step_1').slideUp(400);
 
-    	// hide data fields that don't match forms selected by the user
-    	leafSearch.generateQuery();
-    	var tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
-    	var filteredCategories = [];
+        // hide data fields that don't match forms selected by the user
+        leafSearch.generateQuery();
+        var tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
+        var filteredCategories = [];
         var showOptionCancelled = false;
 
-    	for(let i in tTerms) {
-    		if(tTerms[i].id === 'categoryID'
-    			&& tTerms[i].operator === '=') {
-    			filteredCategories.push(tTerms[i].match);
-    		}
+        for(let i in tTerms) {
+            if(tTerms[i].id === 'categoryID'
+                && tTerms[i].operator === '=') {
+                filteredCategories.push(tTerms[i].match);
+            }
 
             // hide dateCancelled option unless it's being searched for
             if(tTerms[i].id === 'stepID'
-    			&& tTerms[i].operator === '='
+                && tTerms[i].operator === '='
                 && tTerms[i].match === 'deleted') {
-    			showOptionCancelled = true;
-    		}
-    	}
-    	if(filteredCategories.length > 0) {
-    		$('.category').css('display', 'none');
-    		for(let i in filteredCategories) {
-    			$('.' + filteredCategories[i]).css('display', 'inline');
-    		}
-    	}
-    	else {
-    		$('.category').css('display', 'inline');
-    	}
+                showOptionCancelled = true;
+            }
+        }
+        if(filteredCategories.length > 0) {
+            $('.category').css('display', 'none');
+            for(let i in filteredCategories) {
+                $('.' + filteredCategories[i]).css('display', 'inline');
+            }
+        }
+        else {
+            $('.category').css('display', 'inline');
+        }
 
         if(showOptionCancelled) {
             $('#option_dateCancelled').css('display', 'inline');
@@ -1117,7 +1069,7 @@ $(function() {
             leafSearch.generateQuery();
 
             if(!isSearchingDeleted(leafSearch)) {
-            	leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
+                leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
             }
             leafSearch.getLeafFormQuery().join('service');
             headers = [];
@@ -1126,9 +1078,9 @@ $(function() {
             leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
         }
 
-    	selectedIndicators = [];
-    	resSelectList = [];
-    	$('.icheck:checked').each(function() {
+        selectedIndicators = [];
+        resSelectList = [];
+        $('.leaf_check:checked').each(function() {
             let gridParent = this.attributes.gridparent?.value;
             if (gridParent !== undefined) {
                 let dest = resSelectList.indexOf(gridParent);
@@ -1146,9 +1098,9 @@ $(function() {
             } else {
                 resSelectList.push(this.value);
             }
-    	});
+        });
 
-    	resSelectList.sort(function(a, b) {
+        resSelectList.sort(function(a, b) {
             var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
             var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
 
@@ -1161,7 +1113,7 @@ $(function() {
             return 0;
         });
 
-    	for(let i in resSelectList) {
+        for(let i in resSelectList) {
             let temp = {};
             if (Array.isArray(resSelectList[i])) {
                 temp.indicatorID = resSelectList[i][0];
@@ -1186,12 +1138,12 @@ $(function() {
                 addHeader(temp.indicatorID);
             }
             selectedIndicators.push(temp);
-    	}
-    	headers.sort(sortHeaders);
-    	selectedIndicators.sort(sortHeaders);
-    	grid.setHeaders(headers);
+        }
+        headers.sort(sortHeaders);
+        selectedIndicators.sort(sortHeaders);
+        grid.setHeaders(headers);
 
-    	leafSearch.getLeafFormQuery().onSuccess(function(res) {
+        leafSearch.getLeafFormQuery().onSuccess(function(res) {
             grid.setDataBlob(res);
             // this replaces grid.loadData()
             var tGridData = [];
@@ -1209,7 +1161,7 @@ $(function() {
                 for (let i in res) {
                     recordIDs += res[i].recordID + ',';
                 }
-            	grid.loadData(recordIDs);
+                grid.loadData(recordIDs);
             }
             let gridResults = grid.getCurrentData();
             let filteredGridResults = gridResults.filter(function(r) {
@@ -1236,11 +1188,11 @@ $(function() {
             clicked = false; //global to reduce dblclicks
         });
 
-    	// get data
-    	leafSearch.getLeafFormQuery().execute();
+        // get data
+        leafSearch.getLeafFormQuery().execute();
 
-    	// create save link once
-    	if(!extendedToolbar) {
+        // create save link once
+        if(!extendedToolbar) {
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
@@ -1252,49 +1204,49 @@ $(function() {
 
 
             $('#editReport').on('click', function() {
-            	grid.stop();
-            	isNewQuery = true;
+                grid.stop();
+                isNewQuery = true;
                 $('#reportTitleDisplay').css('display', 'none');
                 $('#reportTitle').css('display', 'block');
                 $('#newRequestButton').css('display', 'none');
-            	loadSearchPrereqs();
+                loadSearchPrereqs();
                 $('#saveLinkContainer').slideUp(700);
                 $('#results').fadeOut(700);
                 $('#step_1').fadeIn(700);
             });
-    	}
+        }
 
-    	if($.isEmptyObject(resIndicatorList)) {
-    		$('#editLabels').css('display', 'none');
-    	}
-    	else {
-    		$('#editLabels').css('display', 'inline');
-    	}
+        if($.isEmptyObject(resIndicatorList)) {
+            $('#editLabels').css('display', 'none');
+        }
+        else {
+            $('#editLabels').css('display', 'inline');
+        }
         let leafSearchQuery = leafSearch.getLeafFormQuery().getQuery();
         checkIfOneTypeSearchedAndUpdate(leafSearchQuery.terms);
 
         urlQuery = LZString.compressToBase64(JSON.stringify(leafSearchQuery));
-    	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
+        urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
 
-    	if(isNewQuery) {
-    		baseURL = '';
-    		if(window.location.href.indexOf('&') === -1) {
-    			baseURL = window.location.href;
-    		}
-    		else {
-    			baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
-    		}
+        if(isNewQuery) {
+            baseURL = '';
+            if(window.location.href.indexOf('&') === -1) {
+                baseURL = window.location.href;
+            }
+            else {
+                baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
+            }
             buildURLComponents(baseURL);
 
             $('#reportTitle').on('keyup', function() {
                 buildURLComponents(baseURL);
             });
-    	}
-    	else {
-    		url = window.location.href;
-    	}
-    	//reapply colors if user has moved away from reports view
-    	if(Object.keys(gridColorData).length !== 0){
+        }
+        else {
+            url = window.location.href;
+        }
+        //reapply colors if user has moved away from reports view
+        if(Object.keys(gridColorData).length !== 0){
             updateHeaderColors(gridColorData);
         }
     });
@@ -1324,9 +1276,9 @@ $(function() {
             });
         });
         try {
-        	if(<!--{$version}--> >= 2) {
-        	    let query = '<!--{$query|escape:"html"}-->';
-        	    let indicators = '<!--{$indicators|escape:"html"}-->';
+            if(<!--{$version}--> >= 2) {
+                let query = '<!--{$query|escape:"html"}-->';
+                let indicators = '<!--{$indicators|escape:"html"}-->';
                 let colors = '<!--{$colors|escape:"html"}-->';
                 query = query.replace(/ /g, '+');
                 indicators = indicators.replace(/ /g, '+');
@@ -1341,14 +1293,14 @@ $(function() {
                     gridColorData = queryColors;
                     updateHeaderColors(gridColorData);
                 }
-        	}
-        	else {
+            }
+            else {
                 inQuery = JSON.parse(atob('<!--{$query|escape:"html"}-->'));
                 t_inIndicators = JSON.parse(atob('<!--{$indicators|escape:"html"}-->'));
-        	}
-        	inIndicators = [];
-        	for(let i in t_inIndicators) {
-        		var temp = {};
+            }
+            inIndicators = [];
+            for(let i in t_inIndicators) {
+                var temp = {};
                 if($.isNumeric(t_inIndicators[i].indicatorID)) {
                     // add selected columns to payload in case of grid indicator
                     if (Array.isArray(t_inIndicators[i].cols)) {
@@ -1363,18 +1315,18 @@ $(function() {
                 else {
                     addHeader(t_inIndicators[i].indicatorID);
                 }
-        	}
-        	leafSearch.getLeafFormQuery().setQuery(inQuery);
-        	if(!isSearchingDeleted(leafSearch)) {
+            }
+            leafSearch.getLeafFormQuery().setQuery(inQuery);
+            if(!isSearchingDeleted(leafSearch)) {
                 inQuery.terms.pop();
-        	}
-        	leafSearch.renderPreviousAdvancedSearch(inQuery.terms);
-        	headers = headers.concat(inIndicators);
-        	$('#step_1').slideUp(700);
-        	$('#generateReport').click();
+            }
+            leafSearch.renderPreviousAdvancedSearch(inQuery.terms);
+            headers = headers.concat(inIndicators);
+            $('#step_1').slideUp(700);
+            $('#generateReport').click();
         }
         catch(err) {
-        	alert('Invalid report');
+            alert('Invalid report');
         }
     }
     if(typeof atob === 'function') {
@@ -1397,9 +1349,9 @@ $(function() {
         });
     }
     if(typeof window.history.pushState !== 'function') {
-    	window.history.pushState = function(a, b, c) {
+        window.history.pushState = function(a, b, c) {
 
-    	}
+        }
     }
 });
 </script>
