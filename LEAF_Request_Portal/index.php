@@ -51,6 +51,8 @@ function customTemplate($tpl)
 }
 
 $t_login->assign('name', XSSHelpers::xscrub($login->getName()));
+$t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
+$t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 $t_menu->assign('is_admin', $login->checkGroup(1));
 
 $main->assign('useUI', false);

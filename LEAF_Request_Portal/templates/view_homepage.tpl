@@ -1,3 +1,8 @@
+<script>
+    if(navigator.userAgent.indexOf("Trident") != -1) {
+        $('#body').html('<h1>Please use Microsoft Edge or Google Chrome to access this site.</h1>');
+    }
+</script>
 <div class="menu2" style="width: 315px; float: left">
 
 <a href="?a=newform" role="button">
