@@ -1,3 +1,9 @@
+<style>
+    table th {
+        background-color: lightblue;
+    }
+</style>
+
 <div class="leaf-center-content">
 
     <!-- LEFT SIDE NAV -->
@@ -372,8 +378,8 @@ function getGroupList() {
         url: "../api/group/members",
         dataType: "json",
         success: function(res) {
-            $('#groupList').html('');
             console.log(res);
+            $('#groupList').html('');
             for(let i in res) {
             	// only show explicit groups, not ELTs
             	if(res[i].parentGroupID == null && res[i].groupID != 1) {
@@ -404,32 +410,43 @@ function getGroupList() {
                                     '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
                                 
                                 $('#employees').html('<div id="employee_table" style="display: table-header-group"></div>');
-                                $('#employee_table').html('<table style="border: 1px solid; border-collapse: collapse;"><thead><tr><th style="border: 1px solid">Name</th><th style="border: 1px solid">Username</th><th style="border: 1px solid">Backups</th><th style="border: 1px solid">Local</th><th style="border: 1px solid">Regional</th><th style="border: 1px solid">Actions</th></tr></thead><tbody>');
+                                let employee_table = '<br/><table style="border: 1px solid; border-collapse: collapse;"><thead><tr><th style="border: 1px solid">Name</th><th style="border: 1px solid">Username</th><th style="border: 1px solid">Backups</th><th style="border: 1px solid">Local</th><th style="border: 1px solid">Regional</th><th style="border: 1px solid">Actions</th></tr></thead><tbody>';
                                 let counter = 0;
                                 for(let i in res) {
                                     // Check for active members to list
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
-                                            // let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem leaf-remove-button" id="removeMember_' + counter + '">REMOVE</a>';
-                                            // $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Lname) + ', ' + toTitleCase(res[i].Fname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
                                             let employeeName = `<td style="border: 1px solid; font-size: 0.7em">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</td>`;
                                             let employeeUserName = `<td style="border: 1px solid; font-size: 0.7em">${res[i].userName}</td>`;
                                             let backups = `<td style="border:1px solid; font-size: 0.7em">`;
-                                            let isLocal = `<td style="border: 1px solid; font-size: 0.7em">${res[i].locallyManaged > 0}</td>`;
-                                            let isRegional = `<td style="border: 1px solid; font-size: 0.7em">${res[i].locallyManaged === 0}</td>`;
-                                            let actions = `<td style="border: 1px solid; font-size: 0.7em"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.7em">Remove</button>`;
+                                            let isLocal = `<td style="border: 1px solid; font-size: 0.7em; text-align: center;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1rem;">&#10004;</span>' : ''}</td>`;
+                                            let isRegional = `<td style="border: 1px solid; font-size: 0.7em; text-align: center;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1rem;">&#10004;</span>' : ''}</td>`;
+                                            let actions = `<td style="border: 1px solid; font-size: 0.7em"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.7em" title="Remove this user from this group.">X</button>`;
 
                                             // Check for Backups
                                             for (let j in res) {
                                                 if (res[i].userName == res[j].backupID) {
-                                                    backups += ('<div class="leaf-font0-8rem">' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname));
+                                                    backups += ('<div class="leaf-font0-8rem">' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + '\n');
                                                 }
                                             }
                                             // close of actions and backups column
                                             backups += '</td>';
                                             actions += '</td>';
 
-                                            $('#employee_table').append(`<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`);
+                                            employee_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
+                                            counter++;
+                                        }
+                                    }
+                                }
+                                employee_table += '</tbody></table>';
+                                // generate formatted table
+                                $('#employee_table').html(employee_table);
+
+                                // add functionality to action buttons after table generation
+                                counter = 0;
+                                for (let i in res) {
+                                    if (res[i].active == 1) {
+                                        if (res[i].backupID == null) {
                                             $('#removeMember_' + counter).on('click', function(userID) {
                                                 return function () {
                                                     removeMember(groupID, userID);
@@ -440,16 +457,12 @@ function getGroupList() {
                                             $('#viewBackups_' + counter).on('click', function(userID) {
                                                 return function() {
                                                     console.log(userID);
-                                                    return;
                                                 }
                                             }(res[i].userName));
-
                                             counter++;
                                         }
                                     }
                                 }
-                                $('#employee_table').append('</tbody></table>');
-                                console.log($('#employees').html());
 
                                 $('#deleteGroup_' + groupID).on('click', function() {
                                     dialog_confirm.setContent('Are you sure you want to delete this group?');

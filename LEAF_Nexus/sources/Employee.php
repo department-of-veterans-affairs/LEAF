@@ -35,6 +35,8 @@ class Employee extends Data
 
     private $tableName = 'employee';    // Table of employee contact info
 
+    private $groupTableName = 'relation_group_employee';
+
     private $limit = 'LIMIT 3';       // Limit number of returned results "TOP 100"
 
     private $sortBy = 'lastName';          // Sort by... ?

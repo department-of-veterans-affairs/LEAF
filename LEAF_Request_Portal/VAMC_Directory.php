@@ -116,9 +116,10 @@ class VAMC_Directory
         return $data;
     }
 
-    public function lookupLogin($login, $onlyGetName = false)
+    public function lookupLogin($login, $onlyGetName = false, $getGroups = false)
     {
         $res = $this->Employee->lookupLogin($login);
+        $groups = null;
         $data = array();
         foreach ($res as $result)
         {
@@ -126,6 +127,11 @@ class VAMC_Directory
             $tdata = $result;
             $tdata['Lname'] = $result['lastName'];
             $tdata['Fname'] = $result['firstName'];
+
+            if ($getGroups) 
+            {
+                $tdata['groups'] = $this->Employee->listGroups($result['empUID']);
+            }
 
             if (!$onlyGetName)
             {
