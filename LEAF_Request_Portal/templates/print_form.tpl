@@ -601,7 +601,7 @@ function admin_changeForm() {
                 	var temp = res[<!--{$recordID|strip_tags|escape}-->].categoryNamesUnabridged;
                 	$('label.checkable').each(function() {
                 		for(var i in temp) {
-                            if($(this).html() == temp[i]) {
+                            if($(this).text() === temp[i]) {
                                 $('#' + $(this).attr('for')).prop('checked', true);
                             }
                 		}
