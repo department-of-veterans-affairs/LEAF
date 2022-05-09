@@ -1,6 +1,11 @@
 {strip}<!DOCTYPE html>
 <html>
 <head>
+    <script>
+    if(navigator.userAgent.indexOf("Trident") != -1) {
+        alert('Please use Microsoft Edge or Google Chrome to access this site.');
+    }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {if $tabText != ''}
         <title>{$tabText} - {$title} | {$city}</title>

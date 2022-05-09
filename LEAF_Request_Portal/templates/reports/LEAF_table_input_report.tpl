@@ -75,7 +75,7 @@ function populateIndicators(categoryID)
                 const format = data[i].format;
                 if (format.match(/^grid/) && data[i].isDisabled === 0) {
                     anyTables = true;
-                    $('select#dataField').append($('<option />').val(data[i].indicatorID).text(data[i].name));
+                    $('select#dataField').append($('<option />').val(data[i].indicatorID).text(data[i].name.replace( /(<([^>]+)>)/ig, '').replace('&nbsp;', ' ')));
                     indicatorFormats[data[i].indicatorID] = JSON.parse(format.substring(5));
                 }
             }

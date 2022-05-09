@@ -150,6 +150,9 @@ dialogController.prototype.isComplete = function(isSubmit) {
 			} else {
 				if (this.requirementSubmitErrors[item] != undefined) {
 					this.requirementSubmitErrors[item]();
+                    if (this.requirementErrors[item] != undefined) {
+                        this.requirementErrors[item]();
+                    }
 				} else {
 					alert('Required field missing. Please check your input.');
 				}
