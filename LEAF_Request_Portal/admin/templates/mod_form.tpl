@@ -1519,8 +1519,10 @@ function getForm(indicatorID, series) {
         let calls = [];
         let nameChanged = (indicatorEditing.name || "") !== $('#name').val();
         let options = '';
-        if (indicatorEditing?.options) indicatorEditing.options.forEach(o => options += `\n${o}`);
-        let formatChanged = (indicatorEditing.format + options || "") !== $('#format').val();
+        if (indicatorEditing?.options) { 
+            indicatorEditing.options.forEach(o => options += `\n${o}`);
+        }
+        let formatChanged = (indicatorEditing.format || "") + options !== $('#format').val();
         let descriptionChanged = (indicatorEditing.description || "") !== $('#description').val();
         let defaultChanged = (indicatorEditing.default || "") !== $('#default').val();
         let requiredChanged = (indicatorEditing.required || "") !== requiredIndicator.toString();
