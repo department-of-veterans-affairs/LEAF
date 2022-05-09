@@ -421,7 +421,10 @@ function getGroupList() {
                                             let backups = `<td style="border:1px solid; font-size: 0.7em">`;
                                             let isLocal = `<td style="border: 1px solid; font-size: 0.7em; text-align: center;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1rem;">&#10004;</span>' : ''}</td>`;
                                             let isRegional = `<td style="border: 1px solid; font-size: 0.7em; text-align: center;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1rem;">&#10004;</span>' : ''}</td>`;
-                                            let actions = `<td style="border: 1px solid; font-size: 0.7em"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.7em" title="Remove this user from this group.">X</button>`;
+                                            let removeButton = `<td style="border: 1px solid; font-size: 0.7em; text-align: center;"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.7em; display: block; margin: auto;" title="Remove this user from this group">Remove</button>`;
+                                            // let addToNexusButton = `<button id="addNexusMember_${counter}" class="usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.7rem; display: block; margin: auto;" title="Add this user to Nexus group">Add to Nexus</button>`;
+                                            // let actions = `${removeButton}${!res[i].regionallyManaged ? addToNexusButton : ''}`;
+                                            let actions = `${removeButton}`;
 
                                             // Check for Backups
                                             for (let j in res) {
