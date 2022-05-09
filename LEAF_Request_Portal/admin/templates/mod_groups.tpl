@@ -378,7 +378,6 @@ function getGroupList() {
         url: "../api/group/members",
         dataType: "json",
         success: function(res) {
-            console.log(res);
             $('#groupList').html('');
             for(let i in res) {
             	// only show explicit groups, not ELTs
@@ -455,12 +454,6 @@ function getGroupList() {
                                                     removeMember(groupID, userID);
                                                     dialog.hide();
                                                 };
-                                            }(res[i].userName));
-
-                                            $('#viewBackups_' + counter).on('click', function(userID) {
-                                                return function() {
-                                                    console.log(userID);
-                                                }
                                             }(res[i].userName));
                                             counter++;
                                         }

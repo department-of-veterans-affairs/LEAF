@@ -99,9 +99,7 @@ class Group
                     }
                     foreach ($dirRes[0]['groups'] as $group)
                     {
-                        if ($groupID == $group['groupID']) {
-                            $dirRes[0]['regionallyManaged'] = true;
-                        }
+                        $dirRes[0]['regionallyManaged'] = $groupID == $group['groupID'];
                     }
                     if($member['locallyManaged'] == 1) {
                         $dirRes[0]['backupID'] = null;
