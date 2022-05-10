@@ -2,8 +2,8 @@ version: "3.7"
 
 services:
   leaf-portal-php-8:
-    image: leaf-php-8
-    container_name: leaf-8
+    image: leaf-fpm
+    container_name: leaf-fpm
     env_file: 
       - ./env_files/globals_local.env
       - ./env_files/secrets.env
@@ -14,34 +14,46 @@ services:
         - BUILD_UID=${BUILD_UID}
         - SMTP_HOST=smtp.leaf-portal
         - MAIL_HUB=smtp.leaf-portal
-    # ports:
-    #   - 9080:80
-    #   - 9443:443
     volumes:
       # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
       - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
       - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
       - ../health_checks:/var/www/html/health_checks
-      - ../libs:/var/www/html/libs  # temp step.  Will shift to below later
+      # - ../libs:/var/www/html/libs  # temp step.  Will shift to below later
       # - leaf-lib:/var/www/html/libs
       # - ../test:/var/www/html/test
       # - ../test_server:/var/www/html/test_server
       # - ./docker/php/conf.d/xdebug.ini  # Not sure what this is even for.
     networks:
-      - traefik
+      # - traefik
       - leaf-sql
       - leaf
     environment:
       - REMOTE_USER=${REMOTE_USER}
       - APACHE_RUN_USER=build_user
-    
+
+  leaf-nginx:
+    image: leaf-nginx
+    container_name: leaf-nginx
+    build:
+      context: ../
+      dockerfile: docker/nginx/leaf_nginx.dockerfile
+    volumes:
+      # - ./nginx/src:/var/www/html
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 9080:8080
+    networks:
+      - traefik
+      - leaf    
     labels:          
       - "traefik.enable=true"
       - "traefik.docker.network=traefik"
-      - "traefik.http.services.leaf_8.loadbalancer.server.port=80"
+      - "traefik.http.services.leaf_8.loadbalancer.server.port=8080"
       - "traefik.http.routers.leaf_8.rule=Host(`leaf-8.dev.vovina-tisa.net`)"
       - "traefik.http.routers.leaf_8.entrypoints=web, web-secure"
       - "traefik.http.routers.leaf_8.tls.certresolver=dev_http"
+    
 
   smtp.leaf-portal:
     image: pelentan/fake-smtp:1.0
@@ -89,12 +101,16 @@ services:
     restart: 'always'
     networks:
       - leaf-sql
+    volumes:
+      - leaf-mysql-data:/var/lib/mysql
 
 volumes:
   leaf-php-data:
     external: true
   leaf-lib:
     external: true
+  leaf-mysql-data:
+    external: false
 
 networks:
   leaf-sql:
