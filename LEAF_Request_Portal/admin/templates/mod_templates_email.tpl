@@ -141,13 +141,19 @@
                     Compare to Original
                 </button>
 
+                <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" id="btn_history" onclick="viewHistory()">
+                    View History
+                </button>
+
             </div>
         </aside>
     </div>
 
 </div>
 
+<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script>
 
@@ -191,7 +197,7 @@ function save() {
             emailCcFile: emailCcData,
             emailCcFileName: currentEmailCcFile
         },
-		url: '../api/system/emailtemplates/_' + currentFile,
+		url: '../api/emailTemplates/_' + currentFile,
 		success: function(res) {
 			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
@@ -224,7 +230,7 @@ function restore() {
 	dialog.setSaveHandler(function() {
 		$.ajax({
 	        type: 'DELETE',
-	        url: '../api/system/emailtemplates/_' + currentFile + '&subjectFileName=' + currentSubjectFile + '&emailToFileName='+currentEmailToFile+'&emailCcFileName='+currentEmailCcFile+'&CSRFToken=<!--{$CSRFToken}-->',
+	        url: '../api/emailTemplates/_' + currentFile + '&subjectFileName=' + currentSubjectFile + '&emailToFileName='+currentEmailToFile+'&emailCcFileName='+currentEmailCcFile+'&CSRFToken=<!--{$CSRFToken}-->',
 	        success: function() {
 	            loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
 	        }
@@ -251,7 +257,7 @@ function compare() {
     // Get default email template fields
     $.ajax({
         type: 'GET',
-        url: '../api/system/emailtemplates/_' + currentFile + '/standard',
+        url: '../api/emailTemplates/_' + currentFile + '/standard',
         success: function(standard) {
             // Set body changed and default content to show comparison
             codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
@@ -352,7 +358,7 @@ function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
 	}
 	$.ajax({
 		type: 'GET',
-		url: '../api/system/emailtemplates/_' + file,
+		url: '../api/emailTemplates/_' + file,
 		success: function(res) {
 		    currentFileContent = res.file;
 		    currentSubjectContent = res.subjectFile;
@@ -437,6 +443,29 @@ function initEditor () {
     updateEditorSize();
 }
 
+function viewHistory() {
+    dialog_message.setContent('');
+    dialog_message.setTitle('Access Template History');
+    dialog_message.show();
+    dialog_message.indicateBusy();
+
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type=emailTemplate&id=' + currentFile,
+        dataType: 'text',
+        success: function(res) {
+            dialog_message.setContent(res);
+            dialog_message.indicateIdle();
+            dialog_message.show();
+        },
+        fail: function() {
+            dialog_message.setContent('Loading failed.');
+            dialog_message.show();
+        },
+        cache: false
+    });
+}
+
 /**
  * Actual start of page execution
  */
@@ -454,7 +483,7 @@ $(function() {
     // Get initial email tempates for page from database
 	$.ajax({
 		type: 'GET',
-		url: '../api/system/emailtemplates',
+		url: '../api/emailTemplates',
  		success: function(res) {
 			var buffer = '<ul class="leaf-ul">';
 			for(var i in res) {
@@ -483,5 +512,6 @@ $(function() {
         el.CodeMirror.refresh();
     });
 
+    dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
 });
 </script>
