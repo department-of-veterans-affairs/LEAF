@@ -54,17 +54,17 @@
                 <!--{if is_array($option)}-->
                     <!--{assign var='option' value=$option[0]}-->
                     <!--{if $option == $indicator.data}-->
-                        <br /><input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" checked="checked" />
+                        <br /><input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" checked="checked" />
                         <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->"><!--{$option}--></label>
                     <!--{else}-->
-                        <br /><input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" />
+                        <br /><input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" />
                         <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->"><!--{$option}--></label>
                     <!--{/if}-->
                 <!--{elseif $option == $indicator.data}-->
-                    <br /><input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" checked="checked" />
+                    <br /><input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" checked="checked" />
                     <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->"><!--{$option}--></label>
                 <!--{else}-->
-                    <br /><input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="leaf_check<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" />
+                    <br /><input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" />
                     <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->"><!--{$option}--></label>
                 <!--{/if}-->
                 <!--{counter print=false}-->

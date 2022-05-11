@@ -569,7 +569,7 @@ function admin_changeForm() {
             var categories = '';
             for(var i in res) {
             	categories += '<label class="checkable" for="category_'+ res[i].categoryID +'">';
-                categories += '<input type="checkbox" class="leaf_check admin_changeForm" id="category_'+ res[i].categoryID +'" name="categories[]" value="'+ res[i].categoryID +'" />';
+                categories += '<input type="checkbox" class="icheck admin_changeForm" id="category_'+ res[i].categoryID +'" name="categories[]" value="'+ res[i].categoryID +'" />';
                 categories += '<span class="leaf_check"></span>'+ res[i].categoryName +'</label>';
             }
             $('#changeForm').html(categories);

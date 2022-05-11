@@ -34,7 +34,9 @@ input {
     border: 1px solid gray;
     padding: 4px;
 }
-input[class^="leaf_check"] {
+/*keeping prev class names.  used as handle in many form advanced options*/
+input[class^="icheck"], 
+input[class^="ischecked"] { 
     opacity: 0;
     margin-right: 0.2em;
     cursor: pointer;
@@ -56,7 +58,7 @@ span.leaf_check {
 span.leaf_check:hover, span.leaf_check:focus, span.leaf_check:active {
     border: 2px solid #47e;
 }
-input[type="radio"][class^="leaf_check"] ~ span.leaf_check {
+input[type="radio"][class^="icheck"] ~ span.leaf_check {
     border-radius: 50%;
 }
 span.leaf_check::after {
@@ -73,12 +75,14 @@ span.leaf_check::after {
     transform: rotate(40deg);
     display: none;
 }
-input[class^="leaf_check"]:checked ~ span.leaf_check {
+input[class^="icheck"]:checked ~ span.leaf_check,
+input[class^="ischecked"]:checked ~ span.leaf_check {
     background-color: #47e;
     border: 1px solid #47e;
     opacity: 1;
 }
-input[class^="leaf_check"]:checked ~ span.leaf_check::after {
+input[class^="icheck"]:checked ~ span.leaf_check::after,
+input[class^="ischecked"]:checked ~ span.leaf_check::after {
     display: block;
 }
 
