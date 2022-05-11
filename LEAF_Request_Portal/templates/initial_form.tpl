@@ -109,8 +109,8 @@ $(function() {
         <div style="text-align: left; padding: 8px"><span>
           <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
     <!--{foreach from=$categories item=category}-->
-        <label class="checkable" style="float: none" for="num<!--{$category.categoryID|strip_tags}-->">
-        <input name="num<!--{$category.categoryID|strip_tags|escape}-->" type="checkbox" class="ischecked" id="num<!--{$category.categoryID|strip_tags}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}--> />
+        <label class="checkable leaf_check" style="float: none" for="num<!--{$category.categoryID|strip_tags}-->">
+        <input name="num<!--{$category.categoryID|strip_tags|escape}-->" type="checkbox" class="ischecked leaf_check" id="num<!--{$category.categoryID|strip_tags}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}--> />
         <span class="leaf_check"> </span><!--{$category.categoryName|sanitize}-->
             <!--{if $category.categoryDescription != ''}-->
             &nbsp;(<!--{$category.categoryDescription|sanitize}-->)

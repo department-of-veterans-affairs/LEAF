@@ -35,8 +35,9 @@ input {
     padding: 4px;
 }
 /*keeping prev class names.  used as handle in many form advanced options*/
-input[class^="icheck"], 
-input[class^="ischecked"] { 
+/*additional class name leaf_check used to avoid hitting custom files*/
+input[class*="icheck"][class*="leaf_check"], 
+input[class*="ischecked"][class*="leaf_check"] { 
     opacity: 0;
     margin-right: 0.2em;
     cursor: pointer;
@@ -58,7 +59,7 @@ span.leaf_check {
 span.leaf_check:hover, span.leaf_check:focus, span.leaf_check:active {
     border: 2px solid #47e;
 }
-input[type="radio"][class^="icheck"] ~ span.leaf_check {
+input[type="radio"][class*="icheck"][class*="leaf_check"] ~ span.leaf_check {
     border-radius: 50%;
 }
 span.leaf_check::after {
@@ -75,14 +76,14 @@ span.leaf_check::after {
     transform: rotate(40deg);
     display: none;
 }
-input[class^="icheck"]:checked ~ span.leaf_check,
-input[class^="ischecked"]:checked ~ span.leaf_check {
+input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check,
+input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check {
     background-color: #47e;
     border: 1px solid #47e;
     opacity: 1;
 }
-input[class^="icheck"]:checked ~ span.leaf_check::after,
-input[class^="ischecked"]:checked ~ span.leaf_check::after {
+input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check::after,
+input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after {
     display: block;
 }
 
@@ -1105,6 +1106,10 @@ button.buttonNorm {
 }
 
 .checkable {
+    cursor: pointer;
+}
+/* additional class added to avoid hitting custom files*/
+.checkable.leaf_check {
     cursor: pointer;
     position: relative;
     display:flex;
