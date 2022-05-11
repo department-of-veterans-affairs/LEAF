@@ -35,8 +35,11 @@ class InboxController extends RESTfulResponse
             return $inbox->getInbox($args[0]);
         });
 
+        // TODO: This endpoint should be removed. Implementations of this in prod will need to be replaced
+        // with inbox/dependency/[text]?masquerade=nonAdmin before this can be deleted.
         $this->index['GET']->register('inbox/dependency/[text]/nonadmin', function ($args) use ($inbox) {
-            return $inbox->getInbox($args[0], true);
+            $_GET['masquerade'] = 'nonAdmin';
+            return $inbox->getInbox($args[0]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);

@@ -32,6 +32,7 @@
 
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
 
@@ -71,7 +72,7 @@ function loadWorkflow(recordID, prefixID) {
 }
 
 function prepareEmail(link) {
-	mailtoHref = 'mailto:?subject=Report%20for&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
+    mailtoHref = 'mailto:?subject=Report%20for&body=Report%20Link:%20'+ encodeURIComponent(link) +'%0A%0A';
     $('body').append($('<iframe id="ie9workaround" style="display:none;" src="' + mailtoHref + '"/>'));
 }
 
@@ -83,9 +84,9 @@ let categoryID = 'strCatID';
 
 function addHeader(column) {
     let today = new Date();
-	switch(column) {
-	    case 'title':
-	    	headers.push({
+    switch(column) {
+        case 'title':
+            headers.push({
                 name: 'Title',
                 indicatorID: 'title',
                 callback: function(data, blob) {
@@ -94,8 +95,8 @@ function addHeader(column) {
                         changeTitle(data, $('#'+data.cellContainerID).html());
                 });
             }});
-		    break;
-	    case 'service':
+            break;
+        case 'service':
             headers.push({
                 name: 'Service',
                 indicatorID: 'service',
@@ -104,8 +105,8 @@ function addHeader(column) {
                 $('#'+data.cellContainerID).html(blob[data.recordID].service);
             }});
             break;
-	    case 'type':
-	    	leafSearch.getLeafFormQuery().join('categoryName');
+        case 'type':
+            leafSearch.getLeafFormQuery().join('categoryName');
             headers.push({
                 name: 'Type',
                 indicatorID: 'type',
@@ -119,8 +120,8 @@ function addHeader(column) {
                      $('#'+data.cellContainerID).html(types);
             }});
             break;
-	    case 'status':
-	    	leafSearch.getLeafFormQuery().join('status');
+        case 'status':
+            leafSearch.getLeafFormQuery().join('status');
             headers.push({
                 name: 'Current Status',
                 indicatorID: 'status',
@@ -135,10 +136,10 @@ function addHeader(column) {
             }});
             break;
         case 'initiator':
-        	leafSearch.getLeafFormQuery().join('initiatorName');
+            leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
-            	$('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
+                $('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
             }});
             break;
         case 'dateCancelled':
@@ -193,14 +194,14 @@ function addHeader(column) {
             }});
             break;
         case 'actionButton':
-        	headers.unshift({
+            headers.unshift({
                 name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
                 $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
                 $('#'+data.cellContainerID).on('click', function() {
                     loadWorkflow(data.recordID, grid.getPrefixID());
                 });
-        	}});
-        	break;
+            }});
+            break;
         case 'action_history':
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({
@@ -296,31 +297,31 @@ function addHeader(column) {
                 }
             });
             break;
-	    default:
-	    	if(column.substr(0, 6) === 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
-	    		depID = column.substr(6);
-	    		tDepHeader[depID] = 0;
-	    		leafSearch.getLeafFormQuery().join('recordsDependencies');
-	            headers.push({
+        default:
+            if(column.substr(0, 6) === 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
+                depID = column.substr(6);
+                tDepHeader[depID] = 0;
+                leafSearch.getLeafFormQuery().join('recordsDependencies');
+                headers.push({
                     name: 'Checkpoint Date',
                     indicatorID: column,
                     editable: false,
                     callback: function(depID) {
-	            	return function(data, blob) {
-	                    if(blob[data.recordID].recordsDependencies != undefined
-	                    	&& blob[data.recordID].recordsDependencies[depID] != undefined) {
-	                        var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
-	                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-	                        if(tDepHeader[depID] == 0) {
-	                        	headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
-	                            $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
-	                            $('#Vheader_' + column).html(blob[data.recordID].recordsDependencies[depID].description);
-	                        	tDepHeader[depID] = 1;
-	                        }
-	                    }
-	            	}
+                    return function(data, blob) {
+                        if(blob[data.recordID].recordsDependencies != undefined
+                            && blob[data.recordID].recordsDependencies[depID] != undefined) {
+                            var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
+                            $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                            if(tDepHeader[depID] == 0) {
+                                headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
+                                $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
+                                $('#Vheader_' + column).html(blob[data.recordID].recordsDependencies[depID].description);
+                                tDepHeader[depID] = 1;
+                            }
+                        }
+                    }
                 }(depID)});
-	    	}
+            }
             if(column.substr(0, 7) === 'stepID_') { // approval dates based on workflow steps
                 stepID = column.substr(7);
                 tStepHeader[stepID] = 0;
@@ -346,17 +347,17 @@ function addHeader(column) {
                     }
                 }(stepID)});
             }
-	    	break;
-	}
+            break;
+    }
 }
 
 var resIndicatorList = { };
 var searchPrereqsLoaded = false;
 function loadSearchPrereqs() {
-	if(searchPrereqsLoaded == true) {
-		return;
-	}
-	searchPrereqsLoaded = true;
+    if(searchPrereqsLoaded == true) {
+        return;
+    }
+    searchPrereqsLoaded = true;
     $.ajax({
         type: 'GET',
         url: './api/?a=form/indicator/list',
@@ -494,19 +495,19 @@ function loadSearchPrereqs() {
 
             $('.form').on('click', function() {
                 $(this).children('.formLabel').removeClass('buttonNorm');
-            	$(this).find('.formLabel>img').css('display', 'none');
-            	$(this).css({width: '100%'});
-            	$(this).children('div').css('display', 'block');
-            	$(this).children('div').children('.subIndicatorOption').css('display', 'block');
-            	$(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
-            		'font-weight': 'bold'});
+                $(this).find('.formLabel>img').css('display', 'none');
+                $(this).css({width: '100%'});
+                $(this).children('div').css('display', 'block');
+                $(this).children('div').children('.subIndicatorOption').css('display', 'block');
+                $(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
+                    'font-weight': 'bold'});
             });
 
             $.ajax({
-            	type: 'GET',
-            	url: './api/workflow/steps',
-            	dataType: 'json',
-            	success: function(res) {
+                type: 'GET',
+                url: './api/workflow/steps',
+                dataType: 'json',
+                success: function(res) {
                     buffer = '';
                     buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
                     for(let i in res) {
@@ -567,7 +568,7 @@ function loadSearchPrereqs() {
 
                         }
                     });
-            	}
+                }
             });
         },
         cache: false
@@ -617,34 +618,34 @@ function editLabels_up(id) {
 }
 
 function editLabels() {
-	dialog.setTitle('Edit Labels');
+    dialog.setTitle('Edit Labels');
 
-	var buffer = '<table id="labelSorter">';
+    var buffer = '<table id="labelSorter">';
 
-	if (Object.keys(indicatorSort).length !== 0) {
-		resSelectList.sort(function(a, b) {
-			var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
-			var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
+    if (Object.keys(indicatorSort).length !== 0) {
+        resSelectList.sort(function(a, b) {
+            var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
+            var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
 
-		    if(sortA < sortB) {
-		        return -1
-		    }
-		    if(sortB < sortA) {
-		        return 1;
-		    }
-		    return 0;
-		});
-	}
+            if(sortA < sortB) {
+                return -1
+            }
+            if(sortB < sortA) {
+                return 1;
+            }
+            return 0;
+        });
+    }
 
-	for(let i in resSelectList) {
-		if(resIndicatorList[resSelectList[i]] != undefined) {
-			buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
-			buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
-			buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
+    for(let i in resSelectList) {
+        if(resIndicatorList[resSelectList[i]] != undefined) {
+            buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
+            buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
+            buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
             buffer += '<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 16px; margin: 0 2px;" /></td></tr>';
-		}
-	}
-	buffer += '</table>';
+        }
+    }
+    buffer += '</table>';
     dialog.setContent(buffer);
     dialog.show();
 
@@ -664,10 +665,10 @@ function editLabels() {
     });
 
     dialog.setSaveHandler(function() {
-    	$('#labelSorter tr').each(function(i) {
-    		var curID = this.id.substr(7);
-    		indicatorSort[curID] = i + 1;
-    	});
+        $('#labelSorter tr').each(function(i) {
+            var curID = this.id.substr(7);
+            indicatorSort[curID] = i + 1;
+        });
         var tmp = document.createElement('div');
         var temp;
         for(let i in resSelectList) {
@@ -676,7 +677,7 @@ function editLabels() {
                 tmp.innerHTML = temp;
                 temp = tmp.textContent || tmp.innerText || '';
                 temp = temp.replace(/[^\040-\176]/g, '');
-            	resIndicatorList[resSelectList[i]] = temp;
+                resIndicatorList[resSelectList[i]] = temp;
             }
         }
         gridColorData = Object.assign({ }, tempColorData);
@@ -755,7 +756,7 @@ function showJSONendpoint() {
     var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
     var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
-	dialog_message.setTitle('Data Endpoints');
+    dialog_message.setTitle('Data Endpoints');
     dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
                            + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
                            + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
@@ -770,7 +771,7 @@ function showJSONendpoint() {
                            + '</select>'
                            + '<span id="formatStatus" style="background-color:green; padding:5px 5px; color:white; display:none;"></span>'
                            + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
-			               + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
+                           + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
                            + '<br /><br />'
                            + '<fieldset>'
                            + '<legend>Options</legend>'
@@ -818,8 +819,8 @@ function showJSONendpoint() {
     $('#shortenLink').on('click', function() {
         $('#shortenLink').css('display', 'none');
         $('#exportPath').on('focus', function() {
-		    document.execCommand("selectAll", false, null);
-	    });
+            document.execCommand("selectAll", false, null);
+        });
         $.ajax({
             type: 'POST',
             url: './api/open/form/query',
@@ -843,7 +844,7 @@ function showJSONendpoint() {
     if (navigator.msSaveOrOpenBlob) {
         $('#msCompatMode').click();
     }
-	dialog_message.show();
+    dialog_message.show();
 }
 
 /**
@@ -851,26 +852,26 @@ function showJSONendpoint() {
 */
 
  function changeTitle(form_data, current_title) {
-	dialog.setContent('<label for="recordTitle"><b>Report Title</b></label><br/><input type="text" id="recordTitle" style="width: 250px" name="recordTitle" value="' + current_title + '" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
+    dialog.setContent('<label for="recordTitle"><b>Report Title</b></label><br/><input type="text" id="recordTitle" style="width: 250px" name="recordTitle" value="' + current_title + '" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
   //ie11 fix
   setTimeout(function () {
     dialog.show();
   }, 0);
     dialog.setSaveHandler(function() {
         $.ajax({
-        	type: 'POST',
-        	url: 'api/?a=form/' + form_data.recordID + '/title',
-        	data: {title: $('#recordTitle').val(),
+            type: 'POST',
+            url: 'api/?a=form/' + form_data.recordID + '/title',
+            data: {title: $('#recordTitle').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
-        	success: function(res) {
-        		if(res != null) {
+            success: function(res) {
+                if(res != null) {
                     $('#' + form_data.cellContainerID).fadeOut(400);
                     $('#' + form_data.cellContainerID).empty().html(res);
                     $('#' + form_data.cellContainerID).fadeIn(400);
 
-        		}
+                }
                 dialog.hide();
-        	}
+            }
         });
     });
 }
@@ -928,7 +929,7 @@ var leafSearch;
 var headers = [];
 var t_inIndicators;
 var isNewQuery = false;
-var dialog, dialog_message;
+var dialog, dialog_message, dialog_confirm;
 var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
 let gridColorData = {}; //object updated with id: color
@@ -992,7 +993,8 @@ var clicked = false;
 var newRecordID = 0;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
-	dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
+	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+    dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
     leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.renderUI();
@@ -1009,37 +1011,37 @@ $(function() {
 
     // Step 1
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').on('click', function() {
-    	$('#step_2').fadeIn(400);
-    	$('#step_1').slideUp(400);
+        $('#step_2').fadeIn(400);
+        $('#step_1').slideUp(400);
 
-    	// hide data fields that don't match forms selected by the user
-    	leafSearch.generateQuery();
-    	var tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
-    	var filteredCategories = [];
+        // hide data fields that don't match forms selected by the user
+        leafSearch.generateQuery();
+        var tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
+        var filteredCategories = [];
         var showOptionCancelled = false;
 
-    	for(let i in tTerms) {
-    		if(tTerms[i].id === 'categoryID'
-    			&& tTerms[i].operator === '=') {
-    			filteredCategories.push(tTerms[i].match);
-    		}
+        for(let i in tTerms) {
+            if(tTerms[i].id === 'categoryID'
+                && tTerms[i].operator === '=') {
+                filteredCategories.push(tTerms[i].match);
+            }
 
             // hide dateCancelled option unless it's being searched for
             if(tTerms[i].id === 'stepID'
-    			&& tTerms[i].operator === '='
+                && tTerms[i].operator === '='
                 && tTerms[i].match === 'deleted') {
-    			showOptionCancelled = true;
-    		}
-    	}
-    	if(filteredCategories.length > 0) {
-    		$('.category').css('display', 'none');
-    		for(let i in filteredCategories) {
-    			$('.' + filteredCategories[i]).css('display', 'inline');
-    		}
-    	}
-    	else {
-    		$('.category').css('display', 'inline');
-    	}
+                showOptionCancelled = true;
+            }
+        }
+        if(filteredCategories.length > 0) {
+            $('.category').css('display', 'none');
+            for(let i in filteredCategories) {
+                $('.' + filteredCategories[i]).css('display', 'inline');
+            }
+        }
+        else {
+            $('.category').css('display', 'inline');
+        }
 
         if(showOptionCancelled) {
             $('#option_dateCancelled').css('display', 'inline');
@@ -1069,7 +1071,7 @@ $(function() {
             leafSearch.generateQuery();
 
             if(!isSearchingDeleted(leafSearch)) {
-            	leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
+                leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
             }
             leafSearch.getLeafFormQuery().join('service');
             headers = [];
@@ -1078,9 +1080,9 @@ $(function() {
             leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
         }
 
-    	selectedIndicators = [];
-    	resSelectList = [];
-    	$('.icheck:checked').each(function() {
+        selectedIndicators = [];
+        resSelectList = [];
+        $('.leaf_check:checked').each(function() {
             let gridParent = this.attributes.gridparent?.value;
             if (gridParent !== undefined) {
                 let dest = resSelectList.indexOf(gridParent);
@@ -1098,9 +1100,9 @@ $(function() {
             } else {
                 resSelectList.push(this.value);
             }
-    	});
+        });
 
-    	resSelectList.sort(function(a, b) {
+        resSelectList.sort(function(a, b) {
             var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
             var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
 
@@ -1113,7 +1115,7 @@ $(function() {
             return 0;
         });
 
-    	for(let i in resSelectList) {
+        for(let i in resSelectList) {
             let temp = {};
             if (Array.isArray(resSelectList[i])) {
                 temp.indicatorID = resSelectList[i][0];
@@ -1138,12 +1140,12 @@ $(function() {
                 addHeader(temp.indicatorID);
             }
             selectedIndicators.push(temp);
-    	}
-    	headers.sort(sortHeaders);
-    	selectedIndicators.sort(sortHeaders);
-    	grid.setHeaders(headers);
+        }
+        headers.sort(sortHeaders);
+        selectedIndicators.sort(sortHeaders);
+        grid.setHeaders(headers);
 
-    	leafSearch.getLeafFormQuery().onSuccess(function(res) {
+        leafSearch.getLeafFormQuery().onSuccess(function(res) {
             grid.setDataBlob(res);
             // this replaces grid.loadData()
             var tGridData = [];
@@ -1161,7 +1163,7 @@ $(function() {
                 for (let i in res) {
                     recordIDs += res[i].recordID + ',';
                 }
-            	grid.loadData(recordIDs);
+                grid.loadData(recordIDs);
             }
             let gridResults = grid.getCurrentData();
             let filteredGridResults = gridResults.filter(function(r) {
@@ -1188,11 +1190,11 @@ $(function() {
             clicked = false; //global to reduce dblclicks
         });
 
-    	// get data
-    	leafSearch.getLeafFormQuery().execute();
+        // get data
+        leafSearch.getLeafFormQuery().execute();
 
-    	// create save link once
-    	if(!extendedToolbar) {
+        // create save link once
+        if(!extendedToolbar) {
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
@@ -1204,49 +1206,49 @@ $(function() {
 
 
             $('#editReport').on('click', function() {
-            	grid.stop();
-            	isNewQuery = true;
+                grid.stop();
+                isNewQuery = true;
                 $('#reportTitleDisplay').css('display', 'none');
                 $('#reportTitle').css('display', 'block');
                 $('#newRequestButton').css('display', 'none');
-            	loadSearchPrereqs();
+                loadSearchPrereqs();
                 $('#saveLinkContainer').slideUp(700);
                 $('#results').fadeOut(700);
                 $('#step_1').fadeIn(700);
             });
-    	}
+        }
 
-    	if($.isEmptyObject(resIndicatorList)) {
-    		$('#editLabels').css('display', 'none');
-    	}
-    	else {
-    		$('#editLabels').css('display', 'inline');
-    	}
+        if($.isEmptyObject(resIndicatorList)) {
+            $('#editLabels').css('display', 'none');
+        }
+        else {
+            $('#editLabels').css('display', 'inline');
+        }
         let leafSearchQuery = leafSearch.getLeafFormQuery().getQuery();
         checkIfOneTypeSearchedAndUpdate(leafSearchQuery.terms);
 
         urlQuery = LZString.compressToBase64(JSON.stringify(leafSearchQuery));
-    	urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
+        urlIndicators = LZString.compressToBase64(JSON.stringify(selectedIndicators));
 
-    	if(isNewQuery) {
-    		baseURL = '';
-    		if(window.location.href.indexOf('&') === -1) {
-    			baseURL = window.location.href;
-    		}
-    		else {
-    			baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
-    		}
+        if(isNewQuery) {
+            baseURL = '';
+            if(window.location.href.indexOf('&') === -1) {
+                baseURL = window.location.href;
+            }
+            else {
+                baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
+            }
             buildURLComponents(baseURL);
 
             $('#reportTitle').on('keyup', function() {
                 buildURLComponents(baseURL);
             });
-    	}
-    	else {
-    		url = window.location.href;
-    	}
-    	//reapply colors if user has moved away from reports view
-    	if(Object.keys(gridColorData).length !== 0){
+        }
+        else {
+            url = window.location.href;
+        }
+        //reapply colors if user has moved away from reports view
+        if(Object.keys(gridColorData).length !== 0){
             updateHeaderColors(gridColorData);
         }
     });
@@ -1276,9 +1278,9 @@ $(function() {
             });
         });
         try {
-        	if(<!--{$version}--> >= 2) {
-        	    let query = '<!--{$query|escape:"html"}-->';
-        	    let indicators = '<!--{$indicators|escape:"html"}-->';
+            if(<!--{$version}--> >= 2) {
+                let query = '<!--{$query|escape:"html"}-->';
+                let indicators = '<!--{$indicators|escape:"html"}-->';
                 let colors = '<!--{$colors|escape:"html"}-->';
                 query = query.replace(/ /g, '+');
                 indicators = indicators.replace(/ /g, '+');
@@ -1293,14 +1295,14 @@ $(function() {
                     gridColorData = queryColors;
                     updateHeaderColors(gridColorData);
                 }
-        	}
-        	else {
+            }
+            else {
                 inQuery = JSON.parse(atob('<!--{$query|escape:"html"}-->'));
                 t_inIndicators = JSON.parse(atob('<!--{$indicators|escape:"html"}-->'));
-        	}
-        	inIndicators = [];
-        	for(let i in t_inIndicators) {
-        		var temp = {};
+            }
+            inIndicators = [];
+            for(let i in t_inIndicators) {
+                var temp = {};
                 if($.isNumeric(t_inIndicators[i].indicatorID)) {
                     // add selected columns to payload in case of grid indicator
                     if (Array.isArray(t_inIndicators[i].cols)) {
@@ -1315,18 +1317,18 @@ $(function() {
                 else {
                     addHeader(t_inIndicators[i].indicatorID);
                 }
-        	}
-        	leafSearch.getLeafFormQuery().setQuery(inQuery);
-        	if(!isSearchingDeleted(leafSearch)) {
+            }
+            leafSearch.getLeafFormQuery().setQuery(inQuery);
+            if(!isSearchingDeleted(leafSearch)) {
                 inQuery.terms.pop();
-        	}
-        	leafSearch.renderPreviousAdvancedSearch(inQuery.terms);
-        	headers = headers.concat(inIndicators);
-        	$('#step_1').slideUp(700);
-        	$('#generateReport').click();
+            }
+            leafSearch.renderPreviousAdvancedSearch(inQuery.terms);
+            headers = headers.concat(inIndicators);
+            $('#step_1').slideUp(700);
+            $('#generateReport').click();
         }
         catch(err) {
-        	alert('Invalid report');
+            alert('Invalid report');
         }
     }
     if(typeof atob === 'function') {
@@ -1349,9 +1351,9 @@ $(function() {
         });
     }
     if(typeof window.history.pushState !== 'function') {
-    	window.history.pushState = function(a, b, c) {
+        window.history.pushState = function(a, b, c) {
 
-    	}
+        }
     }
 });
 </script>

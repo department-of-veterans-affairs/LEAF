@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+    if(navigator.userAgent.indexOf("Trident") != -1) {
+        alert('Please use Microsoft Edge or Google Chrome to access this site.');
+    }
+    </script>
     {if $tabText != ''}
     <title>{$tabText|sanitize} - {$title|sanitize} | {$city|sanitize}</title>
     {else}

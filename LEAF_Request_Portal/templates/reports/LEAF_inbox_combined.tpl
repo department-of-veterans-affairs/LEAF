@@ -205,7 +205,7 @@
         let siteURL = site + './api/?a=inbox/dependency/_';
 
         if (nonadmin) {
-            siteURL += '/nonadmin';
+            siteURL += '&masquerade=nonAdmin';
         }
         $.ajax({
             type: 'GET',

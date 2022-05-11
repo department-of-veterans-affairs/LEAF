@@ -202,6 +202,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 dataType: 'script',
                 success: function() {
                     workflowStepModule[step.stepID].LEAF_digital_signature.init(step);
+                },
+                fail: function(err) {
+                    console.log("Error: " + err);
                 }
             });
         }
@@ -215,6 +218,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                         dataType: 'script',
                         success: function() {
                             workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step);
+                        },
+                        fail: function(err) {
+                            console.log("Error: " + err);
                         }
                     });
                 }
@@ -229,6 +235,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 dataType: 'script',
                 success: function() {
                     workflowModule[step.dependencyID].init(currRecordID);
+                },
+                fail: function(err) {
+                    console.log("Error: " + err);
                 }
             });
         }
@@ -250,20 +259,26 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         if(step.dependencyID == -1) {
             $.ajax({
                 type: 'GET',
-                url: rootURL + 'api/?a=form/customData/_' + recordID + '/_' + step.indicatorID_for_assigned_empUID,
+                url: rootURL + 'api/?a=form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_empUID,
                 success: function(res) {
-                    $('#workflowbox_dep'+ step.dependencyID).append('<span>Pending action from '+ res[recordID]['s1']['id' + step.indicatorID_for_assigned_empUID] +'</span>');
+                    $('#workflowbox_dep'+ step.dependencyID).append('<span>Pending action from '+ res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID] +'</span>');
                     $('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
+                },
+                fail: function(err) {
+                    console.log("Error: " + err);
                 }
             });
         }
         else if(step.dependencyID == -3) { // dependencyID -3 : special case for group designated by the requestor
             $.ajax({
                 type: 'GET',
-                url: rootURL + 'api/?a=form/customData/_' + recordID + '/_' + step.indicatorID_for_assigned_groupID,
+                url: rootURL + 'api/?a=form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_groupID,
                 success: function(res) {
                     $('#workflowbox_dep'+ step.dependencyID).append('<span>Pending action from '+ step.description +'</span>');
                     $('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
+                },
+                fail: function(err) {
+                    console.log("Error: " + err);
                 }
             });
         }
@@ -361,6 +376,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                     $('#workflowcontent').append('<br style="clear: both" />');
                 }
             },
+            fail: function(err) {
+                console.log("Error: " + err);
+            },
             cache: false
         });
     }
@@ -394,6 +412,9 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 }
                 getLastAction(recordID, res);
                 $('#' + containerID).show('blind', 250);
+            },
+            fail: function(err) {
+                console.log("Error: " + err);
             },
             cache: false
         });
