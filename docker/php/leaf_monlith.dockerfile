@@ -1,5 +1,5 @@
 # FROM pelentan/leaf-app-base:2.0 as base
-FROM leaf-base-fpm as base
+FROM pelentan/leaf-base-fpm as base
 COPY docker/php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Stuff that might need to get into the base image
