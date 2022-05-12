@@ -15,10 +15,6 @@ test_logins.txt
 LEAF_Request_Portal/templates/email/custom_override/*
 LEAF_Request_Portal/templates_c/email/custom_override/*
 
-db_config.php
-config.php
-LEAF_Nexus/globals.php
-LEAF_Request_Portal/globals.php
 LEAF_Request_Portal/db_config-bk.php
 LEAF_Nexus/config-bk.php
 LEAF_Nexus/globals-bk.php
