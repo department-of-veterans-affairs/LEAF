@@ -17,6 +17,7 @@ services:
     volumes:
       - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
       - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
+      - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
       # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
       - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
       - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
