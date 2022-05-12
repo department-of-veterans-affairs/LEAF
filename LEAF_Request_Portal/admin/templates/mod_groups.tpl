@@ -449,12 +449,15 @@ function getGroupList() {
                                 for (let i in res) {
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
-                                            $('#removeMember_' + counter).on('click', function(userID) {
-                                                return function () {
-                                                    removeMember(groupID, userID);
+                                            $('#removeMember_' + counter).on('click', function() {
+                                                dialog_confirm.setContent('Are you sure you want to remove this member?');
+                                                dialog_confirm.setSaveHandler(function() {
+                                                    removeMember(groupID, res[i].userName);
+                                                    dialog_confirm.hide();
                                                     dialog.hide();
-                                                };
-                                            }(res[i].userName));
+                                                }); 
+                                                dialog_confirm.show();
+                                            });
                                             counter++;
                                         }
                                     }
