@@ -1116,6 +1116,7 @@ button.buttonNorm {
     align-items: center;
     width: -moz-fit-content;
     width: fit-content;
+    max-width: 600px;
 }
 
 .ui-datepicker {
