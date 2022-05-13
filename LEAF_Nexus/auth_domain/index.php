@@ -38,8 +38,8 @@ if (isset($_SERVER['REMOTE_USER']))
         $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
     }
 
-    list($domain, $user) = explode('\\', $_SERVER['REMOTE_USER']);
-
+    list($domain, $user) = explode('\\\\', $_SERVER['REMOTE_USER']);
+    
     // see if user is valid
     $vars = array(':userName' => $user);
     $res = $db->prepared_query('SELECT * FROM employee
