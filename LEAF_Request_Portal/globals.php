@@ -1,34 +1,17 @@
 <?php
-define('PROD_NAME', getenv('PRODUCT_NAME'));
-define('PORTAL_VERSION_NUMBER', getenv('PORTAL_VERSION_NUMBER'));
+if (!defined('PRODUCT_NAME')) define('PRODUCT_NAME', getenv('PRODUCT_NAME'));
+if (!defined('PORTAL_VERSION_NUMBER')) define('PORTAL_VERSION_NUMBER', getenv('PORTAL_VERSION_NUMBER'));
 
-define('DATABASE_DB_ADMIN', getenv('DATABASE_DB_ADMIN'));
+if (!defined('DATABASE_DB_ADMIN')) define('DATABASE_DB_ADMIN', getenv('DATABASE_DB_ADMIN'));
 
-define('DB_HOST', getenv('DATABASE_HOST'));
-define('NEXUS_DB', getenv('NEXUS_DB'));
-define('PORTAL_DB', getenv('PORTAL_DB'));
-define('DB_USER', getenv('DATABASE_USERNAME'));
-define('DB_PASS', getenv('DATABASE_PASSWORD'));
+if (!defined('DIRECTORY_HOST')) define('DIRECTORY_HOST', getenv('DATABASE_HOST'));
+if (!defined('DIRECTORY_DB')) define('DIRECTORY_DB', getenv('NEXUS_DB'));
+if (!defined('PORTAL_DB')) define('PORTAL_DB', getenv('PORTAL_DB'));
+if (!defined('DIRECTORY_USER')) define('DIRECTORY_USER', getenv('DATABASE_USERNAME'));
+if (!defined('DIRECTORY_PASS')) define('DIRECTORY_PASS', getenv('DATABASE_PASSWORD'));
 
-define('APP_URL_NEXUS', getenv('APP_URL_NEXUS'));
-define('APP_HTTP_HOST', getenv('APP_HTTP_HOST'));
-define('APP_PORTAL_URL_AUTH', getenv('APP_PORTAL_URL_AUTH'));
-define('APP_AUTH_TYPE', getenv('APP_AUTH_TYPE'));
-define('APP_CIPHER_KEY', getenv('APP_CIPHER_KEY'));
-
-const PRODUCT_NAME = PROD_NAME;
-const VERSION_NUMBER = PORTAL_VERSION_NUMBER;
-
-const DIRECTORY_HOST = DB_HOST;
-const DIRECTORY_DB = NEXUS_DB;
-const DIRECTORY_USER = DB_USER;
-const DIRECTORY_PASS = DB_PASS;
-
-const LEAF_NEXUS_URL = APP_URL_NEXUS; // trailing slash required
-const HTTP_HOST = APP_HTTP_HOST;
-
-const AUTH_URL = APP_PORTAL_URL_AUTH;
-
-const AUTH_TYPE = APP_AUTH_TYPE;
-
-const CIPHER_KEY = APP_CIPHER_KEY;
+if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS'));
+if (!defined('HTTP_HOST')) define('HTTP_HOST', getenv('APP_HTTP_HOST'));
+if (!defined('PORTAL_AUTH_URL')) define('PORTAL_AUTH_URL', getenv('APP_PORTAL_URL_AUTH'));
+if (!defined('AUTH_TYPE')) define('AUTH_TYPE', getenv('APP_AUTH_TYPE'));
+if (!defined('CIPHER_KEY')) define('CIPHER_KEY', getenv('APP_CIPHER_KEY'));

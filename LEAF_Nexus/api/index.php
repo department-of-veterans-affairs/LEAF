@@ -33,7 +33,7 @@ if (!$login->isLogin() || !$login->isInDB())
     exit;
 }
 
-$action = isset($_GET['a']) ? $_GET['a'] : '';
+$action = isset($_GET['a']) ? $_GET['a'] : $_SERVER['PATH_INFO'];
 $keyIndex = strpos($action, '/');
 $key = null;
 if ($keyIndex === false)

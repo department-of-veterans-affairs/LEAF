@@ -60,7 +60,7 @@ class Session implements \SessionHandlerInterface
         return true;
     }
 
-    public function gc($maxLifetime): bool
+    public function gc($maxLifetime): int|false
     {
         $vars = array(':time' => time() - $maxLifetime);
         $this->db->prepared_query('DELETE FROM sessions
@@ -69,12 +69,13 @@ class Session implements \SessionHandlerInterface
         return true;
     }
 
+    //#[ReturnTypeWillChange]
     public function open($savePath, $sessionID): bool
     {
         return true;
     }
 
-    public function read($sessionID): bool
+    public function read($sessionID): string|false
     {
         $vars = array(':sessionID' => $sessionID);
         $res = $this->db->prepared_query('SELECT * FROM sessions

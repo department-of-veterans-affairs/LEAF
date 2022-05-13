@@ -62,6 +62,7 @@ function customTemplate($tpl)
 }
 
 // HQ logo
+$main->assign('status', '');
 if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 { // issue with dijit tabcontainer and ie6
     $main->assign('status', 'You appear to be using Microsoft Internet Explorer version 6. Some portions of this website may not display correctly unless you use Internet Explorer version 7 or higher.');
@@ -71,7 +72,12 @@ $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" a
 
 $t_login->assign('name', $login->getName());
 $t_menu->assign('is_admin', $login->checkGroup(1));
+$t_menu->assign('hide_main_control', true);
 
+$qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
+$main->assign('qrcodeURL', urlencode($qrcodeURL));
+
+$main->assign('emergency', '');
 $main->assign('useUI', false);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
@@ -144,8 +150,6 @@ switch ($action) {
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
-        $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
-        $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
         switch ($action) {
             default:
@@ -170,7 +174,6 @@ switch ($action) {
                 }
 
                 $main->assign('body', $t_form->fetch(customTemplate('print_form_iframe.tpl')));
-                $t_menu->assign('hide_main_control', true);
 
                 break;
         }

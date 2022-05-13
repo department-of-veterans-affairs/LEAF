@@ -36,8 +36,8 @@ class Config
 
     public static $ERM_Sites = array('resource_management' => ''); // URL to ERM sites with trailing slash
 
-    public $dbHost = DB_HOST;
-    public $dbName = NEXUS_DB;
-    public $dbUser = DB_USER;
-    public $dbPass = DB_PASS;
+    public $dbHost = DIRECTORY_HOST;
+    public $dbName = DIRECTORY_DB;
+    public $dbUser = DIRECTORY_USER;
+    public $dbPass = DIRECTORY_PASS;
 }

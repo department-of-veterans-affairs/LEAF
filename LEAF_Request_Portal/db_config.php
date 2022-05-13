@@ -19,13 +19,13 @@ require_once(dirname(__FILE__) . '/globals.php');
 
 class DB_Config
 {
-    public $dbHost = DB_HOST;
+    public $dbHost = DIRECTORY_HOST;
 
     public $dbName = PORTAL_DB;
 
-    public $dbUser = DB_USER;
+    public $dbUser = DIRECTORY_USER;
 
-    public $dbPass = DB_PASS;
+    public $dbPass = DIRECTORY_PASS;
 }
 
 class Config
@@ -54,11 +54,11 @@ class Config
 
     public static $emailBCC = array();    // BCCed for every email
 
-    public $phonedbHost = DB_HOST;
+    public $phonedbHost = DIRECTORY_HOST;
 
-    public $phonedbName = NEXUS_DB;
+    public $phonedbName = DIRECTORY_DB;
 
-    public $phonedbUser = DB_USER;
+    public $phonedbUser = DIRECTORY_USER;
 
-    public $phonedbPass = DB_PASS;
+    public $phonedbPass = DIRECTORY_PASS;
 }

@@ -28,7 +28,7 @@ unset($db_config);
 $login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
-$action = isset($_GET['a']) ? $_GET['a'] : '';
+$action = isset($_GET['a']) ? $_GET['a'] : $_SERVER['PATH_INFO'];
 $keyIndex = strpos($action, '/');
 $key = null;
 if ($keyIndex === false)
