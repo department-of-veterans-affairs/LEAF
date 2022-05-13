@@ -737,7 +737,7 @@ function newQuestion(parentIndicatorID) {
             case 'multiselect':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
+                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val().replaceAll(/,(?!\s)/ig, ', '));
                 $('#format').val(buffer);
                 break;
             case 'dropdown':
@@ -1488,7 +1488,7 @@ function getForm(indicatorID, series) {
             case 'multiselect':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
+                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val().replaceAll(/,(?!\s)/ig, ', '));
                 $('#format').val(buffer);
                 break;
             case 'dropdown':
