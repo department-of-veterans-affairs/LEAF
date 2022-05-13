@@ -46,7 +46,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect'}-->
                 <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                &bull;&nbsp;<!--{$indicator.value|replace:',':'<br/>&bull;&nbsp;'|sanitize}-->
+                &bull;&nbsp;<!--{$indicator.value|regex_replace:'/,(?!\s)/':'<br/>&bull;&nbsp;'|sanitize}-->
                 </span>
                 <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
