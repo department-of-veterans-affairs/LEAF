@@ -2886,7 +2886,7 @@ class Form
 
         $joinCategoryID = false;
         $joinAllCategoryID = false;
-        $joinRecords_Dependencies = false;
+        $joinRecordsDependencies = false;
         $joinRecords_Step_Fulfillment = false;
         $addJoinRecords_Step_Fulfillment_Only = false;
         $joinActionHistory = false;

@@ -32,7 +32,7 @@ function getBaseDir()
 //$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
 $protocol = 'https://';
 
-$authURL = $protocol . AUTH_URL . '/auth_token/index.php?r=' . base64_encode(getBaseDir());
+$authURL = $protocol . PORTAL_AUTH_URL . '/auth_token/index.php?r=' . base64_encode(getBaseDir());
 
 ?>
 <!DOCTYPE html>

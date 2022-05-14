@@ -90,7 +90,8 @@ class DB
             echo '<hr />';
             echo "</pre><br />Time: {$this->time} sec<br />";
         }
-        $this->db->query('KILL CONNECTION_ID()');
+        //  This was dying with PHP 8.  Not sure why but will need to be looked into.
+        // $this->db->query('KILL CONNECTION_ID()');
         $this->db = null;
     }
 
