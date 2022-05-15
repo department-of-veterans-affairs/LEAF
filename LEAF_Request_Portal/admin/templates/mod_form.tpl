@@ -737,7 +737,7 @@ function newQuestion(parentIndicatorID) {
             case 'multiselect':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val().replaceAll(/,(?!\s)/ig, ', '));
+                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
                 $('#format').val(buffer);
                 break;
             case 'dropdown':
@@ -1488,7 +1488,7 @@ function getForm(indicatorID, series) {
             case 'multiselect':
                 $('#container_indicatorMultiAnswer').css('display', 'block');
                 var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val().replaceAll(/,(?!\s)/ig, ', '));
+                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
                 $('#format').val(buffer);
                 break;
             case 'dropdown':
@@ -1732,6 +1732,12 @@ function formatIndicatorMultiAnswer(multiAnswerValue){
       if(el === "no") {
            uniqueNames[i] = "No";
         }
+        //if the option has commas, make sure there are spaces after them, and rm potential trailing commas
+        el = el.replaceAll(/,(?!\s)/ig, ', ').trim();
+        while(el[el.length-1] === ',') {
+            el = el.slice(0, el.length-1);
+        }
+        uniqueNames[i] = el;
     });
 
     multiAnswerValue = uniqueNames.join("\n");
