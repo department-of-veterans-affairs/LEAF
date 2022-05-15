@@ -44,9 +44,15 @@ var LeafForm = function(containerID) {
 		$('#' + dialog.btnSaveID).empty().html('<img src="images/indicator.gif" alt="saving" /> Saving...');
 
 		$('#' + htmlFormID).find(':input:disabled').removeAttr('disabled');
-
 		var data = {recordID: recordID};
-		$('#' + htmlFormID).serializeArray().map(function(x){data[x.name] = x.value;});
+		$('#' + htmlFormID).serializeArray().map(function(x) {
+			data[x.name] = x.value;
+			//allows non-required multiselect deselection
+			if (x.name.includes('_selected') && x.value === '') {
+				const name = x.name.slice(0, x.name.indexOf('_selected'));
+				data[name] = x.value;
+			}
+		});
 
 		if(hasTable){
             var tables = [];
