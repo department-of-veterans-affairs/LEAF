@@ -149,8 +149,11 @@ class Telemetry
     public function getRequestUploadStorage():string
     {
         $size = 0;
-        foreach(new DirectoryIterator(Config::$uploadDir) as $file){
-            $size += $file->getSize();
+        if (is_dir(Config::$uploadDir) {
+            $iterator = new DirectoryIterator(Config::$uploadDir);
+            foreach($iterator as $file) {
+                $size += $file->getSize();
+            }
         }
         return (String)$size;
     }
