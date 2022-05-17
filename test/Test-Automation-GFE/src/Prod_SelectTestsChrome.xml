@@ -2,10 +2,10 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="RegressionSuite">
 <!--    -->
-<!--    -->  
+
    
 	<test name="Home Page">
-		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/">
+		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.homePageTest"/>
@@ -13,9 +13,10 @@
 		</parameter>
 	</test>   
 
+ <!--    
    		
 	<test name="User Access Groups">
-		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=mod_groups">
+		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/admin/?a=mod_groups">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.adminUserAccessTest"/>
@@ -23,10 +24,10 @@
 		</parameter>
 	</test>
 	
- 	
+-->   	
 	
 	<test name="Admin Page">
-		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/">
+		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/admin/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.adminPageTest"/>
@@ -34,9 +35,13 @@
 		</parameter>
 	</test>      
 
-     
+ 
+ 
+ <!--   
+ 
+ 
 	<test name="New Request Workflow">
-		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/?a=newform">
+		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/?a=newform">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.newRequestWorkflow"/>
@@ -44,11 +49,11 @@
 		</parameter>
 	</test>    
 
-
+-->
 
 
 	<test name="Org Chart Workflow">
-		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/orgchart/">
+		<parameter name="env" value="https://leaf.va.gov/Academy/orgchart/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.orgChartWorkflow"/>
@@ -56,8 +61,11 @@
 		</parameter>
 	</test>    
  
+ 
+ <!--    
+ 
  	<test name="Report Builder Workflow">
-		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/?a=reports">
+		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/?a=reports">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.reportBuilderWorkflow"/>
@@ -65,8 +73,10 @@
 		</parameter>
 	</test>    
 
+-->
+
  	<test name="Forms Workflow">
-		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
+		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.formsWorkflow"/>
@@ -75,7 +85,7 @@
 	</test>    
 
 	<test name="Forms Workflow Part 2">
-		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
+		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.formsWorkflowPart2"/>
@@ -84,7 +94,7 @@
 	</test>    
 
 	<test name="Forms Workflow Part 3">
-		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
+		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.formsWorkflowPart3"/>

@@ -45,38 +45,64 @@ public class setupFramework {
 	//fp.highlightFlash(returnedElement);  //called using this
 	
 	
-	private static WebDriver chromeLogin(String env) {						//This is all I need for now
-		//Currently version 98.0.44758.102      2.16.2022
-		System.out.println("Launching Chrome");  //Step Over until - return driver;
+	private static WebDriver chromeLogin(String env) {						//ERR: Here is the DevToolsActivePort error
+		//Currently version 98.0.44758.102      2.16.2022  //UPDATED TO v101.something
+		System.out.println("Launching Chrome by Automation");  //Step Over until - return driver;
 		System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
-		
-		
-			if (AppVariables.headless) {
-				ChromeOptions options = new ChromeOptions();
-				options.addArguments("--headless", "--disable-gpu", "--window-size=1920,1200",
-						"--ignore-certificate-errors", "--disable-extensions", "--no-sandbox",
-						"--disable-dev-shm-usage");
-				WebDriver driver = new ChromeDriver(options);
-				driver.navigate().to(env);
-				System.out.println("Driver established for: " + driver.getClass());
-				return driver;  //HEADLESS driver
+			ChromeOptions startOptions = new ChromeOptions();
+			startOptions.addArguments("start-maximized");
+			
+			startOptions.addArguments("--user-data-dir=C:\\Users\\OITBIRRichaM1\\ChromeProfiles\\TestAutomation");
+			//startOptions.addArguments("--user-data-dir=C:\\Users\\OITBIRRichaM1\\AppData\\Local\\Chrome\\Cache");
+			//startOptions.addArguments("--user-data-dir=C:\\Users\\OITBIRRichaM1\\AppData\\Local\\Chrome\\Cache\\SeLeNiUm");
+			
+			//startOptions.addArguments("--profile-directory=TestAutomation");
+			//startOptions.addArguments("--profile-directory=Person 2");
+			//startOptions.addArguments("--profile-directory=SeLeNiUm");
+			startOptions.addArguments("--disable-extensions");
+			startOptions.addArguments("disable-infobars");
+			startOptions.addArguments("--disable-gpu");
+			startOptions.addArguments("--disable-dev-shm-usage");
+			startOptions.addArguments("--no-sandbox");
+			
+			
+			//startOptions.addArguments("--user-data-dir=C:\\Users\\OITBIRRichaM1\\AppData\\Local\\Chrome\\Cache");
+			//startOptions.addArguments("--bwsi");			//ChromeDriver starts, then nothing, no output in Console
+			//startOptions.addArguments("");
+			//startOptions.addArguments("");
+			
+			WebDriver driver = new ChromeDriver(startOptions);
+			driver.navigate().to(env);
+			System.out.println("Driver established for: " + driver.getClass());
+			
+//			if (AppVariables.headless) {
+//				ChromeOptions options = new ChromeOptions();
+//				
+//				options.addArguments("--headless", "--disable-gpu", "--window-size=1920,1200",
+//						"--ignore-certificate-errors", "--disable-extensions", "--no-sandbox",
+//						"--disable-dev-shm-usage");
+//				WebDriver driver = new ChromeDriver(options);
+//				driver.navigate().to(env);
+//				System.out.println("Driver established for: " + driver.getClass());
+//				return driver;  //HEADLESS driver
+//
+//			} else {
+//				WebDriver driver = new ChromeDriver();
+//				driver.manage().window().maximize();
+//				driver.navigate().to(env);
+//				System.out.println("Driver established for: " + driver.getClass());
+//				
+//				return driver;  
+//
+//			}
 
-			} else {
-				WebDriver driver = new ChromeDriver();
-				driver.manage().window().maximize();
-				driver.navigate().to(env);
-				System.out.println("Driver established for: " + driver.getClass());
-				
-				return driver;  
+			
 
-			}
-		
-//		System.out.println("driver = " + driver.getClass().toString());
-//		
-//		return driver;  //driver changed to value null??
 
+		return driver;		//DELETE when headless code is re-enabled
 	}	
 
+	
 	//I believe this is the correct driver for the version of IE on Adaptive machine
 	private static WebDriver ieLogin(String env) {
 		System.setProperty("webdriver.ie.driver", Framework.AppVariables.IEDRIVER);
@@ -107,9 +133,9 @@ public class setupFramework {
 	@AfterClass
 	public void closeDown() {
 		
-		//driver.quit();
-		//System.out.println("setupFramework reached @AfterClass, driver.quit()");
-		System.out.println("@AfterClass disabled - browser remains open");
+		driver.quit();
+		System.out.println("setupFramework reached @AfterClass, driver.quit()");
+		//System.out.println("@AfterClass disabled - browser remains open");
 	}
 	
 	
