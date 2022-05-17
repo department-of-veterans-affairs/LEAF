@@ -31,6 +31,7 @@ LEAF_Nexus/UPLOADS
 LEAF_Request_Portal/UPLOADS
 
 /LEAF_Request_Portal/templates_c/mailer/
+
 bin/
 test-output/
 *.class
@@ -39,4 +40,3 @@ test-output/
 .project
 .gitconfig
 .settings/
-

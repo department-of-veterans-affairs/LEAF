@@ -31,3 +31,19 @@ LEAF_Nexus/UPLOADS
 LEAF_Request_Portal/UPLOADS
 
 /LEAF_Request_Portal/templates_c/mailer/
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
+bin/
+test-output/
+*.class
+*.html
+.classpath
+.project
+.gitconfig
+.settings/
+<<<<<<< Updated upstream
+
+=======
+>>>>>>> Stashed changes
