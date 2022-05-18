@@ -119,7 +119,6 @@ class VAMC_Directory
     public function lookupLogin($login, $onlyGetName = false, $getGroups = false)
     {
         $res = $this->Employee->lookupLogin($login);
-        $groups = null;
         $data = array();
         foreach ($res as $result)
         {
