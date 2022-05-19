@@ -36,7 +36,7 @@ server {
     }
 
     location ~* api/(.*?)$ {
-        fastcgi_pass leaf-php-8:9000;
+        fastcgi_pass ${LEAF_POD}:9000;
         fastcgi_buffers 16 16k;
         fastcgi_buffer_size 32k;
         fastcgi_split_path_info ^(.+\/api\/)(.*)$;
@@ -52,7 +52,7 @@ server {
         gzip on;
 
         # debuging
-        add_header X-debug-message "$document_root$fastcgi_script_name/api/index.php || $fastcgi_path_info" always;
+        add_header X-debug-message "$document_root$fastcgi_script_name/index.php || $fastcgi_path_info" always;
     }
 
     location /adminer {
