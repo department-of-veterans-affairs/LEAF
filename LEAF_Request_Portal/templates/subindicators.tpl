@@ -224,10 +224,9 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
                 <span><select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 80%">
-            <!--{assign var='selectedvalues' value=$indicator.value|regex_replace:'/,(?!\s)/':'-!-'|sanitize}-->
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
-                <!--{foreach from="-!-"|explode:$selectedvalues item=val}-->
+                <!--{foreach from=$indicator.value item=val}-->
                     <!--{if $option|escape == $val|escape}-->
                         <option value="<!--{$option|sanitize}-->" selected="selected"><!--{$option|sanitize}--></option>
                         <!--{assign var='found' value=true}-->
