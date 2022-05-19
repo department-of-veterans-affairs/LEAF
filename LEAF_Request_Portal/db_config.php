@@ -38,7 +38,7 @@ class Config
 
     public $adPath = array('OU=myOU,DC=domain,DC=tld'); // Active directory path
 
-    public static $uploadDir = './UPLOADS/';
+    public static $uploadDir = '/var/www/html/LEAF_Request_Portal/UPLOADS/';
 
     // Directory for user uploads
                                              // using backslashes (/), with trailing slash

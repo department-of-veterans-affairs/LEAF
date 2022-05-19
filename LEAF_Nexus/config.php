@@ -29,7 +29,7 @@ class Config
 
     public $adPath = array('OU=Users,DC=va,DC=gov'); // Active directory paths
 
-    public static $uploadDir = './UPLOADS/';
+    public static $uploadDir = '/var/www/html/LEAF_Nexus/UPLOADS/';
 
     // Directory for user uploads
     // using backslashes (/), with trailing slash
