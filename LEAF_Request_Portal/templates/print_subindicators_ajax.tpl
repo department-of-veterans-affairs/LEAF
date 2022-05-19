@@ -46,7 +46,10 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect'}-->
                 <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                &bull;&nbsp;<!--{$indicator.value|regex_replace:'/,(?!\s)/':'<br/>&bull;&nbsp;'|sanitize}-->
+                <!--{foreach from=$indicator.value item=option}-->
+                &bull;&nbsp;<!--{$option|sanitize}-->
+                </br>
+                <!--{/foreach}-->
                 </span>
                 <!--{$indicator.htmlPrint}-->
         <!--{/if}-->

@@ -1138,7 +1138,8 @@ class Form
         {
             // If form has _selected key use over initial key (Multi-Select Dropdown)
             if (is_numeric($key) && $_POST[$key . '_selected']) {
-                $_POST[$key] = $_POST[$key . '_selected'];
+                $strval = $_POST[$key . '_selected'];
+                $_POST[$key] = preg_split( "/,(?!\s)/", $strval);
                 if (!$this->writeDataField($recordID, $key, $series)) {
                     return 0;
                 }
@@ -2178,7 +2179,8 @@ class Form
                         }
                         break;
                     default:
-                        if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
+                        if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes' ||
+                            substr($indicators[$item['indicatorID']]['format'], 0, 11) == 'multiselect')
                         {
                             $tData = @unserialize($item['data']);
                             $item['data'] = '';
