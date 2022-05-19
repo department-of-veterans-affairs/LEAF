@@ -39,6 +39,8 @@ services:
   leaf-nginx:
     image: leaf-nginx
     container_name: leaf-nginx
+    env_file: 
+      - ./env_files/nginx_local.env
     build:
       context: ../
       dockerfile: docker/nginx/leaf_nginx.dockerfile
@@ -46,7 +48,8 @@ services:
       - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
       - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
       - ./nginx/src:/var/www/html
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template 
+      # - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     volumes_from:
       - leaf-php-8
     ports:
