@@ -17,7 +17,7 @@
         color: white;
         font-size: 120%;
         font-weight: bold;
-padding: 4px;
+        padding: 4px;
         cursor: grab;
     }
 
@@ -55,6 +55,7 @@ padding: 4px;
     let tempFilename = 'temp_leaf_timeline_data.txt';
     let excludedSteps = []; // array of stepIDs to be excluded
     let getDataFields = {};
+    let SearchTerms = {};
 
     /**
  * Purpose: Get Site URL
@@ -354,6 +355,11 @@ padding: 4px;
  * @param site
  * @param categoryID
  */
+
+
+
+
+
     function loadData(site, categoryID) {
         let siteURL = getSiteURL(site);
         let promise = new Promise((resolve, reject) => {
@@ -368,7 +374,81 @@ padding: 4px;
             query.setRootURL(siteURL);
             query.join('action_history');
             query.join('service');
+            debugger;
             query.setExtraParams('&x-filterData=recordID,service,categoryID,action_history.stepID,action_history.time');
+
+            //----------------------------------------------------------------------------------------------
+
+            document.getElementById("searchTerms").innerHTML = "searchTerms :" + SearchTerms;
+            console.log("searchTerms :" + SearchTerms)
+
+
+            var isJSON = true;
+            var advSearch = {};
+            try {
+                advSearch = $.parseJSON(SearchTerms);
+            }
+            catch(err) {
+                isJSON = false;
+            }
+
+            txt = SearchTerms.trim();
+            if(txt == '') {
+                query.addTerm('title', 'LIKE', '*');
+            }
+            else if($.isNumeric(txt)) {
+                query.addTerm('recordID', '=', txt);
+            }
+            else if(isJSON) {
+                for(var i in advSearch) {
+                    if(advSearch[i].id != 'data'
+                       && advSearch[i].id != 'dependencyID') {
+                        query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
+                    }
+                    else {
+                        query.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
+                    }
+
+                    if(advSearch[i].id == 'title'
+                       && advSearch[i].match == '**') {
+                        query.setLimit(queryLimit);
+                    }
+                }
+            }
+            else {
+                query.addTerm('title', 'LIKE', '*' + txt + '*');
+            }
+
+            // check if the user wants to search for deleted requests
+            var hasDeleteQuery = false;
+            for(var i in query.getQuery().terms) {
+                if(query.getQuery().terms[i].id == 'stepID'
+                   && query.getQuery().terms[i].operator == '='
+                   && query.getQuery().terms[i].match == 'deleted') {
+                    hasDeleteQuery = true;
+                    break;
+                }
+            }
+            if(!hasDeleteQuery) {
+                query.addTerm('deleted', '=', 0);
+            }
+
+
+
+            //---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
             query.setLimit(batchLimit);
             query.onSuccess(function(res) {
                 if(Object.keys(res).length > 0) {
@@ -1198,6 +1278,23 @@ padding: 4px;
 
     let numTotalCategories = Infinity;
     $(function() {
+
+        var query = new LeafFormQuery();
+        var queryLimit = 500000;
+        var leafSearch = new LeafFormSearch('searchContainer');
+        leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
+
+        var extendedQueryState = 0; // 0 = not run, 1 = need to process, 2 = processed
+        var foundOwnRequest = false;
+        var firstResult = {};
+        
+        leafSearch.setSearchFunc(function(txt) {
+            SearchTerms = txt;
+            RefreshData();
+        });
+
+        leafSearch.init();
+
         queryFirstDateSubmitted = $('#showDateSubmitted').val();
 
         $.ajax({
@@ -1234,23 +1331,22 @@ padding: 4px;
         });
 
         $('#showDateSubmitted').on('change', function() {
-            $('#refreshData').css('display', 'none');
-
-            queryFirstDateSubmitted = $('#showDateSubmitted').val();
-            parsedData = [];
-            $('#chartBody').slideUp();
-            $('#progressContainer').fadeIn();
-            start();
+            RefreshData();
         });
 
-        $('#refreshData').on('click', function() {
+        function RefreshData() {
             $('#refreshData').css('display', 'none');
 
             queryFirstDateSubmitted = $('#showDateSubmitted').val();
             parsedData = [];
             $('#chartBody').slideUp();
             $('#progressContainer').fadeIn();
-            start();
+            start();   
+        }
+
+
+        $('#refreshData').on('click', function() {
+            RefreshData();
         });
 
         $('#reportTimeUnit').on('change', function() {
@@ -1293,7 +1389,6 @@ padding: 4px;
             $('#filterEnd').val(endVal)
         });
 
-
         let historicalDataOptions = '';
         for(let i = 2; i <= 15; i++) {
             historicalDataOptions += `<option value="${i} years ago">${i} years ago</option>`;
@@ -1302,6 +1397,9 @@ padding: 4px;
     });
 
 </script>
+<div id="searchContainer" style="text-align: center"></div>
+<div id="searchTerms"></div>
+<div id="searchResults"></div>
 
 <div id="progressContainer" style="width: 50%; border: 1px solid black; background-color: white; margin: auto; padding: 16px">
     <h1 style="text-align: center">Loading...</h1>
