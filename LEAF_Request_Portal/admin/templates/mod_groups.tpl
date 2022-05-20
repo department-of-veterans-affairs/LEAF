@@ -1,6 +1,19 @@
 <style>
-    table th {
-        background-color: lightblue;
+    table, th, td{
+        text-align: left;
+        border-left: 0px solid;
+        border-right: 0px solid;
+        border-bottom: 1.5px solid #DFE1E2;
+        border-collapse: collapse;
+        min-width: 6rem;
+    }
+
+    table, td {
+        border-top: 1.5px solid #DFE1E2;
+    }
+
+    table, th {
+        border-top: 0px solid;
     }
 </style>
 
@@ -366,7 +379,7 @@ function setPrimaryAdmin(userID) {
 function getGroupList() {
 
     // reset dialog for regular content
-    $(".ui-dialog>div").css('width', '510');
+    $(".ui-dialog>div").css('width', 'auto');
     $(".leaf-dialog-content").css('width', 'auto');
     // vars for group counts
     let allGroupsCount = 0, userGroupCount = 0, sysAdminCount = 0;
@@ -406,21 +419,21 @@ function getGroupList() {
                                 let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
                                 dialog.setContent(
                                     '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+groupID+')">View History</button></div>' + button_deleteGroup + '</div>' +
-                                    '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
+                                    '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div><br/><br/><hr/><div id="employees"></div>');
                                 
                                 $('#employees').html('<div id="employee_table" style="display: table-header-group"></div>');
-                                let employee_table = '<br/><table style="border: 1px solid; border-collapse: collapse;"><thead><tr><th style="border: 1px solid">Name</th><th style="border: 1px solid">Username</th><th style="border: 1px solid">Backups</th><th style="border: 1px solid">Local</th><th style="border: 1px solid">Regional</th><th style="border: 1px solid">Actions</th></tr></thead><tbody>';
+                                let employee_table = '<br/><table border-collapse: collapse;"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Regional</th><th>Actions</th></tr></thead><tbody>';
                                 let counter = 0;
                                 for(let i in res) {
                                     // Check for active members to list
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
-                                            let employeeName = `<td style="border: 1px solid; font-size: 0.7em">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</td>`;
-                                            let employeeUserName = `<td style="border: 1px solid; font-size: 0.7em">${res[i].userName}</td>`;
-                                            let backups = `<td style="border:1px solid; font-size: 0.7em">`;
-                                            let isLocal = `<td style="border: 1px solid; font-size: 0.7em; text-align: center;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1rem;">&#10004;</span>' : ''}</td>`;
-                                            let isRegional = `<td style="border: 1px solid; font-size: 0.7em; text-align: center;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1rem;">&#10004;</span>' : ''}</td>`;
-                                            let removeButton = `<td style="border: 1px solid; font-size: 0.7em; text-align: center;"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.7em; display: block; margin: auto;" title="Remove this user from this group">Remove</button>`;
+                                            let employeeName = `<td style="font-size: 0.7em">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</td>`;
+                                            let employeeUserName = `<td style="font-size: 0.7em">${res[i].userName}</td>`;
+                                            let backups = `<td style="font-size: 0.7em">`;
+                                            let isLocal = `<td style="font-size: 0.7em;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
+                                            let isRegional = `<td style="font-size: 0.7em;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
+                                            let removeButton = `<td style="font-size: 0.7em; text-align: center;"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.7em; display: block; margin: auto;" title="Remove this user from this group">Remove</button>`;
                                             // let addToNexusButton = `<button id="addNexusMember_${counter}" class="usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.7rem; display: block; margin: auto;" title="Add this user to Nexus group">Add to Nexus</button>`;
                                             // let actions = `${removeButton}${!res[i].regionallyManaged ? addToNexusButton : ''}`;
                                             let actions = `${removeButton}`;
