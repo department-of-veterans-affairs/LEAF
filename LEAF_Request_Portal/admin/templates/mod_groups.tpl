@@ -428,8 +428,8 @@ function getGroupList() {
                                     // Check for active members to list
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
-                                            let employeeName = `<td style="font-size: 0.7em">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</td>`;
-                                            let employeeUserName = `<td style="font-size: 0.7em">${res[i].userName}</td>`;
+                                            let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 0.7em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
+                                            let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 0.7em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
                                             let backups = `<td style="font-size: 0.7em">`;
                                             let isLocal = `<td style="font-size: 0.7em;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
                                             let isRegional = `<td style="font-size: 0.7em;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
