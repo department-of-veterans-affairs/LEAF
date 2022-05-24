@@ -1820,6 +1820,7 @@ class Form
                 $uniqueCategoryIDs .= "'{$key}',";
             }
             $uniqueCategoryIDs = trim($uniqueCategoryIDs, ',');
+            $uniqueCategoryIDs = $uniqueCategoryIDs ?: 0;
 
             $catsInGroups = $this->db->prepared_query(
                 "SELECT * FROM category_privs WHERE categoryID IN ({$uniqueCategoryIDs}) AND readable = 1",
@@ -3050,6 +3051,7 @@ class Form
             $recordIDs .= $item['recordID'] . ',';
         }
         $recordIDs = trim($recordIDs, ',');
+        $recordIDs = $recordIDs ?: 0;
 
         if ($joinCategoryID)
         {
