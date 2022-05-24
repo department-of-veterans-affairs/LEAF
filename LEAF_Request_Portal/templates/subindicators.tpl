@@ -865,7 +865,7 @@
             $(function() {
                 $.ajax({
                     type: 'GET',
-                    url: "<!--{$orgchartPath}-->/api/?a=position/<!--{$indicator.value|strip_tags}-->",
+                    url: "<!--{$orgchartPath}-->/api/position/<!--{$indicator.value|strip_tags}-->",
                     dataType: 'json',
                     success: function(data) {
                         $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').html('<b>' + data.title + '</b>'

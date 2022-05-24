@@ -98,7 +98,7 @@ position.prototype.draw = function(data) {
 	var t = this;
 	if(data == undefined) {
 		$.ajax({
-			url: './api/?a=position/' + this.positionID,
+			url: './api/position/' + this.positionID,
 			data: {q: this.q},
 			dataType: 'json',
 			success: function(data) {

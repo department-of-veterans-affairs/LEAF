@@ -232,7 +232,7 @@
             <div dojoType="dijit.layout.ContentPane" id="indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series}-->" style="padding: 0px">
             <script type="dojo/method">
                 dojo.xhrGet({
-                    url: "<!--{$orgchartPath}-->/api/?a=position/<!--{$indicator.data}-->",
+                    url: "<!--{$orgchartPath}-->/api/position/<!--{$indicator.data}-->",
                     handleAs: 'json',
                     load: function(data, args) {
                         // IE7 workaround requires anchors to be manually created through DOM...

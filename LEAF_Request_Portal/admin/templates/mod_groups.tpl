@@ -213,7 +213,7 @@ function getMembers(groupID) {
 function updateAndGetMembers(groupID) {
     $.ajax({
         type: 'GET',
-        url: '../api/?a=system/updateGroup/' + groupID,
+        url: '../api/system/updateGroup/' + groupID,
         success: function() {
             $.ajax({
                 url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=" + groupID,
@@ -440,7 +440,7 @@ function getGroupList() {
                                         });
                                         $.ajax({
                                             type: 'DELETE',
-                                            url: '<!--{$orgchartPath}-->/api/?a=group/' + groupID + '/local/tag&'
+                                            url: '<!--{$orgchartPath}-->/api/group/' + groupID + '/local/tag?'
                                                 + $.param({tag: '<!--{$orgchartImportTag}-->',
                                                     CSRFToken: '<!--{$CSRFToken}-->'}),
                                             success: function() {
@@ -744,7 +744,7 @@ function tagAndUpdate(groupID, callback) {
     $.when(
             $.ajax({
                 type: 'POST',
-                url: '<!--{$orgchartPath}-->/api/?a=group/'+ groupID + '/tag',
+                url: '<!--{$orgchartPath}-->/api/group/'+ groupID + '/tag',
                 data: {
                     tag: '<!--{$orgchartImportTag}-->',
                     CSRFToken: '<!--{$CSRFToken}-->'
@@ -755,7 +755,7 @@ function tagAndUpdate(groupID, callback) {
             }),
             $.ajax({
                 type: 'GET',
-                url: '../api/?a=system/importGroup/' + groupID,
+                url: '../api/system/importGroup/' + groupID,
                 success: function() {
                 },
                 cache: false
@@ -832,7 +832,7 @@ function createGroup() {
         });
         $.ajax({
             type: 'POST',
-            url: '<!--{$orgchartPath}-->/api/?a=group',
+            url: '<!--{$orgchartPath}-->/api/group',
             data: {title: $('#groupNameInput').val(),
                    CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {

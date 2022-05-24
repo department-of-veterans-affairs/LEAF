@@ -169,7 +169,7 @@
             $(function() {
                 $.ajax({
                     type: 'GET',
-                    url: '<!--{$orgchartPath}-->/api/?a=position/<!--{$indicator.value|escape}-->',
+                    url: '<!--{$orgchartPath}-->/api/position/<!--{$indicator.value|escape}-->',
                     dataType: 'json',
                     success: function(data) {
                         if(data.title != false) {

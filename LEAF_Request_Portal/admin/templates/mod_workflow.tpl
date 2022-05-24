@@ -58,7 +58,7 @@ function deleteWorkflow() {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/?a=workflow/'+ currentWorkflow + '&CSRFToken=' + CSRFToken,
+            url: '../api/workflow/'+ currentWorkflow + '?CSRFToken=' + CSRFToken,
             success: function(res) {
             	if(res != true) {
             		alert("Prerequisite action needed:\n\n" + res);
@@ -80,7 +80,7 @@ function unlinkEvent(workflowID, stepID, actionType, eventID) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/?a=workflow/'+ workflowID +'/step/'+ stepID +'/_'+ actionType +'/events&eventID=' + eventID + '&CSRFToken=' + CSRFToken,
+            url: '../api/workflow/'+ workflowID +'/step/'+ stepID +'/_'+ actionType +'/events?eventID=' + eventID + '&CSRFToken=' + CSRFToken,
             success: function() {
                 $('.workflowStepInfo').css('display', 'none');
                 loadWorkflow(workflowID);
@@ -135,7 +135,7 @@ function listEvents() {
     dialog.show();
     $.ajax({
         type: 'GET',
-        url: '../api/?a=workflow/customEvents',
+        url: '../api/workflow/customEvents',
         cache: false
     }).done(function (res) {
             dialog.indicateIdle();
@@ -181,7 +181,7 @@ function newEvent(events) {
     let groupList = {};
     $.ajax({
         type: 'GET',
-        url: '../api/?a=system/groups',
+        url: '../api/system/groups',
         cache: false,
         async: false
     }).done(function (res) {
@@ -232,7 +232,7 @@ function newEvent(events) {
         if (eventExists === false && $('#eventName').val() !== '' && $('#eventDesc').val() !== '') {
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=workflow/events',
+                url: '../api/workflow/events',
                 data: ajaxData,
                 cache: false
             }).done(function () {
@@ -287,7 +287,7 @@ function addEventDialog(workflowID, stepID, actionType) {
     dialog.show();
     $.ajax({
         type: 'GET',
-        url: '../api/?a=workflow/events',
+        url: '../api/workflow/events',
         cache: false
     }).done(function (res) {
         dialog.indicateIdle();
@@ -317,7 +317,7 @@ function addEventDialog(workflowID, stepID, actionType) {
 
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=workflow/' + workflowID + '/step/' + stepID + '/_' + actionType + '/events',
+                url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + actionType + '/events',
                 data: ajaxData,
                 cache: false
             }).done(function () {
@@ -370,7 +370,7 @@ function editEvent(event) {
     let groupList = {};
     $.ajax({
         type: 'GET',
-        url: '../api/?a=system/groups',
+        url: '../api/system/groups',
         cache: false,
         async: false
     }).done(function (res) {
@@ -380,7 +380,7 @@ function editEvent(event) {
     });
     $.ajax({
         type: 'GET',
-        url: '../api/?a=workflow/event/_' + event,
+        url: '../api/workflow/event/_' + event,
         cache: false
     }).done(function (res) {
         dialog.setContent(editEventContent(res, groupList));
@@ -430,7 +430,7 @@ function editEvent(event) {
             let eventNameChange = false;
             $.ajax({
                 type: 'GET',
-                url: '../api/?a=workflow/customEvents',
+                url: '../api/workflow/customEvents',
                 cache: false
             }).done(function (res) {
                 for (let i in res) {
@@ -443,7 +443,7 @@ function editEvent(event) {
                 if (eventNameChange === false && $('#eventName').val() !== '' && $('#eventDesc').val() !== '') {
                     $.ajax({
                         type: 'POST',
-                        url: '../api/?a=workflow/editEvent/_' + event,
+                        url: '../api/workflow/editEvent/_' + event,
                         data: ajaxData,
                         cache: false
                     }).done(function () {
@@ -480,7 +480,7 @@ function deleteEvent(event) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/?a=workflow/event/_' + event + '&CSRFToken=' + CSRFToken,
+            url: '../api/workflow/event/_' + event + '?CSRFToken=' + CSRFToken,
         }).done(function() {
             listEvents();
         }).fail(function (error) {
@@ -498,7 +498,7 @@ function removeStep(stepID) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/?a=workflow/step/' + stepID + '&CSRFToken=' + CSRFToken,
+            url: '../api/workflow/step/' + stepID + '?CSRFToken=' + CSRFToken,
             success: function(res) {
             	if(res == 1) {
             		loadWorkflow(currentWorkflow);
@@ -522,7 +522,7 @@ function editStep(stepID) {
             type: 'POST',
             data: {CSRFToken: CSRFToken,
             	   title: $('#title').val()},
-            url: '../api/?a=workflow/step/' + stepID,
+            url: '../api/workflow/step/' + stepID,
             success: function(res) {
                 if(res == 1) {
                     loadWorkflow(currentWorkflow);
@@ -546,7 +546,7 @@ function editRequirement(dependencyID) {
             type: 'POST',
             data: {CSRFToken: CSRFToken,
             	   description: $('#description').val()},
-            url: '../api/?a=workflow/dependency/' + dependencyID,
+            url: '../api/workflow/dependency/' + dependencyID,
             success: function() {
                 $('.workflowStepInfo').css('display', 'none');
                 loadWorkflow(currentWorkflow);
@@ -565,7 +565,7 @@ function unlinkDependency(stepID, dependencyID) {
 		dialog_confirm.indicateBusy();
 	    $.ajax({
 	        type: 'DELETE',
-	        url: '../api/?a=workflow/step/' + stepID + '/dependencies&dependencyID=' + dependencyID + '&CSRFToken=' + CSRFToken,
+	        url: '../api/workflow/step/' + stepID + '/dependencies?dependencyID=' + dependencyID + '&CSRFToken=' + CSRFToken,
 	        success: function() {
 	            $('.workflowStepInfo').css('display', 'none');
 	            showStepInfo(stepID);
@@ -580,7 +580,7 @@ function linkDependency(stepID, dependencyID) {
 	dialog.indicateBusy();
     $.ajax({
         type: 'POST',
-        url: '../api/?a=workflow/step/' + stepID + '/dependencies',
+        url: '../api/workflow/step/' + stepID + '/dependencies',
         data: {dependencyID: dependencyID,
                CSRFToken: CSRFToken},
         success: function() {
@@ -597,7 +597,7 @@ function dependencyRevokeAccess(dependencyID, groupID) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/?a=workflow/dependency/' + dependencyID + '/privileges&groupID='+ groupID +'&CSRFToken=' + CSRFToken,
+            url: '../api/workflow/dependency/' + dependencyID + '/privileges?groupID='+ groupID +'&CSRFToken=' + CSRFToken,
             success: function() {
                 $('.workflowStepInfo').css('display', 'none');
                 loadWorkflow(currentWorkflow);
@@ -616,7 +616,7 @@ function dependencyGrantAccess(dependencyID, stepID) {
 
     $.ajax({
     	type: 'GET',
-    	url: '../api/?a=system/groups',
+    	url: '../api/system/groups',
     	success: function(res) {
     		var buffer = 'Grant Privileges to Group:<br /><select id="groupID">';
     		for(var i in res) {
@@ -638,7 +638,7 @@ function dependencyGrantAccess(dependencyID, stepID) {
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
-            url: '../api/?a=workflow/dependency/' + dependencyID + '/privileges',
+            url: '../api/workflow/dependency/' + dependencyID + '/privileges',
             data: {groupID: $('#groupID').val(),
             	   CSRFToken: CSRFToken},
             success: function(res) {
@@ -660,7 +660,7 @@ function newDependency(stepID) {
     dialog.setSaveHandler(function() {
     	$.ajax({
     		type: 'POST',
-    		url: '../api/?a=workflow/dependencies',
+    		url: '../api/workflow/dependencies',
     		data: {description: $('#description').val(),
     			   CSRFToken: CSRFToken},
     		success: function(res) {
@@ -680,7 +680,7 @@ function linkDependencyDialog(stepID) {
 
     $.ajax({
     	type: 'GET',
-    	url: '../api/?a=workflow/dependencies',
+    	url: '../api/workflow/dependencies',
     	success: function(res) {
             var buffer = '';
             buffer = 'Select an existing requirement ';
@@ -730,7 +730,7 @@ function createStep() {
 	dialog.setSaveHandler(function() {
 		$.ajax({
 			type: 'POST',
-			url: '../api/?a=workflow/' + currentWorkflow + '/step',
+			url: '../api/workflow/' + currentWorkflow + '/step',
 			data: {stepTitle: $('#stepTitle').val(),
 				   CSRFToken: CSRFToken},
 			success: function(res) {
@@ -745,7 +745,7 @@ function createStep() {
 function setInitialStep(stepID) {
     $.ajax({
         type: 'POST',
-        url: '../api/?a=workflow/' + currentWorkflow + '/initialStep',
+        url: '../api/workflow/' + currentWorkflow + '/initialStep',
         data: {stepID: stepID,
                CSRFToken: CSRFToken},
         success: function() {
@@ -753,7 +753,7 @@ function setInitialStep(stepID) {
         	if(stepID == 0) {
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=workflow/' + currentWorkflow + '/action',
+                    url: '../api/workflow/' + currentWorkflow + '/action',
                     data: {stepID: -1,
                            nextStepID: 0,
                            action: 'submit',
@@ -766,7 +766,7 @@ function setInitialStep(stepID) {
         	workflows = {};
             $.ajax({
                 type: 'GET',
-                url: '../api/?a=workflow',
+                url: '../api/workflow',
                 success: function(res) {
                     for(var i in res) {
                         workflows[res[i].workflowID] = res[i];
@@ -788,7 +788,7 @@ function listActionType() {
 	dialog.show();
   $.ajax({
 		type: 'GET',
-		url: '../api/?a=workflow/userActions',
+		url: '../api/workflow/userActions',
 		success: function(res) {
 			var buffer = '';
 			buffer += '<table id="actions" class="table" border="1"><caption><h2>List of Actions</h2></caption><thead><th scope="col">Action</th><th scope="col">Action (Past Tense)</th><th scope="col"></th></thead>';
@@ -831,7 +831,7 @@ function editActionType(actionType) {
 
   $.ajax({
 		type: 'GET',
-		url: '../api/?a=workflow/action/_' + actionType,
+		url: '../api/workflow/action/_' + actionType,
 		success: function(res) {
 			var buffer = '';
 
@@ -859,7 +859,7 @@ function editActionType(actionType) {
 			dialog.setSaveHandler(function() {
 				$.ajax({
 					type: 'POST',
-					url: '../api/?a=workflow/editAction/_' + actionType ,
+					url: '../api/workflow/editAction/_' + actionType ,
 					data: {actionText: $('#actionText').val(),
                  actionTextPasttense: $('#actionTextPasttense').val(),
                  actionIcon: $('#actionIcon').val(),
@@ -883,7 +883,7 @@ function deleteActionType(actionType) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/?a=workflow/action/_' + actionType + '&CSRFToken=' + CSRFToken,
+            url: '../api/workflow/action/_' + actionType + '?CSRFToken=' + CSRFToken,
             success: function() {
                 listActionType();
             }
@@ -927,7 +927,7 @@ function newAction() {
     	else {
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=system/actions',
+                url: '../api/system/actions',
                 data: {actionText: $('#actionText').val(),
                        actionTextPasttense: $('#actionTextPasttense').val(),
                        actionIcon: $('#actionIcon').val(),
@@ -976,7 +976,7 @@ function createAction(params) {
         if(source > 0) {
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=workflow/' + currentWorkflow + '/action',
+                url: '../api/workflow/' + currentWorkflow + '/action',
                 data: {stepID: source,
                        nextStepID: target,
                        action: 'sendback',
@@ -1001,7 +1001,7 @@ function createAction(params) {
 
 	$.ajax({
 		type: 'GET',
-		url: '../api/?a=workflow/actions',
+		url: '../api/workflow/actions',
 		success: function(res) {
 			var buffer = '';
 			buffer = 'Select action for ';
@@ -1026,7 +1026,7 @@ function createAction(params) {
 			dialog.setSaveHandler(function() {
 				$.ajax({
 					type: 'POST',
-					url: '../api/?a=workflow/' + currentWorkflow + '/action',
+					url: '../api/workflow/' + currentWorkflow + '/action',
 					data: {stepID: source,
 						   nextStepID: target,
 						   action: $('#actionType').val(),
@@ -1049,7 +1049,7 @@ function removeAction(workflowID, stepID, nextStepID, action) {
 	dialog_confirm.setSaveHandler(function() {
 		$.ajax({
 			type: 'DELETE',
-			url: '../api/?a=workflow/' + workflowID + '/step/' + stepID + '/_' + action + '/' + nextStepID + '&CSRFToken=' + CSRFToken,
+			url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + action + '/' + nextStepID + '?CSRFToken=' + CSRFToken,
 			success: function() {
 		        loadWorkflow(workflowID);
 			}
@@ -1067,7 +1067,7 @@ function showActionInfo(params, evt) {
     var stepID = params.stepID;
     $.ajax({
         type: 'GET',
-        url: '../api/?a=workflow/'+ currentWorkflow +'/step/' + stepID + '/_' + params.action + '/events',
+        url: '../api/workflow/'+ currentWorkflow +'/step/' + stepID + '/_' + params.action + '/events',
         success: function(res) {
             var output = '';
             stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
@@ -1124,7 +1124,7 @@ function setDynamicApprover(stepID) {
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
-            url: '../api/?a=workflow/step/' + stepID + '/indicatorID_for_assigned_empUID',
+            url: '../api/workflow/step/' + stepID + '/indicatorID_for_assigned_empUID',
             data: {indicatorID: $('#indicatorID').val(),
                    CSRFToken: CSRFToken},
             success: function(res) {
@@ -1162,7 +1162,7 @@ function setDynamicGroupApprover(stepID) {
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
-            url: '../api/?a=workflow/step/' + stepID + '/indicatorID_for_assigned_groupID',
+            url: '../api/workflow/step/' + stepID + '/indicatorID_for_assigned_groupID',
             data: {indicatorID: $('#indicatorID').val(),
                    CSRFToken: CSRFToken},
             success: function(res) {
@@ -1293,7 +1293,7 @@ function showStepInfo(stepID) {
         default:
             $.ajax({
                 type: 'GET',
-                url: '../api/?a=workflow/step/' + stepID + '/dependencies',
+                url: '../api/workflow/step/' + stepID + '/dependencies',
                 success: function(res) {
                     var control_removeStep = '<img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="removeStep('+ stepID +')" alt="Remove" />';
                     var output = '<h2>stepID: #'+ stepID +' '+ control_removeStep +'</h2><br />Step: <b>' + steps[stepID].stepTitle + '</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep('+ stepID +')" alt="Edit Step" /><br />';
@@ -1385,7 +1385,7 @@ var endPoints = [];
 function drawRoutes(workflowID) {
     $.ajax({
         type: 'GET',
-        url: '../api/?a=workflow/' + workflowID + '/route',
+        url: '../api/workflow/' + workflowID + '/route',
         success: function(res) {
             if(endPoints[-1] == undefined) {
                 endPoints[-1] = jsPlumb.addEndpoint('step_-1', {anchor: 'Continuous'}, endpointOptions);
@@ -1549,7 +1549,7 @@ function loadWorkflow(workflowID) {
 
     $.ajax({
         type: 'GET',
-        url: '../api/?a=workflow/' + workflowID,
+        url: '../api/workflow/' + workflowID,
         success: function(res) {
         	var minY = 80;
         	var maxY = 80;
@@ -1575,7 +1575,7 @@ function loadWorkflow(workflowID) {
                                 var position = $('#step_' + stepID).offset();
                                 $.ajax({
                                     type: 'POST',
-                                    url: '../api/?a=workflow/'+workflowID+'/editorPosition',
+                                    url: '../api/workflow/'+workflowID+'/editorPosition',
                                     data: {stepID: stepID,
                                            x: position.left,
                                            y: position.top,
@@ -1624,7 +1624,7 @@ function loadWorkflowList(workflowID)
 {
     $.ajax({
         type: 'GET',
-        url: '../api/?a=workflow',
+        url: '../api/workflow',
         success: function(res) {
             var output = '<select id="workflows" style="width: 100%">';
             var count = 0;

@@ -202,10 +202,10 @@
     // API Requests for inbox data from each site
     function loadInboxData(site, nonadmin) {
         site = site == undefined ? '' : site;
-        let siteURL = site + './api/?a=inbox/dependency/_';
+        let siteURL = site + './api/inbox/dependency/_';
 
         if (nonadmin) {
-            siteURL += '&masquerade=nonAdmin';
+            siteURL += '?masquerade=nonAdmin';
         }
         $.ajax({
             type: 'GET',

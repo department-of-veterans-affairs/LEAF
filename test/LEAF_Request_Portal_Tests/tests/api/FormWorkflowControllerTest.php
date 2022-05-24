@@ -8,7 +8,7 @@ declare(strict_types = 1);
 use LEAFTest\LEAFClient;
 
 /**
- * Tests LEAF_Request_Portal/api/?a=form API
+ * Tests LEAF_Request_Portal/api/form API
  */
 final class FormWorkflowControllerTest extends DatabaseTest
 {

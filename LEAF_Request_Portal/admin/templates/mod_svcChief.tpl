@@ -104,7 +104,7 @@ function createGroup() {
 function getMembers(groupID) {
     $.ajax({
         type: 'GET',
-        url: '../api/?a=system/updateService/' + groupID,
+        url: '../api/system/updateService/' + groupID,
         success: function() {
             $.ajax({
                 url: "../api/service/" + groupID + "/members",

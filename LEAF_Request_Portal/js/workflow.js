@@ -48,7 +48,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         // Check if CSRFToken has Changed (Timeout Fix)
         $.ajax({
             type: 'GET',
-            url: rootURL + 'api/?a=formWorkflow/getCSRFToken',
+            url: rootURL + 'api/formWorkflow/getCSRFToken',
             async: false,
             success: function(res) {
                 data.CSRFToken = res;
@@ -61,7 +61,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Applying action... <img src="'+ rootURL +'images/largespinner.gif" alt="loading..." /></div>');
         $.ajax({
             type: 'POST',
-            url: rootURL + 'api/?a=formWorkflow/' + currRecordID + '/apply',
+            url: rootURL + 'api/formWorkflow/' + currRecordID + '/apply',
             data: data,
             success: function(response) {
                 if (response !== "Invalid Token.") {
@@ -259,7 +259,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         if(step.dependencyID == -1) {
             $.ajax({
                 type: 'GET',
-                url: rootURL + 'api/?a=form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_empUID,
+                url: rootURL + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_empUID,
                 success: function(res) {
                     $('#workflowbox_dep'+ step.dependencyID).append('<span>Pending action from '+ res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID] +'</span>');
                     $('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
@@ -272,7 +272,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         else if(step.dependencyID == -3) { // dependencyID -3 : special case for group designated by the requestor
             $.ajax({
                 type: 'GET',
-                url: rootURL + 'api/?a=form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_groupID,
+                url: rootURL + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_groupID,
                 success: function(res) {
                     $('#workflowbox_dep'+ step.dependencyID).append('<span>Pending action from '+ step.description +'</span>');
                     $('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
@@ -294,7 +294,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
     function getLastAction(recordID, res) {
         $.ajax({
             type: 'GET',
-            url: rootURL + 'api/?a=formWorkflow/' + recordID + '/lastActionSummary',
+            url: rootURL + 'api/formWorkflow/' + recordID + '/lastActionSummary',
             dataType: 'json',
             success: function(lastActionSummary) {
                 response = lastActionSummary.lastAction;
@@ -394,12 +394,12 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
         var masquerade = '';
         if(window.location.href.indexOf('masquerade=nonAdmin') != -1) {
-            masquerade = '&masquerade=nonAdmin';
+            masquerade = '?masquerade=nonAdmin';
         }
 
         $.ajax({
             type: 'GET',
-            url: rootURL + 'api/?a=formWorkflow/'+ recordID +'/currentStep' + masquerade,
+            url: rootURL + 'api/formWorkflow/'+ recordID +'/currentStep' + masquerade,
             dataType: 'json',
             success: function(res) {
                 for(var i in res) {

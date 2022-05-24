@@ -98,7 +98,7 @@ var LeafFormGrid = function(containerID, options) {
     function getIndicator(indicatorID, series) {
         $.ajax({
             type: 'GET',
-            url: rootURL + 'api/?a=form/'+ recordID +'/rawIndicator/' + indicatorID + '/' + series,
+            url: rootURL + 'api/form/'+ recordID +'/rawIndicator/' + indicatorID + '/' + series,
             dataType: 'json',
             success: function(response) {
                 var data = response[indicatorID].displayedValue != '' ? response[indicatorID].displayedValue : response[indicatorID].value;
@@ -610,7 +610,7 @@ var LeafFormGrid = function(containerID, options) {
 
         $.ajax({
             type: 'POST',
-            url: rootURL + 'api/?a=form/customData',
+            url: rootURL + 'api/form/customData',
             dataType: 'json',
             data: {recordList: recordIDs,
                    indicatorList: headerIDList,

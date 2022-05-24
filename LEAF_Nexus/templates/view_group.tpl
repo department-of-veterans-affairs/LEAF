@@ -162,7 +162,7 @@ function editGroupName() {
         dialog.indicateBusy();
         $.ajax({
             type: 'POST',
-            url: './api/?a=group/<!--{$groupID}-->/title',
+            url: './api/group/<!--{$groupID}-->/title',
             data: {title: $('#inputtitle').val(),
             	abbreviatedTitle: $('#abrinputtitle').val(),
             	CSRFToken: '<!--{$CSRFToken}-->'},
@@ -240,7 +240,7 @@ function addEmployeePosition() {
             dialog.indicateBusy();
             $.ajax({
                 type: 'POST',
-                url: './api/?a=group/<!--{$groupID}-->/position',
+                url: './api/group/<!--{$groupID}-->/position',
                 data: {positionID: posSel.selection,
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(response) {
@@ -260,7 +260,7 @@ function addEmployeePosition() {
                     if(!isNaN(res)) {
                         $.ajax({
                             type: 'POST',
-                            url: './api/?a=group/<!--{$groupID}-->/employee',
+                            url: './api/group/<!--{$groupID}-->/employee',
                             data: {empUID: res,
                                 CSRFToken: '<!--{$CSRFToken}-->'},
                             success: function(response) {
@@ -291,7 +291,7 @@ function confirmRemove() {
     confirm_dialog.setSaveHandler(function() {
     	$.ajax({
             type: 'DELETE',
-            url: './api/?a=group/<!--{$groupID}-->&' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/group/<!--{$groupID}-->?' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
             	if(response == 1) {
             		alert('Group has been deleted.');
@@ -313,7 +313,7 @@ function confirmUnlinkPosition(positionID) {
 	confirm_dialog.setSaveHandler(function() {
 		$.ajax({
             type: 'DELETE',
-            url: './api/?a=group/<!--{$groupID}-->/position/' + positionID + '&'
+            url: './api/group/<!--{$groupID}-->/position/' + positionID + '?'
                     + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 window.location.reload();
@@ -330,7 +330,7 @@ function confirmUnlinkEmployee(empUID) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'DELETE',
-            url: './api/?a=group/<!--{$groupID}-->/employee/' + empUID + '&'
+            url: './api/group/<!--{$groupID}-->/employee/' + empUID + '?'
             		+ $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 window.location.reload();
@@ -350,7 +350,7 @@ function confirmDeleteTag(inTag) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'DELETE',
-            url: './api/?a=group/<!--{$groupID}-->/tag&'
+            url: './api/group/<!--{$groupID}-->/tag?'
             		+ $.param({tag: inTag,
             		    CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
@@ -369,7 +369,7 @@ function writeTag(input, groupID) {
     } else {
         $.ajax({
             type: 'POST',
-            url: './api/?a=group/<!--{$groupID}-->/tag',
+            url: './api/group/<!--{$groupID}-->/tag',
             data: {tag: input,
             CSRFToken: '<!--{$CSRFToken}-->'},
             success: function (response) {

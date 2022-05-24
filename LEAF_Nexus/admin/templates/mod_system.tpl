@@ -52,7 +52,7 @@ function saveSettings()
     $.when(
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=system/settings/heading',
+                url: '../api/system/settings/heading',
                 data: {heading: $('#heading').val(),
                     CSRFToken: CSRFToken},
                 success: function(res) {
@@ -60,7 +60,7 @@ function saveSettings()
             }),
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=system/settings/subHeading',
+                url: '../api/system/settings/subHeading',
                 data: {subHeading: $('#subHeading').val(),
                     CSRFToken: CSRFToken},
                 success: function(res) {
@@ -68,7 +68,7 @@ function saveSettings()
             }),
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=system/settings/timeZone',
+                url: '../api/system/settings/timeZone',
                 data: {timeZone: $('#timeZone').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
@@ -76,7 +76,7 @@ function saveSettings()
             }),
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=tag/_service/parent',
+                url: '../api/tag/_service/parent',
                 data: {parentTag: $('#leadershipName').val(),
                     CSRFToken: CSRFToken},
                 success: function(res) {
