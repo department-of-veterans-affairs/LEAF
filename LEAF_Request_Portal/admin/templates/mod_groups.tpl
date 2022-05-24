@@ -428,12 +428,12 @@ function getGroupList() {
                                     // Check for active members to list
                                     if (res[i].active == 1) {
                                         if (res[i].backupID == null) {
-                                            let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 0.7em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
-                                            let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 0.7em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
-                                            let backups = `<td style="font-size: 0.7em">`;
-                                            let isLocal = `<td style="font-size: 0.7em;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
-                                            let isRegional = `<td style="font-size: 0.7em;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
-                                            let removeButton = `<td style="font-size: 0.7em; text-align: center;"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.7em; display: block; margin: auto;" title="Remove this user from this group">Remove</button>`;
+                                            let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 0.8em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
+                                            let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 0.8em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
+                                            let backups = `<td style="font-size: 0.8em">`;
+                                            let isLocal = `<td style="font-size: 0.8em;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
+                                            let isRegional = `<td style="font-size: 0.8em;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
+                                            let removeButton = `<td style="font-size: 0.8em; text-align: center;"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: block; margin: auto;" title="Remove this user from this group">Remove</button>`;
                                             // let addToNexusButton = `<button id="addNexusMember_${counter}" class="usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.7rem; display: block; margin: auto;" title="Add this user to Nexus group">Add to Nexus</button>`;
                                             // let actions = `${removeButton}${!res[i].regionallyManaged ? addToNexusButton : ''}`;
                                             let actions = `${removeButton}`;
