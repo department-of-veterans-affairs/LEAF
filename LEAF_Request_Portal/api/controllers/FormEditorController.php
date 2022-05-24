@@ -83,7 +83,7 @@ class FormEditorController extends RESTfulResponse
             $package['format'] = strip_tags($_POST['format']);
             $package['description'] = XSSHelpers::sanitizeHTML($_POST['description']);
             $package['default'] = XSSHelpers::sanitizeHTML($_POST['default']);
-            $package['parentID'] = (int)$_POST['parentID'];
+            $package['parentID'] = $_POST['parentID'] ? (int)$_POST['parentID'] : null;
             $package['categoryID'] = XSSHelpers::xscrub($_POST['categoryID']);
             $package['html'] = $_POST['html'];
             $package['htmlPrint'] = $_POST['htmlPrint'];
