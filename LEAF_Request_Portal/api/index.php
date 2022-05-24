@@ -142,6 +142,12 @@ $controllerMap->register('system', function () use ($db, $login, $action) {
     $SystemController->handler($action);
 });
 
+$controllerMap->register('emailTemplates', function () use ($db, $login, $action) {
+    require 'controllers/EmailTemplateController.php';
+    $EmailTemplateController = new EmailTemplateController($db, $login);
+    $EmailTemplateController->handler($action);
+});
+
 $controllerMap->register('converter', function () use ($db, $login, $action) {
     require 'controllers/ConverterController.php';
     $ConverterController = new ConverterController($db, $login);

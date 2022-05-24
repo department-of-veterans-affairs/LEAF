@@ -69,6 +69,8 @@ function customTemplate($tpl)
 
 $t_login->assign('name', $login->getName());
 $t_menu->assign('is_admin', $login->checkGroup(1));
+$t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
+$t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
