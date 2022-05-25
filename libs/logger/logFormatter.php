@@ -3,23 +3,27 @@
 require_once 'formatters/loggableTypes.php';
 require_once 'formatters/dataActions.php';
 require_once 'formatters/formatOptions.php';
-
 require_once 'formatters/groupFormatter.php';
 require_once 'formatters/serviceChiefFormatter.php';
 require_once 'formatters/formFormatter.php';
 require_once 'formatters/portalGroupFormatter.php';
 require_once 'formatters/workflowFormatter.php';
 require_once 'formatters/primaryAdminFormatter.php';
+require_once 'formatters/emailTemplateFormatter.php';
 
 class LogFormatter{
 
     const formatters = array(
-        LoggableTypes::GROUP=> GroupFormatter::TEMPLATES,
-        LoggableTypes::SERVICE_CHIEF=> ServiceChiefFormatter::TEMPLATES,
-        LoggableTypes::FORM=> FormFormatter::TEMPLATES,
-        LoggableTypes::PORTAL_GROUP=> PortalGroupFormatter::TEMPLATES,
-        LoggableTypes::WORKFLOW=> WorkflowFormatter::TEMPLATES,
-        LoggableTypes::PRIMARY_ADMIN=> PrimaryAdminFormatter::TEMPLATES
+        LoggableTypes::GROUP => GroupFormatter::TEMPLATES,
+        LoggableTypes::SERVICE_CHIEF => ServiceChiefFormatter::TEMPLATES,
+        LoggableTypes::FORM => FormFormatter::TEMPLATES,
+        LoggableTypes::PORTAL_GROUP => PortalGroupFormatter::TEMPLATES,
+        LoggableTypes::WORKFLOW => WorkflowFormatter::TEMPLATES,
+        LoggableTypes::PRIMARY_ADMIN => PrimaryAdminFormatter::TEMPLATES,
+        LoggableTypes::EMAIL_TEMPLATE_TO => EmailTemplateFormatter::TEMPLATES,
+        LoggableTypes::EMAIL_TEMPLATE_CC => EmailTemplateFormatter::TEMPLATES,
+        LoggableTypes::EMAIL_TEMPLATE_SUBJECT => EmailTemplateFormatter::TEMPLATES,
+        LoggableTypes::EMAIL_TEMPLATE_BODY => EmailTemplateFormatter::TEMPLATES,
     );
 
     public static function getFormattedString($logData, $logType){
