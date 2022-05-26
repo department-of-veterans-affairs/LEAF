@@ -725,7 +725,7 @@ div#emailReminder .groupSelectorInput {
 }
 
 @media(max-width: 520px) {
-    #header {
+    #header:not(.usa-header) {
         height: 120px;
         border-bottom: 2px solid #5A79A5;
         margin-bottom: 4px;
@@ -754,3 +754,4 @@ div#emailReminder .groupSelectorInput {
         margin-left: 2px;
         color: black;
     }
+}
