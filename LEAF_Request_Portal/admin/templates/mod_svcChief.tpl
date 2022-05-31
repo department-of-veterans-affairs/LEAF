@@ -1,3 +1,9 @@
+{* <style>
+    .employeeSelectorInput {
+        border: 1px solid #bbb;
+    }
+</style> *}
+
 <div class="leaf-center-content">
 
     
