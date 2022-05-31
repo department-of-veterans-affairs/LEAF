@@ -55,7 +55,7 @@ server {
         add_header X-debug-message "$document_root$fastcgi_script_name/index.php || $fastcgi_path_info" always;
     }
 
-    location /adminer {
-        proxy_pass http://leaf-adminer:8080;
-    }
+    #location /adminer {
+    #    proxy_pass ${LEAF}:8080;
+    #}
 }
