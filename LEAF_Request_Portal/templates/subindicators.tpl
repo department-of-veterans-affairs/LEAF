@@ -227,7 +227,7 @@
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                 <!--{foreach from=$indicator.value item=val}-->
-                    <!--{if $option|escape == $val|escape}-->
+                    <!--{if $option|sanitize|escape == $val|sanitize|escape}-->
                         <option value="<!--{$option|sanitize}-->" selected="selected"><!--{$option|sanitize}--></option>
                         <!--{assign var='found' value=true}-->
                     <!--{/if}-->

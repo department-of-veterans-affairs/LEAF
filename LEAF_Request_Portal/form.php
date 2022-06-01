@@ -1138,7 +1138,7 @@ class Form
         {
             // If form has _selected key use over initial key (Multi-Select Dropdown)
             if (is_numeric($key) && $_POST[$key . '_selected']) {
-                $strval = $_POST[$key . '_selected'];
+                $strval = $this->sanitizeInput($_POST[$key . '_selected']);
                 $_POST[$key] = preg_split( "/,(?!\s)/", $strval);
                 if (!$this->writeDataField($recordID, $key, $series)) {
                     return 0;
