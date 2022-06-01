@@ -734,11 +734,15 @@ class Employee extends Data
             // Format: Loginname
             case strpos(strtolower($input), 'vha') !== false:
             case strpos(strtolower($input), 'vaco') !== false:
+	    case strpos(strtolower($input), 'vba') !== false:
+	    case strpos(strtolower($input), 'cem') !== false:
+	    case strpos(strtolower($input), 'oit') !== false:
             case strpos(strtolower($input), 'username:') !== false:
                    if ($this->debug)
                    {
                        $this->log[] = 'Format Detected: Loginname';
                    }
+	           $input = str_replace('username:', '', strtolower($input));
                    $searchResult = $this->lookupLogin($input);
 
                    break;
