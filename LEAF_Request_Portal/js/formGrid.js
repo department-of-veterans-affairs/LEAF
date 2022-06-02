@@ -102,10 +102,10 @@ var LeafFormGrid = function(containerID, options) {
             dataType: 'json',
             success: function(response) {
                 var data = response[indicatorID].displayedValue != '' ? response[indicatorID].displayedValue : response[indicatorID].value;
-                if(response[indicatorID].format == 'checkboxes'
+                if((response[indicatorID].format == 'checkboxes' || response[indicatorID].format == 'multiselect')
                     && Array.isArray(data)) {
                     var tData = '';
-                    for(var i in data) {
+                    for(let i in data) {
                         if(data[i] != 'no') {
                             tData += ', ' + data[i];
                         }
