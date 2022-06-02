@@ -197,9 +197,14 @@ class DB
         }
 
         if ($dry_run == false && $this->dryRun == false)
-        {
+        {            
             $query = $this->db->prepare($sql);
-            $query->execute($vars);
+            try {
+                $query->execute($vars);
+            } catch (PDOException $e) {
+                $this->show_data(["sql"=>$sql]);
+            }
+            
         }
         else
         {
@@ -212,6 +217,15 @@ class DB
         }
 
         return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function show_data(array $dataIn = []) {
+        echo "<pre>";
+        echo "Host: " . $this->dbHost."\n";
+        echo "User: " . $this->dbUser ."\n";
+        echo "DB Name: " . $this->dbName."\n";
+        print_r($dataIn);
+        die("full stop");
     }
 
     /**
