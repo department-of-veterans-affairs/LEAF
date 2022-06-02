@@ -4,6 +4,7 @@ COPY ./docker/nginx/src/index.php /var/www/html/index.php
 # COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./LEAF_Nexus /var/www/html/LEAF_Nexus
 COPY ./LEAF_Request_Portal /var/www/html/LEAF_Request_Portal
+COPY ./health_checks /var/www/html/health_checks
 
 #Setting up "non-privledged"
 # RUN chown -R nginx:nginx /var/cache/nginx &&  \
