@@ -970,9 +970,13 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
-        if (is_array($_POST[$key]))
+        if (is_array($_POST[$key])) // multiselect and checkbox items
         {
-            $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
+            foreach ($_POST[$key] as $i => $sel) {
+                $sel = XSSHelpers::sanitizeHTML($sel);
+                $_POST[$key][$i] = $sel;
+            }
+            $_POST[$key] = serialize($_POST[$key]);
         }
         else
         {
@@ -1138,7 +1142,7 @@ class Form
         {
             // If form has _selected key use over initial key (Multi-Select Dropdown)
             if (is_numeric($key) && $_POST[$key . '_selected']) {
-                $strval = $this->sanitizeInput($_POST[$key . '_selected']);
+                $strval = $_POST[$key . '_selected'];
                 $_POST[$key] = preg_split( "/,(?!\s)/", $strval);
                 if (!$this->writeDataField($recordID, $key, $series)) {
                     return 0;

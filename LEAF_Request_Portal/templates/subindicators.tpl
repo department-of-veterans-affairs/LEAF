@@ -568,7 +568,7 @@
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.options item=option}-->
                     <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="no" />
-                    <!--{if $option == $indicator.value[$idx]}-->
+                    <!--{if $option|sanitize|escape == $indicator.value[$idx]|sanitize|escape}-->
                         <br /><input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}-->" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" checked="checked" />
                         <label class="checkable" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->"><!--{$option|sanitize}--></label>
                     <!--{else}-->
