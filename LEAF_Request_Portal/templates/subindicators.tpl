@@ -250,7 +250,12 @@
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').on('change', function() {
                         setTimeout(function() {
                             hiddenValue = $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices')[0].innerText;
-                            $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(hiddenValue.split("\n"));
+                            const arrOptionEls = Array.from($('#'+'<!--{$indicator.indicatorID|strip_tags}--> option'));
+                            const arrOptionValues = arrOptionEls.map(el => el.innerText);
+                            const arrHiddenValues =  hiddenValue.split("\n") || [];
+
+                            const valueSelectionInfo = arrOptionValues.map(optVal => arrHiddenValues.some(v => v === optVal) ? optVal : 'no');
+                            $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(valueSelectionInfo); 
                         }, 500);
                     });
                 });
