@@ -973,8 +973,7 @@ class Form
         if (is_array($_POST[$key])) // multiselect and checkbox items
         {
             foreach ($_POST[$key] as $i => $sel) {
-                $sel = XSSHelpers::sanitizeHTML($sel);
-                $_POST[$key][$i] = $sel;
+                $_POST[$key][$i] = XSSHelpers::sanitizeHTML($sel);
             }
             $_POST[$key] = serialize($_POST[$key]);
         }
